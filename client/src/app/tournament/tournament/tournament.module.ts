@@ -11,6 +11,7 @@ import {MatDividerModule} from '@angular/material/divider';
 import {MatIconModule} from '@angular/material/icon';
 import {MatCardModule} from '@angular/material/card';
 import {MatListModule} from '@angular/material/list';
+import {SharedModule} from '../../shared/shared.module';
 
 
 @NgModule({
@@ -20,15 +21,16 @@ import {MatListModule} from '@angular/material/list';
     TournamentViewContainerComponent,
     TournamentViewComponent
   ],
-  imports: [
-    CommonModule,
-    TournamentRoutingModule,
-    MatProgressBarModule,
-    MatDividerModule,
-    MatIconModule,
-    MatCardModule,
-    MatListModule
-  ]
+    imports: [
+        CommonModule,
+        TournamentRoutingModule,
+        MatProgressBarModule,
+        MatDividerModule,
+        MatIconModule,
+        MatCardModule,
+        MatListModule,
+        SharedModule
+    ]
 })
 export class TournamentModule {
 }

@@ -2,16 +2,12 @@ import {ChangeDetectionStrategy, Component, OnInit} from '@angular/core';
 import {Observable} from 'rxjs';
 import {TournamentInfo} from '../tournament-info.model';
 import {ActivatedRoute} from '@angular/router';
-import {TournamentService} from '../../tournament.service';
+import {TournamentInfoService} from '../tournament-info.service';
 
 @Component({
   selector: 'app-tournament-view-container',
   template: `
-    <mat-progress-bar *ngIf="loading$ | async; else elseblock" mode="indeterminate"
-                      color="primary"></mat-progress-bar>
-    <ng-template #elseblock>
-      <mat-progress-bar mode="determinate" color="primary" value="0"></mat-progress-bar>
-    </ng-template>
+    <app-linear-progress-bar [loading]="loading$ | async"></app-linear-progress-bar>
     <app-tournament-view [tournament]="tournament$ | async"></app-tournament-view>
   `,
   styles: [],
@@ -23,8 +19,9 @@ export class TournamentViewContainerComponent implements OnInit {
   loading$: Observable<boolean>;
   private editedId: number;
 
-  constructor(public tournamentService: TournamentService,
-              private activatedRoute: ActivatedRoute) { }
+  constructor(public tournamentService: TournamentInfoService,
+              private activatedRoute: ActivatedRoute) {
+  }
 
   ngOnInit(): void {
     this.editedId = this.activatedRoute.snapshot.params['id'] || 0;

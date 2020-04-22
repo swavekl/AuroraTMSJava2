@@ -12,6 +12,7 @@ import {TournamentConfigListContainerComponent} from './tournament-config-list/t
 import {TournamentConfigListComponent} from './tournament-config-list/tournament-config-list.component';
 import {TournamentConfigEditContainerComponent} from './tournament-config-edit/tournament-config-edit-container.component';
 import {TournamentConfigEditComponent} from './tournament-config-edit/tournament-config-edit.component';
+import {SharedModule} from '../../shared/shared.module';
 
 @NgModule({
   declarations: [
@@ -27,7 +28,8 @@ import {TournamentConfigEditComponent} from './tournament-config-edit/tournament
     MatCardModule,
     MatListModule,
     MatIconModule,
-    RouterModule
+    RouterModule,
+    SharedModule
   ]
 })
 export class TournamentConfigModule {

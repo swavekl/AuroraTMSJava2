@@ -7,11 +7,7 @@ import {Tournament} from '../tournament.model';
 @Component({
   selector: 'app-tournament-config-edit-container',
   template: `
-    <mat-progress-bar *ngIf="loading$ | async; else elseblock" mode="indeterminate"
-                      color="primary"></mat-progress-bar>
-    <ng-template #elseblock>
-      <mat-progress-bar mode="determinate" color="primary" value="0"></mat-progress-bar>
-    </ng-template>
+    <app-linear-progress-bar [loading]="loading$ | async"></app-linear-progress-bar>
     <app-tournament-config-edit [tournament]="tournament$ | async"></app-tournament-config-edit>
   `,
   styles: [],

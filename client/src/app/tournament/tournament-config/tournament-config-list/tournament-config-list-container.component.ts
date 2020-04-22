@@ -6,11 +6,7 @@ import {TournamentConfigService} from '../tournament-config.service';
 @Component({
   selector: 'app-tournament-config-container-list',
   template: `
-    <mat-progress-bar *ngIf="loading$ | async; else elseblock" mode="indeterminate"
-                      color="primary"></mat-progress-bar>
-    <ng-template #elseblock>
-      <mat-progress-bar mode="determinate" color="primary" value="0"></mat-progress-bar>
-    </ng-template>
+    <app-linear-progress-bar [loading]="loading$ | async"></app-linear-progress-bar>
     <app-tournament-config-list [tournaments]="tournaments$ | async"></app-tournament-config-list>
   `,
   styles: [],
