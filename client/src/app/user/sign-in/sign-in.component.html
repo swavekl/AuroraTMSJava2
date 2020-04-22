@@ -1,0 +1,25 @@
+<mat-card-title style="text-align: center">SIGN IN</mat-card-title>
+<form name="form" (ngSubmit)="f.form.valid && login()" #f="ngForm" novalidate>
+  <div fxLayout="column">
+    <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="10px">
+      <mat-icon class="material-icons md-dark md-inactive">email</mat-icon>
+      <mat-form-field fxFlex="80%">
+        <input matInput type="email" placeholder="Email" name="email" [(ngModel)]="email" required>
+        <mat-error>This field is required</mat-error>
+      </mat-form-field>
+    </div>
+    <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="10px">
+      <mat-icon>lock_open</mat-icon>
+      <mat-form-field fxFlex="80%">
+        <input matInput type="password" placeholder="Password" name="password" [(ngModel)]="password" required>
+        <mat-error>This field is required</mat-error>
+      </mat-form-field>
+      <button mat-mini-fab color="white"><mat-icon>remove_red_eye</mat-icon></button>
+    </div>
+    <button mat-raised-button color="primary">LOGIN</button>
+  </div>
+  <!--<button class="mat-button my-icon-button" aria-label="Facebook" (click)="loginWithFacebook()">-->
+  <!--<img src="assets/images/FB-f-Logo__blue_29.png" alt="Facebook">-->
+  <!--</button>-->
+</form>
+<h3>Don't have an account? <a mat-button color="primary" routerLink="../register">SIGN UP</a></h3>

@@ -1,0 +1,208 @@
+### unauthenticated request
+GET https://{{host}}:{{port}}/api/profiles/xyz123
+Accept: application/json
+
+> {%
+ client.test("Unathenticated request should have failed ", function() {
+      client.assert(response.status === 401, "Response status is not 401");
+    });
+%}
+###
+
+### login
+POST https://{{host}}:{{port}}/api/users/login
+Accept: application/json, text/plain, */*
+Accept-Encoding: gzip, deflate, br
+Accept-Language: en-US,en;q=0.9
+Access-Control-Allow-Credentials: true
+Access-Control-Allow-Origin: https://{{host}}:4200
+Host: {{host}}:{{port}}
+Origin: https://{{host}}:4200
+Referer: https://{{host}}:4200/login/signin
+Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+Content-Type: application/json;charset=UTF-8
+Pragma: no-cache
+Strict-Transport-Security: max-age=31536000 ; includeSubDomains
+Vary: Origin
+Vary: Access-Control-Request-Method
+Vary: Access-Control-Request-Headers
+X-Content-Type-Options: nosniff
+X-Frame-Options: DENY
+X-XSS-Protection: 1; mode=block
+Connection: keep-alive
+
+{   "email": "{{username}}",   "password": "{{password}}" }
+> {%
+ client.test("Request executed successfully", function() {
+        client.assert(response.status === 200, "Response status is not 200");
+    });
+client.global.set("accessToken", response.body.accessToken);
+client.global.set("userId", response.body.id);
+%}
+
+### get profile
+GET https://{{host}}:{{port}}/api/profiles/{{userId}}
+Accept: application/json
+Authorization: Bearer {{accessToken}}
+
+> {%
+ client.test("Request executed successfully", function() {
+      client.assert(response.status === 200, "Response status is not 200");
+      client.assert(response.body.firstName !== "nn", "Response status is not 200");
+    });
+ client.log('responseBody '+ response.body.firstName)
+%}
+###
+
+### update profile
+PUT https://{{host}}:{{port}}/api/profiles/{{userId}}
+Accept: application/json
+Authorization: Bearer {{accessToken}}
+Accept: application/json, text/plain, */*
+Accept-Encoding: gzip, deflate, br
+Accept-Language: en-US,en;q=0.9
+Access-Control-Allow-Credentials: true
+Access-Control-Allow-Origin: https://{{host}}:4200
+Host: {{host}}:{{port}}
+Origin: https://{{host}}:4200
+Referer: https://{{host}}:4200/login/signin
+Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+Content-Type: application/json;charset=UTF-8
+Pragma: no-cache
+Strict-Transport-Security: max-age=31536000 ; includeSubDomains
+Vary: Origin
+Vary: Access-Control-Request-Method
+Vary: Access-Control-Request-Headers
+X-Content-Type-Options: nosniff
+X-Frame-Options: DENY
+X-XSS-Protection: 1; mode=block
+Connection: keep-alive
+
+{ "userId": "{{userId}}",
+  "firstName": "Danielle",
+  "lastName": "Lorenc",
+  "mobilePhone": "630-111-2222",
+  "email":"swaveklorenc+danielle@gmail.com",
+  "city": "Aurora",
+  "state": "IL"
+}
+> {%
+ client.test("Request executed successfully", function() {
+      client.assert(response.status === 200, "Response status is not 200");
+    });
+%}
+####
+
+### get updated profile
+GET https://{{host}}:{{port}}/api/profiles/{{userId}}
+Accept: application/json
+Authorization: Bearer {{accessToken}}
+
+> {%
+ client.log('responseBody city '+ response.body.city)
+ client.test("Request executed successfully", function() {
+      client.assert(response.status === 200, "Response status is not 200");
+      client.assert(response.body.city === "Aurora", "city not updated");
+      client.assert(response.body.state === "IL", "state not updated");
+    });
+%}
+###
+
+### login as tournament director
+### login
+POST https://{{host}}:{{port}}/api/users/login
+Accept: application/json, text/plain, */*
+Accept-Encoding: gzip, deflate, br
+Accept-Language: en-US,en;q=0.9
+Access-Control-Allow-Credentials: true
+Access-Control-Allow-Origin: https://{{host}}:4200
+Host: {{host}}:{{port}}
+Origin: https://{{host}}:4200
+Referer: https://{{host}}:4200/login/signin
+Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+Content-Type: application/json;charset=UTF-8
+Pragma: no-cache
+Strict-Transport-Security: max-age=31536000 ; includeSubDomains
+Vary: Origin
+Vary: Access-Control-Request-Method
+Vary: Access-Control-Request-Headers
+X-Content-Type-Options: nosniff
+X-Frame-Options: DENY
+X-XSS-Protection: 1; mode=block
+Connection: keep-alive
+
+{   "email": "{{tdusername}}",   "password": "{{tdpassword}}" }
+> {%
+ client.test("Request executed successfully", function() {
+        client.assert(response.status === 200, "Response status is not 200");
+    });
+client.global.set("tdAccessToken", response.body.accessToken);
+%}
+
+### get all profiles
+GET https://{{host}}:{{port}}/api/profiles
+Accept: application/json
+Authorization: Bearer {{tdAccessToken}}
+
+> {%
+ client.test("Request executed successfully", function() {
+      client.assert(response.status === 200, "Response status is not 200");
+    });
+%}
+###
+
+
+### --------------------------------------------------------------------------------------------------
+### Bad requests
+### --------------------------------------------------------------------------------------------------
+
+### bad userid
+GET https://{{host}}:{{port}}/api/profiles/bad123id
+Accept: application/json
+Authorization: Bearer {{accessToken}}
+
+> {%
+ client.test("Request should have failed", function() {
+      client.assert(response.status === 404, "Response status is not 404");
+    });
+%}
+###
+
+### update profile with bad user id
+PUT https://{{host}}:{{port}}/api/profiles/badUserId
+Accept: application/json
+Authorization: Bearer {{accessToken}}
+Accept: application/json, text/plain, */*
+Accept-Encoding: gzip, deflate, br
+Accept-Language: en-US,en;q=0.9
+Access-Control-Allow-Credentials: true
+Access-Control-Allow-Origin: https://{{host}}:4200
+Host: {{host}}:{{port}}
+Origin: https://{{host}}:4200
+Referer: https://{{host}}:4200/login/signin
+Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+Content-Type: application/json;charset=UTF-8
+Pragma: no-cache
+Strict-Transport-Security: max-age=31536000 ; includeSubDomains
+Vary: Origin
+Vary: Access-Control-Request-Method
+Vary: Access-Control-Request-Headers
+X-Content-Type-Options: nosniff
+X-Frame-Options: DENY
+X-XSS-Protection: 1; mode=block
+Connection: keep-alive
+
+{ "userId": "badUserId",
+  "firstName": "Danielle",
+  "lastName": "Lorenc",
+  "mobilePhone": "630-111-2222",
+  "email":"swaveklorenc+danielle@gmail.com",
+  "city": "Aurora",
+  "state": "IL"
+}
+> {%
+ client.test("Request failed correctly", function() {
+      client.assert(response.status === 404, "Response status is not 200");
+    });
+%}
+####

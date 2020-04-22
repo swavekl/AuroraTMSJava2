@@ -1,0 +1,8 @@
+{
+  "/api/*": {
+    "target": "https://gateway-pc:8443",
+    "secure": false,
+    "changeOrigin": false,
+    "logLevel": "debug"
+  }
+}

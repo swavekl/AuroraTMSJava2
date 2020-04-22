@@ -1,0 +1,92 @@
+<div fxLayout="row">
+  <div fxFlex></div>
+  <div fxFlex.lt-md="100%" fxFlex="40%" >
+    <form name="form" (ngSubmit)="onSave(f.value)" #f="ngForm" novalidate>
+      <mat-card style="height: 80%">
+        <mat-card-title>Player Profile</mat-card-title>
+        <mat-card-content>
+          <div fxLayout.lt-sm="column" fxLayout="row" fxLayoutGap="10px">
+            <mat-form-field fxFlex="50%">
+              <label>
+                <input matInput type="text" placeholder="First Name" name="firstName" [ngModel]="profile?.firstName"
+                       required>
+              </label>
+              <mat-error>This field is required</mat-error>
+            </mat-form-field>
+            <mat-form-field fxFlex="50%">
+              <input matInput type="text" placeholder="Last Name" name="lastName" [ngModel]="profile?.lastName"
+                     required>
+              <mat-error>This field is required</mat-error>
+            </mat-form-field>
+          </div>
+<!--          <div fxLayout="row" fxLayoutGap="20px">-->
+<!--            <mat-form-field fxFlex="40%">-->
+<!--              <input matInput [matDatepicker]="pickerDOB" placeholder="Birth Date" name="dateOfBirth"-->
+<!--                     [max]="maxDateOfBirth" [(ngModel)]="profile?.dateOfBirth" required>-->
+<!--              <mat-datepicker-toggle matSuffix [for]="pickerDOB"></mat-datepicker-toggle>-->
+<!--              <mat-datepicker #pickerDOB disabled="false"></mat-datepicker>-->
+<!--            </mat-form-field>-->
+<!--            <mat-radio-group [ngModel]="profile?.gender" name="gender">-->
+<!--              <div style="padding: 15px 0 0 15px">-->
+<!--                <mat-radio-button value="Male">Male</mat-radio-button>&nbsp;&nbsp;&nbsp;-->
+<!--                <mat-radio-button value="Female">Female</mat-radio-button>-->
+<!--              </div>-->
+<!--            </mat-radio-group>-->
+<!--          </div>-->
+<!--          <mat-card-subtitle class="mat-title">Mailing Address</mat-card-subtitle>-->
+<!--          <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="10px">-->
+<!--            <mat-form-field fxFlex="100%">-->
+<!--              <input matInput type="text" placeholder="Street Address" name="streetAddress"-->
+<!--                     [ngModel]="profile?.streetAddress">-->
+<!--            </mat-form-field>-->
+<!--          </div>-->
+
+          <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="10px">
+            <mat-form-field fxFlex="55%">
+              <input matInput type="text" placeholder="City" name="city" [ngModel]="profile?.city" >
+            </mat-form-field>
+            <mat-form-field fxFlex="20%">
+              <mat-select matInput type="text" placeholder="State" name="state"
+                          [ngModel]="profile?.state">
+                <mat-option *ngFor="let state of statesList" value="{{state.abbreviation}}">{{state.abbreviation}}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+            <mat-form-field fxFlex="25%">
+              <input matInput type="text" placeholder="Zip Code" name="zipCode"
+                     [ngModel]="profile?.zipCode"
+                     pattern="[0-9]{5}" maxlength="5" #zipCode="ngModel">
+              <mat-error *ngIf="zipCode.control?.hasError('pattern')">Zip code must be 5 digit number</mat-error>
+            </mat-form-field>
+          </div>
+          <mat-card-subtitle class="mat-title">Contact Information</mat-card-subtitle>
+          <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="10px">
+            <mat-form-field fxFlex="70%">
+              <input matInput type="email" placeholder="Email" name="email" [ngModel]="profile?.email"
+                     email>
+              <mat-error>Invalid email address</mat-error>
+            </mat-form-field>
+
+            <mat-form-field fxFlex="30%">
+              <input matInput type="tel" placeholder="Cell Phone" name="mobilePhone" [ngModel]="profile?.mobilePhone"
+                     required>
+              <mat-error>Invalid phone</mat-error>
+            </mat-form-field>
+
+          </div>
+
+        </mat-card-content>
+        <mat-card-actions>
+          <button mat-raised-button type="submit">Save</button>
+          <button mat-raised-button type="button" (click)="onCancel()">Cancel</button>
+          <!--<p>Form values: {{ f.value | json }} </p>-->
+          <!--<p>Form status: {{ f.status | json }} </p>-->
+          <!--<p>Zip code ALL errors: {{ zipCode.control?.errors | json }} </p>-->
+          <!--<p>Zip code required is: {{ zipCode.control?.errors?.required | json }} </p>-->
+          <!--<p>Zip code pattern is: {{ zipCode.control?.errors?.pattern | json }} </p>-->
+        </mat-card-actions>
+      </mat-card>
+    </form>
+  </div>
+  <div fxFlex></div>
+</div>

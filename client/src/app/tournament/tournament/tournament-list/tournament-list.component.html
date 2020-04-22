@@ -1,0 +1,23 @@
+<div fxLayout="row">
+  <div fxFlex></div>
+  <div fxFlex.lt-md="100%" fxFlex="60%">
+    <mat-card>
+      <mat-card-title>Tournament List</mat-card-title>
+      <mat-card-content>
+        <mat-list>
+          <mat-list-item *ngFor="let tournament of tournaments">
+            <h3 matLine>{{tournament.name}}</h3>
+            <h3 matLine>{{tournament.startDate | date }} - {{tournament.endDate | date }}</h3>
+            <h4 matLine>{{ tournament.city }}, {{tournament.state}} </h4>
+            <button mat-icon-button [routerLink]="['view', tournament.id]">
+              <mat-icon matListIcon>navigate_next</mat-icon>
+            </button>
+            <mat-divider></mat-divider>
+          </mat-list-item>
+        </mat-list>
+      </mat-card-content>
+    </mat-card>
+  </div>
+  <div fxFlex></div>
+</div>
+

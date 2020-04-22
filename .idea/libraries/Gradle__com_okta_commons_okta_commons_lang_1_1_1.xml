@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="Gradle: com.okta.commons:okta-commons-lang:1.1.1">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.okta.commons/okta-commons-lang/1.1.1/ccf04aebb98c000f62f84457e10f503107a24eca/okta-commons-lang-1.1.1.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.okta.commons/okta-commons-lang/1.1.1/af9114369c54262e991d0fd1d38a385d34d29b1b/okta-commons-lang-1.1.1-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

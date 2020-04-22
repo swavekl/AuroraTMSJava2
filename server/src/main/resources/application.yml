@@ -1,0 +1,33 @@
+spring.jpa.hibernate.ddl-auto: create
+spring.datasource:
+  driver-class-name: com.mysql.jdbc.Driver
+  url: jdbc:mysql://localhost:3306/auroratmsspring
+  username: auroratmsspring
+  password: auroratmsspring2020
+
+okta:
+  oauth2:
+    client-id: 0oahrcv3ghdG5SA6E0h7
+    issuer: https://dev-758120.oktapreview.com/oauth2/default
+    redirectUri: http://gateway-pc:8080/
+  client:
+    connectionTimeout: 30 # seconds
+    # i.e. https://dev-123456.oktapreview.com
+    orgUrl: https://dev-758120.oktapreview.com
+    token: 009u9-0UY7v9lEcDKvpUL_lrEjH_khEaZ4sA0JWbfM
+    requestTimeout: 0
+    rateLimit:
+      maxRetries: 4
+
+# The format used for the keystore. It could be set to JKS in case it is a JKS file
+server.ssl:
+  key-store-type: PKCS12
+  # The path to the keystore containing the certificate
+  key-store: classpath:keystore/keystore.p12
+  # The password used to generate the certificate
+  key-store-password: exportpassword
+  # The alias mapped to the certificate
+  key-alias: tomcat
+
+server:
+  port: 8443

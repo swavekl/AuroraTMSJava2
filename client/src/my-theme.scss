@@ -1,0 +1,26 @@
+@import '~@angular/material/theming';
+
+// Create a config with the default typography levels.
+$config: mat-typography-config();
+
+// Define a custom typography config that overrides the font-family as well as the
+$custom-typography: mat-typography-config(
+  $font-family: 'Roboto, monospace',
+  $caption:       mat-typography-level(20px, 28px, 400),
+  $button:        mat-typography-level(18px, 18px, 500),
+    // Line-height must be unit-less fraction of the font-size.
+  //$input:         mat-typography-level(2.0, 2.5, 400)
+);
+
+@include mat-core ($custom-typography);
+//@include mat-input-typography ($custom-typography);
+
+// Define the theme.
+$candy-app-primary: mat-palette($mat-deep-purple);
+$candy-app-accent: mat-palette($mat-amber);
+$candy-app-warn: mat-palette($mat-red);
+
+// Create the theme object (a Sass map containing all of the palettes).
+$candy-app-theme: mat-light-theme($candy-app-primary, $candy-app-accent, $candy-app-warn);
+
+@include angular-material-theme($candy-app-theme);

@@ -1,0 +1,169 @@
+### login
+POST https://{{host}}:{{port}}/api/users/login
+Accept: application/json, text/plain, */*
+Accept-Encoding: gzip, deflate, br
+Accept-Language: en-US,en;q=0.9
+Access-Control-Allow-Credentials: true
+Access-Control-Allow-Origin: https://{{host}}:4200
+Host: {{host}}:{{port}}
+Origin: https://{{host}}:4200
+Referer: https://{{host}}:4200/login/signin
+Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+Content-Type: application/json;charset=UTF-8
+Pragma: no-cache
+Strict-Transport-Security: max-age=31536000 ; includeSubDomains
+Vary: Origin
+Vary: Access-Control-Request-Method
+Vary: Access-Control-Request-Headers
+X-Content-Type-Options: nosniff
+X-Frame-Options: DENY
+X-XSS-Protection: 1; mode=block
+Connection: keep-alive
+
+{   "email": "{{tdusername}}",   "password": "{{tdpassword}}" }
+> {%
+ client.test("Request executed successfully", function() {
+        client.assert(response.status === 200, "Response status is not 200");
+    });
+client.global.set("accessToken", response.body.accessToken);
+client.global.set("userId", response.body.id);
+%}
+
+### get tournaments
+GET https://{{host}}:{{port}}/api/tournaments
+Accept: application/json
+Authorization: Bearer {{accessToken}}
+
+> {%
+ client.test("Request executed successfully", function() {
+      client.assert(response.status === 200, "Response status is not 200");
+    });
+ client.global.set("tournamentId", response.body[0].id);
+%}
+
+###
+
+### get tournaments
+GET https://{{host}}:{{port}}/api/tournament/{{tournamentId}}
+Accept: application/json
+Authorization: Bearer {{accessToken}}
+
+> {%
+ client.test("Request executed successfully", function() {
+      client.assert(response.status === 200, "Response status is not 200");
+      client.assert(response.body.name === "2019 Aurora Cup", "wrong tournament name");
+    });
+%}
+
+###
+
+### get tournaments
+POST https://{{host}}:{{port}}/api/tournament/
+Accept: application/json
+Authorization: Bearer {{accessToken}}
+Accept: application/json, text/plain, */*
+Accept-Encoding: gzip, deflate, br
+Accept-Language: en-US,en;q=0.9
+Access-Control-Allow-Credentials: true
+Access-Control-Allow-Origin: https://{{host}}:4200
+Host: {{host}}:{{port}}
+Origin: https://{{host}}:4200
+Referer: https://{{host}}:4200/login/signin
+Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+Content-Type: application/json;charset=UTF-8
+Pragma: no-cache
+Strict-Transport-Security: max-age=31536000 ; includeSubDomains
+Vary: Origin
+Vary: Access-Control-Request-Method
+Vary: Access-Control-Request-Headers
+X-Content-Type-Options: nosniff
+X-Frame-Options: DENY
+X-XSS-Protection: 1; mode=block
+Connection: keep-alive
+
+{
+"id": {{tournamentId}},
+"name": "2020 Aurora Cup",
+"streetAddress": "2021 W. Indian Trail",
+"city": "Aurora",
+"state": "IL",
+"zipCode": "60560",
+"startDate": "2020-01-18T06:00:00.000+0000",
+"endDate": "2020-01-20T06:00:00.000+0000"
+}
+> {%
+ client.log('responseBody '+ response.body)
+ client.test("Request executed successfully", function() {
+      client.assert(response.status === 200, "Response status is not 200");
+    });
+%}
+###
+
+### get tournaments (not in cache)
+GET https://{{host}}:{{port}}/api/tournament/{{tournamentId}}
+Accept: application/json
+Authorization: Bearer {{accessToken}}
+
+> {%
+ client.test("Request executed successfully", function() {
+      client.assert(response.status === 200, "Response status is not 200");
+      client.assert(response.body.name === "2020 Aurora Cup", "wrong tournament name");
+    });
+%}
+###
+
+### get tournament again (now cached)
+GET https://{{host}}:{{port}}/api/tournament/{{tournamentId}}
+Accept: application/json
+Authorization: Bearer {{accessToken}}
+
+> {%
+ client.test("Request executed successfully", function() {
+      client.assert(response.status === 200, "Response status is not 200");
+      client.assert(response.body.name === "2020 Aurora Cup", "wrong tournament name");
+    });
+%}
+###
+
+### create a new one
+POST https://{{host}}:{{port}}/api/tournament/
+Accept: application/json
+Authorization: Bearer {{accessToken}}
+Accept: application/json, text/plain, */*
+Accept-Encoding: gzip, deflate, br
+Accept-Language: en-US,en;q=0.9
+Access-Control-Allow-Credentials: true
+Access-Control-Allow-Origin: https://{{host}}:4200
+Host: {{host}}:{{port}}
+Origin: https://{{host}}:4200
+Referer: https://{{host}}:4200/login/signin
+Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+Content-Type: application/json;charset=UTF-8
+Pragma: no-cache
+Strict-Transport-Security: max-age=31536000 ; includeSubDomains
+Vary: Origin
+Vary: Access-Control-Request-Method
+Vary: Access-Control-Request-Headers
+X-Content-Type-Options: nosniff
+X-Frame-Options: DENY
+X-XSS-Protection: 1; mode=block
+Connection: keep-alive
+
+{
+"id": null,
+"name": "2020 Aurora Fall OPen",
+"streetAddress": "555 S. Eola Rd",
+"city": "Aurora",
+"state": "IL",
+"zipCode": "60504",
+"startDate": "2020-09-26T06:00:00.000+0000",
+"endDate": "2020-09-26T06:00:00.000+0000"
+}
+> {%
+ client.log('responseBody '+ response.body)
+ client.test("Request executed successfully", function() {
+      client.assert(response.status === 200, "Response status is not 200");
+    });
+%}
+
+###
