@@ -1,17 +1,86 @@
 <div fxLayout="row">
   <div fxFlex></div>
-  <div fxFlex.lt-md="100%" fxFlex="70%">
-    <mat-card style="height: 100%">
-      <mat-card-title>Tournament Edit</mat-card-title>
-      <mat-card-content>
-        <h3 matLine>{{ tournament?.name }}</h3>
-        <h3 matLine>{{ tournament?.startDate | date }} - {{tournament?.endDate | date }}</h3>
-        <h4 matLine>{{ tournament?.city }}, {{ tournament?.state }} </h4>
-      </mat-card-content>
-      <mat-card-actions>
-        <button mat-raised-button type="button" (click)="onEnter()">Enter</button>
-      </mat-card-actions>
-    </mat-card>
+  <div fxFlex.lt-md="100%" fxFlex="40%">
+    <form name="form" (ngSubmit)="onSave(f.value)" #f="ngForm" novalidate>
+      <mat-card style="height: 80%">
+        <mat-card-title>Configure Tournament</mat-card-title>
+        <mat-card-content>
+          <input type="hidden" name="id" [ngModel]="tournament?.id">
+          <div fxLayout.lt-sm="column" fxLayout="row" fxLayoutGap="10px">
+            <mat-form-field fxFlex="100%">
+              <label>
+                <input matInput type="text" placeholder="Name" name="name" [ngModel]="tournament?.name"
+                       required>
+              </label>
+              <mat-error>This field is required</mat-error>
+            </mat-form-field>
+          </div>
+          <div fxLayout="row" fxLayoutGap="10px">
+            <mat-form-field fxFlex="50%">
+              <mat-label>Start date</mat-label>
+              <input matInput [matDatepicker]="startDate" [ngModel]="tournament?.startDate" name="startDate">
+              <mat-datepicker-toggle matSuffix [for]="startDate"></mat-datepicker-toggle>
+              <mat-datepicker #startDate></mat-datepicker>
+            </mat-form-field>
+            <mat-form-field fxFlex="50%">
+                <input matInput [matDatepicker]="endDate" placeholder="End Date" name="endDate"
+                       [ngModel]="tournament?.endDate" required>
+                <mat-datepicker-toggle matSuffix [for]="endDate"></mat-datepicker-toggle>
+                <mat-datepicker #endDate disabled="false"></mat-datepicker>
+            </mat-form-field>
+          </div>
+          <mat-card-subtitle class="mat-title">Venue Address</mat-card-subtitle>
+          <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="10px">
+            <mat-form-field fxFlex="100%">
+              <input matInput type="text" placeholder="Street Address" name="streetAddress"
+                     [ngModel]="tournament?.streetAddress">
+            </mat-form-field>
+          </div>
+
+          <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="10px">
+            <mat-form-field fxFlex="55%">
+              <input matInput type="text" placeholder="City" name="city" [ngModel]="tournament?.city">
+            </mat-form-field>
+            <mat-form-field fxFlex="20%">
+              <mat-select matInput type="text" placeholder="State" name="state"
+                          [ngModel]="tournament?.state">
+                <mat-option *ngFor="let state of statesList" value="{{state.abbreviation}}">{{state.abbreviation}}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+            <mat-form-field fxFlex="25%">
+              <input matInput type="text" placeholder="Zip Code" name="zipCode"
+                     [ngModel]="tournament?.zipCode"
+                     pattern="[0-9]{5}" maxlength="5" #zipCode="ngModel">
+              <mat-error *ngIf="zipCode.control?.hasError('pattern')">Zip code must be 5 digit number</mat-error>
+            </mat-form-field>
+          </div>
+          <!--          <mat-card-subtitle class="mat-title">Contact Information</mat-card-subtitle>-->
+          <!--          <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="10px">-->
+          <!--            <mat-form-field fxFlex="70%">-->
+          <!--              <input matInput type="email" placeholder="Email" name="email" [ngModel]="tournament?.email"-->
+          <!--                     email>-->
+          <!--              <mat-error>Invalid email address</mat-error>-->
+          <!--            </mat-form-field>-->
+          <!--            <mat-form-field fxFlex="30%">-->
+          <!--              <input matInput type="tel" placeholder="Cell Phone" name="mobilePhone" [ngModel]="tournament?.mobilePhone"-->
+          <!--                     required>-->
+          <!--              <mat-error>Invalid phone</mat-error>-->
+          <!--            </mat-form-field>-->
+          <!--          </div>-->
+        </mat-card-content>
+        <mat-card-actions>
+          <button mat-raised-button type="submit">Save</button>
+          <button mat-raised-button type="button" (click)="onCancel()">Cancel</button>
+          <!--<p>Form values: {{ f.value | json }} </p>-->
+          <!--<p>Form status: {{ f.status | json }} </p>-->
+          <!--<p>Zip code ALL errors: {{ zipCode.control?.errors | json }} </p>-->
+          <!--<p>Zip code required is: {{ zipCode.control?.errors?.required | json }} </p>-->
+          <!--<p>Zip code pattern is: {{ zipCode.control?.errors?.pattern | json }} </p>-->
+        </mat-card-actions>
+      </mat-card>
+    </form>
   </div>
   <div fxFlex></div>
 </div>
+

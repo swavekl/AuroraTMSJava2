@@ -8,7 +8,9 @@ import {Tournament} from '../tournament.model';
   selector: 'app-tournament-config-edit-container',
   template: `
     <app-linear-progress-bar [loading]="loading$ | async"></app-linear-progress-bar>
-    <app-tournament-config-edit [tournament]="tournament$ | async"></app-tournament-config-edit>
+    <app-tournament-config-edit [tournament]="tournament$ | async"
+                                (saved)="onSave($event)"
+                                (canceled)="onCancel($event)"></app-tournament-config-edit>
   `,
   styles: [],
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -20,7 +22,8 @@ export class TournamentConfigEditContainerComponent implements OnInit {
   private editedId: number;
 
   constructor(public tournamentConfigService: TournamentConfigService,
-              private activatedRoute: ActivatedRoute) { }
+              private activatedRoute: ActivatedRoute) {
+  }
 
   ngOnInit(): void {
     this.editedId = this.activatedRoute.snapshot.params['id'] || 0;
@@ -31,4 +34,14 @@ export class TournamentConfigEditContainerComponent implements OnInit {
     });
   }
 
+  onSave(tournament: Tournament) {
+    this.tournamentConfigService.upsert(tournament, null).subscribe(
+      () => console.log('Tournament saved'),
+      (err: any) => console.log('error saving ' + err)
+    );
+  }
+
+  onCancel($event: any) {
+
+  }
 }

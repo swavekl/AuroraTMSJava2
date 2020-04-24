@@ -23,6 +23,7 @@ public class TournamentController {
     }
 
     @GetMapping("/tournament/{id}")
+    @PreAuthorize("hasAuthority('TournamentDirector') or hasAuthority('Admins')")
     public Tournament getByKey(@PathVariable Long id) {
         return tournamentService.getByKey(id);
     }
