@@ -1,6 +1,7 @@
 package com.auroratms.server;
 
 import com.auroratms.tournament.Tournament;
+import com.auroratms.tournament.TournamentEntity;
 import com.auroratms.tournament.TournamentRepository;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
@@ -60,7 +61,7 @@ public class ServerApplication {
                     )
                     .forEach(name -> {
                         try {
-                            Tournament tournament = new Tournament();
+                            TournamentEntity tournament = new TournamentEntity();
                             tournament.setName(name);
                             tournament.setCity("Aurora");
                             tournament.setState("IL");

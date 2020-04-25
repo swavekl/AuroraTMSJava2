@@ -110,6 +110,10 @@ public class TournamentServiceTest extends AbstractJUnit4SpringContextTests {
         tournament.setState("IL");
         tournament.setEndDate(new Date());
         tournament.setStartDate(new Date());
+        TournamentConfiguration tournamentConfiguration = new TournamentConfiguration();
+        tournamentConfiguration.setEligibilityDate(new Date());
+        tournamentConfiguration.setEntryCutoffDate(new Date());
+        tournament.setConfiguration(tournamentConfiguration);
         return tournament;
     }
 

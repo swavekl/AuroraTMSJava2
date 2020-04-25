@@ -20,6 +20,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -43,9 +44,17 @@ public class TournamentService {
      * @return
      */
     public Collection<Tournament> list() {
-        Collection<Tournament> result = repository.findAll().stream()
+        Collection<TournamentEntity> tournamentEntities = repository.findAll().stream()
                 .collect(Collectors.toList());
-        return result;
+        return toTournamentCollection(tournamentEntities);
+    }
+
+    private Collection<Tournament> toTournamentCollection(Collection<TournamentEntity> tournamentEntities) {
+        Collection<Tournament> tournaments = new ArrayList<>();
+        for (TournamentEntity tournamentEntity : tournamentEntities) {
+            tournaments.add(new Tournament().convertFromEntity(tournamentEntity));
+        }
+        return tournaments;
     }
 
     /**
@@ -56,9 +65,9 @@ public class TournamentService {
         String currentUser = getCurrentUsername();
         String authority = isAdmin() ? "Admins" : "Everyone";
         PageRequest pageRequest = PageRequest.of(page, size, Sort.Direction.ASC, "name");
-        Page<Tournament> ownedTournaments = repository.findWriteable(currentUser, authority, BasePermission.WRITE.getMask(), pageRequest);
-        List<Tournament> result = ownedTournaments.get().collect(Collectors.toList());
-        return result;
+        Page<TournamentEntity> ownedTournaments = repository.findWriteable(currentUser, authority, BasePermission.WRITE.getMask(), pageRequest);
+        List<TournamentEntity> tournamentEntities = ownedTournaments.get().collect(Collectors.toList());
+        return toTournamentCollection(tournamentEntities);
     }
 
     /**
@@ -68,8 +77,9 @@ public class TournamentService {
      */
     @Cacheable (key="#id")
     public Tournament getByKey(Long id) {
-        return repository.findById(id)
+        TournamentEntity tournamentEntity = repository.findById(id)
                 .orElseThrow(() -> new TournamentNotFoundException(id));
+        return new Tournament().convertFromEntity(tournamentEntity);
     }
 
     /**
@@ -80,11 +90,12 @@ public class TournamentService {
     @PreAuthorize("hasAuthority('TournamentDirector') or hasAuthority('Admins')")
     public Tournament saveTournament(Tournament tournament) {
         boolean isCreating = (tournament.getId() == null);
-        Tournament savedTournament = repository.save(tournament);
+        TournamentEntity tournamentEntity = tournament.convertToEntity();
+        TournamentEntity savedTournamentEntity = repository.save(tournamentEntity);
         if (isCreating) {
-            provideAccessToAdmin(savedTournament.getId(), Tournament.class);
+            provideAccessToAdmin(savedTournamentEntity.getId(), TournamentEntity.class);
         }
-        return savedTournament;
+        return new Tournament().convertFromEntity(savedTournamentEntity);
     }
 
     /**

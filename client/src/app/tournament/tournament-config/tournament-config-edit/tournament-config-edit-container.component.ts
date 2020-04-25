@@ -1,5 +1,5 @@
 import {ChangeDetectionStrategy, Component, OnInit} from '@angular/core';
-import {ActivatedRoute} from '@angular/router';
+import {ActivatedRoute, Router} from '@angular/router';
 import {TournamentConfigService} from '../tournament-config.service';
 import {Observable} from 'rxjs';
 import {Tournament} from '../tournament.model';
@@ -22,26 +22,32 @@ export class TournamentConfigEditContainerComponent implements OnInit {
   private editedId: number;
 
   constructor(public tournamentConfigService: TournamentConfigService,
-              private activatedRoute: ActivatedRoute) {
+              private activatedRoute: ActivatedRoute,
+              private router: Router) {
   }
 
   ngOnInit(): void {
     this.editedId = this.activatedRoute.snapshot.params['id'] || 0;
     this.tournament$ = this.tournamentConfigService.getByKey(this.editedId);
     this.tournament$.subscribe(data => {
-      console.log('got tournament data ' + JSON.stringify(data));
+      // console.log('got tournament data ' + JSON.stringify(data));
       return data;
     });
   }
 
   onSave(tournament: Tournament) {
     this.tournamentConfigService.upsert(tournament, null).subscribe(
-      () => console.log('Tournament saved'),
+      () => this.navigateBack(),
       (err: any) => console.log('error saving ' + err)
     );
   }
 
   onCancel($event: any) {
+    this.navigateBack();
+  }
 
+  // back to the list of tournaments
+  navigateBack() {
+    this.router.navigateByUrl('/tournamentsconfig');
   }
 }

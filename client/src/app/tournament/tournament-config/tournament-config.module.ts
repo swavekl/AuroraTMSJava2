@@ -22,6 +22,7 @@ import {TournamentConfigListComponent} from './tournament-config-list/tournament
 import {TournamentConfigEditContainerComponent} from './tournament-config-edit/tournament-config-edit-container.component';
 import {TournamentConfigEditComponent} from './tournament-config-edit/tournament-config-edit.component';
 import {SharedModule} from '../../shared/shared.module';
+import {MatTabsModule} from '@angular/material/tabs';
 
 @NgModule({
   declarations: [
@@ -30,24 +31,25 @@ import {SharedModule} from '../../shared/shared.module';
     TournamentConfigEditContainerComponent,
     TournamentConfigEditComponent
   ],
-  imports: [
-    CommonModule,
-    FormsModule,
-    MatProgressBarModule,
-    MatCardModule,
-    MatListModule,
-    MatIconModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule,
-    MatButtonModule,
-    MatDatepickerModule,
-    MatNativeDateModule,
-    FlexLayoutModule,
-    RouterModule,
-    SharedModule,
-    TournamentConfigRoutingModule
-  ]
+    imports: [
+        CommonModule,
+        FormsModule,
+        MatProgressBarModule,
+        MatCardModule,
+        MatListModule,
+        MatIconModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatSelectModule,
+        MatButtonModule,
+        MatDatepickerModule,
+        MatNativeDateModule,
+        FlexLayoutModule,
+        RouterModule,
+        SharedModule,
+        TournamentConfigRoutingModule,
+        MatTabsModule
+    ]
 })
 export class TournamentConfigModule {
 }

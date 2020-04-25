@@ -9,7 +9,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
 @RepositoryRestResource
-public interface TournamentRepository extends JpaRepository<Tournament, Long> {
+public interface TournamentRepository extends JpaRepository<TournamentEntity, Long> {
 
     @Query (nativeQuery = true,
             value = "SELECT *" +
@@ -21,7 +21,7 @@ public interface TournamentRepository extends JpaRepository<Tournament, Long> {
                     "         acl_sid," +
                     "         acl_entry" +
                     "    WHERE acl_object_identity.object_id_class = acl_class.id" +
-                    "      AND acl_class.class = 'com.auroratms.tournament.Tournament'" +
+                    "      AND acl_class.class = 'com.auroratms.tournament.TournamentEntity'" +
                     "      AND ((acl_sid.id = acl_object_identity.owner_sid" +
                     "        AND acl_sid.sid = :owner)" +
                     "        OR (acl_sid.id = acl_entry.sid" +
@@ -40,7 +40,7 @@ public interface TournamentRepository extends JpaRepository<Tournament, Long> {
             "         acl_sid," +
             "         acl_entry" +
             "    WHERE acl_object_identity.object_id_class = acl_class.id" +
-            "      AND acl_class.class = 'com.auroratms.tournament.Tournament'" +
+            "      AND acl_class.class = 'com.auroratms.tournament.TournamentEntity'" +
             "      AND ((acl_sid.id = acl_object_identity.owner_sid" +
             "        AND acl_sid.sid = :owner)" +
             "        OR (acl_sid.id = acl_entry.sid" +
@@ -51,7 +51,7 @@ public interface TournamentRepository extends JpaRepository<Tournament, Long> {
             "            AND acl_entry.granting = 1))" +
             ")"
     )
-    Page<Tournament> findWriteable(@Param("owner") String owner,
+    Page<TournamentEntity> findWriteable(@Param("owner") String owner,
                                    @Param("authority") String authority,
                                    @Param("permission") Integer permission,
                                    Pageable pageable);
