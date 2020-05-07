@@ -1,0 +1,59 @@
+<form name="form" (ngSubmit)="onSave(f.value)" #f="ngForm" novalidate>
+  <mat-card>
+    <mat-toolbar>
+      <mat-toolbar-row>
+        <button mat-raised-button type="submit" [disabled]="!f.form.valid" style="margin-right: 10px">Save</button>
+        <button mat-raised-button type="button" (click)="onCancel()">Cancel</button>
+      </mat-toolbar-row>
+    </mat-toolbar>
+    <mat-card-content>
+      <input type="hidden" [ngModel]="tournamentEvent?.id" name="id">
+      <input type="hidden" [ngModel]="tournamentEvent?.tournamentFk" name="tournamentFk">
+      <input type="hidden" [ngModel]="tournamentEvent?.ordinalNumber" name="ordinalNumber">
+      <div fxLayout.lt-sm="column" fxLayout="row" fxLayoutGap="10px">
+        <mat-form-field fxFlex="40%">
+          <mat-label>Name</mat-label>
+          <input matInput type="text" name="name" [ngModel]="tournamentEvent?.name" required>
+        </mat-form-field>
+        <mat-form-field fxFlex="30%">
+          <mat-label>Minimum Player Rating</mat-label>
+          <input matInput type="text" name="minPlayerRating" [ngModel]="tournamentEvent?.minPlayerRating" required>
+        </mat-form-field>
+        <mat-form-field fxFlex="30%">
+          <mat-label>Maximum Player Rating</mat-label>
+          <input matInput type="text" name="maxPlayerRating" [ngModel]="tournamentEvent?.maxPlayerRating" required>
+        </mat-form-field>
+      </div>
+      <div fxLayout.lt-sm="column" fxLayout="row" fxLayoutGap="10px">
+        <mat-checkbox fxFlex="40%" name="doubles" [ngModel]="tournamentEvent?.doubles">Doubles</mat-checkbox>
+        <mat-form-field fxFlex="30%">
+          <mat-label>Minimum Player Age</mat-label>
+          <input matInput type="text" name="minPlayerAge" [ngModel]="tournamentEvent?.minPlayerAge">
+        </mat-form-field>
+        <mat-form-field fxFlex="30%">
+          <mat-label>Maximum Player Age</mat-label>
+          <input matInput type="text" name="maxPlayerAge" [ngModel]="tournamentEvent?.maxPlayerAge">
+        </mat-form-field>
+      </div>
+      <div fxLayout.lt-sm="column" fxLayout="row" fxLayoutGap="10px">
+        <mat-checkbox fxFlex="40%" name="singleElimination" [ngModel]="tournamentEvent?.singleElimination">Single Elimination</mat-checkbox>
+        <mat-form-field fxFlex="30%">
+          <mat-label>Event Day</mat-label>
+          <mat-select name="day" [ngModel]="tournamentEvent?.day">
+            <mat-option *ngFor="let day of days" [value]="day.day">
+              {{day.dayText}}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field fxFlex="30%">
+          <mat-label>Event Time</mat-label>
+          <mat-select name="startTime" [ngModel]="tournamentEvent?.startTime">
+            <mat-option *ngFor="let st of startTimes" [value]="st.startTime">
+              {{st.startTimeText}}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</form>

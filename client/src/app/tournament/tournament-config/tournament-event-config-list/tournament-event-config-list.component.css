@@ -1,0 +1,19 @@
+.mat-column-num {
+  flex: 2;
+}
+
+.mat-column-name {
+  flex: 4;
+}
+
+.mat-column-day {
+  flex: 4;
+}
+
+.mat-column-startTime {
+  flex: 2;
+}
+
+.mat-column-actions {
+  flex: 1;
+}

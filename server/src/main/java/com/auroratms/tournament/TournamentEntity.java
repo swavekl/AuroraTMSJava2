@@ -1,19 +1,23 @@
 package com.auroratms.tournament;
 
+import com.auroratms.event.TournamentEventEntity;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 
 import javax.persistence.*;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
 
 /**
  * This tournament object IS persisted.
  */
 @Entity
 @Table(name = "tournament")
-@Data
-@NoArgsConstructor
+//@Data
+//@NoArgsConstructor
 public class TournamentEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -50,4 +54,153 @@ public class TournamentEntity {
     @Column(length = 6000)
     private String content;
 
+//    // events of this tournament
+//    @OneToMany(mappedBy="tournamentEntity")
+//    private Set<TournamentEventEntity> events = new HashSet<>();
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getVenueName() {
+        return venueName;
+    }
+
+    public void setVenueName(String venueName) {
+        this.venueName = venueName;
+    }
+
+    public String getStreetAddress() {
+        return streetAddress;
+    }
+
+    public void setStreetAddress(String streetAddress) {
+        this.streetAddress = streetAddress;
+    }
+
+    public String getCity() {
+        return city;
+    }
+
+    public void setCity(String city) {
+        this.city = city;
+    }
+
+    public String getState() {
+        return state;
+    }
+
+    public void setState(String state) {
+        this.state = state;
+    }
+
+    public String getZipCode() {
+        return zipCode;
+    }
+
+    public void setZipCode(String zipCode) {
+        this.zipCode = zipCode;
+    }
+
+    public Date getStartDate() {
+        return startDate;
+    }
+
+    public void setStartDate(Date startDate) {
+        this.startDate = startDate;
+    }
+
+    public Date getEndDate() {
+        return endDate;
+    }
+
+    public void setEndDate(Date endDate) {
+        this.endDate = endDate;
+    }
+
+    public int getStarLevel() {
+        return starLevel;
+    }
+
+    public void setStarLevel(int starLevel) {
+        this.starLevel = starLevel;
+    }
+
+    public String getContactName() {
+        return contactName;
+    }
+
+    public void setContactName(String contactName) {
+        this.contactName = contactName;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
+    public String getContent() {
+        return content;
+    }
+
+    public void setContent(String content) {
+        this.content = content;
+    }
+
+//    public Set<TournamentEventEntity> getEvents() {
+//        return events;
+//    }
+//
+//    public void setEvents(Set<TournamentEventEntity> events) {
+//        this.events = events;
+//    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        TournamentEntity entity = (TournamentEntity) o;
+        return starLevel == entity.starLevel &&
+                id.equals(entity.id) &&
+                name.equals(entity.name) &&
+                Objects.equals(venueName, entity.venueName) &&
+                Objects.equals(streetAddress, entity.streetAddress) &&
+                Objects.equals(city, entity.city) &&
+                Objects.equals(state, entity.state) &&
+                Objects.equals(zipCode, entity.zipCode) &&
+                Objects.equals(startDate, entity.startDate) &&
+                Objects.equals(endDate, entity.endDate) &&
+                Objects.equals(contactName, entity.contactName) &&
+                Objects.equals(email, entity.email) &&
+                Objects.equals(phone, entity.phone) &&
+                Objects.equals(content, entity.content);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, name, venueName, streetAddress, city, state, zipCode, startDate, endDate, starLevel, contactName, email, phone, content);
+    }
 }

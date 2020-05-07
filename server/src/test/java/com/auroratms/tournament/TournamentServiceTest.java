@@ -1,5 +1,6 @@
 package com.auroratms.tournament;
 
+import com.auroratms.event.TournamentEventEntity;
 import com.auroratms.server.ServerApplication;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -23,10 +24,7 @@ import org.springframework.test.context.transaction.TransactionalTestExecutionLi
 import org.springframework.test.context.web.ServletTestExecutionListener;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 import static org.junit.Assert.*;
 
@@ -206,5 +204,40 @@ public class TournamentServiceTest extends AbstractJUnit4SpringContextTests {
         SecurityContextHolder.getContext().setAuthentication(authentication);
         return savedAuthentication;
     }
+
+    @Test
+    @WithMockUser(username="mario", authorities = {"TournamentDirector"})
+    public void testEvents () {
+        Tournament tournament = makeTournament("2020 Aurora Summer Open with events");
+        Set<TournamentEventEntity> events = new HashSet<>();
+        String [] eventNames = { "Open", "U2400", "U2200", "U2000", "U1900", "U1800", "U1600"
+        };
+        for (String eventName : eventNames) {
+            TournamentEventEntity event = makeEvent (eventName);
+            events.add(event);
+        }
+        tournament.setEvents(events);
+
+        Tournament savedTournament = tournamentService.saveTournament(tournament);
+        Tournament returnedTournament = tournamentService.getByKey(savedTournament.getId());
+        Set<TournamentEventEntity> savedEvents = returnedTournament.getEvents();
+        assertEquals("wrong number of events", eventNames.length, savedEvents.size());
+
+        savedEvents.add(makeEvent("U1400"));
+        savedEvents.add(makeEvent("U1200"));
+        savedEvents.add(makeEvent("U1000"));
+        savedEvents.add(makeEvent("U800"));
+        tournamentService.saveTournament(returnedTournament);
+        Tournament anotherTournament = tournamentService.getByKey(savedTournament.getId());
+        Set<TournamentEventEntity> events1 = anotherTournament.getEvents();
+        assertEquals("wrong events after addition", (eventNames.length + 4), events1.size());
+    }
+
+    private TournamentEventEntity makeEvent(String eventName) {
+        TournamentEventEntity eventEntity = new TournamentEventEntity ();
+        eventEntity.setName(eventName);
+        return eventEntity;
+    }
+
 
 }

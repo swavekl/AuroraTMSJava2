@@ -1,5 +1,7 @@
 package com.auroratms.tournament;
 
+import com.auroratms.error.ResourceNotFoundException;
+import com.auroratms.event.TournamentEventEntityRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CacheEvict;
@@ -29,7 +31,7 @@ import java.util.stream.Collectors;
  * Tournament service which can perform caching
  */
 @Service
-@CacheConfig(cacheNames={"tournaments"})
+@CacheConfig(cacheNames = {"tournaments"})
 @Transactional
 public class TournamentService {
 
@@ -41,6 +43,7 @@ public class TournamentService {
 
     /**
      * Lists all tournaments
+     *
      * @return
      */
     public Collection<Tournament> list() {
@@ -59,9 +62,10 @@ public class TournamentService {
 
     /**
      * List tournaments owned by the current user (e.g. tournament director) or admin
+     *
      * @return
      */
-    public Collection<Tournament> listOwned (int page, int size) {
+    public Collection<Tournament> listOwned(int page, int size) {
         String currentUser = getCurrentUsername();
         String authority = isAdmin() ? "Admins" : "Everyone";
         PageRequest pageRequest = PageRequest.of(page, size, Sort.Direction.ASC, "name");
@@ -72,21 +76,23 @@ public class TournamentService {
 
     /**
      * Gets one tournament
+     *
      * @param id
      * @return
      */
-    @Cacheable (key="#id")
+    @Cacheable(key = "#id")
     public Tournament getByKey(Long id) {
         TournamentEntity tournamentEntity = repository.findById(id)
-                .orElseThrow(() -> new TournamentNotFoundException(id));
+                .orElseThrow(() -> new ResourceNotFoundException("TournamentEntity with id " + id + " not found"));
         return new Tournament().convertFromEntity(tournamentEntity);
     }
 
     /**
      * Save the tournament
+     *
      * @param tournament
      */
-    @CachePut (key="#result.id")
+    @CachePut(key = "#result.id")
     @PreAuthorize("hasAuthority('TournamentDirector') or hasAuthority('Admins')")
     public Tournament saveTournament(Tournament tournament) {
         boolean isCreating = (tournament.getId() == null);
@@ -100,9 +106,10 @@ public class TournamentService {
 
     /**
      * Deletes tournament
+     *
      * @param tournamentId
      */
-    @CacheEvict (key="#tournamentId")
+    @CacheEvict(key = "#tournamentId")
     @PreAuthorize("hasAuthority('TournamentDirector') or hasAuthority('Admins')")
     public void deleteTournament(long tournamentId) {
         repository.deleteById(tournamentId);
@@ -111,10 +118,11 @@ public class TournamentService {
 
     /**
      * Grand all permissions to Admin role
+     *
      * @param objectId
      * @param objectClass
      */
-    private void provideAccessToAdmin (long objectId, Class objectClass) {
+    private void provideAccessToAdmin(long objectId, Class objectClass) {
         GrantedAuthoritySid adminsRole = new GrantedAuthoritySid("Admins");
         addPermission(objectId, objectClass, adminsRole, BasePermission.READ);
         addPermission(objectId, objectClass, adminsRole, BasePermission.WRITE);
@@ -124,12 +132,13 @@ public class TournamentService {
 
     /**
      * Adds permission for recipient
+     *
      * @param objectId
      * @param objectClass
      * @param recipient
      * @param permission
      */
-    private void addPermission (long objectId, Class objectClass, Sid recipient, Permission permission) {
+    private void addPermission(long objectId, Class objectClass, Sid recipient, Permission permission) {
         MutableAcl acl = null;
         ObjectIdentity oid = new ObjectIdentityImpl(objectClass, objectId);
         try {
@@ -143,16 +152,18 @@ public class TournamentService {
 
     /**
      * deletes all permissions for recipient
+     *
      * @param objectId
      * @param objectClass
      */
-    private void deleteAcl (long objectId, Class objectClass) {
+    private void deleteAcl(long objectId, Class objectClass) {
         ObjectIdentity oid = new ObjectIdentityImpl(objectClass, objectId);
         aclService.deleteAcl(oid, false);
     }
 
     /**
      * Gets current user name
+     *
      * @return
      */
     private String getCurrentUsername() {
@@ -163,9 +174,10 @@ public class TournamentService {
 
     /**
      * Tests if current user is an Admin authority
+     *
      * @return
      */
-    private boolean isAdmin () {
+    private boolean isAdmin() {
         boolean isAdmin = false;
         SecurityContext context = SecurityContextHolder.getContext();
         Authentication authentication = context.getAuthentication();

@@ -3,10 +3,9 @@ import {EffectsModule} from '@ngrx/effects';
 import {StoreModule} from '@ngrx/store';
 import {StoreDevtoolsModule} from '@ngrx/store-devtools';
 import {environment} from '../../environments/environment';
-import {DefaultDataServiceConfig, NgrxDataModule} from 'ngrx-data';
+import {DefaultDataServiceConfig, EntityDataModule, EntityDataService} from '@ngrx/data';
 import {entityConfig} from './entity-metadata';
 import {clearState} from './reducers';
-import {ResetStore} from './reset-store';
 
 const defaultDataServiceConfig: DefaultDataServiceConfig = {
   root: 'api',
@@ -19,7 +18,7 @@ const reducers: any = {};
   imports: [
     StoreModule.forRoot(reducers, {metaReducers: [clearState]}),
     EffectsModule.forRoot([]),
-    NgrxDataModule.forRoot(entityConfig),
+    EntityDataModule.forRoot(entityConfig),
     environment.production ? [] : StoreDevtoolsModule.instrument()
   ],
   providers: [

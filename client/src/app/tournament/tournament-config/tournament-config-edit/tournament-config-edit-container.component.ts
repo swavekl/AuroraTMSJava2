@@ -19,7 +19,7 @@ export class TournamentConfigEditContainerComponent implements OnInit {
 
   tournament$: Observable<Tournament>;
   loading$: Observable<boolean>;
-  private editedId: number;
+  public editedId: number;
 
   constructor(public tournamentConfigService: TournamentConfigService,
               private activatedRoute: ActivatedRoute,

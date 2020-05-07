@@ -12,10 +12,7 @@ import {MatSidenavModule} from '@angular/material/sidenav';
 
 import {AppComponent} from './app.component';
 import {AppRoutingModule} from './app-routing.module';
-// import {OktaAuthModule} from '@okta/okta-angular';
-
 import {AuthInterceptor} from './auth.interceptor';
-import {environment} from '../environments/environment';
 import {LayoutModule} from '@angular/cdk/layout';
 import {AppStoreModule} from './store/app-store.module';
 import {HomeModule} from './home/home.module';
@@ -23,6 +20,9 @@ import {TournamentModule} from './tournament/tournament/tournament.module';
 import {TournamentConfigModule} from './tournament/tournament-config/tournament-config.module';
 import {ProfileModule} from './profile/profile.module';
 import {UserModule} from './user/user.module';
+// import {PluralHttpUrlGenerator} from './store/plural-http-generator';
+// import {HttpUrlGenerator} from '@ngrx/data';
+// import {OktaAuthModule} from '@okta/okta-angular';
 
 // const config = {
 //   issuer: 'https://dev-758120.oktapreview.com/oauth2/default',

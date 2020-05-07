@@ -1,5 +1,6 @@
 package com.auroratms.tournament;
 
+import com.auroratms.event.TournamentEventEntity;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import lombok.Data;
@@ -8,6 +9,7 @@ import lombok.NoArgsConstructor;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.Date;
+import java.util.Set;
 
 /**
  * This tournament object is not persisted. It configuration part which is stored by TournamentEntity
@@ -38,6 +40,8 @@ public class Tournament {
     // information that is not queryable
     private TournamentConfiguration configuration;
 
+    private Set<TournamentEventEntity> events;
+
     /**
      * converts configuration to its JSON representation
      *
@@ -58,6 +62,7 @@ public class Tournament {
         entity.setContactName(contactName);
         entity.setEmail(email);
         entity.setPhone(phone);
+//        entity.setEvents(events);
         // convert from configuration to JSON
         if (configuration != null) {
             try {
@@ -91,6 +96,7 @@ public class Tournament {
         this.contactName = entity.getContactName();
         this.email = entity.getEmail();
         this.phone = entity.getPhone();
+//        this.events = entity.getEvents();
 
         configuration = null;
         // convert from JSON to configuration

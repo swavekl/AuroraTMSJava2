@@ -23,6 +23,7 @@ import org.springframework.security.config.core.GrantedAuthorityDefaults;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableResourceServer;
 import org.springframework.security.oauth2.config.annotation.web.configuration.ResourceServerConfigurerAdapter;
 import org.springframework.security.oauth2.provider.expression.OAuth2MethodSecurityExpressionHandler;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
@@ -30,6 +31,7 @@ import org.springframework.web.filter.CorsFilter;
 import java.text.*;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.stream.Stream;
 
 @EnableResourceServer
@@ -45,6 +47,7 @@ public class ServerApplication {
     }
 
     @Bean
+    @Transactional
     ApplicationRunner init(TournamentRepository repository) {
         DateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
         return args -> {
@@ -72,7 +75,7 @@ public class ServerApplication {
                             e.printStackTrace();
                         }
                     });
-            repository.findAll().forEach(System.out::println);
+//            repository.findAll().forEach(System.out::println);
         };
     }
 

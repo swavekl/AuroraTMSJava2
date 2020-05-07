@@ -1,4 +1,5 @@
 import {DateUtils} from '../../shared/date-utils';
+import {TournamentEvent} from './tournament-event.model';
 
 export class Tournament {
   id: number;
@@ -17,6 +18,9 @@ export class Tournament {
   phone: string;
 
   configuration: TournamentConfiguration;
+
+  // events in the tournament
+  events: TournamentEvent [];
 
   // convert dates from string to date objects
   static convert(tournament: Tournament): Tournament {

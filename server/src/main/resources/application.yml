@@ -4,6 +4,8 @@ spring.datasource:
   url: jdbc:mysql://localhost:3306/auroratmsspring
   username: auroratmsspring
   password: auroratmsspring2020
+logging.level.org.hibernate.SQL: DEBUG
+logging.level.org.hibernate.type: TRACE
 
 okta:
   oauth2:
