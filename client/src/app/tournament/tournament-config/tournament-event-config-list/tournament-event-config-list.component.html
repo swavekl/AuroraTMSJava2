@@ -1,9 +1,9 @@
 <mat-toolbar>
   <mat-toolbar-row>
-    <button mat-button (click)="addEvent()">
+    <button type="button" mat-button (click)="addEvent()">
       <mat-icon matListIcon>add</mat-icon>Add Event
     </button>
-    <button mat-button (click)="renumberEvents()">
+    <button type="button" mat-button (click)="renumberEvents()">
       <mat-icon matListIcon>reorder</mat-icon>Renumber Events
     </button>
   </mat-toolbar-row>
@@ -32,10 +32,10 @@
   <ng-container matColumnDef="actions">
     <th mat-header-cell *matHeaderCellDef></th>
     <td mat-cell *matCellDef="let event">
-      <button mat-icon-button (click)="editEvent(event.id)">
+      <button type="button" mat-icon-button (click)="editEvent(event.id)">
         <mat-icon matListIcon>edit</mat-icon>
       </button>
-      <button mat-icon-button (click)="deleteEvent(event.id)">
+      <button type="button" mat-icon-button (click)="deleteEvent(event.id)">
         <mat-icon matListIcon>delete</mat-icon>
       </button>
     </td>

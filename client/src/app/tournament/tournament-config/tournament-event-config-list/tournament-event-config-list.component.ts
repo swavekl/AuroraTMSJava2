@@ -3,6 +3,7 @@ import {TournamentEvent} from '../tournament-event.model';
 import {Router} from '@angular/router';
 import {MatDialog} from '@angular/material/dialog';
 import {SelectEventDialogComponent} from '../select-event-dialog/select-event-dialog.component';
+import {DateUtils} from '../../../shared/date-utils';
 
 @Component({
   selector: 'app-tournament-event-config-list',
@@ -23,7 +24,6 @@ export class TournamentEventConfigListComponent implements OnInit {
 
   columnsToDisplay: string[] = ['num', 'name', 'day', 'startTime', 'actions'];
 
-  // save and cancel
   @Output() delete = new EventEmitter();
 
   constructor(private router: Router,
@@ -31,19 +31,6 @@ export class TournamentEventConfigListComponent implements OnInit {
   }
 
   ngOnInit(): void {
-  }
-
-  getDayOfWeek(day: number) {
-    const eventDay = this.startDate.getDay() + (day - 1);
-    const weekday = new Array(7);
-    weekday[0] = 'Sunday';
-    weekday[1] = 'Monday';
-    weekday[2] = 'Tuesday';
-    weekday[3] = 'Wednesday';
-    weekday[4] = 'Thursday';
-    weekday[5] = 'Friday';
-    weekday[6] = 'Saturday';
-    return weekday[eventDay];
   }
 
   addEvent() {
@@ -54,7 +41,7 @@ export class TournamentEventConfigListComponent implements OnInit {
         const url = `tournament/${this.tournamentId}/tournamentevent/create`;
         const selectedEventData = {
           ...result,
-          ordinalNumber : this.events.length + 1
+          ordinalNumber: this.events.length + 1
         };
         this.router.navigate([url], {state: {data: selectedEventData}});
       }
@@ -70,16 +57,23 @@ export class TournamentEventConfigListComponent implements OnInit {
     this.delete.emit(eventId);
   }
 
+  getDayOfWeek(day: number) {
+    if (this.startDate != null) {
+      return new DateUtils().getDayAsString(this.startDate, day);
+    } else {
+      return '';
+    }
+  }
+
   getStartTime(startTime: number) {
-    const fractionOfHour = (startTime % 1).toFixed(2);
-    const hours = Math.floor(startTime);
-    // @ts-ignore
-    const minutes = 60 * fractionOfHour;
-    const strMinutes = (minutes === 0) ? '00' : minutes.toPrecision(2);
-    return hours + ':' + strMinutes;
+    if (this.startDate != null) {
+      return new DateUtils().getTimeAsString(this.startDate, startTime);
+    } else {
+      return '';
+    }
   }
 
   renumberEvents() {
-    console.log ('reordering events');
+    console.log('reordering events');
   }
 }

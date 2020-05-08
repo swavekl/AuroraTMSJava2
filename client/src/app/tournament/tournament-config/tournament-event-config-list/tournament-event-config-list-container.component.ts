@@ -26,6 +26,7 @@ export class TournamentEventConfigListContainerComponent implements OnInit, OnCh
   events$: Observable<TournamentEvent []>;
 
   constructor(private tournamentEventConfigService: TournamentEventConfigService) {
+    this.events$ = this.tournamentEventConfigService.entities$;
   }
 
   ngOnInit(): void {
@@ -33,16 +34,11 @@ export class TournamentEventConfigListContainerComponent implements OnInit, OnCh
 
   ngOnChanges(changes: SimpleChanges) {
     if (changes.tournamentId.currentValue != null) {
-      this.events$ = this.tournamentEventConfigService.getAllForTournament(changes.tournamentId.currentValue);
-      this.events$.subscribe(data => {
-        console.log('got tournament events data ' + JSON.stringify(data));
-        return data;
-      });
+      this.tournamentEventConfigService.getAllForTournament(changes.tournamentId.currentValue);
     }
   }
 
   onDelete(eventId: number) {
     this.tournamentEventConfigService.delete(eventId);
-    // todo refresh the list
   }
 }
