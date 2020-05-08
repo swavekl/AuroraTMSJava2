@@ -38,4 +38,18 @@ export class DateUtils {
 //    console.log ('utcDate ', utcDate);
     return utcDate;
   }
+
+  getDayAsString (startDate: Date, day: number) {
+    const localMoment = moment(startDate).add((day - 1), 'day');
+    return localMoment.format('dddd');
+  }
+
+  getTimeAsString(startDate: Date, startTime: number) {
+    const fractionOfHour = (startTime % 1).toFixed(2);
+    // @ts-ignore
+    const minutes = 60 * fractionOfHour;
+    const hours = Math.floor(startTime);
+    const localMoment = moment(startDate).hours(hours).minutes(minutes).seconds(0).milliseconds(0);
+    return localMoment.format('LT');
+  }
 }
