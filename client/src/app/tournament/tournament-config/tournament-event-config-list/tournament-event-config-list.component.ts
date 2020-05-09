@@ -25,6 +25,7 @@ export class TournamentEventConfigListComponent implements OnInit {
   columnsToDisplay: string[] = ['num', 'name', 'day', 'startTime', 'actions'];
 
   @Output() delete = new EventEmitter();
+  @Output() renumber = new EventEmitter();
 
   constructor(private router: Router,
               public dialog: MatDialog) {
@@ -74,6 +75,14 @@ export class TournamentEventConfigListComponent implements OnInit {
   }
 
   renumberEvents() {
-    console.log('reordering events');
+    const renumberedEvents: TournamentEvent [] = [];
+    for (let i = 0; i < this.events.length; i++) {
+      const event = this.events[i];
+      renumberedEvents.push({
+        ...event,
+        ordinalNumber: i + 1
+      });
+    }
+    this.renumber.emit(renumberedEvents);
   }
 }

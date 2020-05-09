@@ -68,7 +68,7 @@ export class TournamentEventConfigContainerComponent implements OnInit {
   }
 
   navigateBack() {
-    this.router.navigateByUrl(`tournament/edit/${this.tournamentId}`);
+    this.router.navigateByUrl(`tournament/edit/${this.tournamentId}?activateTab=2`);
   }
 
 }

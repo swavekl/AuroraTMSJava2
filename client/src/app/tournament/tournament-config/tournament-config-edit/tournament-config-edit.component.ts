@@ -1,13 +1,14 @@
-import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
+import {Component, EventEmitter, Input, Output, ViewChild} from '@angular/core';
 import {Tournament} from '../tournament.model';
 import {StatesList} from '../../../shared/states/states-list';
+import {MatTabGroup} from '@angular/material/tabs';
 
 @Component({
   selector: 'app-tournament-config-edit',
   templateUrl: './tournament-config-edit.component.html',
   styleUrls: ['./tournament-config-edit.component.css']
 })
-export class TournamentConfigEditComponent implements OnInit {
+export class TournamentConfigEditComponent {
 
   @Input()
   tournament: Tournament;
@@ -16,6 +17,9 @@ export class TournamentConfigEditComponent implements OnInit {
   @Output() saved = new EventEmitter();
   @Output() canceled = new EventEmitter();
 
+  @ViewChild(MatTabGroup)
+  tabGroup: MatTabGroup;
+
   // list of US states
   statesList: any [];
 
@@ -23,7 +27,10 @@ export class TournamentConfigEditComponent implements OnInit {
     this.statesList = new StatesList().getList();
   }
 
-  ngOnInit(): void {
+  setActiveTab(tabIndex: number) {
+    if (this.tabGroup) {
+      this.tabGroup.selectedIndex = tabIndex;
+    }
   }
 
   onEnter() {
