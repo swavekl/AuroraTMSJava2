@@ -1,4 +1,4 @@
-import {Component, Input, OnInit} from '@angular/core';
+import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {Tournament} from '../tournament.model';
 
 @Component({
@@ -11,10 +11,16 @@ export class TournamentConfigListComponent implements OnInit {
   @Input()
   tournaments: Tournament[];
 
+  @Output()
+  add: EventEmitter<any> = new EventEmitter<any>();
+
   constructor() {
   }
 
   ngOnInit(): void {
   }
 
+  addTournament() {
+    this.add.emit('add');
+  }
 }

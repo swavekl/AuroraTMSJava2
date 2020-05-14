@@ -1,5 +1,6 @@
 import {DateUtils} from '../../shared/date-utils';
 import {TournamentEvent} from './tournament-event.model';
+import * as moment from 'moment';
 
 export class Tournament {
   id: number;
@@ -31,7 +32,8 @@ export class Tournament {
       ...configuration,
       eligibilityDate: dateUtils.convertFromString(tournament.configuration?.eligibilityDate),
       lateEntryDate: dateUtils.convertFromString(tournament.configuration?.lateEntryDate),
-      entryCutoffDate: dateUtils.convertFromString(tournament.configuration?.entryCutoffDate)
+      entryCutoffDate: dateUtils.convertFromString(tournament.configuration?.entryCutoffDate),
+      refundDate: dateUtils.convertFromString(tournament.configuration?.refundDate)
     };
     const retValue = {
       ...tournament,
@@ -71,6 +73,7 @@ export class Tournament {
     configuration.eligibilityDate = dateUtils.convertFromLocalToUTCDate(formValues.eligibilityDate);
     configuration.entryCutoffDate = dateUtils.convertFromLocalToUTCDate(formValues.entryCutoffDate);
     configuration.lateEntryDate = dateUtils.convertFromLocalToUTCDate(formValues.lateEntryDate);
+    configuration.refundDate = dateUtils.convertFromLocalToUTCDate(formValues.refundDate);
     configuration.blankEntryUrl = formValues.blankEntryUrl;
     configuration.maxDailyEvents = formValues.maxDailyEvents;
     configuration.maxTournamentEvents = formValues.maxTournamentEvents;
@@ -78,6 +81,88 @@ export class Tournament {
 // console.log ('toTournament', tournament);
     return tournament;
   }
+
+  /**
+   * Sets some sensible defaults so it is easier to add new tournament
+   */
+  static makeDefault() {
+    const tournament: Tournament = new Tournament();
+    tournament.starLevel = 2;
+
+    // find nearest Saturday 4 months from today
+    let proposedDate = moment().add(4, 'months');
+    const weekday = proposedDate.get('weekday');
+    const addDays = 6 - weekday;  // 6 is saturday
+    proposedDate = (addDays < 0) ? proposedDate.subtract(addDays, 'days') :
+      ((addDays > 0) ? proposedDate.add(addDays, 'days')
+        : proposedDate);
+
+    const startEndDate = proposedDate.toDate();
+    const dateUtils = new DateUtils();
+    tournament.startDate = dateUtils.convertFromLocalToUTCDate(startEndDate);
+    tournament.endDate = dateUtils.convertFromLocalToUTCDate(startEndDate);
+    tournament.configuration = new TournamentConfiguration();
+    const entryCutoffDate = proposedDate.subtract(1, 'weeks').toDate();
+    tournament.configuration.entryCutoffDate = dateUtils.convertFromLocalToUTCDate(entryCutoffDate);
+    const lateEntryDate = proposedDate.subtract(1, 'weeks').toDate();
+    tournament.configuration.lateEntryDate = dateUtils.convertFromLocalToUTCDate(lateEntryDate);
+    tournament.configuration.refundDate = dateUtils.convertFromLocalToUTCDate(lateEntryDate);
+    const eligibilityDate = proposedDate.subtract(2, 'weeks').toDate();
+    tournament.configuration.eligibilityDate = dateUtils.convertFromLocalToUTCDate(eligibilityDate);
+
+    tournament.configuration.maxDailyEvents = 0;
+    tournament.configuration.maxTournamentEvents = 0;
+    tournament.configuration.numberOfTables = 10;
+    return tournament;
+  }
+
+  /**
+   * Makes a sensible clone of this tournament
+   * @param tournament
+   */
+  static cloneTournament(tournament: Tournament) {
+    const startDate = moment(tournament.startDate);
+    const endDate = moment(tournament.endDate);
+    const diffDays = endDate.diff(startDate, 'days');
+
+    // move to next year
+    let proposedStartDate = moment(tournament.startDate).add(1, 'years');
+    const weekday = proposedStartDate.get('weekday');
+    const addDays = 6 - weekday;  // 6 is saturday
+    proposedStartDate = (addDays < 0) ? proposedStartDate.subtract(addDays, 'days') :
+      ((addDays > 0) ? proposedStartDate.add(addDays, 'days')
+        : proposedStartDate);
+
+    // same number of days long.
+    const proposedEndDate = moment(proposedStartDate).add(diffDays, 'days');
+    const newStartDate = proposedStartDate.toDate();
+    const newEndDate = proposedStartDate.toDate();
+
+    const dateUtils = new DateUtils();
+    const entryCutoffDate = proposedStartDate.subtract(1, 'weeks').toDate();
+    const lateEntryDate = proposedStartDate.subtract(1, 'weeks').toDate();
+    const refundDate = lateEntryDate;
+    const eligibilityDate = proposedStartDate.subtract(2, 'weeks').toDate();
+
+    const convertedConfiguration = {
+      ...tournament.configuration,
+      eligibilityDate: dateUtils.convertFromString(eligibilityDate),
+      lateEntryDate: dateUtils.convertFromString(lateEntryDate),
+      entryCutoffDate: dateUtils.convertFromString(entryCutoffDate),
+      refundDate: dateUtils.convertFromString(refundDate)
+    };
+    const clonedTournament: Tournament = {
+      ...tournament,
+      id: null,
+      name: null,
+      startDate: dateUtils.convertFromLocalToUTCDate(newStartDate),
+      endDate: dateUtils.convertFromLocalToUTCDate(newEndDate),
+      configuration: convertedConfiguration
+    };
+
+    return clonedTournament;
+  }
+
 }
 
 // this part of configuration is not queryable so we keept it in separate object
@@ -88,6 +173,8 @@ class TournamentConfiguration {
   entryCutoffDate: Date;
   // Rating cutoff date Rating cutoff date for event eligibility
   eligibilityDate: Date;
+  // Date to stop issuing refunds for withdrawal from event or tournament
+  refundDate: Date;
   // url where blank entry form is located
   blankEntryUrl: string;
   // maximum events player can enter per day

@@ -46,38 +46,38 @@ public class ServerApplication {
         SpringApplication.run(ServerApplication.class, args);
     }
 
-    @Bean
-    @Transactional
-    ApplicationRunner init(TournamentRepository repository) {
-        DateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
-        return args -> {
-            Stream.of("2019 Aurora Cup",
-                    "2019 America's Team Championship",
-                    "St. Joseph Valley Open",
-                    "JOOLA Teams tournament",
-                    "US Open",
-                    "US Nationals",
-                    "2019 Aurora Spring Open",
-                    "2019 Aurora Summer Open",
-                    "2019 Aurora Fall Open",
-                    "Mikeljohns Veterans Tournament"
-                    )
-                    .forEach(name -> {
-                        try {
-                            TournamentEntity tournament = new TournamentEntity();
-                            tournament.setName(name);
-                            tournament.setCity("Aurora");
-                            tournament.setState("IL");
-                            tournament.setStartDate(dateFormat.parse("01/18/2019"));
-                            tournament.setEndDate(dateFormat.parse("01/20/2019"));
-                            repository.save(tournament);
-                        } catch (ParseException e) {
-                            e.printStackTrace();
-                        }
-                    });
-//            repository.findAll().forEach(System.out::println);
-        };
-    }
+//    @Bean
+//    @Transactional
+//    ApplicationRunner init(TournamentRepository repository) {
+//        DateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
+//        return args -> {
+//            Stream.of("2019 Aurora Cup",
+//                    "2019 America's Team Championship",
+//                    "St. Joseph Valley Open",
+//                    "JOOLA Teams tournament",
+//                    "US Open",
+//                    "US Nationals",
+//                    "2019 Aurora Spring Open",
+//                    "2019 Aurora Summer Open",
+//                    "2019 Aurora Fall Open",
+//                    "Mikeljohns Veterans Tournament"
+//                    )
+//                    .forEach(name -> {
+//                        try {
+//                            TournamentEntity tournament = new TournamentEntity();
+//                            tournament.setName(name);
+//                            tournament.setCity("Aurora");
+//                            tournament.setState("IL");
+//                            tournament.setStartDate(dateFormat.parse("01/18/2019"));
+//                            tournament.setEndDate(dateFormat.parse("01/20/2019"));
+//                            repository.save(tournament);
+//                        } catch (ParseException e) {
+//                            e.printStackTrace();
+//                        }
+//                    });
+////            repository.findAll().forEach(System.out::println);
+//        };
+//    }
 
     @Bean
     public FilterRegistrationBean<CorsFilter> simpleCorsFilter() {

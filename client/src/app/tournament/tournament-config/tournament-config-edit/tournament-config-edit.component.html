@@ -20,9 +20,9 @@
                 </mat-form-field>
                 <mat-form-field fxFlex="20%">
                   <mat-label>Star Level</mat-label>
-                  <input matInput type="number" name="starLevel" [ngModel]="tournament?.starLevel" min="0" max="5"
-                         required>
-                  <mat-error>Enter value between 0 and 5</mat-error>
+                  <input matInput name="starLevel" [ngModel]="tournament?.starLevel"
+                         required pattern="[0-5]" #starLevel="ngModel">
+                  <mat-error *ngIf="starLevel.control?.hasError('pattern')">Star level must be between 0 - 5</mat-error>
                 </mat-form-field>
               </div>
               <div fxLayout="row" fxLayoutGap="10px">
@@ -42,13 +42,6 @@
               </div>
               <div fxLayout="row" fxLayoutGap="10px">
                 <mat-form-field fxFlex="50%">
-                  <mat-label>Late entry date</mat-label>
-                  <input matInput [matDatepicker]="lateEntryDate"
-                         [ngModel]="tournament?.configuration?.lateEntryDate" name="lateEntryDate" required>
-                  <mat-datepicker-toggle matSuffix [for]="lateEntryDate"></mat-datepicker-toggle>
-                  <mat-datepicker #lateEntryDate></mat-datepicker>
-                </mat-form-field>
-                <mat-form-field fxFlex="50%">
                   <mat-label>Eligibility Date</mat-label>
                   <input matInput [matDatepicker]="eligibilityDate"
                          [ngModel]="tournament?.configuration?.eligibilityDate"
@@ -60,7 +53,47 @@
                     tournament start date
                   </mat-error>
                 </mat-form-field>
+                <mat-form-field fxFlex="50%">
+                  <mat-label>Late entry date</mat-label>
+                  <input matInput [matDatepicker]="lateEntryDate" #ledCtrl="ngModel"
+                         [ngModel]="tournament?.configuration?.lateEntryDate" name="lateEntryDate"
+                         required appDateBefore="startDate">
+                  <mat-datepicker-toggle matSuffix [for]="lateEntryDate"></mat-datepicker-toggle>
+                  <mat-datepicker #lateEntryDate></mat-datepicker>
+                  <mat-error *ngIf="ledCtrl.invalid && (ledCtrl.dirty || ledCtrl.touched)">
+                    Late entry date must be before tournament start date</mat-error>
+                  <mat-hint>Date to start charging late entry fees if any.</mat-hint>
+                </mat-form-field>
               </div>
+              <div fxLayout="row" fxLayoutGap="10px">
+                <mat-form-field fxFlex="50%">
+                  <mat-label>Full Refund Date</mat-label>
+                  <input matInput [matDatepicker]="refundDate"
+                         [ngModel]="tournament?.configuration?.refundDate"
+                         name="refundDate" #refCtrl="ngModel"
+                         required appDateBefore="startDate">
+                  <mat-datepicker-toggle matSuffix [for]="refundDate"></mat-datepicker-toggle>
+                  <mat-datepicker #refundDate disabled="false"></mat-datepicker>
+                  <mat-error *ngIf="refCtrl.invalid && (refCtrl.dirty || refCtrl.touched)">
+                    Full refund date must be before tournament start date
+                  </mat-error>
+                  <mat-hint>Last day to get a full refund for event/tournament withdrawal</mat-hint>
+                </mat-form-field>
+                <mat-form-field fxFlex="50%">
+                  <mat-label>Entry Cutoff Date</mat-label>
+                  <input matInput [matDatepicker]="entryCutoffDate"
+                         [ngModel]="tournament?.configuration?.entryCutoffDate"
+                         name="entryCutoffDate" #ecdCtrl="ngModel"
+                         required appDateBefore="startDate">
+                  <mat-datepicker-toggle matSuffix [for]="entryCutoffDate"></mat-datepicker-toggle>
+                  <mat-datepicker #entryCutoffDate disabled="false"></mat-datepicker>
+                  <mat-error *ngIf="ecdCtrl.invalid && (ecdCtrl.dirty || ecdCtrl.touched)">
+                    Event or tournament entry cutoff date must be before tournament start date
+                  </mat-error>
+                  <mat-hint>Last day to enter/modify your entry into the tournament</mat-hint>
+                </mat-form-field>
+              </div>
+
               <mat-card-subtitle class="mat-title">Venue Information</mat-card-subtitle>
               <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="10px">
                 <mat-form-field fxFlex="100%">
@@ -118,8 +151,6 @@
                 </mat-form-field>
               </div>
             </mat-card-content>
-            <!--            <mat-card-actions>-->
-            <!--            </mat-card-actions>-->
           </mat-card>
         </mat-tab>
         <mat-tab label="Other Information">
@@ -134,18 +165,23 @@
               <div fxLayout.lt-sm="column" fxLayout="row" fxLayoutGap="10px">
                 <mat-form-field fxFlex="40%">
                   <mat-label>Maximum daily events</mat-label>
-                  <input matInput type="number" name="maxDailyEvents"
-                         [ngModel]="tournament?.configuration?.maxDailyEvents" required>
+                  <input matInput name="maxDailyEvents" placeholder="Enter 0 for unlimited" #maxDailyEvents="ngModel"
+                         [ngModel]="tournament?.configuration?.maxDailyEvents" required pattern="\d{1}">
+                  <mat-error *ngIf="maxDailyEvents.control?.hasError('pattern')">Enter number between 0 - 9</mat-error>
+                  <mat-hint>Maximum number of events a player can play per day</mat-hint>
                 </mat-form-field>
                 <mat-form-field fxFlex="40%">
-                  <mat-label>Maximum daily events</mat-label>
-                  <input matInput type="number" name="maxTournamentEvents"
-                         [ngModel]="tournament?.configuration?.maxTournamentEvents" required>
+                  <mat-label>Maximum tournament events</mat-label>
+                  <input matInput name="maxTournamentEvents" placeholder="Enter 0 for unlimited" #maxTournamentEvents="ngModel"
+                         [ngModel]="tournament?.configuration?.maxTournamentEvents" required pattern="\d{1,2}">
+                  <mat-error *ngIf="maxTournamentEvents.control?.hasError('pattern')">Enter number between 0 and 100</mat-error>
+                  <mat-hint>Maximum number of events a player can play in the entire tournament</mat-hint>
                 </mat-form-field>
                 <mat-form-field fxFlex="20%">
                   <mat-label>Number of Tables</mat-label>
-                  <input matInput type="number" name="numberOfTables"
-                         [ngModel]="tournament?.configuration?.numberOfTables" required>
+                  <input matInput name="numberOfTables" #numberOfTables="ngModel"
+                         [ngModel]="tournament?.configuration?.numberOfTables" required pattern="[1-9](\d{1,2})?">
+                  <mat-error *ngIf="numberOfTables.control?.hasError('pattern')">Enter number between 1 and 999</mat-error>
                 </mat-form-field>
                 <!--              <mat-form-field fxFlex="25%">-->
                 <!--                <mat-label>Color of Tables</mat-label>-->

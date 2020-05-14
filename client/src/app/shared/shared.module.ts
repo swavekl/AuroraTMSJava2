@@ -7,6 +7,7 @@ import {ConfirmationPopupComponent} from './confirmation-popup/confirmation-popu
 import {MatCardModule} from '@angular/material/card';
 import {MatDialogModule} from '@angular/material/dialog';
 import {MatButtonModule} from '@angular/material/button';
+import {LocalStorageService} from './local-storage.service';
 
 
 @NgModule({
@@ -26,6 +27,9 @@ import {MatButtonModule} from '@angular/material/button';
     MatCardModule,
     MatDialogModule,
     MatButtonModule
+  ],
+  providers: [
+    LocalStorageService
   ]
 })
 export class SharedModule {

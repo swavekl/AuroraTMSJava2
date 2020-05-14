@@ -37,6 +37,7 @@ import {TournamentEventConfigContainerComponent} from './tournament-event-config
 import {MatCheckboxModule} from '@angular/material/checkbox';
 import { SelectEventDialogComponent } from './select-event-dialog/select-event-dialog.component';
 import {MatDialogModule} from '@angular/material/dialog';
+import {MatTooltipModule} from '@angular/material/tooltip';
 
 @NgModule({
   declarations: [
@@ -71,7 +72,8 @@ import {MatDialogModule} from '@angular/material/dialog';
         SharedModule,
         TournamentConfigRoutingModule,
         MatCheckboxModule,
-        MatDialogModule
+        MatDialogModule,
+        MatTooltipModule
     ],
   providers: []
 })

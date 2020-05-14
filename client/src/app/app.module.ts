@@ -20,6 +20,8 @@ import {TournamentModule} from './tournament/tournament/tournament.module';
 import {TournamentConfigModule} from './tournament/tournament-config/tournament-config.module';
 import {ProfileModule} from './profile/profile.module';
 import {UserModule} from './user/user.module';
+import {environment} from '../environments/environment';
+import {StoreDevtoolsModule} from '@ngrx/store-devtools';
 // import {PluralHttpUrlGenerator} from './store/plural-http-generator';
 // import {HttpUrlGenerator} from '@ngrx/data';
 // import {OktaAuthModule} from '@okta/okta-angular';
@@ -53,7 +55,8 @@ import {UserModule} from './user/user.module';
     ProfileModule,
     UserModule,
     LayoutModule,
-    AppStoreModule
+    AppStoreModule,
+    environment.production ? [] : StoreDevtoolsModule.instrument()
   ],
   providers: [
     {provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true}

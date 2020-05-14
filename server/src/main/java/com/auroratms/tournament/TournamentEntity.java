@@ -24,7 +24,7 @@ public class TournamentEntity {
     private Long id;
 
     @NonNull
-    @Column(length = 60)
+    @Column(length = 100)
     private String name;
 
     // venue information

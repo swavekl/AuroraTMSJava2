@@ -12,6 +12,10 @@ import {MatIconModule} from '@angular/material/icon';
 import {MatCardModule} from '@angular/material/card';
 import {MatListModule} from '@angular/material/list';
 import {SharedModule} from '../../shared/shared.module';
+import {MatButtonToggleModule} from '@angular/material/button-toggle';
+import {MatTooltipModule} from '@angular/material/tooltip';
+import {MatButtonModule} from '@angular/material/button';
+import {FlexLayoutModule} from '@angular/flex-layout';
 
 
 @NgModule({
@@ -29,7 +33,11 @@ import {SharedModule} from '../../shared/shared.module';
         MatIconModule,
         MatCardModule,
         MatListModule,
-        SharedModule
+        SharedModule,
+        MatButtonToggleModule,
+        MatTooltipModule,
+        MatButtonModule,
+        FlexLayoutModule
     ]
 })
 export class TournamentModule {

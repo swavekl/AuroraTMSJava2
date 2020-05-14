@@ -4,13 +4,23 @@
     <mat-card>
       <mat-card-title>Tournament List</mat-card-title>
       <mat-card-content>
+        <mat-toolbar>
+          <mat-toolbar-row>
+            <button type="button" mat-button (click)="addTournament()">
+              <mat-icon matListIcon>add</mat-icon>Add Tournament
+            </button>
+          </mat-toolbar-row>
+        </mat-toolbar>
         <mat-list>
           <mat-list-item *ngFor="let tournament of tournaments">
             <h3 matLine>{{tournament.name}}</h3>
             <h3 matLine>{{tournament.startDate | date }} - {{tournament.endDate | date }}</h3>
             <h4 matLine>{{ tournament.city }}, {{tournament.state}} </h4>
-            <button mat-icon-button [routerLink]="['tournament/edit', tournament.id]">
-              <mat-icon matListIcon>navigate_next</mat-icon>
+            <button mat-icon-button [routerLink]="['tournament/edit', tournament.id]" matTooltip="Edit">
+              <mat-icon matListIcon>edit</mat-icon>
+            </button>
+            <button mat-icon-button [routerLink]="['tournament/create']" [queryParams]="{from: tournament.id}" matTooltip="Copy">
+              <mat-icon matListIcon>flip_to_front</mat-icon>
             </button>
             <mat-divider></mat-divider>
           </mat-list-item>

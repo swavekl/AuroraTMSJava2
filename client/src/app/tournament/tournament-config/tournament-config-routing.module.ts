@@ -15,6 +15,10 @@ const routes: Routes = [
     component: TournamentConfigEditContainerComponent
   },
   {
+    path: 'tournament/create',
+    component: TournamentConfigEditContainerComponent
+  },
+  {
     path: 'tournament/:tournamentId/tournamentevent/create',
     component: TournamentEventConfigContainerComponent
   },

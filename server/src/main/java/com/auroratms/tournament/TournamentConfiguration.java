@@ -14,6 +14,8 @@ public class TournamentConfiguration {
     private Date entryCutoffDate;
     // Rating cutoff date Rating cutoff date for event eligibility
     private Date eligibilityDate;
+    // Date to stop issuing refunds for withdrawal from event or tournament
+    private Date refundDate;
     // url where blank entry form is located
     private String blankEntryUrl;
     // maximum events player can enter per day
