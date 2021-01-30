@@ -158,6 +158,16 @@
             <mat-card-content>
               <div fxLayout.lt-sm="column" fxLayout="row" fxLayoutGap="10px">
                 <mat-form-field fxFlex="100%">
+                  <mat-label>Tournament Type</mat-label>
+                  <mat-select name="tournamentType" [(ngModel)]="tournamentType">
+                    <mat-option *ngFor="let ttOption of tournamentTypes; let i = index" [value]="ttOption.value">
+                      {{ ttOption.name }}
+                    </mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </div>
+              <div fxLayout.lt-sm="column" fxLayout="row" fxLayoutGap="10px">
+                <mat-form-field fxFlex="100%">
                   <mat-label>Blank entry form URL</mat-label>
                   <input matInput type="text" name="blankEntryUrl" [ngModel]="tournament?.configuration?.blankEntryUrl">
                 </mat-form-field>

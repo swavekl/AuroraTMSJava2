@@ -1,5 +1,6 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {TournamentInfo} from '../tournament-info.model';
+import {Router} from '@angular/router';
 
 @Component({
   selector: 'app-tournament-view',
@@ -10,13 +11,14 @@ export class TournamentViewComponent implements OnInit {
   @Input()
   tournament: TournamentInfo;
 
-  constructor() {
+  constructor(private router: Router) {
   }
 
   ngOnInit(): void {
   }
 
-  onEnter() {
-    console.log('entering the tournament');
+  onEnter(tournamentId: number) {
+    const url = `entries/entrywizard/${tournamentId}/create`;
+    this.router.navigateByUrl(url);
   }
 }

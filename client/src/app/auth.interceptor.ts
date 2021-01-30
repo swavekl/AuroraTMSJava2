@@ -20,9 +20,9 @@ export class AuthInterceptor implements HttpInterceptor {
   private async handleAccess(request: HttpRequest<any>, next: HttpHandler): Promise<HttpEvent<any>> {
     // Only add to known domains since we don't want to send our tokens to just anyone.
     // console.log ('handleAccess for url ' + request.urlWithParams);
-    const isOktaRequest = request.urlWithParams.indexOf('okta') !== -1;
+    // const isOktaRequest = request.urlWithParams.indexOf('okta') !== -1;
     const isUsersRegistrationRequest = request.urlWithParams.indexOf('/api/users/') !== -1;
-    if (!isOktaRequest && !isUsersRegistrationRequest) {
+    if (!isUsersRegistrationRequest) {
       // console.log ('Adding Bearer to request Authorization header');
       // const accessToken = await this.oktaAuth.getAccessToken();
       const accessToken = this.authenticationService.getAccessToken();

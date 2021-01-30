@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="Gradle: com.okta.sdk:okta-sdk-api:3.0.1">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.okta.sdk/okta-sdk-api/3.0.1/81e3c5eed7ab28e62b5b3e12383aa9366359ab0e/okta-sdk-api-3.0.1.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.okta.sdk/okta-sdk-api/3.0.1/c447b256c7dc4ad4e99cd60d1b61e515eedaf74a/okta-sdk-api-3.0.1-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

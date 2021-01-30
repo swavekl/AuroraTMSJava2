@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="Gradle: com.okta.authn.sdk:okta-authn-sdk-api:2.0.0">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.okta.authn.sdk/okta-authn-sdk-api/2.0.0/5ec542309900554d8622fdabd483e08be44cde56/okta-authn-sdk-api-2.0.0.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.okta.authn.sdk/okta-authn-sdk-api/2.0.0/59a5cb83af69d733e8c73b84a37813ca0473e141/okta-authn-sdk-api-2.0.0-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

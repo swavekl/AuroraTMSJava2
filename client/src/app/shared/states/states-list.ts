@@ -3,10 +3,7 @@
  */
 export class StatesList {
 
-  constructor() {
-  }
-
-  theList: any [] =
+  private static theList: any [] =
     [
       {
         'name': 'Alabama',
@@ -246,7 +243,7 @@ export class StatesList {
       }
     ];
 
-  getList() {
+  public static getList(): any [] {
     return this.theList;
   }
 }

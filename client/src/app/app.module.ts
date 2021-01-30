@@ -1,6 +1,6 @@
 import {BrowserModule} from '@angular/platform-browser';
 import {NgModule} from '@angular/core';
-import {HTTP_INTERCEPTORS, HttpClientModule} from '@angular/common/http';
+import {HTTP_INTERCEPTORS, HttpClientModule, HttpClientXsrfModule} from '@angular/common/http';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {MatButtonModule} from '@angular/material/button';
 import {MatCardModule} from '@angular/material/card';
@@ -22,15 +22,6 @@ import {ProfileModule} from './profile/profile.module';
 import {UserModule} from './user/user.module';
 import {environment} from '../environments/environment';
 import {StoreDevtoolsModule} from '@ngrx/store-devtools';
-// import {PluralHttpUrlGenerator} from './store/plural-http-generator';
-// import {HttpUrlGenerator} from '@ngrx/data';
-// import {OktaAuthModule} from '@okta/okta-angular';
-
-// const config = {
-//   issuer: 'https://dev-758120.oktapreview.com/oauth2/default',
-//   redirectUri: environment.myAppUrl + '/implicit/callback',
-//   clientId: '0oahrcv3ghdG5SA6E0h7'
-// };
 
 @NgModule({
   declarations: [
@@ -40,6 +31,10 @@ import {StoreDevtoolsModule} from '@ngrx/store-devtools';
     AppRoutingModule,
     BrowserModule,
     HttpClientModule,
+    HttpClientXsrfModule.withOptions({
+      cookieName: 'XSRF-TOKEN',
+      headerName: 'X-XSRF-TOKEN',
+    }),
     BrowserAnimationsModule,
     MatButtonModule,
     MatCardModule,
@@ -48,7 +43,6 @@ import {StoreDevtoolsModule} from '@ngrx/store-devtools';
     MatToolbarModule,
     MatSidenavModule,
     MatIconModule,
-    // OktaAuthModule.initAuth(config),
     HomeModule,
     TournamentModule,
     TournamentConfigModule,

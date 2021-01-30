@@ -9,7 +9,7 @@
         <h4 matLine>{{ tournament?.city }}, {{ tournament?.state }} </h4>
       </mat-card-content>
       <mat-card-actions>
-        <button mat-raised-button type="button" (click)="onEnter()">Enter</button>
+        <button mat-raised-button type="button" (click)="onEnter(tournament.id)">Enter</button>
       </mat-card-actions>
     </mat-card>
   </div>

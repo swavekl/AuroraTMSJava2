@@ -24,4 +24,6 @@ public class TournamentConfiguration {
     private int maxTournamentEvents;
     // number of tables available for play
     private int numberOfTables;
+    // type of tournament
+    private TournamentType tournamentType;
 }

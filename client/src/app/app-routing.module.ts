@@ -1,15 +1,9 @@
 import {NgModule} from '@angular/core';
 import {Routes, RouterModule} from '@angular/router';
-// import {OktaCallbackComponent} from '@okta/okta-angular';
 import {HomeComponent} from './home/home/home.component';
 
 const routes: Routes = [
-  // {path: '', redirectTo: '/home', pathMatch: 'full'},
   {path: '', redirectTo: '/login', pathMatch: 'full'},
-  // {
-  //   path: 'implicit/callback',
-  //   component: OktaCallbackComponent
-  // },
   {
     path: 'home', component: HomeComponent
   },
@@ -20,6 +14,10 @@ const routes: Routes = [
   {
     path: 'tournaments',
     loadChildren: () => import('./tournament/tournament/tournament.module').then(m => m.TournamentModule)
+  },
+  {
+    path: 'entries',
+    loadChildren: () => import('./tournament/tournament-entry/tournament-entry.module').then(m => m.TournamentEntryModule)
   }
 ];
 

@@ -12,6 +12,9 @@ import {RegisterComponent} from './register/register.component';
 import {FlexLayoutModule} from '@angular/flex-layout';
 import { RegistrationConfirmedComponent } from './registration-confirmed/registration-confirmed.component';
 import {AuthenticationService} from './authentication.service';
+import { ResetPasswordComponent } from './reset-password/reset-password.component';
+import { ResetPasswordResultComponent } from './reset-password-result/reset-password-result.component';
+import { ResetPasswordStartComponent } from './reset-password-start/reset-password-start.component';
 
 const userRoutes: Routes = [
   {
@@ -24,6 +27,15 @@ const userRoutes: Routes = [
   },
   {
     path: 'registrationconfirmed', component: RegistrationConfirmedComponent
+  },
+  {
+    path: 'resetpasswordstart', component: ResetPasswordStartComponent
+  },
+  {
+    path: 'resetpassword/:resetPasswordToken', component: ResetPasswordComponent
+  },
+  {
+    path: 'resetpasswordresult/:succeeded', component: ResetPasswordResultComponent
   }
 ];
 
@@ -32,7 +44,10 @@ const userRoutes: Routes = [
     LoginComponent,
     SignInComponent,
     RegisterComponent,
-    RegistrationConfirmedComponent
+    RegistrationConfirmedComponent,
+    ResetPasswordStartComponent,
+    ResetPasswordComponent,
+    ResetPasswordResultComponent
   ],
   imports: [
     CommonModule,

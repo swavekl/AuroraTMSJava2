@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="Gradle: com.okta.commons:okta-http-httpclient:1.2.4">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.okta.commons/okta-http-httpclient/1.2.4/441e87c6c47d6a38b3f2a1876d48bf0c446fb8a0/okta-http-httpclient-1.2.4.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.okta.commons/okta-http-httpclient/1.2.4/e70d8ccc5e4717f174eb84d8fc25a127e934c164/okta-http-httpclient-1.2.4-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

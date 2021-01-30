@@ -78,6 +78,7 @@ export class Tournament {
     configuration.maxDailyEvents = formValues.maxDailyEvents;
     configuration.maxTournamentEvents = formValues.maxTournamentEvents;
     configuration.numberOfTables = formValues.numberOfTables;
+    configuration.tournamentType = formValues.tournamentType;
 // console.log ('toTournament', tournament);
     return tournament;
   }
@@ -113,6 +114,7 @@ export class Tournament {
     tournament.configuration.maxDailyEvents = 0;
     tournament.configuration.maxTournamentEvents = 0;
     tournament.configuration.numberOfTables = 10;
+    tournament.configuration.tournamentType = 'RatingsRestricted'; // rating restricted
     return tournament;
   }
 
@@ -183,4 +185,6 @@ class TournamentConfiguration {
   maxTournamentEvents: number;
   // number of tables available for play
   numberOfTables: number;
+  // tournament type - rating restricted, round robin, teams
+  tournamentType: string;
 }

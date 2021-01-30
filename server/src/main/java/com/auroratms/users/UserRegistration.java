@@ -6,6 +6,7 @@ public class UserRegistration {
     private String password;
     private String firstName;
     private String lastName;
+    private String resetPasswordToken;
 
     public String getEmail() {
         return email;
@@ -45,5 +46,13 @@ public class UserRegistration {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public String getResetPasswordToken() {
+        return resetPasswordToken;
+    }
+
+    public void setResetPasswordToken(String resetPasswordToken) {
+        this.resetPasswordToken = resetPasswordToken;
     }
 }

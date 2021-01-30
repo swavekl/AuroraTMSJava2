@@ -3,7 +3,7 @@ GET https://{{host}}:{{port}}/api/profiles/xyz123
 Accept: application/json
 
 > {%
- client.test("Unathenticated request should have failed ", function() {
+ client.test("Unauthenticated request should have failed ", function() {
       client.assert(response.status === 401, "Response status is not 401");
     });
 %}
@@ -15,10 +15,10 @@ Accept: application/json, text/plain, */*
 Accept-Encoding: gzip, deflate, br
 Accept-Language: en-US,en;q=0.9
 Access-Control-Allow-Credentials: true
-Access-Control-Allow-Origin: https://{{host}}:4200
+Access-Control-Allow-Origin: https://{{host}}:{{clientport}}
 Host: {{host}}:{{port}}
-Origin: https://{{host}}:4200
-Referer: https://{{host}}:4200/login/signin
+Origin: https://{{host}}:{{clientport}}
+Referer: https://{{host}}:{{clientport}}/login/signin
 Cache-Control: no-cache, no-store, max-age=0, must-revalidate
 Content-Type: application/json;charset=UTF-8
 Pragma: no-cache
@@ -62,10 +62,10 @@ Accept: application/json, text/plain, */*
 Accept-Encoding: gzip, deflate, br
 Accept-Language: en-US,en;q=0.9
 Access-Control-Allow-Credentials: true
-Access-Control-Allow-Origin: https://{{host}}:4200
+Access-Control-Allow-Origin: https://{{host}}:{{clientport}}
 Host: {{host}}:{{port}}
-Origin: https://{{host}}:4200
-Referer: https://{{host}}:4200/login/signin
+Origin: https://{{host}}:{{clientport}}
+Referer: https://{{host}}:{{clientport}}/login/signin
 Cache-Control: no-cache, no-store, max-age=0, must-revalidate
 Content-Type: application/json;charset=UTF-8
 Pragma: no-cache
@@ -115,10 +115,10 @@ Accept: application/json, text/plain, */*
 Accept-Encoding: gzip, deflate, br
 Accept-Language: en-US,en;q=0.9
 Access-Control-Allow-Credentials: true
-Access-Control-Allow-Origin: https://{{host}}:4200
+Access-Control-Allow-Origin: https://{{host}}:{{clientport}}
 Host: {{host}}:{{port}}
-Origin: https://{{host}}:4200
-Referer: https://{{host}}:4200/login/signin
+Origin: https://{{host}}:{{clientport}}
+Referer: https://{{host}}:{{clientport}}/login/signin
 Cache-Control: no-cache, no-store, max-age=0, must-revalidate
 Content-Type: application/json;charset=UTF-8
 Pragma: no-cache
@@ -176,10 +176,10 @@ Accept: application/json, text/plain, */*
 Accept-Encoding: gzip, deflate, br
 Accept-Language: en-US,en;q=0.9
 Access-Control-Allow-Credentials: true
-Access-Control-Allow-Origin: https://{{host}}:4200
+Access-Control-Allow-Origin: https://{{host}}:{{clientport}}
 Host: {{host}}:{{port}}
-Origin: https://{{host}}:4200
-Referer: https://{{host}}:4200/login/signin
+Origin: https://{{host}}:{{clientport}}
+Referer: https://{{host}}:{{clientport}}/login/signin
 Cache-Control: no-cache, no-store, max-age=0, must-revalidate
 Content-Type: application/json;charset=UTF-8
 Pragma: no-cache
@@ -206,3 +206,17 @@ Connection: keep-alive
     });
 %}
 ####
+
+### get profile
+GET https://{{host}}:{{port}}/api/profilessearch?lastName=Lorenc
+Accept: application/json
+Authorization: Bearer {{accessToken}}
+
+> {%
+ client.test("Request executed successfully", function() {
+      client.assert(response.status === 200, "Response status is not 200");
+      client.assert(response.body.list !== "Swavek", "Response status is not 200");
+    });
+ client.log('responseBody '+ response.body.firstName)
+%}
+###

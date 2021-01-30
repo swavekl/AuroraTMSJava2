@@ -5,17 +5,32 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.okta.sdk.authc.credentials.TokenClientCredentials;
 import com.okta.sdk.client.Client;
 import com.okta.sdk.client.Clients;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 public class AbstractOktaController {
 
-    protected String api_token = "009u9-0UY7v9lEcDKvpUL_lrEjH_khEaZ4sA0JWbfM";
+    @Value("${okta.client.token}")
+    protected String api_token; // "00ttatCoGYW6r2BSQQswQwmya6bPeoJNdTwUBOC29_";
 
-    protected String oktaServiceBase = "https://dev-758120.oktapreview.com";
+    @Value("${okta.client.orgUrl}")
+    protected String oktaServiceBase; // "https://dev-758120.oktapreview.com";
+
+    @Value("${okta.oauth2.client-id}")
+    protected String clientId;
+
+    @Value("${okta.oauth2.redirectUri}")
+    protected String redirectUri;  // https://gateway-pc:4200/authorization-code/callback
+
+    protected String makePostRequest(String url, String requestBody) throws IOException {
+        return makePostRequest(url, requestBody, "application/json", getAuthorizationHeaderValue());
+    }
 
     /**
      * @param url
@@ -23,13 +38,15 @@ public class AbstractOktaController {
      * @return
      * @throws IOException
      */
-    protected String makePostRequest(String url, String requestBody) throws IOException {
+    protected String makePostRequest(String url, String requestBody, String contentType, String authorization) throws IOException {
         URL registerUserURL = new URL(url);
         HttpURLConnection conn = (HttpURLConnection) registerUserURL.openConnection();
         conn.setRequestMethod("POST");
         conn.setRequestProperty("Accept", "application/json");
-        conn.setRequestProperty("Content-Type", "application/json");
-        conn.setRequestProperty("Authorization", getAuthorizationHeaderValue());
+        conn.setRequestProperty("Content-Type", contentType);
+        if (authorization != null) {
+            conn.setRequestProperty("Authorization", authorization);
+        }
 
         if (requestBody != null && requestBody.length() > 0) {
             conn.setDoOutput(true);
@@ -40,8 +57,7 @@ public class AbstractOktaController {
         }
 
         if (conn.getResponseCode() != 200) {
-            throw new RuntimeException("Failed : HTTP error code : "
-                    + conn.getResponseCode());
+            throwException(conn);
         }
 
         BufferedReader br = new BufferedReader(new InputStreamReader((conn.getInputStream())));
@@ -59,8 +75,8 @@ public class AbstractOktaController {
                 new TypeReference<Map<String, Object>>() {
                 });
 
-        String prettyPrintResult = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(jsonMap);
-        System.out.println("POST prettyPrintResult = " + prettyPrintResult);
+//        String prettyPrintResult = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(jsonMap);
+//        System.out.println("POST prettyPrintResult = " + prettyPrintResult);
 
         return result;
     }
@@ -73,13 +89,13 @@ public class AbstractOktaController {
     protected String makeGetRequest(String urlString) throws IOException {
         String result = makeGetRequestInternal(urlString);
 
-        ObjectMapper objectMapper = new ObjectMapper();
-        Map<String, Object> jsonMap = objectMapper.readValue(result,
-                new TypeReference<Map<String, Object>>() {
-                });
-
-        String prettyPrintResult = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(jsonMap);
-        System.out.println("GET prettyPrintResult = " + prettyPrintResult);
+//        ObjectMapper objectMapper = new ObjectMapper();
+//        Map<String, Object> jsonMap = objectMapper.readValue(result,
+//                new TypeReference<Map<String, Object>>() {
+//                });
+//
+//        String prettyPrintResult = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(jsonMap);
+//        System.out.println("GET prettyPrintResult = " + prettyPrintResult);
 
         return result;
     }
@@ -94,22 +110,7 @@ public class AbstractOktaController {
         conn.setRequestProperty("Authorization", getAuthorizationHeaderValue());
 
         if (conn.getResponseCode() != 200) {
-            String responseMessage = conn.getResponseMessage();
-            InputStream errorStream = conn.getErrorStream();
-            byte [] errorText = new byte [1024];
-            int read = errorStream.read(errorText);
-            StringBuffer buffer = new StringBuffer();
-            while (read > 0) {
-                buffer.append(errorText);
-                read = errorStream.read(errorText);
-                System.out.println("read = " + read);
-                System.out.println("errorText = " + errorText);
-            }
-            errorStream.close();
-            String error = buffer.toString();
-            System.out.println("error = " + error);
-            throw new RuntimeException("Failed : HTTP error code : "
-                    + conn.getResponseCode() + "\nresponse message " + responseMessage);
+            throwException(conn);
         }
 
         // read response into a string
@@ -123,6 +124,31 @@ public class AbstractOktaController {
 
         conn.disconnect();
         return result.toString();
+    }
+
+    /**
+     *
+     * @param conn
+     * @throws IOException
+     */
+    private void throwException(HttpURLConnection conn) throws IOException {
+        String responseMessage = conn.getResponseMessage();
+        InputStream errorStream = conn.getErrorStream();
+
+        StringBuilder textBuilder = new StringBuilder();
+        try (Reader reader = new BufferedReader(new InputStreamReader
+                (errorStream, Charset.forName(StandardCharsets.UTF_8.name())))) {
+            int c = 0;
+            while ((c = reader.read()) != -1) {
+                textBuilder.append((char) c);
+            }
+        }
+        conn.disconnect();
+
+        String error = textBuilder.toString();
+        throw new RuntimeException("Failed : HTTP error code : " + conn.getResponseCode()
+                + "\nresponse message " + responseMessage
+                + "\nerror message " + error);
     }
 
     protected String getAuthorizationHeaderValue() {

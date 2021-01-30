@@ -1,6 +1,6 @@
 buildscript {
     ext {
-        springBootVersion = '2.1.0.RELEASE'
+        springBootVersion = '2.4.0'
     }
     repositories {
         mavenCentral()
@@ -23,29 +23,48 @@ repositories {
     mavenCentral()
 }
 
+//def oktaSdkVersion = "1.5.4"
+def oktaSdkVersion = "3.0.1"
+//def oktaSdkVersion = "2.0.0"
+def oktaAuthnSdkVersion = "2.0.0"
 
 dependencies {
     implementation('org.springframework.boot:spring-boot-starter-data-jpa')
     implementation('org.springframework.boot:spring-boot-starter-data-rest')
-    implementation('org.springframework.boot:spring-boot-starter-security')
+    implementation('org.springframework.boot:spring-boot-starter-security') {
+        exclude group: 'org.apache.logging.log4j', module: 'log4j-slf4j-impl'
+    }
     implementation('org.springframework.boot:spring-boot-starter-actuator')
     implementation('org.springframework.boot:spring-boot-starter-web')
+    implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
     implementation "org.springframework.security:spring-security-acl"
     implementation "org.springframework.security:spring-security-config"
     implementation "org.springframework:spring-context-support"
     implementation "net.sf.ehcache:ehcache-core:2.6.11"
-    implementation('com.okta.spring:okta-spring-boot-starter:0.6.1')
-    implementation('org.springframework.security.oauth.boot:spring-security-oauth2-autoconfigure:2.1.0.RELEASE')
-    implementation('org.springframework.security.oauth.boot:spring-security-oauth2-autoconfigure:2.1.0.RELEASE')
+//    implementation('com.okta.spring:okta-spring-boot-starter:0.6.1')
+//    implementation('com.okta.spring:okta-spring-boot-starter:1.5.1')
+    implementation('com.okta.spring:okta-spring-boot-starter:2.0.0')
+    implementation('org.springframework.security.oauth.boot:spring-security-oauth2-autoconfigure:2.4.0')
+//    implementation('org.springframework.security.oauth.boot:spring-security-oauth2-autoconfigure:2.3.6.RELEASE')
+//    implementation('org.springframework.security.oauth.boot:spring-security-oauth2-autoconfigure:2.1.0.RELEASE')
     //implementation('org.springframework.security.oauth:spring-security-oauth2:1.0.5.RELEASE')
     runtimeOnly('mysql:mysql-connector-java')
-    compileOnly('org.projectlombok:lombok')
+    compileOnly('org.projectlombok:lombok:1.18.16')
+    annotationProcessor ('org.projectlombok:lombok:1.18.16')
     testImplementation('org.springframework.boot:spring-boot-starter-test')
     testImplementation('org.springframework.security:spring-security-test')
+    implementation 'org.junit.vintage:junit-vintage-engine:5.7.0'
 // https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-core
-    implementation ('com.fasterxml.jackson.core:jackson-core:2.9.8')
-    implementation ('com.okta.sdk:okta-sdk-api:1.5.4')
-    runtimeOnly ('com.okta.sdk:okta-sdk-impl:1.5.4')
-    runtimeOnly ('com.okta.sdk:okta-sdk-httpclient:1.5.4')
-
+//    implementation ('com.fasterxml.jackson.core:jackson-core:2.9.8')
+    implementation ('com.fasterxml.jackson.core:jackson-core:2.11.4')
+    implementation ("com.okta.sdk:okta-sdk-api:${oktaSdkVersion}")
+    runtimeOnly ("com.okta.sdk:okta-sdk-impl:${oktaSdkVersion}")
+    runtimeOnly ("com.okta.sdk:okta-sdk-httpclient:${oktaSdkVersion}")
+    implementation("com.okta.authn.sdk:okta-authn-sdk-api:${oktaAuthnSdkVersion}")
+    runtimeOnly ("com.okta.authn.sdk:okta-authn-sdk-impl:${oktaAuthnSdkVersion}")
+    runtimeOnly ('javax.validation:validation-api:2.0.0.Final')
 }
+
+//configurations {
+//    all*.exclude module : 'spring-boot-starter-logging'
+//}

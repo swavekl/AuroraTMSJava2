@@ -22,9 +22,14 @@ export class TournamentConfigEditComponent {
 
   // list of US states
   statesList: any [];
+  tournamentTypes: any [];
 
   constructor() {
-    this.statesList = new StatesList().getList();
+    this.statesList = StatesList.getList();
+    this.tournamentTypes = [];
+    this.tournamentTypes.push({name: 'Ratings Restricted', value: 'RatingsRestricted'});
+    this.tournamentTypes.push({name: 'Round Robin', value: 'RoundRobin'});
+    this.tournamentTypes.push({name: 'Teams', value: 'Teams'});
   }
 
   setActiveTab(tabIndex: number) {
@@ -45,4 +50,13 @@ export class TournamentConfigEditComponent {
   onCancel() {
     this.canceled.emit('cancelled');
   }
+
+  public get tournamentType(): string {
+    return this.tournament?.configuration?.tournamentType;
+  }
+
+  public set tournamentType(tournamentType: string) {
+    this.tournament.configuration.tournamentType = tournamentType;
+  }
+
 }

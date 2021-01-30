@@ -32,6 +32,7 @@ export class SignInComponent implements OnInit {
   }
 
   login() {
+    this.status = '';
     this.store.dispatch(new ResetStore());
     this.authenticationService.login(this.email, this.password)
       .subscribe(data => {
@@ -44,8 +45,10 @@ export class SignInComponent implements OnInit {
           console.log ('error logging in', error._body);
           if (error._body) {
             this.status = error._body;
+          } else if (error?.error?.error != null) {
+            // this.status = error.error.error;
+            this.status = 'Invalid username and/or password.';
           }
         });
   }
-
 }

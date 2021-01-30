@@ -1,0 +1,126 @@
+<div fxLayout="row">
+  <div fxFlex></div>
+  <div fxFlex.lt-md="100%" fxFlex="60%">
+    <form name="form" (ngSubmit)="onSave(f.value)" #f="ngForm" novalidate>
+      <input type="hidden" [ngModel]="entry?.id" name="id">
+      <input type="hidden" [ngModel]="entry?.tournamentId" name="tournamentId">
+      <mat-vertical-stepper linear>
+        <mat-step label="Entry Type" *ngIf="!teamsTournament">
+          <mat-radio-group [ngModel]="entry?.type" name="type" (change)="typeChanged($event)">
+            <div fxLayout="column" fxLayoutGap="20px">
+              <mat-radio-button *ngIf="!teamsTournament" value="0" [checked]="!teamsTournament">Individual</mat-radio-button>
+              <mat-radio-button *ngIf="!teamsTournament" value="1" [checked]="!teamsTournament">Family</mat-radio-button>
+              <mat-radio-button *ngIf="teamsTournament" value="2" [checked]="teamsTournament">Team</mat-radio-button>
+            </div>
+          </mat-radio-group>
+          <div>
+            <button mat-button matStepperNext type="button">Next</button>
+          </div>
+        </mat-step>
+        <mat-step label="Group/Family Members" *ngIf="entry?.type == 1 || teamsTournament">
+          Select member to enter/modify entry for
+          <mat-toolbar>
+            <mat-toolbar-row>
+              <button type="button" mat-button (click)="addMember()">
+                <mat-icon matListIcon>add</mat-icon>
+                Add Member
+              </button>
+            </mat-toolbar-row>
+          </mat-toolbar>
+          <table mat-table [dataSource]="otherPlayersBS$ | async" style="width: 100%">
+            <ng-container matColumnDef="name">
+              <th mat-header-cell *matHeaderCellDef>First Name, Last Name</th>
+              <td mat-cell *matCellDef="let player">{{player.firstName}} {{player.lastName}}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="action">
+              <th mat-header-cell *matHeaderCellDef>Action</th>
+              <td mat-cell *matCellDef="let player">
+                <button type="button" mat-icon-button (click)="addMember()">
+                  <mat-icon matListIcon>edit</mat-icon>
+                </button>
+              </td>
+            </ng-container>
+            <tr mat-header-row *matHeaderRowDef="columnsToDisplay"></tr>
+            <tr mat-row *matRowDef="let myRowData; columns: columnsToDisplay"></tr>
+          </table>
+          <div>
+            <button mat-button matStepperPrevious type="button">Back</button>
+            <button mat-button matStepperNext type="button">Next</button>
+          </div>
+        </mat-step>
+        <mat-step label="USATT Membership">
+          Choose type of membership for this player
+          <mat-radio-group [ngModel]="entry?.membership" name="type">
+            <div fxLayout="column" fxLayoutGap="20px">
+              <mat-radio-button value="Current">Membership is up to date</mat-radio-button>
+              <mat-radio-button value="TournamentPass">Tournament Pass ($20)</mat-radio-button>
+              <mat-radio-button value="Single_1Y">Individual 1 year ($75)</mat-radio-button>
+              <mat-radio-button value="Single_3Y">Individual 3 years ($210)</mat-radio-button>
+              <mat-radio-button value="Single_5Y">Individual 5 years ($325)</mat-radio-button>
+              <mat-radio-button value="Junior_1Y">Junior 1-year (17 and under) ($45)</mat-radio-button>
+              <mat-radio-button value="Junior_3Y">Junior 3-year (14 and under) ($125)</mat-radio-button>
+              <mat-radio-button value="College_1Y">Collegiate 3-year ($45)</mat-radio-button>
+              <mat-radio-button value="Household_1Y">Household 1-year ($150)</mat-radio-button>
+<!--              <mat-radio-button value="Lifetime">Lifetime ($1000)</mat-radio-button>-->
+            </div>
+          </mat-radio-group>
+          <div>
+            <button mat-button matStepperPrevious type="button">Back</button>
+            <button mat-button matStepperNext type="button">Next</button>
+          </div>
+        </mat-step>
+        <mat-step label="Events">
+          <mat-list>
+            <h3 mat-subheader>Entered Events</h3>
+            <mat-list-item *ngFor="let enteredEvent of enteredEvents; last as last">
+              <mat-icon mat-list-icon>folder</mat-icon>
+              <h4 mat-line>{{enteredEvent.name}}</h4>
+              <mat-divider [inset]="true" *ngIf="!last"></mat-divider>
+            </mat-list-item>
+            <mat-divider></mat-divider>
+            <h3 mat-subheader>Events Available to Enter</h3>
+            <mat-list-item *ngFor="let availableEvent of allEvents; last as last2">
+              <mat-icon mat-list-icon>note</mat-icon>
+              <h4 mat-line>{{availableEvent.name}}</h4>
+              <mat-divider [inset]="true" *ngIf="!last2"></mat-divider>
+            </mat-list-item>
+            <mat-divider></mat-divider>
+            <h3 mat-subheader>Events Not Available to Enter</h3>
+            <mat-list-item *ngFor="let unavailableEvent of unavailableEvents; last as last3">
+              <mat-icon mat-list-icon>note</mat-icon>
+              <h4 mat-line>{{unavailableEvent.name}}</h4>
+              <mat-divider [inset]="true" *ngIf="!last3"></mat-divider>
+            </mat-list-item>
+          </mat-list>
+          <div>
+            <button mat-button matStepperPrevious type="button">Back</button>
+            <button mat-button matStepperNext type="button">Next</button>
+          </div>
+        </mat-step>
+        <mat-step label="Summary">
+          View summary / choose to register more players or proceed or pay total
+          <div>
+            <button mat-button matStepperPrevious type="button">Back</button>
+            <button mat-button matStepperNext type="button">Next</button>
+          </div>
+        </mat-step>
+        <mat-step label="Payment/Refund">
+          Pay or confirm refund issuance
+          <div>
+            <button mat-button matStepperPrevious type="button">Back</button>
+            <button mat-button matStepperNext type="button">Next</button>
+          </div>
+        </mat-step>
+        <mat-step label="Completed">
+          Pay or confirm refund issuance
+          <div>
+            <button mat-button matStepperPrevious type="button">Back</button>
+            <button mat-button type="submit">Finish</button>
+          </div>
+        </mat-step>
+      </mat-vertical-stepper>
+    </form>
+  </div>
+  <div fxFlex></div>
+</div>

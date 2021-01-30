@@ -43,6 +43,11 @@ public class TournamentInfoController {
         tournamentInfo.setStartDate(tournament.getStartDate());
         tournamentInfo.setEndDate(tournament.getEndDate());
         tournamentInfo.setStarLevel(tournament.getStarLevel());
+        if (tournament.getConfiguration() != null) {
+            tournamentInfo.setTournamentType(tournament.getConfiguration().getTournamentType());
+        } else {
+            tournamentInfo.setTournamentType(TournamentType.RatingsRestricted);
+        }
         return tournamentInfo;
     }
 }

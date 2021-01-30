@@ -27,4 +27,5 @@ public class TournamentInfo {
     private Date startDate;
     private Date endDate;
     private int starLevel;
+    private TournamentType tournamentType;
 }

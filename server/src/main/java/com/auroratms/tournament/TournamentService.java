@@ -14,6 +14,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.acls.domain.BasePermission;
 import org.springframework.security.acls.domain.GrantedAuthoritySid;
 import org.springframework.security.acls.domain.ObjectIdentityImpl;
+import org.springframework.security.acls.domain.PrincipalSid;
 import org.springframework.security.acls.model.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -189,5 +190,14 @@ public class TournamentService {
         }
         return isAdmin;
 
+    }
+
+    public String getTournamentOwner(long tournamentId) {
+        ObjectIdentity objectIdentity = new ObjectIdentityImpl(TournamentEntity.class, tournamentId);
+        Acl acl = aclService.readAclById(objectIdentity);
+        Sid owner = acl.getOwner();
+        return (owner instanceof PrincipalSid)
+                ? ((PrincipalSid)owner).getPrincipal()
+                : ((GrantedAuthoritySid)owner).getGrantedAuthority();
     }
 }

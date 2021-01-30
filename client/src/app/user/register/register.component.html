@@ -1,31 +1,42 @@
 <mat-card-title style="text-align: center">SIGN UP</mat-card-title>
-<form name="form" (ngSubmit)="f.form.valid && register()" #f="ngForm" novalidate>
-  <div fxLayout="column">
-    <mat-form-field>
-      <input type="text" matInput placeholder="First Name" name="firstName" [(ngModel)]="firstName" required />
-      <mat-error>First Name is required</mat-error>
-    </mat-form-field>
-    <mat-form-field>
-      <input type="text" matInput placeholder="Last Name" name="lastName" [(ngModel)]="lastName" required />
-      <mat-error>Last Name is required</mat-error>
-    </mat-form-field>
-    <mat-form-field>
-      <input type="email" matInput placeholder="Email" name="email" [(ngModel)]="email" required>
-      <mat-error>Email is required</mat-error>
-    </mat-form-field>
-    <mat-form-field>
-      <input type="password" matInput placeholder="Password" name="password" [(ngModel)]="password" required />
-      <mat-error>Password is required</mat-error>
-    </mat-form-field>
-    <mat-form-field>
-      <input type="password" matInput placeholder="Reenter Password" name="password2" [(ngModel)]="password2" required />
-      <mat-error>Passwords don't match</mat-error>
-    </mat-form-field>
-  </div>
-  <div>
-    {{ status }}
-  </div>
+<mat-card-content>
+  <form name="form" #f="ngForm" novalidate>
+    <div fxLayout="column" [hidden]="done">
+      <mat-form-field>
+        <input type="text" matInput placeholder="First Name" name="firstName" [(ngModel)]="firstName" required/>
+        <mat-error>First Name is required</mat-error>
+      </mat-form-field>
+      <mat-form-field>
+        <input type="text" matInput placeholder="Last Name" name="lastName" [(ngModel)]="lastName" required/>
+        <mat-error>Last Name is required</mat-error>
+      </mat-form-field>
+      <mat-form-field>
+        <input type="email" matInput placeholder="Email" name="email" [(ngModel)]="email" required>
+        <mat-error>Email is required</mat-error>
+      </mat-form-field>
+      <div style="padding-bottom: 15px">Password must contain upper and lower case letters and digits and be at least 8
+        characters long
+      </div>
+      <mat-form-field fxFlex="75%">
+        <input type="password" matInput placeholder="Password" name="password" [(ngModel)]="password"
+               required pattern="[a-zA-Z0-9]{8,}"/>
+        <mat-error *ngIf="f.form.controls['password']?.errors?.required">Password is required</mat-error>
+        <mat-error *ngIf="f.form.controls['password']?.errors?.pattern">Invalid password</mat-error>
+      </mat-form-field>
+      <mat-form-field fxFlex="75%">
+        <input type="password" matInput placeholder="Reenter Password" name="password2" [(ngModel)]="password2"
+               required pattern="{{ password }}" [errorStateMatcher]="crossFieldErrorMatcher"/>
+        <mat-error *ngIf="f.form.controls['password2']?.errors?.required">Password is required</mat-error>
+        <mat-error *ngIf="f.form.controls['password2']?.errors?.pattern">Passwords don't match</mat-error>
+      </mat-form-field>
+    </div>
+  </form>
+</mat-card-content>
+<mat-card-actions>
   <div class="form-group">
-    <button mat-raised-button color="primary">REGISTER</button>
+    <button mat-raised-button color="primary" [disabled]="!f.form.valid" (click)="register()">REGISTER</button>
   </div>
-</form>
+</mat-card-actions>
+<mat-card-footer>
+  <h4 [hidden]="!done" [innerHtml]="message"></h4>
+</mat-card-footer>

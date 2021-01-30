@@ -4,9 +4,13 @@ export class Profile {
   lastName: string;
   mobilePhone: string;
   email: string;
+  streetAddress: string;
   city: string;
   state: string;
   zipCode: string;
+  countryCode: string;
+  gender: string;
+  dateOfBirth: Date;
 
   constructor() {
 
@@ -18,8 +22,12 @@ export class Profile {
     this.lastName = formValues.lastName;
     this.mobilePhone = formValues.mobilePhone;
     this.email = formValues.email;
+    this.streetAddress = formValues.streetAddress;
     this.city = formValues.city;
     this.state = formValues.state;
     this.zipCode = formValues.zipCode;
+    this.countryCode = formValues.countryCode;
+    this.gender = formValues.gender;
+    this.dateOfBirth = formValues.dateOfBirth;
   }
 }

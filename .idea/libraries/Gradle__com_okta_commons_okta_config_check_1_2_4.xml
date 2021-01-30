@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="Gradle: com.okta.commons:okta-config-check:1.2.4">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.okta.commons/okta-config-check/1.2.4/9b601066f9d3784e950a8cccabf84f6878efc2cd/okta-config-check-1.2.4.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.okta.commons/okta-config-check/1.2.4/b90c1ad9aeff88102998412338690508e1722131/okta-config-check-1.2.4-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

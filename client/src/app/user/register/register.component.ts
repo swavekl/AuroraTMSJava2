@@ -1,6 +1,7 @@
 import {Component, OnInit} from '@angular/core';
-import {ActivatedRoute, Router} from '@angular/router';
+import {Router} from '@angular/router';
 import {AuthenticationService} from '../authentication.service';
+import {CrossFieldErrorMatcher} from '../cross-field-error-matcher/cross-field-error-matcher';
 
 @Component({
   selector: 'app-register',
@@ -9,36 +10,42 @@ import {AuthenticationService} from '../authentication.service';
 })
 export class RegisterComponent implements OnInit {
 
-  firstName = 'Mario';
+  firstName = 'Julia';
   lastName = 'Lorenc';
-  email = 'swaveklorenc+mario@gmail.com';
-  password = 'Mario1234';
-  password2 = 'Mario1234';
+  email = 'swaveklorenc+julia@gmail.com';
+  password = 'Julia1234';
+  password2 = 'Julia1234';
 
-  status = '';
+  crossFieldErrorMatcher = new CrossFieldErrorMatcher();
+
+  public message: string;
+  public done: boolean;
 
   constructor(
     private authenticationService: AuthenticationService,
-    private route: ActivatedRoute,
     private router: Router
   ) {
   }
 
   ngOnInit() {
-    this.status = '';
+    this.message = '';
+    this.done = false;
   }
 
   register() {
+    this.done = false;
     this.authenticationService.register(this.firstName, this.lastName, this.email, this.password, this.password2)
-      .subscribe(data => {
-        console.log ('registration successful');
-            this.router.navigate(['/registrationconfirmed']);
+      .subscribe(
+        data => {
+          this.message = 'Email was sent to your email account.  Please follow instruction in the email to continue...';
+          // this.router.navigate(['/registrationconfirmed']);
+          this.done = true;
         },
         error => {
-          console.log ('error registering', error._body);
-          if (error._body) {
-            this.status = error._body;
-          }
+            console.log('error registering', error);
+            const causes = error?.error?.errorCauses || '{}';
+            this.message = 'Error was encountered during registration: ' + JSON.stringify(causes);
+          this.done = true;
         });
   }
 }

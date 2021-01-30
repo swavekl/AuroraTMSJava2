@@ -17,9 +17,11 @@
       <button mat-mini-fab color="white"><mat-icon>remove_red_eye</mat-icon></button>
     </div>
     <button mat-raised-button color="primary">LOGIN</button>
+    <div style="color: red">{{status}}</div>
   </div>
   <!--<button class="mat-button my-icon-button" aria-label="Facebook" (click)="loginWithFacebook()">-->
   <!--<img src="assets/images/FB-f-Logo__blue_29.png" alt="Facebook">-->
   <!--</button>-->
 </form>
 <h3>Don't have an account? <a mat-button color="primary" routerLink="../register">SIGN UP</a></h3>
+<h3>Forgot password? <a mat-button color="primary" routerLink="/resetpasswordstart">RESET</a></h3>

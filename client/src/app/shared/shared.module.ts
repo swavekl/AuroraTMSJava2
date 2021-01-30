@@ -8,6 +8,7 @@ import {MatCardModule} from '@angular/material/card';
 import {MatDialogModule} from '@angular/material/dialog';
 import {MatButtonModule} from '@angular/material/button';
 import {LocalStorageService} from './local-storage.service';
+import {CountriesList} from './countries-list';
 
 
 @NgModule({

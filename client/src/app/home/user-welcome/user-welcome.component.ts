@@ -23,6 +23,7 @@ export class UserWelcomeComponent implements OnInit {
 
   ngOnInit() {
     this.username = this.activatedRoute.snapshot.queryParamMap.get('email');
+    this.firstName = this.activatedRoute.snapshot.queryParamMap.get('firstName');
     this.username = this.username.replace(' ', '+');
     const activationToken = this.activatedRoute.snapshot.queryParamMap.get('token');
     this.authenticationService.validateEmail(this.username, activationToken)
@@ -30,9 +31,6 @@ export class UserWelcomeComponent implements OnInit {
         console.log('activation successful', data);
         if (data != null) {
           this.activationResult = true;
-          this.firstName = 'Mario';
-          this.lastName = 'Lorenc';
-          // this.router.navigate(['/userwelcome']);
         }
       },
       error => {

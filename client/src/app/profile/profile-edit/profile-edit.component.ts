@@ -1,6 +1,7 @@
 import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {Profile} from '../profile';
 import {StatesList} from '../../shared/states/states-list';
+import {CountriesList} from '../../shared/countries-list';
 
 @Component({
   selector: 'app-profile-edit',
@@ -19,9 +20,15 @@ export class ProfileEditComponent implements OnInit {
   // list of US states
   statesList: any [];
 
+  countries: any [];
+
+  maxDateOfBirth: Date;
+
   constructor() {
     this.profile = new Profile();
-    this.statesList = new StatesList().getList();
+    this.statesList = StatesList.getList();
+    this.maxDateOfBirth = new Date();
+    this.countries = CountriesList.getList();
   }
 
   ngOnInit() {

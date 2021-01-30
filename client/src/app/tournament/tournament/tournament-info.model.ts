@@ -9,6 +9,7 @@ export class TournamentInfo {
   zipCode: string;
   startDate: Date;
   endDate: Date;
+  tournamentType: String;
 
   // convert dates from string to date objects
   static convert(tournamentInfo: TournamentInfo): TournamentInfo {

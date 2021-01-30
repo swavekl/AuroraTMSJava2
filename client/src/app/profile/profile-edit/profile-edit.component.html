@@ -19,28 +19,27 @@
               <mat-error>This field is required</mat-error>
             </mat-form-field>
           </div>
-<!--          <div fxLayout="row" fxLayoutGap="20px">-->
-<!--            <mat-form-field fxFlex="40%">-->
-<!--              <input matInput [matDatepicker]="pickerDOB" placeholder="Birth Date" name="dateOfBirth"-->
-<!--                     [max]="maxDateOfBirth" [(ngModel)]="profile?.dateOfBirth" required>-->
-<!--              <mat-datepicker-toggle matSuffix [for]="pickerDOB"></mat-datepicker-toggle>-->
-<!--              <mat-datepicker #pickerDOB disabled="false"></mat-datepicker>-->
-<!--            </mat-form-field>-->
-<!--            <mat-radio-group [ngModel]="profile?.gender" name="gender">-->
-<!--              <div style="padding: 15px 0 0 15px">-->
-<!--                <mat-radio-button value="Male">Male</mat-radio-button>&nbsp;&nbsp;&nbsp;-->
-<!--                <mat-radio-button value="Female">Female</mat-radio-button>-->
-<!--              </div>-->
-<!--            </mat-radio-group>-->
-<!--          </div>-->
-<!--          <mat-card-subtitle class="mat-title">Mailing Address</mat-card-subtitle>-->
-<!--          <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="10px">-->
-<!--            <mat-form-field fxFlex="100%">-->
-<!--              <input matInput type="text" placeholder="Street Address" name="streetAddress"-->
-<!--                     [ngModel]="profile?.streetAddress">-->
-<!--            </mat-form-field>-->
-<!--          </div>-->
-
+          <div fxLayout="row" fxLayoutGap="20px">
+            <mat-form-field fxFlex="50%">
+              <input matInput [matDatepicker]="dateOfBirth" placeholder="Birth Date" name="dateOfBirth"
+                     [max]="maxDateOfBirth" [ngModel]="profile?.dateOfBirth" required>
+              <mat-datepicker-toggle matSuffix [for]="dateOfBirth"></mat-datepicker-toggle>
+              <mat-datepicker #dateOfBirth disabled="false"></mat-datepicker>
+            </mat-form-field>
+            <mat-radio-group [ngModel]="profile?.gender" name="gender">
+              <div style="padding: 15px 0 0 15px">
+                <mat-radio-button value="Male">Male</mat-radio-button>&nbsp;&nbsp;&nbsp;
+                <mat-radio-button value="Female">Female</mat-radio-button>
+              </div>
+            </mat-radio-group>
+          </div>
+          <mat-card-subtitle class="mat-title">Mailing Address</mat-card-subtitle>
+          <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="10px">
+            <mat-form-field fxFlex="100%">
+              <input matInput type="text" placeholder="Street Address" name="streetAddress"
+                     [ngModel]="profile?.streetAddress">
+            </mat-form-field>
+          </div>
           <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="10px">
             <mat-form-field fxFlex="55%">
               <input matInput type="text" placeholder="City" name="city" [ngModel]="profile?.city" >
@@ -57,6 +56,15 @@
                      [ngModel]="profile?.zipCode"
                      pattern="[0-9]{5}" maxlength="5" #zipCode="ngModel">
               <mat-error *ngIf="zipCode.control?.hasError('pattern')">Zip code must be 5 digit number</mat-error>
+            </mat-form-field>
+          </div>
+          <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="10px">
+            <mat-form-field fxFlex="100%">
+              <mat-select [ngModel]="profile?.countryCode" name="countryCode" placeholder="Country">
+                <mat-option *ngFor="let country of countries" [value]="country.code">
+                  {{country.name}}
+                </mat-option>
+              </mat-select>
             </mat-form-field>
           </div>
           <mat-card-subtitle class="mat-title">Contact Information</mat-card-subtitle>

@@ -3,11 +3,11 @@ import {Profile} from '../profile';
 import {Observable} from 'rxjs';
 import {AuthenticationService} from '../../user/authentication.service';
 import {ProfileService} from '../profile.service';
-import {error} from '@angular/compiler/src/util';
 
 @Component({
   selector: 'app-profile-edit-container',
   template: `
+    <app-linear-progress-bar [loading]="loading$ | async"></app-linear-progress-bar>
     <app-profile-edit [profile]="profile$ | async"
                          (saved)="onSave($event)"
                          (canceled)="onCancel($event)">
@@ -19,6 +19,7 @@ import {error} from '@angular/compiler/src/util';
 export class ProfileEditContainerComponent implements OnInit {
   // this is what we edit
   profile$: Observable<Profile>;
+  loading$: Observable<boolean>;
 
   constructor(private authenticationService: AuthenticationService,
               private profileService: ProfileService) {
@@ -27,7 +28,7 @@ export class ProfileEditContainerComponent implements OnInit {
   ngOnInit() {
     const currentUser = this.authenticationService.getCurrentUser();
     this.profile$ = this.profileService.getProfile(currentUser.id);
-    this.profile$.subscribe();  // make the call
+    this.loading$ = this.profileService.loading$;
   }
 
   onSave(profile: Profile) {

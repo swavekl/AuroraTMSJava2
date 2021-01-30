@@ -3,9 +3,8 @@ package com.auroratms.profile;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.Entity;
 import javax.persistence.Id;
-import java.util.Map;
+import java.util.Date;
 
 @Data
 @NoArgsConstructor
@@ -17,18 +16,12 @@ public class UserProfile {
     private String lastName;
     private String mobilePhone;
     private String email;
+    private String streetAddress;
     private String city;
     private String state;
     private String zipCode;
+    private String countryCode;
+    private String gender;
+    private Date dateOfBirth;
 
-    public UserProfile(String userId, Map<String, Object> oktaUserProfile) {
-        this.userId = userId;
-        this.firstName = (String) oktaUserProfile.get("firstName");
-        this.lastName = (String) oktaUserProfile.get("lastName");
-        this.mobilePhone = (String) oktaUserProfile.get("mobilePhone");
-        this.email = (String) oktaUserProfile.get("email");
-        this.city = (String) oktaUserProfile.get("city");
-        this.state = (String) oktaUserProfile.get("state");
-        this.zipCode = (String) oktaUserProfile.get("zipCode");
-    }
 }
