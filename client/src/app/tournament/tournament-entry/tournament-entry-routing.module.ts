@@ -5,7 +5,7 @@ import {EntryWizardContainerComponent} from './entry-wizard/entry-wizard-contain
 
 const routes: Routes = [
   {
-    path: 'entrywizard/edit/:entryId',
+    path: 'entrywizard/:tournamentId/edit/:entryId',
     component: EntryWizardContainerComponent
   },
   {

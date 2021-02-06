@@ -11,14 +11,22 @@ export class TournamentViewComponent implements OnInit {
   @Input()
   tournament: TournamentInfo;
 
+  @Input()
+  entryId: number;
+
   constructor(private router: Router) {
   }
 
   ngOnInit(): void {
   }
 
-  onEnter(tournamentId: number) {
-    const url = `entries/entrywizard/${tournamentId}/create`;
+  onEnter() {
+    const url = `entries/entrywizard/${this.tournament.id}/create`;
+    this.router.navigateByUrl(url);
+  }
+
+  onView() {
+    const url = `entries/entrywizard/${this.tournament.id}/edit/${this.entryId}`;
     this.router.navigateByUrl(url);
   }
 }

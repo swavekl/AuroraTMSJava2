@@ -1,8 +1,14 @@
 package com.auroratms.tournamentevententry;
 
 public enum EventEntryStatus {
+    NOT_ENTERED,
     CONFIRMED,
     PENDING_CONFIRMATION,
     PENDING_DELETION,
-    WAITING_LIST
+    WAITING_LIST,
+    ENTERED_WAITING_LIST,
+    DISQUALIFIED_RATING,
+    DISQUALIFIED_AGE,
+    DISQUALIFIED_GENDER,
+    DISQUALIFIED_TIME_CONFLICT
 }

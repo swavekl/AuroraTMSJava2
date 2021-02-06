@@ -9,7 +9,8 @@
         <h4 matLine>{{ tournament?.city }}, {{ tournament?.state }} </h4>
       </mat-card-content>
       <mat-card-actions>
-        <button mat-raised-button type="button" (click)="onEnter(tournament.id)">Enter</button>
+        <button *ngIf="entryId === 0" mat-raised-button type="button" (click)="onEnter()">Enter</button>
+        <button *ngIf="entryId !== 0" mat-raised-button type="button" (click)="onView()">View/Modify</button>
       </mat-card-actions>
     </mat-card>
   </div>

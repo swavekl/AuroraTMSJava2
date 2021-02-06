@@ -16,7 +16,7 @@ public class TournamentEventController {
     private TournamentEventEntityService tournamentEventEntityService;
 
     @GetMapping("/tournament/{tournamentId}/tournamentevents")
-    @PreAuthorize("hasAuthority('TournamentDirector') or hasAuthority('Admins')")
+//    @PreAuthorize("hasAuthority('TournamentDirector') or hasAuthority('Admins')")
     public Collection<TournamentEventEntity> list(@PathVariable Long tournamentId, Pageable pageable) {
         return tournamentEventEntityService.list(tournamentId, pageable);
     }

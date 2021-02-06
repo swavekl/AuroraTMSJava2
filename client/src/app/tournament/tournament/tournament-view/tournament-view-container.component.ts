@@ -1,35 +1,65 @@
-import {ChangeDetectionStrategy, Component, OnInit} from '@angular/core';
-import {Observable} from 'rxjs';
+import {ChangeDetectionStrategy, Component, OnDestroy, OnInit} from '@angular/core';
+import {Observable, Subject, Subscription} from 'rxjs';
 import {TournamentInfo} from '../tournament-info.model';
 import {ActivatedRoute} from '@angular/router';
 import {TournamentInfoService} from '../tournament-info.service';
+import {TournamentEntryService} from '../../tournament-entry/service/tournament-entry.service';
+import {TournamentEntry} from '../../tournament-entry/model/tournament-entry.model';
+import {AuthenticationService} from '../../../user/authentication.service';
+import {createSelector} from '@ngrx/store';
 
 @Component({
   selector: 'app-tournament-view-container',
   template: `
     <app-linear-progress-bar [loading]="loading$ | async"></app-linear-progress-bar>
-    <app-tournament-view [tournament]="tournament$ | async"></app-tournament-view>
+    <app-tournament-view [tournament]="tournament$ | async" [entryId]="entryId$ | async">
+    </app-tournament-view>
   `,
   styles: [],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class TournamentViewContainerComponent implements OnInit {
+export class TournamentViewContainerComponent implements OnInit, OnDestroy {
 
   tournament$: Observable<TournamentInfo>;
+  entryId$: Subject<number>;
   loading$: Observable<boolean>;
-  private editedId: number;
 
-  constructor(public tournamentService: TournamentInfoService,
+  private subscription: Subscription = new Subscription();
+
+  constructor(private tournamentInfoService: TournamentInfoService,
+              private tournamentEntryService: TournamentEntryService,
+              private authService: AuthenticationService,
               private activatedRoute: ActivatedRoute) {
+    this.entryId$ = new Subject<number>();
   }
 
   ngOnInit(): void {
-    this.editedId = this.activatedRoute.snapshot.params['id'] || 0;
-    this.tournament$ = this.tournamentService.getByKey(this.editedId);
-    this.tournament$.subscribe(data => {
-      console.log('got tournament info data ' + JSON.stringify(data));
-      return data;
+    const tournamentId = this.activatedRoute.snapshot.params['id'] || 0;
+console.log ('getting tournament info for tournament ', tournamentId);
+    const tournamentInfoSelector = this.tournamentInfoService.selectors.selectEntityMap;
+    const selectedTournamentSelector = createSelector(
+      tournamentInfoSelector,
+      (entityMap) => {
+        return entityMap[tournamentId];
+      });
+
+    this.tournament$ = this.tournamentInfoService.store.select(selectedTournamentSelector);
+    const profileId = this.authService.getCurrentUserProfileId();
+    const params = `tournamentId=${tournamentId}&profileId=${profileId}`;
+    const tournamentEntry$: Observable<TournamentEntry[]> = this.tournamentEntryService.getWithQuery(params);
+    const subscription1: Subscription = tournamentEntry$.subscribe( (tournamentEntries: TournamentEntry[]) => {
+      // console.log ('got tournament entries', tournamentEntries);
+      const entryId: number = (tournamentEntries.length > 0) ? tournamentEntries[0].id : 0;
+      console.log ('got entryId ', entryId);
+      this.entryId$.next(entryId);
+    }, error => {
+      this.entryId$.next(0);
     });
+    this.subscription.add(subscription1);
+  }
+
+  ngOnDestroy(): void {
+    this.subscription.unsubscribe();
   }
 
 }

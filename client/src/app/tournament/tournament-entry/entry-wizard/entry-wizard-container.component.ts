@@ -1,13 +1,18 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {TournamentEntry} from '../model/tournament-entry.model';
-import {Observable, of, Subscription} from 'rxjs';
+import {combineLatest, Observable, of, Subscription} from 'rxjs';
 import {TournamentEntryService} from '../service/tournament-entry.service';
 import {ActivatedRoute, Router} from '@angular/router';
 import {createSelector} from '@ngrx/store';
 import {TournamentInfoService} from '../../tournament/tournament-info.service';
 import {TournamentInfo} from '../../tournament/tournament-info.model';
 import {TournamentEventConfigService} from '../../tournament-config/tournament-event-config.service';
+import {TournamentEventEntryService} from '../service/tournament-event-entry.service';
+import {TournamentEventEntry} from '../model/tournament-event-entry.model';
+import {AuthenticationService} from '../../../user/authentication.service';
 import {TournamentEvent} from '../../tournament-config/tournament-event.model';
+import {EventEntryInfo} from '../model/event-entry-info-model';
+import {DateUtils} from '../../../shared/date-utils';
 
 @Component({
   selector: 'app-entry-wizard-container',
@@ -15,31 +20,41 @@ import {TournamentEvent} from '../../tournament-config/tournament-event.model';
     <app-linear-progress-bar [loading]="loading$ | async"></app-linear-progress-bar>
     <app-entry-wizard [entry]="entry$ | async"
                       [teamsTournament]="teamsTournament$ | async"
-                      [allEvents]="tournamentEvents$ | async"
-                      [otherPlayers]="otherPlayers$ | async">
+                      [tournamentStartDate]="tournamentStartDate$ | async"
+                      [allEventEntryInfos]="allEventEntryInfos$ | async"
+                      [otherPlayers]="otherPlayers$ | async"
+                      (eventEntry)="onEventEntryChanged($event)">
     </app-entry-wizard>
   `,
   styles: []
 })
 export class EntryWizardContainerComponent implements OnInit, OnDestroy {
 
+  private entryId: number;
   entry$: Observable<TournamentEntry>;
   loading$: Observable<boolean>;
 
   teamsTournament$: Observable<boolean>;
   otherPlayers$: Observable<any>;
-  tournamentEvents$: Observable<any>;
+  tournamentEvents$: Observable<TournamentEvent[]>;
+  tournamentEventEntries$: Observable<TournamentEventEntry[]>;
+  // events and their status (confirmed, waiting list, not available etc.)
+  allEventEntryInfos$: Observable<EventEntryInfo[]>;
 
-  private subscription: Subscription;
-  private subscription2: Subscription;
-  private subscription3: Subscription;
+  // tournament start date
+  tournamentStartDate$: Observable<Date>;
+
+  tournamentInfo: TournamentInfo;
+
+  private subscriptions: Subscription = new Subscription();
 
   constructor(private tournamentEntryService: TournamentEntryService,
+              private tournamentEventEntryService: TournamentEventEntryService,
               private tournamentInfoService: TournamentInfoService,
               private tournamentEventConfigService: TournamentEventConfigService,
               private activatedRoute: ActivatedRoute,
-              private router: Router) {
-//    this.entry$ = this.tournamentEntryService.entity$;
+              private router: Router,
+              private authService: AuthenticationService) {
     this.loading$ = this.tournamentEntryService.loading$;
 
     this.otherPlayers$ = of([
@@ -57,8 +72,7 @@ export class EntryWizardContainerComponent implements OnInit, OnDestroy {
     const tournamentId = this.activatedRoute.snapshot.params['tournamentId'] || 0;
 
     this.selectEntry(entryId, creating, tournamentId);
-    this.selectTournamentType(tournamentId);
-    this.selectTournamentConfig(tournamentId);
+    this.selectTournamentInfo(tournamentId);
   }
 
   /**
@@ -68,35 +82,51 @@ export class EntryWizardContainerComponent implements OnInit, OnDestroy {
    * @param tournamentId
    */
   private selectEntry(entryId, creating: boolean, tournamentId) {
-    const entityMapSelector = this.tournamentEntryService.selectors.selectEntityMap;
-    const selectedEntrySelector = createSelector(
-      entityMapSelector,
-      (entityMap) => {
-        return entityMap[entryId];
+    // console.log('creating', creating);
+    // console.log('entryId', entryId);
+    if (creating) {
+      const entryToEdit = new TournamentEntry();
+      entryToEdit.tournamentFk = tournamentId;
+      entryToEdit.type = 0; // EntryType.INDIVIDUAL
+      entryToEdit.dateEntered = new Date();
+      entryToEdit.profileId = this.authService.getCurrentUserProfileId();
+      // create new entry
+      this.entry$ = this.tournamentEntryService.upsert(entryToEdit);
+      this.entry$.subscribe((tournamentEntry: TournamentEntry) => {
+        // console.log('created new tournament entry', tournamentEntry);
+        this.selectEventEntries(tournamentId, tournamentEntry.id);
+        return tournamentEntry;
       });
-    const selectedEntry$: Observable<TournamentEntry> = this.tournamentEntryService.store.select(selectedEntrySelector);
-    this.subscription = selectedEntry$.subscribe((next: TournamentEntry) => {
-      let entryToEdit = next;
-      if (creating) {
-        entryToEdit = new TournamentEntry();
-        entryToEdit.tournamentId = tournamentId;
-        entryToEdit.type = 0;
-      } else {
+    } else {
+      // see if entry is cached on the client already
+      // construct a selector to pick this one entry from cache
+      const entityMapSelector = this.tournamentEntryService.selectors.selectEntityMap;
+      const selectedEntrySelector = createSelector(
+        entityMapSelector,
+        (entityMap) => {
+          return entityMap[entryId];
+        });
+      const selectedEntry$: Observable<TournamentEntry> = this.tournamentEntryService.store.select(selectedEntrySelector);
+      const subscription = selectedEntry$.subscribe((next: TournamentEntry) => {
+        console.log('got tournament entry', next);
         // editing - check if we had it in cache if not - then fetch it
-        if (!entryToEdit) {
+        if (!next) {
           this.entry$ = this.tournamentEntryService.getByKey(entryId);
-          return;
+        } else {
+          this.entry$ = of(next);
         }
-      }
-      this.entry$ = of(entryToEdit);
-    });
+        this.selectEventEntries(tournamentId, entryId);
+      });
+      this.subscriptions.add(subscription);
+    }
   }
 
   /**
    *
    * @param tournamentId
    */
-  selectTournamentType(tournamentId: number): void {
+  selectTournamentInfo(tournamentId: number): void {
+    // console.log ('tournamentId', tournamentId);
     const tournamentInfoSelector = this.tournamentInfoService.selectors.selectEntityMap;
     const selectedTournamentSelector = createSelector(
       tournamentInfoSelector,
@@ -105,29 +135,109 @@ export class EntryWizardContainerComponent implements OnInit, OnDestroy {
       });
     const selectedTournamentInfo$: Observable<TournamentInfo> =
       this.tournamentInfoService.store.select(selectedTournamentSelector);
-    this.subscription2 = selectedTournamentInfo$.subscribe((next: TournamentInfo) => {
-      const isTeamsTournament: boolean = (next) ? (next?.tournamentType === 'Teams') : false;
-      console.log('isTeamsTournament', isTeamsTournament);
-      this.teamsTournament$ = of(isTeamsTournament);
+    const subscription = selectedTournamentInfo$.subscribe((tournamentInfo: TournamentInfo) => {
+      if (tournamentInfo) {
+        this.initTournamentData(tournamentInfo);
+      } else {
+        const subscription1 = this.tournamentInfoService.getByKey(tournamentId)
+          .subscribe((tournamentInfo1: TournamentInfo) => {
+            this.initTournamentData(tournamentInfo1);
+        });
+        this.subscriptions.add(subscription1);
+      }
     });
+    this.subscriptions.add(subscription);
   }
 
-  selectTournamentConfig(tournamentId: number) {
-    const selectedTournamentConfig$: Observable<TournamentEvent[]> = this.tournamentEventConfigService.getAllForTournament(tournamentId);
-    this.subscription3 = selectedTournamentConfig$.subscribe((next: TournamentEvent[]) => {
-      this.tournamentEvents$ = of(next || []);
-    });
+  private initTournamentData (tournamentInfo: TournamentInfo): void {
+    this.tournamentInfo = tournamentInfo;
+    const isTeamsTournament: boolean = (tournamentInfo) ? (tournamentInfo?.tournamentType === 'Teams') : false;
+    // console.log('isTeamsTournament', isTeamsTournament);
+    this.teamsTournament$ = of(isTeamsTournament);
+    const startDate = new DateUtils().convertFromString(tournamentInfo.startDate);
+    this.tournamentStartDate$ = of(startDate);
   }
 
   ngOnDestroy(): void {
-    if (this.subscription) {
-      this.subscription.unsubscribe();
+    if (this.subscriptions) {
+      this.subscriptions.unsubscribe();
     }
-    if (this.subscription2) {
-      this.subscription2.unsubscribe();
+  }
+
+  private selectEventEntries(tournamentId: number, entryId: number) {
+
+    this.entryId = entryId;
+
+    // request tournament events
+    this.tournamentEvents$ = this.tournamentEventConfigService.getAllForTournament(tournamentId);
+    const subscription3 = this.tournamentEvents$.subscribe((next: TournamentEvent[]) => {
+        // console.log('got events for tournament');
+        return of(next || []);
+      });
+
+    // request event entries
+    this.tournamentEventEntries$ = this.tournamentEventEntryService.entities$;
+    this.tournamentEventEntryService.getAllForTournamentEntry(entryId);
+    const subscription4 = this.tournamentEventEntries$.subscribe((next: TournamentEventEntry[]) => {
+        // console.log('got event entries', next);
+        return of(next);
+      });
+
+    // setup combining selector
+    const combinedSelector = combineLatest(this.tournamentEvents$, this.tournamentEventEntries$);
+    const subscription5 = combinedSelector.subscribe(([tournamentEvents, tournamentEventEntries]) => {
+      console.log('tournament events', tournamentEvents);
+      console.log('tournament event entries', tournamentEventEntries);
+      const allEventEntries: any [] = this.determineEvents(tournamentEvents, tournamentEventEntries);
+      // Observable<[ObservedValueOf<O1>, ObservedValueOf<O2>]>
+      this.allEventEntryInfos$ = of(allEventEntries);
+    });
+
+    this.subscriptions.add(subscription3);
+    this.subscriptions.add(subscription4);
+    this.subscriptions.add(subscription5);
+  }
+
+  /**
+   * combines event information with event entries
+   * @param tournamentEvents
+   * @param tournamentEventEntries
+   * @private
+   */
+  private determineEvents(tournamentEvents: TournamentEvent [],
+                          tournamentEventEntries: TournamentEventEntry []): EventEntryInfo [] {
+
+    const allEventEntries: EventEntryInfo [] = [];
+    for (let i = 0; i < tournamentEvents.length; i++) {
+      const event = tournamentEvents[i];
+      let entered = false;
+      for (let j = 0; j < tournamentEventEntries.length; j++) {
+        const eventEntry = tournamentEventEntries[j];
+        if (eventEntry.tournamentEventFk === event.id) {
+          entered = true;
+          const eventEntryInfo: EventEntryInfo = {
+            event: event,
+            eventEntry: eventEntry
+          };
+          allEventEntries.push(eventEntryInfo);
+          break;
+        }
+      }
+      if (!entered) {
+        const eventEntryInfo: EventEntryInfo = {
+          event: event,
+          eventEntry: new TournamentEventEntry()
+        };
+        allEventEntries.push(eventEntryInfo);
+      }
     }
-    if (this.subscription3) {
-      this.subscription3.unsubscribe();
-    }
+    // console.log('allEventEntries ', allEventEntries);
+    return allEventEntries;
+  }
+
+  onEventEntryChanged(tournamentEventEntry: TournamentEventEntry) {
+    console.log ('onEventEntryChanged tournamentEventEntry', tournamentEventEntry);
+    this.tournamentEventEntryService.upsert(tournamentEventEntry);
+    this.tournamentEventEntryService.getAllForTournamentEntry(this.entryId);
   }
 }

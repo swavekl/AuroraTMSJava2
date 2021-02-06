@@ -22,7 +22,8 @@ const entityMetadata: EntityMetadataMap = {
     }
   },
   TournamentEvent: {},
-  TournamentEntry: {}
+  TournamentEntry: {},
+  TournamentEventEntry: {}
 };
 
 // because the plural of "hero" is not "heros"

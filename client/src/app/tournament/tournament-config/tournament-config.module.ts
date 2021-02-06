@@ -38,6 +38,7 @@ import {MatCheckboxModule} from '@angular/material/checkbox';
 import { SelectEventDialogComponent } from './select-event-dialog/select-event-dialog.component';
 import {MatDialogModule} from '@angular/material/dialog';
 import {MatTooltipModule} from '@angular/material/tooltip';
+import {TournamentEventEntryDataService} from './tournament-event-entry-data.service';
 
 @NgModule({
   declarations: [
@@ -85,10 +86,12 @@ export class TournamentConfigModule {
     // custom collection services
     tournamentConfigService: TournamentConfigService,
     tournamentEventConfigService: TournamentEventConfigService,
-    tournamentEventConfigDataService: TournamentEventConfigDataService
+    tournamentEventConfigDataService: TournamentEventConfigDataService,
+    tournamentEventEntryDataService: TournamentEventEntryDataService
   ) {
     // register service for contacting REST API because it doesn't follow the pattern of standard REST call
     entityDataService.registerService('TournamentEvent', tournamentEventConfigDataService);
+    entityDataService.registerService('TournamentEventEntry', tournamentEventEntryDataService);
 
     entityServices.registerEntityCollectionServices([
       tournamentConfigService,

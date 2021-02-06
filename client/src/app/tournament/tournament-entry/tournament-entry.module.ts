@@ -15,10 +15,15 @@ import {MatGridListModule} from '@angular/material/grid-list';
 import {MatIconModule} from '@angular/material/icon';
 import {MatTableModule} from '@angular/material/table';
 import {MatToolbarModule} from '@angular/material/toolbar';
+import { EventEntryStatusPipe } from './entry-wizard/pipes/event-entry-status.pipe';
 
 
 @NgModule({
-  declarations: [EntryWizardContainerComponent, EntryWizardComponent],
+  declarations: [
+    EntryWizardContainerComponent,
+    EntryWizardComponent,
+    EventEntryStatusPipe
+  ],
   imports: [
     CommonModule,
     TournamentEntryRoutingModule,
@@ -33,6 +38,8 @@ import {MatToolbarModule} from '@angular/material/toolbar';
     MatIconModule,
     MatTableModule,
     MatToolbarModule
+  ],
+  exports: [
   ]
 })
 export class TournamentEntryModule { }

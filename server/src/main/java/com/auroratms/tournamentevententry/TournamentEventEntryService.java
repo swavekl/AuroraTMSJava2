@@ -1,15 +1,15 @@
 package com.auroratms.tournamentevententry;
 
-import com.auroratms.event.TournamentEventEntity;
+import com.auroratms.error.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Example;
-import org.springframework.data.domain.ExampleMatcher;
-import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @CacheConfig(cacheNames = {"tournament-event-entries"})
@@ -25,4 +25,30 @@ public class TournamentEventEntryService {
 //
 //       return repository.findByTournamentEntryFk(tournamentEntryFk);
     }
+
+    @CachePut(key = "#result.id")
+    public TournamentEventEntry create(TournamentEventEntry tournamentEventEntry) {
+        return repository.save(tournamentEventEntry);
+    }
+
+    @Cacheable(key = "#eventEntryId")
+    public TournamentEventEntry get(Long eventEntryId) {
+        return repository.findById(eventEntryId)
+                .orElseThrow(() -> new ResourceNotFoundException("TournamentEventEntry " + eventEntryId + " not found"));
+    }
+
+    @CachePut(key = "#result.id")
+    public TournamentEventEntry update(TournamentEventEntry tournamentEventEntry) {
+        if (repository.existsById(tournamentEventEntry.getId())) {
+            return repository.save(tournamentEventEntry);
+        } else {
+            throw new ResourceNotFoundException("TournamentEventEntry " + tournamentEventEntry.getId() + " not found");
+        }
+    }
+
+    @CacheEvict(key = "#id")
+    public void delete(long id) {
+        repository.deleteById(id);
+    }
+
 }

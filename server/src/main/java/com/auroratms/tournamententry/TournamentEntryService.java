@@ -10,6 +10,8 @@ import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @CacheConfig (cacheNames = {"tournament-entries"})
 public class TournamentEntryService {
@@ -36,6 +38,19 @@ public class TournamentEntryService {
     public TournamentEntry get(Long entryId) {
         return repository.findById(entryId)
                 .orElseThrow(() -> new ResourceNotFoundException("TournamentEntry " + entryId + " not found"));
+    }
+
+    public List<TournamentEntry> listForTournamentAndUser(Long tournamentId, String profileId) {
+        List<TournamentEntry> entries = repository.findByTournamentFkAndProfileId(tournamentId, profileId);
+        if (entries.size() > 0) {
+            cacheIt(entries.get(0));
+        }
+        return entries;
+    }
+
+    @CachePut(key = "#entry.id")
+    public void cacheIt (TournamentEntry entry) {
+        // do nothing just cache it
     }
 
     @CachePut(key = "#result.id")

@@ -3,7 +3,7 @@
   <div fxFlex.lt-md="100%" fxFlex="60%">
     <form name="form" (ngSubmit)="onSave(f.value)" #f="ngForm" novalidate>
       <input type="hidden" [ngModel]="entry?.id" name="id">
-      <input type="hidden" [ngModel]="entry?.tournamentId" name="tournamentId">
+      <input type="hidden" [ngModel]="entry?.tournamentFk" name="tournamentFk">
       <mat-vertical-stepper linear>
         <mat-step label="Entry Type" *ngIf="!teamsTournament">
           <mat-radio-group [ngModel]="entry?.type" name="type" (change)="typeChanged($event)">
@@ -51,7 +51,7 @@
         </mat-step>
         <mat-step label="USATT Membership">
           Choose type of membership for this player
-          <mat-radio-group [ngModel]="entry?.membership" name="type">
+          <mat-radio-group [ngModel]="entry?.membershipOption" name="type">
             <div fxLayout="column" fxLayoutGap="20px">
               <mat-radio-button value="Current">Membership is up to date</mat-radio-button>
               <mat-radio-button value="TournamentPass">Tournament Pass ($20)</mat-radio-button>
@@ -75,21 +75,23 @@
             <h3 mat-subheader>Entered Events</h3>
             <mat-list-item *ngFor="let enteredEvent of enteredEvents; last as last">
               <mat-icon mat-list-icon>folder</mat-icon>
-              <h4 mat-line>{{enteredEvent.name}}</h4>
+              <h4 mat-line>{{enteredEvent.event.name}} {{ enteredEvent.event.day | eventDay: tournamentStartDate }} {{ enteredEvent.event.startTime | startTime }} ({{enteredEvent.eventEntry.status | eventEntryStatus }})</h4>
+              <button type="button" mat-button (click)="onEventWithdraw(enteredEvent.eventEntry.id)">Withdraw</button>
               <mat-divider [inset]="true" *ngIf="!last"></mat-divider>
             </mat-list-item>
             <mat-divider></mat-divider>
             <h3 mat-subheader>Events Available to Enter</h3>
-            <mat-list-item *ngFor="let availableEvent of allEvents; last as last2">
+            <mat-list-item *ngFor="let availableEvent of availableEvents; last as last2">
               <mat-icon mat-list-icon>note</mat-icon>
-              <h4 mat-line>{{availableEvent.name}}</h4>
+              <h4 mat-line>{{availableEvent.event.name}} {{ availableEvent.event.day | eventDay: tournamentStartDate }} {{ availableEvent.event.startTime | startTime }} ({{ availableEvent.eventEntry.status | eventEntryStatus }}) </h4>
+              <button type="button" mat-button (click)="onEventEnter(availableEvent.event.id)">Enter</button>
               <mat-divider [inset]="true" *ngIf="!last2"></mat-divider>
             </mat-list-item>
             <mat-divider></mat-divider>
             <h3 mat-subheader>Events Not Available to Enter</h3>
             <mat-list-item *ngFor="let unavailableEvent of unavailableEvents; last as last3">
               <mat-icon mat-list-icon>note</mat-icon>
-              <h4 mat-line>{{unavailableEvent.name}}</h4>
+              <h4 mat-line>{{unavailableEvent.event.name}} {{ unavailableEvent.event.day | eventDay: tournamentStartDate }} {{ unavailableEvent.event.startTime | startTime }} ({{ unavailableEvent.eventEntry.status | eventEntryStatus }}) </h4>
               <mat-divider [inset]="true" *ngIf="!last3"></mat-divider>
             </mat-list-item>
           </mat-list>

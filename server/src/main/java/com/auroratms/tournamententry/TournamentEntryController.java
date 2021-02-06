@@ -4,6 +4,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("api")
 @PreAuthorize("isAuthenticated()")
@@ -11,6 +13,12 @@ public class TournamentEntryController {
 
     @Autowired
     private TournamentEntryService tournamentEntryService;
+
+    @GetMapping("/tournamententries")
+    public List<TournamentEntry> query(@RequestParam Long tournamentId,
+                                 @RequestParam String profileId) {
+        return tournamentEntryService.listForTournamentAndUser(tournamentId, profileId);
+    }
 
     @PostMapping("/tournamententry")
 //    @PreAuthorize("hasAuthority('TournamentDirector') or hasAuthority('Admins')")

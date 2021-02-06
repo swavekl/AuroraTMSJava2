@@ -9,18 +9,24 @@ import {MatDialogModule} from '@angular/material/dialog';
 import {MatButtonModule} from '@angular/material/button';
 import {LocalStorageService} from './local-storage.service';
 import {CountriesList} from './countries-list';
+import { StartTimePipe } from './pipes/start-time.pipe';
+import { EventDayPipePipe } from './pipes/event-day-pipe.pipe';
 
 
 @NgModule({
   declarations: [
     LinearProgressBarComponent,
     DateBeforeDirective,
-    ConfirmationPopupComponent
+    ConfirmationPopupComponent,
+    StartTimePipe,
+    EventDayPipePipe
   ],
   exports: [
     LinearProgressBarComponent,
     DateBeforeDirective,
-    ConfirmationPopupComponent
+    ConfirmationPopupComponent,
+    StartTimePipe,
+    EventDayPipePipe
   ],
   imports: [
     CommonModule,

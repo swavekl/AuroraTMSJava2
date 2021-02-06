@@ -110,6 +110,10 @@ export class AuthenticationService {
     return this.currentUser;
   }
 
+  getCurrentUserProfileId() {
+    return this.currentUser?.id;
+  }
+
   /**
    * Initiates forgot password flow
    * @param email
