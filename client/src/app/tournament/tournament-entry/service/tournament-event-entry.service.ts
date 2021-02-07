@@ -16,6 +16,6 @@ export class TournamentEventEntryService extends EntityCollectionServiceBase<Tou
 
   getAllForTournamentEntry(tournamentEntryId: number, options?: EntityActionOptions): Observable<TournamentEventEntry[]> {
     this.tournamentEventEntryDataService.setTournamentEntryId(tournamentEntryId);
-    return super.getAll(options);
+    return super.load(options);
   }
 }

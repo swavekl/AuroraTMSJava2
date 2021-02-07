@@ -78,6 +78,7 @@ export class TournamentEvent {
     tournamentEvent.singleElimination = false;
     tournamentEvent.day = 1;
     tournamentEvent.startTime = 9.0;
+    // tournamentEvent.genderRestriction = GenderRestriction[selectedEvent.genderRestriction];
     return tournamentEvent;
   }
 }

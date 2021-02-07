@@ -10,6 +10,7 @@ import {MatDialog} from '@angular/material/dialog';
   template: `
     <app-tournament-event-config-list [events]="events$ | async"
                                       [startDate]="startDate"
+                                      [endDate]="endDate"
                                       [tournamentId]="tournamentId"
                                       (delete)="onDelete($event)"
                                       (renumber)="onRenumber($event)">
@@ -26,6 +27,9 @@ export class TournamentEventConfigListContainerComponent implements OnInit, OnCh
   @Input()
   startDate: Date;
 
+  @Input()
+  endDate: Date;
+
   events$: Observable<TournamentEvent []>;
 
   constructor(private tournamentEventConfigService: TournamentEventConfigService,
@@ -37,8 +41,9 @@ export class TournamentEventConfigListContainerComponent implements OnInit, OnCh
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    if (changes.tournamentId.currentValue != null) {
-      this.tournamentEventConfigService.getAllForTournament(changes.tournamentId.currentValue);
+    if (changes.tournamentId != null) {
+      const tournamentId = changes.tournamentId.currentValue;
+      this.tournamentEventConfigService.loadTournamentEvents(tournamentId);
     }
   }
 

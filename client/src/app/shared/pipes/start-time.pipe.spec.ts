@@ -17,4 +17,8 @@ describe('StartTimePipe', () => {
     const pipe = new StartTimePipe();
     expect(pipe.transform(14.5)).toEqual('2:30 PM');
   });
+  it('test noon', () => {
+    const pipe = new StartTimePipe();
+    expect(pipe.transform(12.0)).toEqual('12:00 PM');
+  });
 });

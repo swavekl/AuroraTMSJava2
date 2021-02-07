@@ -1,5 +1,5 @@
 export enum GenderRestriction {
-  NONE,
-  MALE,
-  FEMALE
+  NONE = 'NONE',
+  MALE = 'MALE',
+  FEMALE = 'FEMALE'
 }

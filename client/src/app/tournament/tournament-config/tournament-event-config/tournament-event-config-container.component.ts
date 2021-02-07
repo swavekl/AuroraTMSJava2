@@ -1,5 +1,5 @@
-import {Component, OnInit} from '@angular/core';
-import {Observable, of} from 'rxjs';
+import {Component, OnDestroy, OnInit} from '@angular/core';
+import {Observable, of, Subscription} from 'rxjs';
 import {TournamentEvent} from '../tournament-event.model';
 import {ActivatedRoute, Router} from '@angular/router';
 import {TournamentEventConfigService} from '../tournament-event-config.service';
@@ -15,9 +15,11 @@ import {Store} from '@ngrx/store';
   `,
   styles: []
 })
-export class TournamentEventConfigContainerComponent implements OnInit {
+export class TournamentEventConfigContainerComponent implements OnInit, OnDestroy {
 
   tournamentEvent$: Observable<TournamentEvent>;
+
+  private subscriptions: Subscription = new Subscription ();
 
   // if true we are creating new event instead of editing
   private creating: boolean;
@@ -38,22 +40,27 @@ export class TournamentEventConfigContainerComponent implements OnInit {
       const newTournamentEvent = TournamentEvent.fromDefaults(this.tournamentId, selectedEvent);
       this.tournamentEvent$ = of(newTournamentEvent);
     }
-    this.tournamentEvent$.subscribe(
-      data => {
-        console.log('got event to edit', data.name);
-        return data;
+    const subscription = this.tournamentEvent$.subscribe(
+      (event: TournamentEvent) => {
+        console.log('got event to edit', event.name);
+        return event;
       },
       error => {
-        console.log('error loading data', error);
+        console.log('error loading event data', error);
       }
     );
+    this.subscriptions.add(subscription);
   }
 
   ngOnInit(): void {
   }
 
+  ngOnDestroy(): void {
+    this.subscriptions.unsubscribe();
+  }
+
   onSave(tournamentEvent: TournamentEvent) {
-    this.tournamentEventConfigService.upsert(tournamentEvent)
+    const subscription = this.tournamentEventConfigService.upsert(tournamentEvent)
       .subscribe(
         next => {
           console.log ('upserted successfully event', tournamentEvent.id);
@@ -61,6 +68,7 @@ export class TournamentEventConfigContainerComponent implements OnInit {
         },
         error => console.log('error saving ' + error)
       );
+    this.subscriptions.add(subscription);
   }
 
   onCancel($event: String) {

@@ -40,12 +40,11 @@ public class TournamentEventEntityService {
 
     @CachePut(key = "#result.id")
     public TournamentEventEntity update(TournamentEventEntity tournamentEventEntity) {
-//        if (repository.existsById(tournamentEventEntity.getId())) {
-//            return repository.save(tournamentEventEntity);
-//        } else {
-//            throw new ResourceNotFoundException("TournamentEventEntity " + tournamentEventEntity.getId() + " not found");
-//        }
-        return null;
+        if (repository.existsById(tournamentEventEntity.getId())) {
+            return repository.save(tournamentEventEntity);
+        } else {
+            throw new ResourceNotFoundException("TournamentEventEntity " + tournamentEventEntity.getId() + " not found");
+        }
     }
 
     @CacheEvict(key = "#id")

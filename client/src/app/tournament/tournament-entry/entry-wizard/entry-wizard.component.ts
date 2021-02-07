@@ -1,10 +1,12 @@
 import {ChangeDetectorRef, Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges} from '@angular/core';
-import {TournamentEntry} from '../model/tournament-entry.model';
+import {MembershipType, TournamentEntry} from '../model/tournament-entry.model';
 import {PlayerFindPopupComponent} from '../../../profile/player-find-popup/player-find-popup.component';
 import {MatDialog} from '@angular/material/dialog';
-import {BehaviorSubject, Observable} from 'rxjs';
+import {BehaviorSubject} from 'rxjs';
 import {EventEntryStatus, TournamentEventEntry} from '../model/tournament-event-entry.model';
 import {EventEntryInfo} from '../model/event-entry-info-model';
+import {FormGroup} from '@angular/forms';
+import {TournamentEvent} from '../../tournament-config/tournament-event.model';
 
 @Component({
   selector: 'app-entry-wizard',
@@ -35,12 +37,25 @@ export class EntryWizardComponent implements OnInit, OnChanges {
   unavailableEvents: EventEntryInfo[] = [];
 
   @Output()
-  emitter: EventEmitter<TournamentEntry>;
+  tournamentEntryChanged: EventEmitter<TournamentEntry> = new EventEmitter<TournamentEntry>();
 
   @Output()
-  eventEntry: EventEmitter<TournamentEventEntry> = new EventEmitter<TournamentEventEntry>();
+  eventEntryChanged: EventEmitter<TournamentEventEntry> = new EventEmitter<TournamentEventEntry>();
 
   columnsToDisplay: string[] = ['name', 'action'];
+
+  public membershipOptions: any [] = [
+    {value: MembershipType.NO_MEMBERSHIP_REQUIRED.valueOf(), label: 'My Membership is up to date', cost: 0},
+    {value: MembershipType.TOURNAMENT_PASS.valueOf(), label: 'Tournament Pass', cost: 20},
+    {value: MembershipType.JUNIOR_ONE_YEAR.valueOf(), label: 'Junior 1-year (17 and under)', cost: 45},
+    {value: MembershipType.JUNIOR_THREE_YEARS.valueOf(), label: 'Junior 3-year (14 and under)', cost: 125},
+    {value: MembershipType.COLLEGIATE_ONE_YEAR.valueOf(), label: 'Collegiate 1-year', cost: 45},
+    {value: MembershipType.ADULT_ONE_YEAR.valueOf(), label: 'Adult 1 year', cost: 75},
+    {value: MembershipType.ADULT_THREE_YEARS.valueOf(), label: 'Adult 3 years', cost: 210},
+    {value: MembershipType.ADULT_FIVE_YEARS.valueOf(), label: 'Adult 5 years', cost: 325},
+    {value: MembershipType.HOUSEHOLD_ONE_YEAR.valueOf(), label: 'Household 1-year', cost: 150},
+    {value: MembershipType.LIFETIME.valueOf(), label: 'Lifetime', cost: 1300}
+  ];
 
   constructor(private dialog: MatDialog,
               private _change: ChangeDetectorRef) {
@@ -116,12 +131,15 @@ export class EntryWizardComponent implements OnInit, OnChanges {
     });
   }
 
-  typeChanged(event) {
-    console.log('event', event);
-    // console.log ('this.entry.type', this.entry.type);
-    const type: string = <string>event.value;
-    // this.entry.type = EntryType[type];
-    // this._change.markForCheck();
+  onChange(form: FormGroup) {
+    console.log ('in onChange');
+    if (this.entry != null) {
+      const updatedEntry = {
+        ...this.entry,
+        ...form.value };
+      this.tournamentEntryChanged.emit(updatedEntry);
+    }
+    this._change.markForCheck();
   }
 
   onEventWithdraw(eventEntryId: number) {
@@ -133,7 +151,7 @@ export class EntryWizardComponent implements OnInit, OnChanges {
           ...enteredEvent.eventEntry,
           status: EventEntryStatus.PENDING_DELETION
         };
-        this.eventEntry.emit(withdrawEntry);
+        this.eventEntryChanged.emit(withdrawEntry);
       }
     }
   }
@@ -153,8 +171,43 @@ export class EntryWizardComponent implements OnInit, OnChanges {
         } else if (availableEvent.eventEntry.status === EventEntryStatus.WAITING_LIST) {
           eventEntry.status = EventEntryStatus.ENTERED_WAITING_LIST;
         }
-        this.eventEntry.emit(eventEntry);
+        this.eventEntryChanged.emit(eventEntry);
       }
     }
   }
+
+  getPlayerTotal(tournamentEntryId: number): string {
+    let total = 0;
+    const membershipOption = this.entry?.membershipOption;
+    for (let i = 0; i < this.membershipOptions.length; i++) {
+      const option = this.membershipOptions[i];
+      if (option.value === membershipOption) {
+        total += option.cost;
+        break;
+      }
+    }
+
+    for (let i = 0; i < this.enteredEvents.length; i++) {
+      const enteredEvent = this.enteredEvents[i];
+      total += enteredEvent.event.feeAdult;
+    }
+    return '$' + total;
+  }
+
+  getMembershipAndPrice(entryId: number): string {
+    let membershipAndCost = '';
+    if (this.entry?.id === entryId) {
+      const membershipOption = this.entry.membershipOption;
+      for (let i = 0; i < this.membershipOptions.length; i++) {
+        const option = this.membershipOptions[i];
+        if (option.value === membershipOption) {
+          const cost = option.cost > 0 ? '$' + option.cost : '';
+          membershipAndCost = `${option.label}: ${cost}`;
+          break;
+        }
+      }
+    }
+    return membershipAndCost;
+  }
+
 }

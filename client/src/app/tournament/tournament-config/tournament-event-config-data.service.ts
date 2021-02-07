@@ -20,13 +20,14 @@ export class TournamentEventConfigDataService extends DefaultDataService<Tournam
     this.tournamentId = tournamentId;
   }
 
-  getServiceUrl(): string {
-    return `/api/tournament/${this.tournamentId}/tournamentevents`;
+  getServiceUrl(plural: boolean = false): string {
+    const addPlural = (plural) ? 's' : '';
+    return `/api/tournament/${this.tournamentId}/tournamentevent${addPlural}`;
   }
 
   getAll(): Observable<TournamentEvent[]> {
     if (this.tournamentId != null) {
-      const url = this.getServiceUrl();
+      const url = this.getServiceUrl(true);
       console.log('url ', url);
       return this.execute('GET', url);
     } else {
@@ -37,7 +38,7 @@ export class TournamentEventConfigDataService extends DefaultDataService<Tournam
 
   getWithQuery(queryParams: QueryParams | string): Observable<TournamentEvent[]> {
     if (this.tournamentId != null) {
-      const url = this.getServiceUrl() + '?' + queryParams;
+      const url = this.getServiceUrl(true) + '?' + queryParams;
       console.log('get url ', url);
       return this.execute('GET', url);
     }

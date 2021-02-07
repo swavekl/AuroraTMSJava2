@@ -16,8 +16,12 @@ export class TournamentEventConfigListComponent implements OnInit {
   @Input()
   events: TournamentEvent [];
 
+  // tournament start and end dates
   @Input()
   startDate: Date;
+
+  @Input()
+  endDate: Date;
 
   @Input()
   tournamentId: number;

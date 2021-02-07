@@ -4,11 +4,27 @@ export enum EntryType {
   GROUP
 }
 
-enum MembershipType {
+export enum MembershipType {
   NO_MEMBERSHIP_REQUIRED,
-  INDIVIDUAL_ONE_YEAR,
-  INDIVIDUAL_THREE_YEARS,
-  INDIVIDUAL_FIVE_YEARS
+  TOURNAMENT_PASS,
+  JUNIOR_ONE_YEAR,
+  JUNIOR_THREE_YEARS,
+  COLLEGIATE_ONE_YEAR,
+  ADULT_ONE_YEAR,
+  ADULT_THREE_YEARS,
+  ADULT_FIVE_YEARS,
+  HOUSEHOLD_ONE_YEAR,
+  LIFETIME
+  // NO_MEMBERSHIP_REQUIRED = 'NO_MEMBERSHIP_REQUIRED',
+  // TOURNAMENT_PASS = 'TOURNAMENT_PASS',
+  // JUNIOR_ONE_YEAR = 'JUNIOR_ONE_YEAR',
+  // JUNIOR_THREE_YEARS = 'JUNIOR_THREE_YEARS',
+  // COLLEGIATE_ONE_YEAR = 'COLLEGIATE_ONE_YEAR',
+  // ADULT_ONE_YEAR = 'ADULT_ONE_YEAR',
+  // ADULT_THREE_YEARS = 'ADULT_THREE_YEARS',
+  // ADULT_FIVE_YEARS = 'ADULT_FIVE_YEARS',
+  // HOUSEHOLD_ONE_YEAR = 'HOUSEHOLD_ONE_YEAR',
+  // LIFETIME = 'LIFETIME'
 }
 
 export class TournamentEntry {
@@ -27,7 +43,7 @@ export class TournamentEntry {
   seedRating: number;
 
   // selected USATT membership option (from 1 through 8)
-  membershipOption: MembershipType = MembershipType.INDIVIDUAL_ONE_YEAR;
+  membershipOption: MembershipType = MembershipType.ADULT_ONE_YEAR;
 
   // profile id of the player who owns this entry
   profileId: string;

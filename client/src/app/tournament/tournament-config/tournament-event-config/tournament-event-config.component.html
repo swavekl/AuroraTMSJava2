@@ -54,6 +54,24 @@
           </mat-select>
         </mat-form-field>
       </div>
+      <div fxLayout.lt-sm="column" fxLayout="row" fxLayoutGap="10px">
+        <mat-form-field fxFlex="40%">
+          <mat-label>Gender Restriction</mat-label>
+          <mat-select name="genderRestriction" [ngModel]="tournamentEvent?.genderRestriction">
+            <mat-option *ngFor="let genderRestriction of genderRestrictions" [value]="genderRestriction.value">
+              {{ genderRestriction.label }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field fxFlex="30%">
+          <mat-label>Fee Adult</mat-label>
+          <input matInput type="text" name="feeAdult" [ngModel]="tournamentEvent?.feeAdult" required>
+        </mat-form-field>
+        <mat-form-field fxFlex="30%">
+          <mat-label>Fee Junior</mat-label>
+          <input matInput type="text" name="feeJunior" [ngModel]="tournamentEvent?.feeJunior" required>
+        </mat-form-field>
+      </div>
     </mat-card-content>
   </mat-card>
 </form>

@@ -19,11 +19,7 @@ public class TournamentEventEntryService {
     private TournamentEventEntryRepository repository;
 
     List<TournamentEventEntry> getEntries(Long tournamentEntryId) {
-        TournamentEventEntry tee = new TournamentEventEntry();
-        tee.setTournamentEntryFk(tournamentEntryId);
-        return repository.findAll(Example.of(tee));
-//
-//       return repository.findByTournamentEntryFk(tournamentEntryFk);
+       return repository.findByTournamentEntryFk(tournamentEntryId);
     }
 
     @CachePut(key = "#result.id")

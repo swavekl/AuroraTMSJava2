@@ -6,7 +6,7 @@
       <input type="hidden" [ngModel]="entry?.tournamentFk" name="tournamentFk">
       <mat-vertical-stepper linear>
         <mat-step label="Entry Type" *ngIf="!teamsTournament">
-          <mat-radio-group [ngModel]="entry?.type" name="type" (change)="typeChanged($event)">
+          <mat-radio-group [ngModel]="entry?.type" name="type" (change)="onChange(f.form)">
             <div fxLayout="column" fxLayoutGap="20px">
               <mat-radio-button *ngIf="!teamsTournament" value="0" [checked]="!teamsTournament">Individual</mat-radio-button>
               <mat-radio-button *ngIf="!teamsTournament" value="1" [checked]="!teamsTournament">Family</mat-radio-button>
@@ -51,18 +51,11 @@
         </mat-step>
         <mat-step label="USATT Membership">
           Choose type of membership for this player
-          <mat-radio-group [ngModel]="entry?.membershipOption" name="type">
-            <div fxLayout="column" fxLayoutGap="20px">
-              <mat-radio-button value="Current">Membership is up to date</mat-radio-button>
-              <mat-radio-button value="TournamentPass">Tournament Pass ($20)</mat-radio-button>
-              <mat-radio-button value="Single_1Y">Individual 1 year ($75)</mat-radio-button>
-              <mat-radio-button value="Single_3Y">Individual 3 years ($210)</mat-radio-button>
-              <mat-radio-button value="Single_5Y">Individual 5 years ($325)</mat-radio-button>
-              <mat-radio-button value="Junior_1Y">Junior 1-year (17 and under) ($45)</mat-radio-button>
-              <mat-radio-button value="Junior_3Y">Junior 3-year (14 and under) ($125)</mat-radio-button>
-              <mat-radio-button value="College_1Y">Collegiate 3-year ($45)</mat-radio-button>
-              <mat-radio-button value="Household_1Y">Household 1-year ($150)</mat-radio-button>
-<!--              <mat-radio-button value="Lifetime">Lifetime ($1000)</mat-radio-button>-->
+          <mat-radio-group [ngModel]="entry?.membershipOption" name="membershipOption" (change)="onChange(f.form)">
+            <div fxLayout="column" fxLayoutGap="20px" *ngFor="let option of membershipOptions">
+                <mat-radio-button [value]="option.value" style="padding-top: 10px">
+                  {{option.label}} <span style="font-weight: bold">{{ (option.cost == 0) ? '' : option.cost | currency: 'USD'}}</span>
+                </mat-radio-button>
             </div>
           </mat-radio-group>
           <div>
@@ -102,6 +95,18 @@
         </mat-step>
         <mat-step label="Summary">
           View summary / choose to register more players or proceed or pay total
+          <div *ngFor="let enteredEvent of enteredEvents; last as last">
+            <h4 mat-line>{{ enteredEvent.event.name }} {{ enteredEvent.event.day | eventDay: tournamentStartDate }} {{ enteredEvent.event.startTime | startTime }}</h4>
+            <h5 mat-line>Status: {{enteredEvent.eventEntry.status | eventEntryStatus }} ${{ enteredEvent.event.feeAdult }}</h5>
+          </div>
+          <div>
+            Membership: {{ getMembershipAndPrice(entry?.id) }}
+          </div>
+          <div>
+            <h2>Player Total: {{ getPlayerTotal(entry?.id )}}</h2>
+          </div>
+
+
           <div>
             <button mat-button matStepperPrevious type="button">Back</button>
             <button mat-button matStepperNext type="button">Next</button>

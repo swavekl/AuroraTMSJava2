@@ -23,7 +23,8 @@ import {DateUtils} from '../../../shared/date-utils';
                       [tournamentStartDate]="tournamentStartDate$ | async"
                       [allEventEntryInfos]="allEventEntryInfos$ | async"
                       [otherPlayers]="otherPlayers$ | async"
-                      (eventEntry)="onEventEntryChanged($event)">
+                      (tournamentEntryChanged)="onTournamentEntryChanged($event)"
+                      (eventEntryChanged)="onEventEntryChanged($event)">
     </app-entry-wizard>
   `,
   styles: []
@@ -169,32 +170,25 @@ export class EntryWizardContainerComponent implements OnInit, OnDestroy {
     this.entryId = entryId;
 
     // request tournament events
-    this.tournamentEvents$ = this.tournamentEventConfigService.getAllForTournament(tournamentId);
-    const subscription3 = this.tournamentEvents$.subscribe((next: TournamentEvent[]) => {
-        // console.log('got events for tournament');
-        return of(next || []);
-      });
+    this.tournamentEvents$ = this.tournamentEventConfigService.entities$;
+    this.tournamentEventConfigService.loadTournamentEvents(tournamentId);
 
     // request event entries
     this.tournamentEventEntries$ = this.tournamentEventEntryService.entities$;
     this.tournamentEventEntryService.getAllForTournamentEntry(entryId);
-    const subscription4 = this.tournamentEventEntries$.subscribe((next: TournamentEventEntry[]) => {
-        // console.log('got event entries', next);
-        return of(next);
-      });
 
     // setup combining selector
     const combinedSelector = combineLatest(this.tournamentEvents$, this.tournamentEventEntries$);
     const subscription5 = combinedSelector.subscribe(([tournamentEvents, tournamentEventEntries]) => {
-      console.log('tournament events', tournamentEvents);
-      console.log('tournament event entries', tournamentEventEntries);
+      // console.log('tournament events', tournamentEvents);
+      // console.log('tournament event entries', tournamentEventEntries);
       const allEventEntries: any [] = this.determineEvents(tournamentEvents, tournamentEventEntries);
       // Observable<[ObservedValueOf<O1>, ObservedValueOf<O2>]>
       this.allEventEntryInfos$ = of(allEventEntries);
     });
 
-    this.subscriptions.add(subscription3);
-    this.subscriptions.add(subscription4);
+    // this.subscriptions.add(subscription3);
+    // this.subscriptions.add(subscription4);
     this.subscriptions.add(subscription5);
   }
 
@@ -239,5 +233,9 @@ export class EntryWizardContainerComponent implements OnInit, OnDestroy {
     console.log ('onEventEntryChanged tournamentEventEntry', tournamentEventEntry);
     this.tournamentEventEntryService.upsert(tournamentEventEntry);
     this.tournamentEventEntryService.getAllForTournamentEntry(this.entryId);
+  }
+
+  onTournamentEntryChanged(tournamentEntry: TournamentEntry) {
+    this.tournamentEntryService.upsert(tournamentEntry);
   }
 }

@@ -16,11 +16,16 @@ export class TournamentEventConfigService extends EntityCollectionServiceBase<To
 
   getAllForTournament(tournamentId: number, options?: EntityActionOptions): Observable<TournamentEvent[]> {
     this.tournamentEventConfigDataService.setTournamentId(tournamentId);
-    // return super.getAll(options)
     const queryParams = 'size=10&page=0&sort=ordinalNumber,asc';
     return super.getWithQuery(queryParams)
       .pipe(map(tournamentEvents => tournamentEvents
         .map(tournamentEvent => TournamentEvent.convert(tournamentEvent))));
+  }
+
+
+  loadTournamentEvents(tournamentId: number, options?: EntityActionOptions): Observable<TournamentEvent[]> {
+    this.tournamentEventConfigDataService.setTournamentId(tournamentId);
+    return super.load(options);
   }
 
   getByKey(tournamentId: number, key: any, options?: EntityActionOptions): Observable<TournamentEvent> {

@@ -52,4 +52,18 @@ export class DateUtils {
     const localMoment = moment(startDate).hours(hours).minutes(minutes).seconds(0).milliseconds(0);
     return localMoment.format('LT');
   }
+
+  daysBetweenDates (startDate: Date | string, endDate: Date | string): number {
+    let diff = 0;
+    // if (startDate instanceof String && endDate instanceof String) {
+    //   const mStartDate = moment(this.convertFromString(startDate));
+    //   const mEndDate = moment(this.convertFromString(endDate));
+    //   diff = mEndDate.diff(mStartDate, 'days');
+    // } else {
+      const mStartDate = moment(startDate);
+      const mEndDate = moment(endDate);
+      diff = mEndDate.diff(mStartDate, 'days');
+    // }
+    return diff;
+  }
 }
