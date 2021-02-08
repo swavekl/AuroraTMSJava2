@@ -13,8 +13,9 @@
               <mat-radio-button *ngIf="teamsTournament" value="2" [checked]="teamsTournament">Team</mat-radio-button>
             </div>
           </mat-radio-group>
-          <div>
-            <button mat-button matStepperNext type="button">Next</button>
+          <div class="wizard-button-bar" fxLayout="row">
+            <span fxFlex></span>
+            <button mat-raised-button color="primary" matStepperNext type="button">Next</button>
           </div>
         </mat-step>
         <mat-step label="Group/Family Members" *ngIf="entry?.type == 1 || teamsTournament">
@@ -44,30 +45,30 @@
             <tr mat-header-row *matHeaderRowDef="columnsToDisplay"></tr>
             <tr mat-row *matRowDef="let myRowData; columns: columnsToDisplay"></tr>
           </table>
-          <div>
-            <button mat-button matStepperPrevious type="button">Back</button>
-            <button mat-button matStepperNext type="button">Next</button>
+          <div class="wizard-button-bar" fxLayout="row">
+            <button mat-raised-button matStepperPrevious type="button">Back</button>
+            <span fxFlex></span>
+            <button mat-raised-button color="primary" matStepperNext type="button">Next</button>
           </div>
         </mat-step>
         <mat-step label="USATT Membership">
-          Choose type of membership for this player
           <mat-radio-group [ngModel]="entry?.membershipOption" name="membershipOption" (change)="onChange(f.form)">
-            <div fxLayout="column" fxLayoutGap="20px" *ngFor="let option of membershipOptions">
+            <div fxLayout="column" fxLayoutGap="30px" *ngFor="let option of membershipOptions">
                 <mat-radio-button [value]="option.value" style="padding-top: 10px">
                   {{option.label}} <span style="font-weight: bold">{{ (option.cost == 0) ? '' : option.cost | currency: 'USD'}}</span>
                 </mat-radio-button>
             </div>
           </mat-radio-group>
-          <div>
-            <button mat-button matStepperPrevious type="button">Back</button>
-            <button mat-button matStepperNext type="button">Next</button>
+          <div class="wizard-button-bar" fxLayout="row">
+            <button mat-raised-button matStepperPrevious type="button">Back</button>
+            <span fxFlex></span>
+            <button mat-raised-button color="primary" matStepperNext type="button">Next</button>
           </div>
         </mat-step>
         <mat-step label="Events">
           <mat-list>
             <h3 mat-subheader>Entered Events</h3>
             <mat-list-item *ngFor="let enteredEvent of enteredEvents; last as last">
-              <mat-icon mat-list-icon>folder</mat-icon>
               <h4 mat-line>{{enteredEvent.event.name}} {{ enteredEvent.event.day | eventDay: tournamentStartDate }} {{ enteredEvent.event.startTime | startTime }} ({{enteredEvent.eventEntry.status | eventEntryStatus }})</h4>
               <button type="button" mat-button (click)="onEventWithdraw(enteredEvent.eventEntry.id)">Withdraw</button>
               <mat-divider [inset]="true" *ngIf="!last"></mat-divider>
@@ -75,7 +76,6 @@
             <mat-divider></mat-divider>
             <h3 mat-subheader>Events Available to Enter</h3>
             <mat-list-item *ngFor="let availableEvent of availableEvents; last as last2">
-              <mat-icon mat-list-icon>note</mat-icon>
               <h4 mat-line>{{availableEvent.event.name}} {{ availableEvent.event.day | eventDay: tournamentStartDate }} {{ availableEvent.event.startTime | startTime }} ({{ availableEvent.eventEntry.status | eventEntryStatus }}) </h4>
               <button type="button" mat-button (click)="onEventEnter(availableEvent.event.id)">Enter</button>
               <mat-divider [inset]="true" *ngIf="!last2"></mat-divider>
@@ -83,18 +83,17 @@
             <mat-divider></mat-divider>
             <h3 mat-subheader>Events Not Available to Enter</h3>
             <mat-list-item *ngFor="let unavailableEvent of unavailableEvents; last as last3">
-              <mat-icon mat-list-icon>note</mat-icon>
               <h4 mat-line>{{unavailableEvent.event.name}} {{ unavailableEvent.event.day | eventDay: tournamentStartDate }} {{ unavailableEvent.event.startTime | startTime }} ({{ unavailableEvent.eventEntry.status | eventEntryStatus }}) </h4>
               <mat-divider [inset]="true" *ngIf="!last3"></mat-divider>
             </mat-list-item>
           </mat-list>
-          <div>
-            <button mat-button matStepperPrevious type="button">Back</button>
-            <button mat-button matStepperNext type="button">Next</button>
+          <div class="wizard-button-bar" fxLayout="row">
+            <button mat-raised-button matStepperPrevious type="button">Back</button>
+            <span fxFlex></span>
+            <button mat-raised-button color="primary" matStepperNext type="button">Next</button>
           </div>
         </mat-step>
         <mat-step label="Summary">
-          View summary / choose to register more players or proceed or pay total
           <div *ngFor="let enteredEvent of enteredEvents; last as last">
             <h4 mat-line>{{ enteredEvent.event.name }} {{ enteredEvent.event.day | eventDay: tournamentStartDate }} {{ enteredEvent.event.startTime | startTime }}</h4>
             <h5 mat-line>Status: {{enteredEvent.eventEntry.status | eventEntryStatus }} ${{ enteredEvent.event.feeAdult }}</h5>
@@ -105,25 +104,26 @@
           <div>
             <h2>Player Total: {{ getPlayerTotal(entry?.id )}}</h2>
           </div>
-
-
-          <div>
-            <button mat-button matStepperPrevious type="button">Back</button>
-            <button mat-button matStepperNext type="button">Next</button>
+          <div class="wizard-button-bar" fxLayout="row">
+            <button mat-raised-button matStepperPrevious type="button">Back</button>
+            <span fxFlex></span>
+            <button mat-raised-button color="primary" matStepperNext type="button">Next</button>
           </div>
         </mat-step>
         <mat-step label="Payment/Refund">
           Pay or confirm refund issuance
-          <div>
-            <button mat-button matStepperPrevious type="button">Back</button>
-            <button mat-button matStepperNext type="button">Next</button>
+          <div fxLayout="row">
+            <button mat-raised-button matStepperPrevious type="button">Back</button>
+            <span fxFlex></span>
+            <button mat-raised-button color="primary" matStepperNext type="button">Next</button>
           </div>
         </mat-step>
         <mat-step label="Completed">
           Pay or confirm refund issuance
-          <div>
-            <button mat-button matStepperPrevious type="button">Back</button>
-            <button mat-button type="submit">Finish</button>
+          <div class="wizard-button-bar" fxLayout="row">
+            <button mat-raised-button matStepperPrevious type="button">Back</button>
+            <span fxFlex></span>
+            <button mat-raised-button color="primary" type="submit">Finish</button>
           </div>
         </mat-step>
       </mat-vertical-stepper>
