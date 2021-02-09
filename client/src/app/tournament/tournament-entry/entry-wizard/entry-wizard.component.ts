@@ -6,7 +6,6 @@ import {BehaviorSubject} from 'rxjs';
 import {EventEntryStatus, TournamentEventEntry} from '../model/tournament-event-entry.model';
 import {TournamentEventEntryInfo} from '../model/tournament-event-entry-info-model';
 import {FormGroup} from '@angular/forms';
-import {TournamentEvent} from '../../tournament-config/tournament-event.model';
 
 @Component({
   selector: 'app-entry-wizard',
@@ -41,6 +40,9 @@ export class EntryWizardComponent implements OnInit, OnChanges {
 
   @Output()
   eventEntryChanged: EventEmitter<TournamentEventEntry> = new EventEmitter<TournamentEventEntry>();
+
+  @Output()
+  finish: EventEmitter<any> = new EventEmitter<any>();
 
   columnsToDisplay: string[] = ['name', 'action'];
 
@@ -109,6 +111,7 @@ export class EntryWizardComponent implements OnInit, OnChanges {
 
   onSave(formValues: any) {
     console.log('formValues', formValues);
+    this.finish.emit(null);
   }
 
   editEntry(profileId: number) {

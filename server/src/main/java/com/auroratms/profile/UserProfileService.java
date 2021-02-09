@@ -130,8 +130,10 @@ public class UserProfileService {
         userProfile.setGender((String) oktaUserProfile.get("gender"));
         try {
             String dateOfBirth = (String) oktaUserProfile.get("birthdate");
-            SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
-            userProfile.setDateOfBirth (dateFormat.parse(dateOfBirth));
+            if (dateOfBirth != null) {
+                SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
+                userProfile.setDateOfBirth (dateFormat.parse(dateOfBirth));
+            }
         } catch (ParseException e) {
 
         }

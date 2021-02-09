@@ -9,11 +9,6 @@ const routes: Routes = [
     path: 'entrywizard/:tournamentId/edit/:entryId',
     component: EntryWizardContainerComponent,
     canActivate: [AuthGuard]
-  },
-  {
-    path: 'entrywizard/:tournamentId/create',
-    component: EntryWizardContainerComponent,
-    canActivate: [AuthGuard]
   }
 ];
 
