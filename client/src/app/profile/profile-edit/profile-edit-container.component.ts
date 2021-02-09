@@ -1,8 +1,10 @@
-import {ChangeDetectionStrategy, Component, OnInit} from '@angular/core';
+import {ChangeDetectionStrategy, Component, OnDestroy, OnInit} from '@angular/core';
 import {Profile} from '../profile';
-import {Observable} from 'rxjs';
+import {Observable, Subscription} from 'rxjs';
 import {AuthenticationService} from '../../user/authentication.service';
 import {ProfileService} from '../profile.service';
+import {first} from 'rxjs/operators';
+import {Router} from '@angular/router';
 
 @Component({
   selector: 'app-profile-edit-container',
@@ -16,13 +18,16 @@ import {ProfileService} from '../profile.service';
   styles: [],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class ProfileEditContainerComponent implements OnInit {
+export class ProfileEditContainerComponent implements OnInit, OnDestroy {
   // this is what we edit
   profile$: Observable<Profile>;
   loading$: Observable<boolean>;
 
+  private subscriptions: Subscription = new Subscription();
+
   constructor(private authenticationService: AuthenticationService,
-              private profileService: ProfileService) {
+              private profileService: ProfileService,
+              private router: Router) {
   }
 
   ngOnInit() {
@@ -34,14 +39,25 @@ export class ProfileEditContainerComponent implements OnInit {
   onSave(profile: Profile) {
     const currentUser = this.authenticationService.getCurrentUser();
     profile.userId = currentUser.id;
-    this.profileService.updateProfile(profile)
+    // update and and unsubscribe immediately
+    const subscription = this.profileService.updateProfile(profile)
+      .pipe(first())
       .subscribe(
-        () => console.log ('Updated profile successfully'),
+        () => {
+          console.log ('Updated profile successfully');
+          this.onCancel(null);
+        },
         (err: any) => console.error(err)
       );
+    this.subscriptions.add(subscription);
   }
 
   onCancel($event: any) {
+    this.router.navigateByUrl('/home');
+  }
 
+  ngOnDestroy(): void {
+    // in case user navigates before update finishes
+    this.subscriptions.unsubscribe();
   }
 }

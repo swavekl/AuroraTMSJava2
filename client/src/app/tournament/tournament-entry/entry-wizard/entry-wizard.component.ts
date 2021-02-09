@@ -4,7 +4,7 @@ import {PlayerFindPopupComponent} from '../../../profile/player-find-popup/playe
 import {MatDialog} from '@angular/material/dialog';
 import {BehaviorSubject} from 'rxjs';
 import {EventEntryStatus, TournamentEventEntry} from '../model/tournament-event-entry.model';
-import {EventEntryInfo} from '../model/event-entry-info-model';
+import {TournamentEventEntryInfo} from '../model/tournament-event-entry-info-model';
 import {FormGroup} from '@angular/forms';
 import {TournamentEvent} from '../../tournament-config/tournament-event.model';
 
@@ -30,11 +30,11 @@ export class EntryWizardComponent implements OnInit, OnChanges {
   otherPlayersBS$: BehaviorSubject<any[]>;
 
   @Input()
-  allEventEntryInfos: EventEntryInfo[];
+  allEventEntryInfos: TournamentEventEntryInfo[];
 
-  enteredEvents: EventEntryInfo[] = [];
-  availableEvents: EventEntryInfo[] = [];
-  unavailableEvents: EventEntryInfo[] = [];
+  enteredEvents: TournamentEventEntryInfo[] = [];
+  availableEvents: TournamentEventEntryInfo[] = [];
+  unavailableEvents: TournamentEventEntryInfo[] = [];
 
   @Output()
   tournamentEntryChanged: EventEmitter<TournamentEntry> = new EventEmitter<TournamentEntry>();
@@ -74,7 +74,7 @@ export class EntryWizardComponent implements OnInit, OnChanges {
     }
   }
 
-  enteredEventsFilter(eventEntryInfo: EventEntryInfo, index: number, array: EventEntryInfo[]): boolean {
+  enteredEventsFilter(eventEntryInfo: TournamentEventEntryInfo, index: number, array: TournamentEventEntryInfo[]): boolean {
     return this.filterEventEntries(eventEntryInfo.eventEntry.status,
       [EventEntryStatus.CONFIRMED,
         EventEntryStatus.PENDING_CONFIRMATION,
@@ -82,7 +82,7 @@ export class EntryWizardComponent implements OnInit, OnChanges {
       ]);
   }
 
-  availableEventsFilter(eventEntryInfo: EventEntryInfo, index: number, array: EventEntryInfo[]): boolean {
+  availableEventsFilter(eventEntryInfo: TournamentEventEntryInfo, index: number, array: TournamentEventEntryInfo[]): boolean {
     return this.filterEventEntries(eventEntryInfo.eventEntry.status,
       [
         EventEntryStatus.NOT_ENTERED,
@@ -91,7 +91,7 @@ export class EntryWizardComponent implements OnInit, OnChanges {
       ]);
   }
 
-  unavailableEventsFilter(eventEntryInfo: EventEntryInfo, index: number, array: EventEntryInfo[]): boolean {
+  unavailableEventsFilter(eventEntryInfo: TournamentEventEntryInfo, index: number, array: TournamentEventEntryInfo[]): boolean {
     return this.filterEventEntries(eventEntryInfo.eventEntry.status,
       [EventEntryStatus.DISQUALIFIED_RATING,
         EventEntryStatus.DISQUALIFIED_AGE,
@@ -161,15 +161,16 @@ export class EntryWizardComponent implements OnInit, OnChanges {
     for (let i = 0; i < this.availableEvents.length; i++) {
       const availableEvent = this.availableEvents[i];
       if (availableEvent.event.id === eventId) {
-        const eventEntry: TournamentEventEntry = new TournamentEventEntry();
-        eventEntry.tournamentEntryFk = this.entry.id;
-        eventEntry.tournamentEventFk = eventId;
-        eventEntry.tournamentFk = this.entry.tournamentFk;
+        const eventEntry: TournamentEventEntry = {...availableEvent.eventEntry};
+        // const eventEntry: TournamentEventEntry = new TournamentEventEntry();
+        // eventEntry.tournamentEntryFk = this.entry.id;
+        // eventEntry.tournamentEventFk = eventId;
+        // eventEntry.tournamentFk = this.entry.tournamentFk;
         eventEntry.dateEntered = new Date();
-        if (availableEvent.eventEntry.status === EventEntryStatus.NOT_ENTERED) {
-          eventEntry.status = EventEntryStatus.PENDING_CONFIRMATION;
-        } else if (availableEvent.eventEntry.status === EventEntryStatus.WAITING_LIST) {
+        if (availableEvent.eventEntry.status === EventEntryStatus.WAITING_LIST) {
           eventEntry.status = EventEntryStatus.ENTERED_WAITING_LIST;
+        } else {
+          eventEntry.status = EventEntryStatus.PENDING_CONFIRMATION;
         }
         this.eventEntryChanged.emit(eventEntry);
       }

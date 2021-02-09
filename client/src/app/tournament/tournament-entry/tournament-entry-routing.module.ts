@@ -1,16 +1,19 @@
 import {NgModule} from '@angular/core';
 import {Routes, RouterModule} from '@angular/router';
 import {EntryWizardContainerComponent} from './entry-wizard/entry-wizard-container.component';
+import {AuthGuard} from '../../guards/auth.guard';
 
 
 const routes: Routes = [
   {
     path: 'entrywizard/:tournamentId/edit/:entryId',
-    component: EntryWizardContainerComponent
+    component: EntryWizardContainerComponent,
+    canActivate: [AuthGuard]
   },
   {
     path: 'entrywizard/:tournamentId/create',
-    component: EntryWizardContainerComponent
+    component: EntryWizardContainerComponent,
+    canActivate: [AuthGuard]
   }
 ];
 

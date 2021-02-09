@@ -7,6 +7,8 @@ import com.okta.sdk.resource.user.User;
 import com.okta.sdk.resource.user.UserList;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,6 +37,7 @@ public class UserProfileService {
      * @param userId
      * @return
      */
+    @Cacheable(key = "#userId")
     public UserProfile getProfile (String userId) {
         Client client = getClient();
 
@@ -44,10 +47,11 @@ public class UserProfileService {
     }
 
     /**
-     *
+     * Updates user profile
      * @param userProfile
      */
-    public void updateProfile (UserProfile userProfile) {
+    @CachePut(key = "#result.userId")
+    public UserProfile updateProfile (UserProfile userProfile) {
         Client client = getClient();
 
         // get current user
@@ -55,7 +59,8 @@ public class UserProfileService {
         // update the profile
         toOktaUserProfile(userProfile, currentUser);
 
-        currentUser.update();
+        User updatedOktaUser = currentUser.update();
+        return fromOktaUser (updatedOktaUser);
     }
 
     /**

@@ -80,13 +80,14 @@
                      required>
               <mat-error>Invalid phone</mat-error>
             </mat-form-field>
-
           </div>
-
         </mat-card-content>
         <mat-card-actions>
-          <button mat-raised-button type="submit">Save</button>
-          <button mat-raised-button type="button" (click)="onCancel()">Cancel</button>
+          <div class="profile-button-bar" fxLayout="row">
+            <button mat-raised-button type="button" (click)="onCancel()">Cancel</button>
+            <span fxFlex></span>
+            <button mat-raised-button color="primary" type="submit" [disabled]="!f.form.valid">Save</button>
+          </div>
           <!--<p>Form values: {{ f.value | json }} </p>-->
           <!--<p>Form status: {{ f.status | json }} </p>-->
           <!--<p>Zip code ALL errors: {{ zipCode.control?.errors | json }} </p>-->

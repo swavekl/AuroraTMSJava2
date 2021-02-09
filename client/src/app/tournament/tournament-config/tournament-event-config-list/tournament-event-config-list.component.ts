@@ -26,7 +26,7 @@ export class TournamentEventConfigListComponent implements OnInit {
   @Input()
   tournamentId: number;
 
-  columnsToDisplay: string[] = ['num', 'name', 'day', 'startTime', 'actions'];
+  columnsToDisplay: string[] = ['num', 'name', 'day', 'startTime', 'numEntries', 'maxEntries', 'actions'];
 
   @Output() delete = new EventEmitter();
   @Output() renumber = new EventEmitter();

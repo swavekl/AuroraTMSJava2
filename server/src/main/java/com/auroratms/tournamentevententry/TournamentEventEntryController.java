@@ -17,18 +17,8 @@ public class TournamentEventEntryController {
     @Autowired
     private TournamentEventEntryService tournamentEventEntryService;
 
-    @Autowired
-    private TournamentEntryService tournamentEntryService;
-
-    @Autowired
-    private TournamentEventEntityService tournamentEventService;
-
-    @Autowired
-    private UserProfileService userProfileService;
-
     @GetMapping("/tournamententry/{tournamentEntryId}/tournamentevententries")
     public List<TournamentEventEntry> getAllEntries (@PathVariable Long tournamentEntryId) {
-        // get a list of event entries for this player
         return tournamentEventEntryService.getEntries(tournamentEntryId);
     }
 

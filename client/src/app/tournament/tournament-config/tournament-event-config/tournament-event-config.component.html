@@ -16,28 +16,6 @@
           <input matInput type="text" name="name" [ngModel]="tournamentEvent?.name" required>
         </mat-form-field>
         <mat-form-field fxFlex="30%">
-          <mat-label>Minimum Player Rating</mat-label>
-          <input matInput type="text" name="minPlayerRating" [ngModel]="tournamentEvent?.minPlayerRating" required>
-        </mat-form-field>
-        <mat-form-field fxFlex="30%">
-          <mat-label>Maximum Player Rating</mat-label>
-          <input matInput type="text" name="maxPlayerRating" [ngModel]="tournamentEvent?.maxPlayerRating" required>
-        </mat-form-field>
-      </div>
-      <div fxLayout.lt-sm="column" fxLayout="row" fxLayoutGap="10px">
-        <mat-checkbox fxFlex="40%" name="doubles" [ngModel]="tournamentEvent?.doubles">Doubles</mat-checkbox>
-        <mat-form-field fxFlex="30%">
-          <mat-label>Minimum Player Age</mat-label>
-          <input matInput type="text" name="minPlayerAge" [ngModel]="tournamentEvent?.minPlayerAge">
-        </mat-form-field>
-        <mat-form-field fxFlex="30%">
-          <mat-label>Maximum Player Age</mat-label>
-          <input matInput type="text" name="maxPlayerAge" [ngModel]="tournamentEvent?.maxPlayerAge">
-        </mat-form-field>
-      </div>
-      <div fxLayout.lt-sm="column" fxLayout="row" fxLayoutGap="10px">
-        <mat-checkbox fxFlex="40%" name="singleElimination" [ngModel]="tournamentEvent?.singleElimination">Single Elimination</mat-checkbox>
-        <mat-form-field fxFlex="30%">
           <mat-label>Event Day</mat-label>
           <mat-select name="day" [ngModel]="tournamentEvent?.day">
             <mat-option *ngFor="let day of days" [value]="day.day">
@@ -52,6 +30,28 @@
               {{st.startTimeText}}
             </mat-option>
           </mat-select>
+        </mat-form-field>
+      </div>
+      <div fxLayout.lt-sm="column" fxLayout="row" fxLayoutGap="10px">
+        <mat-checkbox fxFlex="40%" name="doubles" [ngModel]="tournamentEvent?.doubles">Doubles</mat-checkbox>
+        <mat-form-field fxFlex="30%">
+          <mat-label>Minimum Player Rating</mat-label>
+          <input matInput type="text" name="minPlayerRating" [ngModel]="tournamentEvent?.minPlayerRating" required>
+        </mat-form-field>
+        <mat-form-field fxFlex="30%">
+          <mat-label>Maximum Player Rating</mat-label>
+          <input matInput type="text" name="maxPlayerRating" [ngModel]="tournamentEvent?.maxPlayerRating" required>
+        </mat-form-field>
+      </div>
+      <div fxLayout.lt-sm="column" fxLayout="row" fxLayoutGap="10px">
+        <mat-checkbox fxFlex="40%" name="singleElimination" [ngModel]="tournamentEvent?.singleElimination">Single Elimination</mat-checkbox>
+        <mat-form-field fxFlex="30%">
+          <mat-label>Minimum Player Age</mat-label>
+          <input matInput type="text" name="minPlayerAge" [ngModel]="tournamentEvent?.minPlayerAge">
+        </mat-form-field>
+        <mat-form-field fxFlex="30%">
+          <mat-label>Maximum Player Age</mat-label>
+          <input matInput type="text" name="maxPlayerAge" [ngModel]="tournamentEvent?.maxPlayerAge">
         </mat-form-field>
       </div>
       <div fxLayout.lt-sm="column" fxLayout="row" fxLayoutGap="10px">
@@ -70,6 +70,42 @@
         <mat-form-field fxFlex="30%">
           <mat-label>Fee Junior</mat-label>
           <input matInput type="text" name="feeJunior" [ngModel]="tournamentEvent?.feeJunior" required>
+        </mat-form-field>
+      </div>
+      <div fxLayout.lt-sm="column" fxLayout="row" fxLayoutGap="10px">
+        <mat-form-field fxFlex="25%">
+          <mat-label>Draw method</mat-label>
+          <mat-select name="drawMethod" [ngModel]="tournamentEvent?.drawMethod">
+            <mat-option *ngFor="let method of drawMethods" [value]="method.value">
+              {{ method.label }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field fxFlex="25%">
+          <mat-label>Players Per Group</mat-label>
+          <input matInput type="text" name="playersPerGroup" [ngModel]="tournamentEvent?.playersPerGroup" required>
+        </mat-form-field>
+        <mat-form-field fxFlex="25%">
+          <mat-label>Players to advance</mat-label>
+          <input matInput type="text" name="playersToAdvance" [ngModel]="tournamentEvent?.playersToAdvance" required>
+        </mat-form-field>
+        <mat-form-field fxFlex="25%">
+          <mat-label>Players to seed</mat-label>
+          <input matInput type="text" name="playersToSeed" [ngModel]="tournamentEvent?.playersToSeed" required>
+        </mat-form-field>
+      </div>
+      <div fxLayout.lt-sm="column" fxLayout="row" fxLayoutGap="10px">
+        <mat-form-field fxFlex="40%">
+          <mat-label>Number of Tables Per Group</mat-label>
+          <input matInput type="text" name="numTablesPerGroup" [ngModel]="tournamentEvent?.numTablesPerGroup" required>
+        </mat-form-field>
+        <mat-form-field fxFlex="30%">
+          <mat-label>Max Entries</mat-label>
+          <input matInput type="text" name="maxEntries" [ngModel]="tournamentEvent?.maxEntries" required>
+        </mat-form-field>
+        <mat-form-field fxFlex="30%">
+          <mat-label>Current Entries</mat-label>
+          <input matInput type="text" disabled name="numEntries" [ngModel]="tournamentEvent?.numEntries" required>
         </mat-form-field>
       </div>
     </mat-card-content>

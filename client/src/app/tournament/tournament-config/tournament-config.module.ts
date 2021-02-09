@@ -39,6 +39,8 @@ import { SelectEventDialogComponent } from './select-event-dialog/select-event-d
 import {MatDialogModule} from '@angular/material/dialog';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {TournamentEventEntryDataService} from './tournament-event-entry-data.service';
+import {TournamentEventEntryInfoDataService} from '../tournament-entry/service/tournament-event-entry-info-data.service';
+import {TournamentEventEntryInfoService} from '../tournament-entry/service/tournament-event-entry-info.service';
 
 @NgModule({
   declarations: [
@@ -85,13 +87,19 @@ export class TournamentConfigModule {
     entityDataService: EntityDataService,
     // custom collection services
     tournamentConfigService: TournamentConfigService,
+
     tournamentEventConfigService: TournamentEventConfigService,
     tournamentEventConfigDataService: TournamentEventConfigDataService,
-    tournamentEventEntryDataService: TournamentEventEntryDataService
+
+    tournamentEventEntryDataService: TournamentEventEntryDataService,
+
+    tournamentEventEntryInfoService: TournamentEventEntryInfoService,
+    tournamentEventEntryInfoDataService: TournamentEventEntryInfoDataService
   ) {
     // register service for contacting REST API because it doesn't follow the pattern of standard REST call
     entityDataService.registerService('TournamentEvent', tournamentEventConfigDataService);
     entityDataService.registerService('TournamentEventEntry', tournamentEventEntryDataService);
+    entityDataService.registerService('TournamentEventEntryInfo', tournamentEventEntryInfoDataService);
 
     entityServices.registerEntityCollectionServices([
       tournamentConfigService,

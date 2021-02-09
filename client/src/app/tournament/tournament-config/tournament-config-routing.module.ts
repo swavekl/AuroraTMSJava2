@@ -3,28 +3,34 @@ import {Routes, RouterModule} from '@angular/router';
 import {TournamentConfigListContainerComponent} from './tournament-config-list/tournament-config-list-container.component';
 import {TournamentConfigEditContainerComponent} from './tournament-config-edit/tournament-config-edit-container.component';
 import {TournamentEventConfigContainerComponent} from './tournament-event-config/tournament-event-config-container.component';
+import {AuthGuard} from '../../guards/auth.guard';
 
 
 const routes: Routes = [
   {
     path: '',
-    component: TournamentConfigListContainerComponent
+    component: TournamentConfigListContainerComponent,
+    canActivate: [AuthGuard]
   },
   {
     path: 'tournament/edit/:id',
-    component: TournamentConfigEditContainerComponent
+    component: TournamentConfigEditContainerComponent,
+    canActivate: [AuthGuard]
   },
   {
     path: 'tournament/create',
-    component: TournamentConfigEditContainerComponent
+    component: TournamentConfigEditContainerComponent,
+    canActivate: [AuthGuard]
   },
   {
     path: 'tournament/:tournamentId/tournamentevent/create',
-    component: TournamentEventConfigContainerComponent
+    component: TournamentEventConfigContainerComponent,
+    canActivate: [AuthGuard]
   },
   {
     path: 'tournament/:tournamentId/tournamentevent/edit/:id',
-    component: TournamentEventConfigContainerComponent
+    component: TournamentEventConfigContainerComponent,
+    canActivate: [AuthGuard]
   }
 ];
 

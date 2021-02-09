@@ -1,6 +1,7 @@
 package com.auroratms.users;
 
 import com.auroratms.AbstractOktaController;
+import com.auroratms.profile.UserProfileService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -14,6 +15,8 @@ import org.springframework.web.bind.annotation.*;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Map;
 import java.util.UUID;
 
@@ -68,6 +71,11 @@ public class UsersController extends AbstractOktaController {
             profileObjectNode.put("email", userRegistration.getEmail());
             profileObjectNode.put("login", userRegistration.getEmail());
             profileObjectNode.put("secondEmail", secondEmail);
+            // gender and birth date must be filled but we didn't ask for them
+            profileObjectNode.put("gender", "Male");
+            SimpleDateFormat dateFormat = new SimpleDateFormat(UserProfileService.DATE_FORMAT);
+            String dateOfBirth = dateFormat.format(new Date());
+            profileObjectNode.put("birthdate", dateOfBirth);
             ObjectNode valueObjectNode = objectMapper.createObjectNode();
             valueObjectNode.put("value", userRegistration.getPassword());
 //            ObjectNode passwordObjectNode = objectMapper.createObjectNode();

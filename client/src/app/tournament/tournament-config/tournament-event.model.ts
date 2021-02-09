@@ -78,6 +78,11 @@ export class TournamentEvent {
     tournamentEvent.singleElimination = false;
     tournamentEvent.day = 1;
     tournamentEvent.startTime = 9.0;
+    tournamentEvent.drawMethod = 1;
+    tournamentEvent.playersToAdvance = 1;
+    tournamentEvent.playersToSeed = 0;
+    tournamentEvent.numTablesPerGroup = 1;
+    tournamentEvent.numberOfGames = 5;
     // tournamentEvent.genderRestriction = GenderRestriction[selectedEvent.genderRestriction];
     return tournamentEvent;
   }

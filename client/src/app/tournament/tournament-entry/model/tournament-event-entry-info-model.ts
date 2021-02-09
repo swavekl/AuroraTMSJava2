@@ -4,7 +4,8 @@ import {TournamentEvent} from '../../tournament-config/tournament-event.model';
 /**
  * combines the information about the event and entry
  */
-export class EventEntryInfo {
+export class TournamentEventEntryInfo {
+  id: number;
   eventEntry: TournamentEventEntry;
   event: TournamentEvent;
 }

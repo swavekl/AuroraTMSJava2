@@ -47,6 +47,10 @@ export class TournamentEventConfigComponent implements OnInit, OnChanges, OnDest
     {value: 'FEMALE', label: 'Female'}
   ];
 
+  drawMethods: any [] = [
+    {value: 1, label: 'Snake'}
+  ];
+
   private subscriptions: Subscription = new Subscription();
 
   constructor(private tournamentConfigService: TournamentConfigService) {
