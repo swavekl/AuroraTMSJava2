@@ -9,6 +9,7 @@ import { MatListModule } from '@angular/material/list';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import {HomeComponent} from './home/home.component';
 import { UserWelcomeComponent } from './user-welcome/user-welcome.component';
+import {FlexLayoutModule} from '@angular/flex-layout';
 
 const homeRoutes: Routes = [
     {
@@ -26,16 +27,17 @@ const homeRoutes: Routes = [
     HomeComponent,
     UserWelcomeComponent
   ],
-  imports: [
-    RouterModule.forChild(homeRoutes),
-    CommonModule,
-    BrowserAnimationsModule,
-    MatButtonModule,
-    MatCardModule,
-    MatInputModule,
-    MatListModule,
-    MatToolbarModule
-  ],
+    imports: [
+        RouterModule.forChild(homeRoutes),
+        CommonModule,
+        BrowserAnimationsModule,
+        MatButtonModule,
+        MatCardModule,
+        MatInputModule,
+        MatListModule,
+        MatToolbarModule,
+        FlexLayoutModule
+    ],
   exports: [
     HomeComponent
   ]

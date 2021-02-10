@@ -1,4 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, OnInit} from '@angular/core';
+import {AuthenticationService} from '../../user/authentication.service';
+
 // import { OktaAuthService } from '@okta/okta-angular';
 
 @Component({
@@ -7,17 +9,25 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./home.component.css']
 })
 export class HomeComponent implements OnInit {
-  // isAuthenticated: boolean;
 
-  // constructor(private oktaAuth: OktaAuthService) {
-  constructor() {
+  playerName: string;
+  playerRating: string;
+  membershipExpires: Date;
+
+  constructor(private authenticationService: AuthenticationService) {
+    this.playerRating = 'Unrated';
+    this.membershipExpires = new Date();
   }
 
-  async ngOnInit() {
-    // this.isAuthenticated = await this.oktaAuth.isAuthenticated();
-    // // Subscribe to authentication state changes
-    // this.oktaAuth.$authenticationState.subscribe(
-    //   (isAuthenticated: boolean)  => this.isAuthenticated = isAuthenticated
-    // );
+  ngOnInit(): void {
+    this.playerName = this.authenticationService.getCurrentUserFirstName();
+    this.playerRating = '' + 1793;
   }
+
+  public isMembershipExpired() {
+    const today = new Date();
+    return this.membershipExpires < today;
+  }
+
+
 }

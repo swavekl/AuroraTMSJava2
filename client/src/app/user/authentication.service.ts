@@ -117,6 +117,10 @@ export class AuthenticationService {
     return this.currentUser;
   }
 
+  getCurrentUserFirstName() {
+    return this.currentUser?.profile?.firstName;
+  }
+
   getCurrentUserProfileId() {
     return this.currentUser?.id;
   }

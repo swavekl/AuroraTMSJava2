@@ -1,15 +1,14 @@
-Home Component works
-<!--<mat-card>-->
-  <!--<mat-card-title>Home screen</mat-card-title>-->
-  <!--<mat-card-content>-->
-    <!--<button mat-raised-button color="accent" *ngIf="!isAuthenticated"-->
-            <!--(click)="oktaAuth.loginRedirect()">Login-->
-    <!--</button>-->
-    <!--<button mat-raised-button color="accent" *ngIf="isAuthenticated"-->
-            <!--[routerLink]="['/tournaments']">Tournament List-->
-    <!--</button>-->
-    <!--<button mat-raised-button color="accent" *ngIf="isAuthenticated"-->
-            <!--[routerLink]="['/userprofile']">User Profile-->
-    <!--</button>-->
-  <!--</mat-card-content>-->
-<!--</mat-card>-->
+<div fxLayout="column" fxFlexAlign="center center" style="height: calc(100% - 64px)">
+  <div fxFlex="30%"></div>
+  <div fxFlex="40%" fxLayout="row" fxFlexAlign="center center">
+    <div fxFlex>&nbsp;</div>
+    <div style="text-align: center">
+      <h3>Welcome back {{ playerName }}</h3>
+      <h2>Rating: {{ playerRating }}</h2>
+      <h4>Membership {{ isMembershipExpired() ? 'expired' : 'expires' }} on</h4>
+      <h4 [style.color]="isMembershipExpired() ? 'red' : 'green'">{{ membershipExpires | date }}</h4>
+    </div>
+    <div fxFlex>&nbsp;</div>
+  </div>
+  <div fxFlex="30%"></div>
+</div>
