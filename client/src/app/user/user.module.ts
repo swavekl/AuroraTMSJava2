@@ -15,6 +15,7 @@ import {ResetPasswordComponent} from './reset-password/reset-password.component'
 import {ResetPasswordResultComponent} from './reset-password-result/reset-password-result.component';
 import {ResetPasswordStartComponent} from './reset-password-start/reset-password-start.component';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
+import { LogoutComponent } from './logout/logout.component';
 
 const userRoutes: Routes = [
   {
@@ -47,7 +48,8 @@ const userRoutes: Routes = [
     RegistrationConfirmedComponent,
     ResetPasswordStartComponent,
     ResetPasswordComponent,
-    ResetPasswordResultComponent
+    ResetPasswordResultComponent,
+    LogoutComponent
   ],
   imports: [
     CommonModule,

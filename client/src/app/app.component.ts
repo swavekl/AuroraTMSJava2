@@ -5,8 +5,6 @@ import {map} from 'rxjs/operators';
 import {AuthenticationService} from './user/authentication.service';
 import {Route, Router} from '@angular/router';
 import {MatSidenav} from '@angular/material/sidenav';
-import {ResetStore} from './store/reset-store';
-import {Store} from '@ngrx/store';
 
 @Component({
   selector: 'app-root',
@@ -32,8 +30,7 @@ export class AppComponent implements OnInit {
 
   constructor(private breakpointObserver: BreakpointObserver,
               private authenticationService: AuthenticationService,
-              private router: Router,
-              private store: Store) {
+              private router: Router) {
   }
 
   async ngOnInit() {
@@ -42,9 +39,7 @@ export class AppComponent implements OnInit {
 
   logout() {
     this.closeDrawerOnMobile();
-    this.authenticationService.logout();
-    this.store.dispatch(new ResetStore());
-    this.router.navigate(['/login']);
+    this.router.navigate(['/logout']);
   }
 
   /**

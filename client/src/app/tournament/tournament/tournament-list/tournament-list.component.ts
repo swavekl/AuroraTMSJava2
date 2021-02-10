@@ -27,6 +27,7 @@ export class TournamentListComponent implements OnInit {
   }
 
   onRegionChange($event: MatButtonToggleChange) {
+    this.selectedRegion = $event.value;
     this.filterChange.emit($event.value);
   }
 }

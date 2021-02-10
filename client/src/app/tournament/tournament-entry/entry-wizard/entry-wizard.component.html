@@ -67,23 +67,29 @@
         </mat-step>
         <mat-step label="Events">
           <mat-list>
-            <h3 mat-subheader>Entered Events</h3>
+            <div mat-subheader>Entered Events</div>
+            <mat-divider></mat-divider>
             <mat-list-item *ngFor="let enteredEvent of enteredEvents; last as last">
-              <h4 mat-line>{{enteredEvent.event.name}} {{ enteredEvent.event.day | eventDay: tournamentStartDate }} {{ enteredEvent.event.startTime | startTime }} ({{enteredEvent.eventEntry.status | eventEntryStatus }})</h4>
+              <h3 mat-line>{{enteredEvent.event.name}}</h3>
+              <h5 mat-line>{{ enteredEvent.event.day | eventDay: tournamentStartDate }} {{ enteredEvent.event.startTime | startTime }} ({{enteredEvent.eventEntry.status | eventEntryStatus }})</h5>
               <button type="button" mat-button (click)="onEventWithdraw(enteredEvent.eventEntry.id)">Withdraw</button>
               <mat-divider [inset]="true" *ngIf="!last"></mat-divider>
             </mat-list-item>
             <mat-divider></mat-divider>
-            <h3 mat-subheader>Events Available to Enter</h3>
+            <div mat-subheader>Events Available to Enter</div>
+            <mat-divider></mat-divider>
             <mat-list-item *ngFor="let availableEvent of availableEvents; last as last2">
-              <h4 mat-line>{{availableEvent.event.name}} {{ availableEvent.event.day | eventDay: tournamentStartDate }} {{ availableEvent.event.startTime | startTime }} ({{ availableEvent.eventEntry.status | eventEntryStatus }}) </h4>
+              <h3 mat-line>{{availableEvent.event.name}}</h3>
+              <h5 mat-line>{{ availableEvent.event.day | eventDay: tournamentStartDate }} {{ availableEvent.event.startTime | startTime }} ({{ availableEvent.eventEntry.status | eventEntryStatus }}) </h5>
               <button type="button" mat-button (click)="onEventEnter(availableEvent.event.id)">Enter</button>
               <mat-divider [inset]="true" *ngIf="!last2"></mat-divider>
             </mat-list-item>
             <mat-divider></mat-divider>
-            <h3 mat-subheader>Events Not Available to Enter</h3>
+            <div mat-subheader>Events Not Available to Enter</div>
+            <mat-divider></mat-divider>
             <mat-list-item *ngFor="let unavailableEvent of unavailableEvents; last as last3">
-              <h4 mat-line>{{unavailableEvent.event.name}} {{ unavailableEvent.event.day | eventDay: tournamentStartDate }} {{ unavailableEvent.event.startTime | startTime }} ({{ unavailableEvent.eventEntry.status | eventEntryStatus }}) </h4>
+              <h3 mat-line>{{unavailableEvent.event.name}}</h3>
+              <h5 mat-line>{{ unavailableEvent.event.day | eventDay: tournamentStartDate }} {{ unavailableEvent.event.startTime | startTime }} ({{ unavailableEvent.eventEntry.status | eventEntryStatus }}) </h5>
               <mat-divider [inset]="true" *ngIf="!last3"></mat-divider>
             </mat-list-item>
           </mat-list>

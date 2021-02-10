@@ -1,12 +1,14 @@
 import {NgModule} from '@angular/core';
 import {Routes, RouterModule} from '@angular/router';
 import {HomeComponent} from './home/home/home.component';
+import {LogoutComponent} from './user/logout/logout.component';
 
 const ROLE_ADMINS = 'Admins';
 const ROLE_TOURNAMENT_DIRECTOR = 'TournamentDirector';
 
 const routes: Routes = [
   {path: '', redirectTo: '/login', pathMatch: 'full'},
+  {path: 'logout', component: LogoutComponent},
   {
     path: 'home', component: HomeComponent
   },

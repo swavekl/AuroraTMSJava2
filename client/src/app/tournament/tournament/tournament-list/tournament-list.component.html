@@ -1,8 +1,11 @@
 <div fxLayout="row">
   <div fxFlex></div>
-  <div fxFlex.lt-md="100%" fxFlex="60%">
+  <div fxFlex.lt-md="100%" fxFlex.md="100%" fxFlex="60%">
     <mat-card>
-      <mat-card-title>Tournament List</mat-card-title>
+      <mat-card-title>Tournaments</mat-card-title>
+      <mat-card-subtitle fxShow.gt-md="false" fxShow.md="false" fxShow.lt-md="true">
+        {{selectedRegion}}
+      </mat-card-subtitle>
       <mat-card-content>
         <div fxLayout.lt-md="row" fxLayout.gt-md="column">
           <div>
@@ -12,7 +15,7 @@
                 </mat-button-toggle>
               </mat-button-toggle-group>
             </div>
-            <div fxShow.gt-md="false" fxShow.md="false" fxShow.lt-md="true">
+            <div fxShow.gt-md="false" fxShow.md="false" fxShow.lt-md="true" style="padding-top: 8px; margin-left: -16px">
               <mat-button-toggle-group name="region" (change)="onRegionChange($event)" [value]="selectedRegion" vertical="true">
                 <mat-button-toggle *ngFor="let region of regions" value="{{region.name}}">{{region.shortName}}
                 </mat-button-toggle>
@@ -21,11 +24,14 @@
           </div>
           <div>
             <mat-list>
-              <mat-list-item *ngFor="let tournament of tournaments">
-                <h3 matLine>{{tournament.name}}</h3>
+              <mat-divider></mat-divider>
+              <mat-list-item *ngFor="let tournament of tournaments; first as first" [routerLink]="['view', tournament.id]">
+                <div matLine [ngClass.lt-md]="'truncated-list-item'">
+                  {{tournament.name}}
+                </div>
                 <h3 matLine>{{tournament.startDate | date }} - {{tournament.endDate | date }}</h3>
                 <h4 matLine>{{ tournament.city }}, {{tournament.state}} </h4>
-                <button mat-icon-button [routerLink]="['view', tournament.id]">
+                <button fxShow.gt-md="true" fxShow.md="true" fxHide.lt-md="true" mat-icon-button [routerLink]="['view', tournament.id]">
                   <mat-icon matListIcon>navigate_next</mat-icon>
                 </button>
                 <mat-divider></mat-divider>
