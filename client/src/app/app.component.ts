@@ -1,10 +1,9 @@
 import {Component, OnInit, ViewChild} from '@angular/core';
-// import {OktaAuthService} from '@okta/okta-angular';
 import {Observable} from 'rxjs';
 import {BreakpointObserver, Breakpoints} from '@angular/cdk/layout';
 import {map} from 'rxjs/operators';
 import {AuthenticationService} from './user/authentication.service';
-import {Router} from '@angular/router';
+import {Route, Router} from '@angular/router';
 import {MatSidenav} from '@angular/material/sidenav';
 import {ResetStore} from './store/reset-store';
 import {Store} from '@ngrx/store';
@@ -32,7 +31,6 @@ export class AppComponent implements OnInit {
   drawer: MatSidenav;
 
   constructor(private breakpointObserver: BreakpointObserver,
-              // private oktaAuth: OktaAuthService,
               private authenticationService: AuthenticationService,
               private router: Router,
               private store: Store) {
@@ -40,18 +38,13 @@ export class AppComponent implements OnInit {
 
   async ngOnInit() {
     this.isAuthenticated$ = this.authenticationService.getIsAuthenticated();
-    // this.isAuthenticated = await this.oktaAuth.isAuthenticated();
-    // // Subscribe to authentication state changes
-    // this.oktaAuth.$authenticationState.subscribe(
-    //   (isAuthenticated: boolean)  => this.isAuthenticated = isAuthenticated
-    // );
   }
 
   logout() {
-    // this.oktaAuth.logout();
     this.closeDrawerOnMobile();
     this.authenticationService.logout();
     this.store.dispatch(new ResetStore());
+    this.router.navigate(['/login']);
   }
 
   /**
@@ -66,5 +59,26 @@ export class AppComponent implements OnInit {
     if (this.drawer && this.drawer.opened && this.isMobile) {
       this.drawer.close();
     }
+  }
+
+  public isLinkVisible(routerLink): boolean {
+    let isVisible = true;
+    routerLink = routerLink.startsWith('/') ? routerLink.substr(1, routerLink.length) : routerLink;
+    // console.log ('routerLink', routerLink);
+    const routesConfigurations: Route[] = this.router.config;
+    for (let i = 0; i < routesConfigurations.length; i++) {
+      const route: Route = routesConfigurations[i];
+      if (route.path === routerLink) {
+        // console.log ('route found');
+        const routeData = route.data;
+        if (routeData != null && routeData.roles != null) {
+          const roles: string [] = routeData.roles;
+          isVisible = this.authenticationService.hasCurrentUserRole(roles);
+          break;
+        }
+      }
+    }
+    // console.log (routerLink + ' isVisible ' + isVisible);
+    return isVisible;
   }
 }

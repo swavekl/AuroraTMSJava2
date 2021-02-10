@@ -1,20 +1,20 @@
 import {NgModule} from '@angular/core';
 import {CommonModule} from '@angular/common';
-import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
-import { MatIconModule } from '@angular/material/icon';
-import { MatInputModule } from '@angular/material/input';
-import { FormsModule } from '@angular/forms';
+import {MatButtonModule} from '@angular/material/button';
+import {MatCardModule} from '@angular/material/card';
+import {MatIconModule} from '@angular/material/icon';
+import {MatInputModule} from '@angular/material/input';
+import {FormsModule} from '@angular/forms';
 import {RouterModule, Routes} from '@angular/router';
 import {LoginComponent} from './login/login.component';
 import {SignInComponent} from './sign-in/sign-in.component';
 import {RegisterComponent} from './register/register.component';
 import {FlexLayoutModule} from '@angular/flex-layout';
-import { RegistrationConfirmedComponent } from './registration-confirmed/registration-confirmed.component';
-import {AuthenticationService} from './authentication.service';
-import { ResetPasswordComponent } from './reset-password/reset-password.component';
-import { ResetPasswordResultComponent } from './reset-password-result/reset-password-result.component';
-import { ResetPasswordStartComponent } from './reset-password-start/reset-password-start.component';
+import {RegistrationConfirmedComponent} from './registration-confirmed/registration-confirmed.component';
+import {ResetPasswordComponent} from './reset-password/reset-password.component';
+import {ResetPasswordResultComponent} from './reset-password-result/reset-password-result.component';
+import {ResetPasswordStartComponent} from './reset-password-start/reset-password-start.component';
+import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 
 const userRoutes: Routes = [
   {
@@ -57,7 +57,8 @@ const userRoutes: Routes = [
     MatCardModule,
     MatInputModule,
     MatIconModule,
-    FlexLayoutModule
+    FlexLayoutModule,
+    MatProgressSpinnerModule
   ]
 })
 export class UserModule {

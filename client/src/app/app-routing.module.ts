@@ -2,6 +2,9 @@ import {NgModule} from '@angular/core';
 import {Routes, RouterModule} from '@angular/router';
 import {HomeComponent} from './home/home/home.component';
 
+const ROLE_ADMINS = 'Admins';
+const ROLE_TOURNAMENT_DIRECTOR = 'TournamentDirector';
+
 const routes: Routes = [
   {path: '', redirectTo: '/login', pathMatch: 'full'},
   {
@@ -9,6 +12,9 @@ const routes: Routes = [
   },
   {
     path: 'tournamentsconfig',
+    data: {
+      roles: [ROLE_TOURNAMENT_DIRECTOR, ROLE_ADMINS]
+    },
     loadChildren: () => import('./tournament/tournament-config/tournament-config.module').then(m => m.TournamentConfigModule)
   },
   {

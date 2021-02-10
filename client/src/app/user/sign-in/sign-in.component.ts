@@ -3,6 +3,8 @@ import {AuthenticationService} from '../authentication.service';
 import {ActivatedRoute, Router} from '@angular/router';
 import {Store} from '@ngrx/store';
 import {ResetStore} from '../../store/reset-store';
+import {first} from 'rxjs/operators';
+import {Subject} from 'rxjs';
 
 @Component({
   selector: 'app-sign-in',
@@ -20,6 +22,9 @@ export class SignInComponent implements OnInit {
   status: string;
   returnUrl: string;
 
+  // progress indicator
+  loginInProgress$: Subject<boolean> = new Subject<boolean>();
+
   constructor(private authenticationService: AuthenticationService,
               private activatedRoute: ActivatedRoute,
               private router: Router,
@@ -32,13 +37,18 @@ export class SignInComponent implements OnInit {
   }
 
   login() {
+    this.loginInProgress$.next(true);
     this.status = '';
     this.store.dispatch(new ResetStore());
     this.authenticationService.login(this.email, this.password)
+      .pipe(first())
       .subscribe(data => {
-          if (data) {
+        // console.log ('got login data', data);
+          if (data === true) {
             this.status = 'Success';
             this.router.navigate([this.returnUrl]);
+          } else {
+            this.status = 'Invalid username and/or password.';
           }
         },
         error => {
@@ -49,6 +59,9 @@ export class SignInComponent implements OnInit {
             // this.status = error.error.error;
             this.status = 'Invalid username and/or password.';
           }
+        },
+        () => {
+          this.loginInProgress$.next(false);
         });
   }
 }

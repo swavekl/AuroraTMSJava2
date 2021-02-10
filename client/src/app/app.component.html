@@ -8,17 +8,17 @@
       <mat-list-item (click)="closeAndNavigateToRoute('/tournaments')" routerLinkActive="active">
         <a matLine>Tournaments</a>
       </mat-list-item>
-      <mat-list-item (click)="closeAndNavigateToRoute('/tournamentsconfig')" routerLinkActive="active">
+      <mat-list-item *ngIf="isLinkVisible('/tournamentsconfig')" (click)="closeAndNavigateToRoute('/tournamentsconfig')" routerLinkActive="active">
         <a matLine>Tournaments Config</a>
       </mat-list-item>
       <mat-list-item (click)="closeAndNavigateToRoute('/userprofile')" routerLinkActive="active">
         <a matLine>Profile</a>
       </mat-list-item>
-      <mat-list-item (click)="closeAndNavigateToRoute('/login/signin')" routerLinkActive="active">
+      <mat-list-item *ngIf="!(isAuthenticated$ | async)" (click)="closeAndNavigateToRoute('/login/signin')" routerLinkActive="active">
         <a matLine>Login</a>
       </mat-list-item>
 <!--      <a mat-list-item *ngIf="!isAuthenticated$" href="#" routerLink="/login/signin">Login</a>-->
-      <a mat-list-item href="#" (click)="logout()" routerLink="/home">Logout</a>
+      <a mat-list-item href="#" *ngIf="isAuthenticated$ | async" (click)="logout()" routerLink="/home">Logout</a>
     </mat-nav-list>
   </mat-sidenav>
   <mat-sidenav-content>

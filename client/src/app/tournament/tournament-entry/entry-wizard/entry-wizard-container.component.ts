@@ -82,8 +82,20 @@ export class EntryWizardContainerComponent implements OnInit, OnDestroy {
     this.entryId = this.activatedRoute.snapshot.params['entryId'] || 0;
     this.tournamentId = this.activatedRoute.snapshot.params['tournamentId'] || 0;
 
-    this.selectEntry(this.entryId);
     this.selectTournamentInfo(this.tournamentId);
+    this.selectEntry(this.entryId);
+    this.selectEventEntries(this.entryId);
+  }
+
+  /**
+   * Destroys all subscriptions
+   */
+  ngOnDestroy(): void {
+    console.log ('in ngOnDestroy');
+    if (this.subscriptions != null) {
+      console.log ('in ngOnDestroy - unsubscribing');
+      this.subscriptions.unsubscribe();
+    }
   }
 
   /**
@@ -108,7 +120,6 @@ export class EntryWizardContainerComponent implements OnInit, OnDestroy {
       } else {
         this.entry$ = of(next);
       }
-      this.selectEventEntries(entryId);
     });
     this.subscriptions.add(subscription);
   }
@@ -125,38 +136,32 @@ export class EntryWizardContainerComponent implements OnInit, OnDestroy {
       (entityMap) => {
         return entityMap[tournamentId];
       });
-    const selectedTournamentInfo$: Observable<TournamentInfo> =
-      this.tournamentInfoService.store.select(selectedTournamentSelector);
-    const subscription = selectedTournamentInfo$.subscribe((tournamentInfo: TournamentInfo) => {
-      if (tournamentInfo) {
-        this.initTournamentData(tournamentInfo);
-      } else {
-        const subscription1 = this.tournamentInfoService.getByKey(tournamentId)
-          .subscribe((tournamentInfo1: TournamentInfo) => {
-            this.initTournamentData(tournamentInfo1);
-        });
-        this.subscriptions.add(subscription1);
-      }
-    });
-    this.subscriptions.add(subscription);
+    // tournament information will not change just get it once
+    this.tournamentInfoService.store.select(selectedTournamentSelector)
+      .pipe(first())
+      .subscribe((tournamentInfo: TournamentInfo) => {
+        console.log('got tournament info', tournamentInfo);
+        if (tournamentInfo) {
+          this.initTournamentData(tournamentInfo);
+        } else {
+          console.log ('tournament info not in cache ??');
+          this.tournamentInfoService.getByKey(tournamentId)
+            .pipe(first())
+            .subscribe((tournamentInfo1: TournamentInfo) => {
+              console.log('got tournament info', tournamentInfo1);
+              this.initTournamentData(tournamentInfo1);
+            });
+        }
+      });
   }
 
-  private initTournamentData (tournamentInfo: TournamentInfo): void {
+  private initTournamentData(tournamentInfo: TournamentInfo): void {
     this.tournamentInfo = tournamentInfo;
     const isTeamsTournament: boolean = (tournamentInfo) ? (tournamentInfo?.tournamentType === 'Teams') : false;
     // console.log('isTeamsTournament', isTeamsTournament);
     this.teamsTournament$ = of(isTeamsTournament);
     const startDate = new DateUtils().convertFromString(tournamentInfo.startDate);
     this.tournamentStartDate$ = of(startDate);
-  }
-
-  /**
-   * Destroys all subscriptions
-   */
-  ngOnDestroy(): void {
-    if (this.subscriptions) {
-      this.subscriptions.unsubscribe();
-    }
   }
 
   /**
@@ -175,17 +180,17 @@ export class EntryWizardContainerComponent implements OnInit, OnDestroy {
     this.tournamentEventEntries$ = this.tournamentEventEntryService.entities$;
     const subscription: Subscription = this.tournamentEventEntries$.subscribe(
       (value: TournamentEventEntry[]) => {
-        console.log ('Loaded event entries - recalculating event eligibility');
+        console.log('Loaded event entries - recalculating event eligibility');
         this.tournamentEventEntryInfoService.loadForTournamentEntry(this.entryId);
       },
       (error: any) => {
-        console.log ('Unable to recalculate events eligibility', error);
+        console.log('Unable to recalculate events eligibility', error);
       },
       () => {
         // console.log ('completed');
       }
     );
-    this.subscriptions.add (subscription);
+    this.subscriptions.add(subscription);
 
     // initiate the call to load event entries
     this.tournamentEventEntryService.loadAllForTournamentEntry(entryId);
@@ -196,7 +201,7 @@ export class EntryWizardContainerComponent implements OnInit, OnDestroy {
    * @param tournamentEventEntry
    */
   onEventEntryChanged(tournamentEventEntry: TournamentEventEntry) {
-    console.log ('onEventEntryChanged tournamentEventEntry', tournamentEventEntry);
+    console.log('onEventEntryChanged tournamentEventEntry', tournamentEventEntry);
     // after update the event eligibility will be refetched by subscription to event entry changes
     this.tournamentEventEntryService.upsert(tournamentEventEntry);
   }
@@ -209,19 +214,19 @@ export class EntryWizardContainerComponent implements OnInit, OnDestroy {
     this.tournamentEntryService.update(tournamentEntry)
       .pipe(first())
       .subscribe(
-      (value: TournamentEntry) => {
-        console.log ('updated successfully tournament entry');
-      },
-      (error: any) => {
-        console.log ('error updating entry', error);
-      },
-      () => {
-        // console.log ('completed');
-      }
-    );
+        (value: TournamentEntry) => {
+          console.log('updated successfully tournament entry');
+        },
+        (error: any) => {
+          console.log('error updating entry', error);
+        },
+        () => {
+          // console.log ('completed');
+        }
+      );
   }
 
-  onFinish (event: any) {
+  onFinish(event: any) {
     this.router.navigateByUrl(`/tournaments/view/${this.tournamentId}`);
   }
 }

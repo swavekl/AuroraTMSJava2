@@ -1,8 +1,8 @@
 import {Injectable} from '@angular/core';
-import {HttpClient, HttpErrorResponse, HttpHeaders} from '@angular/common/http';
-import {catchError, map} from 'rxjs/operators';
-import {environment} from '../../environments/environment';
-import {Observable, throwError} from 'rxjs';
+import {HttpClient, HttpErrorResponse} from '@angular/common/http';
+import {Observable, Subject, throwError} from 'rxjs';
+import {JWTDecoderService} from './jwtdecoder.service';
+import {first, map} from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -12,9 +12,10 @@ export class AuthenticationService {
   // JWT token
   private accessToken: string;
   private currentUser: any;
-  private isAuthenticated$: Observable<boolean>;
+  private isAuthenticated$: Subject<boolean> = new Subject<boolean>();
 
-  constructor(private http: HttpClient) {
+  constructor(private http: HttpClient,
+              private jwtDecoderService: JWTDecoderService) {
     this.accessToken = null;
   }
 
@@ -52,25 +53,29 @@ export class AuthenticationService {
   /**
    * Login
    */
-  login(username: string, password: string) {
+  login(username: string, password: string): Observable<boolean> {
     const requestBody = {email: username, password: password};
-    this.isAuthenticated$ = this.http.post(this.getFullUrl('/api/users/login'), requestBody)
-      .pipe(
-        map((response: any) => {
+    this.http.post(this.getFullUrl('/api/users/login'), requestBody)
+      .pipe(first())
+      .subscribe(
+        (response: any) => {
           // console.log('logged in', response);
           // login successful if there's a jwt token in the response
-          // if (response.status === 200 && response.accessToken) {
           if (response.access_token) {
             this.accessToken = response.access_token;
             this.currentUser = response;
             // store user details and jwt token in local storage to keep user logged in between page refreshes
             sessionStorage.setItem('currentUser', JSON.stringify(response));
+            this.isAuthenticated$.next(true);
+          } else {
+            this.isAuthenticated$.next(false);
           }
-          return response;
-        })
-        // ,catchError (this.handleError)
-      );
-    return this.isAuthenticated$;
+        },
+        (error: any) => {
+          // console.log ('got login error', error);
+          this.isAuthenticated$.next(false);
+        });
+      return this.isAuthenticated$;
   }
 
   private handleError(error: HttpErrorResponse) {
@@ -88,7 +93,8 @@ export class AuthenticationService {
     return throwError(
       'Something bad happened; please try again later.');
   }
-  getIsAuthenticated() {
+
+  getIsAuthenticated(): Observable<boolean> {
     return this.isAuthenticated$;
   }
 
@@ -100,6 +106,7 @@ export class AuthenticationService {
     this.currentUser = null;
     // remove user from local storage to log user out
     sessionStorage.removeItem('currentUser');
+    this.isAuthenticated$.next(false);
   }
 
   getAccessToken() {
@@ -114,6 +121,34 @@ export class AuthenticationService {
     return this.currentUser?.id;
   }
 
+  public getCurrentUserRoles() {
+    const decodedToken = this.jwtDecoderService.decode(this.getAccessToken());
+    const roles = decodedToken?.groups;
+    return (roles) ? roles : [];
+  }
+
+  /**
+   * Checks if user has a role required for this route
+   * @param routeRoles
+   * @private
+   */
+  public hasCurrentUserRole(routeRoles: string []): boolean {
+    const userRoles = this.getCurrentUserRoles();
+    let hasRole = false;
+    if (routeRoles != null) {
+      for (let i = 0; i < userRoles.length; i++) {
+        const userRole = userRoles[i];
+        hasRole = (routeRoles.indexOf(userRole) !== -1);
+        if (hasRole) {
+          break;
+        }
+      }
+    } else {
+      hasRole = true; // no route roles means it is unprotected so allow
+    }
+    return hasRole;
+  }
+
   /**
    * Initiates forgot password flow
    * @param email
@@ -123,7 +158,7 @@ export class AuthenticationService {
     return this.http.get(url)
       .pipe(
         map((response: any) => {
-          console.log ('forgotpassword response', response);
+          // console.log('forgotpassword response', response);
           return response;
         })
       );
@@ -140,7 +175,7 @@ export class AuthenticationService {
     return this.http.post(url, requestBody)
       .pipe(
         map((response: any) => {
-          console.log ('reset password response');
+          // console.log('reset password response');
           return response;
         })
       );
