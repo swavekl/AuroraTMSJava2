@@ -66,4 +66,10 @@ export class DateUtils {
     // }
     return diff;
   }
+
+  isDateBefore(firstDate: Date, secondDate: Date): boolean {
+    const mFirstDate = moment(firstDate).hours(0).minutes(0).seconds(0);
+    const mSecondDate = moment(secondDate).hours(0).minutes(0).seconds(0);
+    return mFirstDate.isBefore(mSecondDate);
+  }
 }

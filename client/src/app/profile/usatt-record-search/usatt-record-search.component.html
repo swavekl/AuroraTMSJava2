@@ -1,0 +1,19 @@
+<h2>Find USATT Record</h2>
+<form name="form" #f="ngForm" novalidate>
+  <div fxLayout="column" fxLayoutGap="10px">
+    <mat-form-field fxFlex="100%">
+      <label>
+        <input matInput type="text" placeholder="Membership ID" name="membershipId" [(ngModel)]="membershipId">
+      </label>
+    </mat-form-field>
+  </div>
+  <div>
+    <button mat-raised-button color="primary" type="button" (click)="onSearch(f.value)">Search</button>
+  </div>
+</form>
+<mat-list>
+  <mat-list-item *ngFor="let foundPlayer of foundPlayers$ | async"
+                 (click)="onSelection(foundPlayer)">
+    {{foundPlayer.firstName}} {{foundPlayer.lastName}} ({{foundPlayer.tournamentRating}})
+  </mat-list-item>
+</mat-list>

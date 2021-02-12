@@ -1,14 +1,11 @@
-<div fxLayout="column" fxFlexAlign="center center" style="height: calc(100% - 64px)">
-  <div fxFlex="30%"></div>
-  <div fxFlex="40%" fxLayout="row" fxFlexAlign="center center">
-    <div fxFlex>&nbsp;</div>
-    <div style="text-align: center">
-      <h3>Welcome back {{ playerName }}</h3>
-      <h2>Rating: {{ playerRating }}</h2>
-      <h4>Membership {{ isMembershipExpired() ? 'expired' : 'expires' }} on</h4>
-      <h4 [style.color]="isMembershipExpired() ? 'red' : 'green'">{{ membershipExpires | date }}</h4>
-    </div>
-    <div fxFlex>&nbsp;</div>
+<app-linear-progress-bar [loading]="loading$ | async"></app-linear-progress-bar>
+<app-centered-panel>
+  <h2>Hi,</h2>
+  <h1 class="mat-display-3">{{ playerFirstName }}</h1>
+  <div *ngIf="ratedPlayer">
+    <p class="mat-subheading-2">Rating</p>
+    <p class="mat-headline">{{ playerRating }}</p>
+    <p class="mat-subheading-2" >Membership {{ membershipExpired ? 'expired' : 'expires' }} on</p>
+    <p [style.color]="membershipExpired ? 'red' : 'green'">{{ membershipExpirationDate | date }}</p>
   </div>
-  <div fxFlex="30%"></div>
-</div>
+</app-centered-panel>

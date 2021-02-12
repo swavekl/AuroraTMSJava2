@@ -5,13 +5,13 @@
                [opened]="!(isHandset$ | async)">
     <mat-toolbar>Menu</mat-toolbar>
     <mat-nav-list>
-      <mat-list-item (click)="closeAndNavigateToRoute('/tournaments')" routerLinkActive="active">
+      <mat-list-item *ngIf="(isAuthenticated$ | async)" (click)="closeAndNavigateToRoute('/tournaments')" routerLinkActive="active">
         <a matLine>Tournaments</a>
       </mat-list-item>
       <mat-list-item *ngIf="isLinkVisible('/tournamentsconfig')" (click)="closeAndNavigateToRoute('/tournamentsconfig')" routerLinkActive="active">
         <a matLine>Tournaments Config</a>
       </mat-list-item>
-      <mat-list-item (click)="closeAndNavigateToRoute('/userprofile')" routerLinkActive="active">
+      <mat-list-item *ngIf="(isAuthenticated$ | async)" (click)="editProfile()" routerLinkActive="active">
         <a matLine>Profile</a>
       </mat-list-item>
       <mat-list-item *ngIf="!(isAuthenticated$ | async)" (click)="closeAndNavigateToRoute('/login/signin')" routerLinkActive="active">
@@ -36,6 +36,8 @@
               <!--(click)="login()">Login-->
       <!--</button>-->
     </mat-toolbar>
-    <router-outlet></router-outlet>
+    <section class="mat-typography" style="height: 100%">
+      <router-outlet></router-outlet>
+    </section>
   </mat-sidenav-content>
 </mat-sidenav-container>

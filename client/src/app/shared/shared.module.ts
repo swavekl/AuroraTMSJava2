@@ -8,9 +8,10 @@ import {MatCardModule} from '@angular/material/card';
 import {MatDialogModule} from '@angular/material/dialog';
 import {MatButtonModule} from '@angular/material/button';
 import {LocalStorageService} from './local-storage.service';
-import {CountriesList} from './countries-list';
-import { StartTimePipe } from './pipes/start-time.pipe';
-import { EventDayPipePipe } from './pipes/event-day-pipe.pipe';
+import {StartTimePipe} from './pipes/start-time.pipe';
+import {EventDayPipePipe} from './pipes/event-day-pipe.pipe';
+import {CenteredPanelComponent} from './centered-panel/centered-panel.component';
+import {FlexLayoutModule} from '@angular/flex-layout';
 
 
 @NgModule({
@@ -19,22 +20,25 @@ import { EventDayPipePipe } from './pipes/event-day-pipe.pipe';
     DateBeforeDirective,
     ConfirmationPopupComponent,
     StartTimePipe,
-    EventDayPipePipe
+    EventDayPipePipe,
+    CenteredPanelComponent
   ],
   exports: [
     LinearProgressBarComponent,
     DateBeforeDirective,
     ConfirmationPopupComponent,
     StartTimePipe,
-    EventDayPipePipe
+    EventDayPipePipe,
+    CenteredPanelComponent
   ],
-  imports: [
-    CommonModule,
-    MatProgressBarModule,
-    MatCardModule,
-    MatDialogModule,
-    MatButtonModule
-  ],
+    imports: [
+        CommonModule,
+        MatProgressBarModule,
+        MatCardModule,
+        MatDialogModule,
+        MatButtonModule,
+        FlexLayoutModule
+    ],
   providers: [
     LocalStorageService
   ]

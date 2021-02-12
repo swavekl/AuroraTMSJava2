@@ -1,7 +1,10 @@
 import {Component, OnInit} from '@angular/core';
 import {AuthenticationService} from '../../user/authentication.service';
-
-// import { OktaAuthService } from '@okta/okta-angular';
+import {UsattPlayerRecordService} from '../../profile/service/usatt-player-record.service';
+import {first, map} from 'rxjs/operators';
+import {UsattPlayerRecord} from '../../profile/model/usatt-player-record.model';
+import {DateUtils} from '../../shared/date-utils';
+import {Observable} from 'rxjs';
 
 @Component({
   selector: 'app-home',
@@ -10,24 +13,39 @@ import {AuthenticationService} from '../../user/authentication.service';
 })
 export class HomeComponent implements OnInit {
 
-  playerName: string;
+  playerFirstName: string;
   playerRating: string;
-  membershipExpires: Date;
+  membershipExpirationDate: Date;
+  membershipExpired: boolean;
+  loading$: Observable<boolean>;
+  ratedPlayer: boolean;
 
-  constructor(private authenticationService: AuthenticationService) {
-    this.playerRating = 'Unrated';
-    this.membershipExpires = new Date();
+  constructor(private authenticationService: AuthenticationService,
+              private usattPlayerRecordService: UsattPlayerRecordService) {
+    this.playerRating = '...';
+    this.membershipExpirationDate = new Date();
+    this.membershipExpired = false;
+    this.ratedPlayer = false;
   }
 
   ngOnInit(): void {
-    this.playerName = this.authenticationService.getCurrentUserFirstName();
-    this.playerRating = '' + 1793;
-  }
-
-  public isMembershipExpired() {
+    this.playerFirstName = this.authenticationService.getCurrentUserFirstName();
+    const lastName = this.authenticationService.getCurrentUserLastName();
+    this.loading$ = this.usattPlayerRecordService.loading$;
     const today = new Date();
-    return this.membershipExpires < today;
+    this.usattPlayerRecordService.searchByNames(this.playerFirstName, lastName)
+      .pipe(first(),
+        map((records: UsattPlayerRecord[]) => {
+          if (records?.length > 0) {
+            this.membershipExpirationDate = records[0].membershipExpiration;
+            const rating = records[0].tournamentRating;
+            this.ratedPlayer = (rating != null && rating > 0);
+            this.playerRating =  this.ratedPlayer ? ('' + rating) : 'Unrated';
+          } else {
+            this.membershipExpirationDate = today;
+          }
+          this.membershipExpired = new DateUtils().isDateBefore(this.membershipExpirationDate, today);
+        }))
+      .subscribe();
   }
-
-
 }

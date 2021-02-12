@@ -1,0 +1,19 @@
+@import "~src/my-theme.scss";
+
+$field-width: 300px;
+
+mat-form-field {
+  max-width: $field-width;
+  min-width: $field-width;
+}
+
+.password-instructions {
+  text-align: start;
+  max-width: $field-width;
+  //padding-bottom: 15px;
+}
+
+.registration-error-message {
+  max-width: $field-width;
+  color: $warn-color;
+}

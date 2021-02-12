@@ -21,11 +21,18 @@ import {MatDialogModule} from '@angular/material/dialog';
 import {SharedModule} from '../shared/shared.module';
 import {MatRadioModule} from '@angular/material/radio';
 import {MatNativeDateModule} from '@angular/material/core';
+import { ProfileEditStartComponent } from './profile-edit-start/profile-edit-start.component';
+import { UsattRecordSearchComponent } from './usatt-record-search/usatt-record-search.component';
 
 const profileRoutes: Routes = [
   {
-    path: 'userprofile',
+    path: 'userprofile/:profileId',
     component: ProfileEditContainerComponent,
+    canActivate: [AuthGuard]
+  },
+  {
+    path: 'userprofilestart',
+    component: ProfileEditStartComponent,
     canActivate: [AuthGuard]
   }
 ];
@@ -34,7 +41,9 @@ const profileRoutes: Routes = [
   declarations: [
     ProfileEditComponent,
     ProfileEditContainerComponent,
-    PlayerFindPopupComponent
+    PlayerFindPopupComponent,
+    ProfileEditStartComponent,
+    UsattRecordSearchComponent
   ],
   exports: [
     PlayerFindPopupComponent

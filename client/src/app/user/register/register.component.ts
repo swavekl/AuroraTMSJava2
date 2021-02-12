@@ -1,12 +1,12 @@
 import {Component, OnInit} from '@angular/core';
-import {Router} from '@angular/router';
 import {AuthenticationService} from '../authentication.service';
 import {CrossFieldErrorMatcher} from '../cross-field-error-matcher/cross-field-error-matcher';
+import {first} from 'rxjs/operators';
 
 @Component({
   selector: 'app-register',
   templateUrl: './register.component.html',
-  styleUrls: ['./register.component.css']
+  styleUrls: ['./register.component.scss']
 })
 export class RegisterComponent implements OnInit {
 
@@ -19,33 +19,31 @@ export class RegisterComponent implements OnInit {
   crossFieldErrorMatcher = new CrossFieldErrorMatcher();
 
   public message: string;
-  public done: boolean;
+  public registrationInProgress: boolean;
 
   constructor(
-    private authenticationService: AuthenticationService,
-    private router: Router
-  ) {
+    private authenticationService: AuthenticationService) {
   }
 
   ngOnInit() {
     this.message = '';
-    this.done = false;
+    this.registrationInProgress = false;
   }
 
   register() {
-    this.done = false;
+    this.registrationInProgress = true;
     this.authenticationService.register(this.firstName, this.lastName, this.email, this.password, this.password2)
+      .pipe(first())
       .subscribe(
         data => {
           this.message = 'Email was sent to your email account.  Please follow instruction in the email to continue...';
-          // this.router.navigate(['/registrationconfirmed']);
-          this.done = true;
+          this.registrationInProgress = false;
         },
         error => {
-            console.log('error registering', error);
+            // console.log('error registering', error);
             const causes = error?.error?.errorCauses || '{}';
             this.message = 'Error was encountered during registration: ' + JSON.stringify(causes);
-          this.done = true;
+          this.registrationInProgress = false;
         });
   }
 }

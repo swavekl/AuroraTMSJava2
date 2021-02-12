@@ -1,8 +1,8 @@
 package com.auroratms.server;
 
-import com.auroratms.tournament.Tournament;
-import com.auroratms.tournament.TournamentEntity;
 import com.auroratms.tournament.TournamentRepository;
+import com.auroratms.usatt.UsattDataService;
+import com.auroratms.usatt.UsattPlayerRecord;
 import com.okta.spring.boot.oauth.Okta;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationRunner;
@@ -15,32 +15,21 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.core.Ordered;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
-import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
-import org.springframework.security.acls.jdbc.JdbcMutableAclService;
-import org.springframework.security.acls.model.MutableAclService;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
-import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
-import org.springframework.security.config.annotation.method.configuration.GlobalMethodSecurityConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.annotation.web.configurers.oauth2.server.resource.OAuth2ResourceServerConfigurer;
-import org.springframework.security.config.core.GrantedAuthorityDefaults;
-import org.springframework.security.oauth2.config.annotation.web.configuration.EnableResourceServer;
-import org.springframework.security.oauth2.config.annotation.web.configuration.ResourceServerConfigurerAdapter;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
-import org.springframework.security.oauth2.provider.expression.OAuth2MethodSecurityExpressionHandler;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
 
-import java.text.*;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Collections;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.stream.Stream;
+import java.util.List;
 
 //@EnableResourceServer
 @SpringBootApplication
@@ -59,9 +48,18 @@ public class ServerApplication {
 
 //    @Bean
 //    @Transactional
-//    ApplicationRunner init(TournamentRepository repository) {
+//    ApplicationRunner init(TournamentRepository repository, UsattDataService usattDataService) {
 //        DateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
 //        return args -> {
+////            String filename = "C:\\myprojects\\DubinaRecords.csv";
+//            String filename = "C:\\myprojects\\TD Ratings File 9.26.2019.csv";
+//            List<UsattPlayerRecord> usattPlayerInfos = usattDataService.readAllPlayersFromFile(filename);
+//
+//            usattDataService.insertPlayerData(usattPlayerInfos);
+//            long count = usattDataService.getTotalCount();
+//            System.out.println("count = " + count);
+//
+//
 //            Stream.of("2019 Aurora Cup",
 //                    "2019 America's Team Championship",
 //                    "St. Joseph Valley Open",

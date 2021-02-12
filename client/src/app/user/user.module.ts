@@ -16,6 +16,7 @@ import {ResetPasswordResultComponent} from './reset-password-result/reset-passwo
 import {ResetPasswordStartComponent} from './reset-password-start/reset-password-start.component';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 import { LogoutComponent } from './logout/logout.component';
+import {SharedModule} from '../shared/shared.module';
 
 const userRoutes: Routes = [
   {
@@ -51,17 +52,18 @@ const userRoutes: Routes = [
     ResetPasswordResultComponent,
     LogoutComponent
   ],
-  imports: [
-    CommonModule,
-    RouterModule.forChild(userRoutes),
-    FormsModule,
-    MatButtonModule,
-    MatCardModule,
-    MatInputModule,
-    MatIconModule,
-    FlexLayoutModule,
-    MatProgressSpinnerModule
-  ]
+    imports: [
+        CommonModule,
+        RouterModule.forChild(userRoutes),
+        FormsModule,
+        MatButtonModule,
+        MatCardModule,
+        MatInputModule,
+        MatIconModule,
+        FlexLayoutModule,
+        MatProgressSpinnerModule,
+        SharedModule
+    ]
 })
 export class UserModule {
 }

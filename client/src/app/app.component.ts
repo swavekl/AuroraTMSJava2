@@ -42,6 +42,11 @@ export class AppComponent implements OnInit {
     this.router.navigate(['/logout']);
   }
 
+  editProfile() {
+    const profileId: string = this.authenticationService.getCurrentUserProfileId();
+    this.closeAndNavigateToRoute(`/userprofile/${profileId}`);
+  }
+
   /**
    * on mobile devices the menu is opened and when you click on menu item it should close before navigating to this item
    */

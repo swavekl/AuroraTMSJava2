@@ -1,0 +1,16 @@
+<div *ngIf="playerRecordFound">
+  <p>We found the following membership information for {{firstName}} {{lastName}}</p>
+  <p>
+    Membership Id: {{ playerRecord.membershipId }},
+    Expiration date: {{ playerRecord.membershipExpiration | date }}
+    Tournament rating: {{ playerRecord.tournamentRating }}
+  </p>
+  <p>If this is your record then let's proceed to filling in the <a [routerLink]="['/userprofile', profileId]" [state]="{data: playerRecord}">profile</a></p>
+</div>
+<div *ngIf="!playerRecordFound">
+  <p>We didn't find your USATT membership information using your first and last name. Are you by any chance new to
+    USATT?</p>
+  <p>If you are, let's <a [routerLink]="['/userprofile', profileId]">get started</a> on filling your profile </p>
+  <p>If you are already a member let's see if we can find you by your membership id.</p>
+  <app-usatt-record-search [firstName]="firstName" [lastName]="lastName"></app-usatt-record-search>
+</div>
