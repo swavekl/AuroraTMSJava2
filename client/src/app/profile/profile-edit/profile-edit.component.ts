@@ -25,11 +25,16 @@ export class ProfileEditComponent implements OnInit, OnChanges {
 
   maxDateOfBirth: Date;
 
+  private readonly USA_ZIP_CODE_PATTERN = /^\d{5}(?:[-\s]\d{4})?$/;
+  private readonly CAN_ZIP_CODE_PATTERN = /^[ABCEGHJ-NPRSTVXY][0-9][ABCEGHJ-NPRSTV-Z] [0-9][ABCEGHJ-NPRSTV-Z][0-9]$/;
+  public zipCodePattern;
+  public zipCodeLength: number;
+
   constructor() {
     this.profile = new Profile();
-    this.statesList = StatesList.getList();
     this.maxDateOfBirth = new Date();
     this.countries = CountriesList.getList();
+    this.setZipCodeOptions ('US');
   }
 
   ngOnInit() {
@@ -58,6 +63,28 @@ export class ProfileEditComponent implements OnInit, OnChanges {
           this.profile.dateOfBirth = null;
         }
       }
+      this.setZipCodeOptions(this.profile?.countryCode);
     }
+  }
+
+  onCountryChange(countryCode: any) {
+    this.setZipCodeOptions(countryCode);
+  }
+
+  private setZipCodeOptions(countryCode: string) {
+    this.statesList = StatesList.getCountryStatesList(countryCode);
+    switch (countryCode) {
+      case 'CAN':
+      case 'CA':
+        this.zipCodePattern = this.CAN_ZIP_CODE_PATTERN;
+        this.zipCodeLength = 7;
+        break;
+      case 'US':
+      default:
+        this.zipCodePattern = this.USA_ZIP_CODE_PATTERN;
+        this.zipCodeLength = 10;
+        break;
+    }
+
   }
 }
