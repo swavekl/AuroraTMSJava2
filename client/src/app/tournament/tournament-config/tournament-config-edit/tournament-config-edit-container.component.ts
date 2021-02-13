@@ -5,11 +5,11 @@ import {Observable, of, Subscription} from 'rxjs';
 import {Tournament} from '../tournament.model';
 import {TournamentConfigEditComponent} from './tournament-config-edit.component';
 import {createSelector} from '@ngrx/store';
+import {LinearProgressBarService} from '../../../shared/linear-progress-bar/linear-progress-bar.service';
 
 @Component({
   selector: 'app-tournament-config-edit-container',
   template: `
-    <app-linear-progress-bar [loading]="loading$ | async"></app-linear-progress-bar>
     <app-tournament-config-edit [tournament]="tournament$ | async"
                                 (saved)="onSave($event)"
                                 (canceled)="onCancel($event)"></app-tournament-config-edit>
@@ -20,8 +20,7 @@ import {createSelector} from '@ngrx/store';
 export class TournamentConfigEditContainerComponent implements OnInit, OnDestroy, AfterViewInit {
 
   tournament$: Observable<Tournament>;
-  loading$: Observable<boolean>;
-  private subscription: Subscription;
+  private subscriptions: Subscription = new Subscription();
 
   // child component reference for getting back to the events list tab
   @ViewChild(TournamentConfigEditComponent)
@@ -29,10 +28,16 @@ export class TournamentConfigEditContainerComponent implements OnInit, OnDestroy
 
   constructor(public tournamentConfigService: TournamentConfigService,
               private activatedRoute: ActivatedRoute,
-              private router: Router) {
+              private router: Router,
+              private linearProgressBarService: LinearProgressBarService) {
   }
 
   ngOnInit(): void {
+    const loadingSubscription = this.tournamentConfigService.loading$.subscribe((loading: boolean) => {
+      this.linearProgressBarService.setLoading(loading);
+    });
+    this.subscriptions.add(loadingSubscription);
+
     const routePath = this.activatedRoute.snapshot.routeConfig.path;
     const fromId = this.activatedRoute.snapshot.queryParams['from'];
     const id = this.activatedRoute.snapshot.params['id'] || 0;
@@ -50,7 +55,7 @@ export class TournamentConfigEditContainerComponent implements OnInit, OnDestroy
 
     // use selector on the store and once it is activated make a copy of this tournament
     const selectedTournament$ = this.tournamentConfigService.store.select(selectedTournamentSelector);
-    this.subscription = selectedTournament$.subscribe((next: Tournament) => {
+    const subscription = selectedTournament$.subscribe((next: Tournament) => {
       let tournamentToEdit = next;
       if (creating) {
         if (fromId) {
@@ -70,11 +75,12 @@ export class TournamentConfigEditContainerComponent implements OnInit, OnDestroy
       // make this tournament into observable
       this.tournament$ = of(tournamentToEdit);
     });
+    this.subscriptions.add(subscription);
   }
 
   ngOnDestroy(): void {
-    if (this.subscription) {
-      this.subscription.unsubscribe();
+    if (this.subscriptions) {
+      this.subscriptions.unsubscribe();
     }
   }
 

@@ -6,11 +6,11 @@ import {ProfileService} from '../profile.service';
 import {first, map} from 'rxjs/operators';
 import {ActivatedRoute, Router} from '@angular/router';
 import {UsattPlayerRecord} from '../model/usatt-player-record.model';
+import {LinearProgressBarService} from '../../shared/linear-progress-bar/linear-progress-bar.service';
 
 @Component({
   selector: 'app-profile-edit-container',
   template: `
-    <app-linear-progress-bar [loading]="loading$ | async"></app-linear-progress-bar>
     <app-profile-edit [profile]="profile$ | async"
                       (saved)="onSave($event)"
                       (canceled)="onCancel($event)">
@@ -22,7 +22,6 @@ import {UsattPlayerRecord} from '../model/usatt-player-record.model';
 export class ProfileEditContainerComponent implements OnInit, OnDestroy {
   // this is what we edit
   profile$: Observable<Profile>;
-  loading$: Observable<boolean>;
   profileId: string;
   playerRecord: UsattPlayerRecord;
 
@@ -32,7 +31,8 @@ export class ProfileEditContainerComponent implements OnInit, OnDestroy {
   constructor(private authenticationService: AuthenticationService,
               private profileService: ProfileService,
               private router: Router,
-              private activatedRoute: ActivatedRoute) {
+              private activatedRoute: ActivatedRoute,
+              private linearProgressBarService: LinearProgressBarService) {
     this.profileId = this.activatedRoute.snapshot.params['profileId'] || '';
     if (!this.profileId || this.profileId === 'undefined') {
       this.profileId = authenticationService.getCurrentUserProfileId();
@@ -50,7 +50,11 @@ export class ProfileEditContainerComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    this.loading$ = this.profileService.loading$;
+    const subscription = this.profileService.loading$.subscribe((loading: boolean) => {
+        this.linearProgressBarService.setLoading(loading);
+      });
+    this.subscriptions.add(subscription);
+
     // this is subscribed/unsubscibed by async pipe
     this.profile$ = this.profileService.getProfile(this.profileId)
       .pipe(

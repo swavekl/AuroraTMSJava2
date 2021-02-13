@@ -22,6 +22,8 @@ import {ProfileModule} from './profile/profile.module';
 import {UserModule} from './user/user.module';
 import {environment} from '../environments/environment';
 import {StoreDevtoolsModule} from '@ngrx/store-devtools';
+import {MatProgressBarModule} from '@angular/material/progress-bar';
+import {SharedModule} from './shared/shared.module';
 
 @NgModule({
   declarations: [
@@ -50,7 +52,9 @@ import {StoreDevtoolsModule} from '@ngrx/store-devtools';
     UserModule,
     LayoutModule,
     AppStoreModule,
-    environment.production ? [] : StoreDevtoolsModule.instrument()
+    environment.production ? [] : StoreDevtoolsModule.instrument(),
+    MatProgressBarModule,
+    SharedModule
   ],
   providers: [
     {provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true}

@@ -1,14 +1,14 @@
-import {ChangeDetectionStrategy, Component, OnInit} from '@angular/core';
+import {ChangeDetectionStrategy, Component, OnDestroy, OnInit} from '@angular/core';
 import {TournamentInfoService} from '../tournament-info.service';
-import {Observable} from 'rxjs';
+import {Observable, Subscription} from 'rxjs';
 import {TournamentInfo} from '../tournament-info.model';
 import {LocalStorageService} from '../../../shared/local-storage.service';
 import {Regions} from '../../../shared/regions';
+import {LinearProgressBarService} from '../../../shared/linear-progress-bar/linear-progress-bar.service';
 
 @Component({
   selector: 'app-tournament-list-container',
   template: `
-    <app-linear-progress-bar [loading]="loading$ | async"></app-linear-progress-bar>
     <app-tournament-list [tournaments]="tournaments$ | async"
                          [selectedRegion]="selectedRegion"
                          (filterChange)="onFilterChange($event)"></app-tournament-list>
@@ -17,17 +17,22 @@ import {Regions} from '../../../shared/regions';
   changeDetection: ChangeDetectionStrategy.OnPush
 
 })
-export class TournamentListContainerComponent implements OnInit {
+export class TournamentListContainerComponent implements OnInit, OnDestroy {
 
   tournaments$: Observable<TournamentInfo[]>;
-  loading$: Observable<boolean>;
   LAST_FILTER = 'tournaments-filter';
   selectedRegion: string;
 
+  private subscriptions: Subscription = new Subscription();
+
   constructor(private tournamentInfoService: TournamentInfoService,
-              private localStorageService: LocalStorageService) {
+              private localStorageService: LocalStorageService,
+              private linearProgressBarService: LinearProgressBarService) {
     this.tournaments$ = this.tournamentInfoService.filteredEntities$;
-    this.loading$ = this.tournamentInfoService.loading$;
+    const subscription = this.tournamentInfoService.loading$.subscribe((loading: boolean) => {
+      this.linearProgressBarService.setLoading(loading);
+    });
+    this.subscriptions.add(subscription);
   }
 
   ngOnInit(): void {
@@ -56,5 +61,9 @@ export class TournamentListContainerComponent implements OnInit {
     this.tournamentInfoService.setFilter({
       states: states
     });
+  }
+
+  ngOnDestroy(): void {
+    this.subscriptions.unsubscribe();
   }
 }

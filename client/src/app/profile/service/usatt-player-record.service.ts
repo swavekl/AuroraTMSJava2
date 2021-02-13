@@ -46,7 +46,8 @@ export class UsattPlayerRecordService {
     }
     const url = `/api/usattplayers${filter}`;
     const dateUtils = new DateUtils ();
-    return this.http.get<UsattPlayerRecord[]>(url)
+    this.indicatorSubject$.next(true);
+    const playerRecordsObservable: Observable<UsattPlayerRecord []> = this.http.get<UsattPlayerRecord[]>(url)
       .pipe(
         map((records: UsattPlayerRecord[]) => {
           for (let i = 0; i < records.length; i++) {
@@ -59,5 +60,17 @@ export class UsattPlayerRecordService {
           return records;
         })
       );
+    // TODO: how to unsubscribe from this service;s subscritpion
+    playerRecordsObservable.subscribe(
+      (records: UsattPlayerRecord[]) => {
+      },
+      () => {
+      },
+      () => {
+        this.indicatorSubject$.next(false);
+      }
+    );
+
+    return playerRecordsObservable;
   }
 }

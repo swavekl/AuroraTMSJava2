@@ -14,11 +14,11 @@ import {TournamentEventEntryInfo} from '../model/tournament-event-entry-info-mod
 import {DateUtils} from '../../../shared/date-utils';
 import {TournamentEventEntryInfoService} from '../service/tournament-event-entry-info.service';
 import {first} from 'rxjs/operators';
+import {LinearProgressBarService} from '../../../shared/linear-progress-bar/linear-progress-bar.service';
 
 @Component({
   selector: 'app-entry-wizard-container',
   template: `
-    <app-linear-progress-bar [loading]="loading$ | async"></app-linear-progress-bar>
     <app-entry-wizard [entry]="entry$ | async"
                       [teamsTournament]="teamsTournament$ | async"
                       [tournamentStartDate]="tournamentStartDate$ | async"
@@ -58,7 +58,8 @@ export class EntryWizardContainerComponent implements OnInit, OnDestroy {
               private tournamentEventConfigService: TournamentEventConfigService,
               private tournamentEventEntryInfoService: TournamentEventEntryInfoService,
               private activatedRoute: ActivatedRoute,
-              private router: Router) {
+              private router: Router,
+              private linearProgressBarService: LinearProgressBarService) {
 
     // if any of the service are loading show the loading progress
     this.loading$ = combineLatest(
@@ -70,6 +71,12 @@ export class EntryWizardContainerComponent implements OnInit, OnDestroy {
         return eventEntriesLoading || entryInfosLoading || entryLoading;
       }
     );
+
+    const subscription = this.loading$.subscribe((loading: boolean) => {
+      console.log ('combined subscription', loading);
+      this.linearProgressBarService.setLoading(loading);
+    });
+    this.subscriptions.add(subscription);
 
     this.otherPlayers$ = of([
       {firstName: 'Mario', lastName: 'Lorenc', profileId: 2, entryId: 11},

@@ -1,27 +1,30 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnDestroy, OnInit} from '@angular/core';
 import {AuthenticationService} from '../../user/authentication.service';
 import {UsattPlayerRecordService} from '../../profile/service/usatt-player-record.service';
 import {first, map} from 'rxjs/operators';
 import {UsattPlayerRecord} from '../../profile/model/usatt-player-record.model';
 import {DateUtils} from '../../shared/date-utils';
-import {Observable} from 'rxjs';
+import {Subscription} from 'rxjs';
+import {LinearProgressBarService} from '../../shared/linear-progress-bar/linear-progress-bar.service';
 
 @Component({
   selector: 'app-home',
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.css']
 })
-export class HomeComponent implements OnInit {
+export class HomeComponent implements OnInit, OnDestroy {
 
   playerFirstName: string;
   playerRating: string;
   membershipExpirationDate: Date;
   membershipExpired: boolean;
-  loading$: Observable<boolean>;
   ratedPlayer: boolean;
 
+  private subscriptions: Subscription = new Subscription();
+
   constructor(private authenticationService: AuthenticationService,
-              private usattPlayerRecordService: UsattPlayerRecordService) {
+              private usattPlayerRecordService: UsattPlayerRecordService,
+              private linearProgressBarService: LinearProgressBarService) {
     this.playerRating = '...';
     this.membershipExpirationDate = new Date();
     this.membershipExpired = false;
@@ -29,9 +32,14 @@ export class HomeComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    // subscription for indicating progress on global toolbar
+    const subscription = this.usattPlayerRecordService.loading$.subscribe((loading: boolean) => {
+      this.linearProgressBarService.setLoading(loading);
+    });
+    this.subscriptions.add(subscription);
+
     this.playerFirstName = this.authenticationService.getCurrentUserFirstName();
     const lastName = this.authenticationService.getCurrentUserLastName();
-    this.loading$ = this.usattPlayerRecordService.loading$;
     const today = new Date();
     this.usattPlayerRecordService.searchByNames(this.playerFirstName, lastName)
       .pipe(first(),
@@ -47,5 +55,9 @@ export class HomeComponent implements OnInit {
           this.membershipExpired = new DateUtils().isDateBefore(this.membershipExpirationDate, today);
         }))
       .subscribe();
+  }
+
+  ngOnDestroy(): void {
+    this.subscriptions.unsubscribe();
   }
 }

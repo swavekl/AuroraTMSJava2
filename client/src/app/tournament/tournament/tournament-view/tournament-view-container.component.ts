@@ -7,11 +7,11 @@ import {TournamentEntryService} from '../../tournament-entry/service/tournament-
 import {TournamentEntry} from '../../tournament-entry/model/tournament-entry.model';
 import {AuthenticationService} from '../../../user/authentication.service';
 import {createSelector} from '@ngrx/store';
+import {LinearProgressBarService} from '../../../shared/linear-progress-bar/linear-progress-bar.service';
 
 @Component({
   selector: 'app-tournament-view-container',
   template: `
-    <app-linear-progress-bar [loading]="loading$ | async"></app-linear-progress-bar>
     <app-tournament-view [tournament]="tournament$ | async" [entryId]="entryId$ | async">
     </app-tournament-view>
   `,
@@ -22,18 +22,23 @@ export class TournamentViewContainerComponent implements OnInit, OnDestroy {
 
   tournament$: Observable<TournamentInfo>;
   entryId$: Subject<number>;
-  loading$: Observable<boolean>;
 
-  private subscription: Subscription = new Subscription();
+  private subscriptions: Subscription = new Subscription();
 
   constructor(private tournamentInfoService: TournamentInfoService,
               private tournamentEntryService: TournamentEntryService,
               private authService: AuthenticationService,
-              private activatedRoute: ActivatedRoute) {
+              private activatedRoute: ActivatedRoute,
+              private linearProgressBarService: LinearProgressBarService) {
     this.entryId$ = new Subject<number>();
   }
 
   ngOnInit(): void {
+    const loadingSubscription = this.tournamentEntryService.loading$.subscribe((loading: boolean) => {
+      this.linearProgressBarService.setLoading(loading);
+    });
+    this.subscriptions.add(loadingSubscription);
+
     const tournamentId = this.activatedRoute.snapshot.params['id'] || 0;
 console.log ('getting tournament info for tournament ', tournamentId);
     const tournamentInfoSelector = this.tournamentInfoService.selectors.selectEntityMap;
@@ -47,7 +52,7 @@ console.log ('getting tournament info for tournament ', tournamentId);
     const profileId = this.authService.getCurrentUserProfileId();
     const params = `tournamentId=${tournamentId}&profileId=${profileId}`;
     const tournamentEntry$: Observable<TournamentEntry[]> = this.tournamentEntryService.getWithQuery(params);
-    const subscription1: Subscription = tournamentEntry$.subscribe( (tournamentEntries: TournamentEntry[]) => {
+    const subscription: Subscription = tournamentEntry$.subscribe( (tournamentEntries: TournamentEntry[]) => {
       // console.log ('got tournament entries', tournamentEntries);
       const entryId: number = (tournamentEntries.length > 0) ? tournamentEntries[0].id : 0;
       console.log ('got entryId ', entryId);
@@ -55,11 +60,11 @@ console.log ('getting tournament info for tournament ', tournamentId);
     }, error => {
       this.entryId$.next(0);
     });
-    this.subscription.add(subscription1);
+    this.subscriptions.add(subscription);
   }
 
   ngOnDestroy(): void {
-    this.subscription.unsubscribe();
+    this.subscriptions.unsubscribe();
   }
 
 }

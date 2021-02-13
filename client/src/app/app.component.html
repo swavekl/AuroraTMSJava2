@@ -22,20 +22,25 @@
   </mat-sidenav>
   <mat-sidenav-content>
     <mat-toolbar color="primary">
-      <button
-        type="button"
-        aria-label="Toggle sidenav"
-        mat-icon-button
-        (click)="drawer.toggle()"
-        *ngIf="isHandset$ | async">
-        <mat-icon aria-label="Side nav toggle icon">menu</mat-icon>
-      </button>
-      <span class="toolbar-spacer">Aurora TMS</span>
-      <!--<button mat-raised-button color="accent" *ngIf="!isAuthenticated"-->
-              <!--(click)="login()">Login-->
-      <!--</button>-->
+      <mat-toolbar-row>
+        <button
+          type="button"
+          aria-label="Toggle sidenav"
+          mat-icon-button
+          (click)="drawer.toggle()"
+          *ngIf="isHandset$ | async">
+          <mat-icon aria-label="Side nav toggle icon">menu</mat-icon>
+        </button>
+        <span class="toolbar-spacer">Aurora TMS</span>
+        <!--<button mat-raised-button color="accent" *ngIf="!isAuthenticated"-->
+        <!--(click)="login()">Login-->
+        <!--</button>-->
+      </mat-toolbar-row>
+      <mat-toolbar-row style="height: 8px; padding-left: 0; padding-right: 0">
+        <app-linear-progress-bar style="width: 100%;"></app-linear-progress-bar>
+      </mat-toolbar-row>
     </mat-toolbar>
-    <section class="mat-typography" style="height: calc(100% - 60px)">
+    <section class="mat-typography" style="height: calc(100% - 72px)">
       <router-outlet></router-outlet>
     </section>
   </mat-sidenav-content>

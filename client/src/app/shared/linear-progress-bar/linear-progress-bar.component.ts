@@ -1,21 +1,22 @@
 import {Component, Input, OnInit} from '@angular/core';
+import {LinearProgressBarService} from './linear-progress-bar.service';
+import {Observable} from 'rxjs';
 
 @Component({
   selector: 'app-linear-progress-bar',
   template: `
-    <mat-progress-bar *ngIf="loading; else elseblock" mode="indeterminate" color="warn"></mat-progress-bar>
+    <mat-progress-bar *ngIf="loading$ | async; else elseblock" mode="indeterminate" color="accent" style="height: 8px;"></mat-progress-bar>
     <ng-template #elseblock>
-      <mat-progress-bar mode="determinate" color="warn" value="0"></mat-progress-bar>
+      <div style="height: 8px; width: 100%; background-color: white;"></div>
     </ng-template>
   `,
   styleUrls: []
 })
 export class LinearProgressBarComponent implements OnInit {
-  @Input()
-  loading: boolean;
+  loading$: Observable<boolean>;
 
-  constructor() {
-    this.loading = true;
+  constructor(private linearProgressBarService: LinearProgressBarService) {
+    this.loading$ = this.linearProgressBarService.getLoadingObservable();
   }
 
   ngOnInit(): void {

@@ -1,13 +1,13 @@
-import {ChangeDetectionStrategy, Component, OnInit} from '@angular/core';
-import {Observable} from 'rxjs';
+import {ChangeDetectionStrategy, Component, OnDestroy, OnInit} from '@angular/core';
+import {Observable, Subscription} from 'rxjs';
 import {Tournament} from '../tournament.model';
 import {TournamentConfigService} from '../tournament-config.service';
 import {Router} from '@angular/router';
+import {LinearProgressBarService} from '../../../shared/linear-progress-bar/linear-progress-bar.service';
 
 @Component({
   selector: 'app-tournament-config-container-list',
   template: `
-    <app-linear-progress-bar [loading]="loading$ | async"></app-linear-progress-bar>
     <app-tournament-config-list [tournaments]="tournaments$ | async"
                                 (add)="onAdd($event)"
     ></app-tournament-config-list>
@@ -15,15 +15,20 @@ import {Router} from '@angular/router';
   styles: [],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class TournamentConfigListContainerComponent implements OnInit {
+export class TournamentConfigListContainerComponent implements OnInit, OnDestroy {
 
   tournaments$: Observable<Tournament[]>;
-  loading$: Observable<boolean>;
+
+  private subscriptions: Subscription = new Subscription();
 
   constructor(private tournamentConfigService: TournamentConfigService,
-              private router: Router) {
+              private router: Router,
+              private linearProgressBarService: LinearProgressBarService) {
     this.tournaments$ = this.tournamentConfigService.entities$;
-    this.loading$ = this.tournamentConfigService.loading$;
+    const subscription = this.tournamentConfigService.loading$.subscribe((loading: boolean) => {
+      this.linearProgressBarService.setLoading(loading);
+    });
+    this.subscriptions.add(subscription);
   }
 
   ngOnInit(): void {
@@ -32,5 +37,9 @@ export class TournamentConfigListContainerComponent implements OnInit {
 
   onAdd(event: any) {
     this.router.navigateByUrl('tournament/create');
+  }
+
+  ngOnDestroy(): void {
+    this.subscriptions.unsubscribe();
   }
 }
