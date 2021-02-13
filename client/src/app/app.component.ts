@@ -33,7 +33,7 @@ export class AppComponent implements OnInit {
               private router: Router) {
   }
 
-  async ngOnInit() {
+  ngOnInit() {
     this.isAuthenticated$ = this.authenticationService.getIsAuthenticated();
   }
 

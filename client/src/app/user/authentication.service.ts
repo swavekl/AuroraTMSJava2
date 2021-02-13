@@ -1,8 +1,9 @@
 import {Injectable} from '@angular/core';
 import {HttpClient, HttpErrorResponse} from '@angular/common/http';
-import {Observable, Subject, throwError} from 'rxjs';
+import {BehaviorSubject, Observable, Subject, throwError} from 'rxjs';
 import {JWTDecoderService} from './jwtdecoder.service';
 import {first, map} from 'rxjs/operators';
+import {DateUtils} from '../shared/date-utils';
 
 @Injectable({
   providedIn: 'root'
@@ -12,11 +13,20 @@ export class AuthenticationService {
   // JWT token
   private accessToken: string;
   private currentUser: any;
-  private isAuthenticated$: Subject<boolean> = new Subject<boolean>();
+
+  // observable for notifying clients of the authentication state
+  private isAuthenticated$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
+
+  // observable for reporting login progress
+  private loginStatus$: Subject<boolean> = new Subject<boolean>();
+
+  private readonly sessionStorageKey = 'currentUser';
 
   constructor(private http: HttpClient,
               private jwtDecoderService: JWTDecoderService) {
     this.accessToken = null;
+    this.currentUser = null;
+    this.checkIfTokenStillValid();
   }
 
   getFullUrl(partialUrl: string) {
@@ -51,6 +61,33 @@ export class AuthenticationService {
   }
 
   /**
+   * Checks if token is still valid so they don't have to constantly login.
+   * @private
+   */
+  private checkIfTokenStillValid(): void {
+    // if they didn't explicitly log out see if we can log them in silently
+    let isStillValid: boolean;
+    isStillValid = false;
+    const currentUserJSON = sessionStorage.getItem(this.sessionStorageKey);
+    if (currentUserJSON != null) {
+      const currentUser = JSON.parse(currentUserJSON);
+      if (currentUser.expiresAt != null) {
+        const expiresAtDate: Date = new DateUtils().convertFromString(currentUser.expiresAt);
+        const now: Date = new Date();
+        // console.log ('now          ', now);
+        // console.log ('expiresAtDate', expiresAtDate);
+        isStillValid = new DateUtils().isTimestampBefore(now, expiresAtDate);
+        if (isStillValid) {
+          this.currentUser = currentUser;
+          this.accessToken = currentUser.access_token;
+        }
+      }
+    }
+    // console.log ('emitting isAuthenticated$', isStillValid);
+    this.isAuthenticated$.next(isStillValid);
+  }
+
+  /**
    * Login
    */
   login(username: string, password: string): Observable<boolean> {
@@ -59,23 +96,34 @@ export class AuthenticationService {
       .pipe(first())
       .subscribe(
         (response: any) => {
-          // console.log('logged in', response);
+          // console.log('login response', response);
           // login successful if there's a jwt token in the response
           if (response.access_token) {
             this.accessToken = response.access_token;
             this.currentUser = response;
+            const expires_in = response.expires_in || 0;
+            const expiresAt = new DateUtils().getExpiresAt(expires_in);
+            // console.log('setting expiresAt', expiresAt);
+            const withExpirationDate = {
+              ...response,
+              expiresAt: expiresAt
+            };
+
             // store user details and jwt token in local storage to keep user logged in between page refreshes
-            sessionStorage.setItem('currentUser', JSON.stringify(response));
+            sessionStorage.setItem(this.sessionStorageKey, JSON.stringify(withExpirationDate));
             this.isAuthenticated$.next(true);
+            this.loginStatus$.next(true);
           } else {
             this.isAuthenticated$.next(false);
+            this.loginStatus$.next(false);
           }
         },
         (error: any) => {
           // console.log ('got login error', error);
           this.isAuthenticated$.next(false);
+          this.loginStatus$.next(false);
         });
-      return this.isAuthenticated$;
+    return this.loginStatus$;
   }
 
   private handleError(error: HttpErrorResponse) {
@@ -95,7 +143,7 @@ export class AuthenticationService {
   }
 
   getIsAuthenticated(): Observable<boolean> {
-    return this.isAuthenticated$;
+    return this.isAuthenticated$.asObservable();
   }
 
   /**
@@ -105,7 +153,7 @@ export class AuthenticationService {
     this.accessToken = null;
     this.currentUser = null;
     // remove user from local storage to log user out
-    sessionStorage.removeItem('currentUser');
+    sessionStorage.removeItem(this.sessionStorageKey);
     this.isAuthenticated$.next(false);
   }
 

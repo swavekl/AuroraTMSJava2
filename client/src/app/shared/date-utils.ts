@@ -67,9 +67,34 @@ export class DateUtils {
     return diff;
   }
 
+  /**
+   * Checks if first date is before the second (excludes time)
+   * @param firstDate
+   * @param secondDate
+   */
   isDateBefore(firstDate: Date, secondDate: Date): boolean {
     const mFirstDate = moment(firstDate).hours(0).minutes(0).seconds(0);
     const mSecondDate = moment(secondDate).hours(0).minutes(0).seconds(0);
     return mFirstDate.isBefore(mSecondDate);
+  }
+
+  /**
+   * Checks if the first timestamp is before the second
+   * @param firstTimestamp
+   * @param secondTimestamp
+   */
+  isTimestampBefore(firstTimestamp: Date, secondTimestamp: Date): boolean {
+    const mFirstTimestamp = moment(firstTimestamp);
+    const mSecondTimestamp = moment(secondTimestamp);
+    return mFirstTimestamp.isBefore(mSecondTimestamp);
+  }
+
+  /**
+   * Calculates time in the future expiresInSeconds from now
+   * @param expiresInSeconds time of expiration in seconds
+   */
+  getExpiresAt(expiresInSeconds: number): Date {
+    const expiresAt = moment().add(expiresInSeconds, 'seconds');
+    return expiresAt.toDate();
   }
 }
