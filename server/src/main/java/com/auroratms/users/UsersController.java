@@ -234,6 +234,7 @@ public class UsersController extends AbstractOktaController {
 
             String email = parameters.get("email");
             String combinedResponse = fetchUser(loginResponse, email);
+//return new ResponseEntity<String>("{\"message\": \"Quiet login failed\"}", HttpStatus.BAD_REQUEST);
             return new ResponseEntity<String>(combinedResponse, HttpStatus.OK);
         } catch (Exception e) {
 //            Failed : HTTP error code : 400

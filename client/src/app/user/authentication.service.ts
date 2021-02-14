@@ -4,7 +4,6 @@ import {BehaviorSubject, Observable, Subject, throwError} from 'rxjs';
 import {JWTDecoderService} from './jwtdecoder.service';
 import {first, map} from 'rxjs/operators';
 import {DateUtils} from '../shared/date-utils';
-import {Router} from '@angular/router';
 
 @Injectable({
   providedIn: 'root'
@@ -21,11 +20,12 @@ export class AuthenticationService {
   // observable for reporting login progress
   private loginStatus$: Subject<boolean> = new Subject<boolean>();
 
+  private refreshTokenResponseStatus$: Subject<boolean> = new Subject<boolean>();
+
   private readonly sessionStorageKey = 'currentUser';
 
   constructor(private http: HttpClient,
-              private jwtDecoderService: JWTDecoderService,
-              private router: Router) {
+              private jwtDecoderService: JWTDecoderService) {
     this.accessToken = null;
     this.currentUser = null;
     this.checkIfTokenStillValid();
@@ -117,7 +117,7 @@ export class AuthenticationService {
   /**
    * Attempts to silently relogin user without redirecting to login screen
    */
-  loginUsingRefreshToken() {
+  loginUsingRefreshToken(): Observable<boolean> {
     const refreshToken = this.currentUser?.refresh_token;
     const email = this.currentUser?.profile?.email;
     if (refreshToken != null && email != null) {
@@ -126,16 +126,22 @@ export class AuthenticationService {
         .pipe(first())
         .subscribe(
           (response: any) => {
+            // console.log ('got good response from refresh.. processing');
             this.processLoginResponse(response);
-          },
+            this.refreshTokenResponseStatus$.next(true);
+        },
           (error: any) => {
+            // console.log ('got error from refresh token request');
             this.isAuthenticated$.next(false);
             this.loginStatus$.next(false);
-            this.router.navigate(['/login']);
+            this.refreshTokenResponseStatus$.next(false);
           });
     } else {
-      this.router.navigate(['/login']);
+      this.isAuthenticated$.next(false);
+      this.loginStatus$.next(false);
+      this.refreshTokenResponseStatus$.next(false);
     }
+    return this.refreshTokenResponseStatus$;
   }
 
   /**
