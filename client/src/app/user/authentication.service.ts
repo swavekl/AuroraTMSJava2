@@ -4,6 +4,7 @@ import {BehaviorSubject, Observable, Subject, throwError} from 'rxjs';
 import {JWTDecoderService} from './jwtdecoder.service';
 import {first, map} from 'rxjs/operators';
 import {DateUtils} from '../shared/date-utils';
+import {Router} from '@angular/router';
 
 @Injectable({
   providedIn: 'root'
@@ -23,7 +24,8 @@ export class AuthenticationService {
   private readonly sessionStorageKey = 'currentUser';
 
   constructor(private http: HttpClient,
-              private jwtDecoderService: JWTDecoderService) {
+              private jwtDecoderService: JWTDecoderService,
+              private router: Router) {
     this.accessToken = null;
     this.currentUser = null;
     this.checkIfTokenStillValid();
@@ -32,6 +34,10 @@ export class AuthenticationService {
   getFullUrl(partialUrl: string) {
     // return 'https://' + environment.baseServer + partialUrl;
     return partialUrl;
+  }
+
+  isUsersRequest (url: string): boolean {
+    return (url.indexOf('/api/users/') !== -1);
   }
 
   /**
@@ -98,25 +104,7 @@ export class AuthenticationService {
         (response: any) => {
           // console.log('login response', response);
           // login successful if there's a jwt token in the response
-          if (response.access_token) {
-            this.accessToken = response.access_token;
-            this.currentUser = response;
-            const expires_in = response.expires_in || 0;
-            const expiresAt = new DateUtils().getExpiresAt(expires_in);
-            // console.log('setting expiresAt', expiresAt);
-            const withExpirationDate = {
-              ...response,
-              expiresAt: expiresAt
-            };
-
-            // store user details and jwt token in local storage to keep user logged in between page refreshes
-            sessionStorage.setItem(this.sessionStorageKey, JSON.stringify(withExpirationDate));
-            this.isAuthenticated$.next(true);
-            this.loginStatus$.next(true);
-          } else {
-            this.isAuthenticated$.next(false);
-            this.loginStatus$.next(false);
-          }
+          this.processLoginResponse(response);
         },
         (error: any) => {
           // console.log ('got login error', error);
@@ -125,6 +113,58 @@ export class AuthenticationService {
         });
     return this.loginStatus$;
   }
+
+  /**
+   * Attempts to silently relogin user without redirecting to login screen
+   */
+  loginUsingRefreshToken() {
+    const refreshToken = this.currentUser?.refresh_token;
+    const email = this.currentUser?.profile?.email;
+    if (refreshToken != null && email != null) {
+      const requestBody = { refreshToken: refreshToken, email: email };
+      this.http.post(this.getFullUrl('/api/users/loginquiet'), requestBody)
+        .pipe(first())
+        .subscribe(
+          (response: any) => {
+            this.processLoginResponse(response);
+          },
+          (error: any) => {
+            this.isAuthenticated$.next(false);
+            this.loginStatus$.next(false);
+            this.router.navigate(['/login']);
+          });
+    } else {
+      this.router.navigate(['/login']);
+    }
+  }
+
+  /**
+   * Common processing for login and refresh token response
+   * @param response
+   * @private
+   */
+  private processLoginResponse(response: any) {
+    if (response.access_token) {
+      this.accessToken = response.access_token;
+      this.currentUser = response;
+      const expires_in = response.expires_in || 0;
+      const expiresAt = new DateUtils().getExpiresAt(expires_in);
+      // console.log('setting expiresAt', expiresAt);
+      const withExpirationDate = {
+        ...response,
+        expiresAt: expiresAt
+      };
+
+      // store user details and jwt token in local storage to keep user logged in between page refreshes
+      sessionStorage.setItem(this.sessionStorageKey, JSON.stringify(withExpirationDate));
+      this.isAuthenticated$.next(true);
+      this.loginStatus$.next(true);
+    } else {
+      this.isAuthenticated$.next(false);
+      this.loginStatus$.next(false);
+    }
+  }
+
 
   private handleError(error: HttpErrorResponse) {
     if (error.error instanceof ErrorEvent) {

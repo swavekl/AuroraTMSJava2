@@ -1,0 +1,93 @@
+### login
+POST https://{{host}}:{{port}}/api/users/login
+Accept: application/json, text/plain, */*
+Accept-Encoding: gzip, deflate, br
+Accept-Language: en-US,en;q=0.9
+Access-Control-Allow-Credentials: true
+Access-Control-Allow-Origin: https://{{host}}:{{clientport}}
+Host: {{host}}:{{port}}
+Origin: https://{{host}}:{{clientport}}
+Referer: https://{{host}}:{{clientport}}/login/signin
+Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+Content-Type: application/json;charset=UTF-8
+Pragma: no-cache
+Strict-Transport-Security: max-age=31536000 ; includeSubDomains
+Vary: Origin
+Vary: Access-Control-Request-Method
+Vary: Access-Control-Request-Headers
+X-Content-Type-Options: nosniff
+X-Frame-Options: DENY
+X-XSS-Protection: 1; mode=block
+Connection: keep-alive
+
+{   "email": "{{username}}",   "password": "{{password}}" }
+> {%
+ client.test("Request executed successfully", function() {
+        client.assert(response.status === 200, "Response status is not 200");
+    });
+client.global.set("refreshToken", response.body.refresh_token);
+client.log ("refresh token is", response.body.refresh_token)
+client.global.set("userId", response.body.id);
+%}
+
+### refresh token
+POST https://{{host}}:{{port}}/api/users/loginquiet
+Accept: application/json, text/plain, */*
+Accept-Encoding: gzip, deflate, br
+Accept-Language: en-US,en;q=0.9
+Access-Control-Allow-Credentials: true
+Access-Control-Allow-Origin: https://{{host}}:{{clientport}}
+Host: {{host}}:{{port}}
+Origin: https://{{host}}:{{clientport}}
+Referer: https://{{host}}:{{clientport}}/login/signin
+Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+Content-Type: application/json;charset=UTF-8
+Pragma: no-cache
+Strict-Transport-Security: max-age=31536000 ; includeSubDomains
+Vary: Origin
+Vary: Access-Control-Request-Method
+Vary: Access-Control-Request-Headers
+X-Content-Type-Options: nosniff
+X-Frame-Options: DENY
+X-XSS-Protection: 1; mode=block
+Connection: keep-alive
+
+{   "email": "{{username}}",   "refreshToken": "{{refreshToken}}" }
+> {%
+ client.test("Request executed successfully", function() {
+        client.assert(response.status === 200, "Response status is not 200");
+        client.assert(response.body.access_token != null, "Didn't get new access token");
+        client.assert(response.body.refresh_token != null, "Didn't get new refresh token");
+    });
+%}
+
+### BAD refresh token
+POST https://{{host}}:{{port}}/api/users/loginquiet
+Accept: application/json, text/plain, */*
+Accept-Encoding: gzip, deflate, br
+Accept-Language: en-US,en;q=0.9
+Access-Control-Allow-Credentials: true
+Access-Control-Allow-Origin: https://{{host}}:{{clientport}}
+Host: {{host}}:{{port}}
+Origin: https://{{host}}:{{clientport}}
+Referer: https://{{host}}:{{clientport}}/login/signin
+Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+Content-Type: application/json;charset=UTF-8
+Pragma: no-cache
+Strict-Transport-Security: max-age=31536000 ; includeSubDomains
+Vary: Origin
+Vary: Access-Control-Request-Method
+Vary: Access-Control-Request-Headers
+X-Content-Type-Options: nosniff
+X-Frame-Options: DENY
+X-XSS-Protection: 1; mode=block
+Connection: keep-alive
+
+{   "email": "{{username}}",   "refreshToken": "BAD{{refreshToken}}" }
+> {%
+ client.log(response.body);
+ client.test("Request failed as expected", function() {
+        client.assert(response.status === 400, "Response status is not 400");
+    });
+%}
+

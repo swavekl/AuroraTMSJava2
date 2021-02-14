@@ -73,7 +73,6 @@ export class EntryWizardContainerComponent implements OnInit, OnDestroy {
     );
 
     const subscription = this.loading$.subscribe((loading: boolean) => {
-      console.log ('combined subscription', loading);
       this.linearProgressBarService.setLoading(loading);
     });
     this.subscriptions.add(subscription);

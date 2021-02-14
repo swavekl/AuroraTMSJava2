@@ -1,5 +1,4 @@
 import {Injectable} from '@angular/core';
-import {AuthenticationService} from '../user/authentication.service';
 import {distinctUntilChanged, finalize, map} from 'rxjs/operators';
 import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {BehaviorSubject, Observable} from 'rxjs';
@@ -10,33 +9,39 @@ import {Profile} from './profile';
 })
 export class ProfileService {
 
-  private profile$: Observable<Profile>;
-  private baseUrl: string;
+  // this service's base url
+  private readonly baseUrl: string;
+
+  // loading indicator just like in other services - used during load and save
   private indicatorSubject$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
   loading$: Observable<boolean> = this.indicatorSubject$.asObservable().pipe(distinctUntilChanged());
 
-  constructor(private authenticationService: AuthenticationService,
-              private http: HttpClient) {
-    this.baseUrl = this.authenticationService.getFullUrl('/api/profiles');
+  constructor(private http: HttpClient) {
+    this.baseUrl = '/api/profiles';
+  }
+
+  private setLoading(loading: boolean) {
+    this.indicatorSubject$.next(loading);
   }
 
   getProfile(userId: string): Observable<Profile> {
-    this.indicatorSubject$.next(true);
+    this.setLoading(true);
     const url = `${this.baseUrl}/${userId}`;
     return this.http.get<Profile>(url)
       .pipe(
         map((response: Profile) => {
           return response;
         }),
-        finalize(() => this.indicatorSubject$.next(false))
+        finalize(() => this.setLoading(false))
       );
   }
 
   /**
    * Find profiles given filter expression e.g. firstName=John&lastName=Glen
-   * @param filter expression
+   * @param searchCriteria expression
    */
   findProfiles(searchCriteria: any[]): Observable<Profile[]> {
+    this.setLoading(true);
     let filter = '';
     for (const searchCriterion of searchCriteria) {
       filter += (filter.length === 0) ? '?' : '&';
@@ -47,7 +52,8 @@ export class ProfileService {
       .pipe(
         map((response: Profile[]) => {
           return response;
-        })
+        }),
+        finalize(() => this.setLoading(false))
       );
   }
 
@@ -56,13 +62,13 @@ export class ProfileService {
    * @param profile profile to update
    */
   updateProfile(profile: Profile): Observable<void> {
-    this.indicatorSubject$.next(true);
+    this.setLoading(true);
     const url = `${this.baseUrl}/${profile.userId}`;
     return this.http.put<void>(url, profile, {
       headers: new HttpHeaders({
         'Content-Type': 'application/json'
       })
     })
-      .pipe(finalize(() => this.indicatorSubject$.next(false)));
+      .pipe(finalize(() => this.setLoading(false)));
   }
 }
