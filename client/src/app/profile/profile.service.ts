@@ -1,5 +1,5 @@
 import {Injectable} from '@angular/core';
-import {distinctUntilChanged, finalize, map} from 'rxjs/operators';
+import {distinctUntilChanged, finalize, map, tap} from 'rxjs/operators';
 import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {BehaviorSubject, Observable} from 'rxjs';
 import {Profile} from './profile';
@@ -29,10 +29,12 @@ export class ProfileService {
     const url = `${this.baseUrl}/${userId}`;
     return this.http.get<Profile>(url)
       .pipe(
-        map((response: Profile) => {
-          return response;
-        }),
-        finalize(() => this.setLoading(false))
+        tap(() => {
+            this.setLoading(false);
+          },
+          () => {
+            this.setLoading(false);
+          })
       );
   }
 
@@ -50,10 +52,12 @@ export class ProfileService {
     const url = `${this.baseUrl}search${filter}`;
     return this.http.get<Profile[]>(url)
       .pipe(
-        map((response: Profile[]) => {
-          return response;
-        }),
-        finalize(() => this.setLoading(false))
+        tap(() => {
+            this.setLoading(false);
+          },
+          () => {
+            this.setLoading(false);
+          })
       );
   }
 
@@ -68,7 +72,13 @@ export class ProfileService {
       headers: new HttpHeaders({
         'Content-Type': 'application/json'
       })
-    })
-      .pipe(finalize(() => this.setLoading(false)));
+    }).pipe(
+        tap(() => {
+            this.setLoading(false);
+          },
+          () => {
+            this.setLoading(false);
+          })
+      );
   }
 }

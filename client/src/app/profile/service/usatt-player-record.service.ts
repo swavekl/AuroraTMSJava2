@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
 import {BehaviorSubject, Observable} from 'rxjs';
-import {distinctUntilChanged, map} from 'rxjs/operators';
+import {distinctUntilChanged, finalize, map, tap} from 'rxjs/operators';
 import {HttpClient} from '@angular/common/http';
 import {UsattPlayerRecord} from '../model/usatt-player-record.model';
 import {DateUtils} from '../../shared/date-utils';
@@ -17,7 +17,12 @@ export class UsattPlayerRecordService {
     this.loading$ = this.indicatorSubject$.asObservable().pipe(distinctUntilChanged());
   }
 
-  public searchByNames (firstName: string, lastName: string): Observable<UsattPlayerRecord []> {
+  private setLoading(loading: boolean) {
+    // console.log ('setLoading ', loading);
+    this.indicatorSubject$.next(loading);
+  }
+
+  public searchByNames(firstName: string, lastName: string): Observable<UsattPlayerRecord []> {
     const searchCriteria = [
       {name: 'firstName', value: firstName},
       {name: 'lastName', value: lastName}
@@ -26,7 +31,7 @@ export class UsattPlayerRecordService {
     return this.search(searchCriteria);
   }
 
-  public searchByMembershipId (membershipId: number): Observable<UsattPlayerRecord []> {
+  public searchByMembershipId(membershipId: number): Observable<UsattPlayerRecord []> {
     const searchCriteria = [
       {name: 'membershipId', value: membershipId}
     ];
@@ -45,32 +50,28 @@ export class UsattPlayerRecordService {
       filter += searchCriterion.name + '=' + searchCriterion.value;
     }
     const url = `/api/usattplayers${filter}`;
-    const dateUtils = new DateUtils ();
-    this.indicatorSubject$.next(true);
-    const playerRecordsObservable: Observable<UsattPlayerRecord []> = this.http.get<UsattPlayerRecord[]>(url)
+    const dateUtils = new DateUtils();
+    this.setLoading(true);
+    return this.http.get<UsattPlayerRecord[]>(url)
       .pipe(
+        tap(() => {
+            this.setLoading(false);
+          },
+          () => {
+            this.setLoading(false);
+          }),
         map((records: UsattPlayerRecord[]) => {
-          for (let i = 0; i < records.length; i++) {
-            const record = records[i];
+            for (let i = 0; i < records.length; i++) {
+              const record = records[i];
+              // convert date strings into Date objects
               record.membershipExpiration = dateUtils.convertFromString(record.membershipExpiration);
               record.dateOfBirth = dateUtils.convertFromString(record.dateOfBirth);
               record.lastLeaguePlayedDate = dateUtils.convertFromString(record.lastLeaguePlayedDate);
               record.lastTournamentPlayedDate = dateUtils.convertFromString(record.lastTournamentPlayedDate);
+            }
+            return records;
           }
-          return records;
-        })
+        )
       );
-    // TODO: how to unsubscribe from this service;s subscritpion
-    playerRecordsObservable.subscribe(
-      (records: UsattPlayerRecord[]) => {
-      },
-      () => {
-      },
-      () => {
-        this.indicatorSubject$.next(false);
-      }
-    );
-
-    return playerRecordsObservable;
   }
 }

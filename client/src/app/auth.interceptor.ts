@@ -91,7 +91,7 @@ export class AuthInterceptor implements HttpInterceptor {
    */
   private addAuthenticationToken(request: HttpRequest<any>): HttpRequest<any> {
 // this.counter++;
-// console.log (this.counter);
+// console.log (this.counter + ' for url ' + request.urlWithParams);
 // if (this.counter > 6) {
 //   this.counter = 0;
 //   console.log ('faking failed request...');

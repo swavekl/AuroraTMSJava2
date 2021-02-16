@@ -97,9 +97,7 @@ export class EntryWizardContainerComponent implements OnInit, OnDestroy {
    * Destroys all subscriptions
    */
   ngOnDestroy(): void {
-    console.log ('in ngOnDestroy');
     if (this.subscriptions != null) {
-      console.log ('in ngOnDestroy - unsubscribing');
       this.subscriptions.unsubscribe();
     }
   }
