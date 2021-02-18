@@ -7,11 +7,13 @@ import java.util.List;
 
 public interface UsattPlayerRecordRepository extends JpaRepository<UsattPlayerRecord, Long> {
 
+    UsattPlayerRecord getFirstByMembershipId(Long membershipId);
+
+    UsattPlayerRecord getFirstByFirstNameAndLastName(String firstName, String lastName);
+
     List<UsattPlayerRecord> findAllByMembershipIdIn(Iterable<Long> ids);
 
-    List<UsattPlayerRecord> findAllByFirstNameAndLastName(String firstName, String lastName);
+    List<UsattPlayerRecord> findAllByFirstNameOrLastName(String firstName, String lastName, Pageable pageable);
 
-    List<UsattPlayerRecord> findAllByFirstNameAndLastName(String firstName, String lastName, Pageable pageable);
 
-    UsattPlayerRecord findAllByMembershipId(Long membershipId);
 }

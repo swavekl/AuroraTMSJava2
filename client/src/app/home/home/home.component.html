@@ -2,9 +2,9 @@
   <h2>Hi,</h2>
   <h1 class="mat-display-3">{{ playerFirstName }}</h1>
   <div *ngIf="ratedPlayer">
-    <p class="mat-subheading-2">Rating</p>
+    <p class="mat-subheading-2">Your rating is</p>
     <p class="mat-headline">{{ playerRating }}</p>
-    <p class="mat-subheading-2" >Membership {{ membershipExpired ? 'expired' : 'expires' }} on</p>
+    <p class="mat-subheading-2" >USATT Membership {{ membershipExpired ? 'expired' : 'expires' }} on</p>
     <p [style.color]="membershipExpired ? 'red' : 'green'">{{ membershipExpirationDate | date }}</p>
   </div>
 </app-centered-panel>

@@ -18,26 +18,40 @@ public class UsattDataController {
     @Autowired
     private UsattDataService usattDataService;
 
+    /**
+     * search players
+     * @param params
+     * @param pageable
+     * @return
+     */
     @GetMapping("/usattplayers")
-    public List<UsattPlayerRecord> listPlayers (@RequestParam Map<String,String> params,
-            Pageable pageable) {
+    public List<UsattPlayerRecord> listPlayers (@RequestParam Map<String,String> params, Pageable pageable) {
         if (params.containsKey("firstName") && params.containsKey("lastName")) {
             String firstName = params.get("firstName");
             String lastName = params.get("lastName");
-            return this.usattDataService.findPlayersByNames(firstName, lastName, pageable);
+            return this.usattDataService.findAllPlayersByNames(firstName, lastName, pageable);
+        }
+        return Collections.emptyList();
+    }
+
+    /**
+     * find one player
+     * @param params
+     * @return
+     */
+    @GetMapping("/usattplayer")
+    public UsattPlayerRecord getPlayer (@RequestParam Map<String,String> params) {
+        if (params.containsKey("firstName") && params.containsKey("lastName")) {
+            String firstName = params.get("firstName");
+            String lastName = params.get("lastName");
+            return this.usattDataService.getPlayerByNames(firstName, lastName);
         } else if (params.containsKey("membershipId")) {
             String strMembershipId = params.get("membershipId");
             Long membershipId = Long.parseLong(strMembershipId);
-            UsattPlayerRecord player = this.usattDataService.findPlayerByMembershipId(membershipId);
-            if (player != null) {
-                List<UsattPlayerRecord> list = new ArrayList<>(1);
-                list.add(player);
-                return list;
-            } else {
-                return Collections.emptyList();
-            }
+            return this.usattDataService.getPlayerByMembershipId(membershipId);
+        } else {
+            throw new RuntimeException("Player not found");
         }
-        return Collections.emptyList();
     }
 
 //    @PreAuthorize("hasAuthority('Admins')")

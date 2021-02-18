@@ -6,6 +6,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.security.test.context.support.WithSecurityContextTestExecutionListener;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestExecutionListeners;
@@ -46,14 +47,14 @@ public class UsattDataServiceTest extends AbstractJUnit4SpringContextTests {
         long count = usattDataService.getTotalCount();
         assertEquals("wrong count of records inserted into db", 11, count);
 
-        List<UsattPlayerRecord> playerInfos = usattDataService.findPlayersByNames("Samson", "Dubina");
+        List<UsattPlayerRecord> playerInfos = usattDataService.findAllPlayersByNames("Samson", "Dubina", PageRequest.of(0, 3));
         assertEquals("wrong count", 1, playerInfos.size());
         UsattPlayerRecord playerInfo = playerInfos.get(0);
         assertEquals ("wrong first name", playerInfo.getFirstName(), "Samson");
         assertEquals ("wrong last name", playerInfo.getLastName(), "Dubina");
         assertEquals ("wrong membership id", playerInfo.getMembershipId().longValue(), 9051L);
 
-        UsattPlayerRecord playerByMembershipId = usattDataService.findPlayerByMembershipId(9051L);
+        UsattPlayerRecord playerByMembershipId = usattDataService.getPlayerByMembershipId(9051L);
         assertNotNull("didn't find player", playerByMembershipId);
         assertEquals ("wrong first name", playerInfo.getFirstName(), "Samson");
         assertEquals ("wrong last name", playerInfo.getLastName(), "Dubina");

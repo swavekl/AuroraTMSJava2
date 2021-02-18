@@ -41,12 +41,12 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.playerFirstName = this.authenticationService.getCurrentUserFirstName();
     const lastName = this.authenticationService.getCurrentUserLastName();
     const today = new Date();
-    this.usattPlayerRecordService.searchByNames(this.playerFirstName, lastName)
+    this.usattPlayerRecordService.getByNames(this.playerFirstName, lastName)
       .pipe(first(),
-        map((records: UsattPlayerRecord[]) => {
-          if (records?.length > 0) {
-            this.membershipExpirationDate = records[0].membershipExpiration;
-            const rating = records[0].tournamentRating;
+        map((record: UsattPlayerRecord) => {
+          if (record) {
+            this.membershipExpirationDate = record.membershipExpiration;
+            const rating = record.tournamentRating;
             this.ratedPlayer = (rating != null && rating > 0);
             this.playerRating =  this.ratedPlayer ? ('' + rating) : 'Unrated';
           } else {

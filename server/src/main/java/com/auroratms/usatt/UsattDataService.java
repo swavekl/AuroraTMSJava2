@@ -29,16 +29,16 @@ public class UsattDataService {
 
     private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("MM/dd/yyyy");
 
-    public List<UsattPlayerRecord> findPlayersByNames (String firstName, String lastName) {
-        return this.playerRecordRepository.findAllByFirstNameAndLastName(firstName, lastName);
+    public List<UsattPlayerRecord> findAllPlayersByNames(String firstName, String lastName, Pageable pageable) {
+        return this.playerRecordRepository.findAllByFirstNameOrLastName(firstName, lastName, pageable);
     }
 
-    public List<UsattPlayerRecord> findPlayersByNames (String firstName, String lastName, Pageable pageable) {
-        return this.playerRecordRepository.findAllByFirstNameAndLastName(firstName, lastName, pageable);
+    public UsattPlayerRecord getPlayerByMembershipId(Long membershipId) {
+        return this.playerRecordRepository.getFirstByMembershipId(membershipId);
     }
 
-    public UsattPlayerRecord findPlayerByMembershipId (Long membershipId) {
-        return this.playerRecordRepository.findAllByMembershipId(membershipId);
+    public UsattPlayerRecord getPlayerByNames (String firstName, String lastName) {
+        return this.playerRecordRepository.getFirstByFirstNameAndLastName(firstName, lastName);
     }
 
     /**

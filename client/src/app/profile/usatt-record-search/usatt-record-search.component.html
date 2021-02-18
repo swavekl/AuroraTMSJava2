@@ -1,19 +1,48 @@
-<h2>Find USATT Record</h2>
-<form name="form" #f="ngForm" novalidate>
-  <div fxLayout="column" fxLayoutGap="10px">
-    <mat-form-field fxFlex="100%">
-      <label>
-        <input matInput type="text" placeholder="Membership ID" name="membershipId" [(ngModel)]="membershipId">
-      </label>
-    </mat-form-field>
+<div fxLayout="column" fxLayoutAlign="start start">
+  <form name="form" #f="ngForm" novalidate fxFlexFill>
+    <div fxLayout="row" fxLayout.lt-md="column" fxLayoutGap="10px">
+      <div fxLayout="column" fxFlex="50%" fxLayout.lt-md="100%" style="border: 0px solid green">
+        <mat-form-field>
+          <mat-label>Membership Id</mat-label>
+          <input matInput type="text" name="membershipId" [(ngModel)]="membershipId" pattern="\d{1,6}" maxlength="6">
+        </mat-form-field>
+      </div>
+      <div fxLayout="column" fxFlex="10%" fxLayout.lt-md="100%" style="text-align: center;">
+        <h3>-- OR --</h3>
+      </div>
+      <div fxLayout="column" fxFlex="50%" fxLayout.lt-md="100%" fxLayoutGap="10px" fxFlexAlign="start stretch"
+           style="border: 0px solid blue">
+        <mat-form-field fxFlex="50%">
+          <mat-label>First name</mat-label>
+          <input matInput type="text" name="firstName" [(ngModel)]="firstName">
+        </mat-form-field>
+        <mat-form-field fxFlex="50%">
+          <mat-label>Last name</mat-label>
+          <input matInput type="text" name="lastName" [(ngModel)]="lastName">
+        </mat-form-field>
+      </div>
+    </div>
+    <div fxLayout="row" style="margin: 16px 0;">
+      <button mat-raised-button color="primary" type="button" (click)="onSearchByMembershipId(f.value)">Search by Id
+      </button>
+      <span fxFlex></span>
+      <button mat-raised-button color="primary" type="button" (click)="onSearchByNames(f.value)">Search by Name</button>
+    </div>
+  </form>
+  <div fxFlexFill>
+    <h2>Results: </h2>
+    <mat-list>
+      <mat-list-item *ngFor="let foundPlayer of foundPlayers$ | async"
+                     (click)="onSelection(foundPlayer)">
+        <h2 mat-line>{{foundPlayer.firstName}} {{foundPlayer.lastName}} ({{foundPlayer.tournamentRating}})</h2>
+        <h3 mat-line>{{foundPlayer.city}} {{foundPlayer.state}}</h3>
+        <mat-divider></mat-divider>
+      </mat-list-item>
+    </mat-list>
   </div>
-  <div>
-    <button mat-raised-button color="primary" type="button" (click)="onSearch(f.value)">Search</button>
+  <div fxLayout="row" fxLayoutAlign="start center" fxFlexFill [fxHide]="searchingByMembershipId" style="margin: 16px 0">
+    <button mat-raised-button type="button" (click)="onPreviousPage(f.value)" [disabled]="pageNum === 0">Prev Page</button>
+    <span fxFlex></span>
+    <button mat-raised-button type="button" (click)="onNextPage(f.value)">Next Page</button>
   </div>
-</form>
-<mat-list>
-  <mat-list-item *ngFor="let foundPlayer of foundPlayers$ | async"
-                 (click)="onSelection(foundPlayer)">
-    {{foundPlayer.firstName}} {{foundPlayer.lastName}} ({{foundPlayer.tournamentRating}})
-  </mat-list-item>
-</mat-list>
+</div>

@@ -28,13 +28,13 @@ export class ProfileEditStartComponent implements OnInit {
   ngOnInit(): void {
     console.log(`searching for player ${this.firstName} ${this.lastName}`);
     // search just once maybe we get lucky
-    this.usattPlayerRecordService.searchByNames(this.firstName, this.lastName)
+    this.usattPlayerRecordService.getByNames(this.firstName, this.lastName)
       .pipe(first())
-      .subscribe((records: UsattPlayerRecord[]) => {
-        console.log('got usatt player records', records);
-        if (records != null && records.length === 1) {
+      .subscribe((record: UsattPlayerRecord) => {
+        console.log('got usatt player records', record);
+        if (record != null) {
           this.playerRecordFound = true;
-          this.playerRecord = records[0];
+          this.playerRecord = record;
         } else {
           this.playerRecordFound = false;
         }
