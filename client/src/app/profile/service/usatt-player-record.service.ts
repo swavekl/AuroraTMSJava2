@@ -105,9 +105,32 @@ export class UsattPlayerRecordService {
 
   private fixResult(record: UsattPlayerRecord): void {
     const dateUtils = new DateUtils();
-    record.membershipExpiration = dateUtils.convertFromString(record.membershipExpiration);
+    record.membershipExpirationDate = dateUtils.convertFromString(record.membershipExpirationDate);
     record.dateOfBirth = dateUtils.convertFromString(record.dateOfBirth);
     record.lastLeaguePlayedDate = dateUtils.convertFromString(record.lastLeaguePlayedDate);
     record.lastTournamentPlayedDate = dateUtils.convertFromString(record.lastTournamentPlayedDate);
+  }
+
+  /**
+   * Creates a new member id for new USATT member
+   * @param usattPlayerRecord
+   * @param profileId
+   */
+  public linkPlayerToProfile(usattPlayerRecord: UsattPlayerRecord, profileId: string): Observable<UsattPlayerRecord> {
+    const url = `/api/usattplayer/${profileId}`;
+    this.setLoading(true);
+    return this.http.post<UsattPlayerRecord>(url, usattPlayerRecord)
+      .pipe(
+        tap(() => {
+            this.setLoading(false);
+          },
+          () => {
+            this.setLoading(false);
+          }),
+        map((response: UsattPlayerRecord) => {
+            return response;
+          }
+        )
+      );
   }
 }

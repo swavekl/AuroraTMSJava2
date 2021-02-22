@@ -38,23 +38,40 @@ export class HomeComponent implements OnInit, OnDestroy {
     });
     this.subscriptions.add(subscription);
 
+    // if user is not fully registered (no profile is completed) he/she won't have membership Id
+    // so then lookup information by first and last name. This will also let us deal with name changes.
+    // Ed vs Edward
+    const membershipId = this.authenticationService.getCurrentUserMembershipId();
     this.playerFirstName = this.authenticationService.getCurrentUserFirstName();
     const lastName = this.authenticationService.getCurrentUserLastName();
     const today = new Date();
-    this.usattPlayerRecordService.getByNames(this.playerFirstName, lastName)
-      .pipe(first(),
-        map((record: UsattPlayerRecord) => {
-          if (record) {
-            this.membershipExpirationDate = record.membershipExpiration;
-            const rating = record.tournamentRating;
-            this.ratedPlayer = (rating != null && rating > 0);
-            this.playerRating =  this.ratedPlayer ? ('' + rating) : 'Unrated';
-          } else {
-            this.membershipExpirationDate = today;
-          }
-          this.membershipExpired = new DateUtils().isDateBefore(this.membershipExpirationDate, today);
-        }))
-      .subscribe();
+    if (membershipId) {
+      this.usattPlayerRecordService.getByMembershipId(membershipId)
+        .pipe(first(),
+          map((usattPlayerRecord: UsattPlayerRecord) => {
+            this.processPlayerRecord(usattPlayerRecord, today);
+          }))
+        .subscribe();
+    } else {
+      this.usattPlayerRecordService.getByNames(this.playerFirstName, lastName)
+        .pipe(first(),
+          map((usattPlayerRecord: UsattPlayerRecord) => {
+            this.processPlayerRecord(usattPlayerRecord, today);
+          }))
+        .subscribe();
+    }
+  }
+
+  private processPlayerRecord(record: UsattPlayerRecord, today: Date) {
+    if (record) {
+      this.membershipExpirationDate = record.membershipExpirationDate;
+      const rating = record.tournamentRating;
+      this.ratedPlayer = (rating != null && rating > 0);
+      this.playerRating = this.ratedPlayer ? ('' + rating) : 'Unrated';
+    } else {
+      this.membershipExpirationDate = today;
+    }
+    this.membershipExpired = new DateUtils().isDateBefore(this.membershipExpirationDate, today);
   }
 
   ngOnDestroy(): void {

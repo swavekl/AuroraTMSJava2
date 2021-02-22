@@ -1,5 +1,8 @@
+import {DateUtils} from '../shared/date-utils';
+
 export class Profile {
   userId: string;
+  membershipId: number;
   firstName: string;
   lastName: string;
   mobilePhone: string;
@@ -11,6 +14,8 @@ export class Profile {
   countryCode: string;
   gender: string;
   dateOfBirth: Date;
+  membershipExpirationDate: Date;
+  tournamentRating: number;
 
   constructor() {
 
@@ -29,5 +34,8 @@ export class Profile {
     this.countryCode = formValues.countryCode;
     this.gender = formValues.gender;
     this.dateOfBirth = formValues.dateOfBirth;
+    this.membershipId = formValues.membershipId;
+    this.membershipExpirationDate = new DateUtils().convertFromString(formValues.membershipExpirationDate);
+    this.tournamentRating = formValues.tournamentRating;
   }
 }

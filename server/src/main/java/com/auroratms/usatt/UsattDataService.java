@@ -1,8 +1,11 @@
 package com.auroratms.usatt;
 
+import com.auroratms.profile.UserProfileExt;
+import com.auroratms.profile.UserProfileExtService;
 import com.opencsv.CSVReader;
 import com.opencsv.exceptions.CsvValidationException;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.time.DateUtils;
 import org.jsoup.internal.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheConfig;
@@ -15,6 +18,7 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -26,6 +30,9 @@ public class UsattDataService {
 
     @Autowired
     private UsattPlayerRecordRepository playerRecordRepository;
+
+    @Autowired
+    private UserProfileExtService userProfileExtService;
 
     private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("MM/dd/yyyy");
 
@@ -39,6 +46,45 @@ public class UsattDataService {
 
     public UsattPlayerRecord getPlayerByNames (String firstName, String lastName) {
         return this.playerRecordRepository.getFirstByFirstNameAndLastName(firstName, lastName);
+    }
+
+    /**
+     * Links Okta profile id to the USATT membership id.  In case of new USATT member assigns
+     * new membership id.
+     *
+     * @param usattPlayerRecord
+     * @param profileId
+     * @return
+     */
+    public UsattPlayerRecord linkPlayerToProfile(UsattPlayerRecord usattPlayerRecord, String profileId) {
+        UsattPlayerRecord recordToReturn = null;
+        Long membershipId = usattPlayerRecord.getMembershipId();
+        if (membershipId == null) {
+            // create new player
+            // set membership expiration date to a known value indicating newly created user by this application
+            Calendar calendar = Calendar.getInstance();
+            calendar.set(2000, Calendar.JANUARY, 1, 0, 0, 0);
+            calendar.set(Calendar.MILLISECOND, 0);
+            Date expired = calendar.getTime();
+            // find the next membership id
+            membershipId = this.playerRecordRepository.assignNext();
+            usattPlayerRecord.setMembershipId(membershipId);
+            usattPlayerRecord.setMembershipExpirationDate(expired);
+
+            // save a record with this new membership id
+            recordToReturn = this.playerRecordRepository.save(usattPlayerRecord);
+        } else {
+            // read existing
+            recordToReturn = this.playerRecordRepository.getFirstByMembershipId(membershipId);
+        }
+
+        // save mapping between the user profile and membership id
+        UserProfileExt userProfileExt = new UserProfileExt();
+        userProfileExt.setProfileId(profileId);
+        userProfileExt.setMembershipId(membershipId);
+        userProfileExtService.save(userProfileExt);
+
+        return recordToReturn;
     }
 
     /**
@@ -111,7 +157,7 @@ public class UsattDataService {
                             case 8:
                                 Date membershipExpiration = parseDate(text);
                                 if (membershipExpiration != null) {
-                                    usattPlayerInfo.setMembershipExpiration(membershipExpiration);
+                                    usattPlayerInfo.setMembershipExpirationDate(membershipExpiration);
                                 }
                                 break;
                             case 9:
@@ -124,7 +170,7 @@ public class UsattDataService {
                     }
                     if (StringUtils.isEmpty(usattPlayerInfo.getFirstName()) ||
                             StringUtils.isEmpty(usattPlayerInfo.getLastName()) ||
-                            (usattPlayerInfo.getMembershipExpiration() == null) ||
+                            (usattPlayerInfo.getMembershipExpirationDate() == null) ||
                             StringUtils.isEmpty(usattPlayerInfo.getGender())) {
                         System.out.print("Insufficient critical values in record ");
                         for (String value : values) {
@@ -224,7 +270,7 @@ public class UsattDataService {
                     if (updatedRecord.getMembershipId().equals(existingRecord.getMembershipId())) {
                         found = true;
                         // merge updated & existing record
-                        existingRecord.setMembershipExpiration(updatedRecord.getMembershipExpiration());
+                        existingRecord.setMembershipExpirationDate(updatedRecord.getMembershipExpirationDate());
                         break;
                     }
                 }
@@ -252,6 +298,7 @@ public class UsattDataService {
     public long getTotalCount() {
         return playerRecordRepository.count();
     }
+
 }
 
 //    private String baseURL = "https://usatt.simplycompete.com/userAccount/s2?citizenship=usOnly&gamesEligibility=&gender=&minAge=&maxAge=&minTrnRating=&maxTrnRating=&minLeagueRating=&maxLeagueRating=&state=&region=Any Region&favorites=&q=${query}&displayColumns=First Name,Last Name,USATT#,Location,Home Club,Tournament Rating,Last Played Tournament,League Rating,Last Played League,Membership Expiration&pageSize=25";

@@ -1,11 +1,14 @@
 package com.auroratms.users;
 
 import com.auroratms.AbstractOktaController;
+import com.auroratms.profile.UserProfileExt;
+import com.auroratms.profile.UserProfileExtService;
 import com.auroratms.profile.UserProfileService;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.okta.sdk.resource.user.ForgotPasswordResponse;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -24,6 +27,9 @@ import java.util.regex.Pattern;
 @RestController
 @RequestMapping("api/users")
 public class UsersController extends AbstractOktaController {
+
+    @Autowired
+    private UserProfileExtService userProfileExtService;
 
     /**
      * @param userRegistration
@@ -276,6 +282,15 @@ public class UsersController extends AbstractOktaController {
         loginJsonMap.put("profile", slimProfileNode);
         Object profileId = userJsonMap.get("id");
         loginJsonMap.put("id", profileId);
+
+        // if user profile id is already mapped to membership id then get it
+        if(userProfileExtService.existsByProfileId(profileId.toString())) {
+            UserProfileExt userProfileExt = userProfileExtService.getByProfileId(profileId.toString());
+            if (userProfileExt != null) {
+                slimProfileNode.put("membershipId", userProfileExt.getMembershipId().toString());
+            }
+        }
+
         return objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(loginJsonMap);
     }
 

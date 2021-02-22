@@ -18,7 +18,8 @@ export class ProfileEditStartComponent implements OnInit {
   profileId: string;
 
   constructor(private authenticationService: AuthenticationService,
-              private usattPlayerRecordService: UsattPlayerRecordService) {
+              private usattPlayerRecordService: UsattPlayerRecordService,
+              private router: Router) {
     this.firstName = this.authenticationService.getCurrentUserFirstName();
     this.lastName = this.authenticationService.getCurrentUserLastName();
     this.profileId = this.authenticationService.getCurrentUserProfileId();
@@ -26,12 +27,12 @@ export class ProfileEditStartComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    console.log(`searching for player ${this.firstName} ${this.lastName}`);
+    // console.log(`searching for player ${this.firstName} ${this.lastName}`);
     // search just once maybe we get lucky
     this.usattPlayerRecordService.getByNames(this.firstName, this.lastName)
       .pipe(first())
       .subscribe((record: UsattPlayerRecord) => {
-        console.log('got usatt player records', record);
+        // console.log('got usatt player records', record);
         if (record != null) {
           this.playerRecordFound = true;
           this.playerRecord = record;
@@ -39,5 +40,12 @@ export class ProfileEditStartComponent implements OnInit {
           this.playerRecordFound = false;
         }
       });
+  }
+
+  onSelectedPlayer(playerRecord: UsattPlayerRecord) {
+    // console.log ('using this player record for profile init', playerRecord);
+    const state = {initializingProfile: true, playerData: playerRecord};
+    const url = `/userprofile/${this.profileId}`;
+    this.router.navigate([url], {state: state});
   }
 }

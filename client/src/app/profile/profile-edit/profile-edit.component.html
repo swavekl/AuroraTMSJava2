@@ -88,6 +88,20 @@
               <mat-error>Invalid phone</mat-error>
             </mat-form-field>
           </div>
+          <div fxLayout="row" fxLayoutGap="10px">
+            <mat-form-field fxFlex="30%">
+              <mat-label>Usatt Membership Id</mat-label>
+              <input matInput type="text" name="membershipId" [ngModel]="profile?.membershipId" readonly>
+            </mat-form-field>
+            <mat-form-field fxFlex="40%">
+              <mat-label>Membership Expires on</mat-label>
+              <input matInput name="membershipExpirationDate" [ngModel]="profile?.membershipExpirationDate | date:'MM/dd/yyyy'" readonly>
+            </mat-form-field>
+            <mat-form-field fxFlex="30%">
+              <mat-label>Rating</mat-label>
+              <input matInput type="text" name="tournamentRating" [ngModel]="profile?.tournamentRating" readonly>
+            </mat-form-field>
+          </div>
         </mat-card-content>
         <mat-card-actions>
           <div class="profile-button-bar" fxLayout="row">

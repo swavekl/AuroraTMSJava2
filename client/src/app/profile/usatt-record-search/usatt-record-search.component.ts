@@ -1,4 +1,4 @@
-import {Component, Input, OnDestroy, OnInit} from '@angular/core';
+import {Component, EventEmitter, Input, OnDestroy, OnInit, Output} from '@angular/core';
 import {Observable, of, Subscription} from 'rxjs';
 import {UsattPlayerRecord} from '../model/usatt-player-record.model';
 import {UsattPlayerRecordService} from '../service/usatt-player-record.service';
@@ -19,6 +19,9 @@ export class UsattRecordSearchComponent implements OnInit, OnDestroy {
 
   @Input()
   lastName: string;
+
+  @Output()
+  private selection: EventEmitter<UsattPlayerRecord> = new EventEmitter<UsattPlayerRecord>();
 
   membershipId: string;
 
@@ -49,7 +52,7 @@ export class UsattRecordSearchComponent implements OnInit, OnDestroy {
   }
 
   onSelection(selected: UsattPlayerRecord) {
-    console.log('selected', selected);
+    this.selection.emit(selected);
   }
 
   public onPreviousPage(formValues: any) {
@@ -88,12 +91,12 @@ export class UsattRecordSearchComponent implements OnInit, OnDestroy {
         .pipe(first())
         .subscribe((record: UsattPlayerRecord) => {
           if (record != null) {
-            console.log('got usatt player record', record);
+            // console.log('got usatt player record', record);
             const playerArray = [];
             playerArray.push(record);
             this.foundPlayers$ = of(playerArray);
           } else {
-            console.log('got usatt player record', record);
+            // console.log('got usatt player record', record);
             this.foundPlayers$ = of([]);
           }
         });
@@ -102,7 +105,7 @@ export class UsattRecordSearchComponent implements OnInit, OnDestroy {
         .pipe(first())
         .subscribe((records: UsattPlayerRecord[]) => {
           if (records != null) {
-            console.log('got usatt player record', records);
+            // console.log('got usatt player record', records);
             this.foundPlayers$ = of(records);
           } else {
             this.foundPlayers$ = of([]);

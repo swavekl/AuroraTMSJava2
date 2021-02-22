@@ -5,7 +5,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -52,6 +51,18 @@ public class UsattDataController {
         } else {
             throw new RuntimeException("Player not found");
         }
+    }
+
+    /**
+     * Links Okta profile id with USATT membership id
+     * @param usattPlayerRecord
+     * @param profileId
+     * @return
+     */
+    @PostMapping("/usattplayer/{profileId}")
+    public UsattPlayerRecord linkPlayerToProfile(@RequestBody UsattPlayerRecord usattPlayerRecord,
+                                                 @PathVariable String profileId) {
+        return this.usattDataService.linkPlayerToProfile(usattPlayerRecord, profileId);
     }
 
 //    @PreAuthorize("hasAuthority('Admins')")

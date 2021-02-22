@@ -1,6 +1,6 @@
 export class UsattPlayerRecord {
   membershipId: number;
-  membershipExpiration: Date;
+  membershipExpirationDate: Date;
   firstName: string;
   lastName: string;
   dateOfBirth: Date;

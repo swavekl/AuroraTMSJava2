@@ -4,16 +4,16 @@
     <div *ngIf="playerRecordFound">
       <h3>We found the following membership information for {{firstName}} {{lastName}}</h3>
       <h3>Membership Id: {{ playerRecord.membershipId }}</h3>
-      <h3>Expiration date: {{ playerRecord.membershipExpiration | date }}</h3>
+      <h3>Expiration date: {{ playerRecord.membershipExpirationDate | date }}</h3>
       <h3>Tournament rating: {{ playerRecord.tournamentRating }}</h3>
-      <h3>If this is your record then let's proceed to filling in the <a [routerLink]="['/userprofile', profileId]" [state]="{data: playerRecord}">profile</a></h3>
+      <h3>If this is your record then let's proceed to filling in the <a [routerLink]="['/userprofile', profileId]" [state]="{initializingProfile: true, playerData: playerRecord}">profile</a></h3>
     </div>
     <div *ngIf="!playerRecordFound"  >
       <h3>We didn't find your USATT membership information using your first and last name. Are you by any chance new to
         USATT?</h3>
-      <h3>If you are, let's <a [routerLink]="['/userprofile', profileId]">get started</a> on filling your profile </h3>
+      <h3>If you are, let's <a [routerLink]="['/userprofile', profileId]" [state]="{initializingProfile: true}">get started</a> on filling your profile </h3>
       <h3>If you are already a member let's see if we can find you by your membership id.</h3>
-      <app-usatt-record-search [firstName]="firstName" [lastName]="lastName"></app-usatt-record-search>
+      <app-usatt-record-search [firstName]="firstName" [lastName]="lastName" (selection)="onSelectedPlayer($event)"></app-usatt-record-search>
     </div>
   </div>
   <div fxFlex.lt-md="16px" fxFlex="20%" style="border: 0px solid purple;">&nbsp;</div>

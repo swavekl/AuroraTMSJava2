@@ -9,8 +9,11 @@ import java.util.Date;
 @Data
 @NoArgsConstructor
 public class UserProfile {
+    // Okta profile id
     @Id
     private String userId;
+    // USATT membership id
+    private Long membershipId;
 
     private String firstName;
     private String lastName;
@@ -23,5 +26,9 @@ public class UserProfile {
     private String countryCode;
     private String gender;
     private Date dateOfBirth;
+    private Date membershipExpirationDate;
+    private Integer tournamentRating;
 
+//    // home club
+//    private String homeClub;
 }

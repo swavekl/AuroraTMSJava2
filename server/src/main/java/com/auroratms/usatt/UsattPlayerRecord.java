@@ -7,7 +7,7 @@ import lombok.NonNull;
 import javax.persistence.*;
 import java.util.Date;
 
-// data representing USATT information
+// data representing USATT information coming in the ratings file for each tournament
 @Data
 @NoArgsConstructor
 @Entity
@@ -19,10 +19,11 @@ public class UsattPlayerRecord {
     private Long id;
 
     @NonNull
+    @Column(unique = true)
     private Long membershipId;
 
     @NonNull
-    private Date membershipExpiration;
+    private Date membershipExpirationDate;
 
     @NonNull
     @Column(length = 50)
