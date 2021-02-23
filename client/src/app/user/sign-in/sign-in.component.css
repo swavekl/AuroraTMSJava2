@@ -4,3 +4,8 @@
   min-height: 0;
   line-height: normal;
 }
+
+.sign-in-field {
+  max-width: 300px;
+  min-width: 300px;
+}

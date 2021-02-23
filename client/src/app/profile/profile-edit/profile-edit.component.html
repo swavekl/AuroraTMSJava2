@@ -27,8 +27,8 @@
               <mat-error>This field is required</mat-error>
             </mat-form-field>
             <mat-radio-group [ngModel]="profile?.gender" name="gender">
-              <div style="padding: 15px 0 0 15px">
-                <mat-radio-button value="Male">Male</mat-radio-button>&nbsp;&nbsp;&nbsp;
+              <div ngClass.lt-sm="gender-radio-sm" ngClass.sm="gender-radio-sm" ngClass.gt-sm="gender-radio">
+                <mat-radio-button style="padding-bottom: 10px" value="Male">Male</mat-radio-button>&nbsp;&nbsp;&nbsp;
                 <mat-radio-button value="Female">Female</mat-radio-button>
               </div>
             </mat-radio-group>
@@ -50,7 +50,7 @@
             <mat-form-field fxFlex="20%">
               <mat-label>State</mat-label>
               <mat-select matInput type="text" name="state" [ngModel]="profile?.state" required>
-                <mat-option *ngFor="let state of statesList" value="{{state.abbreviation}}">{{state.name}}
+                <mat-option *ngFor="let state of statesList" value="{{state.abbreviation}}">{{state.abbreviation}}
                 </mat-option>
               </mat-select>
               <mat-error>This field is required</mat-error>
@@ -97,7 +97,7 @@
               <mat-label>Membership Expires on</mat-label>
               <input matInput name="membershipExpirationDate" [ngModel]="profile?.membershipExpirationDate | date:'MM/dd/yyyy'" readonly>
             </mat-form-field>
-            <mat-form-field fxFlex="30%">
+            <mat-form-field fxFlex="25%">
               <mat-label>Rating</mat-label>
               <input matInput type="text" name="tournamentRating" [ngModel]="profile?.tournamentRating" readonly>
             </mat-form-field>

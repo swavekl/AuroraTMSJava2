@@ -1,7 +1,7 @@
-
+<div  [hidden]="registrationCompleted">
   <h1 style="text-align: center">Sign Up</h1>
   <form name="form" #f="ngForm" novalidate>
-    <div fxLayout="column" fxLayoutAlign="start center" [hidden]="registrationInProgress">
+    <div fxLayout="column" fxLayoutAlign="start center">
       <mat-form-field>
         <input type="text" matInput placeholder="First Name" name="firstName" [(ngModel)]="firstName" required/>
         <mat-error>First Name is required</mat-error>
@@ -30,13 +30,10 @@
       </mat-form-field>
     </div>
   </form>
-  <!--  </mat-card-content>-->
-  <!--  <mat-card-actions>-->
   <div class="form-group">
     <button mat-raised-button color="primary" [disabled]="!f.form.valid" (click)="register()">REGISTER</button>
   </div>
-  <!--  </mat-card-actions>-->
-  <!--  <mat-card-footer>-->
+</div>
   <mat-spinner *ngIf="registrationInProgress" style="margin:0 auto;" diameter="40"></mat-spinner>
   <p [hidden]="registrationInProgress" [innerHtml]="message" class="registration-error-message"></p>
-  <!--  </mat-card-footer>-->
+  <p [hidden]="registrationInProgress" [innerHtml]="okMessage" class="registration-ok-message"></p>

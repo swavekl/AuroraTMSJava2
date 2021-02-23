@@ -19,7 +19,9 @@ export class RegisterComponent implements OnInit {
   crossFieldErrorMatcher = new CrossFieldErrorMatcher();
 
   public message: string;
+  public okMessage: string;
   public registrationInProgress: boolean;
+  public registrationCompleted: boolean;
 
   constructor(
     private authenticationService: AuthenticationService) {
@@ -27,7 +29,9 @@ export class RegisterComponent implements OnInit {
 
   ngOnInit() {
     this.message = '';
+    this.okMessage = '';
     this.registrationInProgress = false;
+    this.registrationCompleted = false;
   }
 
   register() {
@@ -36,13 +40,16 @@ export class RegisterComponent implements OnInit {
       .pipe(first())
       .subscribe(
         data => {
-          this.message = 'Email was sent to your email account.  Please follow instruction in the email to continue...';
+          this.message = '';
+          this.okMessage = 'Email was sent to your email account.  Please follow instruction in the email to continue...';
           this.registrationInProgress = false;
+          this.registrationCompleted = true;
         },
         error => {
             // console.log('error registering', error);
             const causes = error?.error?.errorCauses || '{}';
             this.message = 'Error was encountered during registration: ' + JSON.stringify(causes);
+            this.okMessage = '';
           this.registrationInProgress = false;
         });
   }

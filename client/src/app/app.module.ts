@@ -24,6 +24,13 @@ import {environment} from '../environments/environment';
 import {StoreDevtoolsModule} from '@ngrx/store-devtools';
 import {MatProgressBarModule} from '@angular/material/progress-bar';
 import {SharedModule} from './shared/shared.module';
+import {MAT_FORM_FIELD_DEFAULT_OPTIONS, MatFormFieldDefaultOptions} from '@angular/material/form-field';
+
+const appearance: MatFormFieldDefaultOptions = {
+  // appearance: 'fill'
+  // appearance: 'outline'
+  appearance: 'standard'
+};
 
 @NgModule({
   declarations: [
@@ -57,7 +64,8 @@ import {SharedModule} from './shared/shared.module';
     SharedModule
   ],
   providers: [
-    {provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true}
+    {provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true},
+    {provide: MAT_FORM_FIELD_DEFAULT_OPTIONS, useValue: appearance}
   ],
   bootstrap: [AppComponent]
 })

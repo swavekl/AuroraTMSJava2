@@ -3,14 +3,14 @@
   <div fxLayout="column">
     <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="10px">
       <mat-icon class="material-icons md-dark md-inactive">email</mat-icon>
-      <mat-form-field fxFlex="90%">
+      <mat-form-field fxFlex="90%" class="sign-in-field">
         <input matInput type="email" placeholder="Email" name="email" [(ngModel)]="email" required>
         <mat-error>This field is required</mat-error>
       </mat-form-field>
     </div>
     <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="10px">
       <mat-icon>lock_open</mat-icon>
-      <mat-form-field fxFlex="90%">
+      <mat-form-field fxFlex="90%" class="sign-in-field">
         <input matInput type="password" placeholder="Password" name="password" [(ngModel)]="password" required>
         <mat-error>This field is required</mat-error>
       </mat-form-field>
