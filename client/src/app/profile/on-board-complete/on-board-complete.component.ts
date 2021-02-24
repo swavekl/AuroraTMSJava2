@@ -4,10 +4,10 @@ import {Component, OnInit} from '@angular/core';
   template: `
     <app-centered-panel>
       <p>
-        Nice job {{ firstName }}!  You are now fully registered.
+        Nice job {{ firstName }}!  Your on-boarding is complete.
       </p>
       <p *ngIf="newMember">Your USATT (USA Table Tennis) membership id is {{ membershipId }}.</p>
-      <p>Now let's find some local tournaments <a routerLink="/tournaments" [state]="{selectRegion: memberRegion }"> to sign up for</a></p>
+      <p>Now let's find some <a routerLink="/tournaments" [state]="{selectRegion: memberRegion }">local tournaments</a> to sign up for.</p>
     </app-centered-panel>
   `,
   styles: [
