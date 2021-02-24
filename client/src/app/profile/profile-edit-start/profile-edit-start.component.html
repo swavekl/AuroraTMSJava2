@@ -2,19 +2,19 @@
   <div fxFlex.lt-md="16px" fxFlex="20%" style="border: 0px solid red;">&nbsp;</div>
   <div fxFlex.lt-md="90%" fxFlex="60%" style="border: 0px solid green;">
     <div *ngIf="playerRecordFound">
-      <h3>We found the following membership information for {{firstName}} {{lastName}}</h3>
+      <h3>We found the following USATT membership information for {{firstName}} {{lastName}}</h3>
       <h3>Membership Id: {{ playerRecord.membershipId }}</h3>
       <h3>Expiration date: {{ playerRecord.membershipExpirationDate | date }}</h3>
       <h3>Tournament rating: {{ playerRecord.tournamentRating }}</h3>
-      <h3>If this is your record then let's proceed to filling in the <a [routerLink]="['/userprofile', profileId]" [state]="{initializingProfile: true, playerData: playerRecord}">profile</a></h3>
+      <h3>If this is your record then let's proceed to filling in the <a [routerLink]="['/userprofile', profileId]" [state]="{initializingProfile: true, playerRecord: playerRecord}">profile</a></h3>
+      <h3>If this is not your record, let's see if we can find you using different spelling of your name or by membership id.</h3>
     </div>
     <div *ngIf="!playerRecordFound"  >
-      <h3>We didn't find your USATT membership information using your first and last name. Are you by any chance new to
-        USATT?</h3>
-      <h3>If you are, let's <a [routerLink]="['/userprofile', profileId]" [state]="{initializingProfile: true}">get started</a> on filling your profile </h3>
-      <h3>If you are already a member let's see if we can find you by your membership id.</h3>
-      <app-usatt-record-search [firstName]="firstName" [lastName]="lastName" (selection)="onSelectedPlayer($event)"></app-usatt-record-search>
+      <h3>We didn't find your USATT (USA Table Tennis) membership information using your first and last name.</h3>
+      <h3>If you are not a member yet, let's <a [routerLink]="['/userprofile', profileId]" [state]="{initializingProfile: true}">get started</a> on filling your profile </h3>
+      <h3>If you are a member, let's see if we can find you by your membership id or perhaps by spelling your name differently.</h3>
     </div>
+    <app-usatt-record-search [firstName]="firstName" [lastName]="lastName" (selection)="onSelectedPlayer($event)"></app-usatt-record-search>
   </div>
   <div fxFlex.lt-md="16px" fxFlex="20%" style="border: 0px solid purple;">&nbsp;</div>
 </div>

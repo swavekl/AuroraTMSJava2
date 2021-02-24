@@ -44,7 +44,7 @@ export class ProfileEditStartComponent implements OnInit {
 
   onSelectedPlayer(playerRecord: UsattPlayerRecord) {
     // console.log ('using this player record for profile init', playerRecord);
-    const state = {initializingProfile: true, playerData: playerRecord};
+    const state = {initializingProfile: true, playerRecord: playerRecord};
     const url = `/userprofile/${this.profileId}`;
     this.router.navigate([url], {state: state});
   }

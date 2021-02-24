@@ -37,7 +37,13 @@ export class TournamentListContainerComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     // restore region filter
-    this.selectedRegion = this.localStorageService.getSavedState(this.LAST_FILTER);
+    const selectRegion = history?.state?.selectRegion;
+    if (selectRegion) {
+      this.selectedRegion = selectRegion;
+    } else {
+      // otherwise get last saved region form local storage
+      this.selectedRegion = this.localStorageService.getSavedState(this.LAST_FILTER);
+    }
     this.setFilter(this.selectedRegion);
 
     this.tournamentInfoService.getAll();

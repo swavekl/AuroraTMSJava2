@@ -8,6 +8,7 @@ import {ActivatedRoute, Router} from '@angular/router';
 import {UsattPlayerRecord} from '../model/usatt-player-record.model';
 import {LinearProgressBarService} from '../../shared/linear-progress-bar/linear-progress-bar.service';
 import {UsattPlayerRecordService} from '../service/usatt-player-record.service';
+import {Regions} from '../../shared/regions';
 
 @Component({
   selector: 'app-profile-edit-container',
@@ -26,6 +27,8 @@ export class ProfileEditContainerComponent implements OnInit, OnDestroy {
   profileId: string;
   playerRecord: UsattPlayerRecord;
   initializingProfile: boolean;
+  onBoarding: boolean;
+  newMember: boolean;
 
   private subscriptions: Subscription = new Subscription();
   private returnUrl: string;
@@ -43,15 +46,17 @@ export class ProfileEditContainerComponent implements OnInit, OnDestroy {
 
     // true during on-boarding
     this.initializingProfile = (history?.state?.initializingProfile === true);
+    this.onBoarding = this.initializingProfile;
     // using existing member data during on-boarding
-    this.playerRecord = history?.state?.playerData;
+    this.playerRecord = history?.state?.playerRecord;
+    this.newMember = (this.initializingProfile && this.playerRecord == null);
 
     // if we are coming from registration filling in the first time
-    // console.log('player data', this.playerRecord);
-    // this.returnUrl = history?.state?.url;  // for when TD edits profiles
-    if (this.playerRecord != null) {
-      this.returnUrl = '/tournaments';
+    if (this.initializingProfile) {
+      this.returnUrl = '/onboardcomplete';
     } else {
+      // console.log('player data', this.playerRecord);
+      // this.returnUrl = history?.state?.url;  // for when TD edits profiles
       this.returnUrl = '/home';
     }
   }
@@ -69,7 +74,7 @@ export class ProfileEditContainerComponent implements OnInit, OnDestroy {
           // console.log('switchMap - got profile', profile);
           if (profile != null) {
             if (this.playerRecord != null) {
-              // console.log('merging passed usatt player record into profile', this.playerRecord);
+              console.log('merging passed usatt player record into profile', this.playerRecord);
               this.merge(profile, this.playerRecord);
             }
 
@@ -112,11 +117,45 @@ export class ProfileEditContainerComponent implements OnInit, OnDestroy {
       .subscribe(
         () => {
           // console.log('Updated profile successfully');
-          this.onCancel(null);
+          if (this.onBoarding) {
+            // for US players figure out the region which they are part of
+            const memberRegion: string = this.findNewMembersRegion(profile);
+            const extras = {state: {
+              newMember: this.newMember,
+                membershipId: profile.membershipId,
+                firstName: profile.firstName,
+                memberRegion: memberRegion
+            }};
+            this.router.navigateByUrl(this.returnUrl, extras);
+          } else {
+            this.router.navigateByUrl(this.returnUrl);
+          }
         },
         (err: any) => console.error(err)
       );
     this.subscriptions.add(subscription);
+  }
+
+  /**
+   * Finds member's region based on his/her profile
+   * @param profile
+   * @private
+   */
+  private findNewMembersRegion (profile: Profile): string {
+    let memberRegion: string = null;
+    if (profile.countryCode === 'US') {
+      const regions = new Regions().getList();
+      for (const region of regions) {
+        const regionStates = region.states;
+        for (const state of regionStates) {
+          if (state === profile.state) {
+            memberRegion = region.name;
+            break;
+          }
+        }
+      }
+    }
+    return memberRegion;
   }
 
   onCancel($event: any) {
@@ -135,11 +174,11 @@ export class ProfileEditContainerComponent implements OnInit, OnDestroy {
    * @private
    */
   private merge(profile: Profile, playerRecord: UsattPlayerRecord): void {
-    profile.gender = playerRecord.gender;
+    profile.gender = playerRecord.gender === 'M' ? 'Male' : 'Female';
     profile.dateOfBirth = playerRecord.dateOfBirth;
     profile.zipCode = playerRecord.zip;
     profile.state = playerRecord.state;
-    profile.gender = playerRecord.gender === 'M' ? 'Male' : 'Female';
+    profile.tournamentRating = playerRecord.tournamentRating;
   }
 
 }

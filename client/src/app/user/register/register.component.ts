@@ -10,11 +10,11 @@ import {first} from 'rxjs/operators';
 })
 export class RegisterComponent implements OnInit {
 
-  firstName = 'Julia';
+  firstName = '';
   lastName = 'Lorenc';
-  email = 'swaveklorenc+julia@gmail.com';
-  password = 'Julia1234';
-  password2 = 'Julia1234';
+  email = 'swaveklorenc+@gmail.com';
+  password = ''; // 'Julia1234';
+  password2 = ''; // 'Julia1234';
 
   crossFieldErrorMatcher = new CrossFieldErrorMatcher();
 

@@ -23,6 +23,7 @@ import {MatRadioModule} from '@angular/material/radio';
 import {MatNativeDateModule} from '@angular/material/core';
 import { ProfileEditStartComponent } from './profile-edit-start/profile-edit-start.component';
 import { UsattRecordSearchComponent } from './usatt-record-search/usatt-record-search.component';
+import { OnBoardCompleteComponent } from './on-board-complete/on-board-complete.component';
 
 const profileRoutes: Routes = [
   {
@@ -34,6 +35,11 @@ const profileRoutes: Routes = [
     path: 'userprofilestart',
     component: ProfileEditStartComponent,
     canActivate: [AuthGuard]
+  },
+  {
+    path: 'onboardcomplete',
+    component: OnBoardCompleteComponent,
+    canActivate: [AuthGuard]
   }
 ];
 
@@ -43,7 +49,8 @@ const profileRoutes: Routes = [
     ProfileEditContainerComponent,
     PlayerFindPopupComponent,
     ProfileEditStartComponent,
-    UsattRecordSearchComponent
+    UsattRecordSearchComponent,
+    OnBoardCompleteComponent
   ],
   exports: [
     PlayerFindPopupComponent
