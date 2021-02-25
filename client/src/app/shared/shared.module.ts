@@ -12,6 +12,7 @@ import {StartTimePipe} from './pipes/start-time.pipe';
 import {EventDayPipePipe} from './pipes/event-day-pipe.pipe';
 import {CenteredPanelComponent} from './centered-panel/centered-panel.component';
 import {FlexLayoutModule} from '@angular/flex-layout';
+import { DebounceClicksDirective } from './directives/debounce-clicks.directive';
 
 
 @NgModule({
@@ -21,7 +22,8 @@ import {FlexLayoutModule} from '@angular/flex-layout';
     ConfirmationPopupComponent,
     StartTimePipe,
     EventDayPipePipe,
-    CenteredPanelComponent
+    CenteredPanelComponent,
+    DebounceClicksDirective
   ],
   exports: [
     LinearProgressBarComponent,
@@ -29,7 +31,8 @@ import {FlexLayoutModule} from '@angular/flex-layout';
     ConfirmationPopupComponent,
     StartTimePipe,
     EventDayPipePipe,
-    CenteredPanelComponent
+    CenteredPanelComponent,
+    DebounceClicksDirective
   ],
     imports: [
         CommonModule,

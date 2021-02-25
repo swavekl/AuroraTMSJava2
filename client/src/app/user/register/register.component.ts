@@ -1,14 +1,16 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnDestroy, OnInit} from '@angular/core';
 import {AuthenticationService} from '../authentication.service';
 import {CrossFieldErrorMatcher} from '../cross-field-error-matcher/cross-field-error-matcher';
 import {first} from 'rxjs/operators';
+import {Subscription} from 'rxjs';
+import {LinearProgressBarService} from '../../shared/linear-progress-bar/linear-progress-bar.service';
 
 @Component({
   selector: 'app-register',
   templateUrl: './register.component.html',
   styleUrls: ['./register.component.scss']
 })
-export class RegisterComponent implements OnInit {
+export class RegisterComponent implements OnInit, OnDestroy {
 
   firstName = '';
   lastName = 'Lorenc';
@@ -22,9 +24,11 @@ export class RegisterComponent implements OnInit {
   public okMessage: string;
   public registrationInProgress: boolean;
   public registrationCompleted: boolean;
+  private subscription: Subscription = new Subscription();
 
   constructor(
-    private authenticationService: AuthenticationService) {
+    private authenticationService: AuthenticationService,
+    private linearProgressBarService: LinearProgressBarService) {
   }
 
   ngOnInit() {
@@ -36,7 +40,9 @@ export class RegisterComponent implements OnInit {
 
   register() {
     this.registrationInProgress = true;
-    this.authenticationService.register(this.firstName, this.lastName, this.email, this.password, this.password2)
+    this.linearProgressBarService.setLoading(true);
+
+    const subscription = this.authenticationService.register(this.firstName, this.lastName, this.email, this.password, this.password2)
       .pipe(first())
       .subscribe(
         data => {
@@ -44,6 +50,7 @@ export class RegisterComponent implements OnInit {
           this.okMessage = 'Email was sent to your email account.  Please follow instruction in the email to continue...';
           this.registrationInProgress = false;
           this.registrationCompleted = true;
+          this.linearProgressBarService.setLoading(false);
         },
         error => {
             // console.log('error registering', error);
@@ -51,6 +58,12 @@ export class RegisterComponent implements OnInit {
             this.message = 'Error was encountered during registration: ' + JSON.stringify(causes);
             this.okMessage = '';
           this.registrationInProgress = false;
+          this.linearProgressBarService.setLoading(false);
         });
+    this.subscription.add(subscription);
+  }
+
+  ngOnDestroy(): void {
+    this.subscription.unsubscribe();
   }
 }

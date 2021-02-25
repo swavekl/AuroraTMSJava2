@@ -1,17 +1,18 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnDestroy, OnInit} from '@angular/core';
 import {AuthenticationService} from '../authentication.service';
 import {ActivatedRoute, Router} from '@angular/router';
 import {Store} from '@ngrx/store';
 import {ResetStore} from '../../store/reset-store';
 import {first} from 'rxjs/operators';
-import {Subject} from 'rxjs';
+import {Subject, Subscription} from 'rxjs';
+import {LinearProgressBarService} from '../../shared/linear-progress-bar/linear-progress-bar.service';
 
 @Component({
   selector: 'app-sign-in',
   templateUrl: './sign-in.component.html',
   styleUrls: ['./sign-in.component.css']
 })
-export class SignInComponent implements OnInit {
+export class SignInComponent implements OnInit, OnDestroy {
 
   // username/email
   email: string;
@@ -25,26 +26,36 @@ export class SignInComponent implements OnInit {
   // progress indicator
   loginInProgress$: Subject<boolean> = new Subject<boolean>();
 
+  private subscriptions: Subscription = new Subscription();
+
   constructor(private authenticationService: AuthenticationService,
               private activatedRoute: ActivatedRoute,
               private router: Router,
-              private store: Store) {
+              private store: Store,
+              private linearProgressBarService: LinearProgressBarService) {
     this.returnUrl = activatedRoute.snapshot.queryParamMap.get('returnUrl');
     this.returnUrl = (this.returnUrl != null) ? this.returnUrl : '/home';
   }
 
   ngOnInit() {
+    // subscription for indicating progress on global toolbar
+    const subscription = this.loginInProgress$.subscribe((loading: boolean) => {
+      this.linearProgressBarService.setLoading(loading);
+    });
+    this.subscriptions.add(subscription);
   }
 
   login() {
+    // console.log ('logging in...');
     this.loginInProgress$.next(true);
     this.status = '';
     this.store.dispatch(new ResetStore());
     this.authenticationService.login(this.email, this.password)
       .pipe(first())
-      .subscribe(data => {
-        // console.log ('got login data', data);
-          if (data === true) {
+      .subscribe((loginSuccessful) => {
+        // console.log ('login completed with result', loginSuccessful);
+        // hide progress right away
+          if (loginSuccessful === true) {
             this.status = 'Success';
             this.router.navigate([this.returnUrl]);
           } else {
@@ -52,6 +63,7 @@ export class SignInComponent implements OnInit {
           }
         },
         error => {
+          // hide progress right away
           console.log ('error logging in', error._body);
           if (error._body) {
             this.status = error._body;
@@ -63,5 +75,9 @@ export class SignInComponent implements OnInit {
         () => {
           this.loginInProgress$.next(false);
         });
+  }
+
+  ngOnDestroy(): void {
+    this.subscriptions.unsubscribe();
   }
 }

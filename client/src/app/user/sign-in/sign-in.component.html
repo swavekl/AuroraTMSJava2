@@ -16,7 +16,7 @@
       </mat-form-field>
 <!--      <button mat-mini-fab color="white"><mat-icon>remove_red_eye</mat-icon></button>-->
     </div>
-    <button mat-raised-button color="primary" style="margin-top: 20px">LOGIN</button>
+    <button mat-raised-button color="primary" style="margin-top: 20px" debounceClicks (debounceClick)="login()">LOGIN</button>
     <div style="color: red; padding-top: 20px;">{{status}}</div>
     <mat-spinner *ngIf="loginInProgress$ | async" style="margin:0 auto;" diameter="40"></mat-spinner>
   </div>
