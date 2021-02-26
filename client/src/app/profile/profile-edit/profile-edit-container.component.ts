@@ -174,6 +174,8 @@ export class ProfileEditContainerComponent implements OnInit, OnDestroy {
    * @private
    */
   private merge(profile: Profile, playerRecord: UsattPlayerRecord): void {
+    profile.firstName = playerRecord.firstName;
+    profile.lastName = playerRecord.lastName;
     profile.gender = playerRecord.gender === 'M' ? 'Male' : 'Female';
     profile.dateOfBirth = playerRecord.dateOfBirth;
     profile.zipCode = playerRecord.zip;
