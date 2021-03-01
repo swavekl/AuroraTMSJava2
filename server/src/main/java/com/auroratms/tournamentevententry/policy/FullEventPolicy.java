@@ -7,6 +7,9 @@ import com.auroratms.tournamentevententry.EventEntryStatus;
  * Checks if event is full
  */
 public class FullEventPolicy implements IEventPolicy {
+
+    private boolean isDenied = false;
+
     public FullEventPolicy() {
     }
 
@@ -14,13 +17,15 @@ public class FullEventPolicy implements IEventPolicy {
     public boolean isEntryDenied(TournamentEventEntity event) {
         // no limit don't deny
         if (event.getMaxEntries() == 0) {
-            return false;
+            isDenied = false;
+        } else {
+            isDenied = !(event.getNumEntries() < event.getMaxEntries());
         }
-        return !(event.getNumEntries() < event.getMaxEntries());
+        return isDenied;
     }
 
     @Override
     public EventEntryStatus getStatus() {
-        return EventEntryStatus.WAITING_LIST;
+        return (isDenied) ? EventEntryStatus.WAITING_LIST : EventEntryStatus.NOT_ENTERED;
     }
 }
