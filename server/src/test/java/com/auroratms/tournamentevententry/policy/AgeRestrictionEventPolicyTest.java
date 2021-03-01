@@ -1,4 +1,4 @@
-package com.auroratms.tournamentevententry;
+package com.auroratms.tournamentevententry.policy;
 
 import com.auroratms.event.AgeRestrictionType;
 import com.auroratms.event.TournamentEventEntity;
