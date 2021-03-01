@@ -1,4 +1,5 @@
 import {GenderRestriction} from './model/gender-restriction.enum';
+import {AgeRestrictionType} from './model/age-restriction-type.enum';
 
 /**
  * Tournament event e.g. U-2200, Giant Round Robin etc.
@@ -37,6 +38,9 @@ export class TournamentEvent {
 
   minPlayerAge: number;
   maxPlayerAge: number;
+
+  ageRestrictionType: AgeRestrictionType = AgeRestrictionType.NONE;
+  ageRestrictionDate: Date;
 
   // flag indicating if event has any gender restrictions (men's or women's only event)
   genderRestriction: GenderRestriction = GenderRestriction.NONE;
@@ -83,6 +87,17 @@ export class TournamentEvent {
     tournamentEvent.playersToSeed = 0;
     tournamentEvent.numTablesPerGroup = 1;
     tournamentEvent.numberOfGames = 5;
+    tournamentEvent.playersPerGroup = 4;
+    tournamentEvent.feeAdult = 30;
+    tournamentEvent.feeJunior = 30;
+    tournamentEvent.maxEntries = 32;
+    if (selectedEvent.maxPlayerAge > 0) {
+      tournamentEvent.ageRestrictionType = AgeRestrictionType.AGE_UNDER_OR_EQUAL_ON_DAY_EVENT;
+    } else if (selectedEvent.minPlayerAge > 0) {
+      tournamentEvent.ageRestrictionType = AgeRestrictionType.AGE_OVER_AT_THE_END_OF_YEAR;
+    } else {
+      tournamentEvent.ageRestrictionType = AgeRestrictionType.NONE;
+    }
     // tournamentEvent.genderRestriction = GenderRestriction[selectedEvent.genderRestriction];
     return tournamentEvent;
   }

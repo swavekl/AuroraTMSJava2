@@ -4,6 +4,8 @@ import com.auroratms.event.TournamentEventEntity;
 import com.auroratms.event.TournamentEventEntityService;
 import com.auroratms.profile.UserProfile;
 import com.auroratms.profile.UserProfileService;
+import com.auroratms.tournament.Tournament;
+import com.auroratms.tournament.TournamentService;
 import com.auroratms.tournamententry.TournamentEntry;
 import com.auroratms.tournamententry.TournamentEntryService;
 import com.auroratms.tournamentevententry.policy.PolicyApplicator;
@@ -15,10 +17,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 @RestController
 @RequestMapping("api")
@@ -27,6 +26,9 @@ public class TournamentEventEntryInfoController {
 
     @Autowired
     private TournamentEntryService tournamentEntryService;
+
+    @Autowired
+    private TournamentService tournamentService;
 
     @Autowired
     private TournamentEventEntityService tournamentEventService;
@@ -81,14 +83,16 @@ public class TournamentEventEntryInfoController {
                 }
             }
             String profileId = tournamentEntry.getProfileId();
+            int eligibilityRating = tournamentEntry.getEligibilityRating();
             UserProfile userProfile = userProfileService.getProfile(profileId);
-            int eligibilityRating = 1600;
+            Tournament tournament = tournamentService.getByKey(tournamentId);
+            Date tournamentStartDate = tournament.getStartDate();
 
             if (userProfile != null) {
                 // now determine status of the rest of them
                 PolicyApplicator policyApplicator = new PolicyApplicator();
                 List<TournamentEventEntity> eventEntityList = new ArrayList<>(eventEntityCollection);
-                policyApplicator.configurePolicies(eventEntries, eventEntityList, userProfile, eligibilityRating);
+                policyApplicator.configurePolicies(eventEntries, eventEntityList, userProfile, eligibilityRating, tournamentStartDate);
                 policyApplicator.applyPolicies(eventEntryInfos);
             }
         }

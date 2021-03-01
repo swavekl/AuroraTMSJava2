@@ -97,4 +97,14 @@ export class DateUtils {
     const expiresAt = moment().add(expiresInSeconds, 'seconds');
     return expiresAt.toDate();
   }
+
+  getMaxAgeRestrictionDate(tournamentStartDate: Date): Date {
+    const maxDate = moment(tournamentStartDate).subtract(5, 'years');
+    return maxDate.toDate();
+  }
+
+  getMinAgeRestrictionDate(tournamentStartDate: Date): Date {
+    const minDate = moment(tournamentStartDate).subtract(100, 'years');
+    return minDate.toDate();
+  }
 }

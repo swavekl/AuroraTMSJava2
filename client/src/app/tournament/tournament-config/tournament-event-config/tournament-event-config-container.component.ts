@@ -3,7 +3,6 @@ import {Observable, of, Subscription} from 'rxjs';
 import {TournamentEvent} from '../tournament-event.model';
 import {ActivatedRoute, Router} from '@angular/router';
 import {TournamentEventConfigService} from '../tournament-event-config.service';
-import {Store} from '@ngrx/store';
 
 @Component({
   selector: 'app-tournament-event-config-container',
@@ -19,7 +18,7 @@ export class TournamentEventConfigContainerComponent implements OnInit, OnDestro
 
   tournamentEvent$: Observable<TournamentEvent>;
 
-  private subscriptions: Subscription = new Subscription ();
+  private subscriptions: Subscription = new Subscription();
 
   // if true we are creating new event instead of editing
   private creating: boolean;
@@ -63,7 +62,7 @@ export class TournamentEventConfigContainerComponent implements OnInit, OnDestro
     const subscription = this.tournamentEventConfigService.upsert(tournamentEvent)
       .subscribe(
         next => {
-          console.log ('upserted successfully event', tournamentEvent.id);
+          console.log('upserted successfully event', tournamentEvent.id);
           this.navigateBack();
         },
         error => console.log('error saving ' + error)

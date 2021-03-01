@@ -5,7 +5,6 @@ import com.auroratms.profile.UserProfileExtService;
 import com.opencsv.CSVReader;
 import com.opencsv.exceptions.CsvValidationException;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.time.DateUtils;
 import org.jsoup.internal.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheConfig;
@@ -30,6 +29,9 @@ public class UsattDataService {
 
     @Autowired
     private UsattPlayerRecordRepository playerRecordRepository;
+
+    @Autowired
+    private RatingHistoryRecordRepository ratingHistoryRecordRepository;
 
     @Autowired
     private UserProfileExtService userProfileExtService;
@@ -299,6 +301,26 @@ public class UsattDataService {
         return playerRecordRepository.count();
     }
 
+    /**
+     * Gets the rating of a player that he had on the particular date
+     * @param membershipId
+     * @param dateOfRating
+     * @return
+     */
+    public int getPlayerRatingAsOfDate(long membershipId, Date dateOfRating) {
+        int rating = 0;
+        List<RatingHistoryRecord> historyRecords = this.ratingHistoryRecordRepository.getPlayerRatingAsOfDate(membershipId, dateOfRating);
+        if (historyRecords != null && historyRecords.size() > 0) {
+            RatingHistoryRecord ratingHistoryRecord = historyRecords.get(0);
+            rating = ratingHistoryRecord.getFinalRating();
+        } else {
+            UsattPlayerRecord currentPlayerRecord = this.playerRecordRepository.getFirstByMembershipId(membershipId);
+            if (currentPlayerRecord != null) {
+                rating = currentPlayerRecord.getTournamentRating();
+            }
+        }
+        return rating;
+    }
 }
 
 //    private String baseURL = "https://usatt.simplycompete.com/userAccount/s2?citizenship=usOnly&gamesEligibility=&gender=&minAge=&maxAge=&minTrnRating=&maxTrnRating=&minLeagueRating=&maxLeagueRating=&state=&region=Any Region&favorites=&q=${query}&displayColumns=First Name,Last Name,USATT#,Location,Home Club,Tournament Rating,Last Played Tournament,League Rating,Last Played League,Membership Expiration&pageSize=25";

@@ -35,6 +35,17 @@
       <div fxLayout.lt-sm="column" fxLayout="row" fxLayoutGap="10px">
         <mat-checkbox fxFlex="40%" name="doubles" [ngModel]="tournamentEvent?.doubles">Doubles</mat-checkbox>
         <mat-form-field fxFlex="30%">
+          <mat-label>Max Entries</mat-label>
+          <input matInput type="text" name="maxEntries" [ngModel]="tournamentEvent?.maxEntries" required pattern="\d{1,3}">
+        </mat-form-field>
+        <mat-form-field fxFlex="30%">
+          <mat-label>Current Entries</mat-label>
+          <input matInput type="text" disabled name="numEntries" [ngModel]="tournamentEvent?.numEntries">
+        </mat-form-field>
+      </div>
+      <div fxLayout.lt-sm="column" fxLayout="row" fxLayoutGap="10px">
+        <mat-checkbox fxFlex="40%" name="singleElimination" [ngModel]="tournamentEvent?.singleElimination">Single Elimination</mat-checkbox>
+        <mat-form-field fxFlex="30%">
           <mat-label>Minimum Player Rating</mat-label>
           <input matInput type="text" name="minPlayerRating" [ngModel]="tournamentEvent?.minPlayerRating" required>
         </mat-form-field>
@@ -44,14 +55,33 @@
         </mat-form-field>
       </div>
       <div fxLayout.lt-sm="column" fxLayout="row" fxLayoutGap="10px">
-        <mat-checkbox fxFlex="40%" name="singleElimination" [ngModel]="tournamentEvent?.singleElimination">Single Elimination</mat-checkbox>
         <mat-form-field fxFlex="30%">
+          <mat-label>Age Restriction</mat-label>
+          <mat-select name="ageRestrictionType" [ngModel]="tournamentEvent?.ageRestrictionType"
+                      (selectionChange)="onAgeRestrictionChange($event)">
+            <mat-option *ngFor="let ageRestrictionType of ageRestrictionTypes" [value]="ageRestrictionType.value">
+              {{ ageRestrictionType.label }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field fxFlex="20%">
           <mat-label>Minimum Player Age</mat-label>
           <input matInput type="text" name="minPlayerAge" [ngModel]="tournamentEvent?.minPlayerAge">
         </mat-form-field>
-        <mat-form-field fxFlex="30%">
+        <mat-form-field fxFlex="20%">
           <mat-label>Maximum Player Age</mat-label>
           <input matInput type="text" name="maxPlayerAge" [ngModel]="tournamentEvent?.maxPlayerAge">
+        </mat-form-field>
+        <mat-form-field fxFlex="30%">
+          <mat-label>Born on or Before Date</mat-label>
+          <input matInput [matDatepicker]="ageRestrictionDate" placeholder="mm/dd/yyyy" name="ageRestrictionDate"
+                 [min]="minAgeRestrictionDate" [max]="maxAgeRestrictionDate" [disabled]="!ageRestrictionDateEnabled"
+                 [ngModel]="tournamentEvent?.ageRestrictionDate" [required]="ageRestrictionDateEnabled">
+          <mat-datepicker-toggle matSuffix [for]="ageRestrictionDate"></mat-datepicker-toggle>
+          <mat-datepicker #ageRestrictionDate [disabled]="!ageRestrictionDateEnabled"></mat-datepicker>
+          <mat-error *ngIf="f.form.controls['ageRestrictionDate']?.errors?.required">Date is required</mat-error>
+          <mat-error *ngIf="f.form.controls['ageRestrictionDate']?.errors?.matDatepickerMin">Date must be after {{ minAgeRestrictionDate | date}}</mat-error>
+          <mat-error *ngIf="f.form.controls['ageRestrictionDate']?.errors?.matDatepickerMax">Date must be before {{ maxAgeRestrictionDate | date}}</mat-error>
         </mat-form-field>
       </div>
       <div fxLayout.lt-sm="column" fxLayout="row" fxLayoutGap="10px">
@@ -81,33 +111,24 @@
             </mat-option>
           </mat-select>
         </mat-form-field>
-        <mat-form-field fxFlex="25%">
+        <mat-form-field fxFlex="20%">
           <mat-label>Players Per Group</mat-label>
           <input matInput type="text" name="playersPerGroup" [ngModel]="tournamentEvent?.playersPerGroup" required>
         </mat-form-field>
-        <mat-form-field fxFlex="25%">
+        <mat-form-field fxFlex="20%">
           <mat-label>Players to advance</mat-label>
           <input matInput type="text" name="playersToAdvance" [ngModel]="tournamentEvent?.playersToAdvance" required>
         </mat-form-field>
-        <mat-form-field fxFlex="25%">
+        <mat-form-field fxFlex="20%">
           <mat-label>Players to seed</mat-label>
           <input matInput type="text" name="playersToSeed" [ngModel]="tournamentEvent?.playersToSeed" required>
         </mat-form-field>
-      </div>
-      <div fxLayout.lt-sm="column" fxLayout="row" fxLayoutGap="10px">
-        <mat-form-field fxFlex="40%">
+        <mat-form-field fxFlex="20%">
           <mat-label>Number of Tables Per Group</mat-label>
           <input matInput type="text" name="numTablesPerGroup" [ngModel]="tournamentEvent?.numTablesPerGroup" required>
-        </mat-form-field>
-        <mat-form-field fxFlex="30%">
-          <mat-label>Max Entries</mat-label>
-          <input matInput type="text" name="maxEntries" [ngModel]="tournamentEvent?.maxEntries" required>
-        </mat-form-field>
-        <mat-form-field fxFlex="30%">
-          <mat-label>Current Entries</mat-label>
-          <input matInput type="text" disabled name="numEntries" [ngModel]="tournamentEvent?.numEntries" required>
         </mat-form-field>
       </div>
     </mat-card-content>
   </mat-card>
+<!--  <p>ageRestrictionDate errors: {{ f.form.controls['ageRestrictionDate']?.errors | json }} </p>-->
 </form>

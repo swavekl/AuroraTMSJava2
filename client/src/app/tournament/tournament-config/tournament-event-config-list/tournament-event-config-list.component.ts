@@ -53,8 +53,12 @@ export class TournamentEventConfigListComponent implements OnInit {
     });
   }
 
+  getEventEditLink(eventId: number) {
+    return `/tournament/${this.tournamentId}/tournamentevent/edit/${eventId}`;
+  }
+
   editEvent(eventId: number) {
-    const url = `tournament/${this.tournamentId}/tournamentevent/edit/${eventId}`;
+    const url = this.getEventEditLink(eventId);
     this.router.navigate([url]);
   }
 

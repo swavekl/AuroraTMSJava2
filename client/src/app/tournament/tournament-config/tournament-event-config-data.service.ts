@@ -27,7 +27,7 @@ export class TournamentEventConfigDataService extends DefaultDataService<Tournam
 
   getAll(): Observable<TournamentEvent[]> {
     if (this.tournamentId != null) {
-      const url = this.getServiceUrl(true);
+      const url = this.getServiceUrl(true) + '?page=0&size=200';
       console.log('url ', url);
       return this.execute('GET', url);
     } else {

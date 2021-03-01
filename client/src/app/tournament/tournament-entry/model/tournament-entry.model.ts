@@ -43,7 +43,7 @@ export class TournamentEntry {
   seedRating: number;
 
   // selected USATT membership option (from 1 through 8)
-  membershipOption: MembershipType = MembershipType.ADULT_ONE_YEAR;
+  membershipOption: MembershipType = MembershipType.TOURNAMENT_PASS;
 
   // profile id of the player who owns this entry
   profileId: string;

@@ -30,7 +30,6 @@ export class TournamentViewComponent implements OnInit {
     // create entry
     const entryToEdit = new TournamentEntry();
     entryToEdit.tournamentFk = this.tournament.id;
-    entryToEdit.type = 0; // EntryType.INDIVIDUAL
     entryToEdit.dateEntered = new Date();
     entryToEdit.profileId = this.authService.getCurrentUserProfileId();
     this.tournamentEntryService.add(entryToEdit)

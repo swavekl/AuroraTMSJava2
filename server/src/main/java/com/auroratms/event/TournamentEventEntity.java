@@ -6,6 +6,7 @@ import lombok.NonNull;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.util.Date;
 import java.util.Objects;
 
 @Entity
@@ -58,6 +59,9 @@ public class TournamentEventEntity {
     private int minPlayerAge;
     private int maxPlayerAge;
 
+    private AgeRestrictionType ageRestrictionType = AgeRestrictionType.NONE;
+    private Date ageRestrictionDate;
+
     // flag indicating if event has any gender restrictions (men's or women's only event)
     private GenderRestriction genderRestriction = GenderRestriction.NONE;
 
@@ -106,11 +110,13 @@ public class TournamentEventEntity {
                 Double.compare(that.feeJunior, feeJunior) == 0 &&
                 id.equals(that.id) &&
                 name.equals(that.name) &&
+                ageRestrictionType == that.ageRestrictionType &&
+                ageRestrictionDate == that.ageRestrictionDate &&
                 genderRestriction == that.genderRestriction;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, tournamentFk, name, ordinalNumber, day, startTime, singleElimination, doubles, maxEntries, minPlayerRating, maxPlayerRating, minPlayerAge, maxPlayerAge, genderRestriction, playersPerGroup, drawMethod, numberOfGames, playersToAdvance, playersToSeed, feeAdult, feeJunior);
+        return Objects.hash(id, tournamentFk, name, ordinalNumber, day, startTime, singleElimination, doubles, maxEntries, minPlayerRating, maxPlayerRating, minPlayerAge, maxPlayerAge, genderRestriction, ageRestrictionDate, ageRestrictionType, playersPerGroup, drawMethod, numberOfGames, playersToAdvance, playersToSeed, feeAdult, feeJunior);
     }
 }

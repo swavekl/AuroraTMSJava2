@@ -1,4 +1,4 @@
-<div fxLayout="row">
+<div fxLayout="row" style="height: calc(100vh - 72px); overflow: hidden">
   <div fxFlex></div>
   <div fxFlex.lt-md="100%" fxFlex="60%">
     <form name="form" (ngSubmit)="onSave(f.value)" #f="ngForm" novalidate>
@@ -10,7 +10,7 @@
       </mat-toolbar>
       <mat-tab-group>
         <mat-tab label="General Information">
-          <mat-card style="height: 90%">
+          <mat-card style="height: calc(100vh - 112px); overflow: auto;">
             <mat-card-content>
               <input type="hidden" name="id" [ngModel]="tournament?.id">
               <div fxLayout.lt-sm="column" fxLayout="row" fxLayoutGap="10px">
@@ -129,6 +129,12 @@
                   <mat-error *ngIf="zipCode.control?.hasError('pattern')">Zip code must be 5 digit number</mat-error>
                 </mat-form-field>
               </div>
+            </mat-card-content>
+          </mat-card>
+        </mat-tab>
+        <mat-tab label="Other Information">
+          <mat-card style="height: calc(100vh - 112px); overflow: auto;">
+            <mat-card-content>
               <mat-card-subtitle class="mat-title">Contact Information</mat-card-subtitle>
               <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="10px">
                 <mat-form-field fxFlex="70%">
@@ -150,12 +156,6 @@
                   <mat-error>Invalid phone</mat-error>
                 </mat-form-field>
               </div>
-            </mat-card-content>
-          </mat-card>
-        </mat-tab>
-        <mat-tab label="Other Information">
-          <mat-card style="height: 90%">
-            <mat-card-content>
               <div fxLayout.lt-sm="column" fxLayout="row" fxLayoutGap="10px">
                 <mat-form-field fxFlex="100%">
                   <mat-label>Tournament Type</mat-label>
@@ -202,11 +202,11 @@
           </mat-card>
         </mat-tab>
         <mat-tab label="Events">
-          <app-tournament-event-config-list-container
-            [tournamentId]="tournament?.id"
-            [startDate]="tournament?.startDate">
-            [endDate]="tournament?.endDate">
-          </app-tournament-event-config-list-container>
+            <app-tournament-event-config-list-container
+              [tournamentId]="tournament?.id"
+              [startDate]="tournament?.startDate">
+              [endDate]="tournament?.endDate">
+            </app-tournament-event-config-list-container>
         </mat-tab>
       </mat-tab-group>
       <!--                <p>Form values: {{ f.value | json }} </p>-->

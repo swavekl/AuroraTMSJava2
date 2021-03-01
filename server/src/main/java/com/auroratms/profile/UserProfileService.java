@@ -39,6 +39,7 @@ public class UserProfileService {
      */
     @Cacheable(key = "#userId")
     public UserProfile getProfile (String userId) {
+        System.out.println("getProfile from service for userId = " + userId);
         Client client = getClient();
 
         User user = client.getUser(userId);
