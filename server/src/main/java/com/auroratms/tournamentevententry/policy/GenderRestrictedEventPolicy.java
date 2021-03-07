@@ -2,7 +2,7 @@ package com.auroratms.tournamentevententry.policy;
 
 import com.auroratms.event.GenderRestriction;
 import com.auroratms.event.TournamentEventEntity;
-import com.auroratms.tournamentevententry.EventEntryStatus;
+import com.auroratms.tournamentevententry.AvailabilityStatus;
 
 public class GenderRestrictedEventPolicy implements IEventPolicy {
     // player's event
@@ -26,7 +26,7 @@ public class GenderRestrictedEventPolicy implements IEventPolicy {
     }
 
     @Override
-    public EventEntryStatus getStatus() {
-        return EventEntryStatus.DISQUALIFIED_GENDER;
+    public AvailabilityStatus getStatus() {
+        return AvailabilityStatus.DISQUALIFIED_BY_GENDER;
     }
 }

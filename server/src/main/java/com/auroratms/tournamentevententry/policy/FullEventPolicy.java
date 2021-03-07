@@ -1,7 +1,7 @@
 package com.auroratms.tournamentevententry.policy;
 
 import com.auroratms.event.TournamentEventEntity;
-import com.auroratms.tournamentevententry.EventEntryStatus;
+import com.auroratms.tournamentevententry.AvailabilityStatus;
 
 /**
  * Checks if event is full
@@ -25,7 +25,7 @@ public class FullEventPolicy implements IEventPolicy {
     }
 
     @Override
-    public EventEntryStatus getStatus() {
-        return (isDenied) ? EventEntryStatus.WAITING_LIST : EventEntryStatus.NOT_ENTERED;
+    public AvailabilityStatus getStatus() {
+        return (isDenied) ? AvailabilityStatus.EVENT_FULL : AvailabilityStatus.AVAILABLE_FOR_ENTRY;
     }
 }

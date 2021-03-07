@@ -9,6 +9,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -46,6 +47,19 @@ public class TournamentEventEntryService {
     @CacheEvict(key = "#id")
     public void delete(long id) {
         repository.deleteById(id);
+    }
+
+    /**
+     * Count of entries in the event
+     * @param eventId
+     * @return
+     */
+    public long getCountValidEntriesInEvent(Long eventId) {
+        List<EventEntryStatus> statusList = new ArrayList<>();
+        statusList.add(EventEntryStatus.ENTERED);
+        statusList.add(EventEntryStatus.PENDING_CONFIRMATION);
+        statusList.add(EventEntryStatus.PENDING_DELETION);
+        return repository.countByTournamentEventFkEqualsAndStatusIn(eventId, statusList);
     }
 
 }

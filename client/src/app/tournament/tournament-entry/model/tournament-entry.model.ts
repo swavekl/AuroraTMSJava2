@@ -1,7 +1,7 @@
 export enum EntryType {
-  INDIVIDUAL,
-  FAMILY,
-  GROUP
+  INDIVIDUAL = 'INDIVIDUAL',
+  FAMILY = 'FAMILY',
+  GROUP = 'GROUP'
 }
 
 export enum MembershipType {

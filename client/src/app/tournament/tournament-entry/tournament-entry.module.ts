@@ -16,13 +16,15 @@ import {MatIconModule} from '@angular/material/icon';
 import {MatTableModule} from '@angular/material/table';
 import {MatToolbarModule} from '@angular/material/toolbar';
 import { EventEntryStatusPipe } from './entry-wizard/pipes/event-entry-status.pipe';
+import {AvailabilityStatusPipe} from './entry-wizard/pipes/availability-status.pipe';
 
 
 @NgModule({
   declarations: [
     EntryWizardContainerComponent,
     EntryWizardComponent,
-    EventEntryStatusPipe
+    EventEntryStatusPipe,
+    AvailabilityStatusPipe
   ],
   imports: [
     CommonModule,

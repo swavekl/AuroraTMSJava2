@@ -2,13 +2,10 @@ package com.auroratms.tournamentevententry;
 
 public enum EventEntryStatus {
     NOT_ENTERED,
-    CONFIRMED,
+    ENTERED,  // confirmed entry
+    ENTERED_WAITING_LIST,
     PENDING_CONFIRMATION,
     PENDING_DELETION,
-    WAITING_LIST,
-    ENTERED_WAITING_LIST,
-    DISQUALIFIED_RATING,
-    DISQUALIFIED_AGE,
-    DISQUALIFIED_GENDER,
-    DISQUALIFIED_TIME_CONFLICT
+    PENDING_WAITING_LIST,
+    RESERVED_WAITING_LIST // special state waiting for TD to allocate the free spot to a player on the waiting list
 }

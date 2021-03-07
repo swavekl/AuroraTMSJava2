@@ -1,7 +1,7 @@
 package com.auroratms.tournamentevententry.policy;
 
 import com.auroratms.event.TournamentEventEntity;
-import com.auroratms.tournamentevententry.EventEntryStatus;
+import com.auroratms.tournamentevententry.AvailabilityStatus;
 import com.auroratms.tournamentevententry.TournamentEventEntry;
 
 import java.util.List;
@@ -76,7 +76,7 @@ public class SchedulingConflictEventPolicy implements IEventPolicy {
     }
 
     @Override
-    public EventEntryStatus getStatus() {
-        return EventEntryStatus.DISQUALIFIED_TIME_CONFLICT;
+    public AvailabilityStatus getStatus() {
+        return AvailabilityStatus.SCHEDULING_CONFLICT;
     }
 }

@@ -1,19 +1,18 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
-import {TournamentEntry} from '../model/tournament-entry.model';
-import {combineLatest, Observable, of, Subscription} from 'rxjs';
-import {TournamentEntryService} from '../service/tournament-entry.service';
 import {ActivatedRoute, Router} from '@angular/router';
+import {combineLatest, Observable, of, Subscription} from 'rxjs';
+import {first} from 'rxjs/operators';
 import {createSelector} from '@ngrx/store';
-import {TournamentInfoService} from '../../tournament/tournament-info.service';
+import {TournamentEntry} from '../model/tournament-entry.model';
+import {TournamentEntryService} from '../service/tournament-entry.service';
 import {TournamentInfo} from '../../tournament/tournament-info.model';
+import {TournamentInfoService} from '../../tournament/tournament-info.service';
+import {TournamentEvent} from '../../tournament-config/tournament-event.model';
 import {TournamentEventConfigService} from '../../tournament-config/tournament-event-config.service';
 import {TournamentEventEntryService} from '../service/tournament-event-entry.service';
-import {TournamentEventEntry} from '../model/tournament-event-entry.model';
-import {TournamentEvent} from '../../tournament-config/tournament-event.model';
 import {TournamentEventEntryInfo} from '../model/tournament-event-entry-info-model';
+import {EventEntryInfoService} from '../service/event-entry-info.service';
 import {DateUtils} from '../../../shared/date-utils';
-import {TournamentEventEntryInfoService} from '../service/tournament-event-entry-info.service';
-import {first} from 'rxjs/operators';
 import {LinearProgressBarService} from '../../../shared/linear-progress-bar/linear-progress-bar.service';
 
 @Component({
@@ -25,6 +24,7 @@ import {LinearProgressBarService} from '../../../shared/linear-progress-bar/line
                       [allEventEntryInfos]="allEventEntryInfos$ | async"
                       [otherPlayers]="otherPlayers$ | async"
                       (tournamentEntryChanged)="onTournamentEntryChanged($event)"
+                      (confirmEntries)="onConfirmEntries($event)"
                       (eventEntryChanged)="onEventEntryChanged($event)"
                       (finish)="onFinish($event)">
     </app-entry-wizard>
@@ -40,8 +40,6 @@ export class EntryWizardContainerComponent implements OnInit, OnDestroy {
 
   teamsTournament$: Observable<boolean>;
   otherPlayers$: Observable<any>;
-  tournamentEvents$: Observable<TournamentEvent[]>;
-  tournamentEventEntries$: Observable<TournamentEventEntry[]>;
   // events and their status (confirmed, waiting list, not available etc.)
   allEventEntryInfos$: Observable<TournamentEventEntryInfo[]>;
 
@@ -56,19 +54,18 @@ export class EntryWizardContainerComponent implements OnInit, OnDestroy {
               private tournamentEventEntryService: TournamentEventEntryService,
               private tournamentInfoService: TournamentInfoService,
               private tournamentEventConfigService: TournamentEventConfigService,
-              private tournamentEventEntryInfoService: TournamentEventEntryInfoService,
+              private eventEntryInfoService: EventEntryInfoService,
               private activatedRoute: ActivatedRoute,
               private router: Router,
               private linearProgressBarService: LinearProgressBarService) {
 
     // if any of the service are loading show the loading progress
     this.loading$ = combineLatest(
-      this.tournamentEventEntryService.store.select(this.tournamentEventEntryService.selectors.selectLoading),
-      this.tournamentEventEntryInfoService.store.select(this.tournamentEventEntryInfoService.selectors.selectLoading),
+      eventEntryInfoService.loading$,
       this.tournamentEntryService.store.select(this.tournamentEntryService.selectors.selectLoading),
-      (eventEntriesLoading: boolean, entryInfosLoading: boolean, entryLoading: boolean) => {
-        // console.log ('loading selector = ' + eventEntriesLoading + ' || ' + entryInfosLoading + ' || ' + entryLoading);
-        return eventEntriesLoading || entryInfosLoading || entryLoading;
+      this.tournamentEventConfigService.store.select(this.tournamentEventConfigService.selectors.selectLoading),
+      (eventEntryInfosLoading: boolean, entryLoading: boolean, eventConfigLoading: boolean) => {
+        return eventEntryInfosLoading || entryLoading || eventConfigLoading;
       }
     );
 
@@ -90,7 +87,7 @@ export class EntryWizardContainerComponent implements OnInit, OnDestroy {
 
     this.selectTournamentInfo(this.tournamentId);
     this.selectEntry(this.entryId);
-    this.selectEventEntries(this.entryId);
+    this.loadEventEntriesInfos(this.entryId);
   }
 
   /**
@@ -117,7 +114,7 @@ export class EntryWizardContainerComponent implements OnInit, OnDestroy {
       });
     const selectedEntry$: Observable<TournamentEntry> = this.tournamentEntryService.store.select(selectedEntrySelector);
     const subscription = selectedEntry$.subscribe((next: TournamentEntry) => {
-      console.log('got tournament entry', next);
+      // console.log('got tournament entry', next);
       // editing - check if we had it in cache if not - then fetch it
       if (!next) {
         this.entry$ = this.tournamentEntryService.getByKey(entryId);
@@ -144,15 +141,15 @@ export class EntryWizardContainerComponent implements OnInit, OnDestroy {
     this.tournamentInfoService.store.select(selectedTournamentSelector)
       .pipe(first())
       .subscribe((tournamentInfo: TournamentInfo) => {
-        console.log('got tournament info', tournamentInfo);
+        // console.log('got tournament info', tournamentInfo);
         if (tournamentInfo) {
           this.initTournamentData(tournamentInfo);
         } else {
-          console.log ('tournament info not in cache ??');
+          // console.log('tournament info not in cache ??');
           this.tournamentInfoService.getByKey(tournamentId)
             .pipe(first())
             .subscribe((tournamentInfo1: TournamentInfo) => {
-              console.log('got tournament info', tournamentInfo1);
+              // console.log('got tournament info', tournamentInfo1);
               this.initTournamentData(tournamentInfo1);
             });
         }
@@ -169,45 +166,65 @@ export class EntryWizardContainerComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Selects event entries associated with this tournament entry
-   * @param entryId entry id
+   *
+   * @param entryId
    * @private
    */
-  private selectEventEntries(entryId: number) {
-
+  private loadEventEntriesInfos(entryId: number) {
     this.entryId = entryId;
 
-    // infos combine event and event entry which contains status (entered, waiting list, time conflict etc.)
-    this.allEventEntryInfos$ = this.tournamentEventEntryInfoService.entities$;
-    // subscribe to event entry changes so when they are loaded or
-    // are updated as a result of enter/withdraw we can recalculate the event eligibility
-    this.tournamentEventEntries$ = this.tournamentEventEntryService.entities$;
-    const subscription: Subscription = this.tournamentEventEntries$.subscribe(
-      (value: TournamentEventEntry[]) => {
-        console.log('Loaded event entries - recalculating event eligibility');
-        this.tournamentEventEntryInfoService.loadForTournamentEntry(this.entryId);
-      },
-      (error: any) => {
-        console.log('Unable to recalculate events eligibility', error);
-      },
-      () => {
-        // console.log ('completed');
+    // load them but not cache them, result is subscribed by async pipe
+    this.allEventEntryInfos$ = combineLatest(
+      this.eventEntryInfoService.eventEntryInfos$,
+      this.tournamentEventConfigService.store.select(this.tournamentEventConfigService.selectors.selectEntities),
+      (eventEntryInfos: TournamentEventEntryInfo[], events: TournamentEvent[]) => {
+        // console.log('got event infos and events, combining ...');
+        // combine event information into event entry info
+        eventEntryInfos.forEach((eventEntryInfo: TournamentEventEntryInfo) => {
+          events.forEach((event: TournamentEvent) => {
+            if (eventEntryInfo.eventFk === event.id) {
+              eventEntryInfo.event = event;
+              // console.log('combined event with event info for event ', eventEntryInfo);
+            }
+          });
+        });
+        return eventEntryInfos;
       }
     );
-    this.subscriptions.add(subscription);
+    // initiate the call to load events - this will be cached
+    this.tournamentEventConfigService.loadTournamentEvents(this.tournamentId);
 
-    // initiate the call to load event entries
-    this.tournamentEventEntryService.loadAllForTournamentEntry(entryId);
+    // initiate call to get event entry infos with status
+    this.eventEntryInfoService.getEventEntryInfos(this.entryId);
   }
 
   /**
    * Updates or inserts tournament event entry
-   * @param tournamentEventEntry
+   * @param tournamentEventEntryInfo
    */
-  onEventEntryChanged(tournamentEventEntry: TournamentEventEntry) {
-    console.log('onEventEntryChanged tournamentEventEntry', tournamentEventEntry);
-    // after update the event eligibility will be refetched by subscription to event entry changes
-    this.tournamentEventEntryService.upsert(tournamentEventEntry);
+  onEventEntryChanged(tournamentEventEntryInfo: TournamentEventEntryInfo) {
+    // console.log('onEventEntryChanged tournamentEventEntryInfo', tournamentEventEntryInfo);
+    this.eventEntryInfoService.changeEntryStatus(this.entryId, tournamentEventEntryInfo)
+      .subscribe((success: boolean) => {
+        // reload them after
+        this.eventEntryInfoService.getEventEntryInfos(this.entryId);
+      });
+  }
+
+  /**
+   *
+   * @param tournamentEntry
+   */
+  onConfirmEntries(tournamentEntry: TournamentEntry): void {
+    if (tournamentEntry) {
+      this.eventEntryInfoService.confirmEntries(this.entryId)
+        .pipe(first())
+        .subscribe((success: boolean) => {
+          console.log('confirmed all - success', success);
+          // reload them after
+          this.eventEntryInfoService.getEventEntryInfos(this.entryId);
+        });
+    }
   }
 
   /**

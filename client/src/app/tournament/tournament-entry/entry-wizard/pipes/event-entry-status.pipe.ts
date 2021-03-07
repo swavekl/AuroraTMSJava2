@@ -7,15 +7,12 @@ export class EventEntryStatusPipe implements PipeTransform {
 
   private theMap = {
     'NOT_ENTERED': 'Not Entered',
-    'CONFIRMED': 'Confirmed',
+    'ENTERED': 'Entered',
+    'ENTERED_WAITING_LIST': 'On waiting list',
     'PENDING_CONFIRMATION': 'Pending confirmation',
     'PENDING_DELETION': 'Pending delete confirmation',
-    'WAITING_LIST': 'Waiting list',
-    'ENTERED_WAITING_LIST': 'On waiting list',
-    'DISQUALIFIED_RATING': 'Disqualified by rating',
-    'DISQUALIFIED_AGE': 'Disqualified by age',
-    'DISQUALIFIED_GENDER': 'Disqualified by gender',
-    'DISQUALIFIED_TIME_CONFLICT': 'Time conflict'
+    'PENDING_WAITING_LIST': 'Pending Waiting list',
+    'RESERVED_WAITING_LIST': ''  // special
   };
 
   transform(status: any, ...args: unknown[]): string {

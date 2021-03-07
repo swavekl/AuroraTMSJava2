@@ -3,14 +3,16 @@ import {MembershipType, TournamentEntry} from '../model/tournament-entry.model';
 import {PlayerFindPopupComponent} from '../../../profile/player-find-popup/player-find-popup.component';
 import {MatDialog} from '@angular/material/dialog';
 import {BehaviorSubject} from 'rxjs';
-import {EventEntryStatus, TournamentEventEntry} from '../model/tournament-event-entry.model';
-import {TournamentEventEntryInfo} from '../model/tournament-event-entry-info-model';
 import {FormGroup} from '@angular/forms';
+import {TournamentEventEntryInfo} from '../model/tournament-event-entry-info-model';
+import {EventEntryStatus} from '../model/event-entry-status.enum';
+import {AvailabilityStatus} from '../model/availability-status.enum';
+import {EventEntryCommand} from '../model/event-entry-command.enum';
 
 @Component({
   selector: 'app-entry-wizard',
   templateUrl: './entry-wizard.component.html',
-  styleUrls: ['./entry-wizard.component.css']
+  styleUrls: ['./entry-wizard.component.scss']
 })
 export class EntryWizardComponent implements OnInit, OnChanges {
 
@@ -39,7 +41,10 @@ export class EntryWizardComponent implements OnInit, OnChanges {
   tournamentEntryChanged: EventEmitter<TournamentEntry> = new EventEmitter<TournamentEntry>();
 
   @Output()
-  eventEntryChanged: EventEmitter<TournamentEventEntry> = new EventEmitter<TournamentEventEntry>();
+  eventEntryChanged: EventEmitter<TournamentEventEntryInfo> = new EventEmitter<TournamentEventEntryInfo>();
+
+  @Output()
+  confirmEntries: EventEmitter<any> = new EventEmitter<any>();
 
   @Output()
   finish: EventEmitter<any> = new EventEmitter<any>();
@@ -77,29 +82,29 @@ export class EntryWizardComponent implements OnInit, OnChanges {
   }
 
   enteredEventsFilter(eventEntryInfo: TournamentEventEntryInfo, index: number, array: TournamentEventEntryInfo[]): boolean {
-    return this.filterEventEntries(eventEntryInfo.eventEntry.status,
-      [EventEntryStatus.CONFIRMED,
+    return this.filterEventEntries(eventEntryInfo.status,
+      [EventEntryStatus.ENTERED,
+        EventEntryStatus.ENTERED_WAITING_LIST,
         EventEntryStatus.PENDING_CONFIRMATION,
-        EventEntryStatus.ENTERED_WAITING_LIST
+        EventEntryStatus.PENDING_WAITING_LIST
       ]);
   }
 
   availableEventsFilter(eventEntryInfo: TournamentEventEntryInfo, index: number, array: TournamentEventEntryInfo[]): boolean {
-    return this.filterEventEntries(eventEntryInfo.eventEntry.status,
+    return this.filterEventEntries(eventEntryInfo.status,
       [
         EventEntryStatus.NOT_ENTERED,
         EventEntryStatus.PENDING_DELETION,
-        EventEntryStatus.WAITING_LIST
-      ]);
+        EventEntryStatus.RESERVED_WAITING_LIST
+      ]) && (eventEntryInfo.availabilityStatus === AvailabilityStatus.AVAILABLE_FOR_ENTRY);
   }
 
   unavailableEventsFilter(eventEntryInfo: TournamentEventEntryInfo, index: number, array: TournamentEventEntryInfo[]): boolean {
-    return this.filterEventEntries(eventEntryInfo.eventEntry.status,
-      [EventEntryStatus.DISQUALIFIED_RATING,
-        EventEntryStatus.DISQUALIFIED_AGE,
-        EventEntryStatus.DISQUALIFIED_GENDER,
-        EventEntryStatus.DISQUALIFIED_TIME_CONFLICT
-      ]);
+    return this.filterEventEntries(eventEntryInfo.status,
+      [
+        EventEntryStatus.NOT_ENTERED,
+        EventEntryStatus.PENDING_DELETION
+      ]) && (eventEntryInfo.availabilityStatus !== AvailabilityStatus.AVAILABLE_FOR_ENTRY);
   }
 
   filterEventEntries(eventEntryStatus: EventEntryStatus, statusList: EventEntryStatus []): boolean {
@@ -135,11 +140,12 @@ export class EntryWizardComponent implements OnInit, OnChanges {
   }
 
   onChange(form: FormGroup) {
-    console.log ('in onChange');
+    console.log('in onChange');
     if (this.entry != null) {
       const updatedEntry = {
         ...this.entry,
-        ...form.value };
+        ...form.value
+      };
       this.tournamentEntryChanged.emit(updatedEntry);
     }
     this._change.markForCheck();
@@ -149,33 +155,27 @@ export class EntryWizardComponent implements OnInit, OnChanges {
     // console.log ('onEventWithdraw ', eventEntryId);
     for (let i = 0; i < this.enteredEvents.length; i++) {
       const enteredEvent = this.enteredEvents[i];
-      if (enteredEvent.eventEntry.id === eventEntryId) {
-        const withdrawEntry: TournamentEventEntry = {
-          ...enteredEvent.eventEntry,
-          status: EventEntryStatus.PENDING_DELETION
+      if (enteredEvent.eventEntryFk === eventEntryId) {
+        const withdrawEntry: TournamentEventEntryInfo = {
+          ...enteredEvent,
+          event: undefined
         };
         this.eventEntryChanged.emit(withdrawEntry);
       }
     }
   }
 
-  onEventEnter(eventId: number): void {
-    // console.log ('onEventEnter ', eventId);
+  onEventEnter(eventId: number, eventEntryCommand: EventEntryCommand): void {
+    console.log ('onEventEnter eventId ', eventId);
+    console.log ('onEventEnter command ', eventEntryCommand);
     for (let i = 0; i < this.availableEvents.length; i++) {
       const availableEvent = this.availableEvents[i];
-      if (availableEvent.event.id === eventId) {
-        const eventEntry: TournamentEventEntry = {...availableEvent.eventEntry};
-        // const eventEntry: TournamentEventEntry = new TournamentEventEntry();
-        // eventEntry.tournamentEntryFk = this.entry.id;
-        // eventEntry.tournamentEventFk = eventId;
-        // eventEntry.tournamentFk = this.entry.tournamentFk;
-        eventEntry.dateEntered = new Date();
-        if (availableEvent.eventEntry.status === EventEntryStatus.WAITING_LIST) {
-          eventEntry.status = EventEntryStatus.ENTERED_WAITING_LIST;
-        } else {
-          eventEntry.status = EventEntryStatus.PENDING_CONFIRMATION;
-        }
-        this.eventEntryChanged.emit(eventEntry);
+      if (availableEvent.eventFk === eventId) {
+        const eventEntryInfo: TournamentEventEntryInfo = {
+          ...availableEvent,
+          event: undefined
+        };
+        this.eventEntryChanged.emit(eventEntryInfo);
       }
     }
   }
@@ -198,20 +198,60 @@ export class EntryWizardComponent implements OnInit, OnChanges {
     return '$' + total;
   }
 
-  getMembershipAndPrice(entryId: number): string {
-    let membershipAndCost = '';
+  getPayTotal(): string {
+    return this.getPlayerTotal(this.entry?.id);
+  }
+
+  isRefund(): boolean {
+    return false;
+  }
+
+  getMembershipLabel(entryId: number): string {
+    const membershipOption = this.getMembershipOption(entryId);
+    return membershipOption.label;
+  }
+
+  getMembershipPrice(entryId: number): string {
+    const membershipOption = this.getMembershipOption(entryId);
+    return '$' + membershipOption.cost;
+  }
+
+  getMembershipOption(entryId: number): any {
     if (this.entry?.id === entryId) {
       const membershipOption = this.entry.membershipOption;
       for (let i = 0; i < this.membershipOptions.length; i++) {
         const option = this.membershipOptions[i];
         if (option.value === membershipOption) {
-          const cost = option.cost > 0 ? '$' + option.cost : '';
-          membershipAndCost = `${option.label}: ${cost}`;
-          break;
+          return option;
         }
       }
     }
-    return membershipAndCost;
+    return {value: 0, label: '', cost: 0};
   }
 
+  getStatusClass(status: EventEntryStatus) {
+    switch (status) {
+      case EventEntryStatus.ENTERED:
+        return 'status-confirmed';
+      case EventEntryStatus.PENDING_CONFIRMATION:
+      case EventEntryStatus.PENDING_DELETION:
+        return 'status-pending-confirmation';
+      case EventEntryStatus.ENTERED_WAITING_LIST:
+        return 'status-waiting-list';
+      case EventEntryStatus.NOT_ENTERED:
+      case EventEntryStatus.PENDING_WAITING_LIST:
+        return 'status-not-entered';
+      default:
+        return 'status-disqualified';
+    }
+  }
+
+  onPayPlayerTotal() {
+    console.log('Paying by credit card');
+    const confirmEntry = {
+      ...this.entry,
+      confirm: true
+    };
+    this.confirmEntries.emit(confirmEntry);
+  }
 }

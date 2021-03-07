@@ -1,13 +1,13 @@
 package com.auroratms.tournamentevententry.policy;
 
 import com.auroratms.event.TournamentEventEntity;
-import com.auroratms.tournamentevententry.EventEntryStatus;
+import com.auroratms.tournamentevententry.AvailabilityStatus;
 
 public class RatingRestrictionEventPolicy implements IEventPolicy {
 
     private int playerRating = 0;
 
-    private EventEntryStatus status = EventEntryStatus.NOT_ENTERED;
+    private AvailabilityStatus status = AvailabilityStatus.AVAILABLE_FOR_ENTRY;
 
     public RatingRestrictionEventPolicy(int playerRating) {
         this.playerRating = playerRating;
@@ -18,22 +18,22 @@ public class RatingRestrictionEventPolicy implements IEventPolicy {
         boolean isDenied = false;
         if (event.getMinPlayerRating() > 0 && event.getMaxPlayerRating() > 0) {
             if (playerRating < event.getMinPlayerRating() || playerRating > event.getMaxPlayerRating()) {
-                status = EventEntryStatus.DISQUALIFIED_RATING;
+                status = AvailabilityStatus.DISQUALIFIED_BY_RATING;
                 isDenied = true;
             }
         } else if (event.getMaxPlayerRating() > 0 && playerRating > event.getMaxPlayerRating()) {
             // most common case
-            status = EventEntryStatus.DISQUALIFIED_RATING;
+            status = AvailabilityStatus.DISQUALIFIED_BY_RATING;
             isDenied = true;
         } else if (event.getMinPlayerRating() > 0 && playerRating < event.getMinPlayerRating()) {
-            status = EventEntryStatus.DISQUALIFIED_RATING;
+            status = AvailabilityStatus.DISQUALIFIED_BY_RATING;
             isDenied = true;
         }
         return isDenied;
     }
 
     @Override
-    public EventEntryStatus getStatus() {
+    public AvailabilityStatus getStatus() {
         return status;
     }
 }

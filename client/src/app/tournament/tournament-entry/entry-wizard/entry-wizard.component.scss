@@ -1,0 +1,26 @@
+@import "~src/my-theme.scss";
+
+.wizard-button-bar {
+  padding-top: 25px;
+}
+
+.status-confirmed{
+  color: green;
+}
+
+.status-pending-confirmation {
+  color: $warn-color;
+}
+
+.status-waiting-list {
+  color: aquamarine;
+}
+
+.status-not-entered {
+  color: blueviolet;
+}
+
+.status-disqualified {
+  color: hotpink;
+}
+

@@ -1,8 +1,5 @@
 package com.auroratms.tournamentevententry;
 
-import com.auroratms.event.TournamentEventEntityService;
-import com.auroratms.profile.UserProfileService;
-import com.auroratms.tournamententry.TournamentEntryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -28,14 +25,14 @@ public class TournamentEventEntryController {
         return tournamentEventEntryService.create(tournamentEventEntry);
     }
 
-    @PutMapping("/tournamententry/{tournamentEntryId}/tournamentevententry/{eventId}")
+    @PutMapping("/tournamententry/{tournamentEntryId}/tournamentevententry/{eventEntryId}")
     public TournamentEventEntry update(@PathVariable Long tournamentEntryId,
-                                        @PathVariable Long eventId,
+                                        @PathVariable Long eventEntryId,
                                         @RequestBody TournamentEventEntry tournamentEventEntry) {
         return tournamentEventEntryService.update(tournamentEventEntry);
     }
 
-    @DeleteMapping("/tournamententry/{tournamentEntryId}/tournamentevententry/{eventId}")
+    @DeleteMapping("/tournamententry/{tournamentEntryId}/tournamentevententry/{eventEntryId}")
     public void delete(@PathVariable Long tournamentEntryId,
                        @PathVariable Long eventId) {
         tournamentEventEntryService.delete(eventId);

@@ -1,13 +1,28 @@
 package com.auroratms.tournamentevententry;
 
-import com.auroratms.event.TournamentEventEntity;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
 public class TournamentEventEntryInfo {
-    private Long id; // generated id
-    private TournamentEventEntry eventEntry;
-    private TournamentEventEntity event;
+
+    // id of event this entry info is for
+    private Long eventFk;
+
+    // id of event entry if entered, null otherwise
+    private Long eventEntryFk;
+
+    // current entry status
+    private EventEntryStatus status = EventEntryStatus.NOT_ENTERED;
+
+    // status explaining why event is or is not available for entry
+    private AvailabilityStatus availabilityStatus = AvailabilityStatus.AVAILABLE_FOR_ENTRY;
+
+    // command user can execute to change event state from current state
+    private EventEntryCommand eventEntryCommand = EventEntryCommand.NO_COMMAND;
+
+    // price to pay for event - may be different by age or by some other pricing algorithm
+    private double price;
+
 }

@@ -1,7 +1,7 @@
 package com.auroratms.tournamentevententry.policy;
 
 import com.auroratms.event.TournamentEventEntity;
-import com.auroratms.tournamentevententry.EventEntryStatus;
+import com.auroratms.tournamentevententry.AvailabilityStatus;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
@@ -17,7 +17,7 @@ public class FullEventPolicyTest {
         boolean entryDenied = policy.isEntryDenied(event);
         assertFalse("entry should not be denied", entryDenied);
 
-        assertEquals("status is wrong", EventEntryStatus.NOT_ENTERED, policy.getStatus());
+        assertEquals("status is wrong", AvailabilityStatus.AVAILABLE_FOR_ENTRY, policy.getStatus());
     }
 
     @Test
@@ -29,6 +29,6 @@ public class FullEventPolicyTest {
         boolean entryDenied = policy.isEntryDenied(event);
         assertTrue("entry should be denied", entryDenied);
 
-        assertEquals("status is wrong", EventEntryStatus.WAITING_LIST, policy.getStatus());
+        assertEquals("status is wrong", AvailabilityStatus.EVENT_FULL, policy.getStatus());
     }
 }

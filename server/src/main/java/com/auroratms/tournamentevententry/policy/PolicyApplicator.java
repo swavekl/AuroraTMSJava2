@@ -2,7 +2,7 @@ package com.auroratms.tournamentevententry.policy;
 
 import com.auroratms.event.TournamentEventEntity;
 import com.auroratms.profile.UserProfile;
-import com.auroratms.tournamentevententry.EventEntryStatus;
+import com.auroratms.tournamentevententry.AvailabilityStatus;
 import com.auroratms.tournamentevententry.TournamentEventEntry;
 import com.auroratms.tournamentevententry.TournamentEventEntryInfo;
 
@@ -11,9 +11,6 @@ import java.util.Date;
 import java.util.List;
 
 public class PolicyApplicator {
-
-    // policies that rely on cross checking - e.g. time conflicts, max events per day etc.
-    private List<IEventPolicy> crossCheckingPolicies = new ArrayList<>();
 
     // policies that can check entry status without cross checking
     private List<IEventPolicy> individualPolicies = new ArrayList<>();
@@ -27,36 +24,39 @@ public class PolicyApplicator {
         addPolicy(new RatingRestrictionEventPolicy(eligibilityRating));
         addPolicy(new FullEventPolicy());
         addPolicy(new SchedulingConflictEventPolicy(eventEntries, events));
-
-//        crossCheckingPolicies.add(new SchedulingConflictEventPolicy(eventEntries, events));
-    }
-
-    public void applyPolicies(List<TournamentEventEntryInfo> infos) {
-
-        for (TournamentEventEntryInfo info : infos) {
-            EventEntryStatus currentStatus = info.getEventEntry().getStatus();
-            if (currentStatus.equals(EventEntryStatus.NOT_ENTERED)) {
-                for (IEventPolicy policy : individualPolicies) {
-                    if (policy.isEntryDenied(info.getEvent())) {
-                        info.getEventEntry().setStatus(policy.getStatus());
-                        break;
-                    }
-                }
-            }
-        }
-
-//        for (TournamentEventEntryInfo info : infos) {
-//            for (IEventPolicy policy : crossCheckingPolicies) {
-//                if (policy.isEntryDenied(info.getEvent())) {
-//                    EventEntryStatus status = policy.getStatus();
-//                    info.getEventEntry().setStatus(status);
-//                    break;
-//                }
-//            }
-//        }
     }
 
     public void addPolicy(IEventPolicy eventPolicy) {
         individualPolicies.add(eventPolicy);
+    }
+
+    /**
+     *
+     * @param eventList
+     * @param eventEntryInfos
+     * @return
+     */
+    public List<TournamentEventEntryInfo> evaluateRestrictions(List<TournamentEventEntity> eventList,
+                                                               List<TournamentEventEntryInfo> eventEntryInfos) {
+        for (TournamentEventEntryInfo info : eventEntryInfos) {
+            // find event
+            for (TournamentEventEntity event : eventList) {
+                if (event.getId().equals(info.getEventFk())) {
+                    // todo: set the price based on age
+                    info.setPrice(event.getFeeAdult());
+                    if (info.getEventEntryFk() == null) {
+                        AvailabilityStatus availabilityStatus = AvailabilityStatus.AVAILABLE_FOR_ENTRY;
+                        for (IEventPolicy policy : individualPolicies) {
+                            if (policy.isEntryDenied(event)) {
+                                availabilityStatus = policy.getStatus();
+                                break;
+                            }
+                        }
+                        info.setAvailabilityStatus(availabilityStatus);
+                    }
+                }
+            }
+        }
+        return eventEntryInfos;
     }
 }

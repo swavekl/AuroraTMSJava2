@@ -2,7 +2,7 @@ package com.auroratms.tournamentevententry.policy;
 
 import com.auroratms.event.AgeRestrictionType;
 import com.auroratms.event.TournamentEventEntity;
-import com.auroratms.tournamentevententry.EventEntryStatus;
+import com.auroratms.tournamentevententry.AvailabilityStatus;
 
 import java.time.Instant;
 import java.time.LocalDate;
@@ -25,7 +25,7 @@ import java.util.Date;
 public class AgeRestrictionEventPolicy implements IEventPolicy {
     private final Date tournamentStartDate;
     private final Date dateOfBirth;
-    private EventEntryStatus eventEntryStatus;
+    private AvailabilityStatus availabilityStatus;
 
     public AgeRestrictionEventPolicy(Date tournamentStartDate, Date dateOfBirth) {
         this.tournamentStartDate = new Date(tournamentStartDate.getTime());
@@ -61,7 +61,7 @@ public class AgeRestrictionEventPolicy implements IEventPolicy {
             }
         }
 
-        eventEntryStatus = (isDenied) ? EventEntryStatus.DISQUALIFIED_AGE : EventEntryStatus.NOT_ENTERED;
+        availabilityStatus = (isDenied) ? AvailabilityStatus.DISQUALIFIED_BY_AGE : AvailabilityStatus.AVAILABLE_FOR_ENTRY;
 
         return isDenied;
     }
@@ -77,7 +77,7 @@ public class AgeRestrictionEventPolicy implements IEventPolicy {
     }
 
     @Override
-    public EventEntryStatus getStatus() {
-        return eventEntryStatus;
+    public AvailabilityStatus getStatus() {
+        return availabilityStatus;
     }
 }
