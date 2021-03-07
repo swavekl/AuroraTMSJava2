@@ -9,7 +9,6 @@ import {TournamentInfo} from '../../tournament/tournament-info.model';
 import {TournamentInfoService} from '../../tournament/tournament-info.service';
 import {TournamentEvent} from '../../tournament-config/tournament-event.model';
 import {TournamentEventConfigService} from '../../tournament-config/tournament-event-config.service';
-import {TournamentEventEntryService} from '../service/tournament-event-entry.service';
 import {TournamentEventEntryInfo} from '../model/tournament-event-entry-info-model';
 import {EventEntryInfoService} from '../service/event-entry-info.service';
 import {DateUtils} from '../../../shared/date-utils';
@@ -51,7 +50,6 @@ export class EntryWizardContainerComponent implements OnInit, OnDestroy {
   private subscriptions: Subscription = new Subscription();
 
   constructor(private tournamentEntryService: TournamentEntryService,
-              private tournamentEventEntryService: TournamentEventEntryService,
               private tournamentInfoService: TournamentInfoService,
               private tournamentEventConfigService: TournamentEventConfigService,
               private eventEntryInfoService: EventEntryInfoService,
