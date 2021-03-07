@@ -40,7 +40,6 @@ export class TournamentViewContainerComponent implements OnInit, OnDestroy {
     this.subscriptions.add(loadingSubscription);
 
     const tournamentId = this.activatedRoute.snapshot.params['id'] || 0;
-console.log ('getting tournament info for tournament ', tournamentId);
     const tournamentInfoSelector = this.tournamentInfoService.selectors.selectEntityMap;
     const selectedTournamentSelector = createSelector(
       tournamentInfoSelector,
@@ -55,7 +54,6 @@ console.log ('getting tournament info for tournament ', tournamentId);
     const subscription: Subscription = tournamentEntry$.subscribe( (tournamentEntries: TournamentEntry[]) => {
       // console.log ('got tournament entries', tournamentEntries);
       const entryId: number = (tournamentEntries.length > 0) ? tournamentEntries[0].id : 0;
-      console.log ('got entryId ', entryId);
       this.entryId$.next(entryId);
     }, error => {
       this.entryId$.next(0);
@@ -66,5 +64,4 @@ console.log ('getting tournament info for tournament ', tournamentId);
   ngOnDestroy(): void {
     this.subscriptions.unsubscribe();
   }
-
 }

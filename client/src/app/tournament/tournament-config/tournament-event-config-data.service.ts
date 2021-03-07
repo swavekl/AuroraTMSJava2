@@ -28,7 +28,6 @@ export class TournamentEventConfigDataService extends DefaultDataService<Tournam
   getAll(): Observable<TournamentEvent[]> {
     if (this.tournamentId != null) {
       const url = this.getServiceUrl(true) + '?page=0&size=200';
-      console.log('url ', url);
       return this.execute('GET', url);
     } else {
       const emptyArray: TournamentEvent[] = new TournamentEvent [0];
@@ -39,7 +38,6 @@ export class TournamentEventConfigDataService extends DefaultDataService<Tournam
   getWithQuery(queryParams: QueryParams | string): Observable<TournamentEvent[]> {
     if (this.tournamentId != null) {
       const url = this.getServiceUrl(true) + '?' + queryParams;
-      console.log('get url ', url);
       return this.execute('GET', url);
     }
   }
@@ -47,7 +45,6 @@ export class TournamentEventConfigDataService extends DefaultDataService<Tournam
   getById(key: number | string): Observable<TournamentEvent> {
     if (this.tournamentId != null) {
       const url = this.getServiceUrl() + '/' + key;
-      console.log('getById url ', url);
       return this.execute('GET', url);
     }
   }
@@ -56,11 +53,9 @@ export class TournamentEventConfigDataService extends DefaultDataService<Tournam
     if (this.tournamentId != null) {
       if (tournamentEvent.id == null) {
         const url = this.getServiceUrl();
-        console.log('upsert POST url ', url);
         return this.execute('POST', url, tournamentEvent);
       } else {
         const url = this.getServiceUrl() + '/' + tournamentEvent.id;
-        console.log('upsert PUT url ', url);
         return this.execute('PUT', url, tournamentEvent);
       }
     }
@@ -69,7 +64,6 @@ export class TournamentEventConfigDataService extends DefaultDataService<Tournam
   delete(key: number | string): Observable<number | string> {
     if (this.tournamentId != null) {
       const url = this.getServiceUrl() + '/' + key;
-      console.log('delete url ', url);
       return this.execute('DELETE', url);
     }
   }
