@@ -37,17 +37,22 @@ public class TournamentEntry {
     // profile id of the player who owns this entry
     String profileId;
 
+    // type of entry - most of the time individual but may be also family
+    EntryType entryType = EntryType.INDIVIDUAL;
+
+    // if family or group entry, will contain owning entry fk
+    Long owningTournamentEntryFk;
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         TournamentEntry that = (TournamentEntry) o;
-        return tournamentFk == that.tournamentFk &&
-                Objects.equals(id, that.id);
+        return tournamentFk == that.tournamentFk && eligibilityRating == that.eligibilityRating && seedRating == that.seedRating && membershipOption == that.membershipOption && id.equals(that.id) && dateEntered.equals(that.dateEntered) && profileId.equals(that.profileId) && entryType == that.entryType && Objects.equals(owningTournamentEntryFk, that.owningTournamentEntryFk);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, tournamentFk);
+        return Objects.hash(id, tournamentFk, dateEntered, eligibilityRating, seedRating, membershipOption, profileId, entryType, owningTournamentEntryFk);
     }
 }

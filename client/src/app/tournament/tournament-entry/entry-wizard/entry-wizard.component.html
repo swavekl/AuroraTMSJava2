@@ -6,11 +6,11 @@
       <input type="hidden" [ngModel]="entry?.tournamentFk" name="tournamentFk">
       <mat-vertical-stepper linear>
         <mat-step label="Entry Type" *ngIf="!teamsTournament">
-          <mat-radio-group [ngModel]="entry?.type" name="type" (change)="onChange(f.form)">
+          <mat-radio-group [ngModel]="entry?.entryType" name="entryType" (change)="onChange(f.form)">
             <div fxLayout="column" fxLayoutGap="20px">
-              <mat-radio-button *ngIf="!teamsTournament" value="0" [checked]="!teamsTournament">Individual</mat-radio-button>
-              <mat-radio-button *ngIf="!teamsTournament" value="1" [checked]="!teamsTournament">Family</mat-radio-button>
-              <mat-radio-button *ngIf="teamsTournament" value="2" [checked]="teamsTournament">Team</mat-radio-button>
+              <mat-radio-button *ngIf="!teamsTournament" value="INDIVIDUAL" [checked]="!teamsTournament">Individual</mat-radio-button>
+              <mat-radio-button *ngIf="!teamsTournament" value="FAMILY" [checked]="!teamsTournament">Family</mat-radio-button>
+              <mat-radio-button *ngIf="teamsTournament" value="GROUP" [checked]="teamsTournament">Team/Group</mat-radio-button>
             </div>
           </mat-radio-group>
           <div class="wizard-button-bar" fxLayout="row">
@@ -18,7 +18,7 @@
             <button mat-raised-button color="primary" matStepperNext type="button">Next</button>
           </div>
         </mat-step>
-        <mat-step label="Group/Family Members" *ngIf="entry?.type == 1 || teamsTournament">
+        <mat-step label="Group/Family Members" *ngIf="entry?.entryType == 1 || teamsTournament">
           Select member to enter/modify entry for
           <mat-toolbar>
             <mat-toolbar-row>

@@ -38,21 +38,18 @@ export class EventEntryInfoService {
       .pipe(
         first(),
         tap(() => {
-            console.log('got event infos');
             this.setLoading(false);
           },
           () => {
             this.setLoading(false);
           }),
         switchMap((result: TournamentEventEntryInfo[]): Observable<boolean> => {
-          console.log('got event infos - emitting them via next');
           this.entitiesSubject$.next(result);
           return of(true);
         })
       )
       .subscribe(
         (value: boolean): void => {
-          console.log('completed the call');
     });
   }
 

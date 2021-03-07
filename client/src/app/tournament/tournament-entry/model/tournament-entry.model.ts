@@ -48,5 +48,5 @@ export class TournamentEntry {
   // profile id of the player who owns this entry
   profileId: string;
 
-  type: EntryType = EntryType.INDIVIDUAL;
+  entryType: EntryType = EntryType.INDIVIDUAL;
 }
