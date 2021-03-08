@@ -13,6 +13,9 @@ import {TournamentEventEntryInfo} from '../model/tournament-event-entry-info-mod
 import {EventEntryInfoService} from '../service/event-entry-info.service';
 import {DateUtils} from '../../../shared/date-utils';
 import {LinearProgressBarService} from '../../../shared/linear-progress-bar/linear-progress-bar.service';
+import {Profile} from '../../../profile/profile';
+import {AuthenticationService} from '../../../user/authentication.service';
+import {ProfileService} from '../../../profile/profile.service';
 
 @Component({
   selector: 'app-entry-wizard-container',
@@ -21,6 +24,7 @@ import {LinearProgressBarService} from '../../../shared/linear-progress-bar/line
                       [teamsTournament]="teamsTournament$ | async"
                       [tournamentStartDate]="tournamentStartDate$ | async"
                       [allEventEntryInfos]="allEventEntryInfos$ | async"
+                      [playerProfile]="playerProfile$ | async"
                       [otherPlayers]="otherPlayers$ | async"
                       (tournamentEntryChanged)="onTournamentEntryChanged($event)"
                       (confirmEntries)="onConfirmEntries($event)"
@@ -38,6 +42,7 @@ export class EntryWizardContainerComponent implements OnInit, OnDestroy {
   loading$: Observable<boolean>;
 
   teamsTournament$: Observable<boolean>;
+  playerProfile$: Observable<Profile>;
   otherPlayers$: Observable<any>;
   // events and their status (confirmed, waiting list, not available etc.)
   allEventEntryInfos$: Observable<TournamentEventEntryInfo[]>;
@@ -55,7 +60,9 @@ export class EntryWizardContainerComponent implements OnInit, OnDestroy {
               private eventEntryInfoService: EventEntryInfoService,
               private activatedRoute: ActivatedRoute,
               private router: Router,
-              private linearProgressBarService: LinearProgressBarService) {
+              private linearProgressBarService: LinearProgressBarService,
+              private authenticationService: AuthenticationService,
+              private profileService: ProfileService) {
 
     // if any of the service are loading show the loading progress
     this.loading$ = combineLatest(
@@ -82,10 +89,10 @@ export class EntryWizardContainerComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.entryId = this.activatedRoute.snapshot.params['entryId'] || 0;
     this.tournamentId = this.activatedRoute.snapshot.params['tournamentId'] || 0;
-
     this.selectTournamentInfo(this.tournamentId);
     this.selectEntry(this.entryId);
     this.loadEventEntriesInfos(this.entryId);
+    this.loadPlayerProfile();
   }
 
   /**
@@ -121,6 +128,10 @@ export class EntryWizardContainerComponent implements OnInit, OnDestroy {
       }
     });
     this.subscriptions.add(subscription);
+  }
+
+  private selectOtherEntries(owningEntryId: number) {
+
   }
 
   /**
@@ -247,5 +258,15 @@ export class EntryWizardContainerComponent implements OnInit, OnDestroy {
 
   onFinish(event: any) {
     this.router.navigateByUrl(`/tournaments/view/${this.tournamentId}`);
+  }
+
+  private loadPlayerProfile() {
+    const playerProfileId = this.authenticationService.getCurrentUserProfileId();
+    this.profileService.getProfile(playerProfileId)
+      .pipe(first())
+      .subscribe((profile: Profile) => {
+        this.playerProfile$ = of(profile);
+      });
+
   }
 }

@@ -1,4 +1,4 @@
-import {ChangeDetectorRef, Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges} from '@angular/core';
+import {ChangeDetectorRef, Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChange, SimpleChanges} from '@angular/core';
 import {MembershipType, TournamentEntry} from '../model/tournament-entry.model';
 import {PlayerFindPopupComponent} from '../../../profile/player-find-popup/player-find-popup.component';
 import {MatDialog} from '@angular/material/dialog';
@@ -8,6 +8,8 @@ import {TournamentEventEntryInfo} from '../model/tournament-event-entry-info-mod
 import {EventEntryStatus} from '../model/event-entry-status.enum';
 import {AvailabilityStatus} from '../model/availability-status.enum';
 import {EventEntryCommand} from '../model/event-entry-command.enum';
+import {Profile} from '../../../profile/profile';
+import {DateUtils} from '../../../shared/date-utils';
 
 @Component({
   selector: 'app-entry-wizard',
@@ -24,6 +26,9 @@ export class EntryWizardComponent implements OnInit, OnChanges {
 
   @Input()
   teamsTournament: boolean;
+
+  @Input()
+  playerProfile: Profile;
 
   @Input()
   otherPlayers: any[];
@@ -52,16 +57,12 @@ export class EntryWizardComponent implements OnInit, OnChanges {
   columnsToDisplay: string[] = ['name', 'action'];
 
   public membershipOptions: any [] = [
-    {value: MembershipType.NO_MEMBERSHIP_REQUIRED.valueOf(), label: 'My Membership is up to date', cost: 0},
-    {value: MembershipType.TOURNAMENT_PASS.valueOf(), label: 'Tournament Pass', cost: 20},
-    {value: MembershipType.JUNIOR_ONE_YEAR.valueOf(), label: 'Junior 1-year (17 and under)', cost: 45},
-    {value: MembershipType.JUNIOR_THREE_YEARS.valueOf(), label: 'Junior 3-year (14 and under)', cost: 125},
-    {value: MembershipType.COLLEGIATE_ONE_YEAR.valueOf(), label: 'Collegiate 1-year', cost: 45},
-    {value: MembershipType.ADULT_ONE_YEAR.valueOf(), label: 'Adult 1 year', cost: 75},
-    {value: MembershipType.ADULT_THREE_YEARS.valueOf(), label: 'Adult 3 years', cost: 210},
-    {value: MembershipType.ADULT_FIVE_YEARS.valueOf(), label: 'Adult 5 years', cost: 325},
-    {value: MembershipType.HOUSEHOLD_ONE_YEAR.valueOf(), label: 'Household 1-year', cost: 150},
-    {value: MembershipType.LIFETIME.valueOf(), label: 'Lifetime', cost: 1300}
+    {value: MembershipType.NO_MEMBERSHIP_REQUIRED.valueOf(), label: 'My Membership is up to date', cost: 0, available: true},
+    {value: MembershipType.TOURNAMENT_PASS_JUNIOR.valueOf(), label: 'Tournament Pass Junior (17 and under)', cost: 20, available: true},
+    {value: MembershipType.TOURNAMENT_PASS_ADULT.valueOf(), label: 'Tournament Pass Adult', cost: 50, available: true},
+    {value: MembershipType.BASIC_PLAN.valueOf(), label: 'Basic Plan 1 year (0 – 4 star)', cost: 25, available: true},
+    {value: MembershipType.PRO_PLAN.valueOf(), label: 'Pro Plan 1 year', cost: 75, available: true},
+    {value: MembershipType.LIFETIME.valueOf(), label: 'Lifetime', cost: 1300, available: true}
   ];
 
   constructor(private dialog: MatDialog,
@@ -78,6 +79,15 @@ export class EntryWizardComponent implements OnInit, OnChanges {
       this.enteredEvents = this.allEventEntryInfos.filter(this.enteredEventsFilter, this);
       this.availableEvents = this.allEventEntryInfos.filter(this.availableEventsFilter, this);
       this.unavailableEvents = this.allEventEntryInfos.filter(this.unavailableEventsFilter, this);
+    }
+
+    const playerProfileChange: SimpleChange = changes.playerProfile;
+    if (playerProfileChange != null) {
+      this.playerProfile = playerProfileChange.currentValue;
+      if (this.playerProfile != null) {
+        const dateOfBirth = this.playerProfile.dateOfBirth;
+        this.hideMembershipOptions(dateOfBirth, this.tournamentStartDate);
+      }
     }
   }
 
@@ -253,5 +263,30 @@ export class EntryWizardComponent implements OnInit, OnChanges {
       confirm: true
     };
     this.confirmEntries.emit(confirmEntry);
+  }
+
+  /**
+   *
+   * @param dateOfBirth
+   * @param tournamentStartDate
+   * @private
+   */
+  private hideMembershipOptions(dateOfBirth: Date, tournamentStartDate: Date) {
+    if (dateOfBirth != null && tournamentStartDate != null) {
+      const ageOnTournamentStartDate = new DateUtils().getAgeOnDate(dateOfBirth, tournamentStartDate);
+      this.membershipOptions.forEach((membershipOption: any) => {
+        switch (membershipOption.value) {
+          case MembershipType.TOURNAMENT_PASS_JUNIOR:
+            membershipOption.available = (ageOnTournamentStartDate < 18);
+            break;
+          case MembershipType.TOURNAMENT_PASS_ADULT:
+            membershipOption.available = (ageOnTournamentStartDate >= 18);
+            break;
+          case MembershipType.PRO_PLAN:
+          case MembershipType.BASIC_PLAN:
+            break;
+        }
+      });
+    }
   }
 }

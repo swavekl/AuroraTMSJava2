@@ -107,4 +107,10 @@ export class DateUtils {
     const minDate = moment(tournamentStartDate).subtract(100, 'years');
     return minDate.toDate();
   }
+
+  getAgeOnDate(dateOfBirth: Date, otherDate: Date): number {
+    const mDateOfBirth = moment(dateOfBirth);
+    const mOtherDate = moment(otherDate);
+    return mOtherDate.diff(mDateOfBirth, 'years');
+  }
 }

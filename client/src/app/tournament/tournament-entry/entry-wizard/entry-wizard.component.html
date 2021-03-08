@@ -18,7 +18,7 @@
             <button mat-raised-button color="primary" matStepperNext type="button">Next</button>
           </div>
         </mat-step>
-        <mat-step label="Group/Family Members" *ngIf="entry?.entryType == 1 || teamsTournament">
+        <mat-step label="Group/Family Members" *ngIf="entry?.entryType == 'FAMILY' || teamsTournament">
           Select member to enter/modify entry for
           <mat-toolbar>
             <mat-toolbar-row>
@@ -30,14 +30,14 @@
           </mat-toolbar>
           <table mat-table [dataSource]="otherPlayersBS$ | async" style="width: 100%">
             <ng-container matColumnDef="name">
-              <th mat-header-cell *matHeaderCellDef>First Name, Last Name</th>
+              <th mat-header-cell *matHeaderCellDef>First & Last Name</th>
               <td mat-cell *matCellDef="let player">{{player.firstName}} {{player.lastName}}</td>
             </ng-container>
 
             <ng-container matColumnDef="action">
               <th mat-header-cell *matHeaderCellDef>Action</th>
               <td mat-cell *matCellDef="let player">
-                <button type="button" mat-icon-button (click)="addMember()">
+                <button type="button" mat-icon-button (click)="editEntry(player.profileId)">
                   <mat-icon matListIcon>edit</mat-icon>
                 </button>
               </td>
@@ -52,9 +52,10 @@
           </div>
         </mat-step>
         <mat-step label="USATT Membership">
+          <h3>Membership expires: {{playerProfile?.membershipExpirationDate | date}}</h3>
           <mat-radio-group [ngModel]="entry?.membershipOption" name="membershipOption" (change)="onChange(f.form)">
             <div fxLayout="column" fxLayoutGap="30px" *ngFor="let option of membershipOptions">
-                <mat-radio-button [value]="option.value" style="padding-top: 10px">
+                <mat-radio-button [value]="option.value" style="padding-top: 10px" [disabled]="!option.available">
                   {{option.label}} <span style="font-weight: bold">{{ (option.cost == 0) ? '' : option.cost | currency: 'USD'}}</span>
                 </mat-radio-button>
             </div>
