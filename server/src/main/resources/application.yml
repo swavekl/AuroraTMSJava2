@@ -2,8 +2,11 @@ spring.jpa.hibernate.ddl-auto: update
 spring.datasource:
   driver-class-name: com.mysql.jdbc.Driver
   url: jdbc:mysql://localhost:3306/auroratmsspring
-  username: auroratmsspring
-  password: auroratmsspring2020
+
+spring:
+  liquibase:
+    enabled: false
+
 logging.level.org.hibernate.SQL: DEBUG
 #logging.level.org.hibernate.type: TRACE
 
@@ -21,30 +24,25 @@ logging.level.org.hibernate.SQL: DEBUG
 #    security:
 #      web:
 #        access:
+#logging:
+#  level:
+#    "liquibase" : info
 
-spring:
-  security:
-    oauth2:
-      resourceserver:
-        jwt:
-          jwk-set-uri: https://dev-758120.oktapreview.com/oauth2/default/v1/keys
+#spring:
+#  security:
+#    oauth2:
+#      resourceserver:
+#        jwt:
+#          jwk-set-uri: https://dev-758120.oktapreview.com/oauth2/default/v1/keys
 # this URL returns the jwk-set-uri in the "jwks_uri" field
 # https:///dev-758120.okta.com/oauth2/default/.well-known/oauth-authorization-server
 okta:
   oauth2:
-    # for Native app
-#     client id - oidc_client_c1a1e2f
-    client-id: 0oaw9wijqnDGuMiZw0h7
-    issuer: https://dev-758120.oktapreview.com/oauth2/default
-#    redirectUri: https://gateway-pc:4200/
     redirectUri: https://gateway-pc:4200/authorization-code/callback
-#    audience: https://gateway-pc:8443/api
     audience: api://default
   client:
     connectionTimeout: 30 # seconds
     orgUrl: https://dev-758120.oktapreview.com
-    # can only be seen during generation and expires in Feb 10 2021
-    token: 00ttatCoGYW6r2BSQQswQwmya6bPeoJNdTwUBOC29_
     requestTimeout: 0
     rateLimit:
       maxRetries: 4

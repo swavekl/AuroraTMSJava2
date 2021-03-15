@@ -1,11 +1,9 @@
 package com.auroratms.server;
 
-import com.auroratms.tournament.TournamentRepository;
-import com.auroratms.usatt.UsattDataService;
-import com.auroratms.usatt.UsattPlayerRecord;
+import com.auroratms.utils.EncryptionService;
 import com.okta.spring.boot.oauth.Okta;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
@@ -31,7 +29,6 @@ import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.List;
 
-//@EnableResourceServer
 @SpringBootApplication
 @EnableJpaRepositories("com.auroratms")
 @EntityScan("com.auroratms")

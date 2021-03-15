@@ -25,10 +25,10 @@ import java.util.Locale;
 public class UserProfileService {
 
     @Value("${okta.client.orgUrl}")
-    protected String oktaServiceBase; // "https://dev-758120.oktapreview.com";
+    protected String oktaServiceBase;
 
     @Value("${okta.client.token}")
-    protected String api_token; // "00ttatCoGYW6r2BSQQswQwmya6bPeoJNdTwUBOC29_";
+    protected String api_token;
 
     public static final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
 
@@ -39,7 +39,6 @@ public class UserProfileService {
      */
     @Cacheable(key = "#userId")
     public UserProfile getProfile (String userId) {
-        System.out.println("getProfile from service for userId = " + userId);
         Client client = getClient();
 
         User user = client.getUser(userId);

@@ -4,3 +4,27 @@ spring.datasource:
   url: jdbc:mysql://localhost:3306/auroratmstest
   username: tester
   password: testpassword
+
+spring:
+  liquibase:
+    enabled: false
+
+okta:
+  oauth2:
+    redirectUri: https://gateway-pc:4200/authorization-code/callback
+    audience: api://default
+  client:
+    connectionTimeout: 30 # seconds
+    orgUrl: https://dev-758120.oktapreview.com
+    requestTimeout: 0
+    rateLimit:
+      maxRetries: 4
+
+server.ssl:
+  key-store-type: PKCS12
+  # The path to the keystore containing the certificate
+  key-store: classpath:keystore/keystore.p12
+  # The password used to generate the certificate
+  key-store-password: exportpassword
+  # The alias mapped to the certificate
+  key-alias: tomcat

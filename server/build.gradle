@@ -23,9 +23,7 @@ repositories {
     mavenCentral()
 }
 
-//def oktaSdkVersion = "1.5.4"
 def oktaSdkVersion = "3.0.1"
-//def oktaSdkVersion = "2.0.0"
 def oktaAuthnSdkVersion = "2.0.0"
 
 dependencies {
@@ -40,23 +38,37 @@ dependencies {
     implementation "org.springframework.security:spring-security-acl"
     implementation "org.springframework.security:spring-security-config"
     implementation "org.springframework:spring-context-support"
+
+    // Hashicorp Vault
+    implementation "org.springframework.boot:spring-boot-configuration-processor"
+    annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
+    implementation "org.springframework.vault:spring-vault-core:2.3.0"
+
+    // caching
     implementation "net.sf.ehcache:ehcache-core:2.6.11"
-//    implementation('com.okta.spring:okta-spring-boot-starter:0.6.1')
-//    implementation('com.okta.spring:okta-spring-boot-starter:1.5.1')
+
     implementation('com.okta.spring:okta-spring-boot-starter:2.0.0')
     implementation('org.springframework.security.oauth.boot:spring-security-oauth2-autoconfigure:2.4.0')
-//    implementation('org.springframework.security.oauth.boot:spring-security-oauth2-autoconfigure:2.3.6.RELEASE')
-//    implementation('org.springframework.security.oauth.boot:spring-security-oauth2-autoconfigure:2.1.0.RELEASE')
-    //implementation('org.springframework.security.oauth:spring-security-oauth2:1.0.5.RELEASE')
+
+    // MySQL JDBC driver
     runtimeOnly('mysql:mysql-connector-java')
+    // for applying changes to database as a result of schema change
+    implementation "org.liquibase:liquibase-core:4.3.1"
+
+    // lombok for generating getter sand setters
     compileOnly('org.projectlombok:lombok:1.18.16')
     annotationProcessor ('org.projectlombok:lombok:1.18.16')
+
+    // unit and integration testing
     testImplementation('org.springframework.boot:spring-boot-starter-test')
+    // testing access control to services
     testImplementation('org.springframework.security:spring-security-test')
+    // old Junit 4 unit testing
     implementation 'org.junit.vintage:junit-vintage-engine:5.7.0'
-// https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-core
-//    implementation ('com.fasterxml.jackson.core:jackson-core:2.9.8')
+
     implementation ('com.fasterxml.jackson.core:jackson-core:2.11.4')
+
+    // okta APIs
     implementation ("com.okta.sdk:okta-sdk-api:${oktaSdkVersion}")
     runtimeOnly ("com.okta.sdk:okta-sdk-impl:${oktaSdkVersion}")
     runtimeOnly ("com.okta.sdk:okta-sdk-httpclient:${oktaSdkVersion}")
@@ -64,7 +76,10 @@ dependencies {
     runtimeOnly ("com.okta.authn.sdk:okta-authn-sdk-impl:${oktaAuthnSdkVersion}")
     runtimeOnly ('javax.validation:validation-api:2.0.0.Final')
 
+    // reading and parsing HTML
     implementation ('org.jsoup:jsoup:1.13.1')
+
+    // reading and parsing CSV files
     implementation('com.opencsv:opencsv:5.3')
 
 }

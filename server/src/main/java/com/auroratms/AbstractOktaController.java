@@ -17,16 +17,13 @@ import java.util.Map;
 public class AbstractOktaController {
 
     @Value("${okta.client.token}")
-    protected String api_token; // "00ttatCoGYW6r2BSQQswQwmya6bPeoJNdTwUBOC29_";
+    protected String api_token;
 
     @Value("${okta.client.orgUrl}")
-    protected String oktaServiceBase; // "https://dev-758120.oktapreview.com";
+    protected String oktaServiceBase;
 
     @Value("${okta.oauth2.client-id}")
     protected String clientId;
-
-    @Value("${okta.oauth2.redirectUri}")
-    protected String redirectUri;  // https://gateway-pc:4200/authorization-code/callback
 
     protected String makePostRequest(String url, String requestBody) throws IOException {
         return makePostRequest(url, requestBody, "application/json", getAuthorizationHeaderValue());
