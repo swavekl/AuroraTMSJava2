@@ -1,0 +1,29 @@
+<div>
+  <h3>
+    <p>During the account on-boarding process, Stripe will ask for personal & financial information to establish your
+      identity.  This includes:
+    </p>
+    <ul>
+      <li>Email address</li>
+      <li>First and last name</li>
+      <li>Date of birth</li>
+      <li>Last 4 digits of Social Security number</li>
+      <li>Address of your home and business (i.e. table tennis club)</li>
+      <li>Your cell phone number. During account creation process, Stripe will send SMS message to this number for two factor authentication.</li>
+      <li>Type of business you are in. For example you can choose 'Events Ticketing'.</li>
+      <li>Your business or club's website URL</li>
+      <li>Brief description of your business</li>
+      <li>Your bank's routing number and account number. This lets Stripe know where to transfer money from your connected Stripe account. You can choose to transfer manually or establish a schedule.</li>
+      <li>Choose a 5 to 22 characters long statement descriptor.  This is the business name that will show up on your customers' bank or credit card statements. Choose something they will recognize to help prevent disputes.</li>
+      <li>Choose a 2 to 10 characters long short payout descriptor.  Customers will see this shortened version of your statement descriptor if you choose to add a customized descriptor to a charge.</li>
+    </ul>
+    <p>
+      All of these steps are designed to ensure safety of money transfers and verify that you represent a reputable organization.
+      The verification process may take a few days before it is completed, and until then you will not be able to accept payments.
+      All of this information is kept securely on Stripe's website.
+      At the end of this process you will be returned to this website.
+    </p>
+    <p>Please collect this information before you begin this process.</p>
+  </h3>
+  <button mat-raised-button color="primary" (click)="onCreateAccount()">Create Stripe account</button>
+</div>

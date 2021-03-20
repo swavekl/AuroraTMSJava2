@@ -94,7 +94,7 @@ public class TournamentService {
      * @param tournament
      */
     @CachePut(key = "#result.id")
-    @PreAuthorize("hasAuthority('TournamentDirector') or hasAuthority('Admins')")
+    @PreAuthorize("hasAuthority('TournamentDirectors') or hasAuthority('Admins')")
     public Tournament saveTournament(Tournament tournament) {
         boolean isCreating = (tournament.getId() == null);
         TournamentEntity tournamentEntity = tournament.convertToEntity();
@@ -111,7 +111,7 @@ public class TournamentService {
      * @param tournamentId
      */
     @CacheEvict(key = "#tournamentId")
-    @PreAuthorize("hasAuthority('TournamentDirector') or hasAuthority('Admins')")
+    @PreAuthorize("hasAuthority('TournamentDirectors') or hasAuthority('Admins')")
     public void deleteTournament(long tournamentId) {
         repository.deleteById(tournamentId);
         deleteAcl(tournamentId, Tournament.class);

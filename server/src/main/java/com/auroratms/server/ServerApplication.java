@@ -1,12 +1,11 @@
 package com.auroratms.server;
 
-import com.auroratms.utils.EncryptionService;
 import com.okta.spring.boot.oauth.Okta;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
+import org.springframework.boot.autoconfigure.security.oauth2.resource.AuthoritiesExtractor;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
@@ -18,16 +17,14 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.annotation.web.configurers.oauth2.server.resource.OAuth2ResourceServerConfigurer;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
+import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.Collections;
-import java.util.List;
 
 @SpringBootApplication
 @EnableJpaRepositories("com.auroratms")
@@ -43,7 +40,92 @@ public class ServerApplication {
         SpringApplication.run(ServerApplication.class, args);
     }
 
-//    @Bean
+    @Bean
+    public FilterRegistrationBean<CorsFilter> simpleCorsFilter() {
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        CorsConfiguration config = new CorsConfiguration();
+        config.setAllowCredentials(true);
+//        config.setAllowedOrigins(Collections.singletonList("http://localhost:4200"));
+//        config.setAllowedOrigins(Collections.singletonList("http://gateway-pc:4200"));
+        config.setAllowedOrigins(Collections.singletonList("https://gateway-pc:4200"));
+        config.setAllowedMethods(Collections.singletonList("*"));
+        config.setAllowedHeaders(Collections.singletonList("*"));
+        source.registerCorsConfiguration("/**", config);
+        FilterRegistrationBean<CorsFilter> bean = new FilterRegistrationBean<>(new CorsFilter(source));
+        bean.setOrder(Ordered.HIGHEST_PRECEDENCE);
+        return bean;
+    }
+
+    @Bean
+    protected WebSecurityConfigurerAdapter webSecurityConfigurerAdapter() {
+        return new WebSecurityConfigurerAdapter() {
+
+            @Override
+            protected void configure(HttpSecurity http) throws Exception {
+                http.authorizeRequests()
+                        .antMatchers("/", "/login", "/images/**", "/api/users/**").permitAll()
+                        .anyRequest().authenticated()  // authenticate everything else!;
+                        .and()
+                        .oauth2ResourceServer().jwt();
+                // all communication except for images over secure https channel
+                http.requiresChannel()
+                        .antMatchers("/images/**").requiresInsecure();
+                http.requiresChannel()
+                        .anyRequest().requiresSecure();
+
+                http.oauth2ResourceServer(OAuth2ResourceServerConfigurer::jwt);
+//                // disable session fixation
+//                http.sessionManagement()
+//                        .sessionFixation()
+//                        .none();
+
+//                http.csrf().disable();
+                // enable passing back the CSRF token via cookie
+                http.csrf().csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+                        .ignoringAntMatchers("/api/users/login**");
+
+                // Send a 401 message to the browser (w/o this, you'll see a blank page)
+                Okta.configureResourceServer401ResponseBody(http);
+            }
+
+//            @Bean
+//            public AuthoritiesExtractor oktaAuthoritiesExtractor() {
+//                return new OktaAuthoritiesExtractor();
+//            }
+        };
+    }
+
+    /**
+     * Configure decoder for decoding JWT tokens coming from Okta so we can see among other things the roles user is in
+     * @return
+     */
+    @Bean
+    JwtDecoder jwtDecoder() {
+        return NimbusJwtDecoder.withJwkSetUri(this.jwkSetUri).build();
+    }
+
+    /**
+     * Okta returns user roles in a an array of 'groups' inside JWT token.
+     * The default Spring security JwtGrantedAuthoritiesConverter looks for 'scp' instead of groups
+     * Configure Authentication converter with a specially configured Authorities converter
+     * @return
+     */
+    @Bean
+    JwtAuthenticationConverter jwtAuthenticationConverter() {
+        // configure authorities
+        JwtGrantedAuthoritiesConverter grantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
+        grantedAuthoritiesConverter.setAuthoritiesClaimName("groups");
+        // we dont use ROLE_ for roles so make prefix empty, otherwise it would be for example ROLE_Everyone
+        // see GrantedAuthorityDefaults in SecurityConfiguration
+        grantedAuthoritiesConverter.setAuthorityPrefix("");
+
+        JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
+        jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(grantedAuthoritiesConverter);
+        return jwtAuthenticationConverter;
+    }
+
+    // initialization
+    //    @Bean
 //    @Transactional
 //    ApplicationRunner init(TournamentRepository repository, UsattDataService usattDataService) {
 //        DateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
@@ -85,100 +167,4 @@ public class ServerApplication {
 //        };
 //    }
 
-    @Bean
-    public FilterRegistrationBean<CorsFilter> simpleCorsFilter() {
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        CorsConfiguration config = new CorsConfiguration();
-        config.setAllowCredentials(true);
-//        config.setAllowedOrigins(Collections.singletonList("http://localhost:4200"));
-//        config.setAllowedOrigins(Collections.singletonList("http://gateway-pc:4200"));
-        config.setAllowedOrigins(Collections.singletonList("https://gateway-pc:4200"));
-        config.setAllowedMethods(Collections.singletonList("*"));
-        config.setAllowedHeaders(Collections.singletonList("*"));
-        source.registerCorsConfiguration("/**", config);
-        FilterRegistrationBean<CorsFilter> bean = new FilterRegistrationBean<>(new CorsFilter(source));
-        bean.setOrder(Ordered.HIGHEST_PRECEDENCE);
-        return bean;
-    }
-
-//    @EnableGlobalMethodSecurity(prePostEnabled = true)
-//    protected static class GlobalSecurityConfiguration extends GlobalMethodSecurityConfiguration {
-//        @Override
-//        protected MethodSecurityExpressionHandler createExpressionHandler() {
-//            return new OAuth2MethodSecurityExpressionHandler();
-//        }
-//    }
-//
-//    @Bean
-//    public GrantedAuthorityDefaults grantedAuthorityDefaults() {
-//        return  new GrantedAuthorityDefaults("");  // remove ROLE_ prefix from security roles
-//    }
-
-//    @Bean
-//    protected ResourceServerConfigurerAdapter resourceServerConfigurerAdapter() {
-//        return new ResourceServerConfigurerAdapter() {
-//
-//            @Override
-//            public void configure(HttpSecurity http) throws Exception {
-//                http.authorizeRequests()
-//                        .antMatchers("/", "/login", "/images/**", "/api/users/**").permitAll()
-//                        .anyRequest().authenticated()  // authenticate everything else!;
-//                        .and()
-//                        .oauth2ResourceServer().jwt();
-//                // all communication except for images over secure https channel
-//                http.requiresChannel()
-//                        .antMatchers("/images/**").requiresInsecure();
-//                http.requiresChannel()
-//                        .anyRequest().requiresSecure();
-//
-////                // disable session fixation
-////                http.sessionManagement()
-////                        .sessionFixation()
-////                        .none();
-//
-//                // Send a 401 message to the browser (w/o this, you'll see a blank page)
-//                Okta.configureResourceServer401ResponseBody(http);
-//            }
-//        };
-//    }
-
-    @Bean
-    protected WebSecurityConfigurerAdapter webSecurityConfigurerAdapter() {
-        return new WebSecurityConfigurerAdapter() {
-
-            @Override
-            protected void configure(HttpSecurity http) throws Exception {
-                http.authorizeRequests()
-                        .antMatchers("/", "/login", "/images/**", "/api/users/**").permitAll()
-                        .anyRequest().authenticated()  // authenticate everything else!;
-                        .and()
-                        .oauth2ResourceServer().jwt();
-                // all communication except for images over secure https channel
-                http.requiresChannel()
-                        .antMatchers("/images/**").requiresInsecure();
-                http.requiresChannel()
-                        .anyRequest().requiresSecure();
-
-                http.oauth2ResourceServer(OAuth2ResourceServerConfigurer::jwt);
-//                // disable session fixation
-//                http.sessionManagement()
-//                        .sessionFixation()
-//                        .none();
-
-//                http.csrf().disable();
-                // enable passing back the CSRF token via cookie
-                http.csrf().csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
-                        .ignoringAntMatchers("/api/users/login**");
-
-                // Send a 401 message to the browser (w/o this, you'll see a blank page)
-                Okta.configureResourceServer401ResponseBody(http);
-            }
-
-        };
-    }
-
-    @Bean
-    JwtDecoder jwtDecoder() {
-        return NimbusJwtDecoder.withJwkSetUri(this.jwkSetUri).build();
-    }
 }

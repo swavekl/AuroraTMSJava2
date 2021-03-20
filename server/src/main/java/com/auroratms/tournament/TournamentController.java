@@ -23,13 +23,13 @@ public class TournamentController {
     }
 
     @GetMapping("/tournament/{id}")
-    @PreAuthorize("hasAuthority('TournamentDirector') or hasAuthority('Admins')")
+    @PreAuthorize("hasAuthority('TournamentDirectors') or hasAuthority('Admins')")
     public Tournament getByKey(@PathVariable Long id) {
         return tournamentService.getByKey(id);
     }
 
     @PostMapping("/tournament")
-    @PreAuthorize("hasAuthority('TournamentDirector') or hasAuthority('Admins')")
+    @PreAuthorize("hasAuthority('TournamentDirectors') or hasAuthority('Admins')")
     public @ResponseBody Tournament create(@RequestBody Tournament tournament) {
         return tournamentService.saveTournament(tournament);
     }

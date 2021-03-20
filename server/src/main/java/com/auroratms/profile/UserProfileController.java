@@ -86,7 +86,7 @@ public class UserProfileController extends AbstractOktaController {
     }
 
     @GetMapping("/profiles")
-    @PreAuthorize("hasAuthority('TournamentDirector')")
+    @PreAuthorize("hasAuthority('TournamentDirectors')")
     public ResponseEntity<Collection<UserProfile>> list() {
         try {
             Collection<UserProfile> userProfiles = userProfileService.list();

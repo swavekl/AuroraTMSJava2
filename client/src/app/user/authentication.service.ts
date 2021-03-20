@@ -230,6 +230,9 @@ export class AuthenticationService {
   public getCurrentUserRoles() {
     const decodedToken = this.jwtDecoderService.decode(this.getAccessToken());
     const roles = decodedToken?.groups;
+    // if (roles) {
+    //   console.log('user roles' + JSON.stringify(roles));
+    // }
     return (roles) ? roles : [];
   }
 

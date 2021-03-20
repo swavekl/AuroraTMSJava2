@@ -92,7 +92,7 @@ public class TournamentEntryController {
 
 
     @PutMapping("/tournamententry/{entryId}")
-//    @PreAuthorize("hasAuthority('TournamentDirector') or hasAuthority('Admins')")
+//    @PreAuthorize("hasAuthority('TournamentDirectors') or hasAuthority('Admins')")
     public TournamentEntry update(@PathVariable Long entryId,
                                   @RequestBody TournamentEntry tournamentEntry) {
         return tournamentEntryService.update(tournamentEntry);

@@ -13,10 +13,4 @@ public class ApplicationSecretProperties {
     // environment variables which include properties fetched from the vault at /secrets/auroratms
     @Autowired
     Environment environment;
-
-    public String getJwkSetUri() {
-        return (this.environment != null) ? this.environment.getProperty("jwkSetUri") : "";
-    }
-
-
 }

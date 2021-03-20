@@ -9,7 +9,7 @@ import java.util.Date;
 
 @Entity
 @Table(name = "tournamentevententry", uniqueConstraints = {
-        @UniqueConstraint(name = "idx_unique_event_entry", columnNames = {"tournamentFk", "tournamentEventFk", "status"})
+        @UniqueConstraint(name = "idx_unique_event_entry", columnNames = {"tournamentFk", "tournamentEventFk", "tournamentEntryFk", "status"})
 })
 @NoArgsConstructor
 @Getter

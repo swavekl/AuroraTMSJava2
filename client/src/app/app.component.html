@@ -11,6 +11,9 @@
       <mat-list-item *ngIf="isLinkVisible('/tournamentsconfig')" (click)="closeAndNavigateToRoute('/tournamentsconfig')" routerLinkActive="active">
         <a matLine>Tournaments Config</a>
       </mat-list-item>
+      <mat-list-item *ngIf="isLinkVisible('/account')" (click)="closeAndNavigateToRoute('/account')" routerLinkActive="active">
+        <a matLine>Account</a>
+      </mat-list-item>
       <mat-list-item *ngIf="(isAuthenticated$ | async)" (click)="editProfile()" routerLinkActive="active">
         <a matLine>Profile</a>
       </mat-list-item>

@@ -7,7 +7,7 @@ spring:
   liquibase:
     enabled: false
 
-logging.level.org.hibernate.SQL: DEBUG
+#logging.level.org.hibernate.SQL: DEBUG
 #logging.level.org.hibernate.type: TRACE
 
 #logging.level.org.springframework.security: TRACE
@@ -59,3 +59,5 @@ server.ssl:
 
 server:
   port: 8443
+
+client.host.url: https://gateway-pc:4200

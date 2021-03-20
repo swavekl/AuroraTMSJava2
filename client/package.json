@@ -31,6 +31,7 @@
     "@ngrx/store": "^10.1.2",
     "@ngrx/store-devtools": "^10.1.2",
     "@okta/okta-angular": "^2.0.0",
+    "@stripe/stripe-js": "^1.13.1",
     "core-js": "^2.5.4",
     "jwt-decode": "^3.1.2",
     "moment": "^2.24.0",

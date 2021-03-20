@@ -43,6 +43,8 @@ dependencies {
     implementation "org.springframework.boot:spring-boot-configuration-processor"
     annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
     implementation "org.springframework.vault:spring-vault-core:2.3.0"
+    // for vault CRUD repository support
+    implementation "org.springframework.data:spring-data-keyvalue"
 
     // caching
     implementation "net.sf.ehcache:ehcache-core:2.6.11"
@@ -82,6 +84,8 @@ dependencies {
     // reading and parsing CSV files
     implementation('com.opencsv:opencsv:5.3')
 
+    // credit card payments & refunds
+    implementation "com.stripe:stripe-java:19.45.0"
 }
 
 //configurations {

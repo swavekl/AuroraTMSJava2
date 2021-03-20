@@ -4,7 +4,7 @@ import {HomeComponent} from './home/home/home.component';
 import {LogoutComponent} from './user/logout/logout.component';
 
 const ROLE_ADMINS = 'Admins';
-const ROLE_TOURNAMENT_DIRECTOR = 'TournamentDirector';
+const ROLE_TOURNAMENT_DIRECTORS = 'TournamentDirectors';
 
 const routes: Routes = [
   {path: '', redirectTo: '/login', pathMatch: 'full'},
@@ -15,7 +15,7 @@ const routes: Routes = [
   {
     path: 'tournamentsconfig',
     data: {
-      roles: [ROLE_TOURNAMENT_DIRECTOR, ROLE_ADMINS]
+      roles: [ROLE_TOURNAMENT_DIRECTORS, ROLE_ADMINS]
     },
     loadChildren: () => import('./tournament/tournament-config/tournament-config.module').then(m => m.TournamentConfigModule)
   },
@@ -26,6 +26,13 @@ const routes: Routes = [
   {
     path: 'entries',
     loadChildren: () => import('./tournament/tournament-entry/tournament-entry.module').then(m => m.TournamentEntryModule)
+  },
+  {
+    path: 'account',
+    loadChildren: () => import('./account/account.module').then(m => m.AccountModule),
+    data: {
+      roles: [ROLE_TOURNAMENT_DIRECTORS, ROLE_ADMINS]
+    },
   }
 ];
 

@@ -16,27 +16,27 @@ public class TournamentEventController {
     private TournamentEventEntityService tournamentEventEntityService;
 
     @GetMapping("/tournament/{tournamentId}/tournamentevents")
-//    @PreAuthorize("hasAuthority('TournamentDirector') or hasAuthority('Admins')")
+//    @PreAuthorize("hasAuthority('TournamentDirectors') or hasAuthority('Admins')")
     public Collection<TournamentEventEntity> list(@PathVariable Long tournamentId, Pageable pageable) {
         return tournamentEventEntityService.list(tournamentId, pageable);
     }
 
     @GetMapping("/tournament/{tournamentId}/tournamentevent/{eventId}")
-    @PreAuthorize("hasAuthority('TournamentDirector') or hasAuthority('Admins')")
+    @PreAuthorize("hasAuthority('TournamentDirectors') or hasAuthority('Admins')")
     public TournamentEventEntity list(@PathVariable Long tournamentId,
                                       @PathVariable Long eventId) {
         return tournamentEventEntityService.get(eventId);
     }
 
     @PostMapping("/tournament/{tournamentId}/tournamentevent")
-    @PreAuthorize("hasAuthority('TournamentDirector') or hasAuthority('Admins')")
+    @PreAuthorize("hasAuthority('TournamentDirectors') or hasAuthority('Admins')")
     public TournamentEventEntity create(@PathVariable Long tournamentId,
                                         @RequestBody TournamentEventEntity tournamentEventEntity) {
         return tournamentEventEntityService.create(tournamentEventEntity);
     }
 
     @PutMapping("/tournament/{tournamentId}/tournamentevent/{eventId}")
-    @PreAuthorize("hasAuthority('TournamentDirector') or hasAuthority('Admins')")
+    @PreAuthorize("hasAuthority('TournamentDirectors') or hasAuthority('Admins')")
     public TournamentEventEntity update(@PathVariable Long tournamentId,
                                         @PathVariable Long eventId,
                                         @RequestBody TournamentEventEntity tournamentEventEntity) {
@@ -44,6 +44,7 @@ public class TournamentEventController {
     }
 
     @DeleteMapping("/tournament/{tournamentId}/tournamentevent/{tournamentEventId}")
+    @PreAuthorize("hasAuthority('TournamentDirectors') or hasAuthority('Admins')")
     public void delete(@PathVariable Long tournamentId,
                        @PathVariable Long tournamentEventId) {
         tournamentEventEntityService.delete(tournamentEventId);
