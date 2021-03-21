@@ -1,20 +1,30 @@
-<app-centered-panel>
-  <ng-container *ngIf="!(accountConfigured$ | async);else accountStatus">
-    <mat-card>
-      <mat-card-content>
-        <h2>
-          This website uses <a href="https://stripe.com" target="_blank">Stripe</a> service to securely process payments and refunds.
-          Before you can open up tournaments for registration, you must first configure so called Stripe connected account
-          to which payments and refunds will flow. If you have an existing Stripe account you can connect this account to
-          this website's account.  Click below to start the Stripe account on boarding process.</h2>
-      </mat-card-content>
-      <mat-card-actions>
-        <button mat-raised-button routerLink="/account/onboardstart" color="primary">Start</button>
-      </mat-card-actions>
-    </mat-card>
-  </ng-container>
-  <ng-template #accountStatus>
-    Your account is connected and ready to accept payments.
-  </ng-template>
-</app-centered-panel>
+<div [hidden]="loading$ | async">
+  <app-centered-panel>
+    <ng-container *ngIf="!((accountStatus$ | async)?.isActivated);else showAccountStatus">
+      <mat-card *ngIf="!((accountStatus$ | async)?.accountExists) else resumeOnboarding">
+        <mat-card-content>
+          <h2>
+            This website uses <a href="https://stripe.com" target="_blank">Stripe</a> service to securely process payments and refunds.
+            Before you can open up tournaments for registration, you must first configure so called Stripe connected account
+            to which payments and refunds will flow. If you have an existing Stripe account you can connect this account to
+            this website's account.  Click below to start the Stripe account on boarding process.</h2>
+        </mat-card-content>
+        <mat-card-actions>
+          <button mat-raised-button  routerLink="/account/onboardstart" color="primary">Start</button>
+        </mat-card-actions>
+      </mat-card>
+      <ng-template #resumeOnboarding>
+        <mat-card-content>
+          <h2>Looks like your account is not fully configured.  Click below to resume the Stripe account on boarding process.</h2>
+        </mat-card-content>
+        <mat-card-actions>
+          <button mat-raised-button color="primary" (click)="onResumeAccount()">Resume</button>
+        </mat-card-actions>
+      </ng-template>
+    </ng-container>
+    <ng-template #showAccountStatus>
+      Your account is connected and ready to accept payments.
+    </ng-template>
+  </app-centered-panel>
+</div>
 

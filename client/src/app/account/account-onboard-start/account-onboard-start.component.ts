@@ -1,9 +1,7 @@
-import { Component, OnInit } from '@angular/core';
-import {Observable, of} from 'rxjs';
+import {Component, OnInit} from '@angular/core';
 import {AccountService} from '../service/account.service';
 import {AuthenticationService} from '../../user/authentication.service';
 import {first} from 'rxjs/operators';
-import {Router} from '@angular/router';
 
 @Component({
   selector: 'app-account-onboard-start',
@@ -12,20 +10,11 @@ import {Router} from '@angular/router';
 })
 export class AccountOnboardStartComponent implements OnInit {
 
-  accountConfigured$: Observable<boolean>;
-
   constructor(private accountService: AccountService,
-              private authenticationService: AuthenticationService,
-              private router: Router) {
-    this.accountConfigured$ = of(false);
+              private authenticationService: AuthenticationService) {
   }
 
-  /**
-   *
-   */
   ngOnInit(): void {
-    const userProfileId = this.authenticationService.getCurrentUserProfileId();
-    this.accountConfigured$ = this.accountService.isAccountConfigured(userProfileId);
   }
 
   /**

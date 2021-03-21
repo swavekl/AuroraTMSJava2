@@ -35,22 +35,23 @@ public class AccountController {
     private AccountService accountService;
 
     /**
+     * Finds out if the account exists and if it was successfully activated
      * @param userProfileId
      * @return
      */
-    @GetMapping("/exists/{userProfileId}")
+    @GetMapping("/status/{userProfileId}")
     @ResponseBody
     @PreAuthorize("hasAuthority('TournamentDirectors') or hasAuthority('Admins')")
-    public ResponseEntity<String> isAccountConfigured(@PathVariable String userProfileId) {
+    public ResponseEntity<String> checkAccountStatus(@PathVariable String userProfileId) {
 
-        boolean isAccountConfigured = false;
-        boolean exists = accountService.existsById(userProfileId);
-        if (exists) {
+        boolean accountExists = accountService.existsById(userProfileId);
+        boolean isActivated = false;
+        if (accountExists) {
             AccountEntity account = accountService.findById(userProfileId);
-            isAccountConfigured = account.isActivated();
+            isActivated = account.isActivated();
         }
         // find out if user created an account already
-        String json = "{\"accountExists\": " + isAccountConfigured + "}";
+        String json = String.format("{\"accountExists\": %b, \"isActivated\": %b}", accountExists, isActivated);
         return new ResponseEntity<String>(json, HttpStatus.OK);
     }
 
@@ -82,7 +83,7 @@ public class AccountController {
 
             AccountLink accountLink = createAccountLink(account.getId(), profile.getUserId());
             String accountLinkUrl = accountLink.getUrl();
-            String json = "{\"accountLinkUrl\": \"" + accountLinkUrl + "\"}";
+            String json = String.format("{\"accountLinkUrl\": \"%s\"}", accountLinkUrl);
             return new ResponseEntity<String>(json, HttpStatus.CREATED);
         } catch (StripeException e) {
             String errorMessage = e.getMessage();
@@ -163,17 +164,15 @@ public class AccountController {
                     accountEntity.setActivated(true);
                     accountService.save(accountEntity);
                 }
-                String json = "{\"accountActivated\": \"" + chargesEnabled + "\", ";
-                json += "\"detailsSubmitted\": \"" + detailsSubmitted + "\"}";
+                String json = String.format("{\"accountActivated\": %b, \"detailsSubmitted\": %b}", chargesEnabled, detailsSubmitted);
                 return new ResponseEntity<String>(json, HttpStatus.OK);
             } catch (StripeException e) {
-                String errorMessage = e.getMessage();
-                String json = "{\"error\": \"" + errorMessage + "\"}";
+                String json = String.format("{\"error\": \"%s\"}", e.getMessage());
                 return new ResponseEntity<String>(json, HttpStatus.BAD_REQUEST);
             }
         } else {
             String errorMessage = "Account associated with profile " + userProfileId + " not found";
-            String json = "{\"error\": \"" + errorMessage + "\"}";
+            String json = String.format("{\"error\": \"%s\"}", errorMessage);
             return new ResponseEntity<String>(json, HttpStatus.BAD_REQUEST);
         }
     }
@@ -182,10 +181,10 @@ public class AccountController {
      * @param userProfileId
      * @return
      */
-    @PostMapping("/renew/{userProfileId}")
+    @PostMapping("/resume/{userProfileId}")
     @ResponseBody
     @PreAuthorize("hasAuthority('TournamentDirectors') or hasAuthority('Admins')")
-    public ResponseEntity<String> restartAccountConfiguration(@PathVariable String userProfileId) {
+    public ResponseEntity<String> resumeAccountConfiguration(@PathVariable String userProfileId) {
         boolean exists = accountService.existsById(userProfileId);
         if (exists) {
             try {
