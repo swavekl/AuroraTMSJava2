@@ -9,6 +9,7 @@ import {AccountOnboardFinishComponent} from './account-onboard-finish/account-on
 import {SharedModule} from '../shared/shared.module';
 import {MatCardModule} from '@angular/material/card';
 import { AccountRefreshComponent } from './account-refresh/account-refresh.component';
+import {FlexLayoutModule} from '@angular/flex-layout';
 
 
 @NgModule({
@@ -20,10 +21,11 @@ import { AccountRefreshComponent } from './account-refresh/account-refresh.compo
   ],
   imports: [
     CommonModule,
-    AccountRoutingModule,
     MatButtonModule,
+    MatCardModule,
+    FlexLayoutModule,
     SharedModule,
-    MatCardModule
+    AccountRoutingModule
   ]
 })
 export class AccountModule {
