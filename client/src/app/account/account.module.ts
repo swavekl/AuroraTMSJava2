@@ -8,8 +8,11 @@ import {AccountOnboardStartComponent} from './account-onboard-start/account-onbo
 import {AccountOnboardFinishComponent} from './account-onboard-finish/account-onboard-finish.component';
 import {SharedModule} from '../shared/shared.module';
 import {MatCardModule} from '@angular/material/card';
-import { AccountRefreshComponent } from './account-refresh/account-refresh.component';
+import {AccountRefreshComponent} from './account-refresh/account-refresh.component';
 import {FlexLayoutModule} from '@angular/flex-layout';
+import {MatIconModule} from '@angular/material/icon';
+import {ConnectWithStripeIconComponent} from './connect-with-stripe.icon';
+import {HttpClientModule} from '@angular/common/http';
 
 
 @NgModule({
@@ -17,7 +20,8 @@ import {FlexLayoutModule} from '@angular/flex-layout';
     AccountOnboardStartComponent,
     AccountOnboardFinishComponent,
     AccountLandingComponent,
-    AccountRefreshComponent
+    AccountRefreshComponent,
+    ConnectWithStripeIconComponent
   ],
   imports: [
     CommonModule,
@@ -25,7 +29,9 @@ import {FlexLayoutModule} from '@angular/flex-layout';
     MatCardModule,
     FlexLayoutModule,
     SharedModule,
-    AccountRoutingModule
+    AccountRoutingModule,
+    MatIconModule,
+    HttpClientModule
   ]
 })
 export class AccountModule {
