@@ -2,6 +2,7 @@ import {DateUtils} from '../shared/date-utils';
 
 export class Profile {
   userId: string;
+  login: string;
   membershipId: number;
   firstName: string;
   lastName: string;
@@ -23,6 +24,7 @@ export class Profile {
 
   fromFormValues(formValues: any) {
     this.userId = formValues.userId;
+    this.login = formValues.login;
     this.firstName = formValues.firstName;
     this.lastName = formValues.lastName;
     this.mobilePhone = formValues.mobilePhone;

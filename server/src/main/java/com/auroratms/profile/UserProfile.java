@@ -12,6 +12,8 @@ public class UserProfile {
     // Okta profile id
     @Id
     private String userId;
+    // login is the initial email they signed up with
+    private String login;
     // USATT membership id
     private Long membershipId;
 

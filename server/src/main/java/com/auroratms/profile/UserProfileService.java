@@ -5,6 +5,7 @@ import com.okta.sdk.client.Client;
 import com.okta.sdk.client.Clients;
 import com.okta.sdk.resource.user.User;
 import com.okta.sdk.resource.user.UserList;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CachePut;
@@ -17,7 +18,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.Locale;
 
 @Service
 @CacheConfig(cacheNames = {"profiles"})
@@ -31,6 +31,9 @@ public class UserProfileService {
     protected String api_token;
 
     public static final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
+
+    @Autowired
+    private SidService sidService;
 
     /**
      *
@@ -60,6 +63,10 @@ public class UserProfileService {
         toOktaUserProfile(userProfile, currentUser);
 
         User updatedOktaUser = currentUser.update();
+        // user changed email - update it in the acl_sid table
+        if (!userProfile.getEmail().equals(userProfile.getLogin())) {
+            this.sidService.updateSid(userProfile.getLogin(), userProfile.getEmail());
+        }
         return fromOktaUser (updatedOktaUser);
     }
 
@@ -121,6 +128,7 @@ public class UserProfileService {
         userProfile.setFirstName(oktaUserProfile.getFirstName());
         userProfile.setLastName(oktaUserProfile.getLastName());
         userProfile.setMobilePhone(oktaUserProfile.getMobilePhone());
+        userProfile.setLogin(oktaUserProfile.getLogin());
         userProfile.setEmail(oktaUserProfile.getEmail());
         userProfile.setStreetAddress(oktaUserProfile.getStreetAddress());
         userProfile.setCity(oktaUserProfile.getCity());
@@ -169,5 +177,25 @@ public class UserProfileService {
                 .setOrgUrl(oktaServiceBase)
                 .setClientCredentials(new TokenClientCredentials(api_token))
                 .build();
+    }
+
+    /**
+     * Gets user profile id (an alphanumeric string) corresponding to the login
+     * @param login log in Okta system - i.e. email address which was used to create an account, separate from primary email
+     * @return
+     */
+    public String getProfileByLoginId(String login) {
+        String filter = "profile.login eq \"" + login + "\"";
+        Client client = getClient();
+        UserList users = client.listUsers(null, filter, null, null, null);
+        Iterator<User> iterator = users.iterator();
+        Collection<UserProfile> userProfiles = new ArrayList<>();
+        String profileId = null;
+        while (iterator.hasNext()) {
+            User oktaUser = iterator.next();
+            profileId = oktaUser.getId();
+            break;
+        }
+        return profileId;
     }
 }
