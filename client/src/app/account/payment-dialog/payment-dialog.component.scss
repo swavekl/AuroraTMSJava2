@@ -1,0 +1,53 @@
+@import "~src/my-theme.scss";
+
+// shows amount in large font
+.credit-card-amount-header {
+  text-align: center;
+  width: 100%;
+  font-size: 32px;
+}
+
+// mimics the Angular material underline fields and separates them from each other
+.credit-card-field {
+  margin-bottom: 12px;
+  border-bottom: 1px solid black;
+}
+
+// container created because the Stripe iframes were protruding on the bottom of the
+// mat-label unless they were wrapped in a container div
+.credit-card-field-label-container {
+  padding-bottom: 4px;
+}
+
+/*
+This style is duplicate of what is set in the component file, due to the fact that the styles
+set there are embedded directly into the 3 iframes containing individual Stripe Elements fields.
+Because of that the styles can't cascaded into these iframes.
+ */
+%extra-cc-field {
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+  font-size: 19px;
+  border: none;
+  outline: none;
+}
+
+input.extra-cc-field-complete {
+  @extend %extra-cc-field;
+  color: #31325F;
+}
+
+input.extra-cc-field-invalid {
+  @extend %extra-cc-field;
+  color: $warn-color;
+}
+
+.linear-progress-indicator {
+  padding-bottom: 8px;
+}
+
+.element-errors {
+  min-height: 54px;
+  max-height: 54px;
+  padding-bottom: 8px;
+  color: $warn-color;
+}

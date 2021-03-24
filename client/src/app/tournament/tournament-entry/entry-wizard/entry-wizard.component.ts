@@ -10,6 +10,8 @@ import {AvailabilityStatus} from '../model/availability-status.enum';
 import {EventEntryCommand} from '../model/event-entry-command.enum';
 import {Profile} from '../../../profile/profile';
 import {DateUtils} from '../../../shared/date-utils';
+import {PaymentData, PaymentRefundFor} from '../../../account/payment-dialog/payment-data';
+import {PaymentDialogService} from '../../../account/service/payment-dialog.service';
 
 @Component({
   selector: 'app-entry-wizard',
@@ -66,7 +68,8 @@ export class EntryWizardComponent implements OnInit, OnChanges {
   ];
 
   constructor(private dialog: MatDialog,
-              private _change: ChangeDetectorRef) {
+              private _change: ChangeDetectorRef,
+              private paymentDialogService: PaymentDialogService) {
   }
 
   ngOnInit(): void {
@@ -191,6 +194,11 @@ export class EntryWizardComponent implements OnInit, OnChanges {
   }
 
   getPlayerTotal(tournamentEntryId: number): string {
+    return '$' + this.getPayTotal();
+  }
+
+  getPayTotal(): number {
+    // todo - check if membership was already paid in previous payment to not double charge
     let total = 0;
     const membershipOption = this.entry?.membershipOption;
     for (let i = 0; i < this.membershipOptions.length; i++) {
@@ -201,15 +209,20 @@ export class EntryWizardComponent implements OnInit, OnChanges {
       }
     }
 
+    // add for those events that were entered in this session and subtract for those that were dropped
     for (let i = 0; i < this.enteredEvents.length; i++) {
       const enteredEvent = this.enteredEvents[i];
-      total += enteredEvent.event.feeAdult;
+      if (enteredEvent.status === EventEntryStatus.PENDING_CONFIRMATION) {
+        total += enteredEvent.event.feeAdult;
+      } else if (enteredEvent.status === EventEntryStatus.PENDING_DELETION) {
+        total -= enteredEvent.event.feeAdult;
+      }
     }
-    return '$' + total;
+    return total;
   }
 
-  getPayTotal(): string {
-    return this.getPlayerTotal(this.entry?.id);
+  getTournamentId(): number {
+    return this.entry?.tournamentFk;
   }
 
   isRefund(): boolean {
@@ -256,14 +269,48 @@ export class EntryWizardComponent implements OnInit, OnChanges {
     }
   }
 
+  /**
+   *
+   */
   onPayPlayerTotal() {
-    console.log('Paying by credit card');
+    const amount: number = this.getPayTotal() * 100;
+    const fullName = this.playerProfile.firstName + ' ' + this.playerProfile.lastName;
+    const postalCode = this.playerProfile.zipCode;
+    const paymentData: PaymentData = {
+      paymentRefundFor: PaymentRefundFor.TOURNAMENT_ENTRY,
+      itemId: this.getTournamentId(),
+      amount: amount,
+      statementDescriptor: '2020 Aurora Cup',
+      fullName: fullName,
+      postalCode: postalCode,
+      successCallbackFn: this.onPaymentSuccessful,
+      cancelCallbackFn: this.onPaymentCanceled,
+      callbackScope: this,
+      stripeInstance: null
+    };
+    this.paymentDialogService.showPaymentDialog(paymentData);
+  }
+
+  /**
+   *
+   */
+  onPaymentSuccessful (scope: any) {
+    const me = scope;
+    console.log('in onPaymentSuccessful');
     const confirmEntry = {
-      ...this.entry,
+      ...me.entry,
       confirm: true
     };
-    this.confirmEntries.emit(confirmEntry);
+    me.confirmEntries.emit(confirmEntry);
   }
+
+  /**
+   *
+   */
+  onPaymentCanceled (scope: any) {
+    console.log('in onPaymentCanceled');
+  }
+
 
   /**
    *

@@ -6,6 +6,9 @@ import {UsattPlayerRecord} from '../../profile/model/usatt-player-record.model';
 import {DateUtils} from '../../shared/date-utils';
 import {Subscription} from 'rxjs';
 import {LinearProgressBarService} from '../../shared/linear-progress-bar/linear-progress-bar.service';
+import {PaymentData, PaymentRefundFor} from '../../account/payment-dialog/payment-data';
+import {MatDialog} from '@angular/material/dialog';
+import {PaymentDialogService} from '../../account/service/payment-dialog.service';
 
 @Component({
   selector: 'app-home',
@@ -24,7 +27,9 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   constructor(private authenticationService: AuthenticationService,
               private usattPlayerRecordService: UsattPlayerRecordService,
-              private linearProgressBarService: LinearProgressBarService) {
+              private linearProgressBarService: LinearProgressBarService,
+              private dialog: MatDialog,
+              private paymentDialogService: PaymentDialogService) {
     this.playerRating = '...';
     this.membershipExpirationDate = new Date();
     this.membershipExpired = false;
@@ -77,4 +82,28 @@ export class HomeComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.subscriptions.unsubscribe();
   }
+
+  // onPayNow() {
+  //   const currentUser = this.authenticationService.getCurrentUser();
+  //   const paymentData: PaymentData = {
+  //     paymentRefundFor: PaymentRefundFor.TOURNAMENT_ENTRY,
+  //     itemId: 11,
+  //     amount: 12056,
+  //     fullName: 'Julia Lorenc',
+  //     postalCode: '60444',
+  //     successCallbackFn: this.onPaymentSuccessful,
+  //     cancelCallbackFn: this.onPaymentCanceled,
+  //     stripeInstance: null
+  //   };
+  //
+  //   this.paymentDialogService.showPaymentDialog(paymentData);
+  // }
+  //
+  // onPaymentSuccessful (scope: any) {
+  //
+  // }
+  //
+  // onPaymentCanceled (scope: any) {
+  //
+  // }
 }

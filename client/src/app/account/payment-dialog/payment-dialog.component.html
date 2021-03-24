@@ -1,0 +1,60 @@
+<div mat-dialog-title class="credit-card-amount-header">{{ (data.amount / 100) | currency: currencyCode }}</div>
+<!--  <div>to: {{ payee }}</div>-->
+<div mat-dialog-content>
+  <ngx-stripe-card-group [formGroup]="formGroup" [elementsOptions]="elementsOptions" [stripe]="stripeInstance">
+    <div fxLayout="column" class="credit-card-field">
+      <div class="credit-card-field-label-container">
+        <mat-label>Name on the card</mat-label>
+      </div>
+      <input name="nameOnCard" formControlName="nameOnCard"
+             [class]="isNameOnCardValid() ? 'extra-cc-field-complete' : 'extra-cc-field-invalid'"/>
+    </div>
+    <div class="credit-card-field">
+      <div class="credit-card-field-label-container">
+        <mat-label>Credit Card Number</mat-label>
+      </div>
+      <ngx-stripe-card-number style="width: 250px" [options]="ccNumCardOptions"
+                              (change)="onCreditCardNumberChange($event)">
+      </ngx-stripe-card-number>
+    </div>
+    <div fxLayout="row" fxFlexAlign="start start" fxLayoutGap="20px">
+      <div fxFlex="60%" class="credit-card-field">
+        <div class="credit-card-field-label-container">
+          <mat-label>Expiration Date</mat-label>
+        </div>
+        <ngx-stripe-card-expiry [options]="expiryDateOptions" (change)="onExpiryChange($event)">
+        </ngx-stripe-card-expiry>
+      </div>
+      <div fxFlex="40%" class="credit-card-field">
+        <div class="credit-card-field-label-container">
+          <mat-label>CVC</mat-label>
+        </div>
+        <ngx-stripe-card-cvc [options]="cvcCardOptions" (change)="onCvcChange($event)">
+        </ngx-stripe-card-cvc>
+      </div>
+    </div>
+    <div fxLayout="column" class="credit-card-field">
+      <div class="credit-card-field-label-container">
+        <mat-label>Billing address postal code</mat-label>
+      </div>
+      <input matInput name="postalCode" type="number" formControlName="postalCode"
+             [class]="isPostalCodeValid() ? 'extra-cc-field-complete' : 'extra-cc-field-invalid'"/>
+    </div>
+  </ngx-stripe-card-group>
+</div>
+<div class="linear-progress-indicator">
+  <mat-progress-bar *ngIf="paymentInProgress$ | async; else elseblock" mode="indeterminate" color="accent"
+                    style="height: 8px; width: 100%;"></mat-progress-bar>
+  <ng-template #elseblock>
+    <div style="height: 8px; width: 100%; background-color: white;"></div>
+  </ng-template>
+</div>
+<div id="card-errors" class="element-errors">{{ errorMessage }}</div>
+<div mat-dialog-actions fxLayout="row">
+  <button mat-raised-button (click)="onCancel()" [disabled]="this.paymentInProgress$ | async">Cancel</button>
+  <span fxFlex></span>
+  <button mat-raised-button color="primary" type="submit" (click)="onPay()" debounceClicks
+          [disabled]="!this.isFormValid() || (this.paymentInProgress$ | async)">
+    Pay
+  </button>
+</div>
