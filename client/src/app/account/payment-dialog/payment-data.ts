@@ -15,8 +15,11 @@ export class PaymentData {
   // what this payment is for
   paymentRefundFor: PaymentRefundFor = PaymentRefundFor.TOURNAMENT_ENTRY;
 
-  // item id for which the payment is meant
+  // item id which identifies the account to which the payment is to be made
   itemId: number;
+
+  // item id for which the payment is meant
+  subItemId: number;
 
   // amount to pay in e.g. $20.34 will be 2034
   amount: number;
@@ -30,14 +33,22 @@ export class PaymentData {
   // postal code of person paying
   postalCode: string;
 
+  // email address where to send receipt
+  receiptEmail: string;
+
+  // stripe service Instance
+  stripeInstance: StripeInstance;
+}
+
+/**
+ * Additional data used for calling back client
+ */
+export class CallbackData {
   // success and failure callbacks
   successCallbackFn: (scope: any) => void;
   cancelCallbackFn: (scope: any) => void;
 
   // object who has the callback functions
   callbackScope: any;
-
-  // stripe service Instance
-  stripeInstance: StripeInstance;
 }
 

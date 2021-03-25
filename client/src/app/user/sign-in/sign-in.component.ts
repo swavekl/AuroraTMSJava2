@@ -21,6 +21,9 @@ export class SignInComponent implements OnInit, OnDestroy {
 
   // error status
   status: string;
+  // inidicates if the status message is an error and should be shown in red or not
+  isSuccess: boolean;
+
   returnUrl: string;
 
   // progress indicator
@@ -35,6 +38,7 @@ export class SignInComponent implements OnInit, OnDestroy {
               private linearProgressBarService: LinearProgressBarService) {
     this.returnUrl = activatedRoute.snapshot.queryParamMap.get('returnUrl');
     this.returnUrl = (this.returnUrl != null) ? this.returnUrl : '/home';
+    this.isSuccess = false;
   }
 
   ngOnInit() {
@@ -57,6 +61,7 @@ export class SignInComponent implements OnInit, OnDestroy {
         // hide progress right away
           if (loginSuccessful === true) {
             this.status = 'Success';
+            this.isSuccess = true;
             this.router.navigate([this.returnUrl]);
           } else {
             this.status = 'Invalid username and/or password.';

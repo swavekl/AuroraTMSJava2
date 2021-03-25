@@ -10,8 +10,11 @@ import {AvailabilityStatus} from '../model/availability-status.enum';
 import {EventEntryCommand} from '../model/event-entry-command.enum';
 import {Profile} from '../../../profile/profile';
 import {DateUtils} from '../../../shared/date-utils';
-import {PaymentData, PaymentRefundFor} from '../../../account/payment-dialog/payment-data';
+import {CallbackData, PaymentData, PaymentRefundFor} from '../../../account/payment-dialog/payment-data';
 import {PaymentDialogService} from '../../../account/service/payment-dialog.service';
+import {TournamentInfo} from '../../tournament/tournament-info.model';
+import {PaymentRefund} from '../../../account/model/payment-refund.model';
+import {PaymentRefundStatus} from '../../../account/model/payment-refund-status.enum';
 
 @Component({
   selector: 'app-entry-wizard',
@@ -24,16 +27,16 @@ export class EntryWizardComponent implements OnInit, OnChanges {
   entry: TournamentEntry;
 
   @Input()
-  tournamentStartDate: Date;
-
-  @Input()
-  teamsTournament: boolean;
+  tournamentInfo: TournamentInfo;
 
   @Input()
   playerProfile: Profile;
 
   @Input()
   otherPlayers: any[];
+
+  @Input()
+  paymentsRefunds: PaymentRefund[];
 
   otherPlayersBS$: BehaviorSubject<any[]>;
 
@@ -58,6 +61,21 @@ export class EntryWizardComponent implements OnInit, OnChanges {
 
   columnsToDisplay: string[] = ['name', 'action'];
 
+  tournamentStartDate: Date;
+
+  teamsTournament: boolean;
+
+  tournamentCurrency: string;
+
+  // balance actions
+  public readonly BALANCE_ACTION_PAY = 1;
+  public readonly BALANCE_ACTION_REFUND = 2;
+  public readonly BALANCE_ACTION_CONFIRM = 3;
+  public readonly BALANCE_ACTION_NOCHANGE = 4;
+
+  // indicates if user made any changes
+  private dirty: boolean;
+
   public membershipOptions: any [] = [
     {value: MembershipType.NO_MEMBERSHIP_REQUIRED.valueOf(), label: 'My Membership is up to date', cost: 0, available: true},
     {value: MembershipType.TOURNAMENT_PASS_JUNIOR.valueOf(), label: 'Tournament Pass Junior (17 and under)', cost: 20, available: true},
@@ -70,6 +88,9 @@ export class EntryWizardComponent implements OnInit, OnChanges {
   constructor(private dialog: MatDialog,
               private _change: ChangeDetectorRef,
               private paymentDialogService: PaymentDialogService) {
+    this.paymentsRefunds = [];
+    this.tournamentCurrency = 'USD';
+    this.dirty = false;
   }
 
   ngOnInit(): void {
@@ -90,6 +111,15 @@ export class EntryWizardComponent implements OnInit, OnChanges {
       if (this.playerProfile != null) {
         const dateOfBirth = this.playerProfile.dateOfBirth;
         this.hideMembershipOptions(dateOfBirth, this.tournamentStartDate);
+      }
+    }
+
+    const tournamentInfoChange: SimpleChange = changes.tournamentInfo;
+    if (tournamentInfoChange != null) {
+      this.tournamentInfo = tournamentInfoChange.currentValue;
+      if (this.tournamentInfo != null) {
+        this.teamsTournament = this.tournamentInfo.tournamentType === 'Teams';
+        this.tournamentStartDate = new DateUtils().convertFromString(this.tournamentInfo.startDate);
       }
     }
   }
@@ -159,6 +189,7 @@ export class EntryWizardComponent implements OnInit, OnChanges {
         ...this.entry,
         ...form.value
       };
+      this.dirty = true;
       this.tournamentEntryChanged.emit(updatedEntry);
     }
     this._change.markForCheck();
@@ -173,6 +204,7 @@ export class EntryWizardComponent implements OnInit, OnChanges {
           ...enteredEvent,
           event: undefined
         };
+        this.dirty = true;
         this.eventEntryChanged.emit(withdrawEntry);
       }
     }
@@ -188,17 +220,16 @@ export class EntryWizardComponent implements OnInit, OnChanges {
           ...availableEvent,
           event: undefined
         };
+        this.dirty = true;
         this.eventEntryChanged.emit(eventEntryInfo);
       }
     }
   }
 
-  getPlayerTotal(tournamentEntryId: number): string {
-    return '$' + this.getPayTotal();
-  }
-
-  getPayTotal(): number {
-    // todo - check if membership was already paid in previous payment to not double charge
+  /**
+   * Gets current player total regardless of previous payments or refunds
+   */
+  getTotal(): number {
     let total = 0;
     const membershipOption = this.entry?.membershipOption;
     for (let i = 0; i < this.membershipOptions.length; i++) {
@@ -212,12 +243,33 @@ export class EntryWizardComponent implements OnInit, OnChanges {
     // add for those events that were entered in this session and subtract for those that were dropped
     for (let i = 0; i < this.enteredEvents.length; i++) {
       const enteredEvent = this.enteredEvents[i];
-      if (enteredEvent.status === EventEntryStatus.PENDING_CONFIRMATION) {
-        total += enteredEvent.event.feeAdult;
-      } else if (enteredEvent.status === EventEntryStatus.PENDING_DELETION) {
-        total -= enteredEvent.event.feeAdult;
+      if (enteredEvent.status === EventEntryStatus.PENDING_CONFIRMATION ||
+          enteredEvent.status === EventEntryStatus.ENTERED) {
+        total += enteredEvent.price;
       }
     }
+    return total;
+  }
+
+  /**
+   * Gets balance due (positive - payment due, negative - refund due, zero - just confirm)
+   */
+  getBalance(): number {
+    // todo - check if membership was already paid in previous payment to not double charge
+    let total = this.getTotal();
+
+    // take into account payments and refunds
+    if (this.paymentsRefunds != null) {
+      this.paymentsRefunds.forEach((paymentRefund: PaymentRefund) => {
+        const amount: number = paymentRefund.amount / 100;
+        if (paymentRefund.status === PaymentRefundStatus.PAYMENT_COMPLETED) {
+          total -= amount;
+        } else if (paymentRefund.status === PaymentRefundStatus.REFUND_COMPLETED) {
+          total += amount;
+        }
+      });
+    }
+
     return total;
   }
 
@@ -225,18 +277,14 @@ export class EntryWizardComponent implements OnInit, OnChanges {
     return this.entry?.tournamentFk;
   }
 
-  isRefund(): boolean {
-    return false;
-  }
-
   getMembershipLabel(entryId: number): string {
     const membershipOption = this.getMembershipOption(entryId);
     return membershipOption.label;
   }
 
-  getMembershipPrice(entryId: number): string {
+  getMembershipPrice(entryId: number): number {
     const membershipOption = this.getMembershipOption(entryId);
-    return '$' + membershipOption.cost;
+    return membershipOption.cost;
   }
 
   getMembershipOption(entryId: number): any {
@@ -272,36 +320,29 @@ export class EntryWizardComponent implements OnInit, OnChanges {
   /**
    *
    */
-  onPayPlayerTotal() {
-    const amount: number = this.getPayTotal() * 100;
+  onPayPlayerTotal(balance: number) {
+    const amount: number = this.getBalance() * 100;
     const fullName = this.playerProfile.firstName + ' ' + this.playerProfile.lastName;
     const postalCode = this.playerProfile.zipCode;
+    const email = this.playerProfile.email;
+    const tournamentName = this.tournamentInfo.name;
     const paymentData: PaymentData = {
       paymentRefundFor: PaymentRefundFor.TOURNAMENT_ENTRY,
       itemId: this.getTournamentId(),
+      subItemId: this.entry.id,
       amount: amount,
-      statementDescriptor: '2020 Aurora Cup',
+      statementDescriptor: tournamentName,
       fullName: fullName,
       postalCode: postalCode,
-      successCallbackFn: this.onPaymentSuccessful,
-      cancelCallbackFn: this.onPaymentCanceled,
-      callbackScope: this,
+      receiptEmail: email,
       stripeInstance: null
     };
-    this.paymentDialogService.showPaymentDialog(paymentData);
-  }
-
-  /**
-   *
-   */
-  onPaymentSuccessful (scope: any) {
-    const me = scope;
-    console.log('in onPaymentSuccessful');
-    const confirmEntry = {
-      ...me.entry,
-      confirm: true
+    const callbackData: CallbackData = {
+      successCallbackFn: this.onPaymentSuccessful,
+      cancelCallbackFn: this.onPaymentCanceled,
+      callbackScope: this
     };
-    me.confirmEntries.emit(confirmEntry);
+    this.paymentDialogService.showPaymentDialog(paymentData, callbackData);
   }
 
   /**
@@ -311,6 +352,38 @@ export class EntryWizardComponent implements OnInit, OnChanges {
     console.log('in onPaymentCanceled');
   }
 
+  /**
+   * Callback from payment dialog when payment is successful
+   */
+  onPaymentSuccessful (scope: any) {
+    if (scope != null) {
+      scope.confirmEntry();
+    }
+  }
+
+  /**
+   * Confirms changes when there is no balance due
+   */
+  onConfirmWithoutPayment() {
+    this.confirmEntry();
+  }
+
+  /**
+   * Issues a refund
+   */
+  onIssueRefund(refundAmount: number) {
+    console.log('issuing refund...');
+  }
+
+  confirmEntry() {
+    console.log('confirming entry');
+    const confirmEntry = {
+      ...this.entry,
+      confirm: true
+    };
+    this.dirty = false;
+    this.confirmEntries.emit(confirmEntry);
+  }
 
   /**
    *
@@ -336,4 +409,21 @@ export class EntryWizardComponent implements OnInit, OnChanges {
       });
     }
   }
+
+  /**
+   * Decides what action to do to confirm the entry
+   */
+  balanceAction(): number {
+    const balance: number = this.getBalance();
+    if (balance > 0) {
+      return this.BALANCE_ACTION_PAY;
+    } else if (balance < 0) {
+      return this.BALANCE_ACTION_REFUND;
+    } else if (this.dirty) {
+      return this.BALANCE_ACTION_CONFIRM;
+    } else {
+      return this.BALANCE_ACTION_NOCHANGE;
+    }
+  }
+
 }

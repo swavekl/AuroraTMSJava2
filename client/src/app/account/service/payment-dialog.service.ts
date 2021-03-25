@@ -1,8 +1,8 @@
 import {Injectable} from '@angular/core';
 import {StripeFactoryService, StripeInstance} from 'ngx-stripe';
-import {PaymentRefundService} from './payment-refund.service';
+import {KeyAccountInfo, PaymentRefundService} from './payment-refund.service';
 import {MatDialog, MatDialogConfig} from '@angular/material/dialog';
-import {PaymentData} from '../payment-dialog/payment-data';
+import {CallbackData, PaymentData} from '../payment-dialog/payment-data';
 import {Observable} from 'rxjs';
 import {first} from 'rxjs/operators';
 import {PaymentDialogComponent} from '../payment-dialog/payment-dialog.component';
@@ -26,19 +26,22 @@ export class PaymentDialogService {
 
   /**
    * Fetch public key and show dialog later
-   * @param data payment data - amount, person's name, postal code to prefill the dialog
+   * @param paymentData payment data - amount, person's name, postal code to prefill the dialog
+   * @param callbackData callback data
    */
-  public showPaymentDialog(data: PaymentData) {
+  public showPaymentDialog(paymentData: PaymentData, callbackData: CallbackData) {
 
-    // get strip public key
-    const key$: Observable<string> = this.paymentRefundService.getStripeKey();
-    key$
+    // get stripe public key
+    const keyAccountInfo$: Observable<KeyAccountInfo> = this.paymentRefundService.getKeyAccountInfo(paymentData.itemId);
+    keyAccountInfo$
       .pipe(first())
       .subscribe(
-        (publicKey: string) => {
+        (keyAccountInfo: KeyAccountInfo) => {
           // console.log('got public key ' + publicKey);
-          data.stripeInstance = this.stripeFactoryService.create(publicKey);
-          this.doShowDialog(data);
+          paymentData.stripeInstance = this.stripeFactoryService.create(keyAccountInfo.stripePublicKey, {
+            stripeAccount: keyAccountInfo.tournamentAccountId  // connected account id
+          });
+          this.doShowDialog(paymentData, callbackData);
         },
         (error) => {
           console.log('Couldn\'t obtain stripe public key ' + JSON.stringify(error));
@@ -48,26 +51,26 @@ export class PaymentDialogService {
 
   /**
    * Show dialog
-   * @param paymentData
+   * @param paymentData payment data - amount, person's name, postal code to prefill the dialog
+   * @param callbackData callback data
    * @private
    */
-  private doShowDialog(paymentData: PaymentData) {
+  private doShowDialog(paymentData: PaymentData, callbackData: CallbackData) {
     const config: MatDialogConfig = {
       width: '330px', height: '460px', data: paymentData
     };
     // save the scope because it is wiped out in the component
     // so that it is not sent into the http service
-    const callbackScope = paymentData.callbackScope;
-    paymentData.callbackScope = null;
+    const callbackScope = callbackData.callbackScope;
     const dialogRef = this.dialog.open(PaymentDialogComponent, config);
     dialogRef.afterClosed().subscribe(result => {
       if (result === 'ok') {
-        if (paymentData.successCallbackFn != null) {
-          paymentData.successCallbackFn(callbackScope);
+        if (callbackData.successCallbackFn != null) {
+          callbackData.successCallbackFn(callbackScope);
         }
       } else {
-        if (paymentData.cancelCallbackFn != null) {
-          paymentData.cancelCallbackFn(callbackScope);
+        if (callbackData.cancelCallbackFn != null) {
+          callbackData.cancelCallbackFn(callbackScope);
         }
       }
     });

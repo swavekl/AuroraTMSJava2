@@ -13,6 +13,7 @@ import {EventDayPipePipe} from './pipes/event-day-pipe.pipe';
 import {CenteredPanelComponent} from './centered-panel/centered-panel.component';
 import {FlexLayoutModule} from '@angular/flex-layout';
 import { DebounceClicksDirective } from './directives/debounce-clicks.directive';
+import { MessageAreaComponent } from './message-area/message-area.component';
 
 
 @NgModule({
@@ -23,17 +24,19 @@ import { DebounceClicksDirective } from './directives/debounce-clicks.directive'
     StartTimePipe,
     EventDayPipePipe,
     CenteredPanelComponent,
-    DebounceClicksDirective
+    DebounceClicksDirective,
+    MessageAreaComponent
   ],
-  exports: [
-    LinearProgressBarComponent,
-    DateBeforeDirective,
-    ConfirmationPopupComponent,
-    StartTimePipe,
-    EventDayPipePipe,
-    CenteredPanelComponent,
-    DebounceClicksDirective
-  ],
+    exports: [
+        LinearProgressBarComponent,
+        DateBeforeDirective,
+        ConfirmationPopupComponent,
+        StartTimePipe,
+        EventDayPipePipe,
+        CenteredPanelComponent,
+        DebounceClicksDirective,
+        MessageAreaComponent
+    ],
     imports: [
         CommonModule,
         MatProgressBarModule,

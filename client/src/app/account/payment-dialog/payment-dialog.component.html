@@ -49,12 +49,13 @@
     <div style="height: 8px; width: 100%; background-color: white;"></div>
   </ng-template>
 </div>
-<div id="card-errors" class="element-errors">{{ errorMessage }}</div>
+<app-message-area [message]="errorMessage" [isError]="isError()"></app-message-area>
 <div mat-dialog-actions fxLayout="row">
-  <button mat-raised-button (click)="onCancel()" [disabled]="this.paymentInProgress$ | async">Cancel</button>
+  <button [style.display]="paymentComplete ? 'none' : 'block'" mat-raised-button (click)="onCancel()" [disabled]="this.paymentInProgress$ | async">Cancel</button>
   <span fxFlex></span>
-  <button mat-raised-button color="primary" type="submit" (click)="onPay()" debounceClicks
+  <button [style.display]="paymentComplete ? 'none' : 'block'" mat-raised-button color="primary" type="submit" (click)="onPay()" debounceClicks
           [disabled]="!this.isFormValid() || (this.paymentInProgress$ | async)">
-    Pay
-  </button>
+    Submit</button>
+  <button [style.display]="!paymentComplete ? 'none' : 'block'" mat-raised-button color="primary" (click)="onClose()">
+    Close</button>
 </div>

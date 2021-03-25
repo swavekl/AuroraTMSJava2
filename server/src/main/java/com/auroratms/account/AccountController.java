@@ -77,8 +77,7 @@ public class AccountController {
             accountEntity.setAccountId(account.getId());
             accountEntity.setActivated(false);
             accountEntity.setProfileId(userProfileId);
-            accountEntity.setAccountPublicKey("");
-            accountEntity.setAccountSecretKey("");
+            accountEntity.setEmail(profile.getEmail());
             this.accountService.save(accountEntity);
 
             AccountLink accountLink = createAccountLink(account.getId(), profile.getUserId());
@@ -125,12 +124,6 @@ public class AccountController {
      * @throws StripeException
      */
     private Account createAccount(UserProfile userProfile) throws StripeException {
-        String email = userProfile.getEmail();
-        String countryCode = userProfile.getCountryCode();
-
-//                        .setEmail(email)
-//                        .setDefaultCurrency("usd")
-//                        .setCountry(countryCode)
         AccountCreateParams params =
                 AccountCreateParams.builder()
                         .setType(AccountCreateParams.Type.STANDARD)

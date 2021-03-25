@@ -1,8 +1,9 @@
 import {Injectable} from '@angular/core';
 import {BehaviorSubject, Observable} from 'rxjs';
 import {HttpClient} from '@angular/common/http';
-import {PaymentData} from '../payment-dialog/payment-data';
+import {PaymentData, PaymentRefundFor} from '../payment-dialog/payment-data';
 import {distinctUntilChanged, map, tap} from 'rxjs/operators';
+import {PaymentRefund} from '../model/payment-refund.model';
 
 /**
  * Service for initiating Stripe charges with payment intent and
@@ -43,15 +44,51 @@ export class PaymentRefundService {
   }
 
   /**
+   *
+   */
+  public recordPaymentComplete(paymentRefund: PaymentRefund) {
+    const url = `/api/paymentrefund/recordpayment`;
+    this.setLoading(true);
+    return this.httpClient.post<PaymentRefund>(url, paymentRefund)
+      .pipe(
+        tap(() => {
+            this.setLoading(false);
+          },
+          (error: any) => {
+            this.setLoading(false);
+          }),
+        map((response: PaymentRefund) => {
+            console.log('got payment refund response ' + JSON.stringify(response));
+            return response;
+          }
+        )
+      );
+  }
+
+  /**
    * Gets public key for either testing or live system
    */
-  public getStripeKey(): Observable<string> {
-    const url = `/api/paymentrefund/publickey`;
-    return this.httpClient.get<any>(url)
+  public getKeyAccountInfo(tournamentId: number): Observable<KeyAccountInfo> {
+    const url = `/api/paymentrefund/keyaccountinfo/${tournamentId}`;
+    return this.httpClient.get<KeyAccountInfo>(url)
       .pipe(
-        map((response: any) => {
-          // console.log ('got public key ' + JSON.stringify(response));
-          return response?.stripePublicKey;
+        map((response: KeyAccountInfo) => {
+          console.log ('got KeyAccountInfo ' + JSON.stringify(response));
+          return response;
+        })
+      );
+  }
+
+  /**
+   * Gets public key for either testing or live system
+   */
+  public listTournamentPaymentsRefunds(tournamentEntryId: number): Observable<PaymentRefund[]> {
+    const url = `/api/paymentrefund/listforentry/${tournamentEntryId}`;
+    return this.httpClient.get<PaymentRefund[]>(url)
+      .pipe(
+        map((response: PaymentRefund[]) => {
+          console.log ('got payment refunds ' + JSON.stringify(response));
+          return response;
         })
       );
   }
@@ -63,3 +100,15 @@ export class PaymentRefundService {
 export interface PaymentIntentResponse {
   clientSecret: string;
 }
+
+/**
+ * response from KeyAccountInfo
+ */
+export interface KeyAccountInfo {
+  // public key associated with main account
+  stripePublicKey: string;
+
+  // id of the connected account
+  tournamentAccountId: string;
+}
+

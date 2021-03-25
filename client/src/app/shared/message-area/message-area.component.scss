@@ -1,0 +1,11 @@
+@import "~src/my-theme.scss";
+
+.message-errors {
+  padding-bottom: 8px;
+  color: $warn-color;
+}
+
+.message-success {
+  padding-bottom: 8px;
+  color: green;
+}

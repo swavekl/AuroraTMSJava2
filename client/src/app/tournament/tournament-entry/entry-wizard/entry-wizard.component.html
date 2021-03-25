@@ -71,8 +71,8 @@
             <div class="mat-title">Entered Events</div>
             <mat-divider></mat-divider>
             <mat-list-item *ngFor="let enteredEvent of enteredEvents; last as last">
-              <div mat-line>{{enteredEvent.event.name}} - ${{ enteredEvent.event.feeAdult }}</div>
-              <div mat-line>{{ enteredEvent.event.day | eventDay: tournamentStartDate }} {{ enteredEvent.event.startTime | startTime }}</div>
+              <div mat-line>{{enteredEvent.event?.name}} - ${{ enteredEvent.price }}</div>
+              <div mat-line>{{ enteredEvent.event?.day | eventDay: tournamentStartDate }} {{ enteredEvent.event?.startTime | startTime }}</div>
               <div mat-line [class]="getStatusClass(enteredEvent.status)">{{enteredEvent.status | eventEntryStatus }}</div>
               <button type="button" mat-button (click)="onEventWithdraw(enteredEvent.eventEntryFk)">Drop</button>
               <mat-divider [inset]="true" *ngIf="!last"></mat-divider>
@@ -81,18 +81,18 @@
             <div class="mat-title" style="padding-top: 10px">Events Available to Enter</div>
             <mat-divider></mat-divider>
             <mat-list-item *ngFor="let availableEvent of availableEvents; last as last2">
-              <div mat-line>{{availableEvent.event.name}} - ${{ availableEvent.event.feeAdult }}</div>
-              <div mat-line>{{ availableEvent.event.day | eventDay: tournamentStartDate }} {{ availableEvent.event.startTime | startTime }}</div>
+              <div mat-line>{{availableEvent.event?.name}} - ${{ availableEvent.price }}</div>
+              <div mat-line>{{ availableEvent.event?.day | eventDay: tournamentStartDate }} {{ availableEvent.event?.startTime | startTime }}</div>
               <div mat-line [class]="getStatusClass(availableEvent.status)">{{ availableEvent.status | eventEntryStatus }}</div>
-              <button type="button" mat-button (click)="onEventEnter(availableEvent.event.id, availableEvent.eventEntryCommand)">Enter</button>
+              <button type="button" mat-button (click)="onEventEnter(availableEvent.event?.id, availableEvent.eventEntryCommand)">Enter</button>
               <mat-divider [inset]="true" *ngIf="!last2"></mat-divider>
             </mat-list-item>
             <mat-divider></mat-divider>
             <div class="mat-title" style="padding-top: 10px">Events Not Available to Enter</div>
             <mat-divider></mat-divider>
             <mat-list-item *ngFor="let unavailableEvent of unavailableEvents; last as last3">
-              <div mat-line>{{unavailableEvent.event.name}} - ${{ unavailableEvent.event.feeAdult }}</div>
-              <div mat-line>{{ unavailableEvent.event.day | eventDay: tournamentStartDate }} {{ unavailableEvent.event.startTime | startTime }}</div>
+              <div mat-line>{{unavailableEvent.event?.name}} - ${{ unavailableEvent.price }}</div>
+              <div mat-line>{{ unavailableEvent.event?.day | eventDay: tournamentStartDate }} {{ unavailableEvent.event?.startTime | startTime }}</div>
               <div mat-line>{{unavailableEvent.availabilityStatus | availabilityStatus }}</div>
               <mat-divider [inset]="true" *ngIf="!last3"></mat-divider>
             </mat-list-item>
@@ -104,61 +104,76 @@
           </div>
         </mat-step>
         <mat-step label="Summary">
-          <table style="width: 100%;">
+          <table class="summary-table">
             <tbody>
             <tr>
-              <th style="width: 80%; text-align: left;">Events</th>
-              <th style="width: 20%; text-align: right;">Price</th>
-            </tr>
-            <tr *ngFor="let enteredEvent of enteredEvents; last as last">
-              <td style="width: 80%">
-                {{ enteredEvent.event.name }}
-                <h5>{{ enteredEvent.event.day | eventDay: tournamentStartDate }} {{ enteredEvent.event.startTime | startTime }}</h5>
-<!--                <h5>{{enteredEvent.eventEntry.status | eventEntryStatus }}</h5>-->
-              </td>
-              <td style="width: 20%; text-align: right">
-                ${{ enteredEvent.event.feeAdult }}
-              </td>
+              <th>Membership</th>
+              <th>Price</th>
             </tr>
             <tr>
-              <th style="width: 80%; text-align: left;">Membership</th>
-              <th style="width: 20%; text-align: right;"></th>
-            </tr>
-            <tr>
-              <td style="width: 80%">
+              <td>
                 {{ getMembershipLabel(entry?.id) }}
               </td>
-              <td style="width: 20%; text-align: right">
-                {{ getMembershipPrice(entry?.id) }}
+              <td>
+                {{ getMembershipPrice(entry?.id) | currency: tournamentCurrency}}
               </td>
             </tr>
+            <tr>
+              <th>Events</th>
+              <th></th>
+            </tr>
+            <tr *ngFor="let enteredEvent of enteredEvents; last as last">
+              <td>
+                <div>{{ enteredEvent?.event?.name }}</div>
+                <div class="mat-subheading-1">{{ enteredEvent?.event?.day | eventDay: tournamentStartDate }} {{ enteredEvent?.event?.startTime | startTime }}</div>
+              </td>
+              <td>
+                {{ enteredEvent?.price | currency: tournamentCurrency }}
+              </td>
+            </tr>
+            <tr>
+              <td><h2>Total</h2></td>
+              <td><h2>{{ getTotal() | currency: tournamentCurrency }}</h2></td>
+            </tr>
+            <ng-container *ngIf="paymentsRefunds?.length > 0">
+              <tr>
+                <th>Payments & Refunds</th>
+                <th></th>
+              </tr>
+              <tr *ngFor="let paymentRefund of paymentsRefunds; last as last">
+                <td>
+                  <div>Payment on</div>
+                  <div class="mat-subheading-1">{{ paymentRefund.transactionDate | date:'medium'}}</div>
+                </td>
+                <td>
+                  {{ (paymentRefund.amount / 100) | currency: tournamentCurrency }}
+                </td>
+              </tr>
+            </ng-container>
             </tbody>
             <tfoot>
             <tr>
-              <td style="width: 80%"><h2>Player Total</h2></td>
-              <td style="width: 20%; text-align: right;"><h2>{{ getPlayerTotal(entry?.id)}}</h2></td>
+              <td><h2>Balance</h2></td>
+              <td><h2>{{ getBalance() | currency: tournamentCurrency }}</h2>
+              </td>
             </tr>
             </tfoot>
           </table>
           <div class="wizard-button-bar" fxLayout="row">
             <button mat-raised-button matStepperPrevious type="button">Back</button>
             <span fxFlex></span>
-            <button mat-raised-button color="primary" matStepperNext type="button">Next</button>
-          </div>
-        </mat-step>
-        <mat-step label="Payment/Refund">
-          Pay or confirm refund issuance
-          <button mat-raised-button color="primary" type="button" (click)="onPayPlayerTotal()">Pay {{ getPlayerTotal(entry?.id)}} Now</button>
-          <div fxLayout="row">
-            <button mat-raised-button matStepperPrevious type="button">Back</button>
-            <span fxFlex></span>
-            <button mat-raised-button color="primary" matStepperNext type="button">Next</button>
+            <ng-container [ngSwitch]="balanceAction()">
+              <button *ngSwitchCase="BALANCE_ACTION_CONFIRM" mat-raised-button color="primary" type="button" (click)="onConfirmWithoutPayment()">Confirm Changes</button>
+              <button *ngSwitchCase="BALANCE_ACTION_PAY"     mat-raised-button color="primary" type="button" (click)="onPayPlayerTotal(getBalance())">Pay {{ getBalance() | currency: tournamentCurrency }}</button>
+              <button *ngSwitchCase="BALANCE_ACTION_REFUND"  mat-raised-button color="primary" type="button" (click)="onIssueRefund(getBalance())">Refund {{ getBalance() | currency: tournamentCurrency }}</button>
+              <button *ngSwitchCase="BALANCE_ACTION_NOCHANGE" mat-raised-button color="primary" matStepperNext type="button">Next</button>
+            </ng-container>
           </div>
         </mat-step>
         <mat-step label="Completed">
-          Pay or confirm refund issuance
+          Your changes have been confirmed successfully.  A receipt of your purchase was sent to your email.
           <div class="wizard-button-bar" fxLayout="row">
-            <button mat-raised-button matStepperPrevious type="button">Back</button>
+<!--            <button mat-raised-button matStepperPrevious type="button">Back</button>-->
             <span fxFlex></span>
             <button mat-raised-button color="primary" type="submit">Finish</button>
           </div>

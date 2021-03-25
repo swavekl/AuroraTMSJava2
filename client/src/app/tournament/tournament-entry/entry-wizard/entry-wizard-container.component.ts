@@ -11,21 +11,22 @@ import {TournamentEvent} from '../../tournament-config/tournament-event.model';
 import {TournamentEventConfigService} from '../../tournament-config/tournament-event-config.service';
 import {TournamentEventEntryInfo} from '../model/tournament-event-entry-info-model';
 import {EventEntryInfoService} from '../service/event-entry-info.service';
-import {DateUtils} from '../../../shared/date-utils';
 import {LinearProgressBarService} from '../../../shared/linear-progress-bar/linear-progress-bar.service';
 import {Profile} from '../../../profile/profile';
 import {AuthenticationService} from '../../../user/authentication.service';
 import {ProfileService} from '../../../profile/profile.service';
+import {PaymentRefund} from '../../../account/model/payment-refund.model';
+import {PaymentRefundService} from '../../../account/service/payment-refund.service';
 
 @Component({
   selector: 'app-entry-wizard-container',
   template: `
     <app-entry-wizard [entry]="entry$ | async"
-                      [teamsTournament]="teamsTournament$ | async"
-                      [tournamentStartDate]="tournamentStartDate$ | async"
+                      [tournamentInfo]="tournamentInfo$ | async"
                       [allEventEntryInfos]="allEventEntryInfos$ | async"
                       [playerProfile]="playerProfile$ | async"
                       [otherPlayers]="otherPlayers$ | async"
+                      [paymentsRefunds]="paymentsRefunds$ | async"
                       (tournamentEntryChanged)="onTournamentEntryChanged($event)"
                       (confirmEntries)="onConfirmEntries($event)"
                       (eventEntryChanged)="onEventEntryChanged($event)"
@@ -41,16 +42,14 @@ export class EntryWizardContainerComponent implements OnInit, OnDestroy {
   entry$: Observable<TournamentEntry>;
   loading$: Observable<boolean>;
 
-  teamsTournament$: Observable<boolean>;
   playerProfile$: Observable<Profile>;
   otherPlayers$: Observable<any>;
   // events and their status (confirmed, waiting list, not available etc.)
   allEventEntryInfos$: Observable<TournamentEventEntryInfo[]>;
 
-  // tournament start date
-  tournamentStartDate$: Observable<Date>;
+  tournamentInfo$: Observable<TournamentInfo>;
 
-  tournamentInfo: TournamentInfo;
+  paymentsRefunds$: Observable<PaymentRefund[]>;
 
   private subscriptions: Subscription = new Subscription();
 
@@ -62,7 +61,8 @@ export class EntryWizardContainerComponent implements OnInit, OnDestroy {
               private router: Router,
               private linearProgressBarService: LinearProgressBarService,
               private authenticationService: AuthenticationService,
-              private profileService: ProfileService) {
+              private profileService: ProfileService,
+              private paymentRefundService: PaymentRefundService) {
 
     // if any of the service are loading show the loading progress
     this.loading$ = combineLatest(
@@ -93,6 +93,7 @@ export class EntryWizardContainerComponent implements OnInit, OnDestroy {
     this.selectEntry(this.entryId);
     this.loadEventEntriesInfos(this.entryId);
     this.loadPlayerProfile();
+    this.loadPaymentRefunds(this.entryId);
   }
 
   /**
@@ -152,26 +153,19 @@ export class EntryWizardContainerComponent implements OnInit, OnDestroy {
       .subscribe((tournamentInfo: TournamentInfo) => {
         // console.log('got tournament info', tournamentInfo);
         if (tournamentInfo) {
-          this.initTournamentData(tournamentInfo);
+          // this.initTournamentData(tournamentInfo);
+          this.tournamentInfo$ = of(tournamentInfo);
         } else {
           // console.log('tournament info not in cache ??');
           this.tournamentInfoService.getByKey(tournamentId)
             .pipe(first())
             .subscribe((tournamentInfo1: TournamentInfo) => {
               // console.log('got tournament info', tournamentInfo1);
-              this.initTournamentData(tournamentInfo1);
+              // this.initTournamentData(tournamentInfo1);
+              this.tournamentInfo$ = of(tournamentInfo1);
             });
         }
       });
-  }
-
-  private initTournamentData(tournamentInfo: TournamentInfo): void {
-    this.tournamentInfo = tournamentInfo;
-    const isTeamsTournament: boolean = (tournamentInfo) ? (tournamentInfo?.tournamentType === 'Teams') : false;
-    // console.log('isTeamsTournament', isTeamsTournament);
-    this.teamsTournament$ = of(isTeamsTournament);
-    const startDate = new DateUtils().convertFromString(tournamentInfo.startDate);
-    this.tournamentStartDate$ = of(startDate);
   }
 
   /**
@@ -232,6 +226,9 @@ export class EntryWizardContainerComponent implements OnInit, OnDestroy {
           console.log('confirmed all - success', success);
           // reload them after
           this.eventEntryInfoService.getEventEntryInfos(this.entryId);
+
+          // reload payments refunds
+          this.loadPaymentRefunds(this.entryId);
         });
     }
   }
@@ -268,5 +265,24 @@ export class EntryWizardContainerComponent implements OnInit, OnDestroy {
         this.playerProfile$ = of(profile);
       });
 
+  }
+
+  /**
+   * Loads payments or refunds if any
+   * @param tournamentEntryId
+   * @private
+   */
+  private loadPaymentRefunds(tournamentEntryId: number) {
+    console.log('loading payments refunds for entry ' + tournamentEntryId);
+    this.paymentRefundService.listTournamentPaymentsRefunds(tournamentEntryId)
+      .pipe(first())
+      .subscribe(
+        (paymentsRefunds: PaymentRefund[]) => {
+          this.paymentsRefunds$ = of(paymentsRefunds);
+        },
+        (error: any) => {
+          console.log('error getting payment refunds' + JSON.stringify(error));
+        }
+      );
   }
 }

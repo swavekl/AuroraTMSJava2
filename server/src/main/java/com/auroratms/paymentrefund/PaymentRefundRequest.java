@@ -22,8 +22,11 @@ public class PaymentRefundRequest {
     // 22 chars long descriptor which will appear on the credit card statement. No special chars allowed " ' * < >
     String statementDescriptor;
 
-    // name person paying for prefilling Name on the card field
+    // name person paying for
     String fullName;
+
+    // email address where to send receipt
+    String receiptEmail;
 
     // should we do payment or refund
     boolean isRefund = false;

@@ -21,10 +21,10 @@ public class AccountEntity {
     // id of a Stripe account
     private String accountId;
 
+    // email address for easy identification
+    private String email;
+
     // status of Connect activation
     private boolean activated;
 
-    private String accountPublicKey;
-
-    private String accountSecretKey;
 }

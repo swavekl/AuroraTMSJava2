@@ -1,7 +1,7 @@
 import {Component, Inject, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
-import {distinctUntilChanged, switchMap} from 'rxjs/operators';
+import {distinctUntilChanged, first, switchMap} from 'rxjs/operators';
 import {BehaviorSubject, Observable, Subscription} from 'rxjs';
 import {
   StripeCardCvcElementChangeEvent,
@@ -16,6 +16,8 @@ import {
 import {StripeCardNumberComponent, StripeFactoryService, StripeInstance} from 'ngx-stripe';
 import {PaymentData} from './payment-data';
 import {PaymentIntentResponse, PaymentRefundService} from '../service/payment-refund.service';
+import {PaymentRefund} from '../model/payment-refund.model';
+import {PaymentRefundStatus} from '../model/payment-refund-status.enum';
 
 /**
  * Dialog for collecting information about the credit card and submitting the purchase
@@ -46,6 +48,7 @@ export class PaymentDialogComponent implements OnInit, OnDestroy {
   public stripeInstance: StripeInstance;
 
   public errorMessage = this.EMPTY_ERROR;
+  public paymentComplete: boolean;
 
   @ViewChild(StripeCardNumberComponent)
   card: StripeCardNumberComponent;
@@ -125,6 +128,7 @@ export class PaymentDialogComponent implements OnInit, OnDestroy {
     this.CVCValid = false;
     this.postalCodeValid = false;
     this.nameOnCardValid = false;
+    this.paymentComplete = false;
   }
 
   ngOnInit(): void {
@@ -166,8 +170,8 @@ export class PaymentDialogComponent implements OnInit, OnDestroy {
                   address: {
                     postal_code: postalCode
                   }
-                },
-              },
+                }
+              }
             })
           )
         )
@@ -183,7 +187,7 @@ export class PaymentDialogComponent implements OnInit, OnDestroy {
                 // Show a success message to your customer
                 // or close the dialog
                 this.errorMessage = '';
-                this.dialogRef.close(this.OK);
+                this.recordPaymentComplete(result.paymentIntent.id);
               }
             }
           },
@@ -222,5 +226,43 @@ export class PaymentDialogComponent implements OnInit, OnDestroy {
 
   isPostalCodeValid(): boolean {
     return this?.formGroup?.controls?.postalCode.valid === true;
+  }
+
+  /**
+   *
+   * @param paymentIntentId
+   * @private
+   */
+  private recordPaymentComplete(paymentIntentId: string) {
+    const paymentRefund: PaymentRefund = new PaymentRefund();
+    paymentRefund.amount = this.data.amount;
+    paymentRefund.itemId = this.data.subItemId;
+    paymentRefund.paymentIntentId = paymentIntentId;
+    paymentRefund.paymentRefundFor = this.data.paymentRefundFor;
+    paymentRefund.status = PaymentRefundStatus.PAYMENT_COMPLETED;
+    paymentRefund.transactionDate = new Date();
+    this.paymentRefundService.recordPaymentComplete(paymentRefund)
+      .pipe(first())
+      .subscribe(
+        () => {
+          this.paymentComplete = true;
+          this.errorMessage = 'Success';
+        },
+        (error: any) => {
+          console.log('error during recording of payment complete' + JSON.stringify(error));
+          this.errorMessage = error;
+        }
+      );
+  }
+
+  onClose() {
+    this.dialogRef.close(this.OK);
+  }
+
+  /**
+   * decides to show either error message in red or success in green
+   */
+  isError() {
+    return !this.paymentComplete;
   }
 }
