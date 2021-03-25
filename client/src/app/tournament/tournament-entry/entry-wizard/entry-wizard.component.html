@@ -125,7 +125,7 @@
             <tr *ngFor="let enteredEvent of enteredEvents; last as last">
               <td>
                 <div>{{ enteredEvent?.event?.name }}</div>
-                <div class="mat-subheading-1">{{ enteredEvent?.event?.day | eventDay: tournamentStartDate }} {{ enteredEvent?.event?.startTime | startTime }}</div>
+                <div class="summary-item-second-line">{{ enteredEvent?.event?.day | eventDay: tournamentStartDate }} {{ enteredEvent?.event?.startTime | startTime }}</div>
               </td>
               <td>
                 {{ enteredEvent?.price | currency: tournamentCurrency }}
@@ -143,7 +143,7 @@
               <tr *ngFor="let paymentRefund of paymentsRefunds; last as last">
                 <td>
                   <div>Payment on</div>
-                  <div class="mat-subheading-1">{{ paymentRefund.transactionDate | date:'medium'}}</div>
+                  <div class="summary-item-second-line">{{ paymentRefund.transactionDate | date:'medium'}}</div>
                 </td>
                 <td>
                   {{ (paymentRefund.amount / 100) | currency: tournamentCurrency }}

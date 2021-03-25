@@ -48,6 +48,10 @@ table.summary-table {
       &:last-child {
         width: 20%;
         text-align: right;
+        vertical-align: text-top;
+      }
+      div.summary-item-second-line {
+        font-size: 14px;
       }
     }
   }
