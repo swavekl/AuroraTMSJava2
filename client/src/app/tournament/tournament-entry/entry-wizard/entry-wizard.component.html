@@ -165,19 +165,19 @@
             <ng-container [ngSwitch]="balanceAction()">
               <button *ngSwitchCase="BALANCE_ACTION_CONFIRM" mat-raised-button color="primary" type="button" (click)="onConfirmWithoutPayment()">Confirm Changes</button>
               <button *ngSwitchCase="BALANCE_ACTION_PAY"     mat-raised-button color="primary" type="button" (click)="onPayPlayerTotal(getBalance())">Pay {{ getBalance() | currency: tournamentCurrency }}</button>
-              <button *ngSwitchCase="BALANCE_ACTION_REFUND"  mat-raised-button color="primary" type="button" (click)="onIssueRefund(getBalance())">Refund {{ getBalance() | currency: tournamentCurrency }}</button>
-              <button *ngSwitchCase="BALANCE_ACTION_NOCHANGE" mat-raised-button color="primary" matStepperNext type="button">Next</button>
+              <button *ngSwitchCase="BALANCE_ACTION_REFUND"  mat-raised-button color="primary" type="button" (click)="onIssueRefund(getBalance())">Refund {{ (-1 * getBalance()) | currency: tournamentCurrency }}</button>
+              <button *ngSwitchCase="BALANCE_ACTION_NOCHANGE" mat-raised-button color="primary" matStepperNext type="submit">Close</button>
             </ng-container>
           </div>
         </mat-step>
-        <mat-step label="Completed">
-          Your changes have been confirmed successfully.  A receipt of your purchase was sent to your email.
-          <div class="wizard-button-bar" fxLayout="row">
-<!--            <button mat-raised-button matStepperPrevious type="button">Back</button>-->
-            <span fxFlex></span>
-            <button mat-raised-button color="primary" type="submit">Finish</button>
-          </div>
-        </mat-step>
+<!--        <mat-step label="Completed">-->
+<!--          Your changes have been confirmed successfully.  A receipt of your purchase was sent to your email.-->
+<!--          <div class="wizard-button-bar" fxLayout="row">-->
+<!--&lt;!&ndash;            <button mat-raised-button matStepperPrevious type="button">Back</button>&ndash;&gt;-->
+<!--            <span fxFlex></span>-->
+<!--            <button mat-raised-button color="primary" type="submit">Finish</button>-->
+<!--          </div>-->
+<!--        </mat-step>-->
       </mat-vertical-stepper>
     </form>
   </div>

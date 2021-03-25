@@ -12,8 +12,9 @@ import {StartTimePipe} from './pipes/start-time.pipe';
 import {EventDayPipePipe} from './pipes/event-day-pipe.pipe';
 import {CenteredPanelComponent} from './centered-panel/centered-panel.component';
 import {FlexLayoutModule} from '@angular/flex-layout';
-import { DebounceClicksDirective } from './directives/debounce-clicks.directive';
-import { MessageAreaComponent } from './message-area/message-area.component';
+import {DebounceClicksDirective} from './directives/debounce-clicks.directive';
+import {MessageAreaComponent} from './message-area/message-area.component';
+import {TypographyComponent} from './typograhpy/typography.component';
 
 
 @NgModule({
@@ -25,26 +26,28 @@ import { MessageAreaComponent } from './message-area/message-area.component';
     EventDayPipePipe,
     CenteredPanelComponent,
     DebounceClicksDirective,
-    MessageAreaComponent
+    MessageAreaComponent,
+    TypographyComponent
   ],
-    exports: [
-        LinearProgressBarComponent,
-        DateBeforeDirective,
-        ConfirmationPopupComponent,
-        StartTimePipe,
-        EventDayPipePipe,
-        CenteredPanelComponent,
-        DebounceClicksDirective,
-        MessageAreaComponent
-    ],
-    imports: [
-        CommonModule,
-        MatProgressBarModule,
-        MatCardModule,
-        MatDialogModule,
-        MatButtonModule,
-        FlexLayoutModule
-    ],
+  exports: [
+    LinearProgressBarComponent,
+    DateBeforeDirective,
+    ConfirmationPopupComponent,
+    StartTimePipe,
+    EventDayPipePipe,
+    CenteredPanelComponent,
+    DebounceClicksDirective,
+    MessageAreaComponent,
+    TypographyComponent
+  ],
+  imports: [
+    CommonModule,
+    MatProgressBarModule,
+    MatCardModule,
+    MatDialogModule,
+    MatButtonModule,
+    FlexLayoutModule
+  ],
   providers: [
     LocalStorageService
   ]
