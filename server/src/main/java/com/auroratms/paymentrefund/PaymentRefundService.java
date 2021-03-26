@@ -2,6 +2,8 @@ package com.auroratms.paymentrefund;
 
 import com.stripe.Stripe;
 import com.stripe.exception.StripeException;
+import com.stripe.model.Charge;
+import com.stripe.model.ChargeCollection;
 import com.stripe.model.PaymentIntent;
 import com.stripe.model.Refund;
 import com.stripe.net.RequestOptions;
@@ -18,7 +20,6 @@ import java.util.List;
 import java.util.Map;
 
 @Service
-@Transactional
 public class PaymentRefundService {
     @Value("${stripe.secret.key}")
     private String stripeApiKey;
@@ -63,34 +64,78 @@ public class PaymentRefundService {
     }
 
     /**
+     * Translate paymentIntentId to chargeId
      *
-     * @param paymentIntentId original payment intent used to create a charge
-     * @param amount amount to refund
+     * @param paymentIntentId payment intent id
+     * @param accountId       connected account id
+     * @return
+     * @throws StripeException
      */
-    public Refund refundCharge(String paymentIntentId, long amount) throws StripeException {
+    public String getChargeId(String paymentIntentId, String accountId) throws StripeException {
         Stripe.apiKey = this.stripeApiKey;
+        String chargeId = null;
+        RequestOptions requestParams = RequestOptions
+                .builder()
+                .setStripeAccount(accountId)
+                .build();
+        PaymentIntent paymentIntent = PaymentIntent.retrieve(paymentIntentId, requestParams);
+        ChargeCollection chargesCollection = paymentIntent.getCharges();
+        Iterable<Charge> pagingIterable = chargesCollection.autoPagingIterable();
+        for (Charge charge : pagingIterable) {
+            if (charge.getPaid()) {
+                chargeId = charge.getId();
+                break;
+            }
+        }
 
-        return Refund.create(RefundCreateParams.builder()
-                .setAmount(amount)
-                .setPaymentIntent(paymentIntentId)
-                .setRefundApplicationFee(true)
-                .build());
+        return chargeId;
     }
 
     /**
-     * Records successful payment
+     * Refunds individual charge associated with the payment intent id
+     *
+     * @param paymentIntentId original payment intent used to create a charge
+     * @param amount          amount to refund
+     * @param accountId       connected account id
+     */
+    public Refund refundCharge(String paymentIntentId, long amount, String accountId) throws StripeException {
+        Stripe.apiKey = this.stripeApiKey;
+
+        // get charge id for this intent id
+        String chargeId = getChargeId(paymentIntentId, accountId);
+
+        // refund direct charge
+        RefundCreateParams params = RefundCreateParams.builder()
+                .setAmount(amount)
+                .setCharge(chargeId)
+                .setRefundApplicationFee(true)
+                .build();
+
+        RequestOptions requestOptions = RequestOptions
+                .builder()
+                .setStripeAccount(accountId)
+                .build();
+        return Refund.create(params, requestOptions);
+    }
+
+    /**
+     * Records successful payment or refund
+     *
      * @param paymentRefund payment or refund to record
      */
-    public PaymentRefund recordPayment(PaymentRefund paymentRefund) {
+    @Transactional
+    public PaymentRefund recordPaymentRefund(PaymentRefund paymentRefund) throws StripeException {
         return this.paymentRefundRepository.save(paymentRefund);
     }
 
     /**
      * Gets all payment refunds for
+     *
      * @param itemId
      * @param paymentRefundFor
      * @return
      */
+    @Transactional(readOnly = true)
     public List<PaymentRefund> getPaymentRefunds(long itemId, PaymentRefundFor paymentRefundFor) {
         return this.paymentRefundRepository.findPaymentRefundsByItemIdAndPaymentRefundFor(itemId, paymentRefundFor);
     }

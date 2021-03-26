@@ -15,6 +15,7 @@ import {PaymentDialogService} from '../../../account/service/payment-dialog.serv
 import {TournamentInfo} from '../../tournament/tournament-info.model';
 import {PaymentRefund} from '../../../account/model/payment-refund.model';
 import {PaymentRefundStatus} from '../../../account/model/payment-refund-status.enum';
+import {RefundDialogService} from '../../../account/service/refund-dialog.service';
 
 @Component({
   selector: 'app-entry-wizard',
@@ -87,7 +88,8 @@ export class EntryWizardComponent implements OnInit, OnChanges {
 
   constructor(private dialog: MatDialog,
               private _change: ChangeDetectorRef,
-              private paymentDialogService: PaymentDialogService) {
+              private paymentDialogService: PaymentDialogService,
+              private refundDialogService: RefundDialogService) {
     this.paymentsRefunds = [];
     this.tournamentCurrency = 'USD';
     this.dirty = false;
@@ -273,6 +275,13 @@ export class EntryWizardComponent implements OnInit, OnChanges {
     return total;
   }
 
+  /**
+   * Gets balance without negative sign
+   */
+  getAbsoluteBalance() {
+    return Math.abs(this.getBalance());
+  }
+
   getTournamentId(): number {
     return this.entry?.tournamentFk;
   }
@@ -321,20 +330,21 @@ export class EntryWizardComponent implements OnInit, OnChanges {
    *
    */
   onPayPlayerTotal(balance: number) {
-    const amount: number = this.getBalance() * 100;
+    const amount: number = balance * 100;
     const fullName = this.playerProfile.firstName + ' ' + this.playerProfile.lastName;
     const postalCode = this.playerProfile.zipCode;
     const email = this.playerProfile.email;
     const tournamentName = this.tournamentInfo.name;
     const paymentData: PaymentData = {
       paymentRefundFor: PaymentRefundFor.TOURNAMENT_ENTRY,
-      itemId: this.getTournamentId(),
-      subItemId: this.entry.id,
+      accountItemId: this.getTournamentId(),
+      transactionItemId: this.entry.id,
       amount: amount,
       statementDescriptor: tournamentName,
       fullName: fullName,
       postalCode: postalCode,
       receiptEmail: email,
+      isRefund: false,
       stripeInstance: null
     };
     const callbackData: CallbackData = {
@@ -372,7 +382,40 @@ export class EntryWizardComponent implements OnInit, OnChanges {
    * Issues a refund
    */
   onIssueRefund(refundAmount: number) {
-    console.log('issuing refund...');
+    const amount: number = refundAmount * 100;
+    const fullName = this.playerProfile.firstName + ' ' + this.playerProfile.lastName;
+    const postalCode = this.playerProfile.zipCode;
+    const email = this.playerProfile.email;
+    const tournamentName = this.tournamentInfo.name;
+    const refundData: PaymentData = {
+      paymentRefundFor: PaymentRefundFor.TOURNAMENT_ENTRY,
+      accountItemId: this.getTournamentId(),
+      transactionItemId: this.entry.id,
+      amount: amount,
+      statementDescriptor: tournamentName,
+      fullName: fullName,
+      postalCode: postalCode,
+      receiptEmail: email,
+      isRefund: true,
+      stripeInstance: null
+    };
+    const callbackData: CallbackData = {
+      successCallbackFn: this.onRefundSuccessful,
+      cancelCallbackFn: this.onRefundCanceled,
+      callbackScope: this
+    };
+    this.refundDialogService.showRefundDialog(refundData, callbackData);
+  }
+
+  public onRefundSuccessful(scope: any): void {
+    console.log ('refund successful');
+    if (scope != null) {
+      scope.confirmEntry();
+    }
+  }
+
+  public onRefundCanceled(scope: any): void {
+    console.log ('refund cancelled');
   }
 
   confirmEntry() {
@@ -426,4 +469,7 @@ export class EntryWizardComponent implements OnInit, OnChanges {
     }
   }
 
+  isPayment(paymentRefund: PaymentRefund) {
+    return paymentRefund.status === PaymentRefundStatus.PAYMENT_COMPLETED;
+  }
 }

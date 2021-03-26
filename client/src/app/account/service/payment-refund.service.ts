@@ -43,6 +43,26 @@ export class PaymentRefundService {
       );
   }
 
+  issueRefund(refundData: PaymentData) {
+    const url = `/api/paymentrefund/issuerefund`;
+    this.setLoading(true);
+    return this.httpClient.post<PaymentIntentResponse>(url, refundData)
+      .pipe(
+        tap(() => {
+            this.setLoading(false);
+          },
+          (error: any) => {
+            this.setLoading(false);
+          }),
+        map((response: PaymentIntentResponse) => {
+            console.log('got refund response ' + JSON.stringify(response));
+            return response;
+          }
+        )
+      );
+  }
+
+
   /**
    *
    */

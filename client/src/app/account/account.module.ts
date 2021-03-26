@@ -20,6 +20,7 @@ import {NgxStripeModule} from 'ngx-stripe';
 import {MatDialogModule} from '@angular/material/dialog';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 import {MatProgressBarModule} from '@angular/material/progress-bar';
+import { RefundDialogComponent } from './refund-dialog/refund-dialog.component';
 
 
 @NgModule({
@@ -29,7 +30,8 @@ import {MatProgressBarModule} from '@angular/material/progress-bar';
     AccountLandingComponent,
     AccountRefreshComponent,
     ConnectWithStripeIconComponent,
-    PaymentDialogComponent
+    PaymentDialogComponent,
+    RefundDialogComponent
   ],
   exports: [
     PaymentDialogComponent

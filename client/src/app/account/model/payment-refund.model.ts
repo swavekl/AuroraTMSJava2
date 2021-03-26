@@ -1,13 +1,20 @@
 import {PaymentRefundFor} from '../payment-dialog/payment-data';
 import {PaymentRefundStatus} from './payment-refund-status.enum';
 
+/**
+ * Class representing individual payment or refund
+ */
 export class PaymentRefund {
 
   // stripe payment intent id
   id: number;
 
-  // Stripe payment intent id
+  // for payments this is Stripe payment intent id
+  // for refunds, then this is payment id from which this refund was made
   paymentIntentId: string;
+
+  // Stripe refund id if this is a refund
+  refundId: string;
 
   // what this payment is for i.e. what is represented by itemId
   paymentRefundFor: PaymentRefundFor;
@@ -23,4 +30,7 @@ export class PaymentRefund {
 
   // status of the payment
   status: PaymentRefundStatus = PaymentRefundStatus.PAYMENT_COMPLETED;
+
+  // Stripe error message
+  errorCause: string;
 }

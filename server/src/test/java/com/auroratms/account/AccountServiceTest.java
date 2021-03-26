@@ -25,8 +25,7 @@ public class AccountServiceTest extends AbstractServiceTest {
         AccountEntity account = new AccountEntity();
         account.setAccountId("acct_1234567890");
         account.setProfileId(userProfileId);
-        account.setAccountPublicKey("pk_test_12345678");
-        account.setAccountSecretKey("sk_test_abcdefgh");
+        account.setEmail("bozo@yahoo.com");
         account.setActivated(false);
         this.accountService.save(account);
 

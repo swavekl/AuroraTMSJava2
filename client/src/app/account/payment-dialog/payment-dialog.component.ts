@@ -236,7 +236,7 @@ export class PaymentDialogComponent implements OnInit, OnDestroy {
   private recordPaymentComplete(paymentIntentId: string) {
     const paymentRefund: PaymentRefund = new PaymentRefund();
     paymentRefund.amount = this.data.amount;
-    paymentRefund.itemId = this.data.subItemId;
+    paymentRefund.itemId = this.data.transactionItemId;
     paymentRefund.paymentIntentId = paymentIntentId;
     paymentRefund.paymentRefundFor = this.data.paymentRefundFor;
     paymentRefund.status = PaymentRefundStatus.PAYMENT_COMPLETED;

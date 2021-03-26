@@ -142,19 +142,19 @@
               </tr>
               <tr *ngFor="let paymentRefund of paymentsRefunds; last as last">
                 <td>
-                  <div>Payment on</div>
-                  <div class="summary-item-second-line">{{ paymentRefund.transactionDate | date:'medium'}}</div>
+                  <div>{{ isPayment(paymentRefund) ? 'Payment' : 'Refund' }}</div>
+                  <div class="summary-item-second-line">on {{ paymentRefund.transactionDate | date:'medium'}}</div>
                 </td>
                 <td>
-                  {{ (paymentRefund.amount / 100) | currency: tournamentCurrency }}
+                  {{ isPayment(paymentRefund) ? '' : '-' }}{{ (paymentRefund.amount / 100) | currency: tournamentCurrency }}
                 </td>
               </tr>
             </ng-container>
             </tbody>
             <tfoot>
             <tr>
-              <td><h2>Balance</h2></td>
-              <td><h2>{{ getBalance() | currency: tournamentCurrency }}</h2>
+              <td><h2>{{ (getBalance() < 0) ? 'Refund' : 'Balance' }}</h2></td>
+              <td><h2>{{ getAbsoluteBalance() | currency: tournamentCurrency }}</h2>
               </td>
             </tr>
             </tfoot>
@@ -165,7 +165,7 @@
             <ng-container [ngSwitch]="balanceAction()">
               <button *ngSwitchCase="BALANCE_ACTION_CONFIRM" mat-raised-button color="primary" type="button" (click)="onConfirmWithoutPayment()">Confirm Changes</button>
               <button *ngSwitchCase="BALANCE_ACTION_PAY"     mat-raised-button color="primary" type="button" (click)="onPayPlayerTotal(getBalance())">Pay {{ getBalance() | currency: tournamentCurrency }}</button>
-              <button *ngSwitchCase="BALANCE_ACTION_REFUND"  mat-raised-button color="primary" type="button" (click)="onIssueRefund(getBalance())">Refund {{ (-1 * getBalance()) | currency: tournamentCurrency }}</button>
+              <button *ngSwitchCase="BALANCE_ACTION_REFUND"  mat-raised-button color="primary" type="button" (click)="onIssueRefund(getAbsoluteBalance())">Refund {{ getAbsoluteBalance() | currency: tournamentCurrency }}</button>
               <button *ngSwitchCase="BALANCE_ACTION_NOCHANGE" mat-raised-button color="primary" matStepperNext type="submit">Close</button>
             </ng-container>
           </div>

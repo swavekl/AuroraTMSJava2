@@ -11,10 +11,13 @@ import lombok.NoArgsConstructor;
 public class PaymentRefundRequest {
 
     // what this payment is for
-    private PaymentRefundFor paymentRefundFor;
+    private PaymentRefundFor paymentRefundFor = PaymentRefundFor.TOURNAMENT_ENTRY;
 
-    // id of a tournament, clinic or something for which we are paying/refunding
-    long itemId;
+    // item id which identifies the account to which the payment is to be made e.g. tournament
+    long accountItemId;
+
+    // item id for which the payment is meant e.g. tournament entry
+    long transactionItemId;
 
     // this is decimal expressed as a number $20.34 is 2034
     int amount;

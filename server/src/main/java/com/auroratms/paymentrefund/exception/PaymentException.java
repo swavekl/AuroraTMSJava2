@@ -1,4 +1,4 @@
-package com.auroratms.paymentrefund;
+package com.auroratms.paymentrefund.exception;
 
 /**
  * Payment exception

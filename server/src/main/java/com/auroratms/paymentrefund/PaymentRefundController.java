@@ -2,11 +2,14 @@ package com.auroratms.paymentrefund;
 
 import com.auroratms.account.AccountEntity;
 import com.auroratms.account.AccountService;
+import com.auroratms.paymentrefund.exception.PaymentException;
 import com.auroratms.profile.UserProfileService;
 import com.auroratms.tournament.TournamentService;
 import com.stripe.Stripe;
+import com.stripe.exception.StripeException;
 import com.stripe.model.Account;
 import com.stripe.model.PaymentIntent;
+import com.stripe.model.Refund;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -15,9 +18,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @RestController
 @RequestMapping("api/paymentrefund")
@@ -77,12 +78,12 @@ public class PaymentRefundController {
     public ResponseEntity getSecret(@RequestBody PaymentRefundRequest paymentRefundRequest) {
         try {
             // retrieve the account for this entity
-            long itemId = paymentRefundRequest.getItemId();
+            long accountItemId = paymentRefundRequest.getAccountItemId();
             PaymentRefundFor paymentRefundFor = paymentRefundRequest.getPaymentRefundFor();
             String clientSecret = null;
             switch (paymentRefundFor) {
                 case TOURNAMENT_ENTRY:
-                    clientSecret = makeTournamentPaymentIntent(itemId,
+                    clientSecret = makeTournamentPaymentIntent(accountItemId,
                             paymentRefundRequest.getAmount(),
                             paymentRefundRequest.getStatementDescriptor(),
                             paymentRefundRequest.getFullName(),
@@ -160,7 +161,12 @@ public class PaymentRefundController {
     @PostMapping("/recordpayment")
     @ResponseBody
     public ResponseEntity recordPayment(@RequestBody PaymentRefund paymentRefund) {
-        return new ResponseEntity(this.paymentRefundService.recordPayment(paymentRefund), HttpStatus.CREATED);
+        try {
+            return new ResponseEntity(this.paymentRefundService.recordPaymentRefund(paymentRefund), HttpStatus.CREATED);
+        } catch (StripeException e) {
+            String errorMessage = String.format("Unable to record payment %s", e.getMessage());
+            return new ResponseEntity(errorMessage, HttpStatus.BAD_REQUEST);
+        }
     }
 
     /**
@@ -173,5 +179,73 @@ public class PaymentRefundController {
     public ResponseEntity<List<PaymentRefund>> listTournamentEntryPaymentsAndRefunds (@PathVariable long tournamentEntryId) {
         List<PaymentRefund> paymentRefunds = this.paymentRefundService.getPaymentRefunds(tournamentEntryId, PaymentRefundFor.TOURNAMENT_ENTRY);
         return new ResponseEntity(paymentRefunds, HttpStatus.OK);
+    }
+
+    /**
+     * Starts the payment session
+     *
+     * @param paymentRefundRequest
+     * @return
+     */
+    @PostMapping("/issuerefund")
+    @ResponseBody
+    public ResponseEntity issueRefund(@RequestBody PaymentRefundRequest paymentRefundRequest) {
+        try {
+            long accountItemId = paymentRefundRequest.getAccountItemId();
+            PaymentRefundFor paymentRefundFor = paymentRefundRequest.getPaymentRefundFor();
+            List<PaymentRefund> processedRefunds = new ArrayList<>();
+            switch (paymentRefundFor) {
+                case TOURNAMENT_ENTRY:
+                    // get account id for this tournament
+                    long tournamentEntryId = paymentRefundRequest.getTransactionItemId();
+                    AccountEntity accountEntity = getAccountForTournament(accountItemId);
+                    // get all previous payments and refunds
+                    List<PaymentRefund> paymentRefunds = this.paymentRefundService.getPaymentRefunds(tournamentEntryId,
+                            PaymentRefundFor.TOURNAMENT_ENTRY);
+                    processedRefunds = issueRefunds(paymentRefunds, paymentRefundRequest.amount, accountEntity.getAccountId());
+                    break;
+                case CLINIC:
+                    break;
+                case USATT_FEE:
+                    break;
+            }
+            return new ResponseEntity(processedRefunds, HttpStatus.OK);
+        } catch (Exception e) {
+            String errorMessage = String.format("Unable to issue full refund %s", e.getMessage());
+            return new ResponseEntity(errorMessage, HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    /**
+     *
+     * @param paymentRefunds
+     * @param amount
+     * @param accountId
+     * @return
+     */
+    private List<PaymentRefund> issueRefunds(List<PaymentRefund> paymentRefunds, int amount, String accountId) throws StripeException {
+        // figure out which payments need to be refunded
+        RefundCalculator refundCalculator = new RefundCalculator(paymentRefunds, amount);
+        List<PaymentRefund> refundsToIssue = refundCalculator.determineRefunds();
+        List<PaymentRefund> processedRefunds = new ArrayList<>(refundsToIssue.size());
+        for (PaymentRefund refund : refundsToIssue) {
+//                try {
+                // issue refund via Stripe
+                Refund stripeRefund = this.paymentRefundService.refundCharge(
+                        refund.getPaymentIntentId(), refund.getAmount(), accountId);
+
+                // record successful refund
+                refund.setRefundId(stripeRefund.getId());
+//                } catch (StripeException e) {
+//                    System.out.println("stripe error = " + e.getStripeError());
+//                    System.out.println("e.getMessage() = " + e.getMessage());
+//                    // try to issue as many refunds as necessary if one of them fails
+//                    refund.setStatus(PaymentRefundStatus.REFUND_ERROR);
+//                    refund.setErrorCause(e.getMessage());
+//                }
+            PaymentRefund savedRefund = this.paymentRefundService.recordPaymentRefund(refund);
+            processedRefunds.add(savedRefund);
+        }
+        return processedRefunds;
     }
 }

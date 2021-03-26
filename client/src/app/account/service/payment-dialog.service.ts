@@ -32,7 +32,7 @@ export class PaymentDialogService {
   public showPaymentDialog(paymentData: PaymentData, callbackData: CallbackData) {
 
     // get stripe public key
-    const keyAccountInfo$: Observable<KeyAccountInfo> = this.paymentRefundService.getKeyAccountInfo(paymentData.itemId);
+    const keyAccountInfo$: Observable<KeyAccountInfo> = this.paymentRefundService.getKeyAccountInfo(paymentData.accountItemId);
     keyAccountInfo$
       .pipe(first())
       .subscribe(
