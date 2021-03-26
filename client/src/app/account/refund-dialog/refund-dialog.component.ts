@@ -1,9 +1,9 @@
 import {Component, Inject, Input, OnDestroy, OnInit} from '@angular/core';
 import {BehaviorSubject, Observable, Subscription} from 'rxjs';
 import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
-import {PaymentData} from '../payment-dialog/payment-data';
+import {RefundData} from '../payment-dialog/payment-data';
 import {distinctUntilChanged} from 'rxjs/operators';
-import {PaymentRefundService} from '../service/payment-refund.service';
+import {PaymentRefundService, RefundResponse} from '../service/payment-refund.service';
 
 @Component({
   selector: 'app-refund-dialog',
@@ -21,6 +21,7 @@ export class RefundDialogComponent implements OnInit, OnDestroy {
   refundInProgress$: Observable<boolean>;
 
   errorMessage: string;
+  completionMessage: string;
   isError: boolean;
 
   refundComplete: boolean;
@@ -31,11 +32,12 @@ export class RefundDialogComponent implements OnInit, OnDestroy {
   private subscriptions: Subscription = new Subscription();
 
   constructor(public dialogRef: MatDialogRef<RefundDialogComponent>,
-              @Inject(MAT_DIALOG_DATA) public data: PaymentData,
+              @Inject(MAT_DIALOG_DATA) public data: RefundData,
               private paymentRefundService: PaymentRefundService) {
     this.refundInProgress$ = this.refundInProgressSubject.asObservable().pipe(distinctUntilChanged());
     this.refundComplete = false;
     this.isError = true;
+    this.completionMessage = 'Press Submit to initiate refund.';
   }
 
   ngOnInit(): void {
@@ -54,22 +56,24 @@ export class RefundDialogComponent implements OnInit, OnDestroy {
   }
 
   onSubmit() {
-    console.log('refunding...');
     this.setRefundInProgress(true);
     this.paymentRefundService.issueRefund(this.data)
       .subscribe(
-        () => {
+        (response: RefundResponse) => {
           this.isError = false;
+          const numRefundedCharges: number = (response != null && response.refunds != null) ? response.refunds.length : 0;
+          this.completionMessage = `Successfully refunded ${numRefundedCharges} charge(s)`;
           this.errorMessage = 'Success';
         },
         (error: any) => {
           console.log('got error from payment refund' + JSON.stringify(error));
           this.errorMessage = error?.error;
+        },
+        () => {
+          this.setRefundInProgress(false);
+          this.refundComplete = true;
         }
       );
-
-    this.setRefundInProgress(false);
-    this.refundComplete = true;
   }
 
   onClose() {

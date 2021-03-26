@@ -45,8 +45,5 @@ public class PaymentRefund {
     // status of the payment
     @NonNull
     PaymentRefundStatus status = PaymentRefundStatus.PAYMENT_COMPLETED;
-
-    // Stripe error message
-    String errorCause;
 }
 

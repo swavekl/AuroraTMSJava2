@@ -10,7 +10,7 @@ import {AvailabilityStatus} from '../model/availability-status.enum';
 import {EventEntryCommand} from '../model/event-entry-command.enum';
 import {Profile} from '../../../profile/profile';
 import {DateUtils} from '../../../shared/date-utils';
-import {CallbackData, PaymentData, PaymentRefundFor} from '../../../account/payment-dialog/payment-data';
+import {CallbackData, PaymentData, PaymentRefundFor, RefundData} from '../../../account/payment-dialog/payment-data';
 import {PaymentDialogService} from '../../../account/service/payment-dialog.service';
 import {TournamentInfo} from '../../tournament/tournament-info.model';
 import {PaymentRefund} from '../../../account/model/payment-refund.model';
@@ -344,7 +344,6 @@ export class EntryWizardComponent implements OnInit, OnChanges {
       fullName: fullName,
       postalCode: postalCode,
       receiptEmail: email,
-      isRefund: false,
       stripeInstance: null
     };
     const callbackData: CallbackData = {
@@ -383,21 +382,11 @@ export class EntryWizardComponent implements OnInit, OnChanges {
    */
   onIssueRefund(refundAmount: number) {
     const amount: number = refundAmount * 100;
-    const fullName = this.playerProfile.firstName + ' ' + this.playerProfile.lastName;
-    const postalCode = this.playerProfile.zipCode;
-    const email = this.playerProfile.email;
-    const tournamentName = this.tournamentInfo.name;
-    const refundData: PaymentData = {
+    const refundData: RefundData = {
       paymentRefundFor: PaymentRefundFor.TOURNAMENT_ENTRY,
       accountItemId: this.getTournamentId(),
       transactionItemId: this.entry.id,
-      amount: amount,
-      statementDescriptor: tournamentName,
-      fullName: fullName,
-      postalCode: postalCode,
-      receiptEmail: email,
-      isRefund: true,
-      stripeInstance: null
+      amount: amount
     };
     const callbackData: CallbackData = {
       successCallbackFn: this.onRefundSuccessful,

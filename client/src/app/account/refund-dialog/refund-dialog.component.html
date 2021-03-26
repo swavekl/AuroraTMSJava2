@@ -1,22 +1,35 @@
 <div mat-dialog-title class="refund-amount-header">{{ (data.amount / 100) | currency: currencyCode }}</div>
 <div mat-dialog-content>
-<p>Refunding...</p>
-</div>
-<div class="linear-progress-indicator">
-  <mat-progress-bar *ngIf="refundInProgress$ | async; else elseblock" mode="indeterminate" color="accent"
-                    style="height: 8px; width: 100%;"></mat-progress-bar>
-  <ng-template #elseblock>
-    <div style="height: 8px; width: 100%; background-color: white;"></div>
+  <div *ngIf="refundInProgress$ | async; else elseblocktextual">
+    <div>Refunding charge(s)...</div>
+  </div>
+  <ng-template #elseblocktextual>
+    <div>{{ completionMessage }}</div>
   </ng-template>
+  <div class="linear-progress-indicator-refund">
+    <mat-progress-bar *ngIf="refundInProgress$ | async; else elseblock" mode="indeterminate" color="accent"
+                      style="height: 8px; width: 100%;"></mat-progress-bar>
+    <ng-template #elseblock>
+      <div style="height: 8px; width: 100%; background-color: white;"></div>
+    </ng-template>
+  </div>
 </div>
 <app-message-area [message]="errorMessage" [isError]="isError"></app-message-area>
 <div mat-dialog-actions fxLayout="row">
-  <button [style.display]="refundComplete ? 'none' : 'block'" mat-raised-button (click)="onCancel()" [disabled]="this.refundInProgress$ | async">Cancel</button>
+  <button [style.display]="refundComplete ? 'none' : 'block'" mat-raised-button (click)="onCancel()"
+          [disabled]="this.refundInProgress$ | async">Cancel
+  </button>
   <span fxFlex></span>
-  <button [style.display]="refundComplete ? 'none' : 'block'" mat-raised-button color="primary" type="submit" (click)="onSubmit()" debounceClicks
+  <button [style.display]="refundComplete ? 'none' : 'block'" mat-raised-button color="primary" type="submit"
+          (click)="onSubmit()" debounceClicks
           [disabled]="this.refundInProgress$ | async">
-    Submit</button>
-  <button [style.display]="!refundComplete ? 'none' : 'block'" mat-raised-button color="primary" (click)="onClose()">
-    Close</button>
+    Submit
+  </button>
+  <button [style.display]="!refundComplete ? 'none' : 'block'"
+          [disabled]="this.refundInProgress$ | async"
+          mat-raised-button color="primary"
+          (click)="onClose()">
+    Close
+  </button>
 </div>
 

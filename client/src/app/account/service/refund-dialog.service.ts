@@ -1,7 +1,7 @@
 import {Injectable} from '@angular/core';
 import {PaymentRefundService} from './payment-refund.service';
 import {MatDialog, MatDialogConfig} from '@angular/material/dialog';
-import {CallbackData, PaymentData} from '../payment-dialog/payment-data';
+import {CallbackData, RefundData} from '../payment-dialog/payment-data';
 import {RefundDialogComponent} from '../refund-dialog/refund-dialog.component';
 
 @Injectable({
@@ -18,9 +18,9 @@ export class RefundDialogService {
    * @param refundData
    * @param callbackData
    */
-  showRefundDialog(refundData: PaymentData, callbackData: CallbackData) {
+  showRefundDialog(refundData: RefundData, callbackData: CallbackData) {
     const config: MatDialogConfig = {
-      width: '330px', height: '300px', data: refundData
+      width: '330px', height: '240px', data: refundData
     };
 
     const callbackScope = callbackData.callbackScope;

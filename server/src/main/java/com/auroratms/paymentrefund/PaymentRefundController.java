@@ -46,6 +46,7 @@ public class PaymentRefundController {
 
     /**
      * Gets the stripe public key for the Connect account
+     *
      * @return
      */
     @GetMapping("/keyaccountinfo/{tournamentId}")
@@ -70,24 +71,24 @@ public class PaymentRefundController {
     /**
      * Starts the payment session
      *
-     * @param paymentRefundRequest
+     * @param paymentRequest
      * @return
      */
     @PostMapping("/secret")
     @ResponseBody
-    public ResponseEntity getSecret(@RequestBody PaymentRefundRequest paymentRefundRequest) {
+    public ResponseEntity getSecret(@RequestBody PaymentRequest paymentRequest) {
         try {
             // retrieve the account for this entity
-            long accountItemId = paymentRefundRequest.getAccountItemId();
-            PaymentRefundFor paymentRefundFor = paymentRefundRequest.getPaymentRefundFor();
+            long accountItemId = paymentRequest.getAccountItemId();
+            PaymentRefundFor paymentRefundFor = paymentRequest.getPaymentRefundFor();
             String clientSecret = null;
             switch (paymentRefundFor) {
                 case TOURNAMENT_ENTRY:
                     clientSecret = makeTournamentPaymentIntent(accountItemId,
-                            paymentRefundRequest.getAmount(),
-                            paymentRefundRequest.getStatementDescriptor(),
-                            paymentRefundRequest.getFullName(),
-                            paymentRefundRequest.getReceiptEmail());
+                            paymentRequest.getAmount(),
+                            paymentRequest.getStatementDescriptor(),
+                            paymentRequest.getFullName(),
+                            paymentRequest.getReceiptEmail());
                     break;
                 case CLINIC:
                     break;
@@ -139,6 +140,7 @@ public class PaymentRefundController {
 
     /**
      * Gets account for tournament by finding its owner (Tournament Director)
+     *
      * @param tournamentId id of the tournament for which to get the account id
      * @return
      */
@@ -155,7 +157,6 @@ public class PaymentRefundController {
     }
 
     /**
-     *
      * @param paymentRefund
      */
     @PostMapping("/recordpayment")
@@ -171,12 +172,13 @@ public class PaymentRefundController {
 
     /**
      * Gets a list of payments and refunds
+     *
      * @param tournamentEntryId
      * @return
      */
     @GetMapping("/listforentry/{tournamentEntryId}")
     @ResponseBody
-    public ResponseEntity<List<PaymentRefund>> listTournamentEntryPaymentsAndRefunds (@PathVariable long tournamentEntryId) {
+    public ResponseEntity<List<PaymentRefund>> listTournamentEntryPaymentsAndRefunds(@PathVariable long tournamentEntryId) {
         List<PaymentRefund> paymentRefunds = this.paymentRefundService.getPaymentRefunds(tournamentEntryId, PaymentRefundFor.TOURNAMENT_ENTRY);
         return new ResponseEntity(paymentRefunds, HttpStatus.OK);
     }
@@ -184,32 +186,34 @@ public class PaymentRefundController {
     /**
      * Starts the payment session
      *
-     * @param paymentRefundRequest
+     * @param refundRequest
      * @return
      */
     @PostMapping("/issuerefund")
     @ResponseBody
-    public ResponseEntity issueRefund(@RequestBody PaymentRefundRequest paymentRefundRequest) {
+    public ResponseEntity issueRefund(@RequestBody RefundRequest refundRequest) {
         try {
-            long accountItemId = paymentRefundRequest.getAccountItemId();
-            PaymentRefundFor paymentRefundFor = paymentRefundRequest.getPaymentRefundFor();
-            List<PaymentRefund> processedRefunds = new ArrayList<>();
+            long accountItemId = refundRequest.getAccountItemId();
+            PaymentRefundFor paymentRefundFor = refundRequest.getPaymentRefundFor();
+            List<Long> processedRefundIds = new ArrayList<>();
             switch (paymentRefundFor) {
                 case TOURNAMENT_ENTRY:
                     // get account id for this tournament
-                    long tournamentEntryId = paymentRefundRequest.getTransactionItemId();
+                    long tournamentEntryId = refundRequest.getTransactionItemId();
                     AccountEntity accountEntity = getAccountForTournament(accountItemId);
                     // get all previous payments and refunds
                     List<PaymentRefund> paymentRefunds = this.paymentRefundService.getPaymentRefunds(tournamentEntryId,
                             PaymentRefundFor.TOURNAMENT_ENTRY);
-                    processedRefunds = issueRefunds(paymentRefunds, paymentRefundRequest.amount, accountEntity.getAccountId());
+                    processedRefundIds = issueRefunds(paymentRefunds, refundRequest.getAmount(), accountEntity.getAccountId());
                     break;
                 case CLINIC:
                     break;
                 case USATT_FEE:
                     break;
             }
-            return new ResponseEntity(processedRefunds, HttpStatus.OK);
+            Map<String, Object> resultMap = new HashMap<>();
+            resultMap.put("refunds", processedRefundIds);
+            return new ResponseEntity(resultMap, HttpStatus.CREATED);
         } catch (Exception e) {
             String errorMessage = String.format("Unable to issue full refund %s", e.getMessage());
             return new ResponseEntity(errorMessage, HttpStatus.BAD_REQUEST);
@@ -217,35 +221,26 @@ public class PaymentRefundController {
     }
 
     /**
-     *
      * @param paymentRefunds
      * @param amount
      * @param accountId
      * @return
      */
-    private List<PaymentRefund> issueRefunds(List<PaymentRefund> paymentRefunds, int amount, String accountId) throws StripeException {
+    private List<Long> issueRefunds(List<PaymentRefund> paymentRefunds, int amount, String accountId) throws StripeException {
         // figure out which payments need to be refunded
         RefundCalculator refundCalculator = new RefundCalculator(paymentRefunds, amount);
         List<PaymentRefund> refundsToIssue = refundCalculator.determineRefunds();
-        List<PaymentRefund> processedRefunds = new ArrayList<>(refundsToIssue.size());
+        List<Long> processedRefundIds = new ArrayList<>(refundsToIssue.size());
         for (PaymentRefund refund : refundsToIssue) {
-//                try {
-                // issue refund via Stripe
-                Refund stripeRefund = this.paymentRefundService.refundCharge(
-                        refund.getPaymentIntentId(), refund.getAmount(), accountId);
+            // issue refund via Stripe
+            Refund stripeRefund = this.paymentRefundService.refundCharge(
+                    refund.getPaymentIntentId(), refund.getAmount(), accountId);
 
-                // record successful refund
-                refund.setRefundId(stripeRefund.getId());
-//                } catch (StripeException e) {
-//                    System.out.println("stripe error = " + e.getStripeError());
-//                    System.out.println("e.getMessage() = " + e.getMessage());
-//                    // try to issue as many refunds as necessary if one of them fails
-//                    refund.setStatus(PaymentRefundStatus.REFUND_ERROR);
-//                    refund.setErrorCause(e.getMessage());
-//                }
+            // record successful refund
+            refund.setRefundId(stripeRefund.getId());
             PaymentRefund savedRefund = this.paymentRefundService.recordPaymentRefund(refund);
-            processedRefunds.add(savedRefund);
+            processedRefundIds.add(savedRefund.getId());
         }
-        return processedRefunds;
+        return processedRefundIds;
     }
 }

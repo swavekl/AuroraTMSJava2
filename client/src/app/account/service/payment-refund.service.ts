@@ -1,7 +1,7 @@
 import {Injectable} from '@angular/core';
 import {BehaviorSubject, Observable} from 'rxjs';
 import {HttpClient} from '@angular/common/http';
-import {PaymentData, PaymentRefundFor} from '../payment-dialog/payment-data';
+import {PaymentData, RefundData} from '../payment-dialog/payment-data';
 import {distinctUntilChanged, map, tap} from 'rxjs/operators';
 import {PaymentRefund} from '../model/payment-refund.model';
 
@@ -43,10 +43,10 @@ export class PaymentRefundService {
       );
   }
 
-  issueRefund(refundData: PaymentData) {
+  issueRefund(refundData: RefundData): Observable<RefundResponse> {
     const url = `/api/paymentrefund/issuerefund`;
     this.setLoading(true);
-    return this.httpClient.post<PaymentIntentResponse>(url, refundData)
+    return this.httpClient.post<RefundResponse>(url, refundData)
       .pipe(
         tap(() => {
             this.setLoading(false);
@@ -54,8 +54,8 @@ export class PaymentRefundService {
           (error: any) => {
             this.setLoading(false);
           }),
-        map((response: PaymentIntentResponse) => {
-            console.log('got refund response ' + JSON.stringify(response));
+        map((response: RefundResponse) => {
+            // console.log('got refund response ' + JSON.stringify(response));
             return response;
           }
         )
@@ -119,6 +119,14 @@ export class PaymentRefundService {
  */
 export interface PaymentIntentResponse {
   clientSecret: string;
+}
+
+/**
+ * Refund response
+ */
+export interface RefundResponse {
+  // ids of PaymentRefund objects representing only refunded objects
+  refunds: number [];
 }
 
 /**

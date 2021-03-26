@@ -28,9 +28,6 @@ export class PaymentRefund {
   // date & time of payment or refund
   transactionDate: Date;
 
-  // status of the payment
+  // indicates if this is payment or refund
   status: PaymentRefundStatus = PaymentRefundStatus.PAYMENT_COMPLETED;
-
-  // Stripe error message
-  errorCause: string;
 }
