@@ -1,9 +1,9 @@
 import {Component, Inject, Input, OnDestroy, OnInit} from '@angular/core';
 import {BehaviorSubject, Observable, Subscription} from 'rxjs';
 import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
-import {RefundData} from '../payment-dialog/payment-data';
 import {distinctUntilChanged} from 'rxjs/operators';
 import {PaymentRefundService, RefundResponse} from '../service/payment-refund.service';
+import {RefundRequest} from '../model/refund-request.model';
 
 @Component({
   selector: 'app-refund-dialog',
@@ -32,7 +32,7 @@ export class RefundDialogComponent implements OnInit, OnDestroy {
   private subscriptions: Subscription = new Subscription();
 
   constructor(public dialogRef: MatDialogRef<RefundDialogComponent>,
-              @Inject(MAT_DIALOG_DATA) public data: RefundData,
+              @Inject(MAT_DIALOG_DATA) public data: RefundRequest,
               private paymentRefundService: PaymentRefundService) {
     this.refundInProgress$ = this.refundInProgressSubject.asObservable().pipe(distinctUntilChanged());
     this.refundComplete = false;

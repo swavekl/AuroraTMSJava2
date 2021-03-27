@@ -1,5 +1,4 @@
-<div mat-dialog-title class="credit-card-amount-header">{{ (data.amount / 100) | currency: currencyCode }}</div>
-<!--  <div>to: {{ payee }}</div>-->
+<div mat-dialog-title class="credit-card-amount-header">{{ (paymentRequest.amount / 100) | currency: currencyCode }}</div>
 <div mat-dialog-content>
   <ngx-stripe-card-group [formGroup]="formGroup" [elementsOptions]="elementsOptions" [stripe]="stripeInstance">
     <div fxLayout="column" class="credit-card-field">

@@ -1,8 +1,8 @@
-import {PaymentRefundFor} from '../payment-dialog/payment-data';
 import {PaymentRefundStatus} from './payment-refund-status.enum';
+import {PaymentRefundFor} from './payment-refund-for.enum';
 
 /**
- * Class representing individual payment or refund
+ * Class representing individual payment or refund in our database
  */
 export class PaymentRefund {
 

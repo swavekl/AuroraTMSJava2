@@ -34,7 +34,8 @@ import { RefundDialogComponent } from './refund-dialog/refund-dialog.component';
     RefundDialogComponent
   ],
   exports: [
-    PaymentDialogComponent
+    PaymentDialogComponent,
+    RefundDialogComponent
   ],
   imports: [
     CommonModule,

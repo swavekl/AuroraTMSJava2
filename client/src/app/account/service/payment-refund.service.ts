@@ -1,9 +1,10 @@
 import {Injectable} from '@angular/core';
 import {BehaviorSubject, Observable} from 'rxjs';
 import {HttpClient} from '@angular/common/http';
-import {PaymentData, RefundData} from '../payment-dialog/payment-data';
 import {distinctUntilChanged, map, tap} from 'rxjs/operators';
 import {PaymentRefund} from '../model/payment-refund.model';
+import {RefundRequest} from '../model/refund-request.model';
+import {PaymentRequest} from '../model/payment-request.model';
 
 /**
  * Service for initiating Stripe charges with payment intent and
@@ -24,10 +25,10 @@ export class PaymentRefundService {
     this.indicatorSubject$.next(loading);
   }
 
-  public createPaymentIntent(data: PaymentData): Observable<PaymentIntentResponse> {
+  public createPaymentIntent(paymentRequest: PaymentRequest): Observable<PaymentIntentResponse> {
     const url = `/api/paymentrefund/secret`;
     this.setLoading(true);
-    return this.httpClient.post<PaymentIntentResponse>(url, data)
+    return this.httpClient.post<PaymentIntentResponse>(url, paymentRequest)
       .pipe(
         tap(() => {
             this.setLoading(false);
@@ -43,10 +44,10 @@ export class PaymentRefundService {
       );
   }
 
-  issueRefund(refundData: RefundData): Observable<RefundResponse> {
+  issueRefund(refundRequest: RefundRequest): Observable<RefundResponse> {
     const url = `/api/paymentrefund/issuerefund`;
     this.setLoading(true);
-    return this.httpClient.post<RefundResponse>(url, refundData)
+    return this.httpClient.post<RefundResponse>(url, refundRequest)
       .pipe(
         tap(() => {
             this.setLoading(false);
@@ -61,7 +62,6 @@ export class PaymentRefundService {
         )
       );
   }
-
 
   /**
    *

@@ -10,11 +10,15 @@ import {AvailabilityStatus} from '../model/availability-status.enum';
 import {EventEntryCommand} from '../model/event-entry-command.enum';
 import {Profile} from '../../../profile/profile';
 import {DateUtils} from '../../../shared/date-utils';
-import {CallbackData, PaymentData, PaymentRefundFor, RefundData} from '../../../account/payment-dialog/payment-data';
-import {PaymentDialogService} from '../../../account/service/payment-dialog.service';
 import {TournamentInfo} from '../../tournament/tournament-info.model';
 import {PaymentRefund} from '../../../account/model/payment-refund.model';
+import {CallbackData} from '../../../account/model/callback-data';
+import {PaymentDialogData} from '../../../account/payment-dialog/payment-dialog-data';
+import {PaymentRefundFor} from '../../../account/model/payment-refund-for.enum';
 import {PaymentRefundStatus} from '../../../account/model/payment-refund-status.enum';
+import {PaymentRequest} from '../../../account/model/payment-request.model';
+import {RefundRequest} from '../../../account/model/refund-request.model';
+import {PaymentDialogService} from '../../../account/service/payment-dialog.service';
 import {RefundDialogService} from '../../../account/service/refund-dialog.service';
 
 @Component({
@@ -122,6 +126,8 @@ export class EntryWizardComponent implements OnInit, OnChanges {
       if (this.tournamentInfo != null) {
         this.teamsTournament = this.tournamentInfo.tournamentType === 'Teams';
         this.tournamentStartDate = new DateUtils().convertFromString(this.tournamentInfo.startDate);
+        // fetch account information in case they want to pay so the payment dialog comes up faster
+        this.paymentDialogService.prepareForPayment(this.tournamentInfo.id);
       }
     }
   }
@@ -335,7 +341,7 @@ export class EntryWizardComponent implements OnInit, OnChanges {
     const postalCode = this.playerProfile.zipCode;
     const email = this.playerProfile.email;
     const tournamentName = this.tournamentInfo.name;
-    const paymentData: PaymentData = {
+    const paymentRequest: PaymentRequest = {
       paymentRefundFor: PaymentRefundFor.TOURNAMENT_ENTRY,
       accountItemId: this.getTournamentId(),
       transactionItemId: this.entry.id,
@@ -344,14 +350,19 @@ export class EntryWizardComponent implements OnInit, OnChanges {
       fullName: fullName,
       postalCode: postalCode,
       receiptEmail: email,
+    };
+
+    const paymentDialogData: PaymentDialogData = {
+      paymentRequest: paymentRequest,
       stripeInstance: null
     };
+
     const callbackData: CallbackData = {
       successCallbackFn: this.onPaymentSuccessful,
       cancelCallbackFn: this.onPaymentCanceled,
       callbackScope: this
     };
-    this.paymentDialogService.showPaymentDialog(paymentData, callbackData);
+    this.paymentDialogService.showPaymentDialog(paymentDialogData, callbackData);
   }
 
   /**
@@ -382,7 +393,7 @@ export class EntryWizardComponent implements OnInit, OnChanges {
    */
   onIssueRefund(refundAmount: number) {
     const amount: number = refundAmount * 100;
-    const refundData: RefundData = {
+    const refundRequest: RefundRequest = {
       paymentRefundFor: PaymentRefundFor.TOURNAMENT_ENTRY,
       accountItemId: this.getTournamentId(),
       transactionItemId: this.entry.id,
@@ -393,7 +404,7 @@ export class EntryWizardComponent implements OnInit, OnChanges {
       cancelCallbackFn: this.onRefundCanceled,
       callbackScope: this
     };
-    this.refundDialogService.showRefundDialog(refundData, callbackData);
+    this.refundDialogService.showRefundDialog(refundRequest, callbackData);
   }
 
   public onRefundSuccessful(scope: any): void {

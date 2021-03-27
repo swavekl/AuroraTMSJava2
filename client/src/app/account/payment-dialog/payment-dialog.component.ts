@@ -1,9 +1,10 @@
 import {Component, Inject, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
-import {distinctUntilChanged, first, switchMap} from 'rxjs/operators';
+import {distinctUntilChanged, first} from 'rxjs/operators';
 import {BehaviorSubject, Observable, Subscription} from 'rxjs';
 import {
+  ConfirmCardPaymentData,
   StripeCardCvcElementChangeEvent,
   StripeCardCvcElementOptions,
   StripeCardExpiryElementChangeEvent,
@@ -14,9 +15,10 @@ import {
   StripeElementStyle
 } from '@stripe/stripe-js';
 import {StripeCardNumberComponent, StripeFactoryService, StripeInstance} from 'ngx-stripe';
-import {PaymentData} from './payment-data';
+import {PaymentDialogData} from './payment-dialog-data';
 import {PaymentIntentResponse, PaymentRefundService} from '../service/payment-refund.service';
 import {PaymentRefund} from '../model/payment-refund.model';
+import {PaymentRequest} from '../model/payment-request.model';
 import {PaymentRefundStatus} from '../model/payment-refund-status.enum';
 
 /**
@@ -44,11 +46,6 @@ export class PaymentDialogComponent implements OnInit, OnDestroy {
 
   private readonly EMPTY_ERROR = ' ';
 
-  // Stripe service
-  public stripeInstance: StripeInstance;
-
-  public errorMessage = this.EMPTY_ERROR;
-  public paymentComplete: boolean;
 
   @ViewChild(StripeCardNumberComponent)
   card: StripeCardNumberComponent;
@@ -94,14 +91,29 @@ export class PaymentDialogComponent implements OnInit, OnDestroy {
 
   formGroup: FormGroup;
 
-  paymentInProgressSubject: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
+  // payment in progress indicator
+  private paymentInProgressSubject: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
   paymentInProgress$: Observable<boolean>;
 
+  // Stripe service
+  stripeInstance: StripeInstance;
+  // payment request data
+  paymentRequest: PaymentRequest;
+
+  errorMessage = this.EMPTY_ERROR;
+
+  // if true payment is completed
+  paymentComplete: boolean;
+
+  // flags indicating if individual credit card fields are valid
   private creditCardValid: boolean;
   private expirationDateValid: boolean;
   private CVCValid: boolean;
   private postalCodeValid: boolean;
   private nameOnCardValid: boolean;
+
+  // client secret needed to confirm payment
+  private clientSecret: string;
 
   private subscriptions: Subscription = new Subscription();
 
@@ -117,11 +129,12 @@ export class PaymentDialogComponent implements OnInit, OnDestroy {
    * @param stripeFactoryService
    */
   constructor(public dialogRef: MatDialogRef<PaymentDialogComponent>,
-              @Inject(MAT_DIALOG_DATA) public data: PaymentData,
+              @Inject(MAT_DIALOG_DATA) public data: PaymentDialogData,
               private fb: FormBuilder,
               private paymentRefundService: PaymentRefundService,
               private stripeFactoryService: StripeFactoryService) {
     this.stripeInstance = data.stripeInstance;
+    this.paymentRequest = data.paymentRequest;
     this.paymentInProgress$ = this.paymentInProgressSubject.asObservable().pipe(distinctUntilChanged());
     this.creditCardValid = false;
     this.expirationDateValid = false;
@@ -129,13 +142,17 @@ export class PaymentDialogComponent implements OnInit, OnDestroy {
     this.postalCodeValid = false;
     this.nameOnCardValid = false;
     this.paymentComplete = false;
+    this.clientSecret = null;
   }
 
   ngOnInit(): void {
     this.formGroup = this.fb.group({
-      nameOnCard: [this.data.fullName, Validators.required],
-      postalCode: [this.data.postalCode, Validators.required]
+      nameOnCard: [this.paymentRequest.fullName, Validators.required],
+      postalCode: [this.paymentRequest.postalCode, Validators.required]
     });
+    // create payement intent while we wait for user to enter credit card
+    // information to shave a bit of time (about 1.5 secs) from the whole process
+    this.createPaymentIntent();
   }
 
   private setPaymentInProgress(inProgress: boolean) {
@@ -149,38 +166,57 @@ export class PaymentDialogComponent implements OnInit, OnDestroy {
   isFormValid(): boolean {
     // the 3 stripe fields are not part of this form group - only name on card and postal code
     // so maintain their status independently
-    return this.formGroup.valid &&
+    return (this.clientSecret != null) && this.formGroup.valid &&
       this.creditCardValid && this.expirationDateValid && this.CVCValid;
   }
 
+  /**
+   * Gets the payment intent client secret while waiting for user input
+   * @private
+   */
+  private createPaymentIntent() {
+    const subscription = this.paymentRefundService.createPaymentIntent(this.paymentRequest)
+      .pipe(first())
+      .subscribe(
+        (pi: PaymentIntentResponse) => {
+          this.clientSecret = pi.clientSecret;
+        },
+        (error: any) => {
+          console.log('Unable to initiate payment - ' + JSON.stringify(error));
+          this.errorMessage = 'Unable to initiate payment for this account';
+        });
+    this.subscriptions.add(subscription);
+  }
+
+  /**
+   * Confirms the payment
+   */
   onPay(): void {
-    // retrieve credit card data and generate charge
     if (this.isFormValid()) {
+      this.setPaymentInProgress(true);
+      // prepare data
       const postalCode = this.formGroup.value['postalCode'];
       const nameOnCard = this.formGroup.value['nameOnCard'];
-      this.setPaymentInProgress(true);
-      this.paymentRefundService.createPaymentIntent(this.data)
-        .pipe(
-          switchMap((pi: PaymentIntentResponse) =>
-            this.stripeInstance.confirmCardPayment(pi.clientSecret, {
-              payment_method: {
-                card: this.card.element,
-                billing_details: {
-                  name: nameOnCard,
-                  address: {
-                    postal_code: postalCode
-                  }
-                }
-              }
-            })
-          )
-        )
-        .subscribe((result) => {
-            this.setPaymentInProgress(false);
+      const confirmCardPaymentData: ConfirmCardPaymentData = {
+        payment_method: {
+          card: this.card.element,
+          billing_details: {
+            name: nameOnCard,
+            address: {
+              postal_code: postalCode
+            }
+          }
+        }
+      };
+      // generate direct charge
+      this.stripeInstance.confirmCardPayment(this.clientSecret, confirmCardPaymentData)
+        .subscribe(
+          (result) => {
             if (result.error) {
               // Show error to your customer (e.g., insufficient funds)
               console.log(result.error.message);
               this.errorMessage = result.error.message;
+              this.setPaymentInProgress(false);
             } else {
               // The payment has been processed!
               if (result.paymentIntent.status === 'succeeded') {
@@ -193,11 +229,9 @@ export class PaymentDialogComponent implements OnInit, OnDestroy {
           },
           (error: any) => {
             console.log('error creating payment intent' + JSON.stringify(error));
-            this.setPaymentInProgress(false);
             this.errorMessage = error?.error;
+            this.setPaymentInProgress(false);
           });
-    } else {
-      console.log(this.formGroup);
     }
   }
 
@@ -229,30 +263,32 @@ export class PaymentDialogComponent implements OnInit, OnDestroy {
   }
 
   /**
-   *
-   * @param paymentIntentId
+   * Records successful payment in our database so we can list it without going to Stripe API
+   * @param paymentIntentId payment intent needed in case of a refund
    * @private
    */
   private recordPaymentComplete(paymentIntentId: string) {
     const paymentRefund: PaymentRefund = new PaymentRefund();
-    paymentRefund.amount = this.data.amount;
-    paymentRefund.itemId = this.data.transactionItemId;
+    paymentRefund.amount = this.paymentRequest.amount;
+    paymentRefund.itemId = this.paymentRequest.transactionItemId;
     paymentRefund.paymentIntentId = paymentIntentId;
-    paymentRefund.paymentRefundFor = this.data.paymentRefundFor;
+    paymentRefund.paymentRefundFor = this.paymentRequest.paymentRefundFor;
     paymentRefund.status = PaymentRefundStatus.PAYMENT_COMPLETED;
     paymentRefund.transactionDate = new Date();
-    this.paymentRefundService.recordPaymentComplete(paymentRefund)
+    const subscription = this.paymentRefundService.recordPaymentComplete(paymentRefund)
       .pipe(first())
       .subscribe(
         () => {
           this.paymentComplete = true;
           this.errorMessage = 'Success';
+          this.setPaymentInProgress(false);
         },
         (error: any) => {
           console.log('error during recording of payment complete' + JSON.stringify(error));
           this.errorMessage = error;
         }
       );
+    this.subscriptions.add(subscription);
   }
 
   onClose() {

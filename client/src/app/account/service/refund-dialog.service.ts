@@ -1,8 +1,9 @@
 import {Injectable} from '@angular/core';
 import {PaymentRefundService} from './payment-refund.service';
 import {MatDialog, MatDialogConfig} from '@angular/material/dialog';
-import {CallbackData, RefundData} from '../payment-dialog/payment-data';
 import {RefundDialogComponent} from '../refund-dialog/refund-dialog.component';
+import {CallbackData} from '../model/callback-data';
+import {RefundRequest} from '../model/refund-request.model';
 
 @Injectable({
   providedIn: 'root'
@@ -15,12 +16,12 @@ export class RefundDialogService {
 
   /**
    * Shows refund dialog to initiate refund process and show status
-   * @param refundData
+   * @param refundRequest
    * @param callbackData
    */
-  showRefundDialog(refundData: RefundData, callbackData: CallbackData) {
+  showRefundDialog(refundRequest: RefundRequest, callbackData: CallbackData) {
     const config: MatDialogConfig = {
-      width: '330px', height: '240px', data: refundData
+      width: '330px', height: '240px', data: refundRequest
     };
 
     const callbackScope = callbackData.callbackScope;
