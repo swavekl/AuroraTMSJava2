@@ -4,7 +4,7 @@ import {KeyAccountInfo, PaymentRefundService} from './payment-refund.service';
 import {MatDialog, MatDialogConfig} from '@angular/material/dialog';
 import {PaymentDialogData} from '../payment-dialog/payment-dialog-data';
 import {Observable} from 'rxjs';
-import {first} from 'rxjs/operators';
+import {first, map} from 'rxjs/operators';
 import {PaymentDialogComponent} from '../payment-dialog/payment-dialog.component';
 import {CallbackData} from '../model/callback-data';
 
@@ -24,28 +24,34 @@ export class PaymentDialogService {
   // it is required for Elements initialization
   private stripeInstance: StripeInstance;
 
+  // code of account currency
+  private defaultAccountCurrency: string;
+
   constructor(private paymentRefundService: PaymentRefundService,
               private stripeFactoryService: StripeFactoryService,
               private dialog: MatDialog) {
-
     this.stripeInstance = null;
+    this.defaultAccountCurrency = 'USD';
   }
 
-  public prepareForPayment(accountItemId: number) {
+  /**
+   * Prepares for payment by fetching account id and currency for given account
+   * @param accountItemId id of tournament or clinic or whatever
+   */
+  public prepareForPayment(accountItemId: number): Observable<string> {
     // get stripe public key
-    const keyAccountInfo$: Observable<KeyAccountInfo> = this.paymentRefundService.getKeyAccountInfo(accountItemId);
-    keyAccountInfo$
-      .pipe(first())
-      .subscribe(
-        (keyAccountInfo: KeyAccountInfo) => {
-          // console.log('got public key ' + publicKey);
-          this.stripeInstance = this.stripeFactoryService.create(keyAccountInfo.stripePublicKey, {
-            stripeAccount: keyAccountInfo.tournamentAccountId  // connected account id
-          });
-        },
-        (error) => {
-          console.log('Couldn\'t obtain stripe public key ' + JSON.stringify(error));
-        }
+    return this.paymentRefundService.getKeyAccountInfo(accountItemId)
+      .pipe(
+        map(
+          (keyAccountInfo: KeyAccountInfo) => {
+            // console.log('got public key ' + publicKey);
+            this.stripeInstance = this.stripeFactoryService.create(keyAccountInfo.stripePublicKey, {
+              stripeAccount: keyAccountInfo.tournamentAccountId  // connected account id
+            });
+            this.defaultAccountCurrency = keyAccountInfo?.defaultAccountCurrency.toUpperCase();
+            return this.defaultAccountCurrency;
+          }
+        )
       );
   }
 

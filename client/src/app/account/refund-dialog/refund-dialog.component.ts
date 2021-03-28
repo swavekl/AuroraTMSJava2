@@ -11,10 +11,8 @@ import {RefundRequest} from '../model/refund-request.model';
   styleUrls: ['./refund-dialog.component.scss']
 })
 export class RefundDialogComponent implements OnInit, OnDestroy {
-  @Input()
   amount: number;
 
-  @Input()
   currencyCode: string;
 
   private refundInProgressSubject: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
@@ -36,6 +34,8 @@ export class RefundDialogComponent implements OnInit, OnDestroy {
               private paymentRefundService: PaymentRefundService) {
     this.refundInProgress$ = this.refundInProgressSubject.asObservable().pipe(distinctUntilChanged());
     this.refundComplete = false;
+    this.amount = data.amount;
+    this.currencyCode = data.currencyCode;
     this.isError = true;
     this.completionMessage = 'Press Submit to initiate refund.';
   }
@@ -64,12 +64,12 @@ export class RefundDialogComponent implements OnInit, OnDestroy {
           const numRefundedCharges: number = (response != null && response.refunds != null) ? response.refunds.length : 0;
           this.completionMessage = `Successfully refunded ${numRefundedCharges} charge(s)`;
           this.errorMessage = 'Success';
+          this.setRefundInProgress(false);
+          this.refundComplete = true;
         },
         (error: any) => {
           console.log('got error from payment refund' + JSON.stringify(error));
           this.errorMessage = error?.error;
-        },
-        () => {
           this.setRefundInProgress(false);
           this.refundComplete = true;
         }

@@ -20,4 +20,13 @@ public class RefundRequest {
 
     // this is decimal expressed as a number $20.34 is 2034
     private int amount;
+
+    // the currency of refund
+    private String currencyCode;
+
+    // amount in account currency e.g. if refunding $10 for tournament in USA this will be 1000 cents
+    private int amountInAccountCurrency;
+
+    // exchange rate to use when calculating refund amount, 1.0 if no exchange
+    private double exchangeRate;
 }

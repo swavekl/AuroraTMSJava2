@@ -55,9 +55,19 @@ public class PaymentRefundController {
         Map<String, String> map = new HashMap<>();
         AccountEntity accountForTournament = this.getAccountForTournament(tournamentId);
         if (accountForTournament != null) {
-            map.put("tournamentAccountId", accountForTournament.getAccountId());
             if (stripePublicKey != null && stripePublicKey.length() > 0) {
                 map.put("stripePublicKey", this.stripePublicKey);
+
+                Stripe.apiKey = this.stripeApiKey;
+                map.put("tournamentAccountId", accountForTournament.getAccountId());
+                String defaultAccountCurrency = "usd";
+                try {
+                    Account stripeAccount = Account.retrieve(accountForTournament.getAccountId());
+                    defaultAccountCurrency = stripeAccount.getDefaultCurrency();
+                } catch (StripeException e) {
+
+                }
+                map.put("defaultAccountCurrency", defaultAccountCurrency);
                 return new ResponseEntity(map, HttpStatus.OK);
             } else {
                 return new ResponseEntity("Stripe public key is empty", HttpStatus.NOT_FOUND);
@@ -86,6 +96,7 @@ public class PaymentRefundController {
                 case TOURNAMENT_ENTRY:
                     clientSecret = makeTournamentPaymentIntent(accountItemId,
                             paymentRequest.getAmount(),
+                            paymentRequest.getCurrencyCode(),
                             paymentRequest.getStatementDescriptor(),
                             paymentRequest.getFullName(),
                             paymentRequest.getReceiptEmail());
@@ -112,6 +123,7 @@ public class PaymentRefundController {
      */
     private String makeTournamentPaymentIntent(long tournamentId,
                                                int amount,
+                                               String currencyCode,
                                                String statementDescriptor,
                                                String customerFullName,
                                                String receiptEmail) {
@@ -122,10 +134,9 @@ public class PaymentRefundController {
             if (accountForTournament != null) {
                 String accountId = accountForTournament.getAccountId();
                 // get currency for charge and create a payment intent
-                Stripe.apiKey = this.stripeApiKey;
-                Account stripeAccount = Account.retrieve(accountId);
-                PaymentIntent paymentIntent = this.paymentRefundService.createPaymentIntent(amount, 100,
-                        stripeAccount.getDefaultCurrency(), accountId, statementDescriptor, customerFullName, receiptEmail);
+                int applicationFee = (int)(amount * 0.01);
+                PaymentIntent paymentIntent = this.paymentRefundService.createPaymentIntent(amount, applicationFee,
+                        currencyCode.toLowerCase(), accountId, statementDescriptor, customerFullName, receiptEmail);
                 clientSecret = paymentIntent.getClientSecret();
             } else {
                 String errorMessage = String.format("Unable to find Stripe account id for tournament with id %d", tournamentId);
@@ -204,7 +215,7 @@ public class PaymentRefundController {
                     // get all previous payments and refunds
                     List<PaymentRefund> paymentRefunds = this.paymentRefundService.getPaymentRefunds(tournamentEntryId,
                             PaymentRefundFor.TOURNAMENT_ENTRY);
-                    processedRefundIds = issueRefunds(paymentRefunds, refundRequest.getAmount(), accountEntity.getAccountId());
+                    processedRefundIds = issueRefunds(paymentRefunds, refundRequest, accountEntity.getAccountId());
                     break;
                 case CLINIC:
                     break;
@@ -222,19 +233,20 @@ public class PaymentRefundController {
 
     /**
      * @param paymentRefunds
-     * @param amount
+     * @param refundRequest
      * @param accountId
      * @return
      */
-    private List<Long> issueRefunds(List<PaymentRefund> paymentRefunds, int amount, String accountId) throws StripeException {
+    private List<Long> issueRefunds(List<PaymentRefund> paymentRefunds, RefundRequest refundRequest, String accountId) throws StripeException {
         // figure out which payments need to be refunded
-        RefundCalculator refundCalculator = new RefundCalculator(paymentRefunds, amount);
+        RefundCalculator refundCalculator = new RefundCalculator(paymentRefunds,
+                refundRequest.getAmountInAccountCurrency(),
+                refundRequest.getExchangeRate());
         List<PaymentRefund> refundsToIssue = refundCalculator.determineRefunds();
         List<Long> processedRefundIds = new ArrayList<>(refundsToIssue.size());
         for (PaymentRefund refund : refundsToIssue) {
             // issue refund via Stripe
-            Refund stripeRefund = this.paymentRefundService.refundCharge(
-                    refund.getPaymentIntentId(), refund.getAmount(), accountId);
+            Refund stripeRefund = this.paymentRefundService.refundCharge(refund, accountId);
 
             // record successful refund
             refund.setRefundId(stripeRefund.getId());

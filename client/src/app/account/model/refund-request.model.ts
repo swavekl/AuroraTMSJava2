@@ -15,4 +15,13 @@ export class RefundRequest {
 
   // amount to pay in e.g. $20.34 will be 2034
   amount: number;
+
+  // currency to show the refund amount in
+  currencyCode: string;
+
+  // amount in account currency e.g. if refunding $10 for tournament in USA this will be 1000 cents
+  amountInAccountCurrency: number;
+
+  // exchange rate to use when calculating refund amount, 1.0 if no exchange
+  exchangeRate: number;
 }

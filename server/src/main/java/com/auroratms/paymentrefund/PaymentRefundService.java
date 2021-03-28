@@ -93,23 +93,30 @@ public class PaymentRefundService {
 
     /**
      * Refunds individual charge associated with the payment intent id
-     *
-     * @param paymentIntentId original payment intent used to create a charge
-     * @param amount          amount to refund
+     *  @param refund
      * @param accountId       connected account id
      */
-    public Refund refundCharge(String paymentIntentId, long amount, String accountId) throws StripeException {
+    public Refund refundCharge(PaymentRefund refund, String accountId) throws StripeException {
         Stripe.apiKey = this.stripeApiKey;
+
+        String paymentIntentId = refund.getPaymentIntentId();
 
         // get charge id for this intent id
         String chargeId = getChargeId(paymentIntentId, accountId);
 
-        // refund direct charge
-        RefundCreateParams params = RefundCreateParams.builder()
-                .setAmount(amount)
+        RefundCreateParams.Builder builder = RefundCreateParams.builder()
                 .setCharge(chargeId)
-                .setRefundApplicationFee(true)
-                .build();
+                .setRefundApplicationFee(true);
+
+        // if a portion of this charge is to be refunded set it
+        // in currency requested by user
+        // otherwise refund fully
+        if (!refund.isRefundFully()) {
+            long amount = refund.getPaidAmount();
+            builder.setAmount(amount);
+        }
+
+        RefundCreateParams params = builder.build();
 
         RequestOptions requestOptions = RequestOptions
                 .builder()

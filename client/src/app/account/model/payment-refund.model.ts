@@ -25,6 +25,12 @@ export class PaymentRefund {
   // this is decimal expressed as a number $20.34 is 2034
   amount: number;
 
+  // amount actually paid in currency of payment - may be different from tournament currency
+  paidAmount: number;
+
+  // currency code in which the paid amount is expressed
+  paidCurrency: string;
+
   // date & time of payment or refund
   transactionDate: Date;
 

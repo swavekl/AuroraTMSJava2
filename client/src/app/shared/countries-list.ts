@@ -1,6 +1,11 @@
+export interface CountryDescriptor {
+  code: string;
+  name: string;
+}
+
 export class CountriesList {
 
-  static theList: any [] = [
+  static theList: CountryDescriptor [] = [
     {code: 'US', name: 'United States of America'},
     {code: 'CA', name: 'Canada'},
     {code: 'AF', name: 'Afghanistan'},
@@ -252,7 +257,7 @@ export class CountriesList {
     {code: 'AX', name: 'Åland Islands'}
   ];
 
-  public static getList(): any [] {
+  public static getList(): CountryDescriptor [] {
     return this.theList;
   }
 }

@@ -22,6 +22,9 @@ public class PaymentRequest {
     // this is decimal expressed as a number $20.34 is 2034
     private int amount;
 
+    // currency in which to charge
+    private String currencyCode;
+
     // 22 chars long descriptor which will appear on the credit card statement. No special chars allowed " ' * < >
     private String statementDescriptor;
 

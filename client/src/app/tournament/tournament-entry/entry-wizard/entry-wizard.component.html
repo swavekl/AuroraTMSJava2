@@ -56,7 +56,7 @@
           <mat-radio-group [ngModel]="entry?.membershipOption" name="membershipOption" (change)="onChange(f.form)">
             <div fxLayout="column" fxLayoutGap="30px" *ngFor="let option of membershipOptions">
                 <mat-radio-button [value]="option.value" style="padding-top: 10px" [disabled]="!option.available">
-                  {{option.label}} <span style="font-weight: bold">{{ (option.cost == 0) ? '' : option.cost | currency: 'USD'}}</span>
+                  {{option.label}} <span style="font-weight: bold">{{ (option.cost == 0) ? '' : option.cost | currency: tournamentCurrency }}</span>
                 </mat-radio-button>
             </div>
           </mat-radio-group>
@@ -146,7 +146,10 @@
                   <div class="summary-item-second-line">on {{ paymentRefund.transactionDate | date:'medium'}}</div>
                 </td>
                 <td>
-                  {{ isPayment(paymentRefund) ? '' : '-' }}{{ (paymentRefund.amount / 100) | currency: tournamentCurrency }}
+                  <ng-container *ngIf="paymentRefund.paidAmount !== paymentRefund.amount">
+                    {{ isPayment(paymentRefund) ? '' : '-' }}{{ (paymentRefund.paidAmount / 100) | currency: paymentRefund.paidCurrency }} =
+                  </ng-container>
+                    {{ isPayment(paymentRefund) ? '' : '-' }}{{ (paymentRefund.amount / 100) | currency: tournamentCurrency }}
                 </td>
               </tr>
             </ng-container>
@@ -157,6 +160,26 @@
               <td><h2>{{ getAbsoluteBalance() | currency: tournamentCurrency }}</h2>
               </td>
             </tr>
+            <tr *ngIf="tournamentCurrency != playerCurrency">
+              <ng-container *ngIf="balanceAction() === BALANCE_ACTION_PAY">
+                <td><h2>Pay in {{playerCurrency}}</h2></td>
+                <td>
+                  <button mat-raised-button color="primary" type="button"
+                          (click)="onPayPlayerTotalInPlayerCurrency(getAbsoluteBalanceInPlayerCurrency(), getBalance())">
+                    Pay {{ getAbsoluteBalanceInPlayerCurrency() | currency: playerCurrency: 'code' }}
+                  </button>
+                </td>
+              </ng-container>
+              <ng-container *ngIf="balanceAction() === BALANCE_ACTION_REFUND">
+                <td><h2>Refund in {{playerCurrency}}</h2></td>
+                <td>
+                  <button mat-raised-button color="primary" type="button"
+                          (click)="onIssueRefundInPlayerCurrency(getAbsoluteBalanceInPlayerCurrency(), getAbsoluteBalance())">
+                    Refund {{ getAbsoluteBalanceInPlayerCurrency() | currency: playerCurrency: 'code' }}
+                  </button>
+                </td>
+              </ng-container>
+            </tr>
             </tfoot>
           </table>
           <div class="wizard-button-bar" fxLayout="row">
@@ -165,7 +188,7 @@
             <ng-container [ngSwitch]="balanceAction()">
               <button *ngSwitchCase="BALANCE_ACTION_CONFIRM" mat-raised-button color="primary" type="button" (click)="onConfirmWithoutPayment()">Confirm Changes</button>
               <button *ngSwitchCase="BALANCE_ACTION_PAY"     mat-raised-button color="primary" type="button" (click)="onPayPlayerTotal(getBalance())">Pay {{ getBalance() | currency: tournamentCurrency }}</button>
-              <button *ngSwitchCase="BALANCE_ACTION_REFUND"  mat-raised-button color="primary" type="button" (click)="onIssueRefund(getAbsoluteBalance())">Refund {{ getAbsoluteBalance() | currency: tournamentCurrency }}</button>
+              <button *ngSwitchCase="BALANCE_ACTION_REFUND"  mat-raised-button color="primary" type="button" (click)="onIssueRefundInTournamentCurrency(getAbsoluteBalance())">Refund {{ getAbsoluteBalance() | currency: tournamentCurrency }}</button>
               <button *ngSwitchCase="BALANCE_ACTION_NOCHANGE" mat-raised-button color="primary" matStepperNext type="submit">Close</button>
             </ng-container>
           </div>

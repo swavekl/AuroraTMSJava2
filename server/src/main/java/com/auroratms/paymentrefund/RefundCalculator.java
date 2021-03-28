@@ -6,28 +6,36 @@ import java.util.*;
 
 /**
  * Identifies potentially multiple refunds to cover the
- * requested refund amount.
+ * requested refund amount.  All calculations are conducted in account currency
+ * and the exchange rate is used only in determining amount to pay
  */
 public class RefundCalculator {
 
     // list of payments and refunds
     private List<PaymentRefund> paymentRefundList;
 
-    // total refund amount to be refunded
-    private long refundAmount;
+    // total refund amount in account currency in cents e.g. $10 is 1000 cents
+    private long refundAmountInAccountCurrency;
+
+    // currency exchange rate as of moment of refund from account currency to currency of refund
+    private double refundDayExchangeRate = 1.0;
 
     /**
-     *
-     * @param paymentRefundList
-     * @param refundAmount
+     * @param paymentRefundList list of prior payments and refunds
+     * @param refundAmountInAccountCurrency refund amount in account currency (settlement currency)
+     * @param refundDayExchangeRate exchange rate between the two currencies or 1.0 if currency is the same
      */
-    public RefundCalculator(List<PaymentRefund> paymentRefundList, long refundAmount) {
+    public RefundCalculator(List<PaymentRefund> paymentRefundList,
+                            long refundAmountInAccountCurrency,
+                            double refundDayExchangeRate) {
         this.paymentRefundList = paymentRefundList;
-        this.refundAmount = refundAmount;
+        this.refundAmountInAccountCurrency = refundAmountInAccountCurrency;
+        this.refundDayExchangeRate = refundDayExchangeRate;
     }
 
     /**
      * Determines refunds based on the payments
+     *
      * @return
      * @throws RefundException
      */
@@ -58,17 +66,27 @@ public class RefundCalculator {
         //  instead of going through more lengthy refund process
         List<PaymentRefund> sortedQualifiedPaymentList = sortByTransactionDate(qualifiedPaymentsOnly);
 
-        long remainingToRefund = refundAmount;
+        long remainingToRefund = refundAmountInAccountCurrency;
         for (PaymentRefund payment : sortedQualifiedPaymentList) {
-            Integer remainingBalance = balancesAvailableForRefund.get(payment.getPaymentIntentId());
-            // amount of remaining balance covers our refund request then we will be done.
-            long amountOfRefund = (remainingBalance > remainingToRefund)
-                    ? remainingToRefund : remainingBalance;
+            Integer remainingPaymentBalance = balancesAvailableForRefund.get(payment.getPaymentIntentId());
+            // if amount of remaining balance in this payment covers totally refund request amount
+            // then just issue refund for the requested amount,
+            // otherwise use the a portion of remaining balance to cover refund
+            long amountOfRefund = (remainingPaymentBalance > remainingToRefund)
+                    ? remainingToRefund : remainingPaymentBalance;
             // create an offsetting refund for this transaction
             remainingToRefund -= amountOfRefund;
+            // check if this transaction should be fully refunded
+            // this eliminates the need to specify refund amount when issuing refund request to Stripe
+            boolean refundFully = (amountOfRefund == remainingPaymentBalance);
 
             PaymentRefund refund = new PaymentRefund();
-            refund.setAmount((int)amountOfRefund);
+            // in account currency
+            refund.setAmount((int) amountOfRefund);
+            // get rough amount in requested refund currency using refund day exchange rate
+            refund.setPaidAmount((int) (amountOfRefund * refundDayExchangeRate));
+            refund.setPaidCurrency(payment.getPaidCurrency());
+            refund.setRefundFully(refundFully);
             refund.setItemId(payment.getItemId());
             refund.setPaymentRefundFor(payment.getPaymentRefundFor());
             refund.setPaymentIntentId(payment.getPaymentIntentId());
@@ -80,12 +98,19 @@ public class RefundCalculator {
                 break;
             }
         }
+
+//        System.out.println("Refunds to issue");
+//        for (PaymentRefund paymentRefund : refundsToIssue) {
+//            System.out.println(paymentRefund);
+//        }
+
         return refundsToIssue;
     }
 
     /**
+     * Sorts payments by date from most recent first to the oldest last
      *
-     * @param qualifiedPaymentsOnly
+     * @param qualifiedPaymentsOnly list of payments to sort
      * @return
      */
     private List<PaymentRefund> sortByTransactionDate(List<PaymentRefund> qualifiedPaymentsOnly) {
@@ -96,32 +121,31 @@ public class RefundCalculator {
             public int compare(PaymentRefund o1, PaymentRefund o2) {
                 Date transactionDate1 = o1.getTransactionDate();
                 Date transactionDate2 = o2.getTransactionDate();
-                return transactionDate1.compareTo(transactionDate2);
+                return -1 * transactionDate1.compareTo(transactionDate2);
             }
         });
         return qualifiedPaymentsOnly;
     }
 
     /**
-     *
      * @return
      */
     private Map<String, Integer> getBalancesAvailableForRefund() {
         Map<String, Integer> balancesAvailableForRefund = new HashMap<>();
 
         int totalPayments = 0;
-        // get original payment amounts
+        // get original payment amounts - in account currency
         for (PaymentRefund paymentRefund : paymentRefundList) {
-            if (paymentRefund.status.equals(PaymentRefundStatus.PAYMENT_COMPLETED)) {
+            if (paymentRefund.getStatus().equals(PaymentRefundStatus.PAYMENT_COMPLETED)) {
                 totalPayments += paymentRefund.getAmount();
                 balancesAvailableForRefund.put(paymentRefund.getPaymentIntentId(), new Integer(paymentRefund.getAmount()));
             }
         }
 
         int totalPriorRefunds = 0;
-        // reduce the original payment amounts by refunds from these payments
+        // reduce the original payment amounts by refunds from these payments - again in account currency
         for (PaymentRefund paymentRefund : paymentRefundList) {
-            if (paymentRefund.status.equals(PaymentRefundStatus.REFUND_COMPLETED)) {
+            if (paymentRefund.getStatus().equals(PaymentRefundStatus.REFUND_COMPLETED)) {
                 Integer remainingBalance = balancesAvailableForRefund.get(paymentRefund.getPaymentIntentId());
                 // make sure we don't go below 0
                 totalPriorRefunds += paymentRefund.getAmount();
@@ -132,9 +156,9 @@ public class RefundCalculator {
 
         // check if we have enough do a refund
         int totalAvailableForRefunds = totalPayments - totalPriorRefunds;
-        if (refundAmount > totalAvailableForRefunds) {
-            String errorMessage = String.format("Amount of refund %d exceeds total available for refund %d",
-                    refundAmount, totalAvailableForRefunds);
+        if (refundAmountInAccountCurrency > totalAvailableForRefunds) {
+            String errorMessage = String.format("Requested refund amount of %d exceeds %d total transactions balance available for refund.",
+                    refundAmountInAccountCurrency, totalAvailableForRefunds);
             throw new RefundException(errorMessage);
         }
         return balancesAvailableForRefund;

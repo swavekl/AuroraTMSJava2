@@ -20,6 +20,8 @@ import {PaymentRequest} from '../../../account/model/payment-request.model';
 import {RefundRequest} from '../../../account/model/refund-request.model';
 import {PaymentDialogService} from '../../../account/service/payment-dialog.service';
 import {RefundDialogService} from '../../../account/service/refund-dialog.service';
+import {first} from 'rxjs/operators';
+import {CurrencyService} from '../../../account/service/currency.service';
 
 @Component({
   selector: 'app-entry-wizard',
@@ -70,7 +72,11 @@ export class EntryWizardComponent implements OnInit, OnChanges {
 
   teamsTournament: boolean;
 
+  // player and tournament currencies if different
   tournamentCurrency: string;
+  playerCurrency: string;
+  // currency exchange rate if player is registering in another country and may be charged in this country's currency
+  private currencyExchangeRate: number;
 
   // balance actions
   public readonly BALANCE_ACTION_PAY = 1;
@@ -93,9 +99,12 @@ export class EntryWizardComponent implements OnInit, OnChanges {
   constructor(private dialog: MatDialog,
               private _change: ChangeDetectorRef,
               private paymentDialogService: PaymentDialogService,
-              private refundDialogService: RefundDialogService) {
+              private refundDialogService: RefundDialogService,
+              private currencyService: CurrencyService) {
     this.paymentsRefunds = [];
     this.tournamentCurrency = 'USD';
+    this.playerCurrency = 'USD';
+    this.currencyExchangeRate = 1.0;
     this.dirty = false;
   }
 
@@ -117,6 +126,8 @@ export class EntryWizardComponent implements OnInit, OnChanges {
       if (this.playerProfile != null) {
         const dateOfBirth = this.playerProfile.dateOfBirth;
         this.hideMembershipOptions(dateOfBirth, this.tournamentStartDate);
+        // fetch account information in case they want to pay so the payment dialog comes up faster
+        this.prepareForPayment(this.tournamentInfo.id);
       }
     }
 
@@ -126,8 +137,6 @@ export class EntryWizardComponent implements OnInit, OnChanges {
       if (this.tournamentInfo != null) {
         this.teamsTournament = this.tournamentInfo.tournamentType === 'Teams';
         this.tournamentStartDate = new DateUtils().convertFromString(this.tournamentInfo.startDate);
-        // fetch account information in case they want to pay so the payment dialog comes up faster
-        this.paymentDialogService.prepareForPayment(this.tournamentInfo.id);
       }
     }
   }
@@ -284,8 +293,12 @@ export class EntryWizardComponent implements OnInit, OnChanges {
   /**
    * Gets balance without negative sign
    */
-  getAbsoluteBalance() {
+  getAbsoluteBalance(): number {
     return Math.abs(this.getBalance());
+  }
+
+  getAbsoluteBalanceInPlayerCurrency(): number {
+    return (this.getAbsoluteBalance() * this.currencyExchangeRate);
   }
 
   getTournamentId(): number {
@@ -333,10 +346,31 @@ export class EntryWizardComponent implements OnInit, OnChanges {
   }
 
   /**
-   *
+   * Experimental - balance to pay in player's currency
+   * @param balanceInPlayerCurrency to pay
+   * @param balanceInTournamentCurrency to pay
    */
-  onPayPlayerTotal(balance: number) {
-    const amount: number = balance * 100;
+  onPayPlayerTotalInPlayerCurrency(balanceInPlayerCurrency: number, balanceInTournamentCurrency: number) {
+    this.onPayPlayerTotalInCurrency(balanceInPlayerCurrency, balanceInTournamentCurrency, this.playerCurrency);
+  }
+
+  /**
+   * Pay for balance in tournament currency
+   * @param balanceInPlayerCurrency balance in tournament & player currency
+   */
+  onPayPlayerTotal(balanceInPlayerCurrency: number) {
+      this.onPayPlayerTotalInCurrency(balanceInPlayerCurrency, balanceInPlayerCurrency, this.tournamentCurrency);
+  }
+
+  /**
+   * Show payment dialog for amount and currency to pay in
+   * @param balanceInPlayerCurrency balance in currency to pay in
+   * @param balanceInTournamentCurrency balance in currency to pay in tournament currency
+   * @param currencyOfPayment 3 letter currency code of currency to use
+   */
+  onPayPlayerTotalInCurrency(balanceInPlayerCurrency: number, balanceInTournamentCurrency: number, currencyOfPayment: string) {
+    const amount: number = balanceInPlayerCurrency * 100;
+    const amountInAccountCurrency: number = balanceInTournamentCurrency * 100;
     const fullName = this.playerProfile.firstName + ' ' + this.playerProfile.lastName;
     const postalCode = this.playerProfile.zipCode;
     const email = this.playerProfile.email;
@@ -346,6 +380,8 @@ export class EntryWizardComponent implements OnInit, OnChanges {
       accountItemId: this.getTournamentId(),
       transactionItemId: this.entry.id,
       amount: amount,
+      currencyCode: currencyOfPayment,
+      amountInAccountCurrency: amountInAccountCurrency,
       statementDescriptor: tournamentName,
       fullName: fullName,
       postalCode: postalCode,
@@ -388,16 +424,28 @@ export class EntryWizardComponent implements OnInit, OnChanges {
     this.confirmEntry();
   }
 
+  onIssueRefundInPlayerCurrency(refundAmountInPlayerCurrency: number, refundAmountInTournamentCurrency: number) {
+      this.onIssueRefund(refundAmountInPlayerCurrency, refundAmountInTournamentCurrency, this.playerCurrency);
+  }
+
+  onIssueRefundInTournamentCurrency(refundAmountInTournamentCurrency: number) {
+    this.onIssueRefund(refundAmountInTournamentCurrency, refundAmountInTournamentCurrency, this.tournamentCurrency);
+  }
+
   /**
    * Issues a refund
    */
-  onIssueRefund(refundAmount: number) {
-    const amount: number = refundAmount * 100;
+  onIssueRefund(refundAmountInPlayerCurrency: number, refundAmountInTournamentCurrency: number, refundCurrency: string) {
+    const amount: number = refundAmountInPlayerCurrency * 100;
+    const amountInAccountCurrency: number = refundAmountInTournamentCurrency * 100;
     const refundRequest: RefundRequest = {
       paymentRefundFor: PaymentRefundFor.TOURNAMENT_ENTRY,
       accountItemId: this.getTournamentId(),
       transactionItemId: this.entry.id,
-      amount: amount
+      amount: amount,
+      amountInAccountCurrency: amountInAccountCurrency,
+      exchangeRate: this.currencyExchangeRate,
+      currencyCode: refundCurrency
     };
     const callbackData: CallbackData = {
       successCallbackFn: this.onRefundSuccessful,
@@ -471,5 +519,60 @@ export class EntryWizardComponent implements OnInit, OnChanges {
 
   isPayment(paymentRefund: PaymentRefund) {
     return paymentRefund.status === PaymentRefundStatus.PAYMENT_COMPLETED;
+  }
+
+  /**
+   * Prepares data used for payment such as account number for this tournament id and currency exchange rate
+   * if player is buying from foreign address
+   * and exchange rates if any
+   * @param tournamentId
+   * @private
+   */
+  private prepareForPayment(tournamentId: number) {
+    console.log('in prepareForPayment');
+    // check if we have the player profile
+    if (this.playerProfile?.countryCode != null) {
+      // console.log ('profile is ready let\'s get currency exchange rates');
+      this.currencyExchangeRate = 1.0;
+      // fetch account information in case they want to pay so the payment dialog comes up faster
+      this.paymentDialogService.prepareForPayment(tournamentId)
+        .pipe(first())
+        .subscribe(
+          (tournamentCurrency: string) => {
+            // console.log ('got tournamentCurrency ' + tournamentCurrency);
+            this.playerCurrency = this.currencyService.getCountryCurrencyId(this.playerProfile?.countryCode);
+            this.tournamentCurrency = tournamentCurrency;
+            // console.log ('got playerCurrency ' + this.playerCurrency);
+            if (this.tournamentCurrency !== this.playerCurrency) {
+              this.getCurrencyExchangeRate(this.tournamentCurrency, this.playerCurrency);
+            } else {
+              this.currencyExchangeRate = 1.0;
+            }
+          },
+          (error: any) => {
+            console.log ('Unable to prepare for payment ' + JSON.stringify(error));
+          });
+    }
+  }
+
+  /**
+   * Gets the exchange rate
+   *
+   * @param tournamentCurrency
+   * @param playerCurrency
+   * @private
+   */
+  private getCurrencyExchangeRate(tournamentCurrency: string, playerCurrency: string) {
+    this.currencyService.getExchangeRate(tournamentCurrency, playerCurrency)
+      .pipe(first())
+      .subscribe(
+        (exchangeRate: number) => {
+          // console.log('got currency exchange rate from ' + tournamentCurrency + ' to ' + playerCurrency + ' = ' + exchangeRate);
+          this.currencyExchangeRate = exchangeRate;
+        },
+        (error: any) => {
+          console.log('Unable to get currency exchange rate for player' + JSON.stringify(error));
+        }
+      );
   }
 }

@@ -138,5 +138,8 @@ export interface KeyAccountInfo {
 
   // id of the connected account
   tournamentAccountId: string;
+
+  // default account currency code e.g. 'USD'
+  defaultAccountCurrency: string;
 }
 

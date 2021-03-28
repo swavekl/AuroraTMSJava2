@@ -135,6 +135,7 @@ export class PaymentDialogComponent implements OnInit, OnDestroy {
               private stripeFactoryService: StripeFactoryService) {
     this.stripeInstance = data.stripeInstance;
     this.paymentRequest = data.paymentRequest;
+    this.currencyCode = data.paymentRequest.currencyCode;
     this.paymentInProgress$ = this.paymentInProgressSubject.asObservable().pipe(distinctUntilChanged());
     this.creditCardValid = false;
     this.expirationDateValid = false;
@@ -150,7 +151,7 @@ export class PaymentDialogComponent implements OnInit, OnDestroy {
       nameOnCard: [this.paymentRequest.fullName, Validators.required],
       postalCode: [this.paymentRequest.postalCode, Validators.required]
     });
-    // create payement intent while we wait for user to enter credit card
+    // create payment intent while we wait for user to enter credit card
     // information to shave a bit of time (about 1.5 secs) from the whole process
     this.createPaymentIntent();
   }
@@ -269,7 +270,10 @@ export class PaymentDialogComponent implements OnInit, OnDestroy {
    */
   private recordPaymentComplete(paymentIntentId: string) {
     const paymentRefund: PaymentRefund = new PaymentRefund();
-    paymentRefund.amount = this.paymentRequest.amount;
+    paymentRefund.paidAmount = this.paymentRequest.amount;
+    paymentRefund.paidCurrency = this.paymentRequest.currencyCode;
+    // record the original amount in case we need to refund.  we will need this to calculate refund at today's rates ?
+    paymentRefund.amount = this.paymentRequest.amountInAccountCurrency;
     paymentRefund.itemId = this.paymentRequest.transactionItemId;
     paymentRefund.paymentIntentId = paymentIntentId;
     paymentRefund.paymentRefundFor = this.paymentRequest.paymentRefundFor;
