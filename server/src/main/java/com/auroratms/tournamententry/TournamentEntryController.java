@@ -1,25 +1,38 @@
 package com.auroratms.tournamententry;
 
+import com.auroratms.event.TournamentEventEntity;
+import com.auroratms.event.TournamentEventEntityService;
 import com.auroratms.profile.UserProfileExt;
 import com.auroratms.profile.UserProfileExtService;
 import com.auroratms.tournament.Tournament;
 import com.auroratms.tournament.TournamentService;
+import com.auroratms.tournamentevententry.TournamentEventEntryService;
 import com.auroratms.usatt.UsattDataService;
 import com.auroratms.usatt.UsattPlayerRecord;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
 @RestController
 @RequestMapping("api")
 @PreAuthorize("isAuthenticated()")
+@Transactional
 public class TournamentEntryController {
 
     @Autowired
     private TournamentEntryService tournamentEntryService;
+
+    @Autowired
+    private TournamentEventEntryService tournamentEventEntryService;
+
+    @Autowired
+    private TournamentEventEntityService tournamentEventEntityService;
 
     @Autowired
     private TournamentService tournamentService;
@@ -41,7 +54,10 @@ public class TournamentEntryController {
     @PostMapping("/tournamententry")
     public TournamentEntry create(@RequestBody TournamentEntry tournamentEntry) {
         updateRatings(tournamentEntry);
-        return tournamentEntryService.create(tournamentEntry);
+        TournamentEntry savedEntry = tournamentEntryService.create(tournamentEntry);
+        this.updateTournamentStatistics(tournamentEntry.getTournamentFk());
+
+        return savedEntry;
     }
 
     @GetMapping("/tournamententry/{entryId}")
@@ -92,14 +108,52 @@ public class TournamentEntryController {
 
 
     @PutMapping("/tournamententry/{entryId}")
-//    @PreAuthorize("hasAuthority('TournamentDirectors') or hasAuthority('Admins')")
     public TournamentEntry update(@PathVariable Long entryId,
                                   @RequestBody TournamentEntry tournamentEntry) {
+        updateTournamentStatistics(tournamentEntry.getTournamentFk());
+
         return tournamentEntryService.update(tournamentEntry);
     }
 
+    /**
+     * Deletes tournament entry
+     * @param entryId
+     */
     @DeleteMapping("/tournamententry/{entryId}")
     public void delete(@PathVariable Long entryId) {
+        TournamentEntry tournamentEntry = tournamentEntryService.get(entryId);
+        long tournamentId = tournamentEntry.getTournamentFk();
+
         tournamentEntryService.delete(entryId);
+
+        updateTournamentStatistics(tournamentId);
+    }
+
+    /**
+     * Updates counts
+     * @param tournamentFk
+     */
+    private void updateTournamentStatistics(long tournamentFk) {
+//        System.out.println("TournamentEntryController.updateTournamentStatistics");
+//        System.out.println("tournamentFk = " + tournamentFk);
+        Tournament tournament = tournamentService.getByKey(tournamentFk);
+//        int countOfEntries = tournamentEntryService.getCountOfEntries(tournamentFk);
+        int countNonEmptyEntries = tournamentEventEntryService.getCountOfEntries(tournamentFk);
+//        System.out.println("countOfEntries = " + countOfEntries);
+//        System.out.println("countNonEmptyEntries = " + countNonEmptyEntries);
+
+        // get all events for tournament
+        int maxNumEventEntries = 0;
+        Collection<TournamentEventEntity> eventList = tournamentEventEntityService.list(tournamentFk, Pageable.unpaged());
+        for (TournamentEventEntity tournamentEventEntity : eventList) {
+            maxNumEventEntries += tournamentEventEntity.getMaxEntries();
+        }
+//        System.out.println("maxNumEventEntries = " + maxNumEventEntries);
+
+        int numEventEntries = tournamentEventEntryService.getCountOfValidEntriesInAllEvents(tournamentFk);
+        tournament.setNumEntries(countNonEmptyEntries);
+        tournament.setNumEventEntries(numEventEntries);
+        tournament.setMaxNumEventEntries(maxNumEventEntries);
+        tournamentService.saveTournament(tournament);
     }
 }

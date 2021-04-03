@@ -37,6 +37,13 @@ public class Tournament {
     private String email;
     private String phone;
 
+    // total number of entries
+    private int numEntries;
+    // number of event spots taken vs all that are available
+    private int numEventEntries;
+    // maximum number of event entries
+    private int maxNumEventEntries;
+
     // information that is not queryable
     private TournamentConfiguration configuration;
 
@@ -62,6 +69,9 @@ public class Tournament {
         entity.setContactName(contactName);
         entity.setEmail(email);
         entity.setPhone(phone);
+        entity.setNumEntries(numEntries);
+        entity.setNumEventEntries(numEventEntries);
+        entity.setMaxNumEventEntries(maxNumEventEntries);
 //        entity.setEvents(events);
         // convert from configuration to JSON
         if (configuration != null) {
@@ -96,6 +106,9 @@ public class Tournament {
         this.contactName = entity.getContactName();
         this.email = entity.getEmail();
         this.phone = entity.getPhone();
+        this.numEntries = entity.getNumEntries();
+        this.numEventEntries = entity.getNumEventEntries();
+        this.maxNumEventEntries = entity.getMaxNumEventEntries();
 //        this.events = entity.getEvents();
 
         configuration = null;

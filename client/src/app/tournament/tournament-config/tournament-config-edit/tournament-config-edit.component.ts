@@ -44,6 +44,10 @@ export class TournamentConfigEditComponent {
 
   onSave(formValues: any) {
     const tournament = Tournament.toTournament(formValues);
+    // preserve this from previous run
+    tournament.numEntries = this.tournament?.numEntries || 0;
+    tournament.numEventEntries = this.tournament?.numEventEntries || 0;
+    tournament.maxNumEventEntries = this.tournament?.maxNumEventEntries || 0;
     this.saved.emit(tournament);
   }
 

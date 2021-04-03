@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Service
@@ -19,6 +20,10 @@ public class TournamentEventEntryService {
 
     @Autowired
     private TournamentEventEntryRepository repository;
+
+    // list of event entry statuses considered to be 'taken'
+    private static List<EventEntryStatus> TAKEN_EVENTS_STATUS = Arrays.asList(
+            EventEntryStatus.ENTERED, EventEntryStatus.PENDING_CONFIRMATION, EventEntryStatus.PENDING_DELETION);
 
     List<TournamentEventEntry> getEntries(Long tournamentEntryId) {
        return repository.findByTournamentEntryFk(tournamentEntryId);
@@ -55,11 +60,25 @@ public class TournamentEventEntryService {
      * @return
      */
     public long getCountValidEntriesInEvent(Long eventId) {
-        List<EventEntryStatus> statusList = new ArrayList<>();
-        statusList.add(EventEntryStatus.ENTERED);
-        statusList.add(EventEntryStatus.PENDING_CONFIRMATION);
-        statusList.add(EventEntryStatus.PENDING_DELETION);
-        return repository.countByTournamentEventFkEqualsAndStatusIn(eventId, statusList);
+        return repository.countByTournamentEventFkEqualsAndStatusIn(eventId, TAKEN_EVENTS_STATUS);
     }
 
+    /**
+     * Gets total count of event
+     * @param tournamentId
+     * @return
+     */
+    public int getCountOfValidEntriesInAllEvents(long tournamentId) {
+        return repository.countByTournamentFkEqualsAndStatusIn(
+                tournamentId, TAKEN_EVENTS_STATUS);
+    }
+
+    /**
+     *
+     * @param tournamentId
+     * @return
+     */
+    public int getCountOfEntries(long tournamentId) {
+        return repository.countTournamentEntries(tournamentId, TAKEN_EVENTS_STATUS);
+    }
 }

@@ -79,6 +79,16 @@ export class DateUtils {
   }
 
   /**
+   * Checks if given date is in range between two dates
+   * @param dateToTest
+   * @param rangeStart
+   * @param rangeEnd
+   */
+  isDateInRange(dateToTest: Date, rangeStart: Date, rangeEnd: Date): boolean {
+    return moment(rangeStart).twix(rangeEnd).contains(dateToTest);
+  }
+
+  /**
    * Checks if the first timestamp is before the second
    * @param firstTimestamp
    * @param secondTimestamp

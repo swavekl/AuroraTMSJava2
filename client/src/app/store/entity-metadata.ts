@@ -1,10 +1,12 @@
 import {EntityMetadataMap} from '@ngrx/data';
 import {TournamentInfo} from '../tournament/tournament/tournament-info.model';
+import {DateUtils} from '../shared/date-utils';
 
 const entityMetadata: EntityMetadataMap = {
   Tournament: {},
   TournamentInfo: {
-    filterFn: (entities: TournamentInfo[], pattern: { states: string[] }) => {
+    filterFn: (entities: TournamentInfo[],
+               pattern: { states: string[], startDate: Date, endDate: Date }) => {
       return entities.filter(entity => {
         let inRegion = false;
         if (pattern.states !== null) {
@@ -17,7 +19,24 @@ const entityMetadata: EntityMetadataMap = {
         } else {
           inRegion = true;
         }
-        return inRegion;
+
+        // don't show very old tournaments - only recent ones and future
+        let inDateRange = true;
+        const dateUtils: DateUtils = new DateUtils();
+        const tournamentStartDate = dateUtils.convertFromString(entity.startDate);
+        if (tournamentStartDate != null) {
+          if (pattern.startDate != null) {
+            inDateRange = dateUtils.isDateBefore(pattern.startDate, tournamentStartDate);
+          } else if (pattern.startDate != null && pattern.endDate != null) {
+            inDateRange = dateUtils.isDateInRange(tournamentStartDate, pattern.startDate, pattern.endDate);
+            // inDateRange =
+            //   dateUtils.isDateBefore(pattern.startDate, tournamentStartDate) &&
+            //   dateUtils.isDateBefore(tournamentStartDate, pattern.endDate);
+          }
+        }
+        // console.log ('inDateRange ' + inDateRange + ' ' + entity.startDate + ' vs ' + pattern.startDate);
+
+        return inRegion && inDateRange;
       });
     }
   },

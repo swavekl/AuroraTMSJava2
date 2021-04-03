@@ -57,6 +57,7 @@
     <orderEntry type="library" name="Gradle: com.okta.sdk:okta-sdk-api:3.0.1" level="project" />
     <orderEntry type="library" name="Gradle: org.jsoup:jsoup:1.13.1" level="project" />
     <orderEntry type="library" name="Gradle: com.opencsv:opencsv:5.3" level="project" />
+    <orderEntry type="library" name="Gradle: com.google.code.gson:gson:2.8.6" level="project" />
     <orderEntry type="library" name="Gradle: com.stripe:stripe-java:19.45.0" level="project" />
     <orderEntry type="library" name="Gradle: org.springframework.boot:spring-boot-starter-aop:2.4.0" level="project" />
     <orderEntry type="library" name="Gradle: org.springframework.boot:spring-boot-starter-jdbc:2.4.0" level="project" />
@@ -172,7 +173,6 @@
     <orderEntry type="library" scope="RUNTIME" name="Gradle: org.bouncycastle:bcprov-jdk15on:1.66" level="project" />
     <orderEntry type="library" scope="RUNTIME" name="Gradle: io.jsonwebtoken:jjwt-impl:0.11.1" level="project" />
     <orderEntry type="library" scope="RUNTIME" name="Gradle: io.jsonwebtoken:jjwt-api:0.11.1" level="project" />
-    <orderEntry type="library" scope="RUNTIME" name="Gradle: com.google.code.gson:gson:2.8.6" level="project" />
     <orderEntry type="library" scope="RUNTIME" name="Gradle: com.okta.commons:okta-http-httpclient:1.2.4" level="project" />
     <orderEntry type="library" scope="RUNTIME" name="Gradle: org.latencyutils:LatencyUtils:2.0.3" level="project" />
     <orderEntry type="library" scope="RUNTIME" name="Gradle: com.sun.activation:jakarta.activation:1.2.2" level="project" />

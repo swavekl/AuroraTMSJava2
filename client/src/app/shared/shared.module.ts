@@ -15,6 +15,7 @@ import {FlexLayoutModule} from '@angular/flex-layout';
 import {DebounceClicksDirective} from './directives/debounce-clicks.directive';
 import {MessageAreaComponent} from './message-area/message-area.component';
 import {TypographyComponent} from './typograhpy/typography.component';
+import { DateRangePipe } from './pipes/date-range.pipe';
 
 
 @NgModule({
@@ -27,7 +28,8 @@ import {TypographyComponent} from './typograhpy/typography.component';
     CenteredPanelComponent,
     DebounceClicksDirective,
     MessageAreaComponent,
-    TypographyComponent
+    TypographyComponent,
+    DateRangePipe
   ],
   exports: [
     LinearProgressBarComponent,
@@ -35,6 +37,7 @@ import {TypographyComponent} from './typograhpy/typography.component';
     ConfirmationPopupComponent,
     StartTimePipe,
     EventDayPipePipe,
+    DateRangePipe,
     CenteredPanelComponent,
     DebounceClicksDirective,
     MessageAreaComponent,

@@ -6,6 +6,8 @@
     <button type="button" mat-button (click)="renumberEvents()">
       <mat-icon matListIcon>reorder</mat-icon>Renumber Events
     </button>
+    <span fxFlex></span>
+    <span>Taken/Maximum Event Entries: {{ numEventEntries }} / {{ maxNumEvenEntries }}</span>
   </mat-toolbar-row>
 </mat-toolbar>
 <div style="overflow: auto; height: 700px;">

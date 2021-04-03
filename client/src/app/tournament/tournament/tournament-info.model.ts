@@ -10,6 +10,15 @@ export class TournamentInfo {
   startDate: Date;
   endDate: Date;
   tournamentType: String;
+  starLevel: number;
+  numEntries: number;
+  numEventEntries: number;
+  maxNumEventEntries: number;
+
+  tournamentDirectorName: string;
+  tournamentDirectorPhone: string;
+  tournamentDirectorEmail: string;
+
 
   // convert dates from string to date objects
   static convert(tournamentInfo: TournamentInfo): TournamentInfo {

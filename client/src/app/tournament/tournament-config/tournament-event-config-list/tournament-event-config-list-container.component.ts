@@ -12,6 +12,8 @@ import {MatDialog} from '@angular/material/dialog';
                                       [startDate]="startDate"
                                       [endDate]="endDate"
                                       [tournamentId]="tournamentId"
+                                      [numEventEntries]="numEventEntries"
+                                      [maxNumEvenEntries]="maxNumEvenEntries"
                                       (delete)="onDelete($event)"
                                       (renumber)="onRenumber($event)">
     </app-tournament-event-config-list>
@@ -23,6 +25,12 @@ export class TournamentEventConfigListContainerComponent implements OnInit, OnCh
   // id of tournament whose events we are showing
   @Input()
   tournamentId: number;
+
+  @Input()
+  numEventEntries: number;
+
+  @Input()
+  maxNumEvenEntries: number;
 
   @Input()
   startDate: Date;

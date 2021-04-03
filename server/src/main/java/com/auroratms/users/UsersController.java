@@ -8,6 +8,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.okta.sdk.resource.user.ForgotPasswordResponse;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -200,18 +201,22 @@ public class UsersController extends AbstractOktaController {
     @PreAuthorize("permitAll()")
     ResponseEntity<String> login(@RequestBody UserRegistration userRegistration) {
         try {
-            // authenticate
-            String requestBody = "grant_type=password"
-                    + "&username=" + URLEncoder.encode(userRegistration.getEmail(), StandardCharsets.UTF_8.name())
-                    + "&password=" + URLEncoder.encode(userRegistration.getPassword(), StandardCharsets.UTF_8.name())
-                    + "&client_id=" + URLEncoder.encode(this.clientId, StandardCharsets.UTF_8.name())
-                    + "&scope=" + URLEncoder.encode("openid offline_access", StandardCharsets.UTF_8.name());
-            String url = oktaServiceBase + "/oauth2/default/v1/token";
-            String loginResponse = makePostRequest(url, requestBody, "application/x-www-form-urlencoded", null);
-
-            // get user profile so we have user profile id and basic user information
-            String combinedResponse = fetchUser(loginResponse, userRegistration.getEmail());
-            return new ResponseEntity<String>(combinedResponse, HttpStatus.OK);
+            if (StringUtils.isNotEmpty(userRegistration.getEmail()) &&
+                    StringUtils.isNotEmpty(userRegistration.getPassword())) {
+                // authenticate
+                String requestBody = "grant_type=password"
+                        + "&username=" + URLEncoder.encode(userRegistration.getEmail(), StandardCharsets.UTF_8.name())
+                        + "&password=" + URLEncoder.encode(userRegistration.getPassword(), StandardCharsets.UTF_8.name())
+                        + "&client_id=" + URLEncoder.encode(this.clientId, StandardCharsets.UTF_8.name())
+                        + "&scope=" + URLEncoder.encode("openid offline_access", StandardCharsets.UTF_8.name());
+                String url = oktaServiceBase + "/oauth2/default/v1/token";
+                String loginResponse = makePostRequest(url, requestBody, "application/x-www-form-urlencoded", null);
+                // get user profile so we have user profile id and basic user information
+                String combinedResponse = fetchUser(loginResponse, userRegistration.getEmail());
+                return new ResponseEntity<String>(combinedResponse, HttpStatus.OK);
+            } else {
+                return new ResponseEntity<String>("{\"message\": \"Login failed\"}", HttpStatus.UNAUTHORIZED);
+            }
         } catch (IOException e) {
             return new ResponseEntity<String>("{\"message\": \"Login failed\"}", HttpStatus.UNAUTHORIZED);
         }

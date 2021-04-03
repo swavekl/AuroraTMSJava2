@@ -204,6 +204,8 @@
         <mat-tab label="Events">
             <app-tournament-event-config-list-container
               [tournamentId]="tournament?.id"
+              [numEventEntries]="tournament?.numEventEntries"
+              [maxNumEvenEntries]="tournament?.maxNumEventEntries"
               [startDate]="tournament?.startDate">
               [endDate]="tournament?.endDate">
             </app-tournament-event-config-list-container>

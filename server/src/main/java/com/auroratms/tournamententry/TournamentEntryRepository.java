@@ -7,4 +7,6 @@ import java.util.List;
 public interface TournamentEntryRepository extends JpaRepository<TournamentEntry, Long> {
 
     List<TournamentEntry> findByTournamentFkAndProfileId (Long tournamentFk, String profileId);
+
+    int countTournamentEntryByTournamentFk(Long tournamentFk);
 }

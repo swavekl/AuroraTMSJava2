@@ -29,7 +29,7 @@
                 <div matLine [ngClass.lt-md]="'truncated-list-item'">
                   {{tournament.name}}
                 </div>
-                <h3 matLine>{{tournament.startDate | date }} - {{tournament.endDate | date }}</h3>
+                <h3 matLine>{{ [tournament.startDate, tournament.endDate] | dateRange }}</h3>
                 <h4 matLine>{{ tournament.city }}, {{tournament.state}} </h4>
                 <button fxShow.gt-md="true" fxShow.md="true" fxHide.lt-md="true" mat-icon-button [routerLink]="['view', tournament.id]">
                   <mat-icon matListIcon>navigate_next</mat-icon>

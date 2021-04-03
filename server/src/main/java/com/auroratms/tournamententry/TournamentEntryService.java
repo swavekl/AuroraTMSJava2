@@ -68,5 +68,13 @@ public class TournamentEntryService {
     public void delete(long id) {
         repository.deleteById(id);
     }
-    
+
+    /**
+     * Gets count of entries for this tournament
+     * @param tournamentFk
+     * @return
+     */
+    public int getCountOfEntries(long tournamentFk) {
+        return this.repository.countTournamentEntryByTournamentFk(tournamentFk);
+    }
 }

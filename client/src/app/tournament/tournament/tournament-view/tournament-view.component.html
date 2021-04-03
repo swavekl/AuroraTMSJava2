@@ -1,17 +1,79 @@
 <div fxLayout="row">
   <div fxFlex></div>
   <div fxFlex.lt-md="100%" fxFlex="70%">
-    <mat-card style="height: 100%">
-      <mat-card-title>Tournament View</mat-card-title>
+    <mat-card>
+      <mat-card-title>{{ tournamentInfo?.name }}</mat-card-title>
+        <div>
+          <ng-container *ngFor="let star of starsArray">
+            <mat-icon matListIcon>star</mat-icon>
+          </ng-container>
+        </div>
       <mat-card-content>
-        <h3 matLine>{{ tournament?.name }}</h3>
-        <h3 matLine>{{ tournament?.startDate | date }} - {{tournament?.endDate | date }}</h3>
-        <h4 matLine>{{ tournament?.city }}, {{ tournament?.state }} </h4>
+        <h3>{{ [tournamentInfo?.startDate, tournamentInfo?.endDate] | dateRange }}</h3>
+        <h4>{{ tournamentInfo?.streetAddress }}, {{ tournamentInfo?.city }}, {{ tournamentInfo?.state }}<mat-icon matListIcon>assistant_direction</mat-icon> </h4>
+<!--        <h3 matLine>Tournament Director: {{tournamentInfo?.tournamentDirectorName}}</h3>-->
+<!--        <h4 matLine>{{tournamentInfo?.tournamentDirectorPhone}} / {{ tournamentInfo?.tournamentDirectorEmail }}</h4>-->
+        <mat-card-subtitle>TournamentDirector: {{tournamentInfo?.tournamentDirectorName}}</mat-card-subtitle>
+        <div><h4>{{tournamentInfo?.tournamentDirectorPhone}} <mat-icon matListIcon>call</mat-icon> {{ tournamentInfo?.tournamentDirectorEmail }} <mat-icon matListIcon>email</mat-icon></h4></div>
+<!--        <table style="width: 100%;">-->
+<!--          <tbody>-->
+<!--          <tr>-->
+<!--            <td style="width: 50%;">{{tournamentInfo?.tournamentDirectorName}}</td>-->
+<!--            <td style="width: 50%; text-align: right;"><h4>{{tournamentInfo?.tournamentDirectorPhone}}</h4></td>-->
+<!--          </tr>-->
+<!--          <tr>-->
+<!--            <td style="width: 50%;"></td>-->
+<!--            <td style="width: 50%; text-align: right;"><h4>{{ tournamentInfo?.tournamentDirectorEmail }}</h4></td>-->
+<!--          </tr>-->
+<!--          </tbody>-->
+<!--        </table>-->
+        <mat-card-subtitle>Key Dates</mat-card-subtitle>
+        <table style="width: 100%;">
+          <tbody>
+          <tr>
+            <td style="width: 50%;">Ratings eligibility</td>
+            <td style="width: 50%; text-align: right;">12/01/2021</td>
+          </tr>
+          <tr>
+            <td style="width: 50%;">Registration closes</td>
+            <td style="width: 50%; text-align: right;">12/31/2021</td>
+          </tr>
+          </tbody>
+        </table>
+<!--        <h3>Key dates:</h3>-->
+<!--        <h5>Ratings eligibility: 12/01/2021</h5>-->
+<!--        <h5>Late entry fee: 12/23/2021</h5>-->
+<!--        <h5>Registration closes: 12/31/2021</h5>-->
+<!--        <h5>Refund deadline: 01/15/2022</h5>-->
+        <h2>Players entered: {{ tournamentInfo?.numEntries }} / Percent full: {{percentFull | percent}}</h2>
       </mat-card-content>
       <mat-card-actions>
-        <button *ngIf="entryId === 0" mat-raised-button type="button" (click)="onEnter()">Enter</button>
-        <button *ngIf="entryId !== 0" mat-raised-button type="button" (click)="onView()">View/Modify</button>
+        <button *ngIf="entryId !== 0" mat-raised-button type="button" (click)="onWithdraw()">Withdraw</button>
+        <button *ngIf="entryId === 0" mat-raised-button type="button" color="primary" (click)="onEnter()">Enter</button>
+        <span fxFlex></span>
+        <button *ngIf="entryId !== 0" mat-raised-button type="button" color="primary" (click)="onView()">View/Modify Entry</button>
       </mat-card-actions>
+    </mat-card>
+    <mat-card>
+      <mat-card-subtitle>
+        <div mat-line fxLayout="row">
+          <div fxFlex="60%">Events</div>
+          <div fxFlex="40%" style="text-align: right;">Spots (Taken/Max)</div>
+        </div>
+      </mat-card-subtitle>
+      <mat-card-content>
+        <mat-divider></mat-divider>
+        <mat-list>
+          <mat-list-item *ngFor="let tournamentEvent of tournamentEvents; first as isFirst; last as isLast">
+            <mat-divider></mat-divider>
+            <div mat-line fxLayout="row">
+              <div fxFlex="80%">{{tournamentEvent.name}} </div>
+              <div fxFlex="20%" style="text-align: right;">({{tournamentEvent.numEntries}}/{{tournamentEvent.maxEntries}})</div>
+            </div>
+            <div mat-line>{{ tournamentEvent.day | eventDay: tournamentStartDate }} {{ tournamentEvent.startTime | startTime }}</div>
+          </mat-list-item>
+        </mat-list>
+      </mat-card-content>
     </mat-card>
   </div>
   <div fxFlex></div>

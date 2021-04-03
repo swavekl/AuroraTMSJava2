@@ -5,6 +5,7 @@ import {TournamentInfo} from '../tournament-info.model';
 import {LocalStorageService} from '../../../shared/local-storage.service';
 import {Regions} from '../../../shared/regions';
 import {LinearProgressBarService} from '../../../shared/linear-progress-bar/linear-progress-bar.service';
+import * as moment from 'moment';
 
 @Component({
   selector: 'app-tournament-list-container',
@@ -64,8 +65,13 @@ export class TournamentListContainerComponent implements OnInit, OnDestroy {
         break;
       }
     }
+    // default date range 3 months old and all future tournaments
+    // const twoMonthsBackDate = moment().subtract(1, 'months').toDate();
+    const twoMonthsBackDate = new Date();
     this.tournamentInfoService.setFilter({
-      states: states
+      states: states,
+      startDate: twoMonthsBackDate,
+      endDate: null
     });
   }
 

@@ -84,6 +84,9 @@ dependencies {
     // reading and parsing CSV files
     implementation('com.opencsv:opencsv:5.3')
 
+    // Googl GSON parser for parsing JSON files
+    implementation ("com.google.code.gson:gson:2.8.6")
+
     // credit card payments & refunds
     implementation "com.stripe:stripe-java:19.45.0"
 }

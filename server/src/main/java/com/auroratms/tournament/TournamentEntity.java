@@ -16,8 +16,6 @@ import java.util.Set;
  */
 @Entity
 @Table(name = "tournament")
-//@Data
-//@NoArgsConstructor
 public class TournamentEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -48,6 +46,13 @@ public class TournamentEntity {
     private String email;
     @Column(length = 30)
     private String phone;
+
+    // total number of entries
+    private int numEntries;
+    // number of event spots taken vs all that are available
+    private int numEventEntries;
+    // maximum number of event entries
+    private int maxNumEventEntries;
 
     // to avoid having to change database schema each time we add new field to configuration
     // we will persist configuration as JSON in this field.
@@ -162,6 +167,30 @@ public class TournamentEntity {
         this.phone = phone;
     }
 
+    public int getNumEntries() {
+        return numEntries;
+    }
+
+    public void setNumEntries(int numEntries) {
+        this.numEntries = numEntries;
+    }
+
+    public int getNumEventEntries() {
+        return numEventEntries;
+    }
+
+    public void setNumEventEntries(int numEventEntries) {
+        this.numEventEntries = numEventEntries;
+    }
+
+    public int getMaxNumEventEntries() {
+        return maxNumEventEntries;
+    }
+
+    public void setMaxNumEventEntries(int maxNumEventEntries) {
+        this.maxNumEventEntries = maxNumEventEntries;
+    }
+
     public String getContent() {
         return content;
     }
@@ -196,6 +225,9 @@ public class TournamentEntity {
                 Objects.equals(contactName, entity.contactName) &&
                 Objects.equals(email, entity.email) &&
                 Objects.equals(phone, entity.phone) &&
+                Objects.equals(numEntries, entity.numEntries) &&
+                Objects.equals(numEventEntries, entity.numEventEntries) &&
+                Objects.equals(maxNumEventEntries, entity.maxNumEventEntries) &&
                 Objects.equals(content, entity.content);
     }
 

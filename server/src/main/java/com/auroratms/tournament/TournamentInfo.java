@@ -28,4 +28,15 @@ public class TournamentInfo {
     private Date endDate;
     private int starLevel;
     private TournamentType tournamentType;
+    // total number of entries
+    private int numEntries;
+    // number of event spots taken vs all that are available
+    private int numEventEntries;
+    // maximum number of event entries
+    private int maxNumEventEntries;
+
+    private String tournamentDirectorName;
+    private String tournamentDirectorPhone;
+    private String tournamentDirectorEmail;
+
 }

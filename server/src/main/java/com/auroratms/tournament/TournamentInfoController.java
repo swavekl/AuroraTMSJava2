@@ -1,5 +1,6 @@
 package com.auroratms.tournament;
 
+import com.auroratms.event.TournamentEventEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -7,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Set;
 
 @RestController
 @RequestMapping("api")
@@ -38,16 +40,23 @@ public class TournamentInfoController {
         TournamentInfo tournamentInfo = new TournamentInfo();
         tournamentInfo.setId(tournament.getId());
         tournamentInfo.setName(tournament.getName());
+        tournamentInfo.setStreetAddress(tournament.getStreetAddress());
         tournamentInfo.setCity(tournament.getCity());
         tournamentInfo.setState(tournament.getState());
         tournamentInfo.setStartDate(tournament.getStartDate());
         tournamentInfo.setEndDate(tournament.getEndDate());
         tournamentInfo.setStarLevel(tournament.getStarLevel());
+        tournamentInfo.setTournamentDirectorName(tournament.getContactName());
+        tournamentInfo.setTournamentDirectorEmail(tournament.getEmail());
+        tournamentInfo.setTournamentDirectorPhone(tournament.getPhone());
         if (tournament.getConfiguration() != null) {
             tournamentInfo.setTournamentType(tournament.getConfiguration().getTournamentType());
         } else {
             tournamentInfo.setTournamentType(TournamentType.RatingsRestricted);
         }
+        tournamentInfo.setNumEntries(tournament.getNumEntries());
+        tournamentInfo.setMaxNumEventEntries(tournament.getMaxNumEventEntries());
+        tournamentInfo.setNumEventEntries(tournament.getNumEventEntries());
         return tournamentInfo;
     }
 }

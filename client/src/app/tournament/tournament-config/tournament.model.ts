@@ -18,6 +18,13 @@ export class Tournament {
   email: string;
   phone: string;
 
+  // total number of entries
+  numEntries: number;
+  // number of event spots taken vs all that are available
+  numEventEntries: number;
+  // maximum number of event entries
+  maxNumEventEntries: number;
+
   configuration: TournamentConfiguration;
 
   // events in the tournament
