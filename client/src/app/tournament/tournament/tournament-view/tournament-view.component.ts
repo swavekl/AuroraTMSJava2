@@ -1,5 +1,5 @@
 import {Component, Input, OnChanges, OnInit, SimpleChange, SimpleChanges} from '@angular/core';
-import {TournamentInfo} from '../tournament-info.model';
+import {TournamentInfo} from '../../model/tournament-info.model';
 import {Router} from '@angular/router';
 import {TournamentEntry} from '../../tournament-entry/model/tournament-entry.model';
 import {first} from 'rxjs/operators';
@@ -76,5 +76,10 @@ export class TournamentViewComponent implements OnInit, OnChanges {
 
   onWithdraw() {
     console.log ('warning about withdrawal');
+  }
+
+  showPlayers() {
+    const url = `playerlist/${this.tournamentInfo.id}`;
+    this.router.navigateByUrl(url);
   }
 }

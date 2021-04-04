@@ -10,7 +10,7 @@ import {AvailabilityStatus} from '../model/availability-status.enum';
 import {EventEntryCommand} from '../model/event-entry-command.enum';
 import {Profile} from '../../../profile/profile';
 import {DateUtils} from '../../../shared/date-utils';
-import {TournamentInfo} from '../../tournament/tournament-info.model';
+import {TournamentInfo} from '../../model/tournament-info.model';
 import {PaymentRefund} from '../../../account/model/payment-refund.model';
 import {CallbackData} from '../../../account/model/callback-data';
 import {PaymentDialogData} from '../../../account/payment-dialog/payment-dialog-data';

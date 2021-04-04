@@ -1,11 +1,10 @@
 import {ChangeDetectionStrategy, Component, OnDestroy, OnInit} from '@angular/core';
-import {TournamentInfoService} from '../tournament-info.service';
+import {TournamentInfoService} from '../../service/tournament-info.service';
 import {Observable, Subscription} from 'rxjs';
-import {TournamentInfo} from '../tournament-info.model';
+import {TournamentInfo} from '../../model/tournament-info.model';
 import {LocalStorageService} from '../../../shared/local-storage.service';
 import {Regions} from '../../../shared/regions';
 import {LinearProgressBarService} from '../../../shared/linear-progress-bar/linear-progress-bar.service';
-import * as moment from 'moment';
 
 @Component({
   selector: 'app-tournament-list-container',

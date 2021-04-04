@@ -1,0 +1,209 @@
+import {Component, Input, OnChanges, OnInit, SimpleChange, SimpleChanges} from '@angular/core';
+import {TournamentEntryInfo} from '../../model/tournament-entry-info.model';
+import {TournamentEvent} from '../../tournament-config/tournament-event.model';
+
+@Component({
+  selector: 'app-tournament-players-list',
+  templateUrl: './tournament-players-list.component.html',
+  styleUrls: ['./tournament-players-list.component.scss']
+})
+export class TournamentPlayersListComponent implements OnInit, OnChanges {
+
+  @Input()
+  entryInfos: TournamentEntryInfo[];
+
+  @Input()
+  tournamentEvents: TournamentEvent[];
+
+  @Input()
+  tournamentStartDate: Date;
+
+  // tournament events with players in them
+  tournamentEventsWithPlayers: TournamentEventWithPlayers[];
+
+  sortBy: string;
+
+  constructor() {
+    this.sortBy = 'name';
+  }
+
+  ngOnInit(): void {
+
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    const entryInfosChange: SimpleChange = changes.entryInfos;
+    if (entryInfosChange) {
+      const entryInfos: TournamentEntryInfo [] = entryInfosChange.currentValue;
+      if (entryInfos) {
+        this.entryInfos = this.sortEntries(entryInfos);
+      }
+    }
+
+    const tournamentEventsChange: SimpleChange = changes.tournamentEvents;
+    if (tournamentEventsChange) {
+      this.tournamentEvents = tournamentEventsChange.currentValue;
+    }
+
+    // when both are ready do it.
+    if (this.tournamentEvents != null && this.tournamentEvents.length > 0
+      && this.entryInfos != null && this.entryInfos.length > 0) {
+      this.tournamentEventsWithPlayers = this.categorizeEntriesByEvents(this.entryInfos, this.tournamentEvents);
+    }
+  }
+
+  private sortEntries(infos: TournamentEntryInfo[]): TournamentEntryInfo[] {
+    let sortFunction = this.sortByNameFn;
+    switch (this.sortBy) {
+      case 'name':
+        sortFunction = this.sortByNameFn;
+        break;
+
+      case 'rating':
+        sortFunction = this.sortByRatingFn;
+        break;
+    }
+    return infos.sort(sortFunction);
+  }
+
+  /**
+   * Sort by last name, first name
+   * @param left
+   * @param right
+   * @private
+   */
+  private sortByNameFn(left: TournamentEntryInfo, right: TournamentEntryInfo): number {
+    const leftFullName = `${left.lastName}, ${left.firstName}`;
+    const rightFullName = `${right.lastName}, ${right.firstName}`;
+    return leftFullName.localeCompare(rightFullName);
+  }
+
+  /**
+   * Sort by rating from highest to lowest (reverse)
+   * @param left
+   * @param right
+   * @private
+   */
+  private sortByRatingFn(left: TournamentEntryInfo, right: TournamentEntryInfo): number {
+    return (left.seedRating === right.seedRating)
+      ? 0 : (left.seedRating < right.seedRating) ? 1 : -1;
+  }
+
+  public fullName(firstName: string, lastName: string): string {
+    return `${lastName}, ${firstName}`;
+  }
+
+  onSortByName() {
+    this.sortBy = 'name';
+    this.entryInfos = this.sortEntries(this.entryInfos);
+  }
+
+  onSortByRating() {
+    this.sortBy = 'rating';
+    this.entryInfos = this.sortEntries(this.entryInfos);
+  }
+
+  onSortByEvent() {
+    // they are already categorized - just show them
+    this.sortBy = 'event';
+  }
+
+  /**
+   *
+   * @param entryInfos
+   * @param events
+   */
+  categorizeEntriesByEvents(entryInfos: TournamentEntryInfo[], events: TournamentEvent[]): TournamentEventWithPlayers[] {
+    const categorizedCollection: TournamentEventWithPlayers[] = [];
+    // make a map for fast lookup
+    const mapEventIdToEventWithPlayers = {};
+    for (let i = 0; i < events.length; i++) {
+      // clone it
+      const event = {...events[i]};
+      const tep = new TournamentEventWithPlayers(event, []);
+      mapEventIdToEventWithPlayers[event.id] = tep;
+      categorizedCollection.push(tep);
+    }
+
+    // add all players into tournament event with players objects
+    for (let i = 0; i < entryInfos.length; i++) {
+      const entryInfo = entryInfos[i];
+      const pi: PlayerInfo = new PlayerInfo();
+      pi.playerName = this.fullName(entryInfo.firstName, entryInfo.lastName);
+      pi.eligibilityRating = entryInfo.eligibilityRating;
+      pi.seedRating = entryInfo.seedRating;
+      const eventIds = entryInfo.eventIds;
+      for (let j = 0; j < eventIds.length; j++) {
+        const eventId = eventIds[j];
+        const tep: TournamentEventWithPlayers = mapEventIdToEventWithPlayers[eventId];
+        if (tep) {
+          tep.addPlayer(pi);
+        }
+      }
+    }
+
+   // sort players by rating
+  function sortByRatingFn (left: PlayerInfo, right: PlayerInfo): number {
+      return (left.seedRating === right.seedRating)
+        ? 0 : (left.seedRating < right.seedRating) ? 1 : -1;
+    }
+
+    for (let i = 0; i < categorizedCollection.length; i++) {
+      const element: TournamentEventWithPlayers = categorizedCollection[i];
+      if (element?.players.length > 0) {
+        element.players = element.players.sort(sortByRatingFn);
+      }
+    }
+    return categorizedCollection;
+  }
+}
+
+/**
+ * Class for grouping entries by event instead of alphabetically
+ */
+export class TournamentEventWithPlayers {
+  event: TournamentEvent;
+  players: PlayerInfo [];
+
+  constructor(event: TournamentEvent, players: PlayerInfo[]) {
+    this.event = event;
+    this.players = players;
+  }
+
+  public eventName(): string {
+    return this.event.name;
+  }
+
+  public eventDay(): number {
+    return this.event.day;
+  }
+
+  public eventStartTime(): number {
+    return this.event.startTime;
+  }
+
+  public addPlayer(pi: PlayerInfo) {
+    this.players.push(pi);
+  }
+
+  totalEntries(): number {
+    return this.event.numEntries;
+  }
+
+  freeSpots(): number {
+    return Math.max(this.event.maxEntries - this.event.numEntries, 0);
+  }
+
+  maxEntries (): number {
+    return this.event.maxEntries;
+  }
+}
+
+/**
+ * data on individual player
+ */
+export class PlayerInfo {
+  playerName: string;
+  eligibilityRating: number;
+  seedRating: number;
+}

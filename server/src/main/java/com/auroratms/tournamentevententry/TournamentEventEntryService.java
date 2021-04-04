@@ -26,7 +26,7 @@ public class TournamentEventEntryService {
             EventEntryStatus.ENTERED, EventEntryStatus.PENDING_CONFIRMATION, EventEntryStatus.PENDING_DELETION);
 
     List<TournamentEventEntry> getEntries(Long tournamentEntryId) {
-       return repository.findByTournamentEntryFk(tournamentEntryId);
+        return repository.findByTournamentEntryFk(tournamentEntryId);
     }
 
     @CachePut(key = "#result.id")
@@ -55,8 +55,9 @@ public class TournamentEventEntryService {
     }
 
     /**
-     * Count of entries in the event
-     * @param eventId
+     * Count of entries in one event
+     *
+     * @param eventId event id
      * @return
      */
     public long getCountValidEntriesInEvent(Long eventId) {
@@ -64,8 +65,9 @@ public class TournamentEventEntryService {
     }
 
     /**
-     * Gets total count of event
-     * @param tournamentId
+     * Gets count of entries in all events for specified tournament
+     *
+     * @param tournamentId tournament id
      * @return
      */
     public int getCountOfValidEntriesInAllEvents(long tournamentId) {
@@ -74,11 +76,23 @@ public class TournamentEventEntryService {
     }
 
     /**
+     * Gets count of tournament entries that are in a specific status making them valid (i.e. not pending)
      *
-     * @param tournamentId
+     * @param tournamentId tournament id
      * @return
      */
     public int getCountOfEntries(long tournamentId) {
         return repository.countTournamentEntries(tournamentId, TAKEN_EVENTS_STATUS);
+    }
+
+    /**
+     * Gets all tournament entries for a tournament
+     *
+     * @param tournamentId tournament id
+     * @return
+     */
+    public List<TournamentEventEntry> listAllForTournament(long tournamentId) {
+        return repository.findAllByTournamentFkAndStatusInOrderByTournamentEntryFkAscTournamentEventFkAsc(
+                tournamentId, TAKEN_EVENTS_STATUS);
     }
 }

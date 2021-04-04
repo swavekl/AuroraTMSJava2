@@ -1,5 +1,5 @@
 import {EntityMetadataMap} from '@ngrx/data';
-import {TournamentInfo} from '../tournament/tournament/tournament-info.model';
+import {TournamentInfo} from '../tournament/model/tournament-info.model';
 import {DateUtils} from '../shared/date-utils';
 
 const entityMetadata: EntityMetadataMap = {

@@ -1,0 +1,65 @@
+<div style="padding: 8px 8px">
+  <div fxLayout="column" fxLayoutAlign="center center">
+    <div><span class="mat-title">Total players: {{ entryInfos?.length }}</span></div>
+    <div style="padding: 16px 0">
+      <mat-button-toggle-group name="sortBy" aria-label="Sort By" [value]="sortBy">
+        <mat-button-toggle value="name" (click)="onSortByName()">Sort by name</mat-button-toggle>
+        <mat-button-toggle value="rating" (click)="onSortByRating()">Sort by rating</mat-button-toggle>
+        <mat-button-toggle value="event" (click)="onSortByEvent()">Sort by event</mat-button-toggle>
+      </mat-button-toggle-group>
+    </div>
+    <div *ngIf="sortBy !== 'event'">
+      <table>
+        <thead>
+        <tr>
+          <th class="header">Player last, first name</th>
+          <th class="header" colspan="2">Seed & Elig.</th>
+        </tr>
+        <tr>
+          <th></th>
+          <th class="header-line2" colspan="2">Ratings</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr *ngFor="let info of entryInfos; let i = index">
+          <td class="player-name">{{ fullName(info.firstName, info.lastName) }}</td>
+          <td class="player-rating">{{info.eligibilityRating}}</td>
+          <td class="player-rating">{{info.seedRating}}</td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+    <div *ngIf="sortBy === 'event'">
+      <table>
+        <thead>
+        <tr>
+          <th class="header">Event</th>
+          <th class="header" colspan="2">Seed & Elig.</th>
+        </tr>
+        <tr>
+          <th class="header"></th>
+          <th class="header-line2" colspan="2">Ratings</th>
+        </tr>
+        </thead>
+        <tbody>
+        <ng-container *ngFor="let tep of tournamentEventsWithPlayers">
+          <tr>
+            <th colspan="3" class="event-header">
+              <div class="mat-caption event-name">{{tep.eventName()}}</div>
+              <div class="event-time">{{tep.eventDay() | eventDay: tournamentStartDate }} {{ tep.eventStartTime() | startTime }}</div>
+            </th>
+          </tr>
+          <tr *ngFor="let player of tep.players">
+            <td class="player-name">{{player.playerName}}</td>
+            <td class="player-rating">{{player.eligibilityRating}}</td>
+            <td class="player-rating">{{player.seedRating}}</td>
+          </tr>
+          <th colspan="3" class="event-footer">
+            Max / Total / Remaining Spots: {{tep.maxEntries()}} / {{tep.totalEntries()}} / {{tep.freeSpots()}}
+          </th>
+        </ng-container>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

@@ -321,6 +321,15 @@ public class UsattDataService {
         }
         return rating;
     }
+
+    /**
+     * Gets all player records matching the membership id
+     * @param membershipIds
+     * @return
+     */
+    public List<UsattPlayerRecord> findAllByMembershipIdIn(List<Long> membershipIds) {
+        return this.playerRecordRepository.findAllByMembershipIdIn(membershipIds);
+    }
 }
 
 //    private String baseURL = "https://usatt.simplycompete.com/userAccount/s2?citizenship=usOnly&gamesEligibility=&gender=&minAge=&maxAge=&minTrnRating=&maxTrnRating=&minLeagueRating=&maxLeagueRating=&state=&region=Any Region&favorites=&q=${query}&displayColumns=First Name,Last Name,USATT#,Location,Home Club,Tournament Rating,Last Played Tournament,League Rating,Last Played League,Membership Expiration&pageSize=25";

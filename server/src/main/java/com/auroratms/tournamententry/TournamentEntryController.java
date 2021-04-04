@@ -44,7 +44,12 @@ public class TournamentEntryController {
     private UserProfileExtService userProfileExtService;
 
 
-
+    /**
+     * Returns player entry if it exists or empy list if it doesn't
+     * @param tournamentId
+     * @param profileId
+     * @return
+     */
     @GetMapping("/tournamententries")
     public List<TournamentEntry> query(@RequestParam Long tournamentId,
                                  @RequestParam String profileId) {

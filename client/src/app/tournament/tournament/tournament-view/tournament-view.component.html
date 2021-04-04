@@ -45,7 +45,10 @@
 <!--        <h5>Late entry fee: 12/23/2021</h5>-->
 <!--        <h5>Registration closes: 12/31/2021</h5>-->
 <!--        <h5>Refund deadline: 01/15/2022</h5>-->
-        <h2>Players entered: {{ tournamentInfo?.numEntries }} / Percent full: {{percentFull | percent}}</h2>
+        <h2>Players entered: {{ tournamentInfo?.numEntries }} ({{percentFull | percent}} full)
+          <button mat-raised-button type="button" (click)="showPlayers()">Show</button>
+        </h2>
+
       </mat-card-content>
       <mat-card-actions>
         <button *ngIf="entryId !== 0" mat-raised-button type="button" (click)="onWithdraw()">Withdraw</button>

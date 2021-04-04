@@ -1,8 +1,8 @@
 import {ChangeDetectionStrategy, Component, OnDestroy, OnInit} from '@angular/core';
 import {Observable, Subject, Subscription} from 'rxjs';
-import {TournamentInfo} from '../tournament-info.model';
+import {TournamentInfo} from '../../model/tournament-info.model';
 import {ActivatedRoute} from '@angular/router';
-import {TournamentInfoService} from '../tournament-info.service';
+import {TournamentInfoService} from '../../service/tournament-info.service';
 import {TournamentEntryService} from '../../tournament-entry/service/tournament-entry.service';
 import {TournamentEntry} from '../../tournament-entry/model/tournament-entry.model';
 import {AuthenticationService} from '../../../user/authentication.service';

@@ -50,6 +50,15 @@ public class TournamentEntryService {
         return entries;
     }
 
+    /**
+     * Finds all entries for tournament
+     * @param tournamentId
+     * @return
+     */
+    public List<TournamentEntry> listForTournament(Long tournamentId) {
+        return repository.findAllByTournamentFk(tournamentId);
+    }
+
     @CachePut(key = "#entry.id")
     public void cacheIt (TournamentEntry entry) {
         // do nothing just cache it
@@ -69,12 +78,4 @@ public class TournamentEntryService {
         repository.deleteById(id);
     }
 
-    /**
-     * Gets count of entries for this tournament
-     * @param tournamentFk
-     * @return
-     */
-    public int getCountOfEntries(long tournamentFk) {
-        return this.repository.countTournamentEntryByTournamentFk(tournamentFk);
-    }
 }

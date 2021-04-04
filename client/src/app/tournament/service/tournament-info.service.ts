@@ -1,7 +1,7 @@
 import {Injectable} from '@angular/core';
 
 import {EntityActionOptions, EntityCollectionServiceBase, EntityCollectionServiceElementsFactory} from '@ngrx/data';
-import {TournamentInfo} from './tournament-info.model';
+import {TournamentInfo} from '../model/tournament-info.model';
 import {Observable} from 'rxjs';
 import {map} from 'rxjs/operators';
 

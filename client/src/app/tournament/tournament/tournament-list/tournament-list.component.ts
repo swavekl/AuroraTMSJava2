@@ -1,5 +1,5 @@
 import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
-import {TournamentInfo} from '../tournament-info.model';
+import {TournamentInfo} from '../../model/tournament-info.model';
 import {Regions} from '../../../shared/regions';
 import {MatButtonToggleChange} from '@angular/material/button-toggle';
 

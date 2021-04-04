@@ -1,0 +1,41 @@
+th {
+  &.header {
+    text-align: left;
+  }
+  &.header-line2 {
+    text-align: right;
+  }
+
+  &.event-header {
+    text-align: left;
+    border-top: 2px solid black;
+    border-bottom: 2px solid black;
+  }
+
+  div {
+    &.event-name {
+      font-size: 24px!important;
+    }
+    &.event-time {
+      font-weight: lighter;
+      font-size: 16px;
+    }
+  }
+
+  &.event-footer {
+    text-align: left;
+    border-top: 1px solid black;
+    padding-bottom: 16px;
+  }
+
+}
+
+tr td {
+  &.player-name {
+    text-align: left;
+  }
+
+  &.player-rating {
+    text-align: right;
+  }
+}
