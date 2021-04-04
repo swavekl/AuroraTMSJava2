@@ -1,6 +1,7 @@
 th {
   &.header {
     text-align: left;
+    min-width: 275px;  // to keep it from jumping
   }
   &.header-line2 {
     text-align: right;

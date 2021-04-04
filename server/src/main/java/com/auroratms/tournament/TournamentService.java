@@ -106,6 +106,19 @@ public class TournamentService {
     }
 
     /**
+     * Updates the tournament - e.g. after updating statistics
+     *
+     * @param tournament
+     */
+    @CachePut(key = "#result.id")
+    @PreAuthorize("isAuthenticated")
+    public Tournament updateTournament(Tournament tournament) {
+        TournamentEntity tournamentEntity = tournament.convertToEntity();
+        TournamentEntity savedTournamentEntity = repository.save(tournamentEntity);
+        return new Tournament().convertFromEntity(savedTournamentEntity);
+    }
+
+    /**
      * Deletes tournament
      *
      * @param tournamentId

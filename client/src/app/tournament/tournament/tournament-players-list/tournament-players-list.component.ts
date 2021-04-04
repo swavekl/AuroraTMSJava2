@@ -1,11 +1,12 @@
-import {Component, Input, OnChanges, OnInit, SimpleChange, SimpleChanges} from '@angular/core';
+import {ChangeDetectionStrategy, Component, Input, OnChanges, OnInit, SimpleChange, SimpleChanges} from '@angular/core';
 import {TournamentEntryInfo} from '../../model/tournament-entry-info.model';
 import {TournamentEvent} from '../../tournament-config/tournament-event.model';
 
 @Component({
   selector: 'app-tournament-players-list',
   templateUrl: './tournament-players-list.component.html',
-  styleUrls: ['./tournament-players-list.component.scss']
+  styleUrls: ['./tournament-players-list.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class TournamentPlayersListComponent implements OnInit, OnChanges {
 
@@ -132,12 +133,15 @@ export class TournamentPlayersListComponent implements OnInit, OnChanges {
       pi.playerName = this.fullName(entryInfo.firstName, entryInfo.lastName);
       pi.eligibilityRating = entryInfo.eligibilityRating;
       pi.seedRating = entryInfo.seedRating;
+      // get events if any - they may have just entered
       const eventIds = entryInfo.eventIds;
-      for (let j = 0; j < eventIds.length; j++) {
-        const eventId = eventIds[j];
-        const tep: TournamentEventWithPlayers = mapEventIdToEventWithPlayers[eventId];
-        if (tep) {
-          tep.addPlayer(pi);
+      if (eventIds) {
+        for (let j = 0; j < eventIds.length; j++) {
+          const eventId = eventIds[j];
+          const tep: TournamentEventWithPlayers = mapEventIdToEventWithPlayers[eventId];
+          if (tep) {
+            tep.addPlayer(pi);
+          }
         }
       }
     }

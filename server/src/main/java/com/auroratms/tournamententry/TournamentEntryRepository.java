@@ -21,4 +21,10 @@ public interface TournamentEntryRepository extends JpaRepository<TournamentEntry
      */
     List<TournamentEntry> findByTournamentFkAndProfileId (Long tournamentFk, String profileId);
 
+    /**
+     * Counts entries regardless of if there are any event entries
+     * @param tournamentId
+     * @return
+     */
+    int countTournamentEntryByTournamentFkEquals(long tournamentId);
 }

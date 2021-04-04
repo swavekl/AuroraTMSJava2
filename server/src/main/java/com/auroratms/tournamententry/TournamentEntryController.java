@@ -115,9 +115,11 @@ public class TournamentEntryController {
     @PutMapping("/tournamententry/{entryId}")
     public TournamentEntry update(@PathVariable Long entryId,
                                   @RequestBody TournamentEntry tournamentEntry) {
+        TournamentEntry updatedEntry = tournamentEntryService.update(tournamentEntry);
+
         updateTournamentStatistics(tournamentEntry.getTournamentFk());
 
-        return tournamentEntryService.update(tournamentEntry);
+        return updatedEntry;
     }
 
     /**
@@ -139,13 +141,9 @@ public class TournamentEntryController {
      * @param tournamentFk
      */
     private void updateTournamentStatistics(long tournamentFk) {
-//        System.out.println("TournamentEntryController.updateTournamentStatistics");
-//        System.out.println("tournamentFk = " + tournamentFk);
         Tournament tournament = tournamentService.getByKey(tournamentFk);
-//        int countOfEntries = tournamentEntryService.getCountOfEntries(tournamentFk);
-        int countNonEmptyEntries = tournamentEventEntryService.getCountOfEntries(tournamentFk);
+        int countOfEntries = tournamentEntryService.getCountOfEntries(tournamentFk);
 //        System.out.println("countOfEntries = " + countOfEntries);
-//        System.out.println("countNonEmptyEntries = " + countNonEmptyEntries);
 
         // get all events for tournament
         int maxNumEventEntries = 0;
@@ -153,12 +151,10 @@ public class TournamentEntryController {
         for (TournamentEventEntity tournamentEventEntity : eventList) {
             maxNumEventEntries += tournamentEventEntity.getMaxEntries();
         }
-//        System.out.println("maxNumEventEntries = " + maxNumEventEntries);
-
         int numEventEntries = tournamentEventEntryService.getCountOfValidEntriesInAllEvents(tournamentFk);
-        tournament.setNumEntries(countNonEmptyEntries);
+        tournament.setNumEntries(countOfEntries);
         tournament.setNumEventEntries(numEventEntries);
         tournament.setMaxNumEventEntries(maxNumEventEntries);
-        tournamentService.saveTournament(tournament);
+        tournamentService.updateTournament(tournament);
     }
 }
