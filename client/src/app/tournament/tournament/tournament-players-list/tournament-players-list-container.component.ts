@@ -90,7 +90,6 @@ export class TournamentPlayersListContainerComponent implements OnInit, OnDestro
    * @private
    */
   private loadTournamentEvents(tournamentId: number) {
-    console.log('loading tournament events');
     this.tournamentEvents$ = this.tournamentEventConfigService.store.select(
       this.tournamentEventConfigService.selectors.selectEntities);
 
