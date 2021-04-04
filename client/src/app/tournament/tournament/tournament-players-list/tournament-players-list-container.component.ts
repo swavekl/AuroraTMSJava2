@@ -3,7 +3,7 @@ import {TournamentEntryInfoService} from '../../service/tournament-entry-info.se
 import {ActivatedRoute} from '@angular/router';
 import {combineLatest, Observable, of, Subscription} from 'rxjs';
 import {LinearProgressBarService} from '../../../shared/linear-progress-bar/linear-progress-bar.service';
-import {first} from 'rxjs/operators';
+import {first, map} from 'rxjs/operators';
 import {TournamentEntryInfo} from '../../model/tournament-entry-info.model';
 import {TournamentEvent} from '../../tournament-config/tournament-event.model';
 import {TournamentEventConfigService} from '../../tournament-config/tournament-event-config.service';
@@ -17,8 +17,7 @@ import * as moment from 'moment';
                                  [tournamentStartDate]="tournamentStartDate"
     ></app-tournament-players-list>
   `,
-  styles: [
-  ]
+  styles: []
 })
 export class TournamentPlayersListContainerComponent implements OnInit, OnDestroy {
 
@@ -79,7 +78,7 @@ export class TournamentPlayersListContainerComponent implements OnInit, OnDestro
           return infos;
         },
         (error: any) => {
-          console.log ('error loading entry infos' + JSON.stringify(error));
+          console.log('error loading entry infos' + JSON.stringify(error));
         }
       );
     this.subscriptions.add(subscription);
@@ -99,20 +98,27 @@ export class TournamentPlayersListContainerComponent implements OnInit, OnDestro
       .pipe(first())
       .subscribe(
         (events: TournamentEvent[]) => {
-          if (events != null) {
-            console.log('got events len ' + events.length);
-            // this.tournamentEvents$ = of(events);
+          if (events != null && events.length > 0) {
+            this.tournamentEvents$ = of(events);
             return events;
           } else {
-            console.log ('loading event configs from server...');
-            // // don't have event configs cached - load them
-            // this.tournamentEvents$ = this.tournamentEventConfigService.loadTournamentEvents(tournamentId)
-            //   .pipe()
-            //   .subscribe();
+            // don't have event configs cached - load them
+            this.tournamentEventConfigService.loadTournamentEvents(tournamentId)
+              .pipe(
+                first(),
+                map(
+                  (tournamentEvents: TournamentEvent[]) => {
+                    return tournamentEvents;
+                  },
+                  (error: any) => {
+                    console.log('error loading tournament events ' + JSON.stringify(error));
+                  }
+                ))
+              .subscribe();
           }
         },
         (error: any) => {
-          console.log ('error loading tournament events ' + JSON.stringify(error));
+          console.log('error loading tournament events ' + JSON.stringify(error));
         }
       );
 
