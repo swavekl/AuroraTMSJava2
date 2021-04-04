@@ -7,14 +7,17 @@ import {first, map} from 'rxjs/operators';
 import {TournamentEntryInfo} from '../../model/tournament-entry-info.model';
 import {TournamentEvent} from '../../tournament-config/tournament-event.model';
 import {TournamentEventConfigService} from '../../tournament-config/tournament-event-config.service';
-import * as moment from 'moment';
+import {createSelector} from '@ngrx/store';
+import {TournamentInfo} from '../../model/tournament-info.model';
+import {TournamentInfoService} from '../../service/tournament-info.service';
+import {DateUtils} from '../../../shared/date-utils';
 
 @Component({
   selector: 'app-tournament-player-list-container',
   template: `
     <app-tournament-players-list [entryInfos]="entryInfos$ | async"
                                  [tournamentEvents]="tournamentEvents$ | async"
-                                 [tournamentStartDate]="tournamentStartDate"
+                                 [tournamentStartDate]="tournamentStartDate$ | async"
     ></app-tournament-players-list>
   `,
   styles: []
@@ -25,11 +28,12 @@ export class TournamentPlayersListContainerComponent implements OnInit, OnDestro
 
   entryInfos$: Observable<TournamentEntryInfo[]>;
   tournamentEvents$: Observable<TournamentEvent[]>;
-  tournamentStartDate: Date;
+  tournamentStartDate$: Observable<Date>;
 
   loading$: Observable<boolean>;
 
   constructor(private tournamentEntryInfoService: TournamentEntryInfoService,
+              private tournamentInfoService: TournamentInfoService,
               private tournamentEventConfigService: TournamentEventConfigService,
               private activatedRoute: ActivatedRoute,
               private linearProgressBarService: LinearProgressBarService) {
@@ -124,7 +128,41 @@ export class TournamentPlayersListContainerComponent implements OnInit, OnDestro
     this.subscriptions.add(subscription);
   }
 
+  /**
+   * Gets tournament start date
+   * @param tournamentId
+   * @private
+   */
   private loadTournamentStartDate(tournamentId: number) {
-    this.tournamentStartDate = moment('2022-01-15').toDate();
+    // tournament view may have passed us the tournament start date
+    // but if user navigated to this screen by url then go to the server and get it.
+    const strTournamentStartDate = history?.state?.tournamentStartDate;
+    if (strTournamentStartDate != null) {
+      const tournamentStartDate = new DateUtils().convertFromString(strTournamentStartDate);
+      this.tournamentStartDate$ = of(tournamentStartDate);
+    } else {
+      const tournamentInfoSelector = this.tournamentInfoService.selectors.selectEntityMap;
+      const selectedTournamentSelector = createSelector(
+        tournamentInfoSelector,
+        (entityMap) => {
+          return entityMap[tournamentId];
+        });
+
+      const tournamentInfo$: Observable<TournamentInfo> = this.tournamentInfoService.store.select(selectedTournamentSelector);
+      const subscription = tournamentInfo$
+        .subscribe(
+          (tournamentInfo: TournamentInfo) => {
+            if (tournamentInfo) {
+              // console.log('got tournamentInfo from cache for START_DATE');
+              const tournamentStartDate2 = new DateUtils().convertFromString(tournamentInfo.startDate);
+              this.tournamentStartDate$ = of(tournamentStartDate2);
+            } else {
+              // console.log('tournamentInfo not in cache. getting from SERVER');
+              // not in cache so read it
+              this.tournamentInfoService.getByKey(tournamentId);
+            }
+          });
+      this.subscriptions.add(subscription);
+    }
   }
 }

@@ -88,14 +88,19 @@ export class TournamentViewContainerComponent implements OnInit, OnDestroy {
         return entityMap[tournamentId];
       });
 
-    // this.tournament$ = this.tournamentInfoService.store.select(this.tournamentInfoService.selectors.selectKeys);
     this.tournament$ = this.tournamentInfoService.store.select(selectedTournamentSelector);
-    const subscription = this.tournament$.subscribe((tournamentInfo: TournamentInfo) => {
-      if (!tournamentInfo) {
-        this.tournamentInfoService.getByKey(tournamentId);
-      }
-      return tournamentInfo;
-    });
+    const subscription = this.tournament$.subscribe(
+      (tournamentInfo: TournamentInfo) => {
+        if (tournamentInfo) {
+          // console.log('got tournamentInfo from cache');
+          return tournamentInfo;
+        } else {
+          // console.log('tournamentInfo not in cache. getting from SERVER');
+          // not in cache so read it - we don't need to subscribe because it
+          // response will go to the store and we alreay subscribed to it in the outer call
+          this.tournamentInfoService.getByKey(tournamentId);
+        }
+      });
     this.subscriptions.add(subscription);
   }
 

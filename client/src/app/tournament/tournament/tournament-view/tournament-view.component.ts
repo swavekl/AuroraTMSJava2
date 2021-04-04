@@ -31,6 +31,7 @@ export class TournamentViewComponent implements OnInit, OnChanges {
               private authService: AuthenticationService,
               private tournamentEntryService: TournamentEntryService) {
     this.starsArray = [];
+    this.entryId = 0;
   }
 
   ngOnInit(): void {
@@ -80,6 +81,13 @@ export class TournamentViewComponent implements OnInit, OnChanges {
 
   showPlayers() {
     const url = `playerlist/${this.tournamentInfo.id}`;
-    this.router.navigateByUrl(url);
+    // get the single piece of information that it needs to properly render event dates
+    // to prevent going to the server for it
+    const extras = {
+      state: {
+        tournamentStartDate: this.tournamentInfo.startDate
+      }
+    };
+    this.router.navigateByUrl(url, extras);
   }
 }

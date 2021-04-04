@@ -45,16 +45,21 @@
 <!--        <h5>Late entry fee: 12/23/2021</h5>-->
 <!--        <h5>Registration closes: 12/31/2021</h5>-->
 <!--        <h5>Refund deadline: 01/15/2022</h5>-->
-        <h2>Players entered: {{ tournamentInfo?.numEntries }} ({{percentFull | percent}} full)
-          <button mat-raised-button type="button" (click)="showPlayers()">Show</button>
-        </h2>
+        <div fxLayout="row">
+          <div>
+            <h2>Players entered: {{ tournamentInfo?.numEntries }} ({{percentFull | percent}} full)
+            </h2>
+          </div>
+          <span fxFlex></span>
+          <button mat-raised-button type="button" (click)="showPlayers()">Players</button>
+        </div>
 
       </mat-card-content>
       <mat-card-actions>
         <button *ngIf="entryId !== 0" mat-raised-button type="button" (click)="onWithdraw()">Withdraw</button>
-        <button *ngIf="entryId === 0" mat-raised-button type="button" color="primary" (click)="onEnter()">Enter</button>
         <span fxFlex></span>
-        <button *ngIf="entryId !== 0" mat-raised-button type="button" color="primary" (click)="onView()">View/Modify Entry</button>
+        <button *ngIf="entryId === 0" mat-raised-button type="button" color="primary" (click)="onEnter()">Enter</button>
+        <button *ngIf="entryId !== 0" mat-raised-button type="button" color="primary" (click)="onView()">View</button>
       </mat-card-actions>
     </mat-card>
     <mat-card>
