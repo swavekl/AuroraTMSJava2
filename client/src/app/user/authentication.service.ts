@@ -4,6 +4,9 @@ import {BehaviorSubject, Observable, Subject, throwError} from 'rxjs';
 import {JWTDecoderService} from './jwtdecoder.service';
 import {first, map} from 'rxjs/operators';
 import {DateUtils} from '../shared/date-utils';
+import {ConfirmationPopupComponent} from '../shared/confirmation-popup/confirmation-popup.component';
+import {MatDialog} from '@angular/material/dialog';
+import {ErrorMessagePopupData} from '../shared/error-message-dialog/error-message-popup.component';
 
 @Injectable({
   providedIn: 'root'
@@ -25,7 +28,8 @@ export class AuthenticationService {
   private readonly sessionStorageKey = 'currentUser';
 
   constructor(private http: HttpClient,
-              private jwtDecoderService: JWTDecoderService) {
+              private jwtDecoderService: JWTDecoderService,
+              private dialog: MatDialog) {
     this.accessToken = null;
     this.currentUser = null;
     this.checkIfTokenStillValid();
@@ -48,8 +52,12 @@ export class AuthenticationService {
     return this.http.post(this.getFullUrl('/api/users/register'), requestBody)
       .pipe(
         map((response: Response) => {
-          return (response.status === 200);
-        })
+            // console.log('got register response ' + JSON.stringify(response));
+            return (response.status === 200);
+          },
+          (error: any) => {
+            this.showErrorPopup(error);
+          })
       );
   }
 
@@ -288,5 +296,18 @@ export class AuthenticationService {
           return response;
         })
       );
+  }
+
+  private showErrorPopup(error: any) {
+    const errorMessageData: ErrorMessagePopupData = {
+      errorMessage: error
+    };
+    const config = {
+      width: '450px', height: '250px', data: errorMessageData
+    };
+    const dialogRef = this.dialog.open(ConfirmationPopupComponent, config);
+    dialogRef.afterClosed().subscribe(result => {
+      console.log('closed error message popup');
+    });
   }
 }

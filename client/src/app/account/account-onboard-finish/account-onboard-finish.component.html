@@ -2,7 +2,8 @@
   <p *ngIf="(accountActivated$ | async); else notActivated">Great News! You completed the account setup successfully.</p>
   <ng-template #notActivated>
     <p>You either didn't complete the Stripe on-boarding process or some details are still pending verification.</p>
-    <p>To resume the process or check on the status please visit the <a routerLink="/account">Account</a> screen.</p>
+    <p>Please check your email - you should have received email while you were filling in this information and follow the steps in the email.</p>
+    <p>To resume the process or check on the status of on-boarding, please visit the <a routerLink="/account">Account</a> screen.</p>
   </ng-template>
 </app-centered-panel>
 

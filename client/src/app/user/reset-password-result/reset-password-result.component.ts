@@ -4,8 +4,10 @@ import {ActivatedRoute} from '@angular/router';
 @Component({
   selector: 'app-reset-password-result',
   template: `
-    <div *ngIf="succeeded">Reset password was successful.  Proceed to <a routerLink="/login">Login</a></div>
-    <div *ngIf="!succeeded">Reset password failed.  Please try again</div>
+    <app-centered-panel>
+      <div *ngIf="succeeded">Reset password was successful.  Proceed to <a routerLink="/login">Login</a></div>
+      <div *ngIf="!succeeded">Reset password failed.  Please try again</div>
+    </app-centered-panel>
   `,
   styles: [
   ]

@@ -16,6 +16,7 @@ import {DebounceClicksDirective} from './directives/debounce-clicks.directive';
 import {MessageAreaComponent} from './message-area/message-area.component';
 import {TypographyComponent} from './typograhpy/typography.component';
 import { DateRangePipe } from './pipes/date-range.pipe';
+import { ErrorMessagePopupComponent } from './error-message-dialog/error-message-popup.component';
 
 
 @NgModule({
@@ -29,7 +30,8 @@ import { DateRangePipe } from './pipes/date-range.pipe';
     DebounceClicksDirective,
     MessageAreaComponent,
     TypographyComponent,
-    DateRangePipe
+    DateRangePipe,
+    ErrorMessagePopupComponent
   ],
   exports: [
     LinearProgressBarComponent,
