@@ -2,6 +2,7 @@ package com.auroratms.tournamentevententry.policy;
 
 import com.auroratms.event.TournamentEventEntity;
 import com.auroratms.tournamentevententry.AvailabilityStatus;
+import com.auroratms.tournamentevententry.EventEntryStatus;
 import com.auroratms.tournamentevententry.TournamentEventEntry;
 
 import java.util.List;
@@ -40,7 +41,13 @@ public class SchedulingConflictEventPolicy implements IEventPolicy {
                 continue;
             }
 
-            // find the entered event starting time
+            // if about to drop then this event is not blocking the time slot
+            EventEntryStatus eventEntryStatus = eventEntry.getStatus();
+            if (eventEntryStatus == EventEntryStatus.PENDING_DELETION) {
+                continue;
+            }
+
+            // otherwise check for conflict
             if(checkForConflict(eventEntry.getTournamentEventFk(), eventDay, eventStartTime)) {
                 isDenied = true;
                 break;
@@ -63,7 +70,7 @@ public class SchedulingConflictEventPolicy implements IEventPolicy {
             if (event.getId() == enteredEventId) {
                 if (event.getDay() == dayToCheck) {
                     double startTime = event.getStartTime();
-                    // compute time difference and see if it is less than minimum differenc
+                    // compute time difference and see if it is less than minimum difference
                     double timeDiff = Math.abs(startTimeToCheck - startTime);
                     if (timeDiff <= MIN_TIME_DIFFERENCE) {
                         conflictFound = true;

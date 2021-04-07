@@ -151,20 +151,24 @@ export class EntryWizardComponent implements OnInit, OnChanges {
   }
 
   availableEventsFilter(eventEntryInfo: TournamentEventEntryInfo, index: number, array: TournamentEventEntryInfo[]): boolean {
+    const availableStatusOK = (eventEntryInfo.availabilityStatus === AvailabilityStatus.AVAILABLE_FOR_ENTRY)
+      || (eventEntryInfo.availabilityStatus === AvailabilityStatus.EVENT_FULL);
     return this.filterEventEntries(eventEntryInfo.status,
       [
         EventEntryStatus.NOT_ENTERED,
         EventEntryStatus.PENDING_DELETION,
         EventEntryStatus.RESERVED_WAITING_LIST
-      ]) && (eventEntryInfo.availabilityStatus === AvailabilityStatus.AVAILABLE_FOR_ENTRY);
+      ]) && availableStatusOK;
   }
 
   unavailableEventsFilter(eventEntryInfo: TournamentEventEntryInfo, index: number, array: TournamentEventEntryInfo[]): boolean {
+    const notAvailableStatus = !((eventEntryInfo.availabilityStatus === AvailabilityStatus.AVAILABLE_FOR_ENTRY)
+      || (eventEntryInfo.availabilityStatus === AvailabilityStatus.EVENT_FULL));
     return this.filterEventEntries(eventEntryInfo.status,
       [
         EventEntryStatus.NOT_ENTERED,
         EventEntryStatus.PENDING_DELETION
-      ]) && (eventEntryInfo.availabilityStatus !== AvailabilityStatus.AVAILABLE_FOR_ENTRY);
+      ]) && notAvailableStatus;
   }
 
   filterEventEntries(eventEntryStatus: EventEntryStatus, statusList: EventEntryStatus []): boolean {
@@ -574,5 +578,24 @@ export class EntryWizardComponent implements OnInit, OnChanges {
           console.log('Unable to get currency exchange rate for player' + JSON.stringify(error));
         }
       );
+  }
+
+  /**
+   * Gets button label corresponding to the command
+   * @param eventEntryCommand
+   */
+  getEnterButtonLabel(eventEntryCommand: EventEntryCommand) {
+    switch (eventEntryCommand) {
+      case EventEntryCommand.ENTER:
+        return 'Enter';
+      case EventEntryCommand.ENTER_WAITING_LIST:
+        return 'Enter W.L.';
+      case EventEntryCommand.DROP:
+        return 'Drop';
+      case EventEntryCommand.DROP_WAITING_LIST:
+        return 'Drop W.L.';
+      case EventEntryCommand.REVERT_DROP:
+        return 'Revert Drop';
+    }
   }
 }

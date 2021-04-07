@@ -22,8 +22,8 @@ public class PolicyApplicator {
         addPolicy(new GenderRestrictedEventPolicy(userProfile.getGender()));
         addPolicy(new AgeRestrictionEventPolicy(tournamentStartDate, userProfile.getDateOfBirth()));
         addPolicy(new RatingRestrictionEventPolicy(eligibilityRating));
-        addPolicy(new FullEventPolicy());
         addPolicy(new SchedulingConflictEventPolicy(eventEntries, events));
+        addPolicy(new FullEventPolicy());
     }
 
     public void addPolicy(IEventPolicy eventPolicy) {

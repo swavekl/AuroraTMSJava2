@@ -30,7 +30,7 @@ public class TournamentController {
 
     @PostMapping("/tournament")
     @PreAuthorize("hasAuthority('TournamentDirectors') or hasAuthority('Admins')")
-    public @ResponseBody Tournament create(@RequestBody Tournament tournament) {
+    public @ResponseBody Tournament save(@RequestBody Tournament tournament) {
         return tournamentService.saveTournament(tournament);
     }
 }

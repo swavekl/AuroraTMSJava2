@@ -84,7 +84,7 @@
               <div mat-line>{{availableEvent.event?.name}} - ${{ availableEvent.price }}</div>
               <div mat-line>{{ availableEvent.event?.day | eventDay: tournamentStartDate }} {{ availableEvent.event?.startTime | startTime }}</div>
               <div mat-line [class]="getStatusClass(availableEvent.status)">{{ availableEvent.status | eventEntryStatus }}</div>
-              <button type="button" mat-button (click)="onEventEnter(availableEvent.event?.id, availableEvent.eventEntryCommand)">Enter</button>
+              <button type="button" mat-button (click)="onEventEnter(availableEvent.event?.id, availableEvent.eventEntryCommand)">{{getEnterButtonLabel(availableEvent.eventEntryCommand)}} </button>
               <mat-divider [inset]="true" *ngIf="!last2"></mat-divider>
             </mat-list-item>
             <mat-divider></mat-divider>
