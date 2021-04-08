@@ -24,6 +24,9 @@ export class TournamentPlayersListComponent implements OnInit, OnChanges {
 
   sortBy: string;
 
+  // map of event id to event object for faster lookup
+  private eventIdToEventMap: any;
+
   constructor() {
     this.sortBy = 'name';
   }
@@ -44,7 +47,14 @@ export class TournamentPlayersListComponent implements OnInit, OnChanges {
     const tournamentEventsChange: SimpleChange = changes.tournamentEvents;
     if (tournamentEventsChange) {
       this.tournamentEvents = tournamentEventsChange.currentValue;
-    }
+
+      // make a map for faster lookup
+      this.eventIdToEventMap = {};
+      for (let j = 0; j < this.tournamentEvents.length; j++) {
+        const tournamentEvent = this.tournamentEvents[j];
+        this.eventIdToEventMap[tournamentEvent.id] = tournamentEvent;
+        }
+     }
 
     // when both are ready do it.
     if (this.tournamentEvents != null && this.tournamentEvents.length > 0
@@ -159,6 +169,26 @@ export class TournamentPlayersListComponent implements OnInit, OnChanges {
       }
     }
     return categorizedCollection;
+  }
+
+  /**
+   * Gets names of events for each player
+   * @param eventIds
+   */
+  getPlayerEventList(eventIds: number[]): string {
+    if (eventIds != null) {
+      const eventNames: string[] = [];
+      for (let i = 0; i < eventIds.length; i++) {
+        const eventId = eventIds[i];
+        if (this.eventIdToEventMap) {
+          const tournamentEvent = this.eventIdToEventMap[eventId];
+          eventNames.push(tournamentEvent.name);
+        }
+      }
+      return eventNames.join(', ');
+    } else {
+      return '';
+    }
   }
 }
 

@@ -8,28 +8,36 @@
       </mat-button-toggle-group>
     </div>
     <div *ngIf="sortBy !== 'event'">
-      <table style="min-width: 380px">
+      <div fxShow.lt-sm="true" fxHide.sm="true" fxHide.gt-sm="true"
+           class="mat-caption" style="padding-bottom: 8px;"
+           fxLayout="column" fxLayoutAlign="center center">
+        *Turns sideways to see player events
+      </div>
+      <table>
         <thead>
         <tr>
-          <th class="header">Player last, first name</th>
+          <th class="header">Player</th>
           <th class="header-line2" colspan="2">Seed & Eligib.</th>
+          <th class="player-events-header" fxShow.gt-sm="true" fxShow.sm="true" fxHide.lt-sm="true"></th>
         </tr>
         <tr>
-          <th class="header"></th>
+          <th class="header">Last & First Name</th>
           <th class="header-line2" colspan="2">Ratings</th>
+          <th fxShow.gt-sm="true" fxShow.sm="true" fxHide.lt-sm="true">Events</th>
         </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let info of entryInfos">
+          <tr *ngFor="let info of entryInfos; let even = even;">
             <td class="player-name">{{ fullName(info.firstName, info.lastName) }}</td>
             <td class="player-rating">{{info.seedRating}}</td>
             <td class="player-rating">{{info.eligibilityRating}}</td>
+            <td class="player-events" fxShow.gt-sm="true" fxShow.sm="true" fxHide.lt-sm="true">{{getPlayerEventList(info.eventIds)}}</td>
           </tr>
         </tbody>
       </table>
     </div>
     <div *ngIf="sortBy === 'event'">
-      <table>
+      <table id="by-events-table">
         <thead>
         <tr>
           <th class="header">Event Name</th>

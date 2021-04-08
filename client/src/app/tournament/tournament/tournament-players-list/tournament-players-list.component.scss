@@ -1,10 +1,16 @@
 th {
   &.header {
     text-align: left;
-    min-width: 275px;  // to keep it from jumping
+    min-width: 265px;  // to keep it from jumping
   }
   &.header-line2 {
     text-align: right;
+    min-width: 120px;
+  }
+
+  &.player-events-header {
+    text-align: center;
+    min-width: calc(100% - 385px);
   }
 
   &.event-header {
@@ -31,6 +37,12 @@ th {
 
 }
 
+table:not(#by-events-table) tbody {
+  tr:nth-child(odd) {
+    background: rgba(143, 126, 126, 0.18);
+  }
+}
+
 tr td {
   &.player-name {
     text-align: left;
@@ -38,5 +50,10 @@ tr td {
 
   &.player-rating {
     text-align: right;
+  }
+
+  &.player-events {
+    padding-left: 16px;
+    min-width: calc(100% - 385px);
   }
 }
