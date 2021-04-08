@@ -10,7 +10,7 @@
     <span>Taken/Maximum Event Entries: {{ numEventEntries }} / {{ maxNumEvenEntries }}</span>
   </mat-toolbar-row>
 </mat-toolbar>
-<div style="overflow: auto; height: 700px;">
+<div style="overflow: auto; height: calc(100vh - 260px);">
   <table mat-table [dataSource]="events" style="width: 100%">
     <ng-container matColumnDef="num">
       <th mat-header-cell *matHeaderCellDef>No.</th>
