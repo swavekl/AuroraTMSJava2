@@ -1,6 +1,6 @@
 import {ChangeDetectorRef, Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChange, SimpleChanges} from '@angular/core';
 import {MembershipType, TournamentEntry} from '../model/tournament-entry.model';
-import {PlayerFindPopupComponent} from '../../../profile/player-find-popup/player-find-popup.component';
+import {ProfileFindPopupComponent} from '../../../profile/profile-find-popup/profile-find-popup.component';
 import {MatDialog} from '@angular/material/dialog';
 import {BehaviorSubject} from 'rxjs';
 import {FormGroup} from '@angular/forms';
@@ -192,7 +192,7 @@ export class EntryWizardComponent implements OnInit, OnChanges {
       width: '250px', height: '550px', data: {}
     };
     const me = this;
-    const dialogRef = this.dialog.open(PlayerFindPopupComponent, config);
+    const dialogRef = this.dialog.open(ProfileFindPopupComponent, config);
     dialogRef.afterClosed().subscribe(next => {
       if (next !== null && next !== 'cancel') {
         console.log('got ok player', next);

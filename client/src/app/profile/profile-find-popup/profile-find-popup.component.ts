@@ -1,22 +1,28 @@
-import {Component, EventEmitter, OnInit, Output} from '@angular/core';
-import {MatDialogRef} from '@angular/material/dialog';
+import {Component, Inject, OnInit} from '@angular/core';
+import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
 import {Observable} from 'rxjs';
 import {ProfileService} from '../profile.service';
 
+/**
+ * Popup for searching player profiles in OKTA
+ */
 @Component({
   selector: 'app-player-find-popup',
-  templateUrl: './player-find-popup.component.html',
-  styleUrls: ['./player-find-popup.component.css']
+  templateUrl: './profile-find-popup.component.html',
+  styleUrls: ['./profile-find-popup.component.css']
 })
-export class PlayerFindPopupComponent implements OnInit {
+export class ProfileFindPopupComponent implements OnInit {
   // search criteria
   firstName: string;
   lastName: string;
 
   foundPlayers$: Observable<any>;
 
-  constructor(public dialogRef: MatDialogRef<PlayerFindPopupComponent>,
+  constructor(public dialogRef: MatDialogRef<ProfileFindPopupComponent>,
+              @Inject(MAT_DIALOG_DATA) public data: ProfileSearchData,
               private profileService: ProfileService) {
+    this.firstName = data?.firstName;
+    this.lastName = data?.lastName;
   }
 
   ngOnInit(): void {
@@ -37,11 +43,16 @@ export class PlayerFindPopupComponent implements OnInit {
     const selectedPlayerData = {
       firstName: firstName, lastName: lastName, id: userId, rating: 1239
     };
-    this.dialogRef.close(selectedPlayerData);
+    // todo - this is actually player profile not usatt record
+    this.dialogRef.close({action: 'ok', selectedPlayerRecord: selectedPlayerData});
   }
 
   onCancel(): void {
-    this.dialogRef.close('cancel');
+    this.dialogRef.close({action: 'cancel'});
   }
+}
 
+export class ProfileSearchData {
+  firstName: string;
+  lastName: string;
 }

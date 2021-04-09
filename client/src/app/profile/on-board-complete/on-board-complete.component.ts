@@ -4,14 +4,16 @@ import {Component, OnInit} from '@angular/core';
   template: `
     <app-centered-panel>
       <p>
-        Nice job {{ firstName }}!  Your on-boarding is complete.
+        Nice job {{ firstName }}! Your on-boarding is complete.
       </p>
       <p *ngIf="newMember">Your USATT (USA Table Tennis) membership id is {{ membershipId }}.</p>
-      <p>Now let's find some <a routerLink="/tournaments" [state]="{selectRegion: memberRegion }">local tournaments</a> to sign up for.</p>
+      <p>Now let's find some local tournaments to sign up for.</p>
+      <button mat-raised-button color="primary" routerLink="/tournaments" [state]="{selectRegion: memberRegion }">
+        Go to Tournaments
+      </button>
     </app-centered-panel>
   `,
-  styles: [
-  ]
+  styles: []
 })
 export class OnBoardCompleteComponent implements OnInit {
 

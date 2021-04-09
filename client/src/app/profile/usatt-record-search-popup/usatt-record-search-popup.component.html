@@ -1,0 +1,13 @@
+<h2 mat-dialog-title>Find Player Record</h2>
+<mat-dialog-content style="height: 400px">
+  <app-usatt-record-search [firstName]="firstName" [lastName]="lastName"
+                           [searchingByMembershipId]="searchingByMembershipId"
+                           (selection)="onSelectedPlayer($event)">
+  </app-usatt-record-search>
+</mat-dialog-content>
+<mat-dialog-actions>
+  <div fxLayout="row">
+    <span fxFlex></span>
+    <button mat-button type="button" (click)="onCancel()">Cancel</button>
+  </div>
+</mat-dialog-actions>

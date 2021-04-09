@@ -16,7 +16,7 @@ import {ProfileEditContainerComponent} from './profile-edit/profile-edit-contain
 import {MatDatepickerModule} from '@angular/material/datepicker';
 import {MatSelectModule} from '@angular/material/select';
 import {FlexLayoutModule} from '@angular/flex-layout';
-import {PlayerFindPopupComponent} from './player-find-popup/player-find-popup.component';
+import {ProfileFindPopupComponent} from './profile-find-popup/profile-find-popup.component';
 import {MatDialogModule} from '@angular/material/dialog';
 import {SharedModule} from '../shared/shared.module';
 import {MatRadioModule} from '@angular/material/radio';
@@ -24,6 +24,8 @@ import {MatNativeDateModule} from '@angular/material/core';
 import { ProfileEditStartComponent } from './profile-edit-start/profile-edit-start.component';
 import { UsattRecordSearchComponent } from './usatt-record-search/usatt-record-search.component';
 import { OnBoardCompleteComponent } from './on-board-complete/on-board-complete.component';
+import {MatProgressBarModule} from '@angular/material/progress-bar';
+import { UsattRecordSearchPopupComponent } from './usatt-record-search-popup/usatt-record-search-popup.component';
 
 const profileRoutes: Routes = [
   {
@@ -47,34 +49,36 @@ const profileRoutes: Routes = [
   declarations: [
     ProfileEditComponent,
     ProfileEditContainerComponent,
-    PlayerFindPopupComponent,
+    ProfileFindPopupComponent,
     ProfileEditStartComponent,
     UsattRecordSearchComponent,
-    OnBoardCompleteComponent
+    OnBoardCompleteComponent,
+    UsattRecordSearchPopupComponent
   ],
   exports: [
-    PlayerFindPopupComponent
+    ProfileFindPopupComponent
   ],
-    imports: [
-        CommonModule,
-        RouterModule.forChild(profileRoutes),
-        BrowserAnimationsModule,
-        MatButtonModule,
-        MatCardModule,
-        MatInputModule,
-        MatListModule,
-        MatToolbarModule,
-        HttpClientModule,
-        FormsModule,
-        MatIconModule,
-        MatDatepickerModule,
-        MatNativeDateModule,
-        MatSelectModule,
-        FlexLayoutModule,
-        MatDialogModule,
-        SharedModule,
-        MatRadioModule
-    ]
+  imports: [
+    CommonModule,
+    RouterModule.forChild(profileRoutes),
+    BrowserAnimationsModule,
+    MatButtonModule,
+    MatCardModule,
+    MatInputModule,
+    MatListModule,
+    MatToolbarModule,
+    HttpClientModule,
+    FormsModule,
+    MatIconModule,
+    MatDatepickerModule,
+    MatNativeDateModule,
+    MatSelectModule,
+    FlexLayoutModule,
+    MatDialogModule,
+    SharedModule,
+    MatRadioModule,
+    MatProgressBarModule
+  ]
 })
 export class ProfileModule {
 }

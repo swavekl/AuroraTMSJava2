@@ -4,6 +4,8 @@ import {UsattPlayerRecordService} from '../service/usatt-player-record.service';
 import {UsattPlayerRecord} from '../model/usatt-player-record.model';
 import {first} from 'rxjs/operators';
 import {Router} from '@angular/router';
+import {UsattRecordSearchCallbackData, UsattRecordSearchPopupService} from '../service/usatt-record-search-popup.service';
+import {RecordSearchData} from '../usatt-record-search-popup/usatt-record-search-popup.component';
 
 @Component({
   selector: 'app-profile-edit-start',
@@ -19,6 +21,7 @@ export class ProfileEditStartComponent implements OnInit {
 
   constructor(private authenticationService: AuthenticationService,
               private usattPlayerRecordService: UsattPlayerRecordService,
+              private playerFindPopupService: UsattRecordSearchPopupService,
               private router: Router) {
     this.firstName = this.authenticationService.getCurrentUserFirstName();
     this.lastName = this.authenticationService.getCurrentUserLastName();
@@ -42,10 +45,45 @@ export class ProfileEditStartComponent implements OnInit {
       });
   }
 
-  onSelectedPlayer(playerRecord: UsattPlayerRecord) {
-    // console.log ('using this player record for profile init', playerRecord);
-    const state = {initializingProfile: true, playerRecord: playerRecord};
+  // onSelectedPlayer(playerRecord: UsattPlayerRecord) {
+  //   // console.log ('using this player record for profile init', playerRecord);
+  //   const state = {initializingProfile: true, playerRecord: playerRecord};
+  //   const url = `/userprofile/${this.profileId}`;
+  //   this.router.navigate([url], {state: state});
+  // }
+
+  onProfileEditStart(initializingProfile: boolean, playerRecord: UsattPlayerRecord) {
+    const state = {initializingProfile: initializingProfile, playerRecord: playerRecord};
     const url = `/userprofile/${this.profileId}`;
     this.router.navigate([url], {state: state});
+  }
+
+  onFindPlayerById() {
+    this.findPlayer(true);
+  }
+
+  onFindPlayerByName() {
+    this.findPlayer(false);
+  }
+
+  private findPlayer(searchById: boolean) {
+    const data: RecordSearchData = {
+      firstName: this.firstName,
+      lastName: this.lastName,
+      searchingByMembershipId: searchById
+    };
+    const callbackParams: UsattRecordSearchCallbackData = {
+      successCallbackFn: this.onFindPlayerOkCallback,
+      cancelCallbackFn: null,
+      callbackScope: this
+    };
+    this.playerFindPopupService.showPopup(data, callbackParams);
+  }
+
+  onFindPlayerOkCallback(scope: any, selectedPlayerRecord: UsattPlayerRecord) {
+    const me = scope;
+    me.playerRecord = selectedPlayerRecord;
+    me.firstName = selectedPlayerRecord.firstName;
+    me.lastName = selectedPlayerRecord.lastName;
   }
 }

@@ -7,7 +7,12 @@ import {Component, Input, OnInit} from '@angular/core';
 })
 export class CenteredPanelComponent implements OnInit {
 
-  constructor() { }
+  @Input()
+  noTopGap: boolean;
+
+  constructor() {
+    this.noTopGap = false;
+  }
 
   ngOnInit(): void {
   }

@@ -20,6 +20,9 @@ export class UsattRecordSearchComponent implements OnInit, OnDestroy {
   @Input()
   lastName: string;
 
+  @Input()
+  searchingByMembershipId: boolean;
+
   @Output()
   private selection: EventEmitter<UsattPlayerRecord> = new EventEmitter<UsattPlayerRecord>();
 
@@ -27,24 +30,22 @@ export class UsattRecordSearchComponent implements OnInit, OnDestroy {
 
   pageNum: number;
 
-  public searchingByMembershipId: boolean;
-
   private subscriptions: Subscription = new Subscription();
 
   constructor(private usattPlayerRecordService: UsattPlayerRecordService,
               private linearProgressBarService: LinearProgressBarService) {
     this.loading$ = this.usattPlayerRecordService.loading$;
     this.pageNum = 0;
-    this.searchingByMembershipId = true;
   }
 
   ngOnInit(): void {
-    const subscription = this.usattPlayerRecordService.loading$.subscribe((loading: boolean) => {
-      this.linearProgressBarService.setLoading(loading);
-    });
-    this.subscriptions.add(subscription);
-
-    this.performSearch(this.firstName, this.lastName, null, 0);
+    // const subscription = this.usattPlayerRecordService.loading$.subscribe((loading: boolean) => {
+    //   this.linearProgressBarService.setLoading(loading);
+    // });
+    // this.subscriptions.add(subscription);
+    if (!this.searchingByMembershipId) {
+      this.performSearch(this.firstName, this.lastName, null, 0);
+    }
   }
 
   ngOnDestroy(): void {
