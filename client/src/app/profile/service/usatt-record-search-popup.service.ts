@@ -1,7 +1,8 @@
-import {Injectable} from '@angular/core';
+import {Injectable, OnDestroy} from '@angular/core';
 import {MatDialog} from '@angular/material/dialog';
 import {UsattPlayerRecord} from '../model/usatt-player-record.model';
 import {RecordSearchData, UsattRecordSearchPopupComponent} from '../usatt-record-search-popup/usatt-record-search-popup.component';
+import {Subscription} from 'rxjs';
 
 /**
  * Service for showing the popup for finding players in a consistent way
@@ -9,7 +10,9 @@ import {RecordSearchData, UsattRecordSearchPopupComponent} from '../usatt-record
 @Injectable({
   providedIn: 'root'
 })
-export class UsattRecordSearchPopupService {
+export class UsattRecordSearchPopupService implements OnDestroy {
+
+  private subscriptions: Subscription = new Subscription();
 
   constructor(private dialog: MatDialog) { }
 
@@ -19,7 +22,7 @@ export class UsattRecordSearchPopupService {
     };
     const callbackScope = callbackData.callbackScope;
     const dialogRef = this.dialog.open(UsattRecordSearchPopupComponent, config);
-    dialogRef.afterClosed().subscribe(result => {
+    const subscription = dialogRef.afterClosed().subscribe(result => {
       if (result.action === 'ok') {
         if (callbackData.successCallbackFn != null) {
           callbackData.successCallbackFn(callbackScope, result.selectedRecord);
@@ -30,6 +33,11 @@ export class UsattRecordSearchPopupService {
         }
       }
     });
+    this.subscriptions.add(subscription);
+  }
+
+  ngOnDestroy() {
+    this.subscriptions.unsubscribe();
   }
 }
 

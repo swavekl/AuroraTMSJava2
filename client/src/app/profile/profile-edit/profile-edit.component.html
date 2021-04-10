@@ -103,6 +103,10 @@
               <input matInput type="text" name="tournamentRating" [ngModel]="profile?.tournamentRating" readonly>
             </mat-form-field>
           </div>
+          <div>
+            <button [fxShow]="canChangeMembershipId" mat-raised-button type="button" (click)="onChangeMembershipId()">Change Membership Id</button>
+            <span fxFlex></span>
+          </div>
         </mat-card-content>
         <mat-card-actions>
           <div class="profile-button-bar" fxLayout="row">

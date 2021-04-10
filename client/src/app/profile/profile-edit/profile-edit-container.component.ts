@@ -9,11 +9,13 @@ import {UsattPlayerRecord} from '../model/usatt-player-record.model';
 import {LinearProgressBarService} from '../../shared/linear-progress-bar/linear-progress-bar.service';
 import {UsattPlayerRecordService} from '../service/usatt-player-record.service';
 import {Regions} from '../../shared/regions';
+import {UserRoles} from '../../user/user-roles.enum';
 
 @Component({
   selector: 'app-profile-edit-container',
   template: `
     <app-profile-edit [profile]="profile$ | async"
+                      [canChangeMembershipId]="canChangeMembershipId"
                       (saved)="onSave($event)"
                       (canceled)="onCancel($event)">
     </app-profile-edit>
@@ -29,9 +31,12 @@ export class ProfileEditContainerComponent implements OnInit, OnDestroy {
   initializingProfile: boolean;
   onBoarding: boolean;
   newMember: boolean;
+  canChangeMembershipId: boolean;
 
   private subscriptions: Subscription = new Subscription();
   private returnUrl: string;
+  // membership id saved so we can detect if user changed membership id
+  private savedMembershipId: number;
 
   constructor(private authenticationService: AuthenticationService,
               private profileService: ProfileService,
@@ -59,6 +64,10 @@ export class ProfileEditContainerComponent implements OnInit, OnDestroy {
       // this.returnUrl = history?.state?.url;  // for when TD edits profiles
       this.returnUrl = '/home';
     }
+    // check if user can change membership id - sometimes it is necessary when they make a mistake
+    const roles = [UserRoles.ROLE_TOURNAMENT_DIRECTORS, UserRoles.ROLE_ADMINS];
+    this.canChangeMembershipId = this.authenticationService.hasCurrentUserRole(roles);
+    this.savedMembershipId = 0;
   }
 
   ngOnInit() {
@@ -77,6 +86,7 @@ export class ProfileEditContainerComponent implements OnInit, OnDestroy {
               console.log('merging passed usatt player record into profile', this.playerRecord);
               this.merge(profile, this.playerRecord);
             }
+            this.savedMembershipId = profile.membershipId;
 
             if (this.initializingProfile === true) {
               this.initializingProfile = false;
@@ -91,9 +101,10 @@ export class ProfileEditContainerComponent implements OnInit, OnDestroy {
                 .pipe(
                   first(),
                   switchMap ((playerRecord: UsattPlayerRecord) => {
-                    // console.log('got new USATT id', playerRecord);
+                    // console.log('got new USATT id', JSON.stringify(playerRecord));
                     profile.membershipId = playerRecord.membershipId;
                     profile.membershipExpirationDate = playerRecord.membershipExpirationDate;
+                    this.savedMembershipId = profile.membershipId;
                     return of(profile);
                   }));
             } else {
@@ -106,7 +117,7 @@ export class ProfileEditContainerComponent implements OnInit, OnDestroy {
   }
 
   /**
-   *
+   * Saves the profile and optionally updates the link between the player profile and usatt membership id
    * @param profile
    */
   onSave(profile: Profile) {
@@ -116,24 +127,56 @@ export class ProfileEditContainerComponent implements OnInit, OnDestroy {
       .pipe(first())
       .subscribe(
         () => {
-          // console.log('Updated profile successfully');
-          if (this.onBoarding) {
-            // for US players figure out the region which they are part of
-            const memberRegion: string = this.findNewMembersRegion(profile);
-            const extras = {state: {
-              newMember: this.newMember,
-                membershipId: profile.membershipId,
-                firstName: profile.firstName,
-                memberRegion: memberRegion
-            }};
-            this.router.navigateByUrl(this.returnUrl, extras);
+          // console.log ('SAVED profile');
+          const membershipIdChanged = profile.membershipId !== this.savedMembershipId;
+          if (!membershipIdChanged) {
+            this.navigateToNextPage(profile);
           } else {
-            this.router.navigateByUrl(this.returnUrl);
+            // console.log ('updating membership id ' + this.savedMembershipId + ' new ' + profile.membershipId);
+            // first save the new membership link and then navigate
+            const usattPlayerRecord = new UsattPlayerRecord();
+            usattPlayerRecord.firstName = profile.firstName;
+            usattPlayerRecord.lastName = profile.lastName;
+            usattPlayerRecord.membershipId = profile.membershipId;
+            this.usattPlayerRecordService.linkPlayerToProfile(usattPlayerRecord, this.profileId)
+              .pipe(first())
+              .subscribe(
+                () => {
+                  this.navigateToNextPage(profile);
+                },
+                (error: any) => {
+                  console.error ('got error linking player to ' + error);
+                },
+                () => {
+                  // console.log ('completed observable for linkPlayertoProfile');
+                }
+              );
           }
         },
         (err: any) => console.error(err)
       );
     this.subscriptions.add(subscription);
+  }
+
+  /**
+   * Navigates to the next page
+   * @param profile
+   */
+  navigateToNextPage (profile: Profile) {
+    // console.log('Updated profile successfully - navigating to next page ' + this.returnUrl);
+    if (this.onBoarding) {
+      // for US players figure out the region which they are part of
+      const memberRegion: string = this.findNewMembersRegion(profile);
+      const extras = {state: {
+          newMember: this.newMember,
+          membershipId: profile.membershipId,
+          firstName: profile.firstName,
+          memberRegion: memberRegion
+        }};
+      this.router.navigateByUrl(this.returnUrl, extras);
+    } else {
+      this.router.navigateByUrl(this.returnUrl);
+    }
   }
 
   /**

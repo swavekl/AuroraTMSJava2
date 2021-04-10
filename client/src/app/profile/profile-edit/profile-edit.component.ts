@@ -1,8 +1,11 @@
-import {Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChange, SimpleChanges} from '@angular/core';
+import {ChangeDetectorRef, Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChange, SimpleChanges} from '@angular/core';
 import {Profile} from '../profile';
 import {StatesList} from '../../shared/states/states-list';
 import {CountriesList} from '../../shared/countries-list';
 import {DateUtils} from '../../shared/date-utils';
+import {UsattRecordSearchCallbackData, UsattRecordSearchPopupService} from '../service/usatt-record-search-popup.service';
+import {RecordSearchData} from '../usatt-record-search-popup/usatt-record-search-popup.component';
+import {UsattPlayerRecord} from '../model/usatt-player-record.model';
 
 @Component({
   selector: 'app-profile-edit',
@@ -13,6 +16,10 @@ export class ProfileEditComponent implements OnInit, OnChanges {
 
   // this is what we edit
   @Input() profile: Profile;
+
+  // flag indicating if user will be allowed to change this player's membership id
+  @Input()
+  canChangeMembershipId: boolean;
 
   // save and cancel
   @Output() saved = new EventEmitter();
@@ -30,7 +37,8 @@ export class ProfileEditComponent implements OnInit, OnChanges {
   public zipCodePattern;
   public zipCodeLength: number;
 
-  constructor() {
+  constructor(private usattRecordSearchPopupService: UsattRecordSearchPopupService,
+              private cdr: ChangeDetectorRef) {
     this.profile = new Profile();
     this.maxDateOfBirth = new Date();
     this.countries = CountriesList.getList();
@@ -85,6 +93,43 @@ export class ProfileEditComponent implements OnInit, OnChanges {
         this.zipCodeLength = 10;
         break;
     }
+  }
 
+  /**
+   * Allow tournament directors or admins to change membership id for this player
+   */
+  onChangeMembershipId() {
+    const data: RecordSearchData = {
+      searchingByMembershipId: true,
+      firstName: '',
+      lastName: ''
+    };
+    const callbackParams: UsattRecordSearchCallbackData = {
+      successCallbackFn: this.onFindPlayerOkCallback,
+      cancelCallbackFn: null,
+      callbackScope: this
+    };
+    this.usattRecordSearchPopupService.showPopup(data, callbackParams);
+  }
+
+  /**
+   * Callback for when the different member is selected
+   * @param scope this object
+   * @param selectedPlayerData selected player data
+   */
+  onFindPlayerOkCallback(scope: any, selectedPlayerData: UsattPlayerRecord) {
+    // for some reason updating doesn't work when I use scope directly
+    scope.onFindPlayerOkCallbackInScope(selectedPlayerData);
+  }
+
+  onFindPlayerOkCallbackInScope(selectedPlayerData: UsattPlayerRecord) {
+    const updatedProfile: Profile = new Profile();
+    updatedProfile.clone(this.profile);
+    updatedProfile.membershipId = selectedPlayerData.membershipId;
+    updatedProfile.membershipExpirationDate = selectedPlayerData.membershipExpirationDate;
+    updatedProfile.tournamentRating = selectedPlayerData.tournamentRating;
+//    console.log('updatedProfile' + JSON.stringify(updatedProfile));
+    this.profile = updatedProfile;
+    this.cdr.markForCheck();
   }
 }

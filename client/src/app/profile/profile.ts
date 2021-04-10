@@ -40,4 +40,23 @@ export class Profile {
     this.membershipExpirationDate = new DateUtils().convertFromString(formValues.membershipExpirationDate);
     this.tournamentRating = formValues.tournamentRating;
   }
+
+  clone(otherProfile: Profile) {
+    this.userId = otherProfile.userId;
+    this.login = otherProfile.login;
+    this.firstName = otherProfile.firstName;
+    this.lastName = otherProfile.lastName;
+    this.mobilePhone = otherProfile.mobilePhone;
+    this.email = otherProfile.email;
+    this.streetAddress = otherProfile.streetAddress;
+    this.city = otherProfile.city;
+    this.state = otherProfile.state;
+    this.zipCode = otherProfile.zipCode;
+    this.countryCode = otherProfile.countryCode;
+    this.gender = otherProfile.gender;
+    this.dateOfBirth = otherProfile.dateOfBirth;
+    this.membershipId = otherProfile.membershipId;
+    this.membershipExpirationDate = otherProfile.membershipExpirationDate;
+    this.tournamentRating = otherProfile.tournamentRating;
+  }
 }
