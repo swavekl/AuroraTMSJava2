@@ -10,23 +10,52 @@
         </div>
       <mat-card-content>
         <h3>{{ [tournamentInfo?.startDate, tournamentInfo?.endDate] | dateRange }}</h3>
-        <h4>{{ tournamentInfo?.streetAddress }}, {{ tournamentInfo?.city }}, {{ tournamentInfo?.state }}<mat-icon matListIcon>assistant_direction</mat-icon> </h4>
-<!--        <h3 matLine>Tournament Director: {{tournamentInfo?.tournamentDirectorName}}</h3>-->
-<!--        <h4 matLine>{{tournamentInfo?.tournamentDirectorPhone}} / {{ tournamentInfo?.tournamentDirectorEmail }}</h4>-->
-        <mat-card-subtitle>TournamentDirector: {{tournamentInfo?.tournamentDirectorName}}</mat-card-subtitle>
-        <div><h4>{{tournamentInfo?.tournamentDirectorPhone}} <mat-icon matListIcon>call</mat-icon> {{ tournamentInfo?.tournamentDirectorEmail }} <mat-icon matListIcon>email</mat-icon></h4></div>
-<!--        <table style="width: 100%;">-->
-<!--          <tbody>-->
-<!--          <tr>-->
-<!--            <td style="width: 50%;">{{tournamentInfo?.tournamentDirectorName}}</td>-->
-<!--            <td style="width: 50%; text-align: right;"><h4>{{tournamentInfo?.tournamentDirectorPhone}}</h4></td>-->
-<!--          </tr>-->
-<!--          <tr>-->
-<!--            <td style="width: 50%;"></td>-->
-<!--            <td style="width: 50%; text-align: right;"><h4>{{ tournamentInfo?.tournamentDirectorEmail }}</h4></td>-->
-<!--          </tr>-->
-<!--          </tbody>-->
-<!--        </table>-->
+        <table style="width: calc(100% - 50px)">
+          <tbody>
+          <tr>
+            <td class="mat-caption">Venue</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>Vaughan Athletic Center</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>{{ tournamentInfo?.streetAddress }}, {{ tournamentInfo?.city }}, {{ tournamentInfo?.state }}</td>
+            <td>
+              <button mat-fab color="accent" aria-label="Directions" (click)="showDirections()">
+                <mat-icon>assistant_direction</mat-icon>
+              </button>
+            </td>
+          </tr>
+          <tr>
+            <td colspan="2" class="mat-caption">TournamentDirector</td>
+          </tr>
+          <tr>
+            <td>{{tournamentInfo?.tournamentDirectorName}} </td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>{{ tournamentInfo?.tournamentDirectorEmail }} </td>
+            <td>
+              <button mat-fab aria-label="Email">
+                <a href="mailto:swaveklorenc@yahoo.com">
+                  <mat-icon>email</mat-icon>
+                </a>
+              </button>
+          </tr>
+          <tr>
+            <td>{{tournamentInfo?.tournamentDirectorPhone}}</td>
+            <td>
+              <button mat-fab aria-label="Call">
+                <a href="tel:6302518860">
+                <mat-icon>call</mat-icon>
+                </a>
+              </button>
+            </td>
+          </tr>
+          </tbody>
+        </table>
         <mat-card-subtitle>Key Dates</mat-card-subtitle>
         <table style="width: 100%;">
           <tbody>
