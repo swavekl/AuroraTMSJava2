@@ -2,9 +2,9 @@
 <project version="4">
   <component name="DataSourceManagerImpl" format="xml" multifile-model="true">
     <data-source source="LOCAL" name="auroratmsspring@localhost" uuid="8c027b70-6b55-4cce-8a8b-ffff9bdbdb78">
-      <driver-ref>mysql</driver-ref>
+      <driver-ref>mysql.8</driver-ref>
       <synchronize>true</synchronize>
-      <jdbc-driver>com.mysql.jdbc.Driver</jdbc-driver>
+      <jdbc-driver>com.mysql.cj.jdbc.Driver</jdbc-driver>
       <jdbc-url>jdbc:mysql://localhost:3306/auroratmsspring</jdbc-url>
     </data-source>
     <data-source source="LOCAL" name="test database@localhost" uuid="edc68ffa-33f0-4f07-9bf5-31897805cacd">

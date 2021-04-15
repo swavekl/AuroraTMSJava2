@@ -3,6 +3,7 @@ import {DateUtils} from '../../shared/date-utils';
 export class TournamentInfo {
   id: number;
   name: string;
+  venueName: string;
   streetAddress: string;
   city: string;
   state: string;

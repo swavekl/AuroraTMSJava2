@@ -11,7 +11,7 @@ import {DateUtils} from '../../../shared/date-utils';
 @Component({
   selector: 'app-tournament-view',
   templateUrl: './tournament-view.component.html',
-  styleUrls: ['./tournament-view.component.css']
+  styleUrls: ['./tournament-view.component.scss']
 })
 export class TournamentViewComponent implements OnInit, OnChanges {
   @Input()
@@ -46,9 +46,9 @@ export class TournamentViewComponent implements OnInit, OnChanges {
         const maxNumEventEntries = (tournamentInfo.maxNumEventEntries > 0) ? tournamentInfo.maxNumEventEntries : 1;
         this.percentFull = tournamentInfo.numEventEntries / maxNumEventEntries;
         this.starsArray = Array(tournamentInfo.starLevel);
-        }
       }
     }
+  }
 
   onEnter() {
     // create entry
@@ -76,7 +76,7 @@ export class TournamentViewComponent implements OnInit, OnChanges {
   }
 
   onWithdraw() {
-    console.log ('warning about withdrawal');
+    console.log('warning about withdrawal');
   }
 
   showPlayers() {
@@ -91,8 +91,26 @@ export class TournamentViewComponent implements OnInit, OnChanges {
     this.router.navigateByUrl(url, extras);
   }
 
+  getDirectionsURL(): string {
+    let destination = null;
+    if (this.tournamentInfo) {
+      if (this.tournamentInfo.venueName !== '') {
+        destination = this.tournamentInfo.venueName;
+        destination += ' ' + this.tournamentInfo.streetAddress;
+      } else {
+        destination = this.tournamentInfo.streetAddress;
+      }
+      destination += ' ' + this.tournamentInfo.city;
+      destination += ' ' + this.tournamentInfo.state;
+      destination = encodeURIComponent(destination);
+      return `https://www.google.com/maps/dir/?api=1&travelmode=driving&dir_action=navigate&destination=${destination}`;
+    } else {
+      return '';
+    }
+  }
+
   showDirections() {
-    const url = 'https://www.google.com/maps/dir/?api=1&destination=Vaughan+Athletic+Center+Aurora+IL&travelmode=driving&dir_action=navigate';
+    const url = this.getDirectionsURL();
     window.open(url);
   }
 }

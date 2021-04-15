@@ -1,0 +1,25 @@
+@import "~src/my-theme.scss";
+
+mat-icon.button-icon {
+  font-size: 48px;
+  color: $primary-color;
+}
+
+td.icon-column {
+  align-content: center;
+  justify-content: center;
+  width: 64px;
+}
+
+table.dates-table {
+  width: 100%;
+}
+
+td.date-name {
+  width: 60%;
+}
+
+td.date-value {
+  width: 40%;
+  text-align: right;
+}

@@ -40,6 +40,7 @@ public class TournamentInfoController {
         TournamentInfo tournamentInfo = new TournamentInfo();
         tournamentInfo.setId(tournament.getId());
         tournamentInfo.setName(tournament.getName());
+        tournamentInfo.setVenueName(tournament.getVenueName());
         tournamentInfo.setStreetAddress(tournament.getStreetAddress());
         tournamentInfo.setCity(tournament.getCity());
         tournamentInfo.setState(tournament.getState());

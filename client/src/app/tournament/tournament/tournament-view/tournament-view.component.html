@@ -3,86 +3,95 @@
   <div fxFlex.lt-md="100%" fxFlex="70%">
     <mat-card>
       <mat-card-title>{{ tournamentInfo?.name }}</mat-card-title>
-        <div>
-          <ng-container *ngFor="let star of starsArray">
-            <mat-icon matListIcon>star</mat-icon>
-          </ng-container>
-        </div>
+      <div>
+        <ng-container *ngFor="let star of starsArray">
+          <mat-icon matListIcon color="accent">star</mat-icon>
+        </ng-container>
+      </div>
       <mat-card-content>
-        <h3>{{ [tournamentInfo?.startDate, tournamentInfo?.endDate] | dateRange }}</h3>
-        <table style="width: calc(100% - 50px)">
+        <div class="mat-caption">{{ [tournamentInfo?.startDate, tournamentInfo?.endDate] | dateRange }}</div>
+        <table style="width: 100%">
           <tbody>
           <tr>
-            <td class="mat-caption">Venue</td>
-            <td></td>
+            <!--            <td class="mat-subheading-1"></td>-->
+            <td colspan="2" class="mat-subheading-1">Venue</td>
           </tr>
           <tr>
-            <td>Vaughan Athletic Center</td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>{{ tournamentInfo?.streetAddress }}, {{ tournamentInfo?.city }}, {{ tournamentInfo?.state }}</td>
+            <td class="icon-column">
+              <a [href]="getDirectionsURL()" target="_blank">
+                <mat-icon class="button-icon">assistant_direction</mat-icon>
+              </a>
+            </td>
             <td>
-              <button mat-fab color="accent" aria-label="Directions" (click)="showDirections()">
-                <mat-icon>assistant_direction</mat-icon>
-              </button>
+              <div>{{ tournamentInfo?.venueName }}</div>
+              <div>{{ tournamentInfo?.streetAddress }}</div>
+              <div>{{ tournamentInfo?.city }}, {{ tournamentInfo?.state }}</div>
+            </td>
+          </tr>
+          <tr style="padding-top: 20px;">
+            <!--            <td class="mat-subheading-1"></td>-->
+            <td colspan="2" class="mat-subheading-1">Tournament Director</td>
+          </tr>
+          <tr>
+            <td class="icon-column">
+              <a href="tel:{{tournamentInfo?.tournamentDirectorPhone}}">
+                <mat-icon class="button-icon">call</mat-icon>
+              </a>
+            </td>
+            <td>
+              <div>{{tournamentInfo?.tournamentDirectorName}}</div>
+              <div>{{tournamentInfo?.tournamentDirectorPhone}}</div>
+              <div>
+                <a href="mailto:{{tournamentInfo?.tournamentDirectorEmail}}">
+                  {{tournamentInfo?.tournamentDirectorEmail}}
+                </a>
+              </div>
             </td>
           </tr>
           <tr>
-            <td colspan="2" class="mat-caption">TournamentDirector</td>
+            <!--            <td class="mat-subheading-1"></td>-->
+            <td colspan="2" class="mat-subheading-1">Players Entered</td>
           </tr>
           <tr>
-            <td>{{tournamentInfo?.tournamentDirectorName}} </td>
-            <td></td>
+            <td class="icon-column">
+              <a (click)="showPlayers()" routerLink="active">
+                <mat-icon class="button-icon">groups</mat-icon>
+              </a>
+            </td>
+            <td class="mat-display-1">
+              {{ tournamentInfo?.numEntries }} ({{percentFull | percent}} full)
+            </td>
           </tr>
           <tr>
-            <td>{{ tournamentInfo?.tournamentDirectorEmail }} </td>
+            <td colspan="2" class="mat-subheading-1">Key dates</td>
+          </tr>
+          <tr>
+            <td class="icon-column"></td>
             <td>
-              <button mat-fab aria-label="Email">
-                <a href="mailto:swaveklorenc@yahoo.com">
-                  <mat-icon>email</mat-icon>
-                </a>
-              </button>
-          </tr>
-          <tr>
-            <td>{{tournamentInfo?.tournamentDirectorPhone}}</td>
-            <td>
-              <button mat-fab aria-label="Call">
-                <a href="tel:6302518860">
-                <mat-icon>call</mat-icon>
-                </a>
-              </button>
+              <table class="dates-table">
+                <tbody>
+                <tr>
+                  <td class="date-name">Ratings Eligibility</td>
+                  <td class="date-value">12/01/2021</td>
+                </tr>
+                <tr>
+                  <td class="date-name">Full Refund</td>
+                  <td class="date-value">1/10/2022</td>
+                </tr>
+<!--                <tr>-->
+<!--                  <td class="date-name">Late Entry</td>-->
+<!--                  <td class="date-value">1/10/2022</td>-->
+<!--                </tr>-->
+                <tr>
+                  <td class="date-name">Entry Cutoff</td>
+                  <td class="date-value">12/31/2021</td>
+                </tr>
+                </tbody>
+              </table>
             </td>
           </tr>
           </tbody>
         </table>
-        <mat-card-subtitle>Key Dates</mat-card-subtitle>
-        <table style="width: 100%;">
-          <tbody>
-          <tr>
-            <td style="width: 50%;">Ratings eligibility</td>
-            <td style="width: 50%; text-align: right;">12/01/2021</td>
-          </tr>
-          <tr>
-            <td style="width: 50%;">Registration closes</td>
-            <td style="width: 50%; text-align: right;">12/31/2021</td>
-          </tr>
-          </tbody>
-        </table>
-<!--        <h3>Key dates:</h3>-->
-<!--        <h5>Ratings eligibility: 12/01/2021</h5>-->
-<!--        <h5>Late entry fee: 12/23/2021</h5>-->
-<!--        <h5>Registration closes: 12/31/2021</h5>-->
-<!--        <h5>Refund deadline: 01/15/2022</h5>-->
-        <div fxLayout="row">
-          <div>
-            <h2>Players entered: {{ tournamentInfo?.numEntries }} ({{percentFull | percent}} full)
-            </h2>
-          </div>
-          <span fxFlex></span>
-          <button mat-raised-button type="button" (click)="showPlayers()">Players</button>
-        </div>
-
       </mat-card-content>
       <mat-card-actions>
         <button *ngIf="entryId !== 0" mat-raised-button type="button" (click)="onWithdraw()">Withdraw</button>
@@ -105,9 +114,12 @@
             <mat-divider></mat-divider>
             <div mat-line fxLayout="row">
               <div fxFlex="80%">{{tournamentEvent.name}} </div>
-              <div fxFlex="20%" style="text-align: right;">({{tournamentEvent.numEntries}}/{{tournamentEvent.maxEntries}})</div>
+              <div fxFlex="20%" style="text-align: right;">({{tournamentEvent.numEntries}}
+                /{{tournamentEvent.maxEntries}})
+              </div>
             </div>
-            <div mat-line>{{ tournamentEvent.day | eventDay: tournamentStartDate }} {{ tournamentEvent.startTime | startTime }}</div>
+            <div
+              mat-line>{{ tournamentEvent.day | eventDay: tournamentStartDate }} {{ tournamentEvent.startTime | startTime }}</div>
           </mat-list-item>
         </mat-list>
       </mat-card-content>

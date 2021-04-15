@@ -20,6 +20,7 @@ public class TournamentInfo {
     private Long id;
 
     private @NonNull String name;
+    private String venueName;
     private String streetAddress;
     private String city;
     private String state;
