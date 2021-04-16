@@ -47,13 +47,14 @@ export class TournamentPlayersListComponent implements OnInit, OnChanges {
     const tournamentEventsChange: SimpleChange = changes.tournamentEvents;
     if (tournamentEventsChange) {
       this.tournamentEvents = tournamentEventsChange.currentValue;
-
-      // make a map for faster lookup
-      this.eventIdToEventMap = {};
-      for (let j = 0; j < this.tournamentEvents.length; j++) {
-        const tournamentEvent = this.tournamentEvents[j];
-        this.eventIdToEventMap[tournamentEvent.id] = tournamentEvent;
+      if (this.tournamentEvents) {
+        // make a map for faster lookup
+        this.eventIdToEventMap = {};
+        for (let j = 0; j < this.tournamentEvents.length; j++) {
+          const tournamentEvent = this.tournamentEvents[j];
+          this.eventIdToEventMap[tournamentEvent.id] = tournamentEvent;
         }
+      }
      }
 
     // when both are ready do it.

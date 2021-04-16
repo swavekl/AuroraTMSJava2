@@ -3,7 +3,7 @@ import {TournamentEntryInfoService} from '../../service/tournament-entry-info.se
 import {ActivatedRoute} from '@angular/router';
 import {combineLatest, Observable, of, Subscription} from 'rxjs';
 import {LinearProgressBarService} from '../../../shared/linear-progress-bar/linear-progress-bar.service';
-import {first, map} from 'rxjs/operators';
+import {first} from 'rxjs/operators';
 import {TournamentEntryInfo} from '../../model/tournament-entry-info.model';
 import {TournamentEvent} from '../../tournament-config/tournament-event.model';
 import {TournamentEventConfigService} from '../../tournament-config/tournament-event-config.service';
@@ -11,6 +11,7 @@ import {createSelector} from '@ngrx/store';
 import {TournamentInfo} from '../../model/tournament-info.model';
 import {TournamentInfoService} from '../../service/tournament-info.service';
 import {DateUtils} from '../../../shared/date-utils';
+import {lazyArray} from '../../../shared/lazy-array';
 
 @Component({
   selector: 'app-tournament-player-list-container',
@@ -74,12 +75,18 @@ export class TournamentPlayersListContainerComponent implements OnInit, OnDestro
 
 
   private loadTournamentEntries(tournamentId: number) {
-    this.entryInfos$ = this.tournamentEntryInfoService.getAll(tournamentId);
-    const subscription = this.entryInfos$
-      .pipe(first())
+    // we are reading all tournament entries but to speed up drawing we will 'release' them
+    // in chunks of 50 every 50 ms.  This way the first 50 can be painted fast while the remaining
+    // chunks can be painted later.  This will eliminate the delay in painting, but it will make the scroll bar
+    // get shorter as more items arrive and the list needs to be repainted
+    const subscription = this.tournamentEntryInfoService.getAll(tournamentId)
+      .pipe(
+        first(),
+        lazyArray<TournamentEntryInfo>(50, 50))
       .subscribe(
         (infos: TournamentEntryInfo[]) => {
-          return infos;
+          // console.log('returning infos.length ' + infos.length);
+          this.entryInfos$ = of(infos);
         },
         (error: any) => {
           console.log('error loading entry infos' + JSON.stringify(error));
@@ -94,30 +101,20 @@ export class TournamentPlayersListContainerComponent implements OnInit, OnDestro
    * @private
    */
   private loadTournamentEvents(tournamentId: number) {
-    this.tournamentEvents$ = this.tournamentEventConfigService.store.select(
+    // this selector will NOT be subscribed by template.
+    // It exists only to first check if the events were loaded already and if they were it will stop,
+    // if not it will initiate a load and then replace above observable with a new one.
+    const localTournamentEvents$ = this.tournamentEventConfigService.store.select(
       this.tournamentEventConfigService.selectors.selectEntities);
-
-    const subscription = this.tournamentEvents$
+    const subscription = localTournamentEvents$
       .pipe(first())
       .subscribe(
         (events: TournamentEvent[]) => {
           if (events != null && events.length > 0) {
             this.tournamentEvents$ = of(events);
-            return events;
           } else {
-            // don't have event configs cached - load them
-            this.tournamentEventConfigService.loadTournamentEvents(tournamentId)
-              .pipe(
-                first(),
-                map(
-                  (tournamentEvents: TournamentEvent[]) => {
-                    return tournamentEvents;
-                  },
-                  (error: any) => {
-                    console.log('error loading tournament events ' + JSON.stringify(error));
-                  }
-                ))
-              .subscribe();
+            // don't have event configs cached - load them - again template is subscribed to this
+            this.tournamentEvents$ = this.tournamentEventConfigService.loadTournamentEvents(tournamentId);
           }
         },
         (error: any) => {
@@ -138,9 +135,11 @@ export class TournamentPlayersListContainerComponent implements OnInit, OnDestro
     // but if user navigated to this screen by url then go to the server and get it.
     const strTournamentStartDate = history?.state?.tournamentStartDate;
     if (strTournamentStartDate != null) {
+      // console.log('Tournament start date PASSED from previous screen');
       const tournamentStartDate = new DateUtils().convertFromString(strTournamentStartDate);
       this.tournamentStartDate$ = of(tournamentStartDate);
     } else {
+      // create a selector for fast lookup in cache
       const tournamentInfoSelector = this.tournamentInfoService.selectors.selectEntityMap;
       const selectedTournamentSelector = createSelector(
         tournamentInfoSelector,
@@ -148,8 +147,7 @@ export class TournamentPlayersListContainerComponent implements OnInit, OnDestro
           return entityMap[tournamentId];
         });
 
-      const tournamentInfo$: Observable<TournamentInfo> = this.tournamentInfoService.store.select(selectedTournamentSelector);
-      const subscription = tournamentInfo$
+      const subscription = this.tournamentInfoService.store.select(selectedTournamentSelector)
         .subscribe(
           (tournamentInfo: TournamentInfo) => {
             if (tournamentInfo) {
@@ -158,7 +156,8 @@ export class TournamentPlayersListContainerComponent implements OnInit, OnDestro
               this.tournamentStartDate$ = of(tournamentStartDate2);
             } else {
               // console.log('tournamentInfo not in cache. getting from SERVER');
-              // not in cache so read it
+              // not in cache so get it. Since it is an entity collection it will be
+              // piped to the above selector and processed by if branch
               this.tournamentInfoService.getByKey(tournamentId);
             }
           });
