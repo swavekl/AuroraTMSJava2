@@ -26,4 +26,11 @@ public class TournamentConfiguration {
     private int numberOfTables;
     // type of tournament
     private TournamentType tournamentType;
+    // some tournaments have
+    private int registrationFee;
+    // fee for late entry
+    private int lateEntryFee;
+    // determines how to calculate total due
+    private PricingMethod pricingMethod;
+
 }

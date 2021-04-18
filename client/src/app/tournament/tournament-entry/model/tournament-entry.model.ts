@@ -39,4 +39,7 @@ export class TournamentEntry {
   // if family or group entry, will contain owning entry fk
   owningTournamentEntryFk: number;
 
+  // mandatory usattDonation line - optional for user
+  usattDonation: number;
+
 }

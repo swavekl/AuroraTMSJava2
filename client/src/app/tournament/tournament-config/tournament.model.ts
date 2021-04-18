@@ -1,6 +1,7 @@
 import {DateUtils} from '../../shared/date-utils';
 import {TournamentEvent} from './tournament-event.model';
 import * as moment from 'moment';
+import {PricingMethod} from '../model/pricing-method.enum';
 
 export class Tournament {
   id: number;
@@ -86,6 +87,9 @@ export class Tournament {
     configuration.maxTournamentEvents = formValues.maxTournamentEvents;
     configuration.numberOfTables = formValues.numberOfTables;
     configuration.tournamentType = formValues.tournamentType;
+    configuration.pricingMethod = formValues.pricingMethod;
+    configuration.registrationFee = formValues.registrationFee;
+    configuration.lateEntryFee = formValues.lateEntryFee;
 // console.log ('toTournament', tournament);
     return tournament;
   }
@@ -122,6 +126,9 @@ export class Tournament {
     tournament.configuration.maxTournamentEvents = 0;
     tournament.configuration.numberOfTables = 10;
     tournament.configuration.tournamentType = 'RatingsRestricted'; // rating restricted
+    tournament.configuration.pricingMethod = PricingMethod.STANDARD;
+    tournament.configuration.registrationFee = 0;
+    tournament.configuration.lateEntryFee = 0;
     return tournament;
   }
 
@@ -194,4 +201,11 @@ class TournamentConfiguration {
   numberOfTables: number;
   // tournament type - rating restricted, round robin, teams
   tournamentType: string;
+  // some tournaments have
+  registrationFee: number;
+  // fee for late entry
+  lateEntryFee: number;
+  // determines how to calculate total due
+  pricingMethod: PricingMethod;
+
 }

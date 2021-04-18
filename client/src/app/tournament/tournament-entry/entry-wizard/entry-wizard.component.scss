@@ -56,3 +56,11 @@ table.summary-table {
     }
   }
 }
+
+.membership-expired {
+  color: $warn-color;
+}
+
+.membership-not-expired {
+  color: black;
+}

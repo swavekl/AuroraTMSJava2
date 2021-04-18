@@ -43,6 +43,9 @@ public class TournamentEntry {
     // if family or group entry, will contain owning entry fk
     Long owningTournamentEntryFk;
 
+    // mandatory usattDonation line - optional for user
+    int usattDonation;
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

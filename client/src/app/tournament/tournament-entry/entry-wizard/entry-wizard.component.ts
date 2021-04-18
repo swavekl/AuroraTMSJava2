@@ -10,7 +10,6 @@ import {AvailabilityStatus} from '../model/availability-status.enum';
 import {EventEntryCommand} from '../model/event-entry-command.enum';
 import {Profile} from '../../../profile/profile';
 import {DateUtils} from '../../../shared/date-utils';
-import {TournamentInfo} from '../../model/tournament-info.model';
 import {PaymentRefund} from '../../../account/model/payment-refund.model';
 import {CallbackData} from '../../../account/model/callback-data';
 import {PaymentDialogData} from '../../../account/payment-dialog/payment-dialog-data';
@@ -22,6 +21,12 @@ import {PaymentDialogService} from '../../../account/service/payment-dialog.serv
 import {RefundDialogService} from '../../../account/service/refund-dialog.service';
 import {first} from 'rxjs/operators';
 import {CurrencyService} from '../../../account/service/currency.service';
+import {getCurrencySymbol} from '@angular/common';
+import {Tournament} from '../../tournament-config/tournament.model';
+import {PriceCalculator} from '../pricecalculator/price-calculator';
+import {PricingMethod} from '../../model/pricing-method.enum';
+import {StandardPriceCalculator} from '../pricecalculator/standard-price-calculator';
+import {DiscountedPriceCalculator} from '../pricecalculator/discounted-price-calculator';
 
 @Component({
   selector: 'app-entry-wizard',
@@ -34,18 +39,13 @@ export class EntryWizardComponent implements OnInit, OnChanges {
   entry: TournamentEntry;
 
   @Input()
-  tournamentInfo: TournamentInfo;
+  tournament: Tournament;
 
   @Input()
   playerProfile: Profile;
 
   @Input()
-  otherPlayers: any[];
-
-  @Input()
   paymentsRefunds: PaymentRefund[];
-
-  otherPlayersBS$: BehaviorSubject<any[]>;
 
   @Input()
   allEventEntryInfos: TournamentEventEntryInfo[];
@@ -71,12 +71,20 @@ export class EntryWizardComponent implements OnInit, OnChanges {
   tournamentStartDate: Date;
 
   teamsTournament: boolean;
+  tournamentStarLevel: number;
+  // if true membership is expired for tournament purposes
+  membershipIsExpired: boolean;
 
   // player and tournament currencies if different
   tournamentCurrency: string;
   playerCurrency: string;
   // currency exchange rate if player is registering in another country and may be charged in this country's currency
   private currencyExchangeRate: number;
+  // currency symbol in current locale
+  tournamentCurrencySymbol: string;
+
+  // calculator for calculating total
+  public priceCalculator: PriceCalculator;
 
   // balance actions
   public readonly BALANCE_ACTION_PAY = 1;
@@ -109,7 +117,6 @@ export class EntryWizardComponent implements OnInit, OnChanges {
   }
 
   ngOnInit(): void {
-    this.otherPlayersBS$ = new BehaviorSubject(this.otherPlayers);
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -123,21 +130,30 @@ export class EntryWizardComponent implements OnInit, OnChanges {
     const playerProfileChange: SimpleChange = changes.playerProfile;
     if (playerProfileChange != null) {
       this.playerProfile = playerProfileChange.currentValue;
-      if (this.playerProfile != null) {
-        const dateOfBirth = this.playerProfile.dateOfBirth;
-        this.hideMembershipOptions(dateOfBirth, this.tournamentStartDate);
-        // fetch account information in case they want to pay so the payment dialog comes up faster
-        this.prepareForPayment(this.tournamentInfo.id);
+    }
+
+    const tournamentChange: SimpleChange = changes.tournament;
+    if (tournamentChange != null) {
+      this.tournament = tournamentChange.currentValue;
+      if (this.tournament != null) {
+        this.teamsTournament = this.tournament.configuration.tournamentType === 'Teams';
+        console.log('tournament start date is ' + this.tournament.startDate);
+        this.tournamentStartDate = new DateUtils().convertFromString(this.tournament.startDate);
+        this.tournamentStarLevel = this.tournament.starLevel;
       }
     }
 
-    const tournamentInfoChange: SimpleChange = changes.tournamentInfo;
-    if (tournamentInfoChange != null) {
-      this.tournamentInfo = tournamentInfoChange.currentValue;
-      if (this.tournamentInfo != null) {
-        this.teamsTournament = this.tournamentInfo.tournamentType === 'Teams';
-        this.tournamentStartDate = new DateUtils().convertFromString(this.tournamentInfo.startDate);
-      }
+    // when both are ready proceed with some calculations
+    if (this.playerProfile != null && this.tournament != null) {
+      const dateOfBirth = this.playerProfile.dateOfBirth;
+      this.hideMembershipOptions(dateOfBirth, this.tournamentStartDate, this.tournamentStarLevel);
+      // fetch account information in case they want to pay so the payment dialog comes up faster
+      this.prepareForPayment(this.tournament.id);
+      // check if membership is expired
+      this.membershipIsExpired = new DateUtils().isDateBefore(
+        this.playerProfile.membershipExpirationDate, this.tournamentStartDate);
+
+      this.priceCalculator = this.initPricingCalculator(this.tournament.configuration.pricingMethod);
     }
   }
 
@@ -187,22 +203,6 @@ export class EntryWizardComponent implements OnInit, OnChanges {
 
   }
 
-  addMember() {
-    const config = {
-      width: '250px', height: '550px', data: {}
-    };
-    const me = this;
-    const dialogRef = this.dialog.open(ProfileFindPopupComponent, config);
-    dialogRef.afterClosed().subscribe(next => {
-      if (next !== null && next !== 'cancel') {
-        console.log('got ok player', next);
-        const currentValue = me.otherPlayersBS$.getValue();
-        currentValue.push(next);
-        this.otherPlayersBS$.next(currentValue);
-      }
-    });
-  }
-
   onChange(form: FormGroup) {
     console.log('in onChange');
     if (this.entry != null) {
@@ -232,8 +232,8 @@ export class EntryWizardComponent implements OnInit, OnChanges {
   }
 
   onEventEnter(eventId: number, eventEntryCommand: EventEntryCommand): void {
-    console.log ('onEventEnter eventId ', eventId);
-    console.log ('onEventEnter command ', eventEntryCommand);
+    // console.log('onEventEnter eventId ', eventId);
+    // console.log('onEventEnter command ', eventEntryCommand);
     for (let i = 0; i < this.availableEvents.length; i++) {
       const availableEvent = this.availableEvents[i];
       if (availableEvent.eventFk === eventId) {
@@ -247,36 +247,65 @@ export class EntryWizardComponent implements OnInit, OnChanges {
     }
   }
 
+  private isPlayerAJunior(dateOfBirth: Date, tournamentStartDate: Date) {
+    const ageOnTournamentStartDate = new DateUtils().getAgeOnDate(dateOfBirth, tournamentStartDate);
+    return ageOnTournamentStartDate < 18;
+  }
+
+  /**
+   * Initializes pricing calculator
+   * @param pricingMethod
+   * @private
+   */
+  private initPricingCalculator(pricingMethod: PricingMethod) {
+    const isJunior = this.isPlayerAJunior(this.playerProfile.dateOfBirth, this.tournament.startDate);
+    const isLateEntry = new DateUtils().isDateBefore(new Date(), this.tournament.configuration.lateEntryDate);
+    switch (pricingMethod) {
+      case PricingMethod.STANDARD:
+        return new StandardPriceCalculator(this.membershipOptions,
+          this.tournament.configuration.registrationFee,
+          this.tournament.configuration.lateEntryFee, isJunior, isLateEntry,
+          this.tournamentStartDate, this.tournamentCurrency);
+      case PricingMethod.DISCOUNTED:
+        return new DiscountedPriceCalculator(this.membershipOptions,
+          this.tournament.configuration.registrationFee,
+          this.tournament.configuration.lateEntryFee, isJunior, isLateEntry,
+          this.tournamentStartDate, this.tournamentCurrency);
+      // default:
+      //   return new StandardPriceCalculator(this.membershipOptions);
+    }
+    return null;
+  }
+
   /**
    * Gets current player total regardless of previous payments or refunds
    */
   getTotal(): number {
+    const membershipOption: MembershipType = this.entry?.membershipOption;
+    const usattDonation = this.entry?.usattDonation ?? 0;
     let total = 0;
-    const membershipOption = this.entry?.membershipOption;
-    for (let i = 0; i < this.membershipOptions.length; i++) {
-      const option = this.membershipOptions[i];
-      if (option.value === membershipOption) {
-        total += option.cost;
-        break;
-      }
-    }
-
-    // add for those events that were entered in this session and subtract for those that were dropped
-    for (let i = 0; i < this.enteredEvents.length; i++) {
-      const enteredEvent = this.enteredEvents[i];
-      if (enteredEvent.status === EventEntryStatus.PENDING_CONFIRMATION ||
-          enteredEvent.status === EventEntryStatus.ENTERED) {
-        total += enteredEvent.price;
-      }
+    if (this.priceCalculator) {
+      total = this.priceCalculator.getTotalPrice(membershipOption, usattDonation, this.enteredEvents);
     }
     return total;
+  }
+
+  /**
+   * Gets a list of report items to be painted on the summary screen
+   */
+  getSummaryReportItems() {
+    if (this.priceCalculator) {
+      const totalPrice = this.priceCalculator.getTotalPrice(this.entry?.membershipOption, this.entry?.usattDonation, this.enteredEvents);
+      return this.priceCalculator.getSummaryReportItems();
+    } else {
+      return [];
+    }
   }
 
   /**
    * Gets balance due (positive - payment due, negative - refund due, zero - just confirm)
    */
   getBalance(): number {
-    // todo - check if membership was already paid in previous payment to not double charge
     let total = this.getTotal();
 
     // take into account payments and refunds
@@ -307,29 +336,6 @@ export class EntryWizardComponent implements OnInit, OnChanges {
 
   getTournamentId(): number {
     return this.entry?.tournamentFk;
-  }
-
-  getMembershipLabel(entryId: number): string {
-    const membershipOption = this.getMembershipOption(entryId);
-    return membershipOption.label;
-  }
-
-  getMembershipPrice(entryId: number): number {
-    const membershipOption = this.getMembershipOption(entryId);
-    return membershipOption.cost;
-  }
-
-  getMembershipOption(entryId: number): any {
-    if (this.entry?.id === entryId) {
-      const membershipOption = this.entry.membershipOption;
-      for (let i = 0; i < this.membershipOptions.length; i++) {
-        const option = this.membershipOptions[i];
-        if (option.value === membershipOption) {
-          return option;
-        }
-      }
-    }
-    return {value: 0, label: '', cost: 0};
   }
 
   getStatusClass(status: EventEntryStatus) {
@@ -363,7 +369,7 @@ export class EntryWizardComponent implements OnInit, OnChanges {
    * @param balanceInPlayerCurrency balance in tournament & player currency
    */
   onPayPlayerTotal(balanceInPlayerCurrency: number) {
-      this.onPayPlayerTotalInCurrency(balanceInPlayerCurrency, balanceInPlayerCurrency, this.tournamentCurrency);
+    this.onPayPlayerTotalInCurrency(balanceInPlayerCurrency, balanceInPlayerCurrency, this.tournamentCurrency);
   }
 
   /**
@@ -378,7 +384,7 @@ export class EntryWizardComponent implements OnInit, OnChanges {
     const fullName = this.playerProfile.firstName + ' ' + this.playerProfile.lastName;
     const postalCode = this.playerProfile.zipCode;
     const email = this.playerProfile.email;
-    const tournamentName = this.tournamentInfo.name;
+    const tournamentName = this.tournament.name;
     const paymentRequest: PaymentRequest = {
       paymentRefundFor: PaymentRefundFor.TOURNAMENT_ENTRY,
       accountItemId: this.getTournamentId(),
@@ -408,14 +414,14 @@ export class EntryWizardComponent implements OnInit, OnChanges {
   /**
    *
    */
-  onPaymentCanceled (scope: any) {
+  onPaymentCanceled(scope: any) {
     console.log('in onPaymentCanceled');
   }
 
   /**
    * Callback from payment dialog when payment is successful
    */
-  onPaymentSuccessful (scope: any) {
+  onPaymentSuccessful(scope: any) {
     if (scope != null) {
       scope.confirmEntry();
     }
@@ -429,7 +435,7 @@ export class EntryWizardComponent implements OnInit, OnChanges {
   }
 
   onIssueRefundInPlayerCurrency(refundAmountInPlayerCurrency: number, refundAmountInTournamentCurrency: number) {
-      this.onIssueRefund(refundAmountInPlayerCurrency, refundAmountInTournamentCurrency, this.playerCurrency);
+    this.onIssueRefund(refundAmountInPlayerCurrency, refundAmountInTournamentCurrency, this.playerCurrency);
   }
 
   onIssueRefundInTournamentCurrency(refundAmountInTournamentCurrency: number) {
@@ -460,14 +466,14 @@ export class EntryWizardComponent implements OnInit, OnChanges {
   }
 
   public onRefundSuccessful(scope: any): void {
-    console.log ('refund successful');
+    console.log('refund successful');
     if (scope != null) {
       scope.confirmEntry();
     }
   }
 
   public onRefundCanceled(scope: any): void {
-    console.log ('refund cancelled');
+    console.log('refund cancelled');
   }
 
   confirmEntry() {
@@ -484,21 +490,24 @@ export class EntryWizardComponent implements OnInit, OnChanges {
    *
    * @param dateOfBirth
    * @param tournamentStartDate
+   * @param tournamentStarLevel
    * @private
    */
-  private hideMembershipOptions(dateOfBirth: Date, tournamentStartDate: Date) {
+  private hideMembershipOptions(dateOfBirth: Date, tournamentStartDate: Date, tournamentStarLevel: number) {
     if (dateOfBirth != null && tournamentStartDate != null) {
-      const ageOnTournamentStartDate = new DateUtils().getAgeOnDate(dateOfBirth, tournamentStartDate);
+      const isJunior = this.isPlayerAJunior(dateOfBirth, this.tournamentStartDate);
       this.membershipOptions.forEach((membershipOption: any) => {
         switch (membershipOption.value) {
           case MembershipType.TOURNAMENT_PASS_JUNIOR:
-            membershipOption.available = (ageOnTournamentStartDate < 18);
+            membershipOption.available = isJunior;
             break;
           case MembershipType.TOURNAMENT_PASS_ADULT:
-            membershipOption.available = (ageOnTournamentStartDate >= 18);
+            membershipOption.available = !isJunior;
             break;
           case MembershipType.PRO_PLAN:
+            break;
           case MembershipType.BASIC_PLAN:
+            membershipOption.available = (tournamentStarLevel >= 0 && tournamentStarLevel <= 4);
             break;
         }
       });
@@ -533,7 +542,7 @@ export class EntryWizardComponent implements OnInit, OnChanges {
    * @private
    */
   private prepareForPayment(tournamentId: number) {
-    console.log('in prepareForPayment');
+    // console.log('in prepareForPayment');
     // check if we have the player profile
     if (this.playerProfile?.countryCode != null) {
       // console.log ('profile is ready let\'s get currency exchange rates');
@@ -546,6 +555,7 @@ export class EntryWizardComponent implements OnInit, OnChanges {
             // console.log ('got tournamentCurrency ' + tournamentCurrency);
             this.playerCurrency = this.currencyService.getCountryCurrencyId(this.playerProfile?.countryCode);
             this.tournamentCurrency = tournamentCurrency;
+            this.tournamentCurrencySymbol = this.getTournamentCurrencySymbol();
             // console.log ('got playerCurrency ' + this.playerCurrency);
             if (this.tournamentCurrency !== this.playerCurrency) {
               this.getCurrencyExchangeRate(this.tournamentCurrency, this.playerCurrency);
@@ -554,7 +564,7 @@ export class EntryWizardComponent implements OnInit, OnChanges {
             }
           },
           (error: any) => {
-            console.log ('Unable to prepare for payment ' + JSON.stringify(error));
+            console.log('Unable to prepare for payment ' + JSON.stringify(error));
           });
     }
   }
@@ -598,4 +608,28 @@ export class EntryWizardComponent implements OnInit, OnChanges {
         return 'Revert Drop';
     }
   }
+
+  /**
+   * Gets currency symbol of tournament currency appropriate for displaying in the current locale
+   */
+  getTournamentCurrencySymbol() {
+    const usersLocale = this.getUsersLocale('en-US');
+    return getCurrencySymbol(this.tournamentCurrency, 'narrow', usersLocale);
+  }
+
+  /**
+   *
+   * @param defaultValue
+   * @private
+   */
+  private getUsersLocale(defaultValue: string): string {
+    if (typeof window === 'undefined' || typeof window.navigator === 'undefined') {
+      return defaultValue;
+    }
+    const wn = window.navigator as any;
+    let lang = wn.languages ? wn.languages[0] : defaultValue;
+    lang = lang || wn.language || wn.browserLanguage || wn.userLanguage;
+    return lang;
+  }
+
 }

@@ -37,7 +37,7 @@ export class PaymentRefundService {
             this.setLoading(false);
           }),
         map((response: PaymentIntentResponse) => {
-          console.log('got payment intent response ' + JSON.stringify(response));
+          // console.log('got payment intent response ' + JSON.stringify(response));
             return response;
           }
         )
@@ -78,7 +78,7 @@ export class PaymentRefundService {
             this.setLoading(false);
           }),
         map((response: PaymentRefund) => {
-            console.log('got payment refund response ' + JSON.stringify(response));
+            // console.log('got payment refund response ' + JSON.stringify(response));
             return response;
           }
         )
@@ -93,7 +93,7 @@ export class PaymentRefundService {
     return this.httpClient.get<KeyAccountInfo>(url)
       .pipe(
         map((response: KeyAccountInfo) => {
-          console.log ('got KeyAccountInfo ' + JSON.stringify(response));
+          // console.log ('got KeyAccountInfo ' + JSON.stringify(response));
           return response;
         })
       );
@@ -107,7 +107,7 @@ export class PaymentRefundService {
     return this.httpClient.get<PaymentRefund[]>(url)
       .pipe(
         map((response: PaymentRefund[]) => {
-          console.log ('got payment refunds ' + JSON.stringify(response));
+          // console.log ('got payment refunds ' + JSON.stringify(response));
           return response;
         })
       );
