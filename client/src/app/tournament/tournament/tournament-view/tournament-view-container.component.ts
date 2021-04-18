@@ -2,7 +2,6 @@ import {ChangeDetectionStrategy, Component, OnDestroy, OnInit} from '@angular/co
 import {Observable, Subject, Subscription} from 'rxjs';
 import {TournamentInfo} from '../../model/tournament-info.model';
 import {ActivatedRoute} from '@angular/router';
-import {TournamentInfoService} from '../../service/tournament-info.service';
 import {TournamentEntryService} from '../../tournament-entry/service/tournament-entry.service';
 import {TournamentEntry} from '../../tournament-entry/model/tournament-entry.model';
 import {AuthenticationService} from '../../../user/authentication.service';
@@ -10,11 +9,14 @@ import {createSelector} from '@ngrx/store';
 import {LinearProgressBarService} from '../../../shared/linear-progress-bar/linear-progress-bar.service';
 import {TournamentEventConfigService} from '../../tournament-config/tournament-event-config.service';
 import {TournamentEvent} from '../../tournament-config/tournament-event.model';
+import {Tournament} from '../../tournament-config/tournament.model';
+import {TournamentConfigService} from '../../tournament-config/tournament-config.service';
+import {map} from 'rxjs/operators';
 
 @Component({
   selector: 'app-tournament-view-container',
   template: `
-    <app-tournament-view [tournamentInfo]="tournament$ | async"
+    <app-tournament-view [tournament]="tournament$ | async"
                          [entryId]="entryId$ | async"
                          [tournamentEvents]="tournamentEvents$ | async"
     >
@@ -25,13 +27,18 @@ import {TournamentEvent} from '../../tournament-config/tournament-event.model';
 })
 export class TournamentViewContainerComponent implements OnInit, OnDestroy {
 
-  tournament$: Observable<TournamentInfo>;
+  // tournament configuration
+  tournament$: Observable<Tournament>;
+
+  // this player's entry into this event if exists
   entryId$: Subject<number>;
+
+  // tournament events
   tournamentEvents$: Observable<TournamentEvent []>;
 
   private subscriptions: Subscription = new Subscription();
 
-  constructor(private tournamentInfoService: TournamentInfoService,
+  constructor(private tournamentConfigService: TournamentConfigService,
               private tournamentEntryService: TournamentEntryService,
               private tournamentEventConfigService: TournamentEventConfigService,
               private authService: AuthenticationService,
@@ -47,7 +54,7 @@ export class TournamentViewContainerComponent implements OnInit, OnDestroy {
     this.subscriptions.add(loadingSubscription);
 
     const tournamentId = this.activatedRoute.snapshot.params['id'] || 0;
-    this.loadTournamentInfo(tournamentId);
+    this.loadTournament(tournamentId);
     this.loadEntryIfExists(tournamentId);
     this.loadTournamentEvents(tournamentId);
   }
@@ -76,31 +83,23 @@ export class TournamentViewContainerComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Gets selected tournament from cache or loads it from server
+   * Gets tournament configuration
    * @param tournamentId
    * @private
    */
-  private loadTournamentInfo(tournamentId) {
-    const tournamentInfoSelector = this.tournamentInfoService.selectors.selectEntityMap;
+  private loadTournament(tournamentId: number) {
     const selectedTournamentSelector = createSelector(
-      tournamentInfoSelector,
+      this.tournamentConfigService.selectors.selectEntityMap,
       (entityMap) => {
         return entityMap[tournamentId];
       });
-
-    this.tournament$ = this.tournamentInfoService.store.select(selectedTournamentSelector);
-    const subscription = this.tournament$.subscribe(
-      (tournamentInfo: TournamentInfo) => {
-        if (tournamentInfo) {
-          // console.log('got tournamentInfo from cache');
-          return tournamentInfo;
-        } else {
-          // console.log('tournamentInfo not in cache. getting from SERVER');
-          // not in cache so read it - we don't need to subscribe because it
-          // response will go to the store and we alreay subscribed to it in the outer call
-          this.tournamentInfoService.getByKey(tournamentId);
-        }
-      });
+    // tournament information will not change just get it once
+    this.tournament$ = this.tournamentConfigService.store.select(selectedTournamentSelector);
+    const subscription = this.tournament$.subscribe((tournament: Tournament) => {
+      if (!tournament) {
+        this.tournamentConfigService.getByKey(tournamentId);
+      }
+    });
     this.subscriptions.add(subscription);
   }
 

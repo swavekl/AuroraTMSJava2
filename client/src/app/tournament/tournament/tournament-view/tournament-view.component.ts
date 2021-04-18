@@ -1,5 +1,4 @@
 import {Component, Input, OnChanges, OnInit, SimpleChange, SimpleChanges} from '@angular/core';
-import {TournamentInfo} from '../../model/tournament-info.model';
 import {Router} from '@angular/router';
 import {TournamentEntry} from '../../tournament-entry/model/tournament-entry.model';
 import {first} from 'rxjs/operators';
@@ -7,6 +6,7 @@ import {AuthenticationService} from '../../../user/authentication.service';
 import {TournamentEntryService} from '../../tournament-entry/service/tournament-entry.service';
 import {TournamentEvent} from '../../tournament-config/tournament-event.model';
 import {DateUtils} from '../../../shared/date-utils';
+import {Tournament} from '../../tournament-config/tournament.model';
 
 @Component({
   selector: 'app-tournament-view',
@@ -15,7 +15,7 @@ import {DateUtils} from '../../../shared/date-utils';
 })
 export class TournamentViewComponent implements OnInit, OnChanges {
   @Input()
-  tournamentInfo: TournamentInfo;
+  tournament: Tournament;
 
   @Input()
   entryId: number;
@@ -38,14 +38,14 @@ export class TournamentViewComponent implements OnInit, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    const tournamentInfoChange: SimpleChange = changes.tournamentInfo;
-    if (tournamentInfoChange != null) {
-      const tournamentInfo: TournamentInfo = tournamentInfoChange.currentValue;
-      if (tournamentInfo != null) {
-        this.tournamentStartDate = new DateUtils().convertFromString(tournamentInfo.startDate);
-        const maxNumEventEntries = (tournamentInfo.maxNumEventEntries > 0) ? tournamentInfo.maxNumEventEntries : 1;
-        this.percentFull = tournamentInfo.numEventEntries / maxNumEventEntries;
-        this.starsArray = Array(tournamentInfo.starLevel);
+    const tournamentChange: SimpleChange = changes.tournament;
+    if (tournamentChange != null) {
+      const tournament: Tournament = tournamentChange.currentValue;
+      if (tournament != null) {
+        this.tournamentStartDate = new DateUtils().convertFromString(tournament.startDate);
+        const maxNumEventEntries = (tournament.maxNumEventEntries > 0) ? tournament.maxNumEventEntries : 1;
+        this.percentFull = tournament.numEventEntries / maxNumEventEntries;
+        this.starsArray = Array(tournament.starLevel);
       }
     }
   }
@@ -53,7 +53,7 @@ export class TournamentViewComponent implements OnInit, OnChanges {
   onEnter() {
     // create entry
     const entryToEdit = new TournamentEntry();
-    entryToEdit.tournamentFk = this.tournamentInfo.id;
+    entryToEdit.tournamentFk = this.tournament.id;
     entryToEdit.dateEntered = new Date();
     entryToEdit.profileId = this.authService.getCurrentUserProfileId();
     this.tournamentEntryService.add(entryToEdit)
@@ -71,7 +71,7 @@ export class TournamentViewComponent implements OnInit, OnChanges {
   }
 
   onView() {
-    const url = `entries/entrywizard/${this.tournamentInfo.id}/edit/${this.entryId}`;
+    const url = `entries/entrywizard/${this.tournament.id}/edit/${this.entryId}`;
     this.router.navigateByUrl(url);
   }
 
@@ -80,12 +80,12 @@ export class TournamentViewComponent implements OnInit, OnChanges {
   }
 
   showPlayers() {
-    const url = `playerlist/${this.tournamentInfo.id}`;
+    const url = `playerlist/${this.tournament.id}`;
     // get the single piece of information that it needs to properly render event dates
     // to prevent going to the server for it
     const extras = {
       state: {
-        tournamentStartDate: this.tournamentInfo.startDate
+        tournamentStartDate: this.tournament.startDate
       }
     };
     this.router.navigateByUrl(url, extras);
@@ -93,15 +93,15 @@ export class TournamentViewComponent implements OnInit, OnChanges {
 
   getDirectionsURL(): string {
     let destination = null;
-    if (this.tournamentInfo) {
-      if (this.tournamentInfo.venueName !== '') {
-        destination = this.tournamentInfo.venueName;
-        destination += ' ' + this.tournamentInfo.streetAddress;
+    if (this.tournament) {
+      if (this.tournament.venueName !== '') {
+        destination = this.tournament.venueName;
+        destination += ' ' + this.tournament.streetAddress;
       } else {
-        destination = this.tournamentInfo.streetAddress;
+        destination = this.tournament.streetAddress;
       }
-      destination += ' ' + this.tournamentInfo.city;
-      destination += ' ' + this.tournamentInfo.state;
+      destination += ' ' + this.tournament.city;
+      destination += ' ' + this.tournament.state;
       destination = encodeURIComponent(destination);
       return `https://www.google.com/maps/dir/?api=1&travelmode=driving&dir_action=navigate&destination=${destination}`;
     } else {
