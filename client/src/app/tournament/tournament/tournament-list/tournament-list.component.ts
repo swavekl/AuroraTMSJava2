@@ -30,4 +30,9 @@ export class TournamentListComponent implements OnInit {
     this.selectedRegion = $event.value;
     this.filterChange.emit($event.value);
   }
+
+  onRegionChangeViaMenu(regionName: string) {
+    this.selectedRegion = regionName;
+    this.filterChange.emit(regionName);
+  }
 }

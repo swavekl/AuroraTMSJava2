@@ -20,6 +20,8 @@ export class TournamentInfo {
   tournamentDirectorPhone: string;
   tournamentDirectorEmail: string;
 
+  // path to graphic file with tournament logo
+  logo: string;
 
   // convert dates from string to date objects
   static convert(tournamentInfo: TournamentInfo): TournamentInfo {

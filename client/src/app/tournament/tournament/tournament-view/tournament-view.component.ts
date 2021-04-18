@@ -25,12 +25,10 @@ export class TournamentViewComponent implements OnInit, OnChanges {
 
   tournamentStartDate: Date;
   percentFull: number;
-  starsArray: number [];
 
   constructor(private router: Router,
               private authService: AuthenticationService,
               private tournamentEntryService: TournamentEntryService) {
-    this.starsArray = [];
     this.entryId = 0;
   }
 
@@ -45,7 +43,6 @@ export class TournamentViewComponent implements OnInit, OnChanges {
         this.tournamentStartDate = new DateUtils().convertFromString(tournament.startDate);
         const maxNumEventEntries = (tournament.maxNumEventEntries > 0) ? tournament.maxNumEventEntries : 1;
         this.percentFull = tournament.numEventEntries / maxNumEventEntries;
-        this.starsArray = Array(tournament.starLevel);
       }
     }
   }

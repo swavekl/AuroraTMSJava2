@@ -2,5 +2,5 @@ mat-grid-tile {
   background: lightblue;
 }
 .truncated-list-item {
-  max-width: calc(100vw - 100px);
+  max-width: calc(100vw - 1px);
 }

@@ -17,6 +17,8 @@ import {MessageAreaComponent} from './message-area/message-area.component';
 import {TypographyComponent} from './typograhpy/typography.component';
 import { DateRangePipe } from './pipes/date-range.pipe';
 import { ErrorMessagePopupComponent } from './error-message-dialog/error-message-popup.component';
+import { StarLevelComponent } from './star-level/star-level.component';
+import {MatIconModule} from '@angular/material/icon';
 
 
 @NgModule({
@@ -31,7 +33,8 @@ import { ErrorMessagePopupComponent } from './error-message-dialog/error-message
     MessageAreaComponent,
     TypographyComponent,
     DateRangePipe,
-    ErrorMessagePopupComponent
+    ErrorMessagePopupComponent,
+    StarLevelComponent
   ],
   exports: [
     LinearProgressBarComponent,
@@ -43,7 +46,8 @@ import { ErrorMessagePopupComponent } from './error-message-dialog/error-message
     CenteredPanelComponent,
     DebounceClicksDirective,
     MessageAreaComponent,
-    TypographyComponent
+    TypographyComponent,
+    StarLevelComponent
   ],
   imports: [
     CommonModule,
@@ -51,7 +55,8 @@ import { ErrorMessagePopupComponent } from './error-message-dialog/error-message
     MatCardModule,
     MatDialogModule,
     MatButtonModule,
-    FlexLayoutModule
+    FlexLayoutModule,
+    MatIconModule
   ],
   providers: [
     LocalStorageService

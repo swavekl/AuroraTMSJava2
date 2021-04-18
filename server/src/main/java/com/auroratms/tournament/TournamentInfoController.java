@@ -58,6 +58,16 @@ public class TournamentInfoController {
         tournamentInfo.setNumEntries(tournament.getNumEntries());
         tournamentInfo.setMaxNumEventEntries(tournament.getMaxNumEventEntries());
         tournamentInfo.setNumEventEntries(tournament.getNumEventEntries());
+        if (tournamentInfo.getName().contains("Team")) {
+            tournamentInfo.setLogo ("../assets/images/AmericasTeamChampionshipSmall.png");
+        } else if (tournamentInfo.getName().contains("Aurora Cup")) {
+            tournamentInfo.setLogo ("../assets/images/AuroraCupWhiteSmall.png");
+        } else if (tournamentInfo.getName().contains("Badger")) {
+            tournamentInfo.setLogo ("../assets/images/BadgerOpenSmall.png");
+        } else {
+            tournamentInfo.setLogo("../assets/images/MissingLogoSmall.png");
+        }
+
         return tournamentInfo;
     }
 }

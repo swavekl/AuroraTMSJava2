@@ -1,40 +1,71 @@
 <div fxLayout="row">
   <div fxFlex></div>
-  <div fxFlex.lt-md="100%" fxFlex.md="100%" fxFlex="60%">
+  <div fxFlex.lt-md="100%" fxFlex.md="100%" fxFlex="80%">
     <mat-card>
-      <mat-card-title>Tournaments</mat-card-title>
-      <mat-card-subtitle fxShow.gt-md="false" fxShow.md="false" fxShow.lt-md="true">
-        {{selectedRegion}}
-      </mat-card-subtitle>
+      <mat-card-title-group>
+        <mat-card-title>Tournaments</mat-card-title>
+        <mat-card-subtitle>
+          {{selectedRegion}}
+        </mat-card-subtitle>
+        <div>
+          <mat-icon [matMenuTriggerFor]="beforeMenu">filter_list</mat-icon>
+          <mat-menu #beforeMenu="matMenu" xPosition="before">
+            <button mat-menu-item *ngFor="let region of regions" (click)="onRegionChangeViaMenu(region.name)">
+              {{region.name}}
+            </button>
+          </mat-menu>
+        </div>
+      </mat-card-title-group>
       <mat-card-content>
         <div fxLayout.lt-md="row" fxLayout.gt-md="column">
-          <div>
-            <div fxShow.gt-md="true" fxShow.md="true" fxHide.lt-md="true">
-              <mat-button-toggle-group name="region" (change)="onRegionChange($event)" [value]="selectedRegion">
-                <mat-button-toggle *ngFor="let region of regions" value="{{region.name}}">{{region.name}}
-                </mat-button-toggle>
-              </mat-button-toggle-group>
-            </div>
-            <div fxShow.gt-md="false" fxShow.md="false" fxShow.lt-md="true" style="padding-top: 8px; margin-left: -16px">
-              <mat-button-toggle-group name="region" (change)="onRegionChange($event)" [value]="selectedRegion" vertical="true">
-                <mat-button-toggle *ngFor="let region of regions" value="{{region.name}}">{{region.shortName}}
-                </mat-button-toggle>
-              </mat-button-toggle-group>
-            </div>
-          </div>
-          <div>
+<!--          For small devices-->
+          <div style="margin-left: -16px" fxShow.gt-md="false" fxShow.md="false" fxShow.lt-md="true">
             <mat-list>
               <mat-divider></mat-divider>
               <mat-list-item *ngFor="let tournament of tournaments; first as first" [routerLink]="['view', tournament.id]">
+                <img matListAvatar [src]="tournament.logo" alt=""/>
                 <div matLine [ngClass.lt-md]="'truncated-list-item'">
                   {{tournament.name}}
+                  <div>
+                    <app-star-level [numStars]="tournament.starLevel" [compact]="true"></app-star-level>
+                  </div>
                 </div>
-                <h3 matLine>{{ [tournament.startDate, tournament.endDate] | dateRange }}</h3>
-                <h4 matLine>{{ tournament.city }}, {{tournament.state}} </h4>
+                <div matLine>{{ [tournament.startDate, tournament.endDate] | dateRange }}</div>
+                <div matLine>{{ tournament.city }}, {{tournament.state}}</div>
                 <button fxShow.gt-md="true" fxShow.md="true" fxHide.lt-md="true" mat-icon-button [routerLink]="['view', tournament.id]">
-                  <mat-icon matListIcon>navigate_next</mat-icon>
+                  <mat-icon matListIcon>info</mat-icon>
                 </button>
                 <mat-divider></mat-divider>
+              </mat-list-item>
+            </mat-list>
+          </div>
+<!--          for larger devices -->
+          <div fxShow.gt-md="true" fxShow.md="true" fxHide.lt-md="true">
+            <mat-list>
+              <div mat-line fxLayout="row" style="margin-left: 72px; margin-right: 16px; margin-bottom: 8px;">
+                <div fxFlex="30%">Tournament Name</div>
+                <div fxFlex="10%">Star Level</div>
+                <div fxFlex="15%">Dates</div>
+                <div fxFlex="15%">Location</div>
+                <div fxFlex="20%">Contact</div>
+              </div>
+              <mat-divider></mat-divider>
+              <mat-list-item *ngFor="let tournament of tournaments; first as first" [routerLink]="['view', tournament.id]">
+                <img matListAvatar [src]="tournament.logo" alt=""/>
+                <div mat-line fxLayout="row">
+                  <div fxFlex="30%">{{tournament.name}}</div>
+                  <div fxFlex="10%"><app-star-level [numStars]="tournament.starLevel" [compact]="true"></app-star-level></div>
+                  <div fxFlex="15%">{{ [tournament.startDate, tournament.endDate] | dateRange }}</div>
+                  <div fxFlex="15%">{{ tournament.city }}, {{tournament.state}}</div>
+                  <div fxFlex="20%" fxLayout="column">
+                    <div>{{ tournament.tournamentDirectorName }}</div>
+                    <div>{{tournament.tournamentDirectorPhone}}</div>
+                  </div>
+                  <button fxShow.gt-md="true" fxShow.md="true" fxHide.lt-md="true" mat-icon-button [routerLink]="['view', tournament.id]">
+                    <mat-icon matListIcon>info</mat-icon>
+                  </button>
+                  <mat-divider></mat-divider>
+                </div>
               </mat-list-item>
             </mat-list>
           </div>

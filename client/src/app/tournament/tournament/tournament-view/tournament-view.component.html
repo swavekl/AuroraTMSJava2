@@ -1,15 +1,13 @@
-<div fxLayout="row">
+<div fxLayout="row" *ngIf="tournament">
   <div fxFlex></div>
   <div fxFlex.lt-md="100%" fxFlex="70%">
     <mat-card>
-      <mat-card-title>{{ tournament?.name }}</mat-card-title>
+      <mat-card-title>{{ tournament.name }}</mat-card-title>
       <div>
-        <ng-container *ngFor="let star of starsArray">
-          <mat-icon matListIcon color="accent">star</mat-icon>
-        </ng-container>
+        <app-star-level [numStars]="tournament.starLevel" [compact]="false"></app-star-level>
       </div>
       <mat-card-content>
-        <div class="mat-caption">{{ [tournament?.startDate, tournament?.endDate] | dateRange }}</div>
+        <div class="mat-caption">{{ [tournament.startDate, tournament.endDate] | dateRange }}</div>
         <table style="width: 100%">
           <tbody>
           <tr>
@@ -23,9 +21,9 @@
               </a>
             </td>
             <td>
-              <div>{{ tournament?.venueName }}</div>
-              <div>{{ tournament?.streetAddress }}</div>
-              <div>{{ tournament?.city }}, {{ tournament?.state }}</div>
+              <div>{{ tournament.venueName }}</div>
+              <div>{{ tournament.streetAddress }}</div>
+              <div>{{ tournament.city }}, {{ tournament.state }}</div>
             </td>
           </tr>
           <tr style="padding-top: 20px;">
@@ -34,16 +32,16 @@
           </tr>
           <tr>
             <td class="icon-column">
-              <a href="tel:{{tournament?.phone}}">
+              <a href="tel:{{tournament.phone}}">
                 <mat-icon class="button-icon">call</mat-icon>
               </a>
             </td>
             <td>
-              <div>{{tournament?.contactName}}</div>
-              <div>{{tournament?.phone}}</div>
+              <div>{{tournament.contactName}}</div>
+              <div>{{tournament.phone}}</div>
               <div>
-                <a href="mailto:{{tournament?.email}}">
-                  {{tournament?.email}}
+                <a href="mailto:{{tournament.email}}">
+                  {{tournament.email}}
                 </a>
               </div>
             </td>
@@ -59,7 +57,7 @@
               </a>
             </td>
             <td class="mat-display-1">
-              {{ tournament?.numEntries }} ({{percentFull | percent}} full)
+              {{ tournament.numEntries }} ({{percentFull | percent}} full)
             </td>
           </tr>
           <tr>
@@ -72,19 +70,19 @@
                 <tbody>
                 <tr>
                   <td class="date-name">Ratings Eligibility</td>
-                  <td class="date-value">{{tournament?.configuration.eligibilityDate | date}}</td>
+                  <td class="date-value">{{tournament.configuration.eligibilityDate | date}}</td>
                 </tr>
                 <tr>
                   <td class="date-name">Full Refund</td>
-                  <td class="date-value">{{tournament?.configuration.refundDate | date}}</td>
+                  <td class="date-value">{{tournament.configuration.refundDate | date}}</td>
                 </tr>
-                <tr *ngIf="tournament?.configuration.lateEntryFee > 0">
+                <tr *ngIf="tournament.configuration.lateEntryFee > 0">
                   <td class="date-name">Late Entry</td>
-                  <td class="date-value">{{tournament?.configuration.lateEntryDate | date}}</td>
+                  <td class="date-value">{{tournament.configuration.lateEntryDate | date}}</td>
                 </tr>
                 <tr>
                   <td class="date-name">Entry Cutoff</td>
-                  <td class="date-value">{{tournament?.configuration.entryCutoffDate | date}}</td>
+                  <td class="date-value">{{tournament.configuration.entryCutoffDate | date}}</td>
                 </tr>
                 </tbody>
               </table>

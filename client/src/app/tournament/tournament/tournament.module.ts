@@ -10,6 +10,7 @@ import {MatButtonToggleModule} from '@angular/material/button-toggle';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {MatButtonModule} from '@angular/material/button';
 import {FlexLayoutModule} from '@angular/flex-layout';
+import {MatMenuModule} from '@angular/material/menu';
 
 import {TournamentRoutingModule} from './tournament-routing.module';
 import {TournamentListContainerComponent} from './tournament-list/tournament-list-container.component';
@@ -41,7 +42,8 @@ import { TournamentPlayersListContainerComponent } from './tournament-players-li
         MatButtonToggleModule,
         MatTooltipModule,
         MatButtonModule,
-        FlexLayoutModule
+        FlexLayoutModule,
+        MatMenuModule
     ]
 })
 export class TournamentModule {

@@ -40,4 +40,7 @@ public class TournamentInfo {
     private String tournamentDirectorPhone;
     private String tournamentDirectorEmail;
 
+    // name of logo file
+    private String logo;
+
 }
