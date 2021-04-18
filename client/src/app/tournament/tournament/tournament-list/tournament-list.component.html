@@ -32,7 +32,7 @@
                 </div>
                 <div matLine>{{ [tournament.startDate, tournament.endDate] | dateRange }}</div>
                 <div matLine>{{ tournament.city }}, {{tournament.state}}</div>
-                <button fxShow.gt-md="true" fxShow.md="true" fxHide.lt-md="true" mat-icon-button [routerLink]="['view', tournament.id]">
+                <button mat-icon-button [routerLink]="['view', tournament.id]">
                   <mat-icon matListIcon>info</mat-icon>
                 </button>
                 <mat-divider></mat-divider>
