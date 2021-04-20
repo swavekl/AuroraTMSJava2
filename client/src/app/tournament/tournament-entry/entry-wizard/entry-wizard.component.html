@@ -33,9 +33,9 @@
             <div class="mat-title">Entered Events</div>
             <mat-divider></mat-divider>
             <mat-list-item *ngFor="let enteredEvent of enteredEvents; last as last">
-              <div mat-line>{{enteredEvent.event?.name}} - ${{ enteredEvent.price }}</div>
-              <div mat-line>{{ enteredEvent.event?.day | eventDay: tournamentStartDate }} {{ enteredEvent.event?.startTime | startTime }}</div>
-              <div mat-line [class]="getStatusClass(enteredEvent.status)">{{enteredEvent.status | eventEntryStatus }}</div>
+              <div mat-line class="event-item-line1">{{enteredEvent.event?.name}}</div>
+              <div mat-line class="event-item-line2">{{ enteredEvent.event?.day | eventDay: tournamentStartDate }} {{ enteredEvent.event?.startTime | startTime }}</div>
+              <div mat-line class="event-item-line2" [class]="getStatusClass(enteredEvent.status)">{{enteredEvent.status | eventEntryStatus }}  &nbsp; ${{ enteredEvent.price }}</div>
               <button type="button" mat-fab color="" (click)="onEventWithdraw(enteredEvent.eventEntryFk)">
                 <mat-icon>{{getEnterButtonIcon(enteredEvent.eventEntryCommand)}}</mat-icon>
               </button>
@@ -45,9 +45,9 @@
             <div class="mat-title" style="padding-top: 10px">Events Available to Enter</div>
             <mat-divider></mat-divider>
             <mat-list-item *ngFor="let availableEvent of availableEvents; last as last2">
-              <div mat-line>{{availableEvent.event?.name}} - ${{ availableEvent.price }}</div>
-              <div mat-line>{{ availableEvent.event?.day | eventDay: tournamentStartDate }} {{ availableEvent.event?.startTime | startTime }}</div>
-              <div mat-line [class]="getStatusClass(availableEvent.status)">{{ availableEvent.status | eventEntryStatus }}</div>
+              <div mat-line class="event-item-line1">{{availableEvent.event?.name}}</div>
+              <div mat-line class="event-item-line2">{{ availableEvent.event?.day | eventDay: tournamentStartDate }} {{ availableEvent.event?.startTime | startTime }}</div>
+              <div mat-line class="event-item-line2" [class]="getStatusClass(availableEvent.status)">{{ availableEvent.status | eventEntryStatus }} &nbsp; ${{ availableEvent.price }}</div>
               <button type="button" mat-fab color="" (click)="onEventEnter(availableEvent.event?.id, availableEvent.eventEntryCommand)">
                 <mat-icon>{{getEnterButtonIcon(availableEvent.eventEntryCommand)}}</mat-icon>
               </button>
@@ -57,9 +57,9 @@
             <div class="mat-title" style="padding-top: 10px">Events Not Available to Enter</div>
             <mat-divider></mat-divider>
             <mat-list-item *ngFor="let unavailableEvent of unavailableEvents; last as last3">
-              <div mat-line>{{unavailableEvent.event?.name}} - ${{ unavailableEvent.price }}</div>
-              <div mat-line>{{ unavailableEvent.event?.day | eventDay: tournamentStartDate }} {{ unavailableEvent.event?.startTime | startTime }}</div>
-              <div mat-line>{{unavailableEvent.availabilityStatus | availabilityStatus }}</div>
+              <div mat-line class="event-item-line1">{{unavailableEvent.event?.name}} </div>
+              <div mat-line class="event-item-line2">{{ unavailableEvent.event?.day | eventDay: tournamentStartDate }} {{ unavailableEvent.event?.startTime | startTime }}</div>
+              <div mat-line class="event-item-line2">{{unavailableEvent.availabilityStatus | availabilityStatus }} &nbsp; ${{ unavailableEvent.price }}</div>
               <mat-divider [inset]="true" *ngIf="!last3"></mat-divider>
             </mat-list-item>
           </mat-list>
