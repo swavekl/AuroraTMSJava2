@@ -138,7 +138,6 @@ public class EventEntryStatusService {
                 break;
 
             case ENTERED:    // drop out what was just chosen - go back to available
-            case PENDING_WAITING_LIST:
             case PENDING_CONFIRMATION:
                 command = EventEntryCommand.DROP;
                 break;
@@ -147,6 +146,7 @@ public class EventEntryStatusService {
                 command = EventEntryCommand.REVERT_DROP;  // reeneter
                 break;
 
+            case PENDING_WAITING_LIST:
             case ENTERED_WAITING_LIST:
                 // this is when they no longer want to be wait or
                 // are not interested in this event after being offered entry into it
@@ -157,11 +157,11 @@ public class EventEntryStatusService {
                 break;
         }
         eventEntryInfo.setEventEntryCommand(command);
-//        System.out.println("--------------------------------------");
-//        System.out.print("eventFk = " + eventEntryInfo.getEventFk());
-//        System.out.print(" eventEntryStatus = " + eventEntryStatus);
-//        System.out.print(" availabilityStatus = " + availabilityStatus);
-//        System.out.println(" new command = " + command);
+        System.out.println("--------------------------------------");
+        System.out.print("eventFk = " + eventEntryInfo.getEventFk());
+        System.out.print(" eventEntryStatus = " + eventEntryStatus);
+        System.out.print(" availabilityStatus = " + availabilityStatus);
+        System.out.println(" new command = " + command);
     }
 
     /**

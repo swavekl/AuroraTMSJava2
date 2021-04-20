@@ -259,7 +259,7 @@ export class EntryWizardComponent implements OnInit, OnChanges {
    */
   private initPricingCalculator(pricingMethod: PricingMethod) {
     const isJunior = this.isPlayerAJunior(this.playerProfile.dateOfBirth, this.tournament.startDate);
-    const isLateEntry = new DateUtils().isDateBefore(new Date(), this.tournament.configuration.lateEntryDate);
+    const isLateEntry = new DateUtils().isDateBefore(this.tournament.configuration.lateEntryDate, new Date());
     switch (pricingMethod) {
       case PricingMethod.STANDARD:
         return new StandardPriceCalculator(this.membershipOptions,
@@ -309,18 +309,24 @@ export class EntryWizardComponent implements OnInit, OnChanges {
     let total = this.getTotal();
 
     // take into account payments and refunds
+    total -= this.getPaymentsRefundsTotal();
+
+    return total;
+  }
+
+  getPaymentsRefundsTotal(): number {
+    let paymentsRefundsTotal = 0;
     if (this.paymentsRefunds != null) {
       this.paymentsRefunds.forEach((paymentRefund: PaymentRefund) => {
         const amount: number = paymentRefund.amount / 100;
         if (paymentRefund.status === PaymentRefundStatus.PAYMENT_COMPLETED) {
-          total -= amount;
+          paymentsRefundsTotal += amount;
         } else if (paymentRefund.status === PaymentRefundStatus.REFUND_COMPLETED) {
-          total += amount;
+          paymentsRefundsTotal -= amount;
         }
       });
     }
-
-    return total;
+    return paymentsRefundsTotal;
   }
 
   /**
@@ -608,6 +614,21 @@ export class EntryWizardComponent implements OnInit, OnChanges {
         return 'Revert Drop';
     }
   }
+
+  getEnterButtonIcon(eventEntryCommand: EventEntryCommand) {
+      switch (eventEntryCommand) {
+        case EventEntryCommand.ENTER:
+          return 'add';
+        case EventEntryCommand.ENTER_WAITING_LIST:
+          return 'playlist_add';
+        case EventEntryCommand.DROP:
+          return 'remove';
+        case EventEntryCommand.DROP_WAITING_LIST:
+          return 'remove';
+        case EventEntryCommand.REVERT_DROP:
+          return 'undo';
+      }
+    }
 
   /**
    * Gets currency symbol of tournament currency appropriate for displaying in the current locale
