@@ -1,0 +1,30 @@
+@import "~src/my-theme.scss";
+
+h2 {
+  padding-left: 16px;
+  padding-top: 16px;
+}
+
+.toolbar-spacer-2 {
+  margin-right: 16px;
+}
+
+.event-list {
+  width: 220px;
+  height: calc(100vh - 140px);
+  overflow-y: auto;
+}
+
+table {
+  border: 1px solid red;
+  width: 150px;
+
+  th {
+    background-color: #7A73FF;
+  }
+}
+
+.draws-panel {
+  height: calc(100vh - 136px);
+  overflow-y: auto;
+}

@@ -26,6 +26,7 @@ import {MatProgressBarModule} from '@angular/material/progress-bar';
 import {SharedModule} from './shared/shared.module';
 import {MAT_FORM_FIELD_DEFAULT_OPTIONS, MatFormFieldDefaultOptions} from '@angular/material/form-field';
 import {AccountModule} from './account/account.module';
+import {DrawsModule} from './draws/draws.module';
 
 const appearance: MatFormFieldDefaultOptions = {
   // appearance: 'fill'
@@ -63,7 +64,8 @@ const appearance: MatFormFieldDefaultOptions = {
     environment.production ? [] : StoreDevtoolsModule.instrument(),
     MatProgressBarModule,
     SharedModule,
-    AccountModule
+    AccountModule,
+    DrawsModule
   ],
   providers: [
     {provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true},

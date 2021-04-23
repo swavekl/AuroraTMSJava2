@@ -31,7 +31,14 @@ const routes: Routes = [
     loadChildren: () => import('./account/account.module').then(m => m.AccountModule),
     data: {
       roles: [UserRoles.ROLE_TOURNAMENT_DIRECTORS, UserRoles.ROLE_ADMINS]
-    },
+    }
+  },
+  {
+    path: 'draws',
+    loadChildren: () => import('./draws/draws.module').then(m => m.DrawsModule),
+    data: {
+      roles: [UserRoles.ROLE_TOURNAMENT_DIRECTORS, UserRoles.ROLE_ADMINS, UserRoles.ROLE_REFEREE]
+    }
   }
 ];
 

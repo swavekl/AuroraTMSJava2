@@ -1,0 +1,42 @@
+<div fxLayout="row">
+  <div>
+    <h2>Events</h2>
+    <mat-list dense class="event-list">
+      <mat-list-item *ngFor="let tournamentEvent of tournamentEvents" (click)="onSelectEvent(tournamentEvent)">
+        <div>{{tournamentEvent.name}}</div>
+      </mat-list-item>
+    </mat-list>
+  </div>
+  <div fxFlex>
+    <mat-toolbar>
+      <mat-toolbar-row>
+        <button type="button" color="primary" mat-raised-button (click)="generateDraw()" [disabled]="selectedEvent == null">
+          <mat-icon matListIcon>assignment</mat-icon>Generate
+        </button>
+        <span class="toolbar-spacer-2"></span>
+        <button type="button" mat-raised-button  (click)="clearDraw()" [disabled]="selectedEvent == null">
+          <mat-icon matListIcon>clear</mat-icon>Clear Draw
+        </button>
+        <span fxFlex></span>
+        <span *ngIf="selectedEvent" class="mat-h2">Draws for: {{selectedEvent?.name}}</span>
+      </mat-toolbar-row>
+    </mat-toolbar>
+    <div class="draws-panel">
+      <mat-grid-list cols="5" rowHeight="200px">
+        <mat-grid-tile *ngFor="let group of groups; let i = index;">
+          <table>
+            <thead>
+            <tr><th>Group {{i}}</th></tr>
+            </thead>
+            <tbody>
+            <tr><td>Player 1</td></tr>
+            <tr><td>Player 2</td></tr>
+            <tr><td>Player 3</td></tr>
+            <tr><td>Player 4</td></tr>
+            </tbody>
+          </table>
+        </mat-grid-tile>
+      </mat-grid-list>
+    </div>
+  </div>
+</div>
