@@ -95,4 +95,13 @@ public class TournamentEventEntryService {
         return repository.findAllByTournamentFkAndStatusInOrderByTournamentEntryFkAscTournamentEventFkAsc(
                 tournamentId, TAKEN_EVENTS_STATUS);
     }
+
+    /**
+     * Lists all event entries for one event that are confirmed
+     * @param eventId event id
+     * @return list of event entries
+     */
+    public List<TournamentEventEntry> listAllForEvent(Long eventId) {
+        return repository.findAllByTournamentEventFkEqualsAndStatusEquals(eventId, EventEntryStatus.ENTERED);
+    }
 }

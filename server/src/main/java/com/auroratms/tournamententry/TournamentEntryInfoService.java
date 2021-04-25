@@ -80,6 +80,7 @@ public class TournamentEntryInfoService {
 
         // pull player records for first and last name
         List<UsattPlayerRecord> playerRecords = usattDataService.findAllByMembershipIdIn(membershipIds);
+//Map<String, String> profileIdToState = new HashMap<>();
         for (UsattPlayerRecord playerRecord : playerRecords) {
             Long membershipId = playerRecord.getMembershipId();
             String profileId = reverseMapMembershipIdToProfileId.get(membershipId);
@@ -88,6 +89,7 @@ public class TournamentEntryInfoService {
                 if (tournamentEntryInfo != null) {
                     tournamentEntryInfo.setFirstName(playerRecord.getFirstName());
                     tournamentEntryInfo.setLastName(playerRecord.getLastName());
+//profileIdToState.put(profileId, playerRecord.getState());
                 }
             }
         }
@@ -95,6 +97,13 @@ public class TournamentEntryInfoService {
         // get entered event ids
         List<TournamentEventEntry> tournamentEventEntries = tournamentEventEntryService.listAllForTournament(tournamentId);
         for (TournamentEventEntry tournamentEventEntry : tournamentEventEntries) {
+//            if (tournamentEventEntry.getTournamentEventFk() == 46L) {
+//                System.out.print("TournamentEventEntry tournamentEventEntry = makeTournamentEventEntry (");
+//                System.out.print(tournamentEventEntry.getId() + "L, ");
+//                System.out.print(tournamentEventEntry.getTournamentFk() + "L, ");
+//                System.out.print(tournamentEventEntry.getTournamentEventFk() + "L, " );
+//                System.out.println(tournamentEventEntry.getTournamentEntryFk() + "L);");
+//            }
             Long entryId = tournamentEventEntry.getTournamentEntryFk();
             TournamentEntryInfo tournamentEntryInfo = mapEntryIdToInfo.get(entryId);
             if (tournamentEntryInfo != null) {
@@ -104,6 +113,17 @@ public class TournamentEntryInfoService {
                     tournamentEntryInfo.setEventIds(eventIds);
                 }
                 eventIds.add(tournamentEventEntry.getTournamentEventFk());
+//if (tournamentEventEntry.getTournamentEventFk() == 46L) {
+//    String state = profileIdToState.get(tournamentEntryInfo.getProfileId());
+//    state = (state != null && state.length() > 0) ? state : "IL";
+//    System.out.println(String.format("map.put(%dL, makePlayerDrawInfo (\"%s\", \"%s, %s\", %d, 0L, \"%s\"));",
+//            entryId,
+//            tournamentEntryInfo.getProfileId(),
+//            tournamentEntryInfo.getLastName(),
+//            tournamentEntryInfo.getFirstName(),
+//            tournamentEntryInfo.getSeedRating(),
+//            state));
+//}
             }
         }
 

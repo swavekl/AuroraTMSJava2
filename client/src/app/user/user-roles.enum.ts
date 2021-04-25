@@ -4,6 +4,7 @@
 export enum UserRoles {
   ROLE_ADMINS = 'Admins',
   ROLE_TOURNAMENT_DIRECTORS = 'TournamentDirectors',
-  ROLE_REFEREE = 'Referee',
-  ROLE_DATA_ENTRY_CLERK = 'Data entry clerk'
+  ROLE_REFEREES = 'Referees',
+  ROLE_UMPIRES = 'Umpires',
+  ROLE_DATA_ENTRY_CLERKS = 'DataEntryClerks'
 }

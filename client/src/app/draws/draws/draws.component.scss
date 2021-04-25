@@ -15,6 +15,17 @@ h2 {
   overflow-y: auto;
 }
 
+.not-selected {
+  background-color: white;
+}
+
+.selected {
+  background-color: $accent-color;
+}
+mat-list-item:hover {
+  background-color: mediumpurple;
+}
+
 table {
   border: 1px solid red;
   width: 150px;

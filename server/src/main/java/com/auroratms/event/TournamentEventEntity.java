@@ -67,7 +67,7 @@ public class TournamentEventEntity {
 
     // round robin options
     private int playersPerGroup;
-    private int drawMethod;
+    private DrawMethod drawMethod;
 
     // number of tables per group
     private int numTablesPerGroup = 1;

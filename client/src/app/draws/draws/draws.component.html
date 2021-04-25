@@ -2,8 +2,9 @@
   <div>
     <h2>Events</h2>
     <mat-list dense class="event-list">
-      <mat-list-item *ngFor="let tournamentEvent of tournamentEvents" (click)="onSelectEvent(tournamentEvent)">
-        <div>{{tournamentEvent.name}}</div>
+      <mat-list-item *ngFor="let tournamentEvent of tournamentEvents" (click)="onSelectEvent(tournamentEvent)"
+      [ngClass]="isSelected (tournamentEvent) ? 'selected' : 'not-selected'">
+        {{tournamentEvent.name}}
       </mat-list-item>
     </mat-list>
   </div>
@@ -16,6 +17,10 @@
         <span class="toolbar-spacer-2"></span>
         <button type="button" mat-raised-button  (click)="clearDraw()" [disabled]="selectedEvent == null">
           <mat-icon matListIcon>clear</mat-icon>Clear Draw
+        </button>
+        <span class="toolbar-spacer-2"></span>
+        <button type="button" mat-raised-button  (click)="showPlayoffDraw()" [disabled]="selectedEvent == null">
+          <mat-icon matListIcon>line_style</mat-icon>Playoff Draw
         </button>
         <span fxFlex></span>
         <span *ngIf="selectedEvent" class="mat-h2">Draws for: {{selectedEvent?.name}}</span>

@@ -1,5 +1,6 @@
 import {GenderRestriction} from './model/gender-restriction.enum';
 import {AgeRestrictionType} from './model/age-restriction-type.enum';
+import {DrawMethod} from './model/draw-method.enum';
 
 /**
  * Tournament event e.g. U-2200, Giant Round Robin etc.
@@ -47,7 +48,9 @@ export class TournamentEvent {
 
   // round robin options
   playersPerGroup: number;
-  drawMethod: number;
+
+  // draw method
+  drawMethod: DrawMethod;
 
   // number of tables per group
   numTablesPerGroup: number;
@@ -82,7 +85,7 @@ export class TournamentEvent {
     tournamentEvent.singleElimination = false;
     tournamentEvent.day = 1;
     tournamentEvent.startTime = 9.0;
-    tournamentEvent.drawMethod = 1;
+    tournamentEvent.drawMethod = DrawMethod.SNAKE;
     tournamentEvent.playersToAdvance = 1;
     tournamentEvent.playersToSeed = 0;
     tournamentEvent.numTablesPerGroup = 1;

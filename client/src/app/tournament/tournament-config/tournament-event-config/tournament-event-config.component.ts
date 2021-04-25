@@ -20,6 +20,7 @@ import {TournamentConfigService} from '../tournament-config.service';
 import {Tournament} from '../tournament.model';
 import {AgeRestrictionType} from '../model/age-restriction-type.enum';
 import {MatSelectChange} from '@angular/material/select/select';
+import {DrawMethod} from '../model/draw-method.enum';
 
 @Component({
   selector: 'app-tournament-event-config',
@@ -61,8 +62,11 @@ export class TournamentEventConfigComponent implements OnInit, OnChanges, OnDest
   ageRestrictionDateEnabled: boolean;
 
   drawMethods: any [] = [
-    {value: 1, label: 'Snake'}
+    {value: DrawMethod.SNAKE.valueOf(), label: 'Snake'},
+    {value: DrawMethod.DIVISION.valueOf(), label: 'Division'},
+    {value: DrawMethod.BY_RECORD.valueOf(), label: 'By Record'}
   ];
+
   private subscriptions: Subscription = new Subscription();
 
   constructor(private tournamentConfigService: TournamentConfigService) {

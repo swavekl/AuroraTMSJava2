@@ -10,6 +10,9 @@ import {MatGridListModule} from '@angular/material/grid-list';
 import {MatToolbarModule} from '@angular/material/toolbar';
 import {MatButtonModule} from '@angular/material/button';
 import {MatIconModule} from '@angular/material/icon';
+import {EntityDataService, EntityServices} from '@ngrx/data';
+import {DrawService} from './service/draw.service';
+import {DrawDataService} from './service/draw-data.service';
 
 
 @NgModule({
@@ -29,4 +32,19 @@ import {MatIconModule} from '@angular/material/icon';
   ]
 })
 export class DrawsModule {
+  // Inject the service to ensure it registers with EntityServices
+  constructor(
+    entityServices: EntityServices,
+    entityDataService: EntityDataService,
+    drawService: DrawService,
+    drawDataService: DrawDataService
+  ) {
+
+    // register service for contacting REST API because it doesn't follow the pattern of standard REST call
+    entityDataService.registerService('Draw', drawDataService);
+
+    entityServices.registerEntityCollectionServices([
+      drawService
+    ]);
+  }
 }
