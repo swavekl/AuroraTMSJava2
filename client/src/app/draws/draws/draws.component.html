@@ -26,7 +26,7 @@
         <span *ngIf="selectedEvent" class="mat-h2">Draws for: {{selectedEvent?.name}}</span>
       </mat-toolbar-row>
     </mat-toolbar>
-    <div class="draws-panel">
+    <div class="drawItems-panel">
       <mat-grid-list cols="5" rowHeight="200px">
         <mat-grid-tile *ngFor="let group of groups; let i = index;">
           <table>

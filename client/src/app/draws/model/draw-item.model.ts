@@ -3,7 +3,7 @@
  */
 import {DrawType} from './draw-type.enum';
 
-export interface Draw {
+export interface DrawItem {
   id: number;
 
   // id of the event for which this draw is made

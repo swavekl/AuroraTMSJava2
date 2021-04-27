@@ -1,5 +1,7 @@
 package com.auroratms.draw;
 
+import com.auroratms.club.ClubEntity;
+import com.auroratms.club.ClubService;
 import com.auroratms.draw.generation.PlayerDrawInfo;
 import com.auroratms.event.TournamentEventEntity;
 import com.auroratms.event.TournamentEventEntityService;
@@ -41,35 +43,114 @@ public class DrawController {
 
     private UsattDataService usattDataService;
 
+    private ClubService clubService;
+
     public DrawController(DrawService drawService,
                           TournamentEventEntityService eventService,
                           TournamentEventEntryService eventEntryService,
                           TournamentEntryService entryService,
                           UserProfileExtService userProfileExtService,
-                          UsattDataService usattDataService) {
+                          UsattDataService usattDataService,
+                          ClubService clubService) {
         this.drawService = drawService;
         this.eventService = eventService;
         this.eventEntryService = eventEntryService;
         this.entryService = entryService;
         this.userProfileExtService = userProfileExtService;
         this.usattDataService = usattDataService;
+        this.clubService = clubService;
     }
 
+    /**
+     * gets list of all draw items for given event
+     *
+     * @param eventId
+     * @param drawType
+     * @return
+     */
     @GetMapping("")
     @ResponseBody
     @PreAuthorize("hasAuthority('TournamentDirectors') or hasAuthority('Admins') or hasAuthority('Referees')")
-    public ResponseEntity<List<Draw>> listAll(@RequestParam long eventId,
-                                              @RequestParam DrawType drawType) {
-        List<Draw> draws = this.drawService.list(eventId, drawType);
-        return new ResponseEntity<List<Draw>>(draws, HttpStatus.OK);
+    public ResponseEntity<List<DrawItem>> listAll(@RequestParam long eventId,
+                                                  @RequestParam(required = false) DrawType drawType) {
+        List<DrawItem> drawItems = this.drawService.list(eventId, drawType);
+
+        // now enhance this information with player name, club name and state
+        // get profiles of players in this event
+        List<String> profileIds = new ArrayList<>(drawItems.size());
+        for (DrawItem drawItem : drawItems) {
+            profileIds.add(drawItem.getPlayerId());
+        }
+
+        // get their profile exts containing club ids
+        // collect them in unique set
+        Map<String, UserProfileExt> userProfileExtMap = userProfileExtService.findByProfileIds(profileIds);
+        Set<Long> clubIdsSet = new HashSet<>();
+        Map<Long, String> mapMembershipToProfileId = new HashMap<>();
+        for (UserProfileExt userProfileExt : userProfileExtMap.values()) {
+            if (userProfileExt.getClubFk() != null) {
+                clubIdsSet.add(userProfileExt.getClubFk());
+            }
+            mapMembershipToProfileId.put(userProfileExt.getMembershipId(), userProfileExt.getProfileId());
+        }
+
+        List<ClubEntity> clubEntityList = this.clubService.findAllByIdIn(new ArrayList<Long>(clubIdsSet));
+
+        // set club name for player
+        for (DrawItem drawItem : drawItems) {
+            String playerId = drawItem.getPlayerId();
+            UserProfileExt userProfileExt = userProfileExtMap.get(playerId);
+            Long clubFk = userProfileExt.getClubFk();
+            if (clubFk != null) {
+                for (ClubEntity clubEntity : clubEntityList) {
+                    if (clubEntity.getId() == clubFk) {
+                        drawItem.setClubName(clubEntity.getClubName());
+                        break;
+                    }
+                }
+            }
+        }
+
+        /**
+         * Get personal player information
+         */
+        // get all player USATT records containing name and state
+        List<Long> membershipIds = new ArrayList<>(mapMembershipToProfileId.keySet());
+        List<UsattPlayerRecord> usattPlayerRecordList = this.usattDataService.findAllByMembershipIdIn(membershipIds);
+        for (DrawItem drawItem : drawItems) {
+            String profileId = drawItem.getPlayerId();
+            UserProfileExt userProfileExt = userProfileExtMap.get(profileId);
+            Long membershipId = userProfileExt.getMembershipId();
+            for (UsattPlayerRecord usattPlayerRecord : usattPlayerRecordList) {
+                if (membershipId.equals(usattPlayerRecord.getMembershipId())) {
+                    // todo state may be obsolete - we should be getting it from Okta
+                    drawItem.setState(usattPlayerRecord.getState());
+                    String fullName = usattPlayerRecord.getLastName() + ", " + usattPlayerRecord.getFirstName();
+                    drawItem.setPlayerName(fullName);
+                    break;
+                }
+            }
+        }
+
+        return new ResponseEntity<List<DrawItem>>(drawItems, HttpStatus.OK);
     }
 
+    /**
+     * Generates draws from scratch for given event
+     *
+     * @param eventId  event id
+     * @param drawType draw type
+     * @return
+     */
     @PostMapping("")
     @ResponseBody
     @PreAuthorize("hasAuthority('TournamentDirectors') or hasAuthority('Admins') or hasAuthority('Referees')")
-    public ResponseEntity<List<Draw>> generateAll(@RequestParam long eventId,
-                                                  @RequestParam DrawType drawType) {
+    public ResponseEntity<List<DrawItem>> generateAll(@RequestParam long eventId,
+                                                      @RequestParam DrawType drawType) {
         try {
+            // remove existing draw if any
+            this.drawService.deleteDraws(eventId, drawType);
+
             // get all event entries into this event
             TournamentEventEntity thisEvent = this.eventService.get(eventId);
             List<TournamentEventEntry> eventEntries = this.eventEntryService.listAllForEvent(thisEvent.getId());
@@ -85,10 +166,12 @@ public class DrawController {
                 playerDrawInfo.setProfileId(tournamentEntry.getProfileId());
                 playerDrawInfo.setRating(tournamentEntry.getSeedRating());
                 profileIdToPlayerDrawInfo.put(playerDrawInfo.getProfileId(), playerDrawInfo);
-                entryIdToPlayerDrawInfo.put (tournamentEntry.getId(), playerDrawInfo);
+                entryIdToPlayerDrawInfo.put(tournamentEntry.getId(), playerDrawInfo);
             }
 
             // get additional player information - club id
+            Set<Long> clubIdsSet = new HashSet<>();
+
             List<String> profileIds = new ArrayList<>(profileIdToPlayerDrawInfo.keySet());
             Map<String, UserProfileExt> userProfileExtMap = userProfileExtService.findByProfileIds(profileIds);
             Map<Long, PlayerDrawInfo> membershipIdToPlayerDrawInfo = new HashMap<>();
@@ -96,8 +179,26 @@ public class DrawController {
                 String profileId = userProfileExt.getProfileId();
                 PlayerDrawInfo playerDrawInfo = profileIdToPlayerDrawInfo.get(profileId);
                 if (playerDrawInfo != null) {
-                    playerDrawInfo.setClubId(userProfileExt.getClubId());
+                    if (userProfileExt.getClubFk() != null) {
+                        playerDrawInfo.setClubId(userProfileExt.getClubFk());
+                        // collect club ids for quick name lookup
+                        clubIdsSet.add(userProfileExt.getClubFk());
+                    }
                     membershipIdToPlayerDrawInfo.put(userProfileExt.getMembershipId(), playerDrawInfo);
+                }
+            }
+
+            // get all club names into a map of club id to club name
+            List<ClubEntity> clubList = this.clubService.findAllByIdIn(new ArrayList<Long>(clubIdsSet));
+            Map<Long, String> clubIdToClubNameMap = new HashMap<>();
+            for (ClubEntity clubEntity : clubList) {
+                clubIdToClubNameMap.put(clubEntity.getId(), clubEntity.getClubName());
+            }
+            for (PlayerDrawInfo playerDrawInfo : profileIdToPlayerDrawInfo.values()) {
+                Long clubId = playerDrawInfo.getClubId();
+                if (clubId != null) {
+                    String clubName = clubIdToClubNameMap.get(clubId);
+                    playerDrawInfo.setClubName(clubName);
                 }
             }
 
@@ -126,26 +227,37 @@ public class DrawController {
             }
 
             // get draws for these other events so we can find and mitigate conflicts
-            List<Draw> existingDraws = this.drawService.listAllDrawsForTournament(otherEventIds);
+            List<DrawItem> existingDrawItems = this.drawService.listAllDrawsForTournament(otherEventIds);
 
-            // finally make the draws
-            List<Draw> draws = this.drawService.generateDraws(thisEvent, drawType, eventEntries, existingDraws, entryIdToPlayerDrawInfo);
+            // finally make the draws and save them
+            List<DrawItem> drawItems = this.drawService.generateDraws(thisEvent, drawType, eventEntries, existingDrawItems, entryIdToPlayerDrawInfo);
 
             // response
-            return new ResponseEntity<List<Draw>>(draws, HttpStatus.OK);
+            return new ResponseEntity<List<DrawItem>>(drawItems, HttpStatus.OK);
         } catch (Exception e) {
-            return new ResponseEntity<List<Draw>>(Collections.EMPTY_LIST, HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<List<DrawItem>>(Collections.EMPTY_LIST, HttpStatus.BAD_REQUEST);
         }
     }
 
+    /**
+     * Updates existing draw
+     *
+     * @param eventId
+     * @param drawType
+     * @param updatedDrawItems
+     */
     @PatchMapping("")
     @PreAuthorize("hasAuthority('TournamentDirectors') or hasAuthority('Admins') or hasAuthority('Referees')")
     public void update(@RequestParam long eventId,
                        @RequestParam DrawType drawType,
-                       @RequestBody List<Draw> updatedDraws) {
-        this.drawService.updateDraws(updatedDraws);
+                       @RequestBody List<DrawItem> updatedDrawItems) {
+        this.drawService.updateDraws(updatedDrawItems);
     }
 
+    /**
+     * Deletes the draw
+     * @param eventId
+     */
     @DeleteMapping("")
     @PreAuthorize("hasAuthority('TournamentDirectors') or hasAuthority('Admins') or hasAuthority('Referees')")
     public void deleteAll(@RequestParam long eventId) {

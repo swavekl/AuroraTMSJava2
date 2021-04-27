@@ -41,7 +41,7 @@ export class DrawsModule {
   ) {
 
     // register service for contacting REST API because it doesn't follow the pattern of standard REST call
-    entityDataService.registerService('Draw', drawDataService);
+    entityDataService.registerService('DrawItem', drawDataService);
 
     entityServices.registerEntityCollectionServices([
       drawService

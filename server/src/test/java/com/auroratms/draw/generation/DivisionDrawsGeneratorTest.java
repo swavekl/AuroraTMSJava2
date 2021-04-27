@@ -1,6 +1,6 @@
 package com.auroratms.draw.generation;
 
-import com.auroratms.draw.Draw;
+import com.auroratms.draw.DrawItem;
 import com.auroratms.draw.DrawType;
 import com.auroratms.event.DrawMethod;
 import com.auroratms.event.TournamentEventEntity;
@@ -28,15 +28,15 @@ public class DivisionDrawsGeneratorTest extends AbstractDrawsGeneratorTest {
         Map<Long, PlayerDrawInfo> entryIdToPlayerDrawInfo = this.makePlayerDrawInfos();
 
         // usually there is only one 1 event in giant round robin tournament
-        List<Draw> existingDraws = Collections.emptyList();
+        List<DrawItem> existingDraws = Collections.emptyList();
         IDrawsGenerator generator = DrawGeneratorFactory.makeGenerator(tournamentEventEntity, DrawType.ROUND_ROBIN);
-        List<Draw> draws = generator.generateDraws(eventEntries, entryIdToPlayerDrawInfo, existingDraws);
-        assertEquals ("wrong size of draws", eventEntries.size(), draws.size());
+        List<DrawItem> drawItemsList = generator.generateDraws(eventEntries, entryIdToPlayerDrawInfo, existingDraws);
+        assertEquals ("wrong size of drawItemsList", eventEntries.size(), drawItemsList.size());
 
         int [] expectedGroupCounts = {8, 8, 7};
         int [] actualGroupCounts = {0, 0, 0};
-        for (Draw draw : draws) {
-            int groupNum = draw.getGroupNum();
+        for (DrawItem drawItem : drawItemsList) {
+            int groupNum = drawItem.getGroupNum();
             actualGroupCounts[groupNum - 1] = actualGroupCounts[groupNum - 1] + 1;
         }
         assertArrayEquals("wrong counts of players in groups", expectedGroupCounts, actualGroupCounts);

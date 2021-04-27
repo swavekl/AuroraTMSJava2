@@ -1,6 +1,6 @@
 package com.auroratms.draw.generation;
 
-import com.auroratms.draw.Draw;
+import com.auroratms.draw.DrawItem;
 import com.auroratms.event.TournamentEventEntity;
 import com.auroratms.tournamentevententry.TournamentEventEntry;
 
@@ -19,7 +19,7 @@ public class SingleEliminationDrawsGenerator implements IDrawsGenerator {
     }
 
     @Override
-    public List<Draw> generateDraws(List<TournamentEventEntry> eventEntries, Map<Long, PlayerDrawInfo> entryIdToPlayerDrawInfo, List<Draw> existingDraws) {
+    public List<DrawItem> generateDraws(List<TournamentEventEntry> eventEntries, Map<Long, PlayerDrawInfo> entryIdToPlayerDrawInfo, List<DrawItem> existingDrawItems) {
         return new ArrayList<>();
     }
 }

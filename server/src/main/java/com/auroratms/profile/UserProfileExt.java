@@ -28,5 +28,5 @@ public class UserProfileExt {
     private Long membershipId;
 
     // foreign key to club's table
-    private Long clubId;
+    private Long clubFk;
 }

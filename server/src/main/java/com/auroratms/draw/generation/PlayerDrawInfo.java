@@ -19,8 +19,11 @@ public class PlayerDrawInfo {
     // player rating
     private int rating;
 
-    // id of the club where player plays
-    private Long clubId;
+    // club where player plays
+    private long clubId;
+
+    // club where player plays
+    private String clubName;
 
     // state abbreviation for geographical isolation
     private String state;

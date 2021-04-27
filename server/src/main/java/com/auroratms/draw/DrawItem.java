@@ -7,13 +7,13 @@ import lombok.NonNull;
 import javax.persistence.*;
 
 /**
- * Persistent entity for representing event draws (round robin or single elimination)
+ * Persistent entity for representing event draw items (round robin or single elimination)
  */
 @Entity
-@Table(name = "draw")
+@Table(name = "drawitem")
 @Data
 @NoArgsConstructor
-public class Draw {
+public class DrawItem {
 
     // unique id
     @Id
@@ -37,4 +37,17 @@ public class Draw {
 
     // list of conflicts - possibly null or list like 1, 2, 5 representing conflict types
     private String conflicts;
+
+    // seed rating at a time of making the draws
+    private int rating;
+
+    // these values are added to enable easy showing of
+    @Transient
+    private String playerName;
+
+    @Transient
+    private String state;
+
+    @Transient
+    private String clubName;
 }

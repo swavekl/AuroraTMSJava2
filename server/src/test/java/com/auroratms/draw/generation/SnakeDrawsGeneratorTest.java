@@ -1,6 +1,6 @@
 package com.auroratms.draw.generation;
 
-import com.auroratms.draw.Draw;
+import com.auroratms.draw.DrawItem;
 import com.auroratms.event.DrawMethod;
 import com.auroratms.event.TournamentEventEntity;
 import com.auroratms.tournamentevententry.TournamentEventEntry;
@@ -35,15 +35,15 @@ public class SnakeDrawsGeneratorTest extends AbstractDrawsGeneratorTest {
         Map<Long, PlayerDrawInfo> entryIdToPlayerDrawInfo = makePlayerDrawInfos ();
 
         // first event draw
-        List<Draw> existingDraws = new ArrayList<>();
+        List<DrawItem> existingDrawItems = new ArrayList<>();
 
         SnakeDrawsGenerator generator = new SnakeDrawsGenerator(tournamentEventEntity);
-        List<Draw> draws = generator.generateDraws(eventEntries, entryIdToPlayerDrawInfo, existingDraws);
-        assertEquals("wrong number of draws", 23, draws.size());
+        List<DrawItem> drawItems = generator.generateDraws(eventEntries, entryIdToPlayerDrawInfo, existingDrawItems);
+        assertEquals("wrong number of draws", 23, drawItems.size());
 
         Set<Integer> uniqueGroups = new HashSet<>();
-        for (Draw draw : draws) {
-            uniqueGroups.add(draw.getGroupNum());
+        for (DrawItem drawItem : drawItems) {
+            uniqueGroups.add(drawItem.getGroupNum());
         }
         assertEquals("wrong number of groups", expectedGroups, uniqueGroups.size());
     }

@@ -8,7 +8,8 @@ import com.auroratms.tournamentevententry.TournamentEventEntry;
 import org.springframework.stereotype.Service;
 
 import org.springframework.transaction.annotation.Transactional;
-import java.util.ArrayList;
+
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -25,27 +26,32 @@ public class DrawService {
         this.drawRepository = drawRepository;
     }
 
-    public List<Draw> generateDraws(TournamentEventEntity tournamentEvent, DrawType drawType,
-                                    List<TournamentEventEntry> eventEntries, List<Draw> existingDraws,
-                                    Map<Long, PlayerDrawInfo> entryIdToPlayerDrawInfo) {
+    public List<DrawItem> generateDraws(TournamentEventEntity tournamentEvent, DrawType drawType,
+                                        List<TournamentEventEntry> eventEntries, List<DrawItem> existingDrawItems,
+                                        Map<Long, PlayerDrawInfo> entryIdToPlayerDrawInfo) {
+        List<DrawItem> drawItemList = Collections.emptyList();
         IDrawsGenerator generator = DrawGeneratorFactory.makeGenerator(tournamentEvent, drawType);
-        if (generator == null) {
-            return new ArrayList<>();
-        } else {
-            return generator.generateDraws(eventEntries, entryIdToPlayerDrawInfo, existingDraws);
+        if (generator != null) {
+            drawItemList = generator.generateDraws(eventEntries, entryIdToPlayerDrawInfo, existingDrawItems);
         }
+        // save the list
+        if (drawItemList.size() > 0) {
+            this.drawRepository.saveAll(drawItemList);
+        }
+
+        return drawItemList;
     }
 
-    public List<Draw> list(long eventId, DrawType drawType) {
+    public List<DrawItem> list(long eventId, DrawType drawType) {
         return this.drawRepository.findAllByEventFkAndDrawTypeOrderByGroupNumAscPlaceInGroupAsc(eventId, drawType);
     }
 
-    public List<Draw> listAllDrawsForTournament(List<Long> eventIds) {
+    public List<DrawItem> listAllDrawsForTournament(List<Long> eventIds) {
         return this.drawRepository.findAllByEventFkInOrderByEventFkAscGroupNumAscPlaceInGroupAsc(eventIds);
     }
 
-    public void updateDraws(List<Draw> draws) {
-        this.drawRepository.saveAll(draws);
+    public void updateDraws(List<DrawItem> drawItems) {
+        this.drawRepository.saveAll(drawItems);
     }
 
     public void deleteDraws(long eventId, DrawType drawType) {

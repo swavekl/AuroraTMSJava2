@@ -1,6 +1,7 @@
 package com.auroratms.draw.generation;
 
 import com.auroratms.draw.DrawType;
+import com.auroratms.event.DrawMethod;
 import com.auroratms.event.TournamentEventEntity;
 
 /**
@@ -11,7 +12,8 @@ public class DrawGeneratorFactory {
     public static IDrawsGenerator makeGenerator(TournamentEventEntity tournamentEventEntity, DrawType drawType) {
         IDrawsGenerator generator = null;
         if (drawType == DrawType.ROUND_ROBIN) {
-            switch (tournamentEventEntity.getDrawMethod()) {
+            DrawMethod drawMethod = tournamentEventEntity.getDrawMethod();
+            switch (drawMethod) {
                 case SNAKE:
                     generator = new SnakeDrawsGenerator(tournamentEventEntity);
                     break;
