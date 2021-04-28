@@ -22,4 +22,16 @@ export interface DrawItem {
 
   // list of conflicts - possibly null or list like 1, 2, 5 representing conflict types
   conflicts: string;
+
+  // seed rating at a time of making the draws
+  rating: number;
+
+  // these values are added to enable easy showing of
+  playerName: string;
+
+  // state of US where player lives
+  state: string;
+
+  // name of the table tennis club where player plays
+  clubName: string;
 }

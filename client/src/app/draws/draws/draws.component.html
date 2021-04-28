@@ -26,18 +26,31 @@
         <span *ngIf="selectedEvent" class="mat-h2">Draws for: {{selectedEvent?.name}}</span>
       </mat-toolbar-row>
     </mat-toolbar>
-    <div class="drawItems-panel">
-      <mat-grid-list cols="5" rowHeight="200px">
-        <mat-grid-tile *ngFor="let group of groups; let i = index;">
+    <div class="draws-panel">
+      <mat-grid-list cols="4" rowHeight="300px">
+        <mat-grid-tile *ngFor="let group of groups;">
           <table>
             <thead>
-            <tr><th>Group {{i}}</th></tr>
+              <tr>
+                <th>&nbsp;</th>
+                <th class="group-num-column">
+                  Group: {{group.groupNum}} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<!--                </th>-->
+<!--                <th>-->
+                  {{selectedEvent.startTime | startTime}}
+                </th>
+              </tr>
             </thead>
             <tbody>
-            <tr><td>Player 1</td></tr>
-            <tr><td>Player 2</td></tr>
-            <tr><td>Player 3</td></tr>
-            <tr><td>Player 4</td></tr>
+              <tr *ngFor="let drawItem of group.drawItems;">
+                <td class="rating-column">{{drawItem.rating}}</td>
+                <td class="player-column">
+                  <div>{{drawItem.playerName}}</div>
+                  <div class="additional-info">
+                    {{drawItem.state ? drawItem.state : 'N/A'}}, {{drawItem.clubName ? drawItem.clubName : 'N/A'}}
+                  </div>
+                </td>
+              </tr>
             </tbody>
           </table>
         </mat-grid-tile>

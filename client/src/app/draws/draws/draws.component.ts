@@ -3,6 +3,7 @@ import {TournamentEvent} from '../../tournament/tournament-config/tournament-eve
 import {DrawType} from '../model/draw-type.enum';
 import {DrawItem} from '../model/draw-item.model';
 import {DrawAction, DrawActionType} from './draw-action';
+import {DrawGroup} from '../model/draw-group.model';
 
 @Component({
   selector: 'app-draws',
@@ -23,10 +24,11 @@ export class DrawsComponent implements OnInit, OnChanges {
   // currently selected event for viewing draws
   selectedEvent: TournamentEvent;
 
-  groups: number [] = [];
+  // array of group objects with group
+  groups: DrawGroup [] = [];
 
   constructor() {
-    this.groups = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25];
+    this.groups = [];
   }
 
   ngOnInit(): void {
@@ -44,10 +46,21 @@ export class DrawsComponent implements OnInit, OnChanges {
     }
     const drawsChanges: SimpleChange = changes.draws;
     if (drawsChanges) {
-      // todo combine with player information
-      // divide into groups ?
       console.log('DrawsComponent got draws of length ' + drawsChanges.currentValue.length);
-
+      const drawItems: DrawItem[] = drawsChanges.currentValue;
+      let groupNum = 0;
+      let currentGroup: DrawGroup = null;
+      this.groups = [];
+      drawItems.forEach((drawItem: DrawItem) => {
+        if (drawItem.groupNum !== groupNum) {
+          groupNum = drawItem.groupNum;
+          currentGroup = new DrawGroup();
+          currentGroup.groupNum = drawItem.groupNum;
+          currentGroup.drawItems = [];
+          this.groups.push(currentGroup);
+        }
+        currentGroup.drawItems.push(drawItem);
+      });
     }
   }
 

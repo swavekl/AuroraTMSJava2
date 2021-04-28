@@ -13,6 +13,7 @@ import {MatIconModule} from '@angular/material/icon';
 import {EntityDataService, EntityServices} from '@ngrx/data';
 import {DrawService} from './service/draw.service';
 import {DrawDataService} from './service/draw-data.service';
+import {SharedModule} from '../shared/shared.module';
 
 
 @NgModule({
@@ -28,7 +29,8 @@ import {DrawDataService} from './service/draw-data.service';
     MatGridListModule,
     MatToolbarModule,
     MatButtonModule,
-    MatIconModule
+    MatIconModule,
+    SharedModule
   ]
 })
 export class DrawsModule {

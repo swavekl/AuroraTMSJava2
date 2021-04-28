@@ -45,9 +45,11 @@ public class DrawItem {
     @Transient
     private String playerName;
 
+    // state of US where player lives
     @Transient
     private String state;
 
+    // name of the table tennis club where player plays
     @Transient
     private String clubName;
 }
