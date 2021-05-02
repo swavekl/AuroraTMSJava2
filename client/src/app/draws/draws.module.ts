@@ -14,6 +14,7 @@ import {EntityDataService, EntityServices} from '@ngrx/data';
 import {DrawService} from './service/draw.service';
 import {DrawDataService} from './service/draw-data.service';
 import {SharedModule} from '../shared/shared.module';
+import {DragDropModule} from '@angular/cdk/drag-drop';
 
 
 @NgModule({
@@ -30,7 +31,8 @@ import {SharedModule} from '../shared/shared.module';
     MatToolbarModule,
     MatButtonModule,
     MatIconModule,
-    SharedModule
+    SharedModule,
+    DragDropModule
   ]
 })
 export class DrawsModule {

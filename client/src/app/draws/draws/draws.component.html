@@ -29,8 +29,8 @@
     <div class="draws-panel">
       <div fxLayout="row wrap"
         fxLayoutGap="32px"
-        fxLayoutAlign="flex-start">
-        <div *ngFor="let group of groups;">
+        fxLayoutAlign="flex-start" cdkDropListGroup>
+        <div *ngFor="let group of groups; let idx = index;">
           <table>
             <thead>
             <tr>
@@ -43,15 +43,48 @@
               </th>
             </tr>
             </thead>
-            <tbody>
-            <tr *ngFor="let drawItem of group.drawItems;">
-              <td class="rating-column">{{drawItem.rating}}</td>
-              <td class="player-column">
-                <div>{{drawItem.playerName}}</div>
-                <div class="additional-info">
-                  {{drawItem.state ? drawItem.state : 'N/A'}}, {{drawItem.clubName ? drawItem.clubName : 'N/A'}}
-                </div>
-              </td>
+            <tbody cdkDropList
+                   [id]="'groupTB' + (idx + 1)"
+                   (cdkDropListDropped)="onDrawItemDrop($event)"
+                   [cdkDropListData]="group.drawItems"
+                   [cdkDropListEnterPredicate]="canMoveDrawItem">
+            <tr *ngFor="let drawItem of group.drawItems;"
+                cdkDrag
+                cdkDragBoundary=".draws-panel"
+                [cdkDragData]="drawItem"
+                [cdkDragDisabled]="drawItem.placeInGroup === 1">
+              <ng-container *ngIf="drawItem.rating >= 0; else fakeItem;">
+                <td class="rating-column">{{drawItem.rating}}</td>
+                <td class="player-column">
+                  <div>{{drawItem.playerName}}</div>
+                  <div class="additional-info">
+                    {{drawItem.state ? drawItem.state : 'N/A'}}, {{drawItem.clubName ? drawItem.clubName : 'N/A'}}
+                  </div>
+                  <div *cdkDragPreview fxLayout="row" class="drag-preview">
+                    <div fxFlex="17%">{{drawItem.rating}}</div>
+                    <div fxFlex="83%">
+                      <div>{{drawItem.playerName}}</div>
+                      <div class="additional-info">
+                        {{drawItem.state ? drawItem.state : 'N/A'}}, {{drawItem.clubName ? drawItem.clubName : 'N/A'}}
+                      </div>
+                    </div>
+                  </div>
+                </td>
+              </ng-container>
+              <ng-template #fakeItem>
+                <td class="rating-column">&nbsp;</td>
+                <td class="player-column">
+                  <div>&nbsp;</div>
+                  <div class="additional-info">&nbsp;</div>
+                  <div *cdkDragPreview fxLayout="row" class="drag-preview">
+                    <div fxFlex="17%">&nbsp;</div>
+                    <div fxFlex="83%">
+                      <div>&nbsp;</div>
+                      <div class="additional-info">&nbsp;</div>
+                    </div>
+                  </div>
+                </td>
+              </ng-template>
             </tr>
             </tbody>
           </table>

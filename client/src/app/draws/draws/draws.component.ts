@@ -4,6 +4,7 @@ import {DrawType} from '../model/draw-type.enum';
 import {DrawItem} from '../model/draw-item.model';
 import {DrawAction, DrawActionType} from './draw-action';
 import {DrawGroup} from '../model/draw-group.model';
+import {CdkDrag, CdkDragDrop, transferArrayItem} from '@angular/cdk/drag-drop';
 
 @Component({
   selector: 'app-draws',
@@ -61,6 +62,8 @@ export class DrawsComponent implements OnInit, OnChanges {
         }
         currentGroup.drawItems.push(drawItem);
       });
+
+      this.setupGroupsForDragAndDrop();
     }
   }
 
@@ -109,4 +112,72 @@ export class DrawsComponent implements OnInit, OnChanges {
   showPlayoffDraw() {
     console.log('show playoff draw for event ' + this.selectedEvent.id);
   }
+
+  /**
+   * Sets up connectedTo array of tables
+   */
+  setupGroupsForDragAndDrop() {
+    // we need to fill the empty rows in group tables with
+    // some fake draw items so we can move horizontally and drop on them
+    // what is the max number of rows
+    const playersPerGroup = this.selectedEvent.playersPerGroup;
+    this.groups.forEach((drawGroup: DrawGroup) => {
+      // if group is not showing one seeded player and it has fewer than players per group
+      // then add fake draw items
+      if (drawGroup.drawItems.length < playersPerGroup && drawGroup.drawItems.length !== 1) {
+        const startItemIndex = drawGroup.drawItems.length;
+        for (let i = startItemIndex; i < playersPerGroup; i++) {
+          const fakeDrawItem: DrawItem = {
+            id: -1,
+            eventFk: this.selectedEvent.id,
+            groupNum: drawGroup.groupNum,
+            placeInGroup: i,
+            drawType: DrawType.ROUND_ROBIN,
+            playerId: 'N/A',
+            conflicts: null,
+            rating: -1,
+            playerName: ' ',
+            state: ' ',
+            clubName: ' '
+          };
+          drawGroup.drawItems.push(fakeDrawItem);
+        }
+      }
+    });
+  }
+
+  /**
+   * Drag and Drop functionality
+   * @param event
+   */
+  onDrawItemDrop(event: CdkDragDrop<DrawItem[]>) {
+    // only allow movement between different groups and in the same row
+    if (event.previousContainer !== event.container &&
+      event.previousIndex === event.currentIndex) {
+      // move into
+      transferArrayItem(event.previousContainer.data,
+        event.container.data,
+        event.previousIndex,
+        event.currentIndex);
+      // move out of
+      transferArrayItem(event.container.data,
+        event.previousContainer.data,
+        event.currentIndex + 1,
+        event.previousIndex);
+    }
+  }
+
+  /**
+   * Called to find out if an item can be moved
+   * @param item item to be moved
+   */
+  canMoveDrawItem(item: CdkDrag<DrawItem>) {
+    // only non-top seeds can be moved
+    return item.data?.placeInGroup > 1;
+  }
+
+  // canSortPredicate (index: number, drag: CdkDrag<DrawItem>, drop: CdkDropList) {
+  //   console.log ('index ' + index);
+  //   return true;
+  // }
 }
