@@ -4,7 +4,7 @@ import {DrawType} from '../model/draw-type.enum';
 import {DrawItem} from '../model/draw-item.model';
 import {DrawAction, DrawActionType} from './draw-action';
 import {DrawGroup} from '../model/draw-group.model';
-import {CdkDrag, CdkDragDrop, transferArrayItem} from '@angular/cdk/drag-drop';
+import {CdkDrag, CdkDragDrop, CdkDropList, transferArrayItem} from '@angular/cdk/drag-drop';
 
 @Component({
   selector: 'app-draws',
@@ -120,35 +120,37 @@ export class DrawsComponent implements OnInit, OnChanges {
     // we need to fill the empty rows in group tables with
     // some fake draw items so we can move horizontally and drop on them
     // what is the max number of rows
-    const playersPerGroup = this.selectedEvent.playersPerGroup;
-    this.groups.forEach((drawGroup: DrawGroup) => {
-      // if group is not showing one seeded player and it has fewer than players per group
-      // then add fake draw items
-      if (drawGroup.drawItems.length < playersPerGroup && drawGroup.drawItems.length !== 1) {
-        const startItemIndex = drawGroup.drawItems.length;
-        for (let i = startItemIndex; i < playersPerGroup; i++) {
-          const fakeDrawItem: DrawItem = {
-            id: -1,
-            eventFk: this.selectedEvent.id,
-            groupNum: drawGroup.groupNum,
-            placeInGroup: i,
-            drawType: DrawType.ROUND_ROBIN,
-            playerId: 'N/A',
-            conflicts: null,
-            rating: -1,
-            playerName: ' ',
-            state: ' ',
-            clubName: ' '
-          };
-          drawGroup.drawItems.push(fakeDrawItem);
+    if (this.selectedEvent) {
+      const playersPerGroup = this.selectedEvent.playersPerGroup;
+      this.groups.forEach((drawGroup: DrawGroup) => {
+        // if group is not showing one seeded player and it has fewer than players per group
+        // then add fake draw items
+        if (drawGroup.drawItems.length < playersPerGroup && drawGroup.drawItems.length !== 1) {
+          const startItemIndex = drawGroup.drawItems.length;
+          for (let i = startItemIndex; i < playersPerGroup; i++) {
+            const fakeDrawItem: DrawItem = {
+              id: -1,
+              eventFk: this.selectedEvent.id,
+              groupNum: drawGroup.groupNum,
+              placeInGroup: i,
+              drawType: DrawType.ROUND_ROBIN,
+              playerId: 'N/A',
+              conflicts: null,
+              rating: -1,
+              playerName: ' ',
+              state: ' ',
+              clubName: ' '
+            };
+            drawGroup.drawItems.push(fakeDrawItem);
+          }
         }
-      }
-    });
+      });
+    }
   }
 
   /**
    * Drag and Drop functionality
-   * @param event
+   * @param event drop event
    */
   onDrawItemDrop(event: CdkDragDrop<DrawItem[]>) {
     // only allow movement between different groups and in the same row
@@ -176,8 +178,14 @@ export class DrawsComponent implements OnInit, OnChanges {
     return item.data?.placeInGroup > 1;
   }
 
-  // canSortPredicate (index: number, drag: CdkDrag<DrawItem>, drop: CdkDropList) {
-  //   console.log ('index ' + index);
-  //   return true;
-  // }
+  /**
+   * Prevents users from dropping in a different row - players can only be moved within a row.
+   * We are taking advantage of sorting capability
+   * @param index index where the item is dropped (0 based)
+   * @param item item being dropped
+   * @param drop drop list onto which the item is being dropped
+   */
+  canDropPredicate(index: number, item: CdkDrag<DrawItem>, drop: CdkDropList) {
+    return (index + 1) === item?.data.placeInGroup;
+  }
 }

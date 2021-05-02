@@ -47,6 +47,7 @@
                    [id]="'groupTB' + (idx + 1)"
                    (cdkDropListDropped)="onDrawItemDrop($event)"
                    [cdkDropListData]="group.drawItems"
+                   [cdkDropListSortPredicate]="canDropPredicate"
                    [cdkDropListEnterPredicate]="canMoveDrawItem">
             <tr *ngFor="let drawItem of group.drawItems;"
                 cdkDrag
