@@ -27,34 +27,36 @@
       </mat-toolbar-row>
     </mat-toolbar>
     <div class="draws-panel">
-      <mat-grid-list cols="4" rowHeight="300px">
-        <mat-grid-tile *ngFor="let group of groups;">
+      <div fxLayout="row wrap"
+        fxLayoutGap="32px"
+        fxLayoutAlign="flex-start">
+        <div *ngFor="let group of groups;">
           <table>
             <thead>
-              <tr>
-                <th>&nbsp;</th>
-                <th class="group-num-column">
-                  Group: {{group.groupNum}} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-<!--                </th>-->
-<!--                <th>-->
-                  {{selectedEvent.startTime | startTime}}
-                </th>
-              </tr>
+            <tr>
+              <th>&nbsp;</th>
+              <th class="group-num-column">
+                Group: {{group.groupNum}} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                <!--                </th>-->
+                <!--                <th>-->
+                {{selectedEvent.startTime | startTime}}
+              </th>
+            </tr>
             </thead>
             <tbody>
-              <tr *ngFor="let drawItem of group.drawItems;">
-                <td class="rating-column">{{drawItem.rating}}</td>
-                <td class="player-column">
-                  <div>{{drawItem.playerName}}</div>
-                  <div class="additional-info">
-                    {{drawItem.state ? drawItem.state : 'N/A'}}, {{drawItem.clubName ? drawItem.clubName : 'N/A'}}
-                  </div>
-                </td>
-              </tr>
+            <tr *ngFor="let drawItem of group.drawItems;">
+              <td class="rating-column">{{drawItem.rating}}</td>
+              <td class="player-column">
+                <div>{{drawItem.playerName}}</div>
+                <div class="additional-info">
+                  {{drawItem.state ? drawItem.state : 'N/A'}}, {{drawItem.clubName ? drawItem.clubName : 'N/A'}}
+                </div>
+              </td>
+            </tr>
             </tbody>
           </table>
-        </mat-grid-tile>
-      </mat-grid-list>
+        </div>
+      </div>
     </div>
   </div>
 </div>

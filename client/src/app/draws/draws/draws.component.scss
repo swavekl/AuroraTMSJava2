@@ -31,12 +31,14 @@ mat-list-item:hover {
 .draws-panel {
   height: calc(100vh - 136px);
   overflow-y: auto;
+  padding-left: 32px;
 }
 
 // Groups table
 table {
   border-collapse: collapse;
   width: 300px;
+  margin-top: 32px;
 
   thead tr th {
     background-color: #d7c8f5;
