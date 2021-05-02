@@ -9,8 +9,6 @@ import {DrawService} from '../service/draw.service';
 import {DrawItem} from '../model/draw-item.model';
 import {DrawType} from '../model/draw-type.enum';
 import {first} from 'rxjs/operators';
-import {ActionTypes} from '../../store/reset-store';
-import {EntityActionOptions} from '@ngrx/data/src/actions/entity-action';
 
 @Component({
   selector: 'app-draws-container',

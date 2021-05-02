@@ -1,21 +1,24 @@
 import {NgModule} from '@angular/core';
 import {CommonModule} from '@angular/common';
 
-import {DrawsRoutingModule} from './draws-routing.module';
-import {DrawsComponent} from './draws/draws.component';
-import {DrawsContainerComponent} from './draws/draws-container.component';
 import {MatListModule} from '@angular/material/list';
 import {FlexLayoutModule} from '@angular/flex-layout';
 import {MatGridListModule} from '@angular/material/grid-list';
 import {MatToolbarModule} from '@angular/material/toolbar';
 import {MatButtonModule} from '@angular/material/button';
 import {MatIconModule} from '@angular/material/icon';
+import {DragDropModule} from '@angular/cdk/drag-drop';
+import {MatTooltipModule} from '@angular/material/tooltip';
+import {FormsModule} from '@angular/forms';
+import {MatSlideToggleModule} from '@angular/material/slide-toggle';
 import {EntityDataService, EntityServices} from '@ngrx/data';
+
+import {DrawsRoutingModule} from './draws-routing.module';
+import {DrawsComponent} from './draws/draws.component';
+import {DrawsContainerComponent} from './draws/draws-container.component';
 import {DrawService} from './service/draw.service';
 import {DrawDataService} from './service/draw-data.service';
 import {SharedModule} from '../shared/shared.module';
-import {DragDropModule} from '@angular/cdk/drag-drop';
-
 
 @NgModule({
   declarations: [
@@ -32,7 +35,10 @@ import {DragDropModule} from '@angular/cdk/drag-drop';
     MatButtonModule,
     MatIconModule,
     SharedModule,
-    DragDropModule
+    DragDropModule,
+    MatTooltipModule,
+    FormsModule,
+    MatSlideToggleModule
   ]
 })
 export class DrawsModule {
