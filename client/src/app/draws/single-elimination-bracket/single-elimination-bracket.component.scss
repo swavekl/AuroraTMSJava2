@@ -1,0 +1,21 @@
+@import "~src/my-theme";
+.se-draws-panel {
+  height: calc(100vh - 176px);
+  overflow-y: auto;
+  padding-left: 32px;
+}
+
+div.round-header {
+  padding-left: 30px;
+
+  div {
+    min-width: 234px;
+    //border-left: 1px solid black;
+    //border-right: 1px solid black;
+    text-align: center;
+    background-color: $accent-color;
+    padding-top: 8px;
+    padding-bottom: 8px;
+    margin-top: 4px;
+  }
+}

@@ -43,3 +43,16 @@ $accent-color: mat-color($candy-app-accent);
 $warn-color: mat-color($candy-app-warn);
 
 //$list-hover-color: mat-color($primary-color, A200);
+
+$ngtt-background-color: white;
+//$ngtt-bracket-separator-color: yellow;
+//$ngtt-match-container-background: pink;
+
+$ngtt-match-wrapper-width: 204px !default;
+$ngtt-match-wrapper-height: 76px !default;
+$ngtt-vertical-match-padding: 15px !default;
+$ngtt-round-gutters: 15px !default;
+$ngtt-bracket-border-radius: 0 !default;
+$ngtt-bracket-line-width: 2px !default;
+
+@import '~ng-tournament-tree/styles/ngtt-styles';

@@ -38,9 +38,12 @@ export class DrawsComponent implements OnInit, OnChanges {
   // information about moved items
   undoStack: UndoMemento [] = [];
 
+  showPlayoffDraw: boolean;
+
   constructor() {
     this.groups = [];
     this.expandedView = false;
+    this.showPlayoffDraw = false;
   }
 
   ngOnInit(): void {
@@ -85,6 +88,7 @@ export class DrawsComponent implements OnInit, OnChanges {
   onSelectEvent(tournamentEvent: TournamentEvent) {
     this.undoStack = [];
     this.selectedEvent = tournamentEvent;
+    this.showPlayoffDraw = false;
     const action: DrawAction = {
       actionType: DrawActionType.DRAW_ACTION_LOAD,
       eventId: this.selectedEvent.id,
@@ -98,6 +102,7 @@ export class DrawsComponent implements OnInit, OnChanges {
    */
   generateDraw() {
     this.undoStack = [];
+    this.showPlayoffDraw = false;
     const action: DrawAction = {
       actionType: DrawActionType.DRAW_ACTION_GENERATE,
       eventId: this.selectedEvent.id,
@@ -111,6 +116,7 @@ export class DrawsComponent implements OnInit, OnChanges {
    */
   clearDraw() {
     this.undoStack = [];
+    this.showPlayoffDraw = false;
     const action: DrawAction = {
       actionType: DrawActionType.DRAW_ACTION_CLEAR,
       eventId: this.selectedEvent.id,
@@ -123,8 +129,11 @@ export class DrawsComponent implements OnInit, OnChanges {
     return tournamentEvent.id === this.selectedEvent?.id;
   }
 
-  showPlayoffDraw() {
-    console.log('show playoff draw for event ' + this.selectedEvent.id);
+  /**
+   * Switch draw between round robin and single elimination
+   */
+  switchDraw() {
+    this.showPlayoffDraw = !this.showPlayoffDraw;
   }
 
   /**

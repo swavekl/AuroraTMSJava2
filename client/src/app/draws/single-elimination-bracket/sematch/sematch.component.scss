@@ -1,0 +1,33 @@
+$match-box-color: #d7c8f5;
+
+.match-box {
+  border: 2px solid $match-box-color;
+  width: 200px;
+  max-width: 200px;
+}
+
+.player-line {
+  padding-left: 4px;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  font-size: 14px;
+  background-color: $match-box-color;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.group-num-column {
+  padding-top: 4px;
+  padding-bottom: 4px;
+  background-color: #a27bee;
+  text-align: center;
+  font-size: 14px;
+  cursor: grab;
+}
+
+.time-and-table {
+  text-align: center;
+  width: 200px;
+  font-size: 14px;
+}

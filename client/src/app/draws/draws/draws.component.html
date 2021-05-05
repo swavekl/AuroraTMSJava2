@@ -20,8 +20,8 @@
           <mat-icon matListIcon>clear</mat-icon>Clear Draw
         </button>
         <span class="toolbar-spacer-2"></span>
-        <button type="button" mat-raised-button  (click)="showPlayoffDraw()" [disabled]="selectedEvent == null">
-          <mat-icon matListIcon>line_style</mat-icon>Playoff Draw
+        <button type="button" mat-raised-button  (click)="switchDraw()" [disabled]="selectedEvent == null">
+          <mat-icon matListIcon>line_style</mat-icon>{{ showPlayoffDraw ? 'Main Draw' : 'Playoff Draw' }}
         </button>
         <span class="toolbar-spacer-2"></span>
         <button type="button" mat-raised-button  (click)="undoMove()" [disabled]="undoStack?.length === 0">
@@ -33,10 +33,10 @@
         <span *ngIf="selectedEvent" class="mat-h2" style="padding-top: 12px;">Draws for: {{selectedEvent?.name}}</span>
       </mat-toolbar-row>
     </mat-toolbar>
-    <div class="draws-panel">
+    <div class="draws-panel" *ngIf="!showPlayoffDraw">
       <div fxLayout="row wrap"
-        fxLayoutGap="32px"
-        fxLayoutAlign="flex-start" cdkDropListGroup>
+           fxLayoutGap="32px"
+           fxLayoutAlign="flex-start" cdkDropListGroup>
         <div *ngFor="let group of groups; let idx = index;">
           <table>
             <thead>
@@ -105,6 +105,7 @@
         </div>
       </div>
     </div>
+    <app-single-elimination-bracket *ngIf="showPlayoffDraw"></app-single-elimination-bracket>
   </div>
   </form>
 </div>
