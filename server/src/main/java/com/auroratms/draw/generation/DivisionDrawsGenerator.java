@@ -11,11 +11,10 @@ import java.util.*;
  * Generator for draws for events like giant round robin in groups of 8
  * Sort players from highest to lowest rating and divide them into groups of 8
  */
-public class DivisionDrawsGenerator implements IDrawsGenerator {
-    private TournamentEventEntity tournamentEventEntity;
+public class DivisionDrawsGenerator extends AbstractDrawsGenerator implements IDrawsGenerator {
 
     public DivisionDrawsGenerator(TournamentEventEntity tournamentEventEntity) {
-        this.tournamentEventEntity = tournamentEventEntity;
+        super(tournamentEventEntity);
     }
 
     /**
@@ -34,22 +33,6 @@ public class DivisionDrawsGenerator implements IDrawsGenerator {
 
         // place players in groups
         return placePlayersInGroups(eventEntries, entryIdToPlayerDrawInfo);
-    }
-
-    private void sortEntriesByRating(List<TournamentEventEntry> eventEntries, Map<Long, PlayerDrawInfo> entryIdToPlayerDrawInfo) {
-        // sort players in this event by rating from highest to lowest
-        Collections.sort(eventEntries, new Comparator<TournamentEventEntry>() {
-            @Override
-            public int compare(TournamentEventEntry tee1, TournamentEventEntry tee2) {
-                long tournamentEntryFk1 = tee1.getTournamentEntryFk();
-                long tournamentEntryFk2 = tee2.getTournamentEntryFk();
-                PlayerDrawInfo pdi1 = entryIdToPlayerDrawInfo.get(tournamentEntryFk1);
-                PlayerDrawInfo pdi2 = entryIdToPlayerDrawInfo.get(tournamentEntryFk2);
-                int rating1 = pdi1.getRating();
-                int rating2 = pdi2.getRating();
-                return Integer.compare(rating2, rating1);
-            }
-        });
     }
 
     /**
@@ -74,12 +57,7 @@ public class DivisionDrawsGenerator implements IDrawsGenerator {
             Long entryId = tournamentEventEntry.getTournamentEntryFk();
             PlayerDrawInfo playerDrawInfo = entryIdToPlayerDrawInfo.get(entryId);
             if (playerDrawInfo != null) {
-                DrawItem drawItem = new DrawItem();
-                drawItem.setEventFk(eventFk);
-                drawItem.setDrawType(DrawType.ROUND_ROBIN);
-                drawItem.setPlayerId(playerDrawInfo.getProfileId());
-                drawItem.setGroupNum(groupNum);
-                drawItem.setPlaceInGroup(rowNum);
+                DrawItem drawItem = makeDrawItem(eventFk, groupNum, rowNum, playerDrawInfo, DrawType.ROUND_ROBIN);
                 drawItemList.add(drawItem);
             }
 

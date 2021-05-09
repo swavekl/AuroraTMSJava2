@@ -15,6 +15,9 @@ export interface DrawItem {
   // Players place in the draw for the group
   placeInGroup: number;
 
+  // bye number if this draw item represents a bye (e.g. 1, 2, 3 etc), 0 otherwise
+  byeNum: number;
+
   drawType: DrawType;
 
   // id of the player (Okta) for fetching state, club etc.

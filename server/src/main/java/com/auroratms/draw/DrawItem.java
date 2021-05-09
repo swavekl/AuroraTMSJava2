@@ -29,6 +29,9 @@ public class DrawItem {
     // Players place in the draw for the group
     private int placeInGroup;
 
+    // bye number if this draw item represents a bye (e.g. 1, 2, 3 etc), 0 otherwise
+    private int byeNum;
+
     private DrawType drawType;
 
     // id of the player (Okta) for fetching state, club etc.

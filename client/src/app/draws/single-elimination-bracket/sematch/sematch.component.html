@@ -1,14 +1,14 @@
 <div class="match-box">
   <div fxLayout="row">
-    <div [fxFlex]="match?.group ? '25px' : '0px'">
-      <div class="group-num-column">{{match?.group ? match.group : ''}}</div>
-      <div>{{ match?.group ? '&nbsp;' : '' }}</div>
-      <div class="group-num-column">{{match?.group ? match.group : ''}}</div>
+    <div [fxFlex]="match?.leftGroup ? '25px' : '0px'">
+      <div class="group-num-column">{{match?.leftGroup ? match.leftGroup : ''}}</div>
+      <div>{{ match?.leftGroup ? '&nbsp;' : '' }}</div>
+      <div class="group-num-column">{{match?.rightGroup ? match.rightGroup : ''}}</div>
     </div>
     <div [fxFlex]="match?.group ? '175px' : '200px'">
-      <div class="player-line">1678 {{match.left}}</div>
+      <div class="player-line">{{match.leftPlayerRating}} {{match.leftPlayerName}}</div>
       <div class="time-and-table">5:00 PM Table 6</div>
-      <div class="player-line" fxLayout="row">1781 {{match.right}}</div>
+      <div class="player-line" fxLayout="row">{{match.rightPlayerRating}} {{match.rightPlayerName}}</div>
     </div>
   </div>
 </div>

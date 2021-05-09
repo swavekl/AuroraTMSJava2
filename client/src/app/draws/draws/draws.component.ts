@@ -1,4 +1,4 @@
-import {Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChange, SimpleChanges, ViewEncapsulation} from '@angular/core';
+import {Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChange, SimpleChanges} from '@angular/core';
 import {CdkDrag, CdkDragDrop, CdkDropList, transferArrayItem} from '@angular/cdk/drag-drop';
 import {TournamentEvent} from '../../tournament/tournament-config/tournament-event.model';
 import {DrawType} from '../model/draw-type.enum';
@@ -6,6 +6,7 @@ import {DrawItem} from '../model/draw-item.model';
 import {DrawGroup} from '../model/draw-group.model';
 import {DrawAction, DrawActionType} from './draw-action';
 import {UndoMemento} from '../model/undo-memento';
+import {DrawRound} from '../model/draw-round.model';
 
 @Component({
   selector: 'app-draws',
@@ -31,6 +32,9 @@ export class DrawsComponent implements OnInit, OnChanges {
 
   // array of group objects with group
   groups: DrawGroup [] = [];
+
+  // single elimination draw rounds
+  singleEliminationRounds: DrawRound [] = [];
 
   // if true expanded information i.e. state, club of player
   expandedView: boolean;
@@ -66,16 +70,26 @@ export class DrawsComponent implements OnInit, OnChanges {
       let groupNum = 0;
       let currentGroup: DrawGroup = null;
       this.groups = [];
+      const currentSingleEliminationRound = new DrawRound();
+      this.singleEliminationRounds = [];
+      this.singleEliminationRounds.push(currentSingleEliminationRound);
+      console.log('splitting rounds');
       drawItems.forEach((drawItem: DrawItem) => {
-        if (drawItem.groupNum !== groupNum) {
-          groupNum = drawItem.groupNum;
-          currentGroup = new DrawGroup();
-          currentGroup.groupNum = drawItem.groupNum;
-          currentGroup.drawItems = [];
-          this.groups.push(currentGroup);
+        if (drawItem.drawType === DrawType.ROUND_ROBIN) {
+          if (drawItem.groupNum !== groupNum) {
+            groupNum = drawItem.groupNum;
+            currentGroup = new DrawGroup();
+            currentGroup.groupNum = drawItem.groupNum;
+            currentGroup.drawItems = [];
+            this.groups.push(currentGroup);
+          }
+          currentGroup.drawItems.push(drawItem);
+        } else if (drawItem.drawType === DrawType.SINGLE_ELIMINATION) {
+          currentSingleEliminationRound.drawItems.push(drawItem);
         }
-        currentGroup.drawItems.push(drawItem);
       });
+
+      this.finishRemainingSERounds();
 
       this.setupGroupsForDragAndDrop();
     }
@@ -162,7 +176,8 @@ export class DrawsComponent implements OnInit, OnChanges {
               rating: -1,
               playerName: ' ',
               state: ' ',
-              clubName: ' '
+              clubName: ' ',
+              byeNum: 0
             };
             drawGroup.drawItems.push(fakeDrawItem);
           }
@@ -252,4 +267,42 @@ export class DrawsComponent implements OnInit, OnChanges {
       : (drawItem.state ? drawItem.state : 'N/A') + ', ' + (drawItem.clubName ? drawItem.clubName : 'N/A');
   }
 
+  /**
+   *
+   * @private
+   */
+  private finishRemainingSERounds() {
+    if (this.selectedEvent && this.singleEliminationRounds.length > 0) {
+      const eventFK = this.selectedEvent.id;
+      const firstRound: DrawRound = this.singleEliminationRounds[0];
+      const firstRoundParticipants = firstRound.drawItems.length;
+      firstRound.round = firstRound.drawItems.length;
+      const rounds = Math.ceil(Math.log(firstRoundParticipants) / Math.log(2));
+      for (let round = 1; round < rounds; round++) {
+        const drawRound: DrawRound = new DrawRound();
+        const divider = Math.pow(2, round);
+        drawRound.round = firstRoundParticipants / divider;
+        console.log('drawRound.round ' + drawRound.round);
+        this.singleEliminationRounds.push(drawRound);
+        for (let i = 0; i < drawRound.round; i++) {
+          const drawItem: DrawItem = {
+            id: 0, eventFk: eventFK, drawType: DrawType.SINGLE_ELIMINATION, groupNum: (i + 1), placeInGroup: 0,
+            state: null, rating: 0, clubName: null, playerName: null, playerId: null, conflicts: null, byeNum: 0
+          };
+          drawRound.drawItems.push(drawItem);
+        }
+        // last round and play for 3 & 4th place ?
+        if ((round + 1) === rounds && this.selectedEvent) {
+          console.log('adding 3 & 4 th place match');
+          for (let i = 0; i < drawRound.round; i++) {
+            const drawItem: DrawItem = {
+              id: 0, eventFk: eventFK, drawType: DrawType.SINGLE_ELIMINATION, groupNum: (i + 3), placeInGroup: 0,
+              state: null, rating: 0, clubName: null, playerName: null, playerId: null, conflicts: null, byeNum: 0
+            };
+            drawRound.drawItems.push(drawItem);
+          }
+        }
+      }
+    }
+  }
 }

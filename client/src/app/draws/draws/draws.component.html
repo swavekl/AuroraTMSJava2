@@ -105,7 +105,8 @@
         </div>
       </div>
     </div>
-    <app-single-elimination-bracket *ngIf="showPlayoffDraw"></app-single-elimination-bracket>
+    <app-single-elimination-bracket *ngIf="showPlayoffDraw" [singleEliminationRounds]="singleEliminationRounds">
+    </app-single-elimination-bracket>
   </div>
   </form>
 </div>

@@ -6,5 +6,6 @@ package com.auroratms.event;
 public enum DrawMethod {
     SNAKE,
     DIVISION,
-    BY_RECORD
+    BY_RECORD,
+    SINGLE_ELIMINATION
 }

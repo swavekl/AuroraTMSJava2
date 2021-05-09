@@ -10,11 +10,10 @@ import java.util.*;
 /**
  * Generator for draws using snake method - typical draws for round robin phase in groups of 4
  */
-public class SnakeDrawsGenerator implements IDrawsGenerator {
-    private TournamentEventEntity tournamentEventEntity;
+public class SnakeDrawsGenerator extends AbstractDrawsGenerator implements IDrawsGenerator {
 
     public SnakeDrawsGenerator(TournamentEventEntity tournamentEventEntity) {
-        this.tournamentEventEntity = tournamentEventEntity;
+        super(tournamentEventEntity);
     }
 
     /**
@@ -40,34 +39,6 @@ public class SnakeDrawsGenerator implements IDrawsGenerator {
         sortDrawItemsByPlaceInGroup(drawItemList);
 
         return drawItemList;
-    }
-
-    /**
-     * Sorts submitted event entries list by player seed rating
-     *
-     * @param eventEntries            event entries
-     * @param entryIdToPlayerDrawInfo player info with rating
-     */
-    private void sortEntriesByRating(List<TournamentEventEntry> eventEntries, Map<Long, PlayerDrawInfo> entryIdToPlayerDrawInfo) {
-        Collections.sort(eventEntries, new Comparator<TournamentEventEntry>() {
-            @Override
-            public int compare(TournamentEventEntry tee1, TournamentEventEntry tee2) {
-                long tournamentEntryFk1 = tee1.getTournamentEntryFk();
-                long tournamentEntryFk2 = tee2.getTournamentEntryFk();
-                PlayerDrawInfo pdi1 = entryIdToPlayerDrawInfo.get(tournamentEntryFk1);
-                PlayerDrawInfo pdi2 = entryIdToPlayerDrawInfo.get(tournamentEntryFk2);
-                int rating1 = pdi1.getRating();
-                int rating2 = pdi2.getRating();
-                return Integer.compare(rating2, rating1);
-            }
-        });
-
-//        System.out.println("Sorted entries");
-//        for (TournamentEventEntry eventEntry : eventEntries) {
-//            long tournamentEntryFk = eventEntry.getTournamentEntryFk();
-//            PlayerDrawInfo playerDrawInfo = entryIdToPlayerDrawInfo.get(tournamentEntryFk);
-//            System.out.println (String.format("%s => %d", playerDrawInfo.getPlayerName(), playerDrawInfo.getRating()));
-//        }
     }
 
     /**
@@ -100,7 +71,7 @@ public class SnakeDrawsGenerator implements IDrawsGenerator {
             Long entryId = tournamentEventEntry.getTournamentEntryFk();
             PlayerDrawInfo playerDrawInfo = entryIdToPlayerDrawInfo.get(entryId);
             if (playerDrawInfo != null) {
-                DrawItem drawItem = makeDrawItem(eventFk, groupNum, rowNum, playerDrawInfo);
+                DrawItem drawItem = makeDrawItem(eventFk, groupNum, rowNum, playerDrawInfo, DrawType.ROUND_ROBIN);
                 drawItemList.add(drawItem);
             }
             groupNum++;
@@ -112,7 +83,7 @@ public class SnakeDrawsGenerator implements IDrawsGenerator {
             Long entryId = tournamentEventEntry.getTournamentEntryFk();
             PlayerDrawInfo playerDrawInfo = entryIdToPlayerDrawInfo.get(entryId);
             if (playerDrawInfo != null) {
-                DrawItem drawItem = makeDrawItem(eventFk, groupNum, rowNum, playerDrawInfo);
+                DrawItem drawItem = makeDrawItem(eventFk, groupNum, rowNum, playerDrawInfo, DrawType.ROUND_ROBIN);
                 drawItemList.add(drawItem);
             }
 
@@ -140,29 +111,6 @@ public class SnakeDrawsGenerator implements IDrawsGenerator {
     }
 
     /**
-     * Make a draw item with player information populated
-     *
-     * @param eventFk
-     * @param groupNum
-     * @param placeInGroup
-     * @param playerDrawInfo
-     * @return
-     */
-    private DrawItem makeDrawItem(long eventFk, int groupNum, int placeInGroup, PlayerDrawInfo playerDrawInfo) {
-        DrawItem drawItem = new DrawItem();
-        drawItem.setEventFk(eventFk);
-        drawItem.setDrawType(DrawType.ROUND_ROBIN);
-        drawItem.setPlayerId(playerDrawInfo.getProfileId());
-        drawItem.setPlayerName(playerDrawInfo.getPlayerName());
-        drawItem.setRating(playerDrawInfo.getRating());
-        drawItem.setClubName(playerDrawInfo.getClubName());
-        drawItem.setState(playerDrawInfo.getState());
-        drawItem.setGroupNum(groupNum);
-        drawItem.setPlaceInGroup(placeInGroup);
-        return drawItem;
-    }
-
-    /**
      * Sort items so items in the same group are together
      *
      * @param drawItemList draw item list
@@ -179,15 +127,15 @@ public class SnakeDrawsGenerator implements IDrawsGenerator {
             }
         });
 
-System.out.println("Sorted draw list [groupNum, placeInGroup]");
-int previousGroupNum = 0;
-for (DrawItem drawItem : drawItemList) {
-    if (drawItem.getGroupNum() != previousGroupNum) {
-        System.out.println("----------");
-        previousGroupNum = drawItem.getGroupNum();
-    }
-    System.out.println(drawItem.getGroupNum() + ", " + drawItem.getPlaceInGroup() + ", " + drawItem.getPlayerName() + ", " + drawItem.getRating() + ", " + drawItem.getClubName() + ", " + drawItem.getState());
-}
-System.out.println("----------");
+//System.out.println("Sorted draw list [groupNum, placeInGroup]");
+//int previousGroupNum = 0;
+//for (DrawItem drawItem : drawItemList) {
+//    if (drawItem.getGroupNum() != previousGroupNum) {
+//        System.out.println("----------");
+//        previousGroupNum = drawItem.getGroupNum();
+//    }
+//    System.out.println(drawItem.getGroupNum() + ", " + drawItem.getPlaceInGroup() + ", " + drawItem.getPlayerName() + ", " + drawItem.getRating() + ", " + drawItem.getClubName() + ", " + drawItem.getState());
+//}
+//System.out.println("----------");
     }
 }

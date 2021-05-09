@@ -1,14 +1,18 @@
-import {Component, Input, OnInit} from '@angular/core';
+import {Component, Input, OnChanges, OnInit, SimpleChange, SimpleChanges} from '@angular/core';
 import {NgttRound, NgttTournament} from 'ng-tournament-tree/lib/declarations/interfaces';
+import {DrawRound} from '../model/draw-round.model';
+import {DrawItem} from '../model/draw-item.model';
 
 @Component({
   selector: 'app-single-elimination-bracket',
   templateUrl: './single-elimination-bracket.component.html',
   styleUrls: ['./single-elimination-bracket.component.scss']
 })
-export class SingleEliminationBracketComponent implements OnInit {
+export class SingleEliminationBracketComponent implements OnInit, OnChanges {
 
   @Input()
+  singleEliminationRounds: DrawRound[] = [];
+
   myTournamentData: NgttTournament;
 
   constructor() { }
@@ -68,8 +72,42 @@ export class SingleEliminationBracketComponent implements OnInit {
     rounds.push(quarterRound);
     rounds.push(semiRound);
     rounds.push(finalRound);
-    this.myTournamentData = {
-      rounds: rounds
-    };
+    // this.myTournamentData = {
+    //   rounds: rounds
+    // };
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    const singleEliminationRoundsChange: SimpleChange = changes.singleEliminationRounds;
+    if (singleEliminationRoundsChange != null) {
+      const drawRounds: DrawRound [] = singleEliminationRoundsChange.currentValue;
+      if (drawRounds) {
+        const rounds: NgttRound [] = [];
+        for (let i = 0; i < drawRounds.length; i++) {
+          const drawRound = drawRounds[i];
+          const drawItems: DrawItem [] = drawRound.drawItems;
+          const roundMatches = [];
+          for (let j = 0; j < drawItems.length; ) {
+            const drawItemLeft: DrawItem = drawItems[j];
+            const drawItemRight: DrawItem = drawItems[j + 1];
+            const leftPlayerName = (drawItemLeft.byeNum === 0) ? drawItemLeft.playerName : 'Bye ' + drawItemLeft.byeNum;
+            const rightPlayerName = (drawItemRight.byeNum === 0) ? drawItemRight.playerName : 'Bye ' + drawItemRight.byeNum;
+            const match = {
+              leftGroup: drawItemLeft.groupNum, rightGroup: drawItemRight.groupNum,
+              leftPlayerRating: drawItemLeft.rating, rightPlayerRating: drawItemRight.rating,
+              leftPlayerName: leftPlayerName, rightPlayerName: rightPlayerName
+            };
+            roundMatches.push(match);
+            j += 2;
+          }
+          const type = ((i + 1) === drawRounds.length) ? 'Final' : 'Winnerbracket';
+          const round: NgttRound = { type: type, matches: roundMatches};
+          rounds.push(round);
+        }
+        this.myTournamentData = {
+          rounds: rounds
+        };
+      }
+    }
   }
 }

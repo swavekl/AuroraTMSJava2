@@ -230,14 +230,77 @@ public class DrawController {
             List<DrawItem> existingDrawItems = this.drawService.listAllDrawsForTournament(otherEventIds);
 
             // finally make the draws and save them
-            List<DrawItem> drawItems = this.drawService.generateDraws(thisEvent, drawType, eventEntries, existingDrawItems, entryIdToPlayerDrawInfo);
+            List<DrawItem> drawItems = this.drawService.generateDraws(thisEvent, drawType, eventEntries,
+                    existingDrawItems, entryIdToPlayerDrawInfo);
 
+            // see if we need to create another draw
+            if (thisEvent.getPlayersToAdvance() > 0) {
+                List<TournamentEventEntry> seSimulatedEventEntries = generateSEEventEntriesFromDraws(
+                        drawItems, eventEntries, thisEvent, entryIdToPlayerDrawInfo);
+                List<DrawItem> seDrawItems = this.drawService.generateDraws(thisEvent, DrawType.SINGLE_ELIMINATION,
+                        seSimulatedEventEntries, existingDrawItems, entryIdToPlayerDrawInfo);
+                drawItems.addAll(seDrawItems);
+            }
+            
             // response
             return new ResponseEntity<List<DrawItem>>(drawItems, HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<List<DrawItem>>(Collections.EMPTY_LIST, HttpStatus.BAD_REQUEST);
         }
     }
+
+    /**
+     *
+     * @param rrDrawItems
+     * @param rrEventEntries
+     * @param tournamentEventEntity
+     * @param entryIdToPlayerDrawInfo
+     * @return
+     */
+    private List<TournamentEventEntry> generateSEEventEntriesFromDraws(List<DrawItem> rrDrawItems,
+                                                                      List<TournamentEventEntry> rrEventEntries,
+                                                                      TournamentEventEntity tournamentEventEntity,
+                                                                      Map<Long, PlayerDrawInfo> entryIdToPlayerDrawInfo) {
+        List<TournamentEventEntry> seEventEntries = new ArrayList<>();
+        int playersToAdvance = tournamentEventEntity.getPlayersToAdvance();
+        for (DrawItem rrDrawItem : rrDrawItems) {
+            if (rrDrawItem.getPlaceInGroup() <= playersToAdvance) {
+                String playerId = rrDrawItem.getPlayerId();
+                TournamentEventEntry eventEntry = makeEventEntry(playerId, rrEventEntries, entryIdToPlayerDrawInfo);
+                if (eventEntry != null) {
+                    seEventEntries.add(eventEntry);
+                }
+            }
+        }
+
+        return seEventEntries;
+    }
+
+    /**
+     *
+     * @param playerId
+     * @param rrEventEntries
+     * @param entryIdToPlayerDrawInfo
+     * @return
+     */
+    private TournamentEventEntry makeEventEntry(String playerId,
+                                                List<TournamentEventEntry> rrEventEntries,
+                                                Map<Long, PlayerDrawInfo> entryIdToPlayerDrawInfo) {
+        for (Map.Entry<Long, PlayerDrawInfo> playerDrawInfoEntry : entryIdToPlayerDrawInfo.entrySet()) {
+            PlayerDrawInfo playerDrawInfo = playerDrawInfoEntry.getValue();
+            if (playerDrawInfo.getProfileId().equals(playerId)) {
+                Long entryId = playerDrawInfoEntry.getKey();
+                for (TournamentEventEntry rrEventEntry : rrEventEntries) {
+                    if (rrEventEntry.getTournamentEntryFk() == entryId) {
+                        return rrEventEntry;
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+
 
     /**
      * Updates existing draw
