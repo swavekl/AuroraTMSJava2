@@ -1,4 +1,4 @@
-import {Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChange, SimpleChanges} from '@angular/core';
+import {Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChange, SimpleChanges, ViewEncapsulation} from '@angular/core';
 import {CdkDrag, CdkDragDrop, CdkDropList, transferArrayItem} from '@angular/cdk/drag-drop';
 import {TournamentEvent} from '../../tournament/tournament-config/tournament-event.model';
 import {DrawType} from '../model/draw-type.enum';
@@ -73,7 +73,6 @@ export class DrawsComponent implements OnInit, OnChanges {
       const currentSingleEliminationRound = new DrawRound();
       this.singleEliminationRounds = [];
       this.singleEliminationRounds.push(currentSingleEliminationRound);
-      console.log('splitting rounds');
       drawItems.forEach((drawItem: DrawItem) => {
         if (drawItem.drawType === DrawType.ROUND_ROBIN) {
           if (drawItem.groupNum !== groupNum) {
@@ -282,7 +281,6 @@ export class DrawsComponent implements OnInit, OnChanges {
         const drawRound: DrawRound = new DrawRound();
         const divider = Math.pow(2, round);
         drawRound.round = firstRoundParticipants / divider;
-        console.log('drawRound.round ' + drawRound.round);
         this.singleEliminationRounds.push(drawRound);
         for (let i = 0; i < drawRound.round; i++) {
           const drawItem: DrawItem = {
@@ -293,7 +291,6 @@ export class DrawsComponent implements OnInit, OnChanges {
         }
         // last round and play for 3 & 4th place ?
         if ((round + 1) === rounds && this.selectedEvent) {
-          console.log('adding 3 & 4 th place match');
           for (let i = 0; i < drawRound.round; i++) {
             const drawItem: DrawItem = {
               id: 0, eventFk: eventFK, drawType: DrawType.SINGLE_ELIMINATION, groupNum: (i + 3), placeInGroup: 0,
