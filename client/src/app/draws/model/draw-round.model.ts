@@ -13,7 +13,7 @@ export class DrawRound {
   getRoundName (): string {
     switch (this.round) {
       case 2:
-        return 'Final';
+        return 'Finals';
       case 4:
         return 'Semi-Finals';
       case 8:

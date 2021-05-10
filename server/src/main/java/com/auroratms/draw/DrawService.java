@@ -6,7 +6,6 @@ import com.auroratms.draw.generation.PlayerDrawInfo;
 import com.auroratms.event.TournamentEventEntity;
 import com.auroratms.tournamentevententry.TournamentEventEntry;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
@@ -48,7 +47,11 @@ public class DrawService {
     }
 
     public List<DrawItem> list(long eventId, DrawType drawType) {
-        return this.drawRepository.findAllByEventFkAndDrawTypeOrderByGroupNumAscPlaceInGroupAsc(eventId, drawType);
+        if (drawType.equals(DrawType.ROUND_ROBIN)) {
+            return this.drawRepository.findAllByEventFkAndDrawTypeOrderByGroupNumAscPlaceInGroupAsc(eventId, drawType);
+        } else {
+            return this.drawRepository.findAllByEventFkAndDrawTypeOrderBySingleElimLineNumAsc(eventId, drawType);
+        }
     }
 
     public List<DrawItem> listAllDrawsForTournament(List<Long> eventIds) {

@@ -82,6 +82,14 @@ public class DrawController {
             profileIds.add(drawItem.getPlayerId());
         }
 
+
+        // if this event has more than one round RR followed by SE then delete that too
+        TournamentEventEntity thisEvent = this.eventService.get(eventId);
+        if (!thisEvent.isSingleElimination() && thisEvent.getPlayersToAdvance() > 0) {
+            List<DrawItem> seRoundDrawItems = this.drawService.list(eventId, DrawType.SINGLE_ELIMINATION);
+            drawItems.addAll(seRoundDrawItems);
+        }
+
         // get their profile exts containing club ids
         // collect them in unique set
         Map<String, UserProfileExt> userProfileExtMap = userProfileExtService.findByProfileIds(profileIds);
@@ -100,12 +108,14 @@ public class DrawController {
         for (DrawItem drawItem : drawItems) {
             String playerId = drawItem.getPlayerId();
             UserProfileExt userProfileExt = userProfileExtMap.get(playerId);
-            Long clubFk = userProfileExt.getClubFk();
-            if (clubFk != null) {
-                for (ClubEntity clubEntity : clubEntityList) {
-                    if (clubEntity.getId() == clubFk) {
-                        drawItem.setClubName(clubEntity.getClubName());
-                        break;
+            if (userProfileExt != null) {
+                Long clubFk = userProfileExt.getClubFk();
+                if (clubFk != null) {
+                    for (ClubEntity clubEntity : clubEntityList) {
+                        if (clubEntity.getId() == clubFk) {
+                            drawItem.setClubName(clubEntity.getClubName());
+                            break;
+                        }
                     }
                 }
             }
@@ -120,14 +130,16 @@ public class DrawController {
         for (DrawItem drawItem : drawItems) {
             String profileId = drawItem.getPlayerId();
             UserProfileExt userProfileExt = userProfileExtMap.get(profileId);
-            Long membershipId = userProfileExt.getMembershipId();
-            for (UsattPlayerRecord usattPlayerRecord : usattPlayerRecordList) {
-                if (membershipId.equals(usattPlayerRecord.getMembershipId())) {
-                    // todo state may be obsolete - we should be getting it from Okta
-                    drawItem.setState(usattPlayerRecord.getState());
-                    String fullName = usattPlayerRecord.getLastName() + ", " + usattPlayerRecord.getFirstName();
-                    drawItem.setPlayerName(fullName);
-                    break;
+            if (userProfileExt != null) {
+                Long membershipId = userProfileExt.getMembershipId();
+                for (UsattPlayerRecord usattPlayerRecord : usattPlayerRecordList) {
+                    if (membershipId.equals(usattPlayerRecord.getMembershipId())) {
+                        // todo state may be obsolete - we should be getting it from Okta
+                        drawItem.setState(usattPlayerRecord.getState());
+                        String fullName = usattPlayerRecord.getLastName() + ", " + usattPlayerRecord.getFirstName();
+                        drawItem.setPlayerName(fullName);
+                        break;
+                    }
                 }
             }
         }
@@ -148,11 +160,17 @@ public class DrawController {
     public ResponseEntity<List<DrawItem>> generateAll(@RequestParam long eventId,
                                                       @RequestParam DrawType drawType) {
         try {
+            TournamentEventEntity thisEvent = this.eventService.get(eventId);
+
             // remove existing draw if any
             this.drawService.deleteDraws(eventId, drawType);
 
+            // if this event has more than one round RR followed by SE then delete that too
+            if (!thisEvent.isSingleElimination() && thisEvent.getPlayersToAdvance() > 0) {
+                this.drawService.deleteDraws(eventId, DrawType.SINGLE_ELIMINATION);
+            }
+
             // get all event entries into this event
-            TournamentEventEntity thisEvent = this.eventService.get(eventId);
             List<TournamentEventEntry> eventEntries = this.eventEntryService.listAllForEvent(thisEvent.getId());
 
             long tournamentFk = thisEvent.getTournamentFk();
@@ -324,6 +342,16 @@ public class DrawController {
     @DeleteMapping("")
     @PreAuthorize("hasAuthority('TournamentDirectors') or hasAuthority('Admins') or hasAuthority('Referees')")
     public void deleteAll(@RequestParam long eventId) {
-        this.drawService.deleteDraws(eventId, DrawType.ROUND_ROBIN);
+        TournamentEventEntity thisEvent = this.eventService.get(eventId);
+        boolean singleElimination = thisEvent.isSingleElimination();
+        if (singleElimination) {
+            this.drawService.deleteDraws(eventId, DrawType.SINGLE_ELIMINATION);
+        } else {
+            // if RR is followed by Single elimination then delte that too
+            this.drawService.deleteDraws(eventId, DrawType.ROUND_ROBIN);
+            if (thisEvent.getPlayersToAdvance() > 0) {
+                this.drawService.deleteDraws(eventId, DrawType.SINGLE_ELIMINATION);
+            }
+        }
     }
 }

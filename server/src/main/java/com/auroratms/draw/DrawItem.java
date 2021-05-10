@@ -32,6 +32,9 @@ public class DrawItem {
     // bye number if this draw item represents a bye (e.g. 1, 2, 3 etc), 0 otherwise
     private int byeNum;
 
+    // single elimination line number for preserving order of the bracket -
+    private int singleElimLineNum;
+
     private DrawType drawType;
 
     // id of the player (Okta) for fetching state, club etc.

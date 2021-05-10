@@ -13,6 +13,8 @@ public interface DrawRepository extends JpaRepository<DrawItem, Long> {
 
     List<DrawItem> findAllByEventFkAndDrawTypeOrderByGroupNumAscPlaceInGroupAsc(long eventFk, DrawType drawType);
 
+    List<DrawItem> findAllByEventFkAndDrawTypeOrderBySingleElimLineNumAsc(long eventFk, DrawType drawType);
+
     // list all draws for all events in this tournament
     List<DrawItem> findAllByEventFkInOrderByEventFkAscGroupNumAscPlaceInGroupAsc(List<Long> eventFkList);
 

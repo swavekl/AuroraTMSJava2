@@ -75,9 +75,10 @@ table {
     }
 
     &.rating-column {
-      text-align: start;
+      text-align: end;
       vertical-align: top;
       width: 17%;
+      padding-right: 8px;
     }
   }
 }

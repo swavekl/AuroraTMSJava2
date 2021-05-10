@@ -49,9 +49,11 @@ export class SingleEliminationBracketComponent implements OnInit, OnChanges {
           const round: NgttRound = { type: type, matches: roundMatches};
           rounds.push(round);
         }
-        this.tournament = {
-          rounds: rounds
-        };
+        if (rounds.length > 0) {
+          this.tournament = {
+            rounds: rounds
+          };
+        }
       }
     }
   }

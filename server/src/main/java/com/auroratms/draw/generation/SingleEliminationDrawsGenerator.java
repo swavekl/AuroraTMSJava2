@@ -82,9 +82,12 @@ public class SingleEliminationDrawsGenerator extends AbstractDrawsGenerator impl
 
         // convert to draw items list
         List<DrawItem> drawItems = new ArrayList<>(bracketLines.length);
+        int singleElimLineNum = 1;
         for (DrawItem drawItem : drawItemsArray) {
             if (drawItem != null) {
+                drawItem.setSingleElimLineNum(singleElimLineNum);
                 drawItems.add(drawItem);
+                singleElimLineNum++;
             } else {
                 System.out.println("draw item is null");
             }

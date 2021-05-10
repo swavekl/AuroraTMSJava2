@@ -1,4 +1,4 @@
-import {Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChange, SimpleChanges, ViewEncapsulation} from '@angular/core';
+import {Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChange, SimpleChanges} from '@angular/core';
 import {CdkDrag, CdkDragDrop, CdkDropList, transferArrayItem} from '@angular/cdk/drag-drop';
 import {TournamentEvent} from '../../tournament/tournament-config/tournament-event.model';
 import {DrawType} from '../model/draw-type.enum';
@@ -72,7 +72,6 @@ export class DrawsComponent implements OnInit, OnChanges {
       this.groups = [];
       const currentSingleEliminationRound = new DrawRound();
       this.singleEliminationRounds = [];
-      this.singleEliminationRounds.push(currentSingleEliminationRound);
       drawItems.forEach((drawItem: DrawItem) => {
         if (drawItem.drawType === DrawType.ROUND_ROBIN) {
           if (drawItem.groupNum !== groupNum) {
@@ -87,6 +86,10 @@ export class DrawsComponent implements OnInit, OnChanges {
           currentSingleEliminationRound.drawItems.push(drawItem);
         }
       });
+
+      if (currentSingleEliminationRound.drawItems.length > 0) {
+        this.singleEliminationRounds.push(currentSingleEliminationRound);
+      }
 
       this.finishRemainingSERounds();
 
@@ -116,10 +119,11 @@ export class DrawsComponent implements OnInit, OnChanges {
   generateDraw() {
     this.undoStack = [];
     this.showPlayoffDraw = false;
+    const drawType: DrawType = this.selectedEvent.singleElimination ? DrawType.SINGLE_ELIMINATION : DrawType.ROUND_ROBIN;
     const action: DrawAction = {
       actionType: DrawActionType.DRAW_ACTION_GENERATE,
       eventId: this.selectedEvent.id,
-      payload: {drawType: DrawType.ROUND_ROBIN}
+      payload: {drawType: drawType}
     };
     this.drawsAction.emit(action);
   }

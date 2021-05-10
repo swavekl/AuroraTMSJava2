@@ -3,7 +3,7 @@
     {{round.getRoundName()}}
   </div>
 </div>
-<div class="se-draws-panel">
+<div class="se-draws-panel" *ngIf="tournament">
   <ngtt-single-elimination-tree
     [tournament]="tournament"
     [matchTemplate]="myMatchTemplate">
