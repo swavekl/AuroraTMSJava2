@@ -40,13 +40,16 @@ import {tap} from 'rxjs/operators';
     this.drawDataService.eventId = eventId;
     this.drawDataService.drawType = drawType;
     super.clearCache();
+    this.setLoading(true);
     return this.drawDataService.generate(eventId, drawType)
       .pipe(tap(
         (draws: DrawItem[]) => {
           console.log('adding generated draws to cache of length ' + draws.length);
           super.addAllToCache(draws);
+          this.setLoading(false);
         },
         () => {
+          this.setLoading(false);
           console.log ('error when generating draws');
         }
       ));
