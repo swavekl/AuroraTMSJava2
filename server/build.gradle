@@ -35,6 +35,7 @@ dependencies {
     implementation('org.springframework.boot:spring-boot-starter-actuator')
     implementation('org.springframework.boot:spring-boot-starter-web')
     implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
+    implementation("org.springframework.boot:spring-boot-starter-mail")
     implementation "org.springframework.security:spring-security-acl"
     implementation "org.springframework.security:spring-security-config"
     implementation "org.springframework:spring-context-support"
@@ -42,7 +43,7 @@ dependencies {
     // Hashicorp Vault
     implementation "org.springframework.boot:spring-boot-configuration-processor"
     annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
-    implementation "org.springframework.vault:spring-vault-core:2.3.0"
+    implementation "org.springframework.vault:spring-vault-core:2.3.2"
     // for vault CRUD repository support
     implementation "org.springframework.data:spring-data-keyvalue"
 

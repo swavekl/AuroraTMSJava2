@@ -37,7 +37,7 @@ public class AbstractDrawsGeneratorTest {
         return map;
     }
 
-    private PlayerDrawInfo makePlayerDrawInfo(String profileId, String fullName, int seedRating, long clubId, String state) {
+    protected PlayerDrawInfo makePlayerDrawInfo(String profileId, String fullName, int seedRating, long clubId, String state) {
         PlayerDrawInfo playerDrawInfo = new PlayerDrawInfo();
         playerDrawInfo.setProfileId(profileId);
         playerDrawInfo.setPlayerName(fullName);
@@ -77,7 +77,7 @@ public class AbstractDrawsGeneratorTest {
         return eventEntries;
     }
 
-    private TournamentEventEntry makeTournamentEventEntry(long id, long tournamentFk, long eventFk, long entryFk) {
+    protected TournamentEventEntry makeTournamentEventEntry(long id, long tournamentFk, long eventFk, long entryFk) {
         TournamentEventEntry entry = new TournamentEventEntry();
         entry.setId(id);
         entry.setTournamentEntryFk(tournamentFk);

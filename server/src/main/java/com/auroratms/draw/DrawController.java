@@ -5,8 +5,10 @@ import com.auroratms.club.ClubService;
 import com.auroratms.draw.generation.PlayerDrawInfo;
 import com.auroratms.event.TournamentEventEntity;
 import com.auroratms.event.TournamentEventEntityService;
+import com.auroratms.profile.UserProfile;
 import com.auroratms.profile.UserProfileExt;
 import com.auroratms.profile.UserProfileExtService;
+import com.auroratms.profile.UserProfileService;
 import com.auroratms.tournamententry.TournamentEntry;
 import com.auroratms.tournamententry.TournamentEntryService;
 import com.auroratms.tournamentevententry.TournamentEventEntry;
@@ -41,6 +43,8 @@ public class DrawController {
 
     private UserProfileExtService userProfileExtService;
 
+    private UserProfileService userProfileService;
+
     private UsattDataService usattDataService;
 
     private ClubService clubService;
@@ -50,6 +54,7 @@ public class DrawController {
                           TournamentEventEntryService eventEntryService,
                           TournamentEntryService entryService,
                           UserProfileExtService userProfileExtService,
+                          UserProfileService userProfileService,
                           UsattDataService usattDataService,
                           ClubService clubService) {
         this.drawService = drawService;
@@ -57,6 +62,7 @@ public class DrawController {
         this.eventEntryService = eventEntryService;
         this.entryService = entryService;
         this.userProfileExtService = userProfileExtService;
+        this.userProfileService = userProfileService;
         this.usattDataService = usattDataService;
         this.clubService = clubService;
     }
@@ -251,10 +257,11 @@ public class DrawController {
             List<DrawItem> drawItems = this.drawService.generateDraws(thisEvent, drawType, eventEntries,
                     existingDrawItems, entryIdToPlayerDrawInfo);
 
-            // see if we need to create another draw
+            // see if we need to create draw for single elimination round
             if (thisEvent.getPlayersToAdvance() > 0) {
                 List<TournamentEventEntry> seSimulatedEventEntries = generateSEEventEntriesFromDraws(
                         drawItems, eventEntries, thisEvent, entryIdToPlayerDrawInfo);
+                fillCityStateCountryForSEPlayers (seSimulatedEventEntries, entryIdToPlayerDrawInfo);
                 List<DrawItem> seDrawItems = this.drawService.generateDraws(thisEvent, DrawType.SINGLE_ELIMINATION,
                         seSimulatedEventEntries, existingDrawItems, entryIdToPlayerDrawInfo);
                 drawItems.addAll(seDrawItems);
@@ -266,6 +273,44 @@ public class DrawController {
             return new ResponseEntity<List<DrawItem>>(Collections.EMPTY_LIST, HttpStatus.BAD_REQUEST);
         }
     }
+
+    /**
+     *
+     * @param seSimulatedEventEntries
+     * @param entryIdToPlayerDrawInfo
+     */
+    private void fillCityStateCountryForSEPlayers(List<TournamentEventEntry> seSimulatedEventEntries, Map<Long, PlayerDrawInfo> entryIdToPlayerDrawInfo) {
+        long start = System.currentTimeMillis();
+        Map<String, PlayerDrawInfo> profileIdToInfoMap = new HashMap<>();
+        List<String> profileIds = new ArrayList<>(seSimulatedEventEntries.size());
+        for (TournamentEventEntry seSimulatedEventEntry : seSimulatedEventEntries) {
+            long tournamentEntryFk = seSimulatedEventEntry.getTournamentEntryFk();
+            PlayerDrawInfo playerDrawInfo = entryIdToPlayerDrawInfo.get(tournamentEntryFk);
+            if (playerDrawInfo != null) {
+                String profileId = playerDrawInfo.getProfileId();
+                profileIds.add(profileId);
+                profileIdToInfoMap.put(profileId, playerDrawInfo);
+            }
+        }
+
+        // request user profiles in bulk
+        Collection<UserProfile> userProfiles = userProfileService.listByProfileIds(profileIds);
+        // enrich the information in the player draw info
+        for (UserProfile userProfile : userProfiles) {
+            String profileId = userProfile.getUserId();
+            PlayerDrawInfo playerDrawInfo = profileIdToInfoMap.get(profileId);
+            if (playerDrawInfo != null) {
+                playerDrawInfo.setCity(userProfile.getCity());
+                playerDrawInfo.setState(userProfile.getState());
+                playerDrawInfo.setCountry(userProfile.getCountryCode());
+//                System.out.println(String.format("\"%s\",\"%s\",\"%s\",\"%s\"",
+//                        playerDrawInfo.getPlayerName(), playerDrawInfo.getClubName(), playerDrawInfo.getCity(), playerDrawInfo.getState(), playerDrawInfo.getCountry()));
+            }
+        }
+        long end = System.currentTimeMillis();
+        System.out.println("Fetch profiles for " + userProfiles.size() + " players took " + (end - start) + " ms");
+    }
+
 
     /**
      *
@@ -308,8 +353,14 @@ public class DrawController {
             PlayerDrawInfo playerDrawInfo = playerDrawInfoEntry.getValue();
             if (playerDrawInfo.getProfileId().equals(playerId)) {
                 Long entryId = playerDrawInfoEntry.getKey();
+//                System.out.println(
+//                        String.format("map.put(%d, makePlayerDrawInfo(\"%s\", \"%s\", \"%s\", \"%s\", %d));",
+//                        entryId, playerDrawInfo.getPlayerName(), playerDrawInfo.getClubName(), playerDrawInfo.getCity(),
+//                                playerDrawInfo.getState(), playerDrawInfo.getRating()));
                 for (TournamentEventEntry rrEventEntry : rrEventEntries) {
                     if (rrEventEntry.getTournamentEntryFk() == entryId) {
+//                        System.out.println(String.format("makeTournamentEventEntry(%d, %d, %d);",
+//                                rrEventEntry.getId(), rrEventEntry.getTournamentEventFk(), rrEventEntry.getTournamentEntryFk()));
                         return rrEventEntry;
                     }
                 }

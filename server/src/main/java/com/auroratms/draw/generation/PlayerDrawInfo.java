@@ -25,7 +25,12 @@ public class PlayerDrawInfo {
     // club where player plays
     private String clubName;
 
+    // city for geographical separation
+    private String city;
+
     // state abbreviation for geographical isolation
     private String state;
 
+    // country of player
+    private String country = "US";
 }

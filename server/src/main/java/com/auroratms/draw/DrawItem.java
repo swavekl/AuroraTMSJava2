@@ -58,4 +58,8 @@ public class DrawItem {
     // name of the table tennis club where player plays
     @Transient
     private String clubName;
+
+    // tournament entry id for lookup of above geographical player information
+    @Transient
+    private long entryId;
 }

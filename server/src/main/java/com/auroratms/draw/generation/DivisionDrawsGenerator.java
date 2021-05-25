@@ -57,7 +57,7 @@ public class DivisionDrawsGenerator extends AbstractDrawsGenerator implements ID
             Long entryId = tournamentEventEntry.getTournamentEntryFk();
             PlayerDrawInfo playerDrawInfo = entryIdToPlayerDrawInfo.get(entryId);
             if (playerDrawInfo != null) {
-                DrawItem drawItem = makeDrawItem(eventFk, groupNum, rowNum, playerDrawInfo, DrawType.ROUND_ROBIN);
+                DrawItem drawItem = makeDrawItem(eventFk, groupNum, rowNum, playerDrawInfo, DrawType.ROUND_ROBIN, entryId);
                 drawItemList.add(drawItem);
             }
 

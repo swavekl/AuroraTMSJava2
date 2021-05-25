@@ -3,11 +3,20 @@ spring.datasource:
   driver-class-name: com.mysql.jdbc.Driver
   url: jdbc:mysql://localhost:3306/auroratmstest
   username: tester
-  password: testpassword
+  password: tester2021
 
 spring:
   liquibase:
     enabled: false
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls.enable: true
+
 
 okta:
   oauth2:
@@ -28,3 +37,5 @@ server.ssl:
   key-store-password: exportpassword
   # The alias mapped to the certificate
   key-alias: tomcat
+
+client.host.url: https://gateway-pc:4200

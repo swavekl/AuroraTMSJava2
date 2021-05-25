@@ -8,9 +8,9 @@
       <jdbc-url>jdbc:mysql://localhost:3306/auroratmsspring</jdbc-url>
     </data-source>
     <data-source source="LOCAL" name="test database@localhost" uuid="edc68ffa-33f0-4f07-9bf5-31897805cacd">
-      <driver-ref>mysql</driver-ref>
+      <driver-ref>mysql.8</driver-ref>
       <synchronize>true</synchronize>
-      <jdbc-driver>com.mysql.jdbc.Driver</jdbc-driver>
+      <jdbc-driver>com.mysql.cj.jdbc.Driver</jdbc-driver>
       <jdbc-url>jdbc:mysql://localhost:3306/auroratmstest</jdbc-url>
     </data-source>
     <data-source source="LOCAL" name="auroratmsspring@localhost with dynamic credentials" uuid="961596f1-ad7f-42ac-95b0-44454f34f812">

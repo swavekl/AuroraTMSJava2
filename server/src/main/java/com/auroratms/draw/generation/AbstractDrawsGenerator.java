@@ -2,6 +2,7 @@ package com.auroratms.draw.generation;
 
 import com.auroratms.draw.DrawItem;
 import com.auroratms.draw.DrawType;
+import com.auroratms.draw.generation.singleelim.BracketLine;
 import com.auroratms.event.TournamentEventEntity;
 import com.auroratms.tournamentevententry.TournamentEventEntry;
 
@@ -58,13 +59,15 @@ public abstract class AbstractDrawsGenerator {
      * @param placeInGroup
      * @param playerDrawInfo
      * @param drawType
+     * @param entryId
      * @return
      */
     protected DrawItem makeDrawItem(long eventFk,
                                     int groupNum,
                                     int placeInGroup,
                                     PlayerDrawInfo playerDrawInfo,
-                                    DrawType drawType) {
+                                    DrawType drawType,
+                                    long entryId) {
         DrawItem drawItem = new DrawItem();
         drawItem.setEventFk(eventFk);
         drawItem.setDrawType(drawType);
@@ -75,6 +78,30 @@ public abstract class AbstractDrawsGenerator {
         drawItem.setState(playerDrawInfo.getState());
         drawItem.setGroupNum(groupNum);
         drawItem.setPlaceInGroup(placeInGroup);
+        drawItem.setEntryId(entryId);
         return drawItem;
+    }
+
+    protected void dumpDraw(DrawItem[] drawItemsArray, BracketLine[] bracketLines) {
+        System.out.println("Draw ====== START");
+        for (int i = 0; i < drawItemsArray.length; i++) {
+            DrawItem drawItem = drawItemsArray[i];
+            BracketLine bracketLine = bracketLines[i];
+            if (drawItem != null) {
+                if (drawItem.getByeNum() == 0) {
+                    System.out.println(String.format("%2d) %2d\t%25s,%4d\t\"%s\"", (i + 1), bracketLine.getNormalizedSeedNumber(),
+                            drawItem.getPlayerName(), drawItem.getRating(), drawItem.getState()));
+                } else {
+                    System.out.println(String.format("%2d) %2d\t%23s %d, 0", (i + 1), bracketLine.getNormalizedSeedNumber(), "Bye", drawItem.getByeNum()));
+                }
+            } else {
+                if (bracketLine.isBye()) {
+                    System.out.println(String.format("%2d) %2d\t%23s %d, 0", (i + 1), bracketLine.getNormalizedSeedNumber(), "Bye", bracketLine.getByeSeedNumber()));
+                } else {
+                    System.out.println(String.format("%2d) %2d", (i + 1), bracketLine.getNormalizedSeedNumber()));
+                }
+            }
+        }
+        System.out.println("Draw ====== END");
     }
 }

@@ -18,6 +18,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 
 @Service
 @CacheConfig(cacheNames = {"profiles"})
@@ -78,6 +79,40 @@ public class UserProfileService {
         Client client = getClient();
         UserList users = client.listUsers();
         return toUserProfileList(users);
+    }
+
+    /**
+     * Gets specified profiles in bulk
+     * @param profileIds
+     * @return
+     */
+    public Collection<UserProfile> listByProfileIds (List<String> profileIds) {
+        Client client = getClient();
+        List<UserProfile> profileList = new ArrayList<>(profileIds.size());
+        int batchSize = 20;
+        int fromIndex = 0;
+        int toIndex = fromIndex + batchSize;
+        toIndex = Math.min(toIndex, profileIds.size());
+        while(toIndex <= profileIds.size()) {
+            List<String> profileIdsBatch = profileIds.subList(fromIndex, toIndex);
+            String filter = "";
+            for (String profileId : profileIdsBatch) {
+                filter += (filter.length() > 0) ? " or " : "";
+                filter += String.format("(id eq \"%s\")", profileId);
+            }
+            UserList users = client.listUsers(null, filter, null, null, null);
+            Collection<UserProfile> userProfilesBatch = toUserProfileList(users);
+            profileList.addAll(userProfilesBatch);
+
+            fromIndex = toIndex;
+            if (toIndex == profileIds.size()) {
+                break;
+            }
+            toIndex = fromIndex + batchSize;
+            toIndex = Math.min(toIndex, profileIds.size());
+        }
+
+        return profileList;
     }
 
     /**
