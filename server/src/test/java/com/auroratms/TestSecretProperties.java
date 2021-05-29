@@ -13,8 +13,4 @@ public class TestSecretProperties {
     // environment variables which include properties fetched from the vault at /secrets/auroratms
     @Autowired
     Environment environment;
-
-    public TestSecretProperties() {
-        System.out.println("in TestSecretProperties ctor");
-    }
 }

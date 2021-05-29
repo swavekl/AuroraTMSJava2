@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+<body>
+<p>Hello <span th:text="${playerFirstName}"></span>,</p>
+This is to confirm your entry in the '<span th:text="${tournamentName}"></span>' tournament,
+which will take place on
+<span th:text="${#dates.format(tournamentStartDate,'dd MMMM yyyy')}"></span>
+<span th:if="${tournamentEndDate != null}"> through </span>
+<span th:if="${tournamentEndDate != null}" th:text="${#dates.format(tournamentEndDate,'dd MMMM yyyy')}"></span>.
+</p>
+<p>Here are the events that you entered</p>
+
+<div th:if="${enteredEvents.size > 0}">
+  <table>
+    <thead>
+    <tr>
+      <th>Entered Event Name</th>
+      <th>Day & Time</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="event: ${enteredEvents}">
+      <td th:text="${event.eventName}">*</td>
+      <td th:text="${event.eventDayAndTime}">Fri 6:30 PM</td>
+    </tr>
+    </tbody>
+  </table>
+</div>
+
+<div th:if="${waitListEvents.size > 0}">
+  <table>
+    <thead>
+    <tr>
+      <th>Wait List Event Name</th>
+      <th>Day & Time</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="wlEvent: ${waitListEvents}">
+      <td th:text="${wlEvent.eventName}">*</td>
+      <td th:text="${wlEvent.eventDayAndTime}">Fri 6:30 PM</td>
+    </tr>
+    </tbody>
+  </table>
+</div>
+
+<p>Thank you,<br><span th:text="${tournamentDirectorName}"></span></p>
+</body>
+</html>

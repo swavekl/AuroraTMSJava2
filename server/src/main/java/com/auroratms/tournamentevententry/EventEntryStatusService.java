@@ -8,6 +8,7 @@ import com.auroratms.tournament.Tournament;
 import com.auroratms.tournament.TournamentService;
 import com.auroratms.tournamententry.TournamentEntry;
 import com.auroratms.tournamententry.TournamentEntryService;
+import com.auroratms.tournamententry.notification.TournamentEventPublisher;
 import com.auroratms.tournamentevententry.policy.PolicyApplicator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -33,6 +34,9 @@ public class EventEntryStatusService {
 
     @Autowired
     private UserProfileService userProfileService;
+
+    @Autowired
+    private TournamentEventPublisher eventPublisher;
 
     /**
      * Gets information about event entries with current status, availability and next command
@@ -157,11 +161,11 @@ public class EventEntryStatusService {
                 break;
         }
         eventEntryInfo.setEventEntryCommand(command);
-        System.out.println("--------------------------------------");
-        System.out.print("eventFk = " + eventEntryInfo.getEventFk());
-        System.out.print(" eventEntryStatus = " + eventEntryStatus);
-        System.out.print(" availabilityStatus = " + availabilityStatus);
-        System.out.println(" new command = " + command);
+//        System.out.println("--------------------------------------");
+//        System.out.print("eventFk = " + eventEntryInfo.getEventFk());
+//        System.out.print(" eventEntryStatus = " + eventEntryStatus);
+//        System.out.print(" availabilityStatus = " + availabilityStatus);
+//        System.out.println(" new command = " + command);
     }
 
     /**
@@ -347,5 +351,7 @@ public class EventEntryStatusService {
                 tournamentEventEntryService.update(eventEntry);
             }
         }
+        // send email to TD and player confirming entry
+        eventPublisher.publishRegistrationCompleteEvent(tournamentEntryId);
     }
 }

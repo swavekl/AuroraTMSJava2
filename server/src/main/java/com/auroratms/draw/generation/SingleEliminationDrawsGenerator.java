@@ -230,9 +230,7 @@ public class SingleEliminationDrawsGenerator extends AbstractDrawsGenerator impl
                                                Map<Long, PlayerDrawInfo> entryIdToPlayerDrawInfo,
                                                BracketLine[] bracketLines,
                                                int playerSeedNum) {
-        // map of section start index to section end index to avoid
-
-        this.dumpDraw(drawItemsArray, bracketLines);
+        // this.dumpDraw(drawItemsArray, bracketLines);
 
         // find the sections with players from same geography and avoid those sections of the draw when placing this player
         Map<Integer, Integer> sectionsToAvoid = sectionsToAvoid(playerDrawInfo, drawItemsArray, entryIdToPlayerDrawInfo);
@@ -244,8 +242,8 @@ public class SingleEliminationDrawsGenerator extends AbstractDrawsGenerator impl
         if (maxDistanceIndex == -1) {
             throw new RuntimeException("unable to calculate distance for player " + playerDrawInfo.getPlayerName());
         }
-        System.out.println("placing player " + playerDrawInfo.getPlayerName() + " at index " + maxDistanceIndex); // + ", maxDistance = " + maxDistance);
-        System.out.println("===================================");
+//        System.out.println("placing player " + playerDrawInfo.getPlayerName() + " at index " + maxDistanceIndex); // + ", maxDistance = " + maxDistance);
+//        System.out.println("===================================");
 
         return maxDistanceIndex;
     }

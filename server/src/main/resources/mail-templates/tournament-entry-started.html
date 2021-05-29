@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+<body>
+<p>Hello <span th:text="${tournamentDirectorName}"></span>,</p>
+<p>The following player entered into <span th:text="${tournamentName}"></span>.</p>
+<p><span th:text="${playerFirstName}">first</span> <span th:text="${playerLastName}">last</span></p>
+<p>Eligibility Rating: <span th:text="${eligibilityRating}">Unrated</span></p>
+<p>City, State: <span th:text="${city}">city</span>, <span th:text="${state}">state</span></p>
+</body>
+</html>

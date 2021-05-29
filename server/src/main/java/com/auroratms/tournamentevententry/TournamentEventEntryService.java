@@ -25,7 +25,7 @@ public class TournamentEventEntryService {
     private static List<EventEntryStatus> TAKEN_EVENTS_STATUS = Arrays.asList(
             EventEntryStatus.ENTERED, EventEntryStatus.PENDING_CONFIRMATION, EventEntryStatus.PENDING_DELETION);
 
-    List<TournamentEventEntry> getEntries(Long tournamentEntryId) {
+    public List<TournamentEventEntry> getEntries(Long tournamentEntryId) {
         return repository.findByTournamentEntryFk(tournamentEntryId);
     }
 

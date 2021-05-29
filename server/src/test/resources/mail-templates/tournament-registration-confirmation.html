@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+<body>
+<p>Hello <span th:text="${playerName}"></span>,</p>
+<p> Thank you for registering for
+  <span th:text="${tournamentName}"></span>.  Below you will find the list
+  of events for which you signed up.
+</p>
+<p th:text="${tournamentDirectorName}"></p>
+<p th:text="${tournamentDirectorEmail}"></p>
+<p th:text="${tournamentDirectorPhone}"></p>
+</body>
+</html>

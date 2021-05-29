@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+<body>
+<p>Hello <span th:text="${playerFirstName}"></span>,</p>
+This is to confirm that we have issued the following refund(s) totaling
+<span th:text="${#numbers.formatDecimal(amount, 1, 2)}">10.00</span> <span th:text="${currency}"></span>
+for your withdrawal from the '<span th:text="${tournamentName}"></span>' tournament.</p>
+<div th:if="${refundItems.size > 1}">
+  <p>The refund consists of the following refunds</p>
+  <table>
+    <thead>
+    <tr>
+      <th>Amount</th>
+      <th>Currency</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="item: ${refundItems}">
+      <td th:text="${#numbers.formatDecimal(item.paidAmount, 1, 2)}">5.00</td>
+      <td th:text="${item.paidCurrency}">USD</td>
+    </tr>
+    </tbody>
+  </table>
+</div>
+
+<p>Please allow a few days for the funds to be credited to your account.  Certain fees imposed by a Payment Provider are not refunded.</p>
+<p>Thank you,<br><span th:text="${tournamentDirectorName}"></span></p>
+</body>
+</html>

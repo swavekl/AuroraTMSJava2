@@ -1,0 +1,285 @@
+package com.auroratms.tournamententry.notification;
+
+import com.auroratms.event.TournamentEventEntity;
+import com.auroratms.event.TournamentEventEntityService;
+import com.auroratms.notification.SystemPrincipalExecutor;
+import com.auroratms.profile.UserProfile;
+import com.auroratms.profile.UserProfileService;
+import com.auroratms.tournament.Tournament;
+import com.auroratms.tournament.TournamentService;
+import com.auroratms.tournamententry.TournamentEntry;
+import com.auroratms.tournamententry.TournamentEntryService;
+import com.auroratms.tournamententry.notification.event.TournamentEntryConfirmedEvent;
+import com.auroratms.tournamententry.notification.event.TournamentEntryStartedEvent;
+import com.auroratms.tournamentevententry.TournamentEventEntry;
+import com.auroratms.tournamentevententry.TournamentEventEntryService;
+import com.auroratms.utils.EmailService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.event.TransactionPhase;
+import org.springframework.transaction.event.TransactionalEventListener;
+
+import javax.mail.MessagingException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.*;
+
+/**
+ * Listener for events about registration, updates and withdrawals
+ */
+@Component
+public class TournamentEventListener {
+
+    private static final Logger logger = LoggerFactory.getLogger(TournamentEventListener.class);
+
+    @Autowired
+    private EmailService emailService;
+
+    @Autowired
+    private UserProfileService userProfileService;
+
+    @Autowired
+    private TournamentService tournamentService;
+
+    @Autowired
+    private TournamentEntryService tournamentEntryService;
+
+    @Autowired
+    private TournamentEventEntityService tournamentEventService;
+
+    @Autowired
+    private TournamentEventEntryService tournamentEventEntryService;
+
+    /**
+     * Send entry started email to TD
+     * @param event
+     */
+    @Async
+    @TransactionalEventListener(phase= TransactionPhase.AFTER_COMMIT)
+    public void handleEvent(TournamentEntryStartedEvent event) {
+        // run this task as system principal so we have access to various services
+        SystemPrincipalExecutor task = new SystemPrincipalExecutor() {
+            @Override
+            @Transactional
+            protected void taskBody() {
+                sendEntryStartedEmail(event);
+            }
+        };
+        task.execute();
+    }
+
+    /**
+     * Sends email in response to completed payment
+     * @param event
+     */
+    @Async
+    @TransactionalEventListener(phase= TransactionPhase.AFTER_COMMIT)
+    public void handleEntryConfirmedEvent(TournamentEntryConfirmedEvent event) {
+        // run this task as system principal so we have access to various services
+        SystemPrincipalExecutor task = new SystemPrincipalExecutor() {
+            @Override
+            @Transactional
+            protected void taskBody() {
+                sendEntryCompletedEmail(event);
+            }
+        };
+        task.execute();
+    }
+
+    /**
+     * send email
+     *
+     * @param event
+     */
+    private void sendEntryStartedEmail(TournamentEntryStartedEvent event) {
+        try {
+            // collect information in
+            Map<String, Object> templateModel = new HashMap<>();
+            TournamentEntry tournamentEntry = addTournamentEntryInformation(templateModel, event.getTournamentEntryFk());
+
+            Tournament tournament = addTournamentInformation(templateModel, tournamentEntry.getTournamentFk());
+            String tournamentDirectorEmail = tournament.getEmail();
+
+            UserProfile userProfile = addPlayerInformation(templateModel, tournamentEntry.getProfileId());
+
+            // send email
+            emailService.sendMessageUsingThymeleafTemplate(tournamentDirectorEmail, null,
+                    "Player Entered Tournament",
+                    "tournament-entry-started.html",
+                    templateModel);
+        } catch (MessagingException e) {
+            logger.error("Unable to send email ", e);
+        }
+    }
+
+    /**
+     *
+     * @param event
+     */
+    private void sendEntryCompletedEmail(TournamentEntryConfirmedEvent event) {
+        try {
+            Map<String, Object> templateModel = new HashMap<>();
+            TournamentEntry tournamentEntry = addTournamentEntryInformation(templateModel, event.getTournamentEntryId());
+
+            Tournament tournament = addTournamentInformation(templateModel, tournamentEntry.getTournamentFk());
+
+            int countOfEvents = addEventsInformation(templateModel, tournament, event.getTournamentEntryId());
+
+            UserProfile userProfile = addPlayerInformation(templateModel, tournamentEntry.getProfileId());
+            // is player in any events
+            if (countOfEvents > 0) {
+                emailService.sendMessageUsingThymeleafTemplate(userProfile.getEmail(), tournament.getEmail(),
+                        "Tournament Registration Confirmation",
+                        "tournament-entry-completed.html",
+                        templateModel);
+            } else {
+                // no, so it is a withdrawal
+                emailService.sendMessageUsingThymeleafTemplate(userProfile.getEmail(), tournament.getEmail(),
+                        "Tournament Withdrawal Confirmation",
+                        "tournament-withdrawal-completed.html",
+                        templateModel);
+            }
+        } catch (MessagingException e) {
+            logger.error("Unable to send email ", e);
+        }
+    }
+
+    /**
+     * Adds tournament information to context
+     * @param templateModel
+     * @param tournamentFk
+     * @return
+     */
+    private Tournament addTournamentInformation(Map<String, Object> templateModel, long tournamentFk) {
+        Tournament tournament = tournamentService.getByKey(tournamentFk);
+        templateModel.put("tournamentName", tournament.getName());
+        templateModel.put("tournamentDirectorName", tournament.getContactName());
+        templateModel.put("tournamentDirectorEmail", tournament.getEmail());
+        templateModel.put("tournamentDirectorPhone", tournament.getPhone());
+        templateModel.put("tournamentStartDate", tournament.getStartDate());
+        if (!tournament.getEndDate().equals(tournament.getStartDate())) {
+            templateModel.put("tournamentEndDate", tournament.getEndDate());
+        } else {
+            templateModel.put("tournamentEndDate", null);
+        }
+        return tournament;
+    }
+
+    /**
+     * Adds entry information to context
+     * @param templateModel
+     * @param tournamentEntryId
+     * @return
+     */
+    private TournamentEntry addTournamentEntryInformation(Map<String, Object> templateModel, long tournamentEntryId) {
+        TournamentEntry tournamentEntry = tournamentEntryService.get(tournamentEntryId);
+        templateModel.put("eligibilityRating", tournamentEntry.getEligibilityRating());
+        return tournamentEntry;
+    }
+
+    /**
+     * Adds player information to context
+     * @param templateModel
+     * @param profileId
+     * @return
+     */
+    private UserProfile addPlayerInformation(Map<String, Object> templateModel, String profileId) {
+        UserProfile userProfile = userProfileService.getProfile(profileId);
+        templateModel.put("playerFirstName", userProfile.getFirstName());
+        templateModel.put("playerLastName", userProfile.getLastName());
+        templateModel.put("city", userProfile.getCity());
+        templateModel.put("state", userProfile.getState());
+        return userProfile;
+    }
+
+    /**
+     * Adds events (confirmed and waited on) to the context
+     * @param templateModel
+     * @param tournament
+     * @param tournamentEntryId
+     */
+    private int addEventsInformation(Map<String, Object> templateModel, Tournament tournament, long tournamentEntryId) {
+        PageRequest pageRequest = PageRequest.of(0, 200);
+        Collection<TournamentEventEntity> eventEntityCollection = tournamentEventService.list(tournament.getId(), pageRequest);
+        Date tournamentStartDate = tournament.getStartDate();
+
+        // get this player's entries in this tournament
+        List<TournamentEventEntry> eventEntries = tournamentEventEntryService.getEntries(tournamentEntryId);
+        List<EventEntryInfo> enteredEvents = new ArrayList<>();
+        List<EventEntryInfo> waitListEvents = new ArrayList<>();
+
+        for (TournamentEventEntry eventEntry : eventEntries) {
+            switch (eventEntry.getStatus()) {
+                case ENTERED:
+                case PENDING_CONFIRMATION:
+                    TournamentEventEntity tournamentEventEntity = getEvent(eventEntry.getTournamentEventFk(), eventEntityCollection);
+                    if (tournamentEventEntity != null) {
+                        enteredEvents.add(new EventEntryInfo(tournamentStartDate, tournamentEventEntity));
+                    }
+                    break;
+                case PENDING_WAITING_LIST:
+                case ENTERED_WAITING_LIST:
+                    TournamentEventEntity tournamentEventEntity2 = getEvent(eventEntry.getTournamentEventFk(), eventEntityCollection);
+                    if (tournamentEventEntity2 != null) {
+                        waitListEvents.add(new EventEntryInfo(tournamentStartDate, tournamentEventEntity2));
+                    }
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        templateModel.put("enteredEvents", enteredEvents);
+        templateModel.put("waitListEvents", waitListEvents);
+        return enteredEvents.size() + waitListEvents.size();
+    }
+
+    private TournamentEventEntity getEvent(long tournamentEventFk, Collection<TournamentEventEntity> eventEntityCollection) {
+        for (TournamentEventEntity tournamentEventEntity : eventEntityCollection) {
+            if (tournamentEventEntity.getId().equals(tournamentEventFk)) {
+                return tournamentEventEntity;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Helper class for getting day and time of event
+     */
+    private class EventEntryInfo {
+        private String eventName;
+        private String eventDayAndTime;
+
+        public EventEntryInfo(Date tournamentStartDate, TournamentEventEntity tournamentEventEntity) {
+            this.eventName = tournamentEventEntity.getName();
+            this.eventDayAndTime = formatDayAndTime(tournamentStartDate, tournamentEventEntity.getDay(), tournamentEventEntity.getStartTime());
+        }
+
+        public String getEventName() {
+            return eventName;
+        }
+
+        public String getEventDayAndTime() {
+            return eventDayAndTime;
+        }
+
+        private String formatDayAndTime (Date tournamentStartDate, int day, double startTime) {
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(tournamentStartDate);
+            calendar.add(Calendar.DATE, day - 1);
+            // time is expressed as 17.5 = 5:30 PM
+            int hourOfDay = (int) Math.floor(startTime);
+            int minutes = (int) ((startTime - Math.floor(startTime)) * 60);
+            calendar.add(Calendar.HOUR_OF_DAY, hourOfDay);
+            calendar.add(Calendar.MINUTE, minutes);
+
+            DateFormat dateFormat = new SimpleDateFormat("E hh:mm a");
+            return dateFormat.format(calendar.getTime());
+        }
+    }
+}

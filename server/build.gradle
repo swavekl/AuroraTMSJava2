@@ -35,7 +35,13 @@ dependencies {
     implementation('org.springframework.boot:spring-boot-starter-actuator')
     implementation('org.springframework.boot:spring-boot-starter-web')
     implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
+//    // event bus for sending emails in another thread
+//    implementation("io.projectreactor:reactor-bus")
+    // email sender support
     implementation("org.springframework.boot:spring-boot-starter-mail")
+    // email template engine
+    implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
+    // object level security using Access Control Lists
     implementation "org.springframework.security:spring-security-acl"
     implementation "org.springframework.security:spring-security-config"
     implementation "org.springframework:spring-context-support"
@@ -90,6 +96,8 @@ dependencies {
 
     // credit card payments & refunds
     implementation "com.stripe:stripe-java:19.45.0"
+
+//    testImplementation ("com.auroratms:com.aurora.server.main")
 }
 
 //configurations {

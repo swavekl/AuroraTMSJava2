@@ -2,6 +2,7 @@ package com.auroratms.tournamententry;
 
 import com.auroratms.event.TournamentEventEntity;
 import com.auroratms.event.TournamentEventEntityService;
+import com.auroratms.tournamententry.notification.TournamentEventPublisher;
 import com.auroratms.profile.UserProfileExt;
 import com.auroratms.profile.UserProfileExtService;
 import com.auroratms.tournament.Tournament;
@@ -43,9 +44,11 @@ public class TournamentEntryController {
     @Autowired
     private UserProfileExtService userProfileExtService;
 
+    @Autowired
+    private TournamentEventPublisher eventPublisher;
 
     /**
-     * Returns player entry if it exists or empy list if it doesn't
+     * Returns player entry if it exists or empty list if it doesn't
      * @param tournamentId
      * @param profileId
      * @return
@@ -61,6 +64,8 @@ public class TournamentEntryController {
         updateRatings(tournamentEntry);
         TournamentEntry savedEntry = tournamentEntryService.create(tournamentEntry);
         this.updateTournamentStatistics(tournamentEntry.getTournamentFk());
+
+        this.eventPublisher.publishTournamentEnteredEvent(savedEntry.getId());
 
         return savedEntry;
     }
