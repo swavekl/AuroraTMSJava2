@@ -1,48 +1,46 @@
 package com.auroratms.paymentrefund.notification.event;
 
 import com.auroratms.paymentrefund.PaymentRefundFor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import com.auroratms.paymentrefund.RefundRequest;
 
-import java.util.Date;
 import java.util.List;
 
 /**
  * Event representing multiple partial refunds
  */
-@Data
-@NoArgsConstructor
 public class RefundsEvent {
 
-    // tournament, clinic or usatt fee
-    private PaymentRefundFor paymentRefundFor;
+    // refund request with all details
+    private RefundRequest refundRequest;
 
-    // id of a tournament, clinic or something for which we are paying/refunding
-    private long itemId;
+    // ids of issued refund items
+    private List<Long> refundItemIds;
 
-    // date & time of payment and refund
-    private Date transactionDate;
+    public RefundsEvent() {
+    }
 
-    private List<RefundItem> refundItems;
+    public RefundsEvent(RefundRequest refundRequest, List<Long> refundItemIds) {
+        this.refundRequest = refundRequest;
+        this.refundItemIds = refundItemIds;
+    }
 
-    public static class RefundItem {
-        // amount actually paid in currency of payment - may be different from tournament currency
-        private double paidAmount;
+    public PaymentRefundFor getPaymentRefundFor () {
+        return this.refundRequest.getPaymentRefundFor();
+    }
 
-        // currency code in which the paid amount is expressed
-        private String paidCurrency;
+    public long getItemId() {
+        return refundRequest.getTransactionItemId();
+    }
 
-        public RefundItem(double paidAmount, String paidCurrency) {
-            this.paidAmount = paidAmount;
-            this.paidCurrency = paidCurrency;
-        }
+    public int getAmount() {
+        return refundRequest.getAmount();
+    }
 
-        public double getPaidAmount() {
-            return paidAmount;
-        }
+    public String getCurrency() {
+        return refundRequest.getCurrencyCode();
+    }
 
-        public String getPaidCurrency() {
-            return paidCurrency;
-        }
+    public List<Long> getRefundItemIds() {
+        return refundItemIds;
     }
 }

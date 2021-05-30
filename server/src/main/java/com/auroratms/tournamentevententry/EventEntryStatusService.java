@@ -275,7 +275,7 @@ public class EventEntryStatusService {
         long count = tournamentEventEntryService.getCountValidEntriesInEvent(eventId);
         tournamentEventEntity.setNumEntries((int) count);
         tournamentEventService.update(tournamentEventEntity);
-        System.out.println("eventId = " + eventId + ", count = " + count);
+//        System.out.println("eventId = " + eventId + ", count = " + count);
         return count;
     }
 

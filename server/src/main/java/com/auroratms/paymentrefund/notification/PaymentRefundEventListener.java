@@ -1,7 +1,9 @@
 package com.auroratms.paymentrefund.notification;
 
 import com.auroratms.notification.SystemPrincipalExecutor;
+import com.auroratms.paymentrefund.PaymentRefund;
 import com.auroratms.paymentrefund.PaymentRefundFor;
+import com.auroratms.paymentrefund.PaymentRefundService;
 import com.auroratms.paymentrefund.notification.event.PaymentEvent;
 import com.auroratms.paymentrefund.notification.event.RefundsEvent;
 import com.auroratms.profile.UserProfile;
@@ -20,14 +22,18 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Listener for payment & refund events to send emails about
+ */
 @Component
-public class PaymentEventListener {
+public class PaymentRefundEventListener {
 
-    private static final Logger logger = LoggerFactory.getLogger(PaymentEventListener.class);
+    private static final Logger logger = LoggerFactory.getLogger(PaymentRefundEventListener.class);
 
     @Autowired
     private EmailService emailService;
@@ -40,6 +46,9 @@ public class PaymentEventListener {
 
     @Autowired
     private TournamentEntryService tournamentEntryService;
+
+    @Autowired
+    private PaymentRefundService paymentRefundService;
 
     @Async
     @TransactionalEventListener(phase= TransactionPhase.AFTER_COMMIT)
@@ -151,7 +160,10 @@ public class PaymentEventListener {
         return userProfile;
     }
 
-
+    /**
+     *
+     * @param event
+     */
     private void sendTournamentRefundEmail (RefundsEvent event) {
         try {
             Map<String, Object> templateModel = new HashMap<>();
@@ -166,17 +178,22 @@ public class PaymentEventListener {
             UserProfile userProfile = addPlayerInformation(templateModel, tournamentEntry.getProfileId());
             String toAddress = userProfile.getEmail();
 
-            double total = 0;
-            String paidCurrency = "";
-            List<RefundsEvent.RefundItem> refundItems = event.getRefundItems();
-            for (RefundsEvent.RefundItem refundItem : refundItems) {
-                total += refundItem.getPaidAmount();
-                paidCurrency = refundItem.getPaidCurrency();
+            // get refunds only for this refund action (not previous)
+            List<Long> refundItemIds = event.getRefundItemIds();
+            List<RefundItem> refundItemList = new ArrayList<>(refundItemIds.size());
+            List<PaymentRefund> allPaymentRefunds = this.paymentRefundService.getPaymentRefunds(tournamentEntryId, event.getPaymentRefundFor());
+            for (PaymentRefund paymentRefund : allPaymentRefunds) {
+                long paymentRefundId = paymentRefund.getId();
+                if (refundItemIds.contains(paymentRefundId)) {
+                    double paidAmount = ((double)paymentRefund.getPaidAmount()) / 100;
+                    refundItemList.add(new RefundItem(paidAmount, paymentRefund.getPaidCurrency()));
+                }
             }
-            Double amount = total;
+
+            Double amount = ((double)event.getAmount()) / 100;
             templateModel.put("amount", amount);
-            templateModel.put("currency", paidCurrency);
-            templateModel.put("refundItems", refundItems);
+            templateModel.put("currency", event.getCurrency());
+            templateModel.put("refundItems", refundItemList);
 
             emailService.sendMessageUsingThymeleafTemplate(toAddress, tournamentDirectorEmail,
                     "Tournament Refund Issued",
@@ -184,6 +201,27 @@ public class PaymentEventListener {
                     templateModel);
         } catch (Throwable t) {
             logger.error("Error during sending email about refund", t);
+        }
+    }
+
+    /**
+     * Individual refund items
+     */
+    private class RefundItem {
+        double paidAmount;
+        String paidCurrency;
+
+        public RefundItem(double paidAmount, String paidCurrency) {
+            this.paidAmount = paidAmount;
+            this.paidCurrency = paidCurrency;
+        }
+
+        public double getPaidAmount() {
+            return paidAmount;
+        }
+
+        public String getPaidCurrency() {
+            return paidCurrency;
         }
     }
 

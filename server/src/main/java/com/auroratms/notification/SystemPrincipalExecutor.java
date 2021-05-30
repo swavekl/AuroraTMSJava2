@@ -25,7 +25,7 @@ public abstract class SystemPrincipalExecutor {
     }
 
     public void execute() {
-        long start = System.currentTimeMillis();
+//        long start = System.currentTimeMillis();
         SecurityContext sc = SecurityContextHolder.getContext();
         Authentication previousAuthentication = sc.getAuthentication();
         try {
@@ -35,9 +35,9 @@ public abstract class SystemPrincipalExecutor {
             sc.setAuthentication(auth);
             this.taskBody();
         } finally {
-            long end = System.currentTimeMillis();
-            long duration = end - start;
-            System.out.println("Asynchronous task duration " + duration + " ms");
+//            long end = System.currentTimeMillis();
+//            long duration = end - start;
+//            System.out.println("Asynchronous task duration " + duration + " ms");
             sc.setAuthentication(previousAuthentication);
         }
     }

@@ -16,7 +16,6 @@ public class AsynchronousSpringEventsConfig extends AsyncConfigurerSupport {
 
     @Override
     public Executor getAsyncExecutor() {
-        System.out.println("in getAsyncExecutor");
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
         executor.setCorePoolSize(3);
         executor.setMaxPoolSize(5);

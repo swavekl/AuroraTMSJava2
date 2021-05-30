@@ -21,10 +21,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @RestController
 @RequestMapping("api/paymentrefund")
@@ -239,7 +236,7 @@ public class PaymentRefundController {
             }
 
             // notify user of refund
-            RefundsEvent refundsEvent = makeRefundsEvent(paymentRefunds);
+            RefundsEvent refundsEvent = new RefundsEvent(refundRequest, processedRefundIds);
             eventPublisher.publishRefundEvents(refundsEvent);
 
             Map<String, Object> resultMap = new HashMap<>();
@@ -292,25 +289,13 @@ public class PaymentRefundController {
     }
 
     /**
-     * @param paymentRefunds
+     * Prepares the event which
+     * @param refundIds
+     * @param refundRequest
      * @return
      */
-    private RefundsEvent makeRefundsEvent(List<PaymentRefund> paymentRefunds) {
+    private RefundsEvent makeRefundsEvent(List<Long> refundIds, RefundRequest refundRequest) {
         RefundsEvent refundsEvent = new RefundsEvent();
-        if (paymentRefunds.size() > 0) {
-            PaymentRefund paymentRefund = paymentRefunds.get(0);
-            refundsEvent.setPaymentRefundFor(paymentRefund.getPaymentRefundFor());
-            refundsEvent.setItemId(paymentRefund.getItemId());
-            refundsEvent.setTransactionDate(paymentRefund.getTransactionDate());
-        }
-        List<RefundsEvent.RefundItem> refundItemList = new ArrayList<>();
-        for (PaymentRefund paymentRefund : paymentRefunds) {
-            RefundsEvent.RefundItem item = new RefundsEvent.RefundItem(
-                    paymentRefund.getPaidAmount() / 100,
-                    paymentRefund.getPaidCurrency());
-            refundItemList.add(item);
-        }
-        refundsEvent.setRefundItems(refundItemList);
         return refundsEvent;
     }
 
