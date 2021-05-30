@@ -283,7 +283,7 @@ public class PaymentRefundController {
         event.setItemId(paymentRefund.getItemId());
         event.setTransactionDate(paymentRefund.getTransactionDate());
         event.setAmount(paymentRefund.getAmount());
-        event.setPaidCurrency(paymentRefund.getPaidCurrency());
+        event.setPaidAmount(paymentRefund.getPaidAmount());
         event.setPaidCurrency(paymentRefund.getPaidCurrency());
         return event;
     }

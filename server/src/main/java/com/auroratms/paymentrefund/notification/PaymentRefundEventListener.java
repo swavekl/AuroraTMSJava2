@@ -118,7 +118,7 @@ public class PaymentRefundEventListener {
 
             // Add payment information
             // convert 12545 to 125.45
-            Double amount = (double)event.getAmount() / 100;
+            Double amount = (double)event.getPaidAmount() / 100;
             templateModel.put("amount", amount);
             templateModel.put("currency", event.getPaidCurrency());
 
