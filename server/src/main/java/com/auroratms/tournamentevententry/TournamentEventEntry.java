@@ -39,4 +39,8 @@ public class TournamentEventEntry {
 
     // price player needs to pay for the event - seniors vs juniors may be different
     private double price;
+
+    // if this entry is into doubles event - this is doubles partner profile id and represents requested partner
+    // pairing up is done only after both players agree to play as a team see DoublesPair class
+    private String doublesPartnerProfileId;
 }
