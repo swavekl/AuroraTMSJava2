@@ -7,5 +7,6 @@ public enum EventEntryCommand {
     DROP,
     DROP_WAITING_LIST,
     REVERT_DROP,
-    CONFIRM
+    CONFIRM,
+    UPDATE_DOUBLES
 }

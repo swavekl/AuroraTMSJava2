@@ -5,8 +5,6 @@ import {first} from 'rxjs/operators';
 import {createSelector} from '@ngrx/store';
 import {TournamentEntry} from '../model/tournament-entry.model';
 import {TournamentEntryService} from '../service/tournament-entry.service';
-import {TournamentInfo} from '../../model/tournament-info.model';
-import {TournamentInfoService} from '../../service/tournament-info.service';
 import {TournamentEvent} from '../../tournament-config/tournament-event.model';
 import {TournamentEventConfigService} from '../../tournament-config/tournament-event-config.service';
 import {TournamentEventEntryInfo} from '../model/tournament-event-entry-info-model';

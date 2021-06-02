@@ -25,4 +25,9 @@ public class TournamentEventEntryInfo {
     // price to pay for event - may be different by age or by some other pricing algorithm
     private double price;
 
+    // if this entry is into doubles event - this is doubles partner profile id and represents requested partner
+    // pairing up is done only after both players agree to play as a team see DoublesPair class
+    private String doublesPartnerProfileId;
+
+    private String doublesPartnerName;
 }

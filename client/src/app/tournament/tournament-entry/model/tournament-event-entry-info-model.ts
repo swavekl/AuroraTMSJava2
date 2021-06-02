@@ -29,4 +29,12 @@ export class TournamentEventEntryInfo {
 
   // full event definition matching the eventFK.  Used to access information such as day & time of event etc.
   event: TournamentEvent;
+
+  // if this entry is into doubles event - this is doubles partner profile id and represents requested partner
+  // pairing up is done only after both players agree to play as a team see DoublesPair class
+  doublesPartnerProfileId: string;
+
+  // full name of doubles partner if selected
+  doublesPartnerName: string;
+
 }

@@ -19,6 +19,7 @@ import {MatTableModule} from '@angular/material/table';
 import {MatToolbarModule} from '@angular/material/toolbar';
 import {EventEntryStatusPipe} from './entry-wizard/pipes/event-entry-status.pipe';
 import {AvailabilityStatusPipe} from './entry-wizard/pipes/availability-status.pipe';
+import {ProfileModule} from '../../profile/profile.module';
 
 @NgModule({
   declarations: [
@@ -42,7 +43,8 @@ import {AvailabilityStatusPipe} from './entry-wizard/pipes/availability-status.p
     MatTableModule,
     MatToolbarModule,
     MatFormFieldModule,
-    MatInputModule
+    MatInputModule,
+    ProfileModule
   ],
   exports: []
 })

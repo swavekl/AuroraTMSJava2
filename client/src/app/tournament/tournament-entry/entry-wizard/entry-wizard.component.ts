@@ -1,8 +1,18 @@
-import {ChangeDetectorRef, Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChange, SimpleChanges} from '@angular/core';
+import {
+  ChangeDetectorRef,
+  Component,
+  EventEmitter,
+  Input,
+  OnChanges,
+  OnDestroy,
+  OnInit,
+  Output,
+  SimpleChange,
+  SimpleChanges
+} from '@angular/core';
 import {MembershipType, TournamentEntry} from '../model/tournament-entry.model';
-import {ProfileFindPopupComponent} from '../../../profile/profile-find-popup/profile-find-popup.component';
+import {ProfileFindPopupComponent, ProfileSearchData} from '../../../profile/profile-find-popup/profile-find-popup.component';
 import {MatDialog} from '@angular/material/dialog';
-import {BehaviorSubject} from 'rxjs';
 import {FormGroup} from '@angular/forms';
 import {TournamentEventEntryInfo} from '../model/tournament-event-entry-info-model';
 import {EventEntryStatus} from '../model/event-entry-status.enum';
@@ -27,13 +37,14 @@ import {PriceCalculator} from '../pricecalculator/price-calculator';
 import {PricingMethod} from '../../model/pricing-method.enum';
 import {StandardPriceCalculator} from '../pricecalculator/standard-price-calculator';
 import {DiscountedPriceCalculator} from '../pricecalculator/discounted-price-calculator';
+import {Subscription} from 'rxjs';
 
 @Component({
   selector: 'app-entry-wizard',
   templateUrl: './entry-wizard.component.html',
   styleUrls: ['./entry-wizard.component.scss']
 })
-export class EntryWizardComponent implements OnInit, OnChanges {
+export class EntryWizardComponent implements OnInit, OnChanges, OnDestroy {
 
   @Input()
   entry: TournamentEntry;
@@ -104,6 +115,11 @@ export class EntryWizardComponent implements OnInit, OnChanges {
     {value: MembershipType.LIFETIME.valueOf(), label: 'Lifetime', cost: 1300, available: true}
   ];
 
+  // players entries into doubles
+  doublesEntries: any [] = [];
+
+  private subscriptions: Subscription;
+
   constructor(private dialog: MatDialog,
               private _change: ChangeDetectorRef,
               private paymentDialogService: PaymentDialogService,
@@ -114,9 +130,15 @@ export class EntryWizardComponent implements OnInit, OnChanges {
     this.playerCurrency = 'USD';
     this.currencyExchangeRate = 1.0;
     this.dirty = false;
+    this.subscriptions = new Subscription ();
+
   }
 
   ngOnInit(): void {
+  }
+
+  ngOnDestroy() {
+    this.subscriptions.unsubscribe();
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -125,6 +147,7 @@ export class EntryWizardComponent implements OnInit, OnChanges {
       this.enteredEvents = this.allEventEntryInfos.filter(this.enteredEventsFilter, this);
       this.availableEvents = this.allEventEntryInfos.filter(this.availableEventsFilter, this);
       this.unavailableEvents = this.allEventEntryInfos.filter(this.unavailableEventsFilter, this);
+      this.doublesEntries = this.makeDoublesEntries(this.enteredEvents);
     }
 
     const playerProfileChange: SimpleChange = changes.playerProfile;
@@ -653,4 +676,71 @@ export class EntryWizardComponent implements OnInit, OnChanges {
     return lang;
   }
 
+  /**
+   *
+   * @param enteredEvents
+   * @private
+   */
+  private makeDoublesEntries(enteredEvents: TournamentEventEntryInfo[]): any [] {
+    const doublesEntries: any [] = [];
+    for (let i = 0; i < enteredEvents.length; i++) {
+      const enteredEvent = enteredEvents[i];
+      if (enteredEvent?.event?.doubles) {
+        const doublesEntryInfo = {
+          eventFk: enteredEvent.eventFk,
+          eventName: enteredEvent.event.name,
+          partnerName: enteredEvent.doublesPartnerName,
+          partnerProfileId: enteredEvent.doublesPartnerProfileId,
+          varName: 'doublesEvent_' + enteredEvent.eventFk
+        };
+        doublesEntries.push(doublesEntryInfo);
+      }
+    }
+    return doublesEntries;
+  }
+
+  /**
+   *
+   * @param eventFk
+   */
+  public onFindDoublesPartnerByName (eventFk: number) {
+    const profileSearchData: ProfileSearchData = {
+      firstName: null,
+      lastName: null
+    };
+    const config = {
+      width: '400px', height: '550px', data: profileSearchData
+    };
+
+    const doublesEntries = this.doublesEntries;
+    const enteredEvents = this.enteredEvents;
+    const dialogRef = this.dialog.open(ProfileFindPopupComponent, config);
+    const subscription = dialogRef.afterClosed().subscribe(result => {
+      if (result.action === 'ok') {
+        const partnerName = result.selectedPlayerRecord.lastName + ', ' + result.selectedPlayerRecord.firstName;
+        const partnerProfileId = result.selectedPlayerRecord.id;
+        // update object used by UI
+        doublesEntries.forEach(doublesEntry => {
+          if (eventFk === doublesEntry.eventFk) {
+            doublesEntry.partnerName = partnerName;
+            doublesEntry.partnerProfileId = partnerProfileId;
+          }
+        });
+
+        // update entered event
+        enteredEvents.forEach(enteredEvent => {
+          if (eventFk === enteredEvent.eventFk) {
+            const eventEntryInfo: TournamentEventEntryInfo = {
+              ...enteredEvent,
+              eventEntryCommand: EventEntryCommand.UPDATE_DOUBLES,
+              doublesPartnerProfileId: partnerProfileId,
+              doublesPartnerName: partnerName
+            };
+            this.eventEntryChanged.emit(eventEntryInfo);
+          }
+        });
+      }
+    });
+    this.subscriptions.add(subscription);
+  }
 }

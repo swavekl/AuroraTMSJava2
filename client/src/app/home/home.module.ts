@@ -1,7 +1,7 @@
 import {NgModule} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {Routes, RouterModule} from '@angular/router';
-import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
+// import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatInputModule } from '@angular/material/input';
@@ -31,7 +31,7 @@ const homeRoutes: Routes = [
     imports: [
         RouterModule.forChild(homeRoutes),
         CommonModule,
-        BrowserAnimationsModule,
+        // BrowserAnimationsModule,
         MatButtonModule,
         MatCardModule,
         MatInputModule,

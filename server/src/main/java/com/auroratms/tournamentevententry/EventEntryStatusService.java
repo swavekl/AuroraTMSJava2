@@ -81,6 +81,7 @@ public class EventEntryStatusService {
                         break;
                 }
                 eventEntryInfo.setPrice(eventEntry.getPrice());
+                eventEntryInfo.setDoublesPartnerProfileId(eventEntry.getDoublesPartnerProfileId());
                 eventEntryInfos.add(eventEntryInfo);
             }
 
@@ -108,6 +109,15 @@ public class EventEntryStatusService {
                 List<TournamentEventEntity> eventEntityList = new ArrayList<>(eventEntityCollection);
                 policyApplicator.configurePolicies(eventEntries, eventEntityList, userProfile, eligibilityRating, tournamentStartDate);
                 eventEntryInfos = policyApplicator.evaluateRestrictions(eventEntityList, eventEntryInfos);
+            }
+
+            // set doubles partner information
+            for (TournamentEventEntryInfo eventEntryInfo : eventEntryInfos) {
+                if (eventEntryInfo.getDoublesPartnerProfileId() != null) {
+                    UserProfile partnerUserProfile = userProfileService.getProfile(eventEntryInfo.getDoublesPartnerProfileId());
+                    String fullName = partnerUserProfile.getLastName() + ", " + partnerUserProfile.getFirstName();
+                    eventEntryInfo.setDoublesPartnerName(fullName);
+                }
             }
         }
 
@@ -323,6 +333,15 @@ public class EventEntryStatusService {
                 eventEntry = tournamentEventEntryService.get(eventEntryInfo.getEventEntryFk());
                 if (eventEntry != null) {
                     eventEntry.setStatus(nextEventEntryStatus);
+                    tournamentEventEntryService.update(eventEntry);
+                }
+                break;
+
+            case UPDATE_DOUBLES:
+                eventEntry = tournamentEventEntryService.get(eventEntryInfo.getEventEntryFk());
+                if (eventEntry != null) {
+                    eventEntry.setStatus(nextEventEntryStatus);
+                    eventEntry.setDoublesPartnerProfileId(eventEntryInfo.getDoublesPartnerProfileId());
                     tournamentEventEntryService.update(eventEntry);
                 }
                 break;

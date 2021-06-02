@@ -69,6 +69,22 @@
             <button mat-raised-button color="primary" matStepperNext type="button">Next</button>
           </div>
         </mat-step>
+        <mat-step label="Doubles" *ngIf="doublesEntries.length > 0">
+          <div *ngFor="let doublesEnteredEvent of doublesEntries">
+            <div fxLayout="column">
+              <div>{{doublesEnteredEvent.eventName}}</div>
+              <div fxLayout="row">
+                <input matInput type="text" [ngModel]="doublesEnteredEvent.partnerName" name="partnerName"/>
+                <button mat-raised-button type="button" (click)="onFindDoublesPartnerByName(doublesEnteredEvent.eventFk)">Select</button>
+              </div>
+            </div>
+          </div>
+          <div class="wizard-button-bar" fxLayout="row">
+            <button mat-raised-button matStepperPrevious type="button">Back</button>
+            <span fxFlex></span>
+            <button mat-raised-button color="primary" matStepperNext type="button">Next</button>
+          </div>
+        </mat-step>
         <mat-step label="Summary">
           <table class="summary-table">
             <tbody>
