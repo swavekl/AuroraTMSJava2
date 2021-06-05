@@ -9,6 +9,8 @@ import com.auroratms.tournament.TournamentService;
 import com.auroratms.tournamententry.TournamentEntry;
 import com.auroratms.tournamententry.TournamentEntryService;
 import com.auroratms.tournamententry.notification.TournamentEventPublisher;
+import com.auroratms.tournamentevententry.doubles.notification.DoublesEventPublisher;
+import com.auroratms.tournamentevententry.doubles.notification.event.MakeBreakDoublesPairsEvent;
 import com.auroratms.tournamentevententry.policy.PolicyApplicator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -37,6 +39,9 @@ public class EventEntryStatusService {
 
     @Autowired
     private TournamentEventPublisher eventPublisher;
+
+    @Autowired
+    private DoublesEventPublisher doublesEventPublisher;
 
     /**
      * Gets information about event entries with current status, availability and next command
@@ -360,17 +365,63 @@ public class EventEntryStatusService {
      */
     @Transactional
     public void confirmAll(Long tournamentEntryId) {
+        // confirm entries
+        MakeBreakDoublesPairsEvent makeBreakDoublesPairsEvent = confirmAllInternal(tournamentEntryId);
+
+        // if there were any entries or withdrawals from doubles events process them
+        if (makeBreakDoublesPairsEvent.getEntryWithdrawalList().size() > 0) {
+            doublesEventPublisher.publishMakeBreakPairsEvent(makeBreakDoublesPairsEvent);
+        }
+
+        // send email to TD and player confirming entry
+        eventPublisher.publishRegistrationCompleteEvent(tournamentEntryId);
+    }
+
+    /**
+     *
+     * @param tournamentEntryId
+     * @return
+     */
+    private MakeBreakDoublesPairsEvent confirmAllInternal(Long tournamentEntryId) {
         List<TournamentEventEntry> allEntries = tournamentEventEntryService.getEntries(tournamentEntryId);
+
+        // get a list of doubles event ids in this tournament
+        List<Long> doublesEventIds = new ArrayList<>();
+        if (allEntries.size() > 0) {
+            TournamentEventEntry eventEntry = allEntries.get(0);
+            List<TournamentEventEntity> doublesEvents = tournamentEventService.listDoublesEvents(eventEntry.getTournamentFk());
+            for (TournamentEventEntity doublesEvent : doublesEvents) {
+                doublesEventIds.add(doublesEvent.getId());
+            }
+        }
+
+        // record which doubles events were entered or withdrawn so we can make or break existing doubles pairs
+        MakeBreakDoublesPairsEvent makeBreakDoublesPairsEvent = new MakeBreakDoublesPairsEvent(tournamentEntryId);
         for (TournamentEventEntry eventEntry : allEntries) {
             EventEntryStatus nextStatus = determineNextStatus(eventEntry.getStatus(), EventEntryCommand.CONFIRM);
             if (nextStatus == EventEntryStatus.NOT_ENTERED) {
+                // if this is a doubles event record that we are deleting it
+                if (doublesEventIds.contains(eventEntry.getTournamentEventFk())) {
+                    if (eventEntry.getDoublesPartnerProfileId() != null) {
+                        makeBreakDoublesPairsEvent.addDeletedDoublesEvent(
+                                eventEntry.getTournamentEventFk(), eventEntry.getId(), eventEntry.getDoublesPartnerProfileId());
+                    }
+                }
                 tournamentEventEntryService.delete(eventEntry.getId());
             } else {
                 eventEntry.setStatus(nextStatus);
                 tournamentEventEntryService.update(eventEntry);
+                // if this is doubles event record that we are in this event
+                if (doublesEventIds.contains(eventEntry.getTournamentEventFk())) {
+                    if (eventEntry.getDoublesPartnerProfileId() != null) {
+                        makeBreakDoublesPairsEvent.addEnteredDoublesEvent(
+                                eventEntry.getTournamentEventFk(), eventEntry.getId(), eventEntry.getDoublesPartnerProfileId());
+                    }
+                }
             }
+            // update count of entries in this event now that status has changed
+            updateNumEntriesInEvent(eventEntry.getTournamentEventFk());
         }
-        // send email to TD and player confirming entry
-        eventPublisher.publishRegistrationCompleteEvent(tournamentEntryId);
+        return makeBreakDoublesPairsEvent;
     }
 }

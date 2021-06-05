@@ -32,4 +32,14 @@ public interface DoublesRepository extends JpaRepository<DoublesPair, Long> {
     List<DoublesPair> findPlayerDoublesEntry(@Param("tournamentEventFk") Long tournamentEventFk,
                                              @Param("playerEventEntryId") Long playerEventEntryId);
 
+    /**
+     * Deletes doubles pair if either one or the other i
+     * @param playerEventEntryId
+     */
+    @Query(nativeQuery = true,
+            value = "DELETE FROM doublespair " +
+                    " WHERE playeraevent_entry_fk = :playerEventEntryId OR playerbevent_entry_fk = :playerEventEntryId;"
+    )
+    void deleteByPlayerEventEntryId(@Param("playerEventEntryId") Long playerEventEntryId);
+
 }

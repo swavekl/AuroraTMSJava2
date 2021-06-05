@@ -723,6 +723,9 @@ export class EntryWizardComponent implements OnInit, OnChanges, OnDestroy {
         doublesEntries.forEach(doublesEntry => {
           if (eventFk === doublesEntry.eventFk) {
             doublesEntry.partnerName = partnerName;
+            if (doublesEntry.partnerProfileId !== partnerProfileId) {
+              this.dirty = true;
+            }
             doublesEntry.partnerProfileId = partnerProfileId;
           }
         });

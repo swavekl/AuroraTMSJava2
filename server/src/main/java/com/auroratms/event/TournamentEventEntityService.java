@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
@@ -25,6 +26,15 @@ public class TournamentEventEntityService {
     public Collection<TournamentEventEntity> list(long tournamentId, Pageable pageable) {
         Page<TournamentEventEntity> result = repository.findByTournamentFk(tournamentId, pageable);
         return result.get().collect(Collectors.toList());
+    }
+
+    /**
+     * Gets list of doubles events for this tournament
+     * @param tournamentId
+     * @return
+     */
+    public List<TournamentEventEntity> listDoublesEvents(long tournamentId) {
+        return repository.findByTournamentFkAndDoublesIsTrue(tournamentId);
     }
 
     @CachePut(key = "#result.id")
