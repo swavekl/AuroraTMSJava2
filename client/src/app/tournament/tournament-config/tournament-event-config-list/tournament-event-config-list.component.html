@@ -11,52 +11,52 @@
   </mat-toolbar-row>
 </mat-toolbar>
 <div style="overflow: auto; height: calc(100vh - 260px);">
-  <table mat-table [dataSource]="events" style="width: 100%">
+  <mat-table [dataSource]="events" style="width: 100%">
     <ng-container matColumnDef="num">
-      <th mat-header-cell *matHeaderCellDef>No.</th>
-      <td mat-cell *matCellDef="let event">{{event.ordinalNumber}}</td>
+      <mat-header-cell *matHeaderCellDef>No.</mat-header-cell>
+      <mat-cell *matCellDef="let event">{{event.ordinalNumber}}</mat-cell>
     </ng-container>
 
     <ng-container matColumnDef="name">
-      <th mat-header-cell *matHeaderCellDef>Name</th>
-      <td mat-cell *matCellDef="let event">
+      <mat-header-cell *matHeaderCellDef>Name</mat-header-cell>
+      <mat-cell *matCellDef="let event">
         <a [routerLink]="getEventEditLink(event.id)">{{event.name}}</a>
-      </td>
+      </mat-cell>
     </ng-container>
 
     <ng-container matColumnDef="day">
-      <th mat-header-cell *matHeaderCellDef>Day</th>
-      <td mat-cell *matCellDef="let event">{{getDayOfWeek(event.day)}}</td>
+      <mat-header-cell *matHeaderCellDef>Day</mat-header-cell>
+      <mat-cell *matCellDef="let event">{{getDayOfWeek(event.day)}}</mat-cell>
     </ng-container>
 
     <ng-container matColumnDef="startTime">
-      <th mat-header-cell *matHeaderCellDef>Start Time</th>
-      <td mat-cell *matCellDef="let event">{{getStartTime(event.startTime)}}</td>
+      <mat-header-cell *matHeaderCellDef>Start Time</mat-header-cell>
+      <mat-cell *matCellDef="let event">{{getStartTime(event.startTime)}}</mat-cell>
     </ng-container>
 
     <ng-container matColumnDef="numEntries">
-      <th mat-header-cell *matHeaderCellDef>Entries</th>
-      <td mat-cell *matCellDef="let event">{{ event.numEntries }}</td>
+      <mat-header-cell *matHeaderCellDef>Entries</mat-header-cell>
+      <mat-cell *matCellDef="let event">{{ event.numEntries }}</mat-cell>
     </ng-container>
 
     <ng-container matColumnDef="maxEntries">
-      <th mat-header-cell *matHeaderCellDef>Max Entries</th>
-      <td mat-cell *matCellDef="let event">{{ (event.maxEntries === 0) ? 'No limit' : event.maxEntries }}</td>
+      <mat-header-cell *matHeaderCellDef>Max Entries</mat-header-cell>
+      <mat-cell *matCellDef="let event">{{ (event.maxEntries === 0) ? 'No limit' : event.maxEntries }}</mat-cell>
     </ng-container>
 
     <ng-container matColumnDef="actions">
-      <th mat-header-cell *matHeaderCellDef></th>
-      <td mat-cell *matCellDef="let event">
+      <mat-header-cell *matHeaderCellDef></mat-header-cell>
+      <mat-cell *matCellDef="let event">
         <!--      <button type="button" mat-icon-button (click)="editEvent(event.id)">-->
         <!--        <mat-icon matListIcon>edit</mat-icon>-->
         <!--      </button>-->
         <button type="button" mat-icon-button (click)="deleteEvent(event.id)">
           <mat-icon matListIcon>delete</mat-icon>
         </button>
-      </td>
+      </mat-cell>
     </ng-container>
 
-    <tr mat-header-row *matHeaderRowDef="columnsToDisplay; sticky: true"></tr>
-    <tr mat-row *matRowDef="let myRowData; columns: columnsToDisplay"></tr>
-  </table>
+    <mat-header-row *matHeaderRowDef="columnsToDisplay; sticky: true"></mat-header-row>
+    <mat-row *matRowDef="let myRowData; columns: columnsToDisplay"></mat-row>
+  </mat-table>
 </div>

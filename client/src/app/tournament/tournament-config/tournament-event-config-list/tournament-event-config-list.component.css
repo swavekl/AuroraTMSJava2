@@ -1,5 +1,5 @@
 .mat-column-num {
-  flex: 2;
+  flex: 1;
 }
 
 .mat-column-name {
@@ -7,7 +7,7 @@
 }
 
 .mat-column-day {
-  flex: 4;
+  flex: 2;
 }
 
 .mat-column-startTime {
