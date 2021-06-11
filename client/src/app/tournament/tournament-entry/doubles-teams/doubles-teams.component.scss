@@ -12,10 +12,32 @@
   width: 100%;
   height: calc(100vh - 140px);
   overflow: auto;
-  border: 0px solid deeppink;
 }
 .doubles-table {
   width: 100%;
-  //overflow: auto;
-  border: 0px solid green;
+}
+
+// column widths
+.mat-column-playerAName {
+  flex: 3;
+}
+
+.mat-column-playerARating {
+  flex: 2;
+}
+
+.mat-column-playerBName {
+  flex: 3;
+}
+
+.mat-column-playerBRating {
+  flex: 2;
+}
+
+.mat-column-combinedRating {
+  flex: 2;
+}
+
+.mat-column-breakPair {
+  flex: 1;
 }

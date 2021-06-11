@@ -1,5 +1,5 @@
-<div fxLayout="row">
-  <div fxFlex="15%" style="height: calc(100vh - 72px);">
+<div fxLayout="row" style="height: calc(100vh - 72px);">
+  <div fxFlex="15%">
     <h2>Events</h2>
     <mat-list dense class="event-list">
       <mat-list-item *ngFor="let doublesEvent of doublesEvents" (click)="onSelectEvent(doublesEvent)"
@@ -8,7 +8,7 @@
       </mat-list-item>
     </mat-list>
   </div>
-  <div fxFlex="85%" style="height: calc(100vh - 72px);">
+  <div fxFlex="85%">
     <mat-toolbar>
       <mat-toolbar-row>
         <button mat-raised-button type="button" (click)="onMakePair()">Make Pair</button>
