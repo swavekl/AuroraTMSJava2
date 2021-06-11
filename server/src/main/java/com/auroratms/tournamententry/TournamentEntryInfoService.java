@@ -3,6 +3,7 @@ package com.auroratms.tournamententry;
 import com.auroratms.profile.UserProfile;
 import com.auroratms.profile.UserProfileExt;
 import com.auroratms.profile.UserProfileExtService;
+import com.auroratms.profile.UserProfileService;
 import com.auroratms.tournamentevententry.TournamentEventEntry;
 import com.auroratms.tournamentevententry.TournamentEventEntryService;
 import com.auroratms.usatt.UsattDataService;
@@ -24,17 +25,20 @@ public class TournamentEntryInfoService {
 
     private final UserProfileExtService userProfileExtService;
 
+    private final UserProfileService userProfileService;
+
     private final UsattDataService usattDataService;
-//    private final UsattPlayerRecordRepository playerRecordRepository;
 
     public TournamentEntryInfoService(TournamentEntryService tournamentEntryService,
                                       TournamentEventEntryService tournamentEventEntryService,
                                       UserProfileExtService userProfileExtService,
-                                      UsattDataService usattDataService) {
+                                      UsattDataService usattDataService,
+                                      UserProfileService userProfileService) {
         this.tournamentEntryService = tournamentEntryService;
         this.tournamentEventEntryService = tournamentEventEntryService;
         this.userProfileExtService = userProfileExtService;
         this.usattDataService = usattDataService;
+        this.userProfileService = userProfileService;
     }
 
     /**
@@ -53,6 +57,7 @@ public class TournamentEntryInfoService {
         // translate partially into infos
         for (TournamentEntry tournamentEntry : tournamentEntries) {
             TournamentEntryInfo info = new TournamentEntryInfo();
+            info.setEntryId(tournamentEntry.getId());
             info.setProfileId(tournamentEntry.getProfileId());
             info.setEligibilityRating(tournamentEntry.getEligibilityRating());
             info.setSeedRating(tournamentEntry.getSeedRating());
@@ -80,7 +85,6 @@ public class TournamentEntryInfoService {
 
         // pull player records for first and last name
         List<UsattPlayerRecord> playerRecords = usattDataService.findAllByMembershipIdIn(membershipIds);
-//Map<String, String> profileIdToState = new HashMap<>();
         for (UsattPlayerRecord playerRecord : playerRecords) {
             Long membershipId = playerRecord.getMembershipId();
             String profileId = reverseMapMembershipIdToProfileId.get(membershipId);
@@ -89,7 +93,6 @@ public class TournamentEntryInfoService {
                 if (tournamentEntryInfo != null) {
                     tournamentEntryInfo.setFirstName(playerRecord.getFirstName());
                     tournamentEntryInfo.setLastName(playerRecord.getLastName());
-//profileIdToState.put(profileId, playerRecord.getState());
                 }
             }
         }
@@ -97,13 +100,6 @@ public class TournamentEntryInfoService {
         // get entered event ids
         List<TournamentEventEntry> tournamentEventEntries = tournamentEventEntryService.listAllForTournament(tournamentId);
         for (TournamentEventEntry tournamentEventEntry : tournamentEventEntries) {
-//            if (tournamentEventEntry.getTournamentEventFk() == 46L) {
-//                System.out.print("TournamentEventEntry tournamentEventEntry = makeTournamentEventEntry (");
-//                System.out.print(tournamentEventEntry.getId() + "L, ");
-//                System.out.print(tournamentEventEntry.getTournamentFk() + "L, ");
-//                System.out.print(tournamentEventEntry.getTournamentEventFk() + "L, " );
-//                System.out.println(tournamentEventEntry.getTournamentEntryFk() + "L);");
-//            }
             Long entryId = tournamentEventEntry.getTournamentEntryFk();
             TournamentEntryInfo tournamentEntryInfo = mapEntryIdToInfo.get(entryId);
             if (tournamentEntryInfo != null) {
@@ -113,17 +109,58 @@ public class TournamentEntryInfoService {
                     tournamentEntryInfo.setEventIds(eventIds);
                 }
                 eventIds.add(tournamentEventEntry.getTournamentEventFk());
-//if (tournamentEventEntry.getTournamentEventFk() == 46L) {
-//    String state = profileIdToState.get(tournamentEntryInfo.getProfileId());
-//    state = (state != null && state.length() > 0) ? state : "IL";
-//    System.out.println(String.format("map.put(%dL, makePlayerDrawInfo (\"%s\", \"%s, %s\", %d, 0L, \"%s\"));",
-//            entryId,
-//            tournamentEntryInfo.getProfileId(),
-//            tournamentEntryInfo.getLastName(),
-//            tournamentEntryInfo.getFirstName(),
-//            tournamentEntryInfo.getSeedRating(),
-//            state));
-//}
+            }
+        }
+
+        return tournamentEntryInfos;
+    }
+
+    /**
+     * Gets entry infos for just one event
+     * @param eventId
+     * @return
+     */
+    public List<TournamentEntryInfo> getDoublesEntryInfosForEvent(Long eventId) {
+        // get all entries into this event
+        List<TournamentEventEntry> eventEntryList = tournamentEventEntryService.listAllForEvent(eventId);
+        List<TournamentEntryInfo> tournamentEntryInfos = new ArrayList<>(eventEntryList.size());
+        // get tournament entry ids
+        List<Long> tournamentEntryIds = new ArrayList<>(eventEntryList.size());
+        for (TournamentEventEntry entry : eventEntryList) {
+            tournamentEntryIds.add(entry.getTournamentEntryFk());
+        }
+
+        // get all entries which contain profile ids
+        List<TournamentEntry> tournamentEntries = tournamentEntryService.listEntries(tournamentEntryIds);
+        // make these maps for efficient joining in memory - we may have to do it in database if it is too slow
+        Map<String, TournamentEntryInfo> mapProfileIdToInfo = new HashMap<>();
+        List<Long> eventIds = new ArrayList<>(1);
+        eventIds.add(eventId);
+        // translate partially into infos
+        for (TournamentEntry tournamentEntry : tournamentEntries) {
+            TournamentEntryInfo info = new TournamentEntryInfo();
+            info.setEntryId(tournamentEntry.getId());
+            info.setProfileId(tournamentEntry.getProfileId());
+            info.setEligibilityRating(tournamentEntry.getEligibilityRating());
+            info.setSeedRating(tournamentEntry.getSeedRating());
+            info.setEventIds(eventIds);
+            tournamentEntryInfos.add(info);
+
+            // collect for efficient matching below
+            mapProfileIdToInfo.put(tournamentEntry.getProfileId(), info);
+        }
+
+        // get player profiles in one list
+        Set<String> profileIdsSet = mapProfileIdToInfo.keySet();
+        List<String> profileIds = new ArrayList<>(profileIdsSet);
+        Collection<UserProfile> userProfiles = userProfileService.listByProfileIds(profileIds);
+
+        for (UserProfile userProfile : userProfiles) {
+            String profileId = userProfile.getUserId();
+            TournamentEntryInfo tournamentEntryInfo = mapProfileIdToInfo.get(profileId);
+            if (tournamentEntryInfo != null) {
+                tournamentEntryInfo.setFirstName(userProfile.getFirstName());
+                tournamentEntryInfo.setLastName(userProfile.getLastName());
             }
         }
 

@@ -75,4 +75,10 @@ export class TournamentEventEntryDataService extends DefaultDataService<Tourname
       return this.execute('DELETE', url);
     }
   }
+
+  listForEvent(eventId: number): Observable<TournamentEventEntry[]> {
+    const url = `/api/tournamentevententries/${eventId}`;
+    // console.log('getById url ', url);
+    return this.execute('GET', url);
+  }
 }

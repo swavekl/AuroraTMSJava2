@@ -19,6 +19,11 @@ public class TournamentEventEntryController {
         return tournamentEventEntryService.getEntries(tournamentEntryId);
     }
 
+    @GetMapping("/tournamentevententries/{eventId}")
+    public List<TournamentEventEntry> getAllEntriesForEvent (@PathVariable Long eventId) {
+        return tournamentEventEntryService.listAllForEvent(eventId);
+    }
+
     @PostMapping("/tournamententry/{tournamentEntryId}/tournamentevententry")
     public TournamentEventEntry create(@PathVariable Long tournamentEntryId,
                                         @RequestBody TournamentEventEntry tournamentEventEntry) {

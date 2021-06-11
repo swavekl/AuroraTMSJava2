@@ -9,6 +9,8 @@ import {MatListModule} from '@angular/material/list';
 import {MatToolbarModule} from '@angular/material/toolbar';
 import {MatIconModule} from '@angular/material/icon';
 import {MatSidenavModule} from '@angular/material/sidenav';
+import {FormsModule} from '@angular/forms';
+import {FlexLayoutModule} from '@angular/flex-layout';
 
 import {AppComponent} from './app.component';
 import {AppRoutingModule} from './app-routing.module';
@@ -27,6 +29,11 @@ import {SharedModule} from './shared/shared.module';
 import {MAT_FORM_FIELD_DEFAULT_OPTIONS, MatFormFieldDefaultOptions} from '@angular/material/form-field';
 import {AccountModule} from './account/account.module';
 import {DrawsModule} from './draws/draws.module';
+import {DoublesTeamsContainerComponent} from './tournament/tournament-entry/doubles-teams/doubles-teams-container.component';
+import { DoublesTeamsComponent } from './tournament/tournament-entry/doubles-teams/doubles-teams.component';
+import {MatTableModule} from '@angular/material/table';
+import {MatTooltipModule} from '@angular/material/tooltip';
+import {MatSortModule} from '@angular/material/sort';
 
 const appearance: MatFormFieldDefaultOptions = {
   // appearance: 'fill'
@@ -36,37 +43,44 @@ const appearance: MatFormFieldDefaultOptions = {
 
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent,
+    DoublesTeamsContainerComponent,
+    DoublesTeamsComponent
   ],
-  imports: [
-    AppRoutingModule,
-    BrowserModule,
-    HttpClientModule,
-    HttpClientXsrfModule.withOptions({
-      cookieName: 'XSRF-TOKEN',
-      headerName: 'X-XSRF-TOKEN',
-    }),
-    BrowserAnimationsModule,
-    MatButtonModule,
-    MatCardModule,
-    MatInputModule,
-    MatListModule,
-    MatToolbarModule,
-    MatSidenavModule,
-    MatIconModule,
-    HomeModule,
-    TournamentModule,
-    TournamentConfigModule,
-    ProfileModule,
-    UserModule,
-    LayoutModule,
-    AppStoreModule,
-    environment.production ? [] : StoreDevtoolsModule.instrument(),
-    MatProgressBarModule,
-    SharedModule,
-    AccountModule,
-    DrawsModule
-  ],
+    imports: [
+        AppRoutingModule,
+        BrowserModule,
+        HttpClientModule,
+        HttpClientXsrfModule.withOptions({
+            cookieName: 'XSRF-TOKEN',
+            headerName: 'X-XSRF-TOKEN',
+        }),
+        BrowserAnimationsModule,
+        MatButtonModule,
+        MatCardModule,
+        MatInputModule,
+        MatListModule,
+        MatToolbarModule,
+        MatSidenavModule,
+        MatIconModule,
+        HomeModule,
+        TournamentModule,
+        TournamentConfigModule,
+        ProfileModule,
+        UserModule,
+        LayoutModule,
+        AppStoreModule,
+        environment.production ? [] : StoreDevtoolsModule.instrument(),
+        MatProgressBarModule,
+        SharedModule,
+        AccountModule,
+        DrawsModule,
+        FormsModule,
+        FlexLayoutModule,
+        MatTableModule,
+        MatTooltipModule,
+        MatSortModule
+    ],
   providers: [
     {provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true},
     {provide: MAT_FORM_FIELD_DEFAULT_OPTIONS, useValue: appearance}

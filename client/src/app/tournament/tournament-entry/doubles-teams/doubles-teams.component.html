@@ -1,0 +1,66 @@
+<div fxLayout="row">
+  <div fxFlex="15%" style="height: calc(100vh - 72px);">
+    <h2>Events</h2>
+    <mat-list dense class="event-list">
+      <mat-list-item *ngFor="let doublesEvent of doublesEvents" (click)="onSelectEvent(doublesEvent)"
+                     [ngClass]="isSelected (doublesEvent) ? 'selected' : 'not-selected'">
+        {{doublesEvent.name}}
+      </mat-list-item>
+    </mat-list>
+  </div>
+  <div fxFlex="85%" style="height: calc(100vh - 72px);">
+    <mat-toolbar>
+      <mat-toolbar-row>
+        <button mat-raised-button type="button" (click)="onMakePair()">Make Pair</button>
+      </mat-toolbar-row>
+    </mat-toolbar>
+    <div class="doubles-table-area">
+      <mat-table [dataSource]="dataSource" class="doubles-table mat-elevation-z8">
+        <ng-container matColumnDef="playerAName">
+          <mat-header-cell *matHeaderCellDef>Player A Name</mat-header-cell>
+          <mat-cell *matCellDef="let doublesPairInfo"> {{doublesPairInfo.playerAName}} </mat-cell>
+        </ng-container>
+
+        <ng-container matColumnDef="playerARating">
+          <mat-header-cell *matHeaderCellDef> Rating (E / S)</mat-header-cell>
+          <mat-cell *matCellDef="let doublesPairInfo">
+            {{doublesPairInfo.playerAEligibilityRating}} / {{doublesPairInfo.playerASeedRating}}
+          </mat-cell>
+        </ng-container>
+
+        <ng-container matColumnDef="playerBName">
+          <mat-header-cell *matHeaderCellDef>Player B Name</mat-header-cell>
+          <mat-cell *matCellDef="let doublesPairInfo">
+            {{doublesPairInfo.playerBName}}
+          </mat-cell>
+        </ng-container>
+
+        <ng-container matColumnDef="playerBRating">
+          <mat-header-cell *matHeaderCellDef>Rating (E / S)</mat-header-cell>
+          <mat-cell *matCellDef="let doublesPairInfo">
+            {{doublesPairInfo.playerBEligibilityRating}} / {{doublesPairInfo.playerBSeedRating}}
+          </mat-cell>
+        </ng-container>
+
+        <ng-container matColumnDef="combinedRating">
+          <mat-header-cell *matHeaderCellDef>Combined Rating (E / S)</mat-header-cell>
+          <mat-cell *matCellDef="let doublesPairInfo">
+            {{doublesPairInfo.doublesPair.eligibilityRating}} / {{doublesPairInfo.doublesPair.seedRating}}
+          </mat-cell>
+        </ng-container>
+
+        <ng-container matColumnDef="breakPair">
+          <mat-header-cell *matHeaderCellDef>Break Pair</mat-header-cell>
+          <mat-cell *matCellDef="let doublesPairInfo">
+            <button type="button" mat-icon-button (click)="onBreakPair(doublesPairInfo.doublesPair)">
+              <mat-icon matListIcon>delete</mat-icon>
+            </button>
+          </mat-cell>
+        </ng-container>
+
+        <mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></mat-header-row>
+        <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
+      </mat-table>
+    </div>
+  </div>
+</div>

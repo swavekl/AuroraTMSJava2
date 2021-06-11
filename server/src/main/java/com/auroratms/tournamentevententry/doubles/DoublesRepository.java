@@ -16,7 +16,7 @@ public interface DoublesRepository extends JpaRepository<DoublesPair, Long> {
      * @param tournamentEventFk
      * @return
      */
-    List<DoublesPair> findDoublesPairsByTournamentEventFk(long tournamentEventFk);
+    List<DoublesPair> findDoublesPairsByTournamentEventFkOrderBySeedRatingDesc(long tournamentEventFk);
 
     /**
      * Get existing entry for this player in this doubles event (either player A or B)

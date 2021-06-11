@@ -2,7 +2,11 @@ package com.auroratms.tournamentevententry.doubles;
 
 import com.auroratms.event.TournamentEventEntity;
 import com.auroratms.event.TournamentEventEntityService;
+import com.auroratms.profile.UserProfile;
+import com.auroratms.profile.UserProfileService;
 import com.auroratms.tournamententry.TournamentEntry;
+import com.auroratms.tournamententry.TournamentEntryInfo;
+import com.auroratms.tournamententry.TournamentEntryInfoService;
 import com.auroratms.tournamententry.TournamentEntryService;
 import com.auroratms.tournamentevententry.TournamentEventEntry;
 import com.auroratms.tournamentevententry.TournamentEventEntryService;
@@ -10,8 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 /**
  * Service for managing doubles pair information
@@ -31,6 +34,12 @@ public class DoublesService {
 
     @Autowired
     private TournamentEventEntityService tournamentEventEntityService;
+
+    @Autowired
+    private TournamentEntryInfoService tournamentEntryInfoService;
+
+    @Autowired
+    private UserProfileService userProfileService;
 
     /**
      * Makes a doubles pair
@@ -68,7 +77,7 @@ public class DoublesService {
      * @return
      */
     public List<DoublesPair> findDoublesPairsForEvent(long tournamentEventFk) {
-        return doublesPairRepository.findDoublesPairsByTournamentEventFk(tournamentEventFk);
+        return doublesPairRepository.findDoublesPairsByTournamentEventFkOrderBySeedRatingDesc(tournamentEventFk);
     }
 
     /**
@@ -203,5 +212,92 @@ public class DoublesService {
             // finally remove this doubles entry
             this.doublesPairRepository.deleteById(doublesPair.getId());
         }
+    }
+
+    /**
+     * Get doubles pair infos for one doubles event
+     * @param eventId
+     * @return
+     */
+    public List<DoublesPairInfo> getInfosForDoublesEvent(Long eventId) {
+        List<DoublesPairInfo> doublesPairInfoList = new ArrayList<>();
+
+        // get all entries for this event
+        List<TournamentEventEntry> doublesEventEntries = tournamentEventEntryService.listAllForEvent(eventId);
+        Map<Long, Long> mapEventEntryIdToTournamentEntryId = new HashMap<>();
+        List<Long> tournamentEntryIds = new ArrayList<>();
+        for (TournamentEventEntry doublesEventEntry : doublesEventEntries) {
+            tournamentEntryIds.add(doublesEventEntry.getTournamentEntryFk());
+            mapEventEntryIdToTournamentEntryId.put(doublesEventEntry.getId(), doublesEventEntry.getTournamentEntryFk());
+        }
+
+        // get entries which contain profiles - profiles contain first and last name
+        List<String> profileIds = new ArrayList<>(tournamentEntryIds.size());
+        List<TournamentEntry> tournamentEntries = tournamentEntryService.listEntries(tournamentEntryIds);
+        for (TournamentEntry tournamentEntry : tournamentEntries) {
+            String profileId = tournamentEntry.getProfileId();
+            profileIds.add(profileId);
+        }
+
+        // get all profiles based on ids
+        Collection<UserProfile> userProfiles = userProfileService.listByProfileIds(profileIds);
+        Map<String, String> mapUserProfileIdToFullName = new HashMap<>();
+        for (UserProfile userProfile : userProfiles) {
+            String fullName = userProfile.getFirstName() + " " + userProfile.getLastName();
+            mapUserProfileIdToFullName.put(userProfile.getUserId(), fullName);
+        }
+
+        // create a list of infos which contains player names and ratings
+        List<DoublesPair> doublesPairList = findDoublesPairsForEvent(eventId);
+        for (DoublesPair doublesPair : doublesPairList) {
+            DoublesPairInfo doublesPairInfo = new DoublesPairInfo();
+            doublesPairInfo.setId(doublesPair.getId());
+            doublesPairInfo.setDoublesPair(doublesPair);
+            // fill player A information
+            long playerAEventEntryFk = doublesPair.getPlayerAEventEntryFk();
+            Long playerATournamentEntryFk = mapEventEntryIdToTournamentEntryId.get(playerAEventEntryFk);
+            if (playerATournamentEntryFk != null) {
+                TournamentEntry tournamentEntry = this.findPlayerTournamentEntry(tournamentEntries, playerATournamentEntryFk);
+                String profileId = tournamentEntry.getProfileId();
+                if (profileId != null) {
+                    String fullName = mapUserProfileIdToFullName.get(profileId);
+                    doublesPairInfo.setPlayerAName(fullName);
+                    doublesPairInfo.setPlayerAEligibilityRating(tournamentEntry.getEligibilityRating());
+                    doublesPairInfo.setPlayerASeedRating(tournamentEntry.getSeedRating());
+                }
+            }
+
+            // fill player B information
+            long playerBEventEntryFk = doublesPair.getPlayerBEventEntryFk();
+            Long playerBTournamentEntryFk = mapEventEntryIdToTournamentEntryId.get(playerBEventEntryFk);
+            if (playerBTournamentEntryFk != null) {
+                TournamentEntry tournamentEntry = this.findPlayerTournamentEntry(tournamentEntries, playerBTournamentEntryFk);
+                String profileId = tournamentEntry.getProfileId();
+                if (profileId != null) {
+                    String fullName = mapUserProfileIdToFullName.get(profileId);
+                    doublesPairInfo.setPlayerBName(fullName);
+                    doublesPairInfo.setPlayerBEligibilityRating(tournamentEntry.getEligibilityRating());
+                    doublesPairInfo.setPlayerBSeedRating(tournamentEntry.getSeedRating());
+                }
+            }
+
+            doublesPairInfoList.add(doublesPairInfo);
+        }
+        return doublesPairInfoList;
+    }
+
+    /**
+     *
+     * @param tournamentEntries
+     * @param playerATournamentEntryFk
+     * @return
+     */
+    private TournamentEntry findPlayerTournamentEntry(List<TournamentEntry> tournamentEntries, long playerATournamentEntryFk) {
+        for (TournamentEntry tournamentEntry : tournamentEntries) {
+            if (tournamentEntry.getId().equals(playerATournamentEntryFk)) {
+                return tournamentEntry;
+            }
+        }
+        return null;
     }
 }

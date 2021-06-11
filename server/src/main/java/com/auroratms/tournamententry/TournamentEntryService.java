@@ -59,6 +59,15 @@ public class TournamentEntryService {
         return repository.findAllByTournamentFk(tournamentId);
     }
 
+    /**
+     * Gets a subset of tournament entries identified by ids in the list
+     * @param tournamentEntryIds ids of entries to get
+     * @return
+     */
+    public List<TournamentEntry> listEntries(List<Long> tournamentEntryIds) {
+        return repository.findAllByIdIn(tournamentEntryIds);
+    }
+
     @CachePut(key = "#entry.id")
     public void cacheIt (TournamentEntry entry) {
         // do nothing just cache it

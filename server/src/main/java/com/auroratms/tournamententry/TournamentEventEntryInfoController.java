@@ -27,9 +27,25 @@ public class TournamentEventEntryInfoController {
     }
 
     @GetMapping("/tournamentplayers/{tournamentId}")
-    public ResponseEntity getAllEntryInfosForTournament (@PathVariable Long tournamentId) {
+    public ResponseEntity getAllEntryInfosForTournament(@PathVariable Long tournamentId) {
         try {
             List<TournamentEntryInfo> entryInfos = this.tournamentEntryInfoService.getAllEntryInfosForTournament(tournamentId);
+            return new ResponseEntity(entryInfos, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity(e, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /**
+     * Gets event entry infos for one event
+     *
+     * @param eventId
+     * @return
+     */
+    @GetMapping("/eventplayers/{eventId}")
+    public ResponseEntity getDoublesEntryInfosForEvent(@PathVariable Long eventId) {
+        try {
+            List<TournamentEntryInfo> entryInfos = this.tournamentEntryInfoService.getDoublesEntryInfosForEvent(eventId);
             return new ResponseEntity(entryInfos, HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity(e, HttpStatus.INTERNAL_SERVER_ERROR);

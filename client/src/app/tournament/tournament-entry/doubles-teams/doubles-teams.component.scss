@@ -1,0 +1,21 @@
+@import "~src/my-theme.scss";
+
+.not-selected {
+  background-color: white;
+}
+
+.selected {
+  background-color: $accent-color;
+}
+
+.doubles-table-area {
+  width: 100%;
+  height: calc(100vh - 140px);
+  overflow: auto;
+  border: 0px solid deeppink;
+}
+.doubles-table {
+  width: 100%;
+  //overflow: auto;
+  border: 0px solid green;
+}

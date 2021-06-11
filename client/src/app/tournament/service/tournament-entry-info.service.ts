@@ -1,8 +1,8 @@
 import {Injectable} from '@angular/core';
-import {TournamentEntryInfo} from '../model/tournament-entry-info.model';
-import {BehaviorSubject, Observable, Subject} from 'rxjs';
-import {HttpClient} from '@angular/common/http';
+import {BehaviorSubject, Observable} from 'rxjs';
 import {distinctUntilChanged, tap} from 'rxjs/operators';
+import {HttpClient} from '@angular/common/http';
+import {TournamentEntryInfo} from '../model/tournament-entry-info.model';
 
 @Injectable({
   providedIn: 'root'
@@ -22,6 +22,26 @@ export class TournamentEntryInfoService {
   getAll(tournamentId: number): Observable<TournamentEntryInfo []> {
     this.setLoading(true);
     const url = `/api/tournamentplayers/${tournamentId}`;
+    return this.httpClient.get<TournamentEntryInfo []>(url)
+      .pipe(
+        tap(
+          () => {
+            this.setLoading(false);
+          },
+          () => {
+            this.setLoading(false);
+          }
+        )
+      );
+  }
+
+  /**
+   * Gets all tournament entry infos for one event
+   * @param eventId
+   */
+  getAllForEvent(eventId: number): Observable<TournamentEntryInfo[]> {
+    this.setLoading(true);
+    const url = `/api/eventplayers/${eventId}`;
     return this.httpClient.get<TournamentEntryInfo []>(url)
       .pipe(
         tap(

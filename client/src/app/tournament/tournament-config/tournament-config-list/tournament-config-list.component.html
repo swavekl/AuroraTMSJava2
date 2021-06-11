@@ -16,6 +16,9 @@
             <h3 matLine>{{tournament.name}}</h3>
             <h3 matLine>{{tournament.startDate | date }} - {{tournament.endDate | date }}</h3>
             <h4 matLine>{{ tournament.city }}, {{tournament.state}} </h4>
+            <button mat-icon-button [routerLink]="['/entries/doublesteams', tournament.id]" matTooltip="Doubles Teams">
+              <mat-icon matListIcon>group</mat-icon>
+            </button>
             <button mat-icon-button [routerLink]="['/draws', tournament.id]" matTooltip="Draws">
               <mat-icon matListIcon>grid_view</mat-icon>
             </button>
