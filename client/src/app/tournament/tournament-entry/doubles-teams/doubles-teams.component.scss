@@ -18,24 +18,28 @@
 }
 
 // column widths
+.mat-column-index {
+  flex: 1;
+}
+
 .mat-column-playerAName {
-  flex: 3;
+  flex: 4;
 }
 
 .mat-column-playerARating {
-  flex: 2;
-}
-
-.mat-column-playerBName {
   flex: 3;
 }
 
+.mat-column-playerBName {
+  flex: 4;
+}
+
 .mat-column-playerBRating {
-  flex: 2;
+  flex: 3;
 }
 
 .mat-column-combinedRating {
-  flex: 2;
+  flex: 3;
 }
 
 .mat-column-breakPair {

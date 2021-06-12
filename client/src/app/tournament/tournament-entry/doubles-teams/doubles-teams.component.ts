@@ -1,15 +1,4 @@
-import {
-  AfterViewInit,
-  Component,
-  EventEmitter,
-  Input,
-  OnChanges,
-  OnInit,
-  Output,
-  SimpleChange,
-  SimpleChanges,
-  ViewChild
-} from '@angular/core';
+import {AfterViewInit, Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChange, SimpleChanges} from '@angular/core';
 import {TournamentEvent} from '../../tournament-config/tournament-event.model';
 import {DoublesPair} from '../model/doubles-pair.model';
 import {TournamentEventEntry} from '../model/tournament-event-entry.model';
@@ -17,7 +6,6 @@ import {DoublesPairInfo} from '../model/doubles-pair-info.model';
 import {MatDialog, MatDialogConfig} from '@angular/material/dialog';
 import {DoublesPairDialogComponent, DoublesPairingData, DoublesPairingInfo} from '../doubles-pair-dialog/doubles-pair-dialog.component';
 import {TournamentEntryInfo} from '../../model/tournament-entry-info.model';
-import {MatSort} from '@angular/material/sort';
 import {MatTableDataSource} from '@angular/material/table';
 
 @Component({
@@ -25,7 +13,7 @@ import {MatTableDataSource} from '@angular/material/table';
   templateUrl: './doubles-teams.component.html',
   styleUrls: ['./doubles-teams.component.scss']
 })
-export class DoublesTeamsComponent implements OnInit, OnChanges, AfterViewInit {
+export class DoublesTeamsComponent implements OnInit, OnChanges {
 
   // information about doubles events - usually a few only
   @Input()
@@ -54,70 +42,25 @@ export class DoublesTeamsComponent implements OnInit, OnChanges, AfterViewInit {
   @Output()
   private breakPairEmitter: EventEmitter<DoublesPair> = new EventEmitter<DoublesPair>();
 
-  displayedColumns: string[] = ['playerAName', 'playerARating', 'playerBName', 'playerBRating', 'combinedRating', 'breakPair'];
-
-  // @ViewChild(MatSort)
-  // sort: MatSort;
+  displayedColumns: string[] = ['index', 'playerAName', 'playerARating', 'playerBName', 'playerBRating', 'combinedRating', 'breakPair'];
 
   dataSource: MatTableDataSource<DoublesPairInfo>;
 
   constructor(public dialog: MatDialog) {
     this.dataSource = new MatTableDataSource(this.doublesPairInfos);
-    // this.dataSource.sortingDataAccessor = (data, col) => {
-    //   if (col === 'combinedRating') {
-    //     return data.doublesPair.seedRating;
-    //   } else {
-    //     return data[col];
-    //   }
-    // };
   }
 
   ngOnInit(): void {
   }
 
-  ngAfterViewInit() {
-    // this.dataSource.sort = this.sort;
-  }
-
   ngOnChanges(changes: SimpleChanges): void {
-    // const doublesEventEntriesChanges: SimpleChange = changes.doublesEventEntries;
-    // if (doublesEventEntriesChanges) {
-    //   const doublesEvents = doublesEventEntriesChanges.currentValue;
-    //   if (doublesEvents) {
-    //     console.log('got doubles events of length ' + doublesEvents.length);
-    //   } else {
-    //     console.log('empty doubles events');
-    //   }
-    // }
-    //
     const doublesPairInfosChange: SimpleChange = changes.doublesPairInfos;
     if (doublesPairInfosChange) {
       const doublesPairInfos = doublesPairInfosChange.currentValue;
       if (doublesPairInfos) {
-        console.log('got doubles pair infos length ' + doublesPairInfos.length);
         this.dataSource = new MatTableDataSource(this.doublesPairInfos);
-        // this.dataSource.sortingDataAccessor = (data, col) => {
-        //   if (col === 'combinedRating') {
-        //     return data.doublesPair.seedRating;
-        //   } else {
-        //     return data[col];
-        //   }
-        // };
-        // this.dataSource.sort = this.sort;
-      } else {
-        console.log('emtpty doubles pair infos');
       }
     }
-    //
-    // const tournamentEntryInfosChange: SimpleChange = changes.tournamentEntryInfos;
-    // if (tournamentEntryInfosChange) {
-    //   const tournamentEntryInfos = tournamentEntryInfosChange.currentValue;
-    //   if (tournamentEntryInfos) {
-    //     console.log('got tournament entry infos length ' + tournamentEntryInfos.length);
-    //   } else {
-    //     console.log('empty tournament entry infos');
-    //   }
-    // }
   }
 
   onSelectEvent(doublesEvent: TournamentEvent) {
@@ -137,7 +80,7 @@ export class DoublesTeamsComponent implements OnInit, OnChanges, AfterViewInit {
     // prepare data
     const dialogData = this.makeDialogData();
     const config: MatDialogConfig = {
-      width: '330px', height: '300px', data: dialogData
+      width: '330px', height: '330px', data: dialogData
     };
     // show pairing dialog
     const dialogRef = this.dialog.open(DoublesPairDialogComponent, config);
@@ -168,7 +111,7 @@ export class DoublesTeamsComponent implements OnInit, OnChanges, AfterViewInit {
         const tournamentEntryFk = eventEntry.tournamentEntryFk;
         for (const tournamentEntryInfo of this.tournamentEntryInfos) {
           if (tournamentEntryFk === tournamentEntryInfo.entryId) {
-            const playerName = tournamentEntryInfo.firstName + ' ' + tournamentEntryInfo.lastName;
+            const playerName = tournamentEntryInfo.lastName + ', ' + tournamentEntryInfo.firstName;
             const doublesPairingInfo: DoublesPairingInfo = {
               eventEntryId: eventEntry.id,
               playerName: playerName

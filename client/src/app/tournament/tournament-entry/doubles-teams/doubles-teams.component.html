@@ -16,6 +16,12 @@
     </mat-toolbar>
     <div class="doubles-table-area">
       <mat-table [dataSource]="dataSource" class="doubles-table mat-elevation-z8">
+
+        <ng-container matColumnDef="index">
+          <mat-header-cell *matHeaderCellDef> # </mat-header-cell>
+          <mat-cell *matCellDef="let doublesPairInfo;index as i;"> {{ i }} </mat-cell>
+        </ng-container>
+
         <ng-container matColumnDef="playerAName">
           <mat-header-cell *matHeaderCellDef>Player A Name</mat-header-cell>
           <mat-cell *matCellDef="let doublesPairInfo"> {{doublesPairInfo.playerAName}} </mat-cell>

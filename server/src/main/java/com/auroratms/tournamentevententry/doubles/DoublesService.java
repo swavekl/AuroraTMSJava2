@@ -243,7 +243,7 @@ public class DoublesService {
         Collection<UserProfile> userProfiles = userProfileService.listByProfileIds(profileIds);
         Map<String, String> mapUserProfileIdToFullName = new HashMap<>();
         for (UserProfile userProfile : userProfiles) {
-            String fullName = userProfile.getFirstName() + " " + userProfile.getLastName();
+            String fullName = userProfile.getLastName() + ", " + userProfile.getFirstName();
             mapUserProfileIdToFullName.put(userProfile.getUserId(), fullName);
         }
 

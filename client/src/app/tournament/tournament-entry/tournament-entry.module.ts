@@ -23,6 +23,7 @@ import {ProfileModule} from '../../profile/profile.module';
 import { DoublesPairDialogComponent } from './doubles-pair-dialog/doubles-pair-dialog.component';
 import {MatDialogModule} from '@angular/material/dialog';
 import {MatSelectModule} from '@angular/material/select';
+import { SelectionsDifferentDirective } from './doubles-pair-dialog/selections-different.directive';
 
 @NgModule({
   declarations: [
@@ -30,7 +31,8 @@ import {MatSelectModule} from '@angular/material/select';
     EntryWizardComponent,
     EventEntryStatusPipe,
     AvailabilityStatusPipe,
-    DoublesPairDialogComponent
+    DoublesPairDialogComponent,
+    SelectionsDifferentDirective
   ],
   imports: [
     CommonModule,
