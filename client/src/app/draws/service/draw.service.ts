@@ -63,4 +63,12 @@ import {tap} from 'rxjs/operators';
     super.clearCache();
     return this.drawDataService.delete(eventId);
   }
+
+  /**
+   * Updates a single draw item
+   * @param drawItems
+   */
+  updateDrawItems(drawItems: DrawItem[]): Observable<DrawItem> {
+    return this.drawDataService.updateItems(drawItems);
+  }
 }

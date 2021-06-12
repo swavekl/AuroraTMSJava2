@@ -89,7 +89,7 @@ public class DrawController {
         }
 
 
-        // if this event has more than one round RR followed by SE then delete that too
+        // if this event has more than one round RR followed by SE then get those entries too
         TournamentEventEntity thisEvent = this.eventService.get(eventId);
         if (!thisEvent.isSingleElimination() && thisEvent.getPlayersToAdvance() > 0) {
             List<DrawItem> seRoundDrawItems = this.drawService.list(eventId, DrawType.SINGLE_ELIMINATION);
@@ -372,18 +372,14 @@ public class DrawController {
 
 
     /**
-     * Updates existing draw
+     * Updates existing draw items
      *
-     * @param eventId
-     * @param drawType
-     * @param updatedDrawItems
+     * @param drawItemsList
      */
-    @PatchMapping("")
+    @PutMapping("")
     @PreAuthorize("hasAuthority('TournamentDirectors') or hasAuthority('Admins') or hasAuthority('Referees')")
-    public void update(@RequestParam long eventId,
-                       @RequestParam DrawType drawType,
-                       @RequestBody List<DrawItem> updatedDrawItems) {
-        this.drawService.updateDraws(updatedDrawItems);
+    public void update(@RequestBody List<DrawItem> drawItemsList) {
+        this.drawService.updateDraws(drawItemsList);
     }
 
     /**
@@ -398,7 +394,7 @@ public class DrawController {
         if (singleElimination) {
             this.drawService.deleteDraws(eventId, DrawType.SINGLE_ELIMINATION);
         } else {
-            // if RR is followed by Single elimination then delte that too
+            // if RR is followed by Single elimination then delete that too
             this.drawService.deleteDraws(eventId, DrawType.ROUND_ROBIN);
             if (thisEvent.getPlayersToAdvance() > 0) {
                 this.drawService.deleteDraws(eventId, DrawType.SINGLE_ELIMINATION);

@@ -50,6 +50,15 @@ export class DrawDataService extends DefaultDataService<DrawItem> {
 
   /**
    * Deletes draws for this event id (different meaning than base class)
+   * @param drawItems
+   */
+  updateItems(drawItems: DrawItem[]): Observable<DrawItem> {
+    const url = `/api/draws`;
+    return this.execute('PUT', url, drawItems);
+  }
+
+  /**
+   * Deletes draws for this event id (different meaning than base class)
    * @param eventId
    */
   delete(eventId: number): Observable<number> {

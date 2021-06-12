@@ -104,7 +104,7 @@ export class DrawsContainerComponent implements OnInit, OnDestroy {
         this.onClearDraw(drawAction.eventId);
         break;
       case DrawActionType.DRAW_ACTION_UPDATE:
-        this.onUpdateDraw(drawAction.eventId, drawAction.payload);
+        this.onUpdateDraw(drawAction.eventId, drawAction.payload.movedDrawItems);
         break;
     }
   }
@@ -149,8 +149,18 @@ export class DrawsContainerComponent implements OnInit, OnDestroy {
       });
   }
 
-
-  private onUpdateDraw(eventId: number, payload: any) {
-
+  /**
+   * Updates draw item
+   * @param eventId
+   * @param drawItems
+   * @private
+   */
+  private onUpdateDraw(eventId: number, drawItems: DrawItem []) {
+    if (drawItems) {
+      this.drawService.updateDrawItems(drawItems)
+        .pipe(first())
+        .subscribe(() => {
+        });
+    }
   }
 }

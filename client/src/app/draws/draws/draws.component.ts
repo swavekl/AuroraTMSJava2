@@ -197,11 +197,15 @@ export class DrawsComponent implements OnInit, OnChanges {
     // only allow movement between different groups and in the same row
     if (event.previousContainer !== event.container &&
       event.previousIndex === event.currentIndex) {
+      const changedGroupNum1 = event.previousContainer.data[0].groupNum;
+      const changedGroupNum2 = event.container.data[0].groupNum;
       // save this move on the undo stack so
       const undoMemento: UndoMemento = {
         toGroupItems: event.previousContainer.data,
         fromGroupItems: event.container.data,
-        rowIndex: event.previousIndex
+        rowIndex: event.previousIndex,
+        changedGroupNum1: changedGroupNum1,
+        changedGroupNum2: changedGroupNum2
       };
       this.undoStack.push(undoMemento);
 
@@ -216,6 +220,8 @@ export class DrawsComponent implements OnInit, OnChanges {
         event.previousContainer.data,
         event.currentIndex + 1,
         event.previousIndex);
+
+      this.updateDrawItems(event.currentIndex, changedGroupNum1, changedGroupNum2);
     }
   }
 
@@ -238,7 +244,42 @@ export class DrawsComponent implements OnInit, OnChanges {
         undoMemento.fromGroupItems,
         undoMemento.rowIndex + 1,
         undoMemento.rowIndex);
+
+      this.updateDrawItems(undoMemento.rowIndex, undoMemento.changedGroupNum1, undoMemento.changedGroupNum2);
     }
+  }
+
+  /**
+   * Fixes group numbers after move
+   * @param rowIndex row position that changed
+   * @param groupNum1 group that changed
+   * @param groupNum2 another group that changed
+   * @private
+   */
+  private updateDrawItems(rowIndex: number, groupNum1: number, groupNum2: number) {
+    // collect changed draw items
+    const movedDrawItems: DrawItem [] = [];
+    this.groups.forEach((drawGroup: DrawGroup) => {
+      const groupNum = drawGroup.groupNum;
+      // if this is one of the changed groups
+      if (groupNum === groupNum1 || groupNum === groupNum2) {
+        drawGroup.drawItems.forEach((drawItem: DrawItem, index: number) => {
+          // find the moved item that is not a fake (empty) that has wrong group after move
+          if (index === rowIndex && drawItem.id !== -1) {
+            const movedItem = {...drawItem, groupNum: groupNum};
+            movedDrawItems.push(movedItem);
+          }
+        });
+      }
+    });
+
+    // emit update event to update the server
+    const action: DrawAction = {
+      actionType: DrawActionType.DRAW_ACTION_UPDATE,
+      eventId: this.selectedEvent.id,
+      payload: {movedDrawItems: movedDrawItems}
+    };
+    this.drawsAction.emit(action);
   }
 
   /**
