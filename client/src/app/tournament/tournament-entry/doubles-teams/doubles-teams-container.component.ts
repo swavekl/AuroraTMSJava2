@@ -99,18 +99,15 @@ export class DoublesTeamsContainerComponent implements OnInit, OnDestroy {
    * @private
    */
   private loadTournamentDoublesEvents() {
-    const subscription = this.tournamentEventConfigService.loadTournamentEvents(this.tournamentId)
+    const subscription = this.tournamentEventConfigService.loadTournamentDoublesEvents(this.tournamentId)
       .subscribe(
         (events: TournamentEvent[]) => {
-          const doublesEventsOnly = events.filter((tournamentEvent: TournamentEvent, index: number, array: TournamentEvent[]) => {
-            return (tournamentEvent.doubles === true);
-          });
+          this.doublesEvents$ = of(events);
           // load the first doubles event
-          if (doublesEventsOnly.length > 0) {
-            const firstDoublesEvent = doublesEventsOnly[0];
-            this.loadFirstEvent(firstDoublesEvent.id);
+          if (events.length > 0) {
+            const firstDoublesEvent = events[0];
+            this.loadFirstEventData(firstDoublesEvent.id);
           }
-          this.doublesEvents$ = of(doublesEventsOnly);
         },
         error => {
           console.log('error loading doubles events for tournament ' + this.tournamentId + ' error ' + error);
@@ -118,7 +115,7 @@ export class DoublesTeamsContainerComponent implements OnInit, OnDestroy {
     this.subscriptions.add(subscription);
   }
 
-  loadFirstEvent(eventId: number) {
+  loadFirstEventData(eventId: number) {
     this.doublesPairInfos$ = this.doublesPairInfoService.store.select(this.doublesPairInfoService.selectors.selectEntities);
     this.doublesEventEntries$ = this.tournamentEventEntryService.store.select(this.tournamentEventEntryService.selectors.selectEntities);
     this.onEventSelectionChange(eventId);
@@ -150,8 +147,6 @@ export class DoublesTeamsContainerComponent implements OnInit, OnDestroy {
   private loadDoublesEventEntries(eventId: number) {
     this.tournamentEventEntryService.loadEntriesForEvent(eventId)
       .subscribe((entries: TournamentEventEntry[]) => {
-        console.log('Got ' + entries.length + ' doubles event entries for event ' + eventId);
-        // return entries;
       }, error => {
         console.log('Error loading tournament entries ' + error);
       });
@@ -172,11 +167,9 @@ export class DoublesTeamsContainerComponent implements OnInit, OnDestroy {
    * @private
    */
   public onMakePair(doublesPair: DoublesPair) {
-    console.log('in onMakePair');
     const subscription = this.doublesPairService.add(doublesPair)
       .pipe(first())
       .subscribe(() => {
-        console.log('after add doubles pair');
         this.onEventSelectionChange(this.selectedDoublesEventId);
       });
     this.subscriptions.add(subscription);
@@ -191,7 +184,6 @@ export class DoublesTeamsContainerComponent implements OnInit, OnDestroy {
     const subscription = this.doublesPairService.delete(doublesPair)
       .pipe(first())
       .subscribe(() => {
-        console.log('after deleting doubles pair');
         this.onEventSelectionChange(this.selectedDoublesEventId);
       });
     this.subscriptions.add(subscription);

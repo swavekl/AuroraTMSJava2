@@ -17,8 +17,14 @@ public class TournamentEventController {
 
     @GetMapping("/tournament/{tournamentId}/tournamentevents")
 //    @PreAuthorize("hasAuthority('TournamentDirectors') or hasAuthority('Admins')")
-    public Collection<TournamentEventEntity> list(@PathVariable Long tournamentId, Pageable pageable) {
-        return tournamentEventEntityService.list(tournamentId, pageable);
+    public Collection<TournamentEventEntity> list(@PathVariable Long tournamentId,
+                                                  Pageable pageable,
+                                                  @RequestParam(required = false) Boolean doublesOnly) {
+        if (Boolean.TRUE.equals(doublesOnly)) {
+            return tournamentEventEntityService.listDoublesEvents(tournamentId);
+        } else {
+            return tournamentEventEntityService.list(tournamentId, pageable);
+        }
     }
 
     @GetMapping("/tournament/{tournamentId}/tournamentevent/{eventId}")

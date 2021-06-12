@@ -14,9 +14,9 @@ export class TournamentEventConfigService extends EntityCollectionServiceBase<To
     super('TournamentEvent', serviceElementsFactory);
   }
 
-  getAllForTournament(tournamentId: number, options?: EntityActionOptions): Observable<TournamentEvent[]> {
+  loadTournamentDoublesEvents(tournamentId: number, options?: EntityActionOptions): Observable<TournamentEvent[]> {
     this.tournamentEventConfigDataService.setTournamentId(tournamentId);
-    const queryParams = 'size=10&page=0&sort=ordinalNumber,asc';
+    const queryParams = 'doublesOnly=true';
     return super.getWithQuery(queryParams)
       .pipe(map(tournamentEvents => tournamentEvents
         .map(tournamentEvent => TournamentEvent.convert(tournamentEvent))));
