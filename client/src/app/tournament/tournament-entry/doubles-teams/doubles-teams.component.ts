@@ -46,8 +46,11 @@ export class DoublesTeamsComponent implements OnInit, OnChanges {
 
   dataSource: MatTableDataSource<DoublesPairInfo>;
 
+  eventMaxRating: number;
+
   constructor(public dialog: MatDialog) {
     this.dataSource = new MatTableDataSource(this.doublesPairInfos);
+    this.eventMaxRating = 0;
   }
 
   ngOnInit(): void {
@@ -65,6 +68,7 @@ export class DoublesTeamsComponent implements OnInit, OnChanges {
 
   onSelectEvent(doublesEvent: TournamentEvent) {
     this.selectedDoublesEventId = doublesEvent.id;
+    this.eventMaxRating = doublesEvent.maxPlayerRating;
     this.selectionChangeEmitter.emit(doublesEvent.id);
   }
 
@@ -79,17 +83,19 @@ export class DoublesTeamsComponent implements OnInit, OnChanges {
   onMakePair() {
     // prepare data
     const dialogData = this.makeDialogData();
-    const config: MatDialogConfig = {
-      width: '330px', height: '330px', data: dialogData
-    };
-    // show pairing dialog
-    const dialogRef = this.dialog.open(DoublesPairDialogComponent, config);
-    dialogRef.afterClosed().subscribe(result => {
-      if (result.action === 'ok') {
-        const doublesPair: DoublesPair = this.makeDoublesPair(result);
-        this.makePairEmitter.emit(doublesPair);
-      }
-    });
+    if (dialogData) {
+      const config: MatDialogConfig = {
+        width: '360px', height: '360px', data: dialogData
+      };
+      // show pairing dialog
+      const dialogRef = this.dialog.open(DoublesPairDialogComponent, config);
+      dialogRef.afterClosed().subscribe(result => {
+        if (result.action === 'ok') {
+          const doublesPair: DoublesPair = this.makeDoublesPair(result);
+          this.makePairEmitter.emit(doublesPair);
+        }
+      });
+    }
   }
 
   /**
@@ -97,6 +103,11 @@ export class DoublesTeamsComponent implements OnInit, OnChanges {
    * @private
    */
   private makeDialogData() {
+    // check that data is available
+    if (!this.doublesPairInfos || !this.doublesEventEntries || !this.tournamentEntryInfos) {
+      return null;
+    }
+
     // find unpaired players
     const pairedPlayersEntryIds: number[] = [];
     for (const doublesPairInfo of this.doublesPairInfos) {
@@ -114,7 +125,8 @@ export class DoublesTeamsComponent implements OnInit, OnChanges {
             const playerName = tournamentEntryInfo.lastName + ', ' + tournamentEntryInfo.firstName;
             const doublesPairingInfo: DoublesPairingInfo = {
               eventEntryId: eventEntry.id,
-              playerName: playerName
+              playerName: playerName,
+              playerRating: tournamentEntryInfo.eligibilityRating
             };
             doublesPairingInfos.push(doublesPairingInfo);
             break;
@@ -124,7 +136,8 @@ export class DoublesTeamsComponent implements OnInit, OnChanges {
     }
 
     const dialogData: DoublesPairingData = {
-      doublesPairingInfos: doublesPairingInfos
+      doublesPairingInfos: doublesPairingInfos,
+      eventMaxRating: this.eventMaxRating
     };
     return dialogData;
   }

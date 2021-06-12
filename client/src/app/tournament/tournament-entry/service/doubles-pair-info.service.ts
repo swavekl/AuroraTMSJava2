@@ -12,7 +12,6 @@ export class DoublesPairInfoService extends EntityCollectionServiceBase<DoublesP
   }
 
   public loadForEvent(doublesEventFk: number): Observable<DoublesPairInfo[]> {
-    console.log(`loading double event entries for event ${doublesEventFk}`);
     const queryParams = `eventId=${doublesEventFk}`;
     super.clearCache();
     return super.getWithQuery(queryParams);

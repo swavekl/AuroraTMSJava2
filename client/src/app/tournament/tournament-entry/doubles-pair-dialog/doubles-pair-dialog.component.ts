@@ -16,9 +16,12 @@ export class DoublesPairDialogComponent implements OnInit {
   // names and event entry ids for all unpaired players
   doublesPairingInfos: DoublesPairingInfo [] = [];
 
+  eventMaxRating: number;
+
   constructor(public dialogRef: MatDialogRef<DoublesPairDialogComponent>,
               @Inject(MAT_DIALOG_DATA) public data: DoublesPairingData) {
     this.doublesPairingInfos = data.doublesPairingInfos;
+    this.eventMaxRating = data.eventMaxRating;
     this.doublesPairingInfos.sort((a: DoublesPairingInfo, b: DoublesPairingInfo) => {
       return a.playerName.localeCompare(b.playerName);
     });
@@ -43,9 +46,11 @@ export class DoublesPairDialogComponent implements OnInit {
 
 export class DoublesPairingData {
   doublesPairingInfos: DoublesPairingInfo[];
+  eventMaxRating: number;
 }
 
 export class DoublesPairingInfo {
   eventEntryId: number;
   playerName: string;
+  playerRating: number;
 }

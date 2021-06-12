@@ -1,20 +1,24 @@
 <div mat-dialog-title>Select Doubles Partners</div>
 <mat-dialog-content>
-  <form name="form" #f="ngForm" novalidate>
+  <form name="form" #f="ngForm" appMaxRating>
+<!--    pass these two values as hidden controls so they can be retrieved by appMaxRating validator-->
     <div fxLayout="column">
-      <mat-form-field fxFlex="100%">
+      <input type="hidden" [ngModel]="eventMaxRating" name="eventMaxRating">
+      <input type="hidden" [ngModel]="doublesPairingInfos" name="doublesPairingInfos">
+      <mat-error *ngIf="f.errors?.appMaxRating">Maximum combined rating for this event is {{eventMaxRating}}.</mat-error>
+      <mat-form-field>
         <mat-label>Choose Player A</mat-label>
         <mat-select name="playerA" [(ngModel)]="playerAEventEntryId" required>
           <mat-option *ngFor="let doublesEventEntry of doublesPairingInfos" [value]="doublesEventEntry.eventEntryId">
-            {{doublesEventEntry.playerName}}
+            {{doublesEventEntry.playerName}} ({{doublesEventEntry.playerRating}})
           </mat-option>
         </mat-select>
       </mat-form-field>
-      <mat-form-field fxFlex="100%">
+      <mat-form-field>
         <mat-label>Choose Player B</mat-label>
         <mat-select name="playerB" [(ngModel)]="playerBEventEntryId" required appValuesDifferent="playerA">
           <mat-option *ngFor="let doublesEventEntry of doublesPairingInfos" [value]="doublesEventEntry.eventEntryId">
-            {{doublesEventEntry.playerName}}
+            {{doublesEventEntry.playerName}} ({{doublesEventEntry.playerRating}})
           </mat-option>
         </mat-select>
         <mat-error *ngIf="f.form.controls['playerB']?.errors?.appValuesDifferent">Players must be different</mat-error>
