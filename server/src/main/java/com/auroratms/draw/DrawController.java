@@ -3,6 +3,7 @@ package com.auroratms.draw;
 import com.auroratms.club.ClubEntity;
 import com.auroratms.club.ClubService;
 import com.auroratms.draw.generation.PlayerDrawInfo;
+import com.auroratms.draw.generation.singleelim.SingleEliminationEntriesConverter;
 import com.auroratms.event.TournamentEventEntity;
 import com.auroratms.event.TournamentEventEntityService;
 import com.auroratms.profile.UserProfile;
@@ -15,6 +16,7 @@ import com.auroratms.tournamentevententry.TournamentEventEntry;
 import com.auroratms.tournamentevententry.TournamentEventEntryService;
 import com.auroratms.usatt.UsattDataService;
 import com.auroratms.usatt.UsattPlayerRecord;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -81,16 +83,24 @@ public class DrawController {
                                                   @RequestParam(required = false) DrawType drawType) {
         List<DrawItem> drawItems = this.drawService.list(eventId, drawType);
 
+        TournamentEventEntity thisEvent = this.eventService.get(eventId);
+
         // now enhance this information with player name, club name and state
         // get profiles of players in this event
         List<String> profileIds = new ArrayList<>(drawItems.size());
         for (DrawItem drawItem : drawItems) {
-            profileIds.add(drawItem.getPlayerId());
+            String profileId = drawItem.getPlayerId();
+            // doubles event has playerA/playerB profile ids
+            if (thisEvent.isDoubles()) {
+                String[] playersProfileIds = profileId.split(";");
+                profileIds.addAll(Arrays.asList(playersProfileIds));
+            } else {
+                profileIds.add(profileId);
+            }
         }
 
 
         // if this event has more than one round RR followed by SE then get those entries too
-        TournamentEventEntity thisEvent = this.eventService.get(eventId);
         if (!thisEvent.isSingleElimination() && thisEvent.getPlayersToAdvance() > 0) {
             List<DrawItem> seRoundDrawItems = this.drawService.list(eventId, DrawType.SINGLE_ELIMINATION);
             drawItems.addAll(seRoundDrawItems);
@@ -110,20 +120,15 @@ public class DrawController {
 
         List<ClubEntity> clubEntityList = this.clubService.findAllByIdIn(new ArrayList<Long>(clubIdsSet));
 
-        // set club name for player
+        // set club name for player(s)
         for (DrawItem drawItem : drawItems) {
-            String playerId = drawItem.getPlayerId();
-            UserProfileExt userProfileExt = userProfileExtMap.get(playerId);
-            if (userProfileExt != null) {
-                Long clubFk = userProfileExt.getClubFk();
-                if (clubFk != null) {
-                    for (ClubEntity clubEntity : clubEntityList) {
-                        if (clubEntity.getId() == clubFk) {
-                            drawItem.setClubName(clubEntity.getClubName());
-                            break;
-                        }
-                    }
-                }
+            String profileId = drawItem.getPlayerId();
+            // doubles event has playerA/playerB profile ids
+            if (thisEvent.isDoubles()) {
+                String[] playersProfileIds = profileId.split(";");
+                fillDoublesTeamClubNames(userProfileExtMap, clubEntityList, drawItem, playersProfileIds);
+            } else {
+                fillClubName(userProfileExtMap, clubEntityList, drawItem, profileId);
             }
         }
 
@@ -135,24 +140,99 @@ public class DrawController {
         List<UsattPlayerRecord> usattPlayerRecordList = this.usattDataService.findAllByMembershipIdIn(membershipIds);
         for (DrawItem drawItem : drawItems) {
             String profileId = drawItem.getPlayerId();
-            UserProfileExt userProfileExt = userProfileExtMap.get(profileId);
-            if (userProfileExt != null) {
-                Long membershipId = userProfileExt.getMembershipId();
-                for (UsattPlayerRecord usattPlayerRecord : usattPlayerRecordList) {
-                    if (membershipId.equals(usattPlayerRecord.getMembershipId())) {
-                        // todo state may be obsolete - we should be getting it from Okta
-                        drawItem.setState(usattPlayerRecord.getState());
-                        String fullName = usattPlayerRecord.getLastName() + ", " + usattPlayerRecord.getFirstName();
-                        drawItem.setPlayerName(fullName);
-                        break;
-                    }
-                }
+            if (thisEvent.isDoubles()) {
+                String[] playersProfileIds = profileId.split(";");
+                fillDoublesTeamPlayerNames(userProfileExtMap, usattPlayerRecordList, drawItem, playersProfileIds);
+            } else {
+                fillPlayerNameAndState(userProfileExtMap, usattPlayerRecordList, drawItem, profileId);
             }
         }
 
         return new ResponseEntity<List<DrawItem>>(drawItems, HttpStatus.OK);
     }
 
+    /**
+     * Helper function for setting player name in draw item
+     * @param userProfileExtMap
+     * @param usattPlayerRecordList
+     * @param drawItem
+     * @param profileId
+     */
+    private void fillPlayerNameAndState(Map<String, UserProfileExt> userProfileExtMap, List<UsattPlayerRecord> usattPlayerRecordList, DrawItem drawItem, String profileId) {
+        UserProfileExt userProfileExt = userProfileExtMap.get(profileId);
+        if (userProfileExt != null) {
+            Long membershipId = userProfileExt.getMembershipId();
+            for (UsattPlayerRecord usattPlayerRecord : usattPlayerRecordList) {
+                if (membershipId.equals(usattPlayerRecord.getMembershipId())) {
+                    // todo state may be obsolete - we should be getting it from Okta
+                    drawItem.setState(usattPlayerRecord.getState());
+                    String fullName = usattPlayerRecord.getLastName() + ", " + usattPlayerRecord.getFirstName();
+                    drawItem.setPlayerName(fullName);
+                    break;
+                }
+            }
+        }
+    }
+
+    /**
+     * Helper function for setting player name in draw item
+     * @param userProfileExtMap
+     * @param usattPlayerRecordList
+     * @param drawItem
+     * @param profileIds
+     */
+    private void fillDoublesTeamPlayerNames(Map<String, UserProfileExt> userProfileExtMap, List<UsattPlayerRecord> usattPlayerRecordList, DrawItem drawItem, String [] profileIds) {
+        fillPlayerNameAndState(userProfileExtMap, usattPlayerRecordList, drawItem, profileIds[0]);
+        String playerAState = (!StringUtils.isEmpty(drawItem.getState())) ? drawItem.getState() : "N/A";
+        String playerAName = drawItem.getPlayerName();
+        fillPlayerNameAndState(userProfileExtMap, usattPlayerRecordList, drawItem, profileIds[1]);
+        String playerBState = (!StringUtils.isEmpty(drawItem.getState())) ? drawItem.getState() : "N/A";
+        String playerBName = drawItem.getPlayerName();
+
+        String teamPlayerNames = playerAName + " / " + playerBName;
+        drawItem.setPlayerName(teamPlayerNames);
+
+        String teamPlayerStates = playerAState + " / " + playerBState;
+        drawItem.setState(teamPlayerStates);
+    }
+
+    /**
+     * Helper function for filling club name in draw item
+     * @param userProfileExtMap
+     * @param clubEntityList
+     * @param drawItem
+     * @param profileId
+     */
+    private void fillClubName(Map<String, UserProfileExt> userProfileExtMap, List<ClubEntity> clubEntityList, DrawItem drawItem, String profileId) {
+        UserProfileExt userProfileExt = userProfileExtMap.get(profileId);
+        if (userProfileExt != null) {
+            Long clubFk = userProfileExt.getClubFk();
+            if (clubFk != null) {
+                for (ClubEntity clubEntity : clubEntityList) {
+                    if (clubEntity.getId() == clubFk) {
+                        drawItem.setClubName(clubEntity.getClubName());
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     *
+     * @param userProfileExtMap
+     * @param clubEntityList
+     * @param drawItem
+     * @param profileIds
+     */
+    private void fillDoublesTeamClubNames(Map<String, UserProfileExt> userProfileExtMap, List<ClubEntity> clubEntityList, DrawItem drawItem, String [] profileIds) {
+        fillClubName(userProfileExtMap, clubEntityList, drawItem, profileIds[0]);
+        String playerAClubName = (!StringUtils.isEmpty(drawItem.getClubName())) ? drawItem.getClubName() : "N/A";
+        fillClubName(userProfileExtMap, clubEntityList, drawItem, profileIds[1]);
+        String playerBClubName = (!StringUtils.isEmpty(drawItem.getClubName())) ? drawItem.getClubName() : "N/A";
+        String teamClubNames = playerAClubName + " / " + playerBClubName;
+        drawItem.setClubName(teamClubNames);
+    }
     /**
      * Generates draws from scratch for given event
      *
@@ -255,11 +335,11 @@ public class DrawController {
 
             // finally make the draws and save them
             List<DrawItem> drawItems = this.drawService.generateDraws(thisEvent, drawType, eventEntries,
-                    existingDrawItems, entryIdToPlayerDrawInfo);
+                        existingDrawItems, entryIdToPlayerDrawInfo);
 
             // see if we need to create draw for single elimination round
             if (thisEvent.getPlayersToAdvance() > 0) {
-                List<TournamentEventEntry> seSimulatedEventEntries = generateSEEventEntriesFromDraws(
+                List<TournamentEventEntry> seSimulatedEventEntries = SingleEliminationEntriesConverter.generateSEEventEntriesFromDraws(
                         drawItems, eventEntries, thisEvent, entryIdToPlayerDrawInfo);
                 fillCityStateCountryForSEPlayers (seSimulatedEventEntries, entryIdToPlayerDrawInfo);
                 List<DrawItem> seDrawItems = this.drawService.generateDraws(thisEvent, DrawType.SINGLE_ELIMINATION,
@@ -310,66 +390,6 @@ public class DrawController {
         long end = System.currentTimeMillis();
         System.out.println("Fetch profiles for " + userProfiles.size() + " players took " + (end - start) + " ms");
     }
-
-
-    /**
-     *
-     * @param rrDrawItems
-     * @param rrEventEntries
-     * @param tournamentEventEntity
-     * @param entryIdToPlayerDrawInfo
-     * @return
-     */
-    private List<TournamentEventEntry> generateSEEventEntriesFromDraws(List<DrawItem> rrDrawItems,
-                                                                      List<TournamentEventEntry> rrEventEntries,
-                                                                      TournamentEventEntity tournamentEventEntity,
-                                                                      Map<Long, PlayerDrawInfo> entryIdToPlayerDrawInfo) {
-        List<TournamentEventEntry> seEventEntries = new ArrayList<>();
-        int playersToAdvance = tournamentEventEntity.getPlayersToAdvance();
-        for (DrawItem rrDrawItem : rrDrawItems) {
-            if (rrDrawItem.getPlaceInGroup() <= playersToAdvance) {
-                String playerId = rrDrawItem.getPlayerId();
-                TournamentEventEntry eventEntry = makeEventEntry(playerId, rrEventEntries, entryIdToPlayerDrawInfo);
-                if (eventEntry != null) {
-                    seEventEntries.add(eventEntry);
-                }
-            }
-        }
-
-        return seEventEntries;
-    }
-
-    /**
-     *
-     * @param playerId
-     * @param rrEventEntries
-     * @param entryIdToPlayerDrawInfo
-     * @return
-     */
-    private TournamentEventEntry makeEventEntry(String playerId,
-                                                List<TournamentEventEntry> rrEventEntries,
-                                                Map<Long, PlayerDrawInfo> entryIdToPlayerDrawInfo) {
-        for (Map.Entry<Long, PlayerDrawInfo> playerDrawInfoEntry : entryIdToPlayerDrawInfo.entrySet()) {
-            PlayerDrawInfo playerDrawInfo = playerDrawInfoEntry.getValue();
-            if (playerDrawInfo.getProfileId().equals(playerId)) {
-                Long entryId = playerDrawInfoEntry.getKey();
-//                System.out.println(
-//                        String.format("map.put(%d, makePlayerDrawInfo(\"%s\", \"%s\", \"%s\", \"%s\", %d));",
-//                        entryId, playerDrawInfo.getPlayerName(), playerDrawInfo.getClubName(), playerDrawInfo.getCity(),
-//                                playerDrawInfo.getState(), playerDrawInfo.getRating()));
-                for (TournamentEventEntry rrEventEntry : rrEventEntries) {
-                    if (rrEventEntry.getTournamentEntryFk() == entryId) {
-//                        System.out.println(String.format("makeTournamentEventEntry(%d, %d, %d);",
-//                                rrEventEntry.getId(), rrEventEntry.getTournamentEventFk(), rrEventEntry.getTournamentEntryFk()));
-                        return rrEventEntry;
-                    }
-                }
-            }
-        }
-        return null;
-    }
-
-
 
     /**
      * Updates existing draw items

@@ -80,7 +80,7 @@ public class AbstractDrawsGeneratorTest {
     protected TournamentEventEntry makeTournamentEventEntry(long id, long tournamentFk, long eventFk, long entryFk) {
         TournamentEventEntry entry = new TournamentEventEntry();
         entry.setId(id);
-        entry.setTournamentEntryFk(tournamentFk);
+        entry.setTournamentFk(tournamentFk);
         entry.setTournamentEventFk(eventFk);
         entry.setTournamentEntryFk(entryFk);
         return entry;

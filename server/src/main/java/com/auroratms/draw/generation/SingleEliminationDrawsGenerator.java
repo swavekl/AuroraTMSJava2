@@ -115,21 +115,6 @@ public class SingleEliminationDrawsGenerator extends AbstractDrawsGenerator impl
     }
 
     /**
-     * @param bracketLine
-     * @return
-     */
-    private DrawItem makeByeLine(BracketLine bracketLine) {
-        DrawItem drawItem = new DrawItem();
-        long eventFk = this.tournamentEventEntity.getId();
-        drawItem.setEventFk(eventFk);
-        drawItem.setDrawType(DrawType.SINGLE_ELIMINATION);
-        drawItem.setGroupNum(bracketLine.getSeedNumber());
-        drawItem.setByeNum(bracketLine.getByeSeedNumber());
-        drawItem.setPlayerId("");
-        return drawItem;
-    }
-
-    /**
      * Places players with the same normalized seed number in the array of draw lines
      *
      * @param playerSeedNum           seed number of the first player in the batch

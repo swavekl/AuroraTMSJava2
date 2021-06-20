@@ -104,4 +104,19 @@ public abstract class AbstractDrawsGenerator {
         }
         System.out.println("Draw ====== END");
     }
+
+    /**
+     * @param bracketLine
+     * @return
+     */
+    protected DrawItem makeByeLine(BracketLine bracketLine) {
+        DrawItem drawItem = new DrawItem();
+        long eventFk = this.tournamentEventEntity.getId();
+        drawItem.setEventFk(eventFk);
+        drawItem.setDrawType(DrawType.SINGLE_ELIMINATION);
+        drawItem.setGroupNum(bracketLine.getSeedNumber());
+        drawItem.setByeNum(bracketLine.getByeSeedNumber());
+        drawItem.setPlayerId("");
+        return drawItem;
+    }
 }

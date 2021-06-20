@@ -19,7 +19,7 @@
 
         <ng-container matColumnDef="index">
           <mat-header-cell *matHeaderCellDef> # </mat-header-cell>
-          <mat-cell *matCellDef="let doublesPairInfo;index as i;"> {{ i }} </mat-cell>
+          <mat-cell *matCellDef="let doublesPairInfo;index as i;"> {{ (i + 1) }} </mat-cell>
         </ng-container>
 
         <ng-container matColumnDef="playerAName">

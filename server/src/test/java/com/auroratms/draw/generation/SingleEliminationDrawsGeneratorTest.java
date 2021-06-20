@@ -2,6 +2,7 @@ package com.auroratms.draw.generation;
 
 import com.auroratms.draw.DrawItem;
 import com.auroratms.draw.DrawType;
+import com.auroratms.draw.generation.singleelim.SingleEliminationEntriesConverter;
 import com.auroratms.event.DrawMethod;
 import com.auroratms.event.TournamentEventEntity;
 import com.auroratms.tournamentevententry.TournamentEventEntry;
@@ -9,7 +10,8 @@ import org.junit.Test;
 
 import java.util.*;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 public class SingleEliminationDrawsGeneratorTest extends AbstractDrawsGeneratorTest {
 
@@ -31,7 +33,8 @@ public class SingleEliminationDrawsGeneratorTest extends AbstractDrawsGeneratorT
         assertEquals("wrong RR draws", 23, rrDrawItems.size());
 
         // pick top n players to advance and get their entries
-        List<TournamentEventEntry> seEventEntries = this.makeSeEntriesFromRREntries(rrDrawItems, eventEntries, tournamentEventEntity, entryIdToPlayerDrawInfo);
+        List<TournamentEventEntry> seEventEntries = SingleEliminationEntriesConverter.generateSEEventEntriesFromDraws(
+                rrDrawItems, eventEntries, tournamentEventEntity, entryIdToPlayerDrawInfo);
         assertEquals("wrong number of advancing player entries", 6, seEventEntries.size());
 
         // make SE draws
@@ -58,49 +61,6 @@ public class SingleEliminationDrawsGeneratorTest extends AbstractDrawsGeneratorT
 
             i++;
         }
-    }
-
-    /**
-     * @param rrDrawItems
-     * @param rrEventEntries
-     * @param tournamentEventEntity
-     * @param entryIdToPlayerDrawInfo
-     * @return
-     */
-    private List<TournamentEventEntry> makeSeEntriesFromRREntries(List<DrawItem> rrDrawItems,
-                                                                  List<TournamentEventEntry> rrEventEntries,
-                                                                  TournamentEventEntity tournamentEventEntity,
-                                                                  Map<Long, PlayerDrawInfo> entryIdToPlayerDrawInfo) {
-        List<TournamentEventEntry> seEventEntries = new ArrayList<>();
-        int playersToAdvance = tournamentEventEntity.getPlayersToAdvance();
-        for (DrawItem rrDrawItem : rrDrawItems) {
-            if (rrDrawItem.getPlaceInGroup() <= playersToAdvance) {
-                String playerId = rrDrawItem.getPlayerId();
-                TournamentEventEntry eventEntry = makeEventEntry(playerId, rrEventEntries, entryIdToPlayerDrawInfo);
-                if (eventEntry != null) {
-                    seEventEntries.add(eventEntry);
-                }
-            }
-        }
-
-        return seEventEntries;
-    }
-
-    private TournamentEventEntry makeEventEntry(String playerId,
-                                                List<TournamentEventEntry> rrEventEntries,
-                                                Map<Long, PlayerDrawInfo> entryIdToPlayerDrawInfo) {
-        for (Map.Entry<Long, PlayerDrawInfo> playerDrawInfoEntry : entryIdToPlayerDrawInfo.entrySet()) {
-            PlayerDrawInfo playerDrawInfo = playerDrawInfoEntry.getValue();
-            if (playerDrawInfo.getProfileId().equals(playerId)) {
-                Long entryId = playerDrawInfoEntry.getKey();
-                for (TournamentEventEntry rrEventEntry : rrEventEntries) {
-                    if (rrEventEntry.getTournamentEntryFk() == entryId) {
-                        return rrEventEntry;
-                    }
-                }
-            }
-        }
-        return null;
     }
 
     /**

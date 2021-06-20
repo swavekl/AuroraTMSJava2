@@ -1,10 +1,10 @@
 package com.auroratms.draw;
 
-import com.auroratms.draw.generation.DrawGeneratorFactory;
-import com.auroratms.draw.generation.IDrawsGenerator;
-import com.auroratms.draw.generation.PlayerDrawInfo;
+import com.auroratms.draw.generation.*;
 import com.auroratms.event.TournamentEventEntity;
 import com.auroratms.tournamentevententry.TournamentEventEntry;
+import com.auroratms.tournamentevententry.doubles.DoublesPair;
+import com.auroratms.tournamentevententry.doubles.DoublesService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,10 +21,22 @@ public class DrawService {
 
     private DrawRepository drawRepository;
 
-    public DrawService(DrawRepository drawRepository) {
+    private DoublesService doublesService;
+
+    public DrawService(DrawRepository drawRepository, DoublesService doublesService) {
         this.drawRepository = drawRepository;
+        this.doublesService = doublesService;
     }
 
+    /**
+     *
+     * @param tournamentEvent
+     * @param drawType
+     * @param eventEntries
+     * @param existingDrawItems
+     * @param entryIdToPlayerDrawInfo
+     * @return
+     */
     public List<DrawItem> generateDraws(TournamentEventEntity tournamentEvent, DrawType drawType,
                                         List<TournamentEventEntry> eventEntries, List<DrawItem> existingDrawItems,
                                         Map<Long, PlayerDrawInfo> entryIdToPlayerDrawInfo) {
@@ -32,6 +44,15 @@ public class DrawService {
         try {
             IDrawsGenerator generator = DrawGeneratorFactory.makeGenerator(tournamentEvent, drawType);
             if (generator != null) {
+                if (tournamentEvent.isDoubles()) {
+                    // pass doubles pairs to generator
+                    List<DoublesPair> doublesPairsForEvent = this.doublesService.findDoublesPairsForEvent(tournamentEvent.getId());
+                    if (generator instanceof DoublesSnakeDrawsGenerator) {
+                        ((DoublesSnakeDrawsGenerator)generator).setDoublesPairs(doublesPairsForEvent);
+                    } else if (generator instanceof DoublesSingleEliminationDrawsGenerator) {
+                        ((DoublesSingleEliminationDrawsGenerator)generator).setDoublesPairs(doublesPairsForEvent);
+                    }
+                }
                 drawItemList = generator.generateDraws(eventEntries, entryIdToPlayerDrawInfo, existingDrawItems);
             }
             // save the list

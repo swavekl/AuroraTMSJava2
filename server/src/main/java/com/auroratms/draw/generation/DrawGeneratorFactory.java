@@ -15,7 +15,11 @@ public class DrawGeneratorFactory {
             DrawMethod drawMethod = tournamentEventEntity.getDrawMethod();
             switch (drawMethod) {
                 case SNAKE:
-                    generator = new SnakeDrawsGenerator(tournamentEventEntity);
+                    if (!tournamentEventEntity.isDoubles()) {
+                        generator = new SnakeDrawsGenerator(tournamentEventEntity);
+                    } else {
+                        generator = new DoublesSnakeDrawsGenerator(tournamentEventEntity);
+                    }
                     break;
                 case DIVISION:
                     generator = new DivisionDrawsGenerator(tournamentEventEntity);
@@ -26,7 +30,11 @@ public class DrawGeneratorFactory {
             }
         } else {
             // single elimination
-            generator = new SingleEliminationDrawsGenerator(tournamentEventEntity);
+            if (!tournamentEventEntity.isDoubles()) {
+                generator = new SingleEliminationDrawsGenerator(tournamentEventEntity);
+            } else {
+                generator = new DoublesSingleEliminationDrawsGenerator(tournamentEventEntity);
+            }
         }
         return generator;
     }
