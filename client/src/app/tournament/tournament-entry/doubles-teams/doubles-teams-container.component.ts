@@ -167,7 +167,7 @@ export class DoublesTeamsContainerComponent implements OnInit, OnDestroy {
    * @private
    */
   public onMakePair(doublesPair: DoublesPair) {
-    const subscription = this.doublesPairService.add(doublesPair)
+    const subscription = this.doublesPairService.add(doublesPair, null)
       .pipe(first())
       .subscribe(() => {
         this.onEventSelectionChange(this.selectedDoublesEventId);

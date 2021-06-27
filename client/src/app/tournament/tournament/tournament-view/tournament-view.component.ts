@@ -53,7 +53,7 @@ export class TournamentViewComponent implements OnInit, OnChanges {
     entryToEdit.tournamentFk = this.tournament.id;
     entryToEdit.dateEntered = new Date();
     entryToEdit.profileId = this.authService.getCurrentUserProfileId();
-    this.tournamentEntryService.add(entryToEdit)
+    this.tournamentEntryService.add(entryToEdit, null)
       .pipe(first())
       .subscribe(
         (tournamentEntry: TournamentEntry) => {
