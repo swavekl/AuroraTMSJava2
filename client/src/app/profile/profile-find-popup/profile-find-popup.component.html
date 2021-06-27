@@ -21,7 +21,7 @@
   </div>
   <div class="profile-search-result-list">
     <mat-list>
-      <mat-list-item *ngFor="let foundPlayer of foundPlayers$ | async" (click)="onSelection(foundPlayer.userId, foundPlayer.firstName, foundPlayer.lastName)">
+      <mat-list-item *ngFor="let foundPlayer of foundPlayers$ | async" (click)="onSelection(foundPlayer.userId, foundPlayer.firstName, foundPlayer.lastName, foundPlayer.tournamentRating)">
         {{foundPlayer.firstName}} {{foundPlayer.lastName}} ({{foundPlayer.tournamentRating}})
       </mat-list-item>
     </mat-list>

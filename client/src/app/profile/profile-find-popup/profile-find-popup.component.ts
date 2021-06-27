@@ -41,11 +41,10 @@ export class ProfileFindPopupComponent implements OnInit {
     this.foundPlayers$ = this.profileService.findProfiles(searchCriteria);
   }
 
-  onSelection(userId: number, firstName: string, lastName: string) {
+  onSelection(userId: number, firstName: string, lastName: string, tournamentRating: number) {
     const selectedPlayerData = {
-      firstName: firstName, lastName: lastName, id: userId, rating: 1239
+      firstName: firstName, lastName: lastName, id: userId, rating: tournamentRating
     };
-    // todo - this is actually player profile not usatt record
     this.dialogRef.close({action: 'ok', selectedPlayerRecord: selectedPlayerData});
   }
 
