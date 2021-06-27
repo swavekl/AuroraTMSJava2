@@ -70,9 +70,9 @@
           </div>
         </mat-step>
         <mat-step label="Doubles Partners" *ngIf="doublesEntries.length > 0">
-          <div *ngFor="let doublesEnteredEvent of doublesEntries">
+          <div *ngFor="let doublesEnteredEvent of doublesEntries" class="doubles-entries">
             <div fxLayout="column">
-              <div>Partner for {{doublesEnteredEvent.eventName}}</div>
+              <div>Partner for '{{doublesEnteredEvent.eventName}}'</div>
               <div fxLayout="row">
                 <input matInput type="text" [ngModel]="doublesEnteredEvent.partnerName" [name]="doublesEnteredEvent.varName"/>
                 <button mat-raised-button type="button" (click)="onFindDoublesPartnerByName(doublesEnteredEvent.eventFk)">Select</button>

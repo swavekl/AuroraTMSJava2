@@ -13,7 +13,7 @@
 }
 
 .status-waiting-list {
-  color: green;
+  color: #42f042;
 }
 
 .status-not-entered {
@@ -71,4 +71,9 @@ table.summary-table {
 
 .event-item-line2 {
   font-size: 18px!important;
+}
+
+.doubles-entries {
+  padding-bottom: 16px;
+  padding-top: 8px;
 }
