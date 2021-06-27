@@ -74,7 +74,7 @@
             <div fxLayout="column">
               <div>{{doublesEnteredEvent.eventName}}</div>
               <div fxLayout="row">
-                <input matInput type="text" [ngModel]="doublesEnteredEvent.partnerName" name="partnerName"/>
+                <input matInput type="text" [ngModel]="doublesEnteredEvent.partnerName" [name]="doublesEnteredEvent.varName"/>
                 <button mat-raised-button type="button" (click)="onFindDoublesPartnerByName(doublesEnteredEvent.eventFk)">Select</button>
               </div>
             </div>

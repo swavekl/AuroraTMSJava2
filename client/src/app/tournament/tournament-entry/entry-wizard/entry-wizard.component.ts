@@ -716,7 +716,7 @@ export class EntryWizardComponent implements OnInit, OnChanges, OnDestroy {
     const enteredEvents = this.enteredEvents;
     const dialogRef = this.dialog.open(ProfileFindPopupComponent, config);
     const subscription = dialogRef.afterClosed().subscribe(result => {
-      if (result.action === 'ok') {
+      if (result?.action === 'ok') {
         const partnerName = result.selectedPlayerRecord.lastName + ', ' + result.selectedPlayerRecord.firstName;
         const partnerProfileId = result.selectedPlayerRecord.id;
         // update object used by UI
