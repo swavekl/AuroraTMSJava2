@@ -1,0 +1,9 @@
+.linear-progress-indicator-search {
+  padding-bottom: 8px;
+}
+
+.profile-search-result-list {
+  height: 200px;
+  overflow-y: auto;
+  padding-bottom: 8px;
+}

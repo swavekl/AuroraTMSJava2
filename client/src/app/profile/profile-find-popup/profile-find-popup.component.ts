@@ -17,12 +17,14 @@ export class ProfileFindPopupComponent implements OnInit {
   lastName: string;
 
   foundPlayers$: Observable<any>;
+  loading$: Observable<boolean>;
 
   constructor(public dialogRef: MatDialogRef<ProfileFindPopupComponent>,
               @Inject(MAT_DIALOG_DATA) public data: ProfileSearchData,
               private profileService: ProfileService) {
     this.firstName = data?.firstName;
     this.lastName = data?.lastName;
+    this.loading$ = this.profileService.loading$;
   }
 
   ngOnInit(): void {

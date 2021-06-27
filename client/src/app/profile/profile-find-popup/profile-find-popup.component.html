@@ -1,24 +1,34 @@
 <h2 mat-dialog-title>Find Player</h2>
-<mat-dialog-content>
+<div mat-dialog-content fxLayout="column">
   <form name="form" #f="ngForm" novalidate>
-    <div fxLayout="column" fxLayoutGap="10px">
-      <mat-form-field fxFlex="50%">
+    <div fxLayout="column">
+      <mat-form-field>
         <label>
           <input matInput type="text" placeholder="First Name" name="firstName" [(ngModel)]="firstName">
         </label>
       </mat-form-field>
-      <mat-form-field fxFlex="50%">
+      <mat-form-field>
         <input matInput type="text" placeholder="Last Name" name="lastName" [(ngModel)]="lastName" >
       </mat-form-field>
     </div>
   </form>
-  <mat-list>
-    <mat-list-item *ngFor="let foundPlayer of foundPlayers$ | async" (click)="onSelection(foundPlayer.userId, foundPlayer.firstName, foundPlayer.lastName)">
-      {{foundPlayer.firstName}} {{foundPlayer.lastName}} ({{foundPlayer.rating}})
-    </mat-list-item>
-  </mat-list>
-</mat-dialog-content>
-<mat-dialog-actions>
-  <button mat-button cdkFocusInitial type="button" (click)="onSearch()">Search</button>
-  <button mat-button type="button" (click)="onCancel()">Cancel</button>
-</mat-dialog-actions>
+  <div class="linear-progress-indicator-search">
+    <mat-progress-bar *ngIf="loading$ | async; else elseblock" mode="indeterminate" color="accent"
+                      style="height: 8px; width: 100%;"></mat-progress-bar>
+    <ng-template #elseblock>
+      <div style="height: 8px; width: 100%; background-color: white;"></div>
+    </ng-template>
+  </div>
+  <div class="profile-search-result-list">
+    <mat-list>
+      <mat-list-item *ngFor="let foundPlayer of foundPlayers$ | async" (click)="onSelection(foundPlayer.userId, foundPlayer.firstName, foundPlayer.lastName)">
+        {{foundPlayer.firstName}} {{foundPlayer.lastName}} ({{foundPlayer.tournamentRating}})
+      </mat-list-item>
+    </mat-list>
+  </div>
+</div>
+<div mat-dialog-actions fxLayout="row">
+    <button mat-raised-button type="button" (click)="onCancel()">Cancel</button>
+    <span fxFlex></span>
+    <button mat-raised-button type="button" cdkFocusInitial color="primary" (click)="onSearch()">Search</button>
+</div>
