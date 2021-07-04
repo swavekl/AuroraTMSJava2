@@ -2,6 +2,7 @@ import {DateUtils} from '../../shared/date-utils';
 import {TournamentEvent} from './tournament-event.model';
 import * as moment from 'moment';
 import {PricingMethod} from '../model/pricing-method.enum';
+import {Personnel} from './model/personnel.model';
 
 export class Tournament {
   id: number;
@@ -129,6 +130,7 @@ export class Tournament {
     tournament.configuration.pricingMethod = PricingMethod.STANDARD;
     tournament.configuration.registrationFee = 0;
     tournament.configuration.lateEntryFee = 0;
+    tournament.configuration.personnelList = [];
     return tournament;
   }
 
@@ -207,5 +209,6 @@ class TournamentConfiguration {
   lateEntryFee: number;
   // determines how to calculate total due
   pricingMethod: PricingMethod;
-
+  // list of personnel showing their role at the tournament
+  personnelList: Personnel[];
 }

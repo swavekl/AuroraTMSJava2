@@ -6,7 +6,7 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import java.util.List;
 
 /**
- * Repository for persisting draws informaiton in the database
+ * Repository for persisting draws information in the database
  */
 @RepositoryRestResource
 public interface DrawRepository extends JpaRepository<DrawItem, Long> {

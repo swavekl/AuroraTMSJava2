@@ -4,6 +4,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.Date;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -32,5 +33,6 @@ public class TournamentConfiguration {
     private int lateEntryFee;
     // determines how to calculate total due
     private PricingMethod pricingMethod;
-
+    // list of personnel showing their role at the tournament
+    private List<Personnel> personnelList;
 }

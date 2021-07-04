@@ -1,3 +1,7 @@
 mat-tab-group {
   height: calc(100vh - 140px);
 }
+
+button.personnel-toolbar-button {
+  margin-right: 10px;
+}

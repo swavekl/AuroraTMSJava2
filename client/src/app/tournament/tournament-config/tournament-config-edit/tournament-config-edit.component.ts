@@ -1,15 +1,20 @@
-import {Component, EventEmitter, Input, Output, ViewChild} from '@angular/core';
+import {ChangeDetectorRef, Component, EventEmitter, Input, OnChanges, Output, SimpleChange, SimpleChanges, ViewChild} from '@angular/core';
 import {Tournament} from '../tournament.model';
 import {StatesList} from '../../../shared/states/states-list';
 import {MatTabGroup} from '@angular/material/tabs';
 import {PricingMethod} from '../../model/pricing-method.enum';
+import {UserRoles} from '../../../user/user-roles.enum';
+import {ProfileFindPopupComponent, ProfileSearchData} from '../../../profile/profile-find-popup/profile-find-popup.component';
+import {MatDialog} from '@angular/material/dialog';
+import {Subscription} from 'rxjs';
+import {Personnel} from '../model/personnel.model';
 
 @Component({
   selector: 'app-tournament-config-edit',
   templateUrl: './tournament-config-edit.component.html',
   styleUrls: ['./tournament-config-edit.component.css']
 })
-export class TournamentConfigEditComponent {
+export class TournamentConfigEditComponent implements OnChanges {
 
   @Input()
   tournament: Tournament;
@@ -26,7 +31,15 @@ export class TournamentConfigEditComponent {
   tournamentTypes: any [];
   pricingMethods: any[] = [];
 
-  constructor() {
+  // list of personnel is given roles
+  refereeList: Personnel[] = [];
+  umpireList: Personnel[] = [];
+  dataEntryClerksList: Personnel[] = [];
+
+  subscriptions: Subscription = new Subscription();
+
+  constructor(private dialog: MatDialog,
+              private changeDetectorRef: ChangeDetectorRef) {
     this.statesList = StatesList.getList();
     this.tournamentTypes = [];
     this.tournamentTypes.push({name: 'Ratings Restricted', value: 'RatingsRestricted'});
@@ -35,22 +48,40 @@ export class TournamentConfigEditComponent {
     this.pricingMethods = this.getPricingMethods(this.tournament?.configuration?.tournamentType);
   }
 
+  ngOnChanges(changes: SimpleChanges): void {
+    const changeTournament: SimpleChange = changes.tournament;
+    if (changeTournament) {
+      const tournament: Tournament = changeTournament.currentValue;
+      if (tournament) {
+        const personnelList = tournament?.configuration?.personnelList ?? [];
+        this.splitPersonnelList(personnelList);
+      }
+    }
+  }
+
+  private splitPersonnelList(personnelList: Personnel[]) {
+    this.refereeList = personnelList.filter((personnel: Personnel) => personnel.role === UserRoles.ROLE_REFEREES );
+    this.umpireList = personnelList.filter((personnel: Personnel) => personnel.role === UserRoles.ROLE_UMPIRES );
+    this.dataEntryClerksList = personnelList.filter((personnel: Personnel) => personnel.role === UserRoles.ROLE_DATA_ENTRY_CLERKS );
+  }
+
   setActiveTab(tabIndex: number) {
     if (this.tabGroup) {
       this.tabGroup.selectedIndex = tabIndex;
     }
   }
 
-  onEnter() {
-    console.log('entering the tournament');
-  }
-
   onSave(formValues: any) {
+    // preserve the list which is maintained during add/remove
+    const personnelList = this.tournament.configuration.personnelList ?? [];
+
     const tournament = Tournament.toTournament(formValues);
     // preserve this from previous run
     tournament.numEntries = this.tournament?.numEntries || 0;
     tournament.numEventEntries = this.tournament?.numEventEntries || 0;
     tournament.maxNumEventEntries = this.tournament?.maxNumEventEntries || 0;
+    tournament.configuration.personnelList = personnelList;
+
     this.saved.emit(tournament);
   }
 
@@ -100,4 +131,78 @@ export class TournamentConfigEditComponent {
     // todo - enable disable discounted pricing options
     console.log('new pricing method is ' + pricingMethod);
   }
+
+  onAddReferee() {
+    this.onAddPersonnel(UserRoles.ROLE_REFEREES);
+  }
+
+  onAddUmpire() {
+    this.onAddPersonnel(UserRoles.ROLE_UMPIRES);
+  }
+
+  onAddDataEntryClerk() {
+    this.onAddPersonnel(UserRoles.ROLE_DATA_ENTRY_CLERKS);
+  }
+
+  /**
+   * Adds a new person into the role
+   * @param role
+   */
+  onAddPersonnel(role: UserRoles) {
+    // show Profile selection dialog
+    const profileSearchData: ProfileSearchData = {
+      firstName: null,
+      lastName: null
+    };
+    const config = {
+      width: '400px', height: '550px', data: profileSearchData
+    };
+
+    const personnelList = this.tournament.configuration.personnelList ?? [];
+    const dialogRef = this.dialog.open(ProfileFindPopupComponent, config);
+    const subscription = dialogRef.afterClosed().subscribe(result => {
+      if (result?.action === 'ok') {
+        // make sure this person is not alredy in the list
+        const profileId = result.selectedPlayerRecord.id;
+        const index = personnelList.findIndex((personnel: Personnel) => personnel.profileId === profileId );
+        if (index === -1) {
+          const personName = result.selectedPlayerRecord.lastName + ', ' + result.selectedPlayerRecord.firstName;
+          const newPersonnel: Personnel = {
+            name: personName,
+            role: role,
+            profileId: profileId
+          };
+          const updatedPersonnelList = [...personnelList, newPersonnel];
+          this.splitPersonnelList(updatedPersonnelList);
+          this.tournament.configuration.personnelList = updatedPersonnelList;
+          this.changeDetectorRef.markForCheck();
+        } else {
+          console.log ('Person is already in the role');
+        }
+      }
+    });
+    this.subscriptions.add(subscription);
+  }
+
+  /**
+   *
+   * @param profileId
+   */
+  onRemovePersonnel(profileId: string) {
+    const personnelList = [...this.tournament.configuration.personnelList ?? []];
+    for (let i = 0; i < personnelList.length; i++) {
+      if (personnelList[i].profileId === profileId) {
+        personnelList.splice(i, 1);
+        this.splitPersonnelList(personnelList);
+        this.tournament.configuration.personnelList = personnelList;
+        this.changeDetectorRef.markForCheck();
+        break;
+      }
+    }
+  }
+
+  onCreateUser() {
+    // create user profile for new user e.g. data entry clerk
+  }
 }
+

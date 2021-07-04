@@ -72,11 +72,30 @@ public class TournamentEventEntity {
     // number of tables per group
     private int numTablesPerGroup = 1;
 
-    // best of 3, 5, 7 or 9 games per match
+    // points per game - 11 but sometimes 21
+    private int pointsPerGame = 11;
+
+    // best of 3, 5, 7 or 9 games per match in the main round (i.e. round robin)
     private int numberOfGames;
+
+    // in single elimination round or if event is a single elimination only
+    // number of games in rounds prior to quarter finals e.g. 5
+    private int numberOfGamesSEPlayoffs = 5;
+
+    // number of games in quarter, semi finals and 3rd/4th place matches
+    private int numberOfGamesSEQuarterFinals = 5;
+    private int numberOfGamesSESemiFinals = 5;
+    private int numberOfGamesSEFinals = 5;
+
+    // indicates if a match for 3rd adn 4th place is to be played
+    private boolean play3rd4thPlace;
 
     // number of players to advance, 0, 1 or 2
     private int playersToAdvance;
+
+    // if this event advances player to another event or round - indicate if unrated players are to be advanced
+    // typically not but in Open Singles they usually are
+    private boolean advanceUnratedWinner = false;
 
     // number of players to seed directly into next round
     private int playersToSeed;
@@ -90,33 +109,11 @@ public class TournamentEventEntity {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         TournamentEventEntity that = (TournamentEventEntity) o;
-        return tournamentFk == that.tournamentFk &&
-                ordinalNumber == that.ordinalNumber &&
-                day == that.day &&
-                Double.compare(that.startTime, startTime) == 0 &&
-                singleElimination == that.singleElimination &&
-                doubles == that.doubles &&
-                maxEntries == that.maxEntries &&
-                minPlayerRating == that.minPlayerRating &&
-                maxPlayerRating == that.maxPlayerRating &&
-                minPlayerAge == that.minPlayerAge &&
-                maxPlayerAge == that.maxPlayerAge &&
-                playersPerGroup == that.playersPerGroup &&
-                drawMethod == that.drawMethod &&
-                numberOfGames == that.numberOfGames &&
-                playersToAdvance == that.playersToAdvance &&
-                playersToSeed == that.playersToSeed &&
-                Double.compare(that.feeAdult, feeAdult) == 0 &&
-                Double.compare(that.feeJunior, feeJunior) == 0 &&
-                id.equals(that.id) &&
-                name.equals(that.name) &&
-                ageRestrictionType == that.ageRestrictionType &&
-                ageRestrictionDate == that.ageRestrictionDate &&
-                genderRestriction == that.genderRestriction;
+        return tournamentFk == that.tournamentFk && ordinalNumber == that.ordinalNumber && day == that.day && Double.compare(that.startTime, startTime) == 0 && singleElimination == that.singleElimination && doubles == that.doubles && maxEntries == that.maxEntries && numEntries == that.numEntries && minPlayerRating == that.minPlayerRating && maxPlayerRating == that.maxPlayerRating && minPlayerAge == that.minPlayerAge && maxPlayerAge == that.maxPlayerAge && playersPerGroup == that.playersPerGroup && numTablesPerGroup == that.numTablesPerGroup && pointsPerGame == that.pointsPerGame && numberOfGames == that.numberOfGames && numberOfGamesSEPlayoffs == that.numberOfGamesSEPlayoffs && numberOfGamesSEQuarterFinals == that.numberOfGamesSEQuarterFinals && numberOfGamesSESemiFinals == that.numberOfGamesSESemiFinals && numberOfGamesSEFinals == that.numberOfGamesSEFinals && play3rd4thPlace == that.play3rd4thPlace && playersToAdvance == that.playersToAdvance && advanceUnratedWinner == that.advanceUnratedWinner && playersToSeed == that.playersToSeed && Double.compare(that.feeAdult, feeAdult) == 0 && Double.compare(that.feeJunior, feeJunior) == 0 && id.equals(that.id) && name.equals(that.name) && ageRestrictionType == that.ageRestrictionType && Objects.equals(ageRestrictionDate, that.ageRestrictionDate) && genderRestriction == that.genderRestriction && drawMethod == that.drawMethod;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, tournamentFk, name, ordinalNumber, day, startTime, singleElimination, doubles, maxEntries, minPlayerRating, maxPlayerRating, minPlayerAge, maxPlayerAge, genderRestriction, ageRestrictionDate, ageRestrictionType, playersPerGroup, drawMethod, numberOfGames, playersToAdvance, playersToSeed, feeAdult, feeJunior);
+        return Objects.hash(id, tournamentFk, name, ordinalNumber, day, startTime, singleElimination, doubles, maxEntries, numEntries, minPlayerRating, maxPlayerRating, minPlayerAge, maxPlayerAge, ageRestrictionType, ageRestrictionDate, genderRestriction, playersPerGroup, drawMethod, numTablesPerGroup, pointsPerGame, numberOfGames, numberOfGamesSEPlayoffs, numberOfGamesSEQuarterFinals, numberOfGamesSESemiFinals, numberOfGamesSEFinals, play3rd4thPlace, playersToAdvance, advanceUnratedWinner, playersToSeed, feeAdult, feeJunior);
     }
 }

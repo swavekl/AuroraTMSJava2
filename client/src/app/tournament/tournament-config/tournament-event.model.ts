@@ -55,11 +55,30 @@ export class TournamentEvent {
   // number of tables per group
   numTablesPerGroup: number;
 
+  // points per game - 11 but sometimes 21
+  pointsPerGame: number;
+
   // best of 3, 5, 7 or 9 games per match
   numberOfGames: number;
 
+  // in single elimination round or if event is a single elimination only
+  // number of games in rounds prior to quarter finals e.g. 5
+  numberOfGamesSEPlayoffs: number;
+
+  // number of games in quarter, semi finals and 3rd/4th place matches
+  numberOfGamesSEQuarterFinals: number;
+  numberOfGamesSESemiFinals: number;
+  numberOfGamesSEFinals: number;
+
+  // indicates if a match for 3rd adn 4th place is to be played
+  play3rd4thPlace: boolean;
+
   // number of players to advance, 0, 1 or 2
   playersToAdvance: number;
+
+  // if this event advances player to another event or round - indicate if unrated players are to be advanced
+  // typically not but in Open Singles they usually are
+  advanceUnratedWinner: boolean;
 
   // number of players to seed directly into next round
   playersToSeed: number;
@@ -85,12 +104,19 @@ export class TournamentEvent {
     tournamentEvent.singleElimination = false;
     tournamentEvent.day = 1;
     tournamentEvent.startTime = 9.0;
-    tournamentEvent.drawMethod = DrawMethod.SNAKE;
-    tournamentEvent.playersToAdvance = 1;
-    tournamentEvent.playersToSeed = 0;
-    tournamentEvent.numTablesPerGroup = 1;
-    tournamentEvent.numberOfGames = 5;
     tournamentEvent.playersPerGroup = 4;
+    tournamentEvent.drawMethod = DrawMethod.SNAKE;
+    tournamentEvent.numTablesPerGroup = 1;
+    tournamentEvent.pointsPerGame = 11;
+    tournamentEvent.numberOfGames = 5;
+    tournamentEvent.numberOfGamesSEPlayoffs = 5;
+    tournamentEvent.numberOfGamesSEQuarterFinals = 5;
+    tournamentEvent.numberOfGamesSESemiFinals = 5;
+    tournamentEvent.numberOfGamesSEFinals = 5;
+    tournamentEvent.play3rd4thPlace = false;
+    tournamentEvent.playersToAdvance = 1;
+    tournamentEvent.advanceUnratedWinner = false;
+    tournamentEvent.playersToSeed = 0;
     tournamentEvent.feeAdult = 30;
     tournamentEvent.feeJunior = 30;
     tournamentEvent.maxEntries = 32;

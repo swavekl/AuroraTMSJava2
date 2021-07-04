@@ -230,6 +230,55 @@
               [endDate]="tournament?.endDate">
             </app-tournament-event-config-list-container>
         </mat-tab>
+        <mat-tab label="Personnel">
+          <mat-toolbar>
+            <mat-toolbar-row>
+              <button class="personnel-toolbar-button" mat-raised-button type="button" (click)="onAddReferee()">Add Referee</button>
+              <button class="personnel-toolbar-button" mat-raised-button type="button" (click)="onAddUmpire()">Add Umpire</button>
+              <button class="personnel-toolbar-button" mat-raised-button type="button" (click)="onAddDataEntryClerk()">Add Data Entry Clerk</button>
+              <button class="personnel-toolbar-button" mat-raised-button type="button" (click)="onCreateUser()">Create Login</button>
+            </mat-toolbar-row>
+          </mat-toolbar>
+          <mat-card style="height: calc(100vh - 290px);">
+            <mat-card-content>
+              <div fxFlex="row">
+                <div fxFlex="33%">
+                  <mat-card-subtitle class="mat-title">Referees</mat-card-subtitle>
+                  <div style="padding-bottom: 10px;" *ngFor="let referee of refereeList; let idx = index">
+                    <div fxFlex="row" fxLayoutGap="10px">
+                      <input fxFlex="80%" matInput type="text" [ngModel]="referee.name" [name]="'referee_' + idx"/>
+                      <button mat-icon-button type="button" (click)="onRemovePersonnel(referee.profileId)">
+                        <mat-icon matListIcon>delete</mat-icon>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                <div fxFlex="33%">
+                  <mat-card-subtitle class="mat-title">Umpires</mat-card-subtitle>
+                  <div style="padding-bottom: 10px;" *ngFor="let umpire of umpireList; let idx = index">
+                    <div fxFlex="row" fxLayoutGap="10px">
+                      <input fxFlex="80%" matInput type="text" [ngModel]="umpire.name" [name]="'umpire_' + idx"/>
+                      <button mat-icon-button type="button" (click)="onRemovePersonnel(umpire.profileId)">
+                        <mat-icon matListIcon>delete</mat-icon>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                <div fxFlex="33%">
+                  <mat-card-subtitle class="mat-title">Data Entry Clerks</mat-card-subtitle>
+                  <div style="padding-bottom: 10px;" *ngFor="let dataEntryClerk of dataEntryClerksList; let idx = index">
+                    <div fxFlex="row" fxLayoutGap="10px">
+                      <input fxFlex matInput type="text" [ngModel]="dataEntryClerk.name" [name]="'dataEntryClerk_' + idx"/>
+                      <button  mat-icon-button type="button" (click)="onRemovePersonnel(dataEntryClerk.profileId)">
+                        <mat-icon matListIcon>delete</mat-icon>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              </mat-card-content>
+          </mat-card>
+        </mat-tab>
       </mat-tab-group>
       <!--                <p>Form values: {{ f.value | json }} </p>-->
       <!--          <p>Form status: {{ f.status | json }} </p>-->
