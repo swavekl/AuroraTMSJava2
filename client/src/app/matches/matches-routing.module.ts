@@ -1,11 +1,18 @@
 import {NgModule} from '@angular/core';
 import {RouterModule, Routes} from '@angular/router';
-import {MatchesContainerComponent} from './matches/matches-container.component';
 import {AuthGuard} from '../guards/auth.guard';
+import {MatchesLandingContainerComponent} from './matches-landing/matches-landing-container.component';
+import {MatchesContainerComponent} from './matches/matches-container.component';
+import {UserRoles} from '../user/user-roles.enum';
 
 const routes: Routes = [
   {
-    path: ':tournamentId',
+    path: '',
+    component: MatchesLandingContainerComponent,
+    canActivate: [AuthGuard]
+  },
+  {
+    path: 'scoreentry/:tournamentId',
     component: MatchesContainerComponent,
     canActivate: [AuthGuard]
   },

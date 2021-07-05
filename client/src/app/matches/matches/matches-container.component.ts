@@ -5,11 +5,14 @@ import {TournamentEventConfigService} from '../../tournament/tournament-config/t
 import {ActivatedRoute} from '@angular/router';
 import {LinearProgressBarService} from '../../shared/linear-progress-bar/linear-progress-bar.service';
 import {MatchCardService} from '../service/match-card.service';
+import {MatchCard} from '../model/match-card.model';
 
 @Component({
   selector: 'app-matches-container',
   template: `
-    <app-matches>
+    <app-matches [tournamentEvents]="tournamentEvents$ | async"
+    [matchCards]="matchCards$ | async"
+    (tournamentEventEmitter)="onTournamentEventSelected($event)">
     </app-matches>
   `,
   styles: [
@@ -21,7 +24,7 @@ export class MatchesContainerComponent implements OnInit {
   tournamentEvents$: Observable<TournamentEvent[]>;
 
   // match cards for selected event
-  matchCards$: Observable<any[]>;
+  matchCards$: Observable<MatchCard[]>;
 
   private tournamentId: number;
 
@@ -55,6 +58,7 @@ export class MatchesContainerComponent implements OnInit {
     //   }
     // );
 
+    this.loading$ = this.tournamentEventConfigService.store.select(this.tournamentEventConfigService.selectors.selectLoading);
     const loadingSubscription = this.loading$.subscribe((loading: boolean) => {
       this.linearProgressBarService.setLoading(loading);
     });
@@ -71,6 +75,13 @@ export class MatchesContainerComponent implements OnInit {
   }
 
   private setupMatches () {
+
+  }
+
+  onTournamentEventSelected(eventId: number) {
+    console.log('Loading match cards for event ' + eventId);
+    // load match cards for this tournament event id
+    // this.matchCardService.getAll();
 
   }
 }

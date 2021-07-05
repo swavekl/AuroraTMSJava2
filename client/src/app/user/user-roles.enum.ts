@@ -2,6 +2,7 @@
  * User roles in application
  */
 export enum UserRoles {
+  ROLE_EVERYONE = 'Everyone',
   ROLE_ADMINS = 'Admins',
   ROLE_TOURNAMENT_DIRECTORS = 'TournamentDirectors',
   ROLE_REFEREES = 'Referees',

@@ -1,7 +1,10 @@
 package com.auroratms.tournament;
 
 import com.auroratms.error.ResourceNotFoundException;
-import com.auroratms.event.TournamentEventEntityRepository;
+import com.auroratms.profile.UserProfile;
+import com.auroratms.profile.UserProfileService;
+import com.auroratms.users.UserRoles;
+import com.auroratms.utils.SecurityService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CacheEvict;
@@ -13,7 +16,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.acls.domain.BasePermission;
 import org.springframework.security.acls.domain.GrantedAuthoritySid;
-import org.springframework.security.acls.domain.ObjectIdentityImpl;
 import org.springframework.security.acls.domain.PrincipalSid;
 import org.springframework.security.acls.model.*;
 import org.springframework.security.core.Authentication;
@@ -25,6 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -40,7 +43,13 @@ public class TournamentService {
     private TournamentRepository repository;
 
     @Autowired
-    private MutableAclService aclService;
+    private SecurityService securityService;
+
+    @Autowired
+    private UserProfileService userProfileService;
+
+    // class used for managing Access Control lists for tournaments
+    private static final Class ACL_MANAGED_OBJECT_CLASS = TournamentEntity.class;
 
     /**
      * Lists all tournaments
@@ -68,7 +77,7 @@ public class TournamentService {
      */
     public Collection<Tournament> listOwned(int page, int size) {
         String currentUser = getCurrentUsername();
-        String authority = isAdmin() ? "Admins" : "Everyone";
+        String authority = isAdmin() ? UserRoles.Admins : UserRoles.Everyone;
         PageRequest pageRequest = PageRequest.of(page, size, Sort.Direction.ASC, "name");
         Page<TournamentEntity> ownedTournaments = repository.findWriteable(currentUser, authority, BasePermission.WRITE.getMask(), pageRequest);
         List<TournamentEntity> tournamentEntities = ownedTournaments.get().collect(Collectors.toList());
@@ -98,10 +107,22 @@ public class TournamentService {
     public Tournament saveTournament(Tournament tournament) {
         boolean isCreating = (tournament.getId() == null);
         TournamentEntity tournamentEntity = tournament.convertToEntity();
+        // fetch the old tournament definition containing personnel list
+        List<Personnel> oldPersonnelList = null;
+        if (!isCreating) {
+            TournamentEntity oldTournamentEntity = repository.getOne(tournament.getId());
+            Tournament oldTournament = new Tournament().convertFromEntity(oldTournamentEntity);
+            oldPersonnelList = oldTournament.getConfiguration().getPersonnelList();
+        }
         TournamentEntity savedTournamentEntity = repository.save(tournamentEntity);
         if (isCreating) {
-            provideAccessToAdmin(savedTournamentEntity.getId(), TournamentEntity.class);
+            provideAccessToAdmin(savedTournamentEntity.getId());
+            provideAccessToUSATTOfficials(savedTournamentEntity.getId());
         }
+
+        // grant or revoke access to this tournament to particular personnel e.g. tournament referee, umpire and data entry clerks
+        grantRevokePersonnelAccess(savedTournamentEntity.getId(), oldPersonnelList, tournament.getConfiguration().getPersonnelList());
+
         return new Tournament().convertFromEntity(savedTournamentEntity);
     }
 
@@ -119,6 +140,77 @@ public class TournamentService {
     }
 
     /**
+     * Updates user access for tournament personnel
+     *
+     * @param tournamentId
+     * @param oldPersonnelList
+     * @param currentPersonnelList
+     */
+    private void grantRevokePersonnelAccess(Long tournamentId, List<Personnel> oldPersonnelList, List<Personnel> currentPersonnelList) {
+        // find newly added personnel
+        List<Personnel> addedPersonnel = getListDifference(oldPersonnelList, currentPersonnelList);
+        // find removed personnel
+        List<Personnel> removedPersonnel = getListDifference(currentPersonnelList, oldPersonnelList);
+        // skip this work if there were no changes
+        if (addedPersonnel.size() > 0 || removedPersonnel.size() > 0) {
+
+            // collect user profile ids so we can translate them into login ids needed for ACLs
+            List<String> profileIds = new ArrayList<>();
+            for (Personnel personnel : addedPersonnel) {
+                profileIds.add(personnel.getProfileId());
+            }
+            for (Personnel personnel : removedPersonnel) {
+                profileIds.add(personnel.getProfileId());
+            }
+            Collection<UserProfile> userProfiles = this.userProfileService.listByProfileIds(profileIds);
+
+            // grant access to newly added personnel
+            for (Personnel personnel : addedPersonnel) {
+                for (UserProfile userProfile : userProfiles) {
+                    if (userProfile.getUserId().equals(personnel.getProfileId())) {
+                        this.grantUserAccess(tournamentId, userProfile.getLogin());
+                    }
+                }
+            }
+
+            // revoke access to users who are no longer serving at this tournament
+            for (Personnel personnel : removedPersonnel) {
+                for (UserProfile userProfile : userProfiles) {
+                    if (userProfile.getUserId().equals(personnel.getProfileId())) {
+                        this.revokeUserAccess(tournamentId,  userProfile.getLogin());
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Creates a list with items that are in the second list but not the first list
+     *
+     * @param personnelList1
+     * @param personnelList2
+     * @return
+     */
+    private List<Personnel> getListDifference(List<Personnel> personnelList1, List<Personnel> personnelList2) {
+        List<Personnel> missingPersonnel = new ArrayList<>();
+        List<Personnel> personnelList1ToCheck = (personnelList1 == null) ? Collections.emptyList() : personnelList1;
+        List<Personnel> personnelList2ToCheck = (personnelList2 == null) ? Collections.emptyList() : personnelList2;
+        for (Personnel personnel2 : personnelList2ToCheck) {
+            boolean found = false;
+            for (Personnel personnel1 : personnelList1ToCheck) {
+                if (personnel1.getProfileId().equals(personnel2.getProfileId())) {
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                missingPersonnel.add(personnel2);
+            }
+        }
+        return missingPersonnel;
+    }
+
+    /**
      * Deletes tournament
      *
      * @param tournamentId
@@ -127,52 +219,47 @@ public class TournamentService {
     @PreAuthorize("hasAuthority('TournamentDirectors') or hasAuthority('Admins')")
     public void deleteTournament(long tournamentId) {
         repository.deleteById(tournamentId);
-        deleteAcl(tournamentId, Tournament.class);
+        this.securityService.deleteAcl(tournamentId, ACL_MANAGED_OBJECT_CLASS);
     }
 
     /**
      * Grand all permissions to Admin role
+     *  @param objectId
      *
-     * @param objectId
-     * @param objectClass
      */
-    private void provideAccessToAdmin(long objectId, Class objectClass) {
-        GrantedAuthoritySid adminsRole = new GrantedAuthoritySid("Admins");
-        addPermission(objectId, objectClass, adminsRole, BasePermission.READ);
-        addPermission(objectId, objectClass, adminsRole, BasePermission.WRITE);
-        addPermission(objectId, objectClass, adminsRole, BasePermission.DELETE);
-        addPermission(objectId, objectClass, adminsRole, BasePermission.ADMINISTRATION); // change owner of class
+    private void provideAccessToAdmin(long objectId) {
+        this.securityService.provideAccessToAdmin(objectId, ACL_MANAGED_OBJECT_CLASS);
     }
 
     /**
-     * Adds permission for recipient
-     *
+     * Grands permissions to USATT official for this tournament
      * @param objectId
-     * @param objectClass
-     * @param recipient
-     * @param permission
      */
-    private void addPermission(long objectId, Class objectClass, Sid recipient, Permission permission) {
-        MutableAcl acl = null;
-        ObjectIdentity oid = new ObjectIdentityImpl(objectClass, objectId);
-        try {
-            acl = (MutableAcl) aclService.readAclById(oid);
-        } catch (NotFoundException e) {
-            acl = aclService.createAcl(oid);
-        }
-        acl.insertAce(acl.getEntries().size(), permission, recipient, true);
-        aclService.updateAcl(acl);
+    private void provideAccessToUSATTOfficials(long objectId) {
+        GrantedAuthoritySid grantedAuthoritySid = new GrantedAuthoritySid(UserRoles.USATTOfficial);
+        this.securityService.addPermission(objectId, ACL_MANAGED_OBJECT_CLASS, grantedAuthoritySid, BasePermission.READ);
+        this.securityService.addPermission(objectId, ACL_MANAGED_OBJECT_CLASS, grantedAuthoritySid, BasePermission.WRITE);
     }
 
     /**
-     * deletes all permissions for recipient
-     *
+     * Grants access to user
      * @param objectId
-     * @param objectClass
+     * @param userId
      */
-    private void deleteAcl(long objectId, Class objectClass) {
-        ObjectIdentity oid = new ObjectIdentityImpl(objectClass, objectId);
-        aclService.deleteAcl(oid, false);
+    private void grantUserAccess(long objectId, String userId) {
+        PrincipalSid principalSid = new PrincipalSid(userId);
+        this.securityService.addPermission(objectId, ACL_MANAGED_OBJECT_CLASS, principalSid, BasePermission.READ);
+        this.securityService.addPermission(objectId, ACL_MANAGED_OBJECT_CLASS, principalSid, BasePermission.WRITE);
+    }
+
+    /**
+     * Revokes user access to object
+     * @param objectId
+     * @param userId
+     */
+    private void revokeUserAccess(long objectId, String userId) {
+        PrincipalSid principalSid = new PrincipalSid(userId);
+        this.securityService.revokeAllPermissions(objectId, ACL_MANAGED_OBJECT_CLASS, principalSid);
     }
 
     /**
@@ -187,30 +274,59 @@ public class TournamentService {
     }
 
     /**
+     * Gets identifier of tournament owner
+     * @param tournamentId
+     * @return
+     */
+    public String getTournamentOwner(long tournamentId) {
+        Acl acl = this.securityService.readAclForObject(tournamentId, ACL_MANAGED_OBJECT_CLASS);
+        Sid owner = acl.getOwner();
+        return (owner instanceof PrincipalSid)
+                ? ((PrincipalSid)owner).getPrincipal()
+                : ((GrantedAuthoritySid)owner).getGrantedAuthority();
+    }
+
+    /**
      * Tests if current user is an Admin authority
      *
      * @return
      */
-    private boolean isAdmin() {
+    public boolean isAdmin() {
+        return this.hasRole(UserRoles.Admins);
+    }
+
+    public boolean isDataEntryClerk() {
+        return this.hasRole(UserRoles.DataEntryClerks);
+    }
+
+    public boolean isTournamentDirector() {
+        return this.hasRole(UserRoles.TournamentDirectors);
+    }
+
+    public boolean isTournamentReferee() {
+        return this.hasRole(UserRoles.Umpires);
+    }
+
+    public boolean isTournamentUmpire() {
+        return this.hasRole(UserRoles.Umpires);
+    }
+
+    /**
+     * Tests if current user is an specified authority (role)
+     *
+     * @return
+     */
+    public boolean hasRole(String role) {
         boolean isAdmin = false;
         SecurityContext context = SecurityContextHolder.getContext();
         Authentication authentication = context.getAuthentication();
         Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
         for (GrantedAuthority authority : authorities) {
-            if (authority.getAuthority().equals("Admins")) {
+            if (authority.getAuthority().equals(role)) {
                 isAdmin = true;
             }
         }
         return isAdmin;
 
-    }
-
-    public String getTournamentOwner(long tournamentId) {
-        ObjectIdentity objectIdentity = new ObjectIdentityImpl(TournamentEntity.class, tournamentId);
-        Acl acl = aclService.readAclById(objectIdentity);
-        Sid owner = acl.getOwner();
-        return (owner instanceof PrincipalSid)
-                ? ((PrincipalSid)owner).getPrincipal()
-                : ((GrantedAuthoritySid)owner).getGrantedAuthority();
     }
 }

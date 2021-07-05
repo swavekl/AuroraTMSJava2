@@ -1,0 +1,33 @@
+@import "~src/my-theme.scss";
+
+.match-container {
+  height: calc(100vh - 75px);
+  //border: 1px solid green;
+  overflow: hidden;
+}
+
+.event-list {
+  width: 220px;
+  height: calc(100vh - 100px);
+  overflow-y: auto;
+  //border: 1px solid blue;
+}
+
+.match-card-list {
+  width: 220px;
+  height: calc(100vh - 100px);
+  overflow-y: auto;
+  //border: 1px solid magenta;
+}
+
+.not-selected {
+  background-color: white;
+}
+
+.selected {
+  background-color: $accent-color;
+}
+
+mat-list-item:hover {
+  background-color: #7A73FF;
+}

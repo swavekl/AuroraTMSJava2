@@ -15,7 +15,7 @@ spring:
           auth: true
           starttls.enable: true
   jpa:
-    show-sql: false
+    show-sql: true
 
 #logging.level.org.hibernate.SQL: DEBUG
 #logging.level.org.hibernate.type: TRACE

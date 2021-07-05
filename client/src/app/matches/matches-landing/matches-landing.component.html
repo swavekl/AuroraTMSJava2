@@ -1,0 +1,13 @@
+<p>Select Tournament to Enter scores for</p>
+<mat-list>
+  <mat-list-item *ngFor="let tournament of tournaments">
+    <h3 matLine>{{tournament.name}}</h3>
+    <h3 matLine>{{tournament.startDate | date }} - {{tournament.endDate | date }}</h3>
+    <h4 matLine>{{ tournament.city }}, {{tournament.state}} </h4>
+    <button mat-icon-button [routerLink]="['/matches/scoreentry/', tournament.id]">
+      <mat-icon matListIcon>grid_view</mat-icon>
+    </button>
+    <mat-divider></mat-divider>
+  </mat-list-item>
+</mat-list>
+

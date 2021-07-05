@@ -1,1 +1,23 @@
-<p>matches works!</p>
+<div fxLayout="row" class="match-container">
+  <div>
+    <h2>Events</h2>
+    <mat-list dense class="event-list">
+      <mat-list-item *ngFor="let tournamentEvent of tournamentEvents" (click)="onSelectEvent(tournamentEvent)"
+                     [ngClass]="isSelected (tournamentEvent) ? 'selected' : 'not-selected'">
+        {{tournamentEvent.name}}
+      </mat-list-item>
+    </mat-list>
+  </div>
+  <div>
+    <h2>Match Cards</h2>
+    <mat-list dense class="match-card-list">
+      <mat-list-item *ngFor="let matchCard of matchCards" (click)="onSelectMatchCard(matchCard)"
+                     [ngClass]="isSelectedMatchCard (matchCard) ? 'selected' : 'not-selected'">
+        {{matchCard.groupNum}}
+      </mat-list-item>
+    </mat-list>
+  </div>
+  <div fxFlex style="border: 1px solid red;">
+    <div>Here is my event match card</div>
+  </div>
+</div>

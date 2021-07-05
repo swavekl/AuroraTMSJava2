@@ -25,8 +25,10 @@ public interface TournamentRepository extends JpaRepository<TournamentEntity, Lo
                     "        AND acl_sid.sid = :owner)" +
                     "        OR (acl_sid.id = acl_entry.sid" +
                     "            AND acl_object_identity.id = acl_entry.acl_object_identity" +
-                    "            AND acl_sid.sid = :authority" +
-                    "            AND acl_sid.principal = 0" +
+                    "            AND ((acl_sid.sid = :authority " +
+                    "            AND acl_sid.principal = 0)" +
+                    "            OR  (acl_sid.sid = :owner" +
+                    "            AND acl_sid.principal = 1))" +
                     "            AND acl_entry.mask = :permission" +
                     "            AND acl_entry.granting = 1))" +
                     ")",
@@ -44,8 +46,10 @@ public interface TournamentRepository extends JpaRepository<TournamentEntity, Lo
             "        AND acl_sid.sid = :owner)" +
             "        OR (acl_sid.id = acl_entry.sid" +
             "            AND acl_object_identity.id = acl_entry.acl_object_identity" +
-            "            AND acl_sid.sid = :authority" +
-            "            AND acl_sid.principal = 0" +
+            "            AND ((acl_sid.sid = :authority " +
+            "            AND acl_sid.principal = 0)" +
+            "            OR  (acl_sid.sid = :owner" +
+            "            AND acl_sid.principal = 1))" +
             "            AND acl_entry.mask = :permission" +
             "            AND acl_entry.granting = 1))" +
             ")"

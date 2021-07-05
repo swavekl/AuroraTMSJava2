@@ -2,6 +2,8 @@ package com.auroratms.tournament;
 
 import com.auroratms.event.TournamentEventEntity;
 import com.auroratms.server.ServerApplication;
+import com.auroratms.users.UserRoles;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,7 +47,7 @@ public class TournamentServiceTest extends AbstractJUnit4SpringContextTests {
     private TournamentService tournamentService;
 
     @Test
-    @WithMockUser(username = "swaveklorenc@yahoo.com", authorities = {"Admins"})
+    @WithMockUser(username = "swaveklorenc@yahoo.com", authorities = {UserRoles.Admins})
     public void adminGetAll (){
         Collection<Tournament> list = tournamentService.list();
         for (Tournament tournament : list) {
@@ -63,7 +65,7 @@ public class TournamentServiceTest extends AbstractJUnit4SpringContextTests {
     }
 
     @Test
-    @WithMockUser(username="mario", authorities = {"TournamentDirector"})
+    @WithMockUser(username="mario", authorities = {UserRoles.TournamentDirectors})
     public void tournamentDirectorGetOwned (){
         String [] tournamentNames = new String [] {
             "2020 Phoenix Sizzler Open",
@@ -103,6 +105,31 @@ public class TournamentServiceTest extends AbstractJUnit4SpringContextTests {
         assertEquals("tournaments left after deletion",0,  tournaments.size());
     }
 
+    private void addPersonnel (String profileId, String fullName, String userRole, Tournament tournament) {
+        List<Personnel> personnelList = tournament.getConfiguration().getPersonnelList();
+        if (personnelList == null) {
+            personnelList = new ArrayList<>();
+            tournament.getConfiguration().setPersonnelList(personnelList);
+        }
+        Personnel personnel = new Personnel();
+        personnel.setName(fullName);
+        personnel.setProfileId(profileId);
+        personnel.setRole(userRole);
+        personnelList.add(personnel);
+    }
+
+    private void removePersonnel(String profileId, Tournament tournament) {
+        List<Personnel> personnelList = tournament.getConfiguration().getPersonnelList();
+        if (personnelList != null) {
+            for (Personnel personnel : personnelList) {
+                if (personnel.getProfileId().equals(profileId)) {
+                    personnelList.remove(personnel);
+                    break;
+                }
+            }
+        }
+    }
+
     private Tournament makeTournament(String name) {
         Tournament tournament = new Tournament();
         tournament.setName(name);
@@ -118,28 +145,49 @@ public class TournamentServiceTest extends AbstractJUnit4SpringContextTests {
     }
 
     @Test
-    @WithMockUser(username = "swaveklorenc@yahoo.com", authorities = {"Admins"})
+    @WithMockUser(username = "swaveklorenc@yahoo.com", authorities = {UserRoles.Admins})
     public void testOwnersAccess () {
         String[] tournamentsForEnglebert = makeTournamentsForEnglebert();
         String[] tournamentForEd = makeTournamentsForEd();
         checkEngelbertsTournaments(tournamentsForEnglebert);
         checkEdsTournaments(tournamentForEd);
         // as admin
-        Collection<Tournament> list = tournamentService.listOwned(0, 15);
+        Collection<Tournament> adminVisibleTournaments = tournamentService.listOwned(0, 100);
+        for (String tournamentName : tournamentForEd) {
+            boolean contains = false;
+            for (Tournament tournament : adminVisibleTournaments) {
+                if (tournament.getName().equals(tournamentName)) {
+                    contains = true;
+                    break;
+                }
+            }
+            assertTrue(tournamentName + " tournament is not visible to Admin", contains);
+        }
+        for (String tournamentName : tournamentsForEnglebert) {
+            boolean contains = false;
+            for (Tournament tournament : adminVisibleTournaments) {
+                if (tournament.getName().equals(tournamentName)) {
+                    contains = true;
+                    break;
+                }
+            }
+            assertTrue(tournamentName + " tournament is not visible to Admin", contains);
+        }
+
         int expectedCount = tournamentsForEnglebert.length + tournamentForEd.length;
-        assertEquals("not all tournaments were accessible to admin", expectedCount, list.size());
+//        assertEquals("not all tournaments were accessible to admin", expectedCount, list.size());
         Collection<Tournament> listAll = tournamentService.list();
         assertTrue("More tournaments should be visible", listAll.size() > expectedCount);
     }
 
     private void checkEngelbertsTournaments(String[] tournamentNames) {
-        Authentication savedAuthentication = switchAuthentication("engelbert@gmail.com");
+        Authentication savedAuthentication = switchAuthentication("engelbert@gmail.com", UserRoles.TournamentDirectors);
         checkTournaments(tournamentNames);
         SecurityContextHolder.getContext().setAuthentication(savedAuthentication);
     }
 
     private void checkEdsTournaments(String[] tournamentNames) {
-        Authentication savedAuthentication = switchAuthentication("ed@gmail.com");
+        Authentication savedAuthentication = switchAuthentication("ed@gmail.com", UserRoles.TournamentDirectors);
         checkTournaments(tournamentNames);
         SecurityContextHolder.getContext().setAuthentication(savedAuthentication);
     }
@@ -156,13 +204,13 @@ public class TournamentServiceTest extends AbstractJUnit4SpringContextTests {
                     break;
                 }
             }
-            assertTrue("Tournament " + tournamentName + " found", found);
+            assertTrue("Tournament '" + tournamentName + "' not found", found);
         }
         assertEquals("not found", countFound, tournamentNames.length);
     }
 
     private String[] makeTournamentsForEnglebert() {
-        Authentication savedAuthentication = switchAuthentication("engelbert@gmail.com");
+        Authentication savedAuthentication = switchAuthentication("engelbert@gmail.com", UserRoles.TournamentDirectors);
 
         String [] tournamentNames = new String [] {
                 "2020 Libertyville Open",
@@ -181,7 +229,7 @@ public class TournamentServiceTest extends AbstractJUnit4SpringContextTests {
     }
 
     private String[] makeTournamentsForEd() {
-        Authentication savedAuthentication = switchAuthentication("ed@gmail.com");
+        Authentication savedAuthentication = switchAuthentication("ed@gmail.com", UserRoles.TournamentDirectors);
         String [] tournamentNames = new String [] {
                 "2020 Americas Team Championship Open",
                 "2021 Americas Team Championship Open",
@@ -195,9 +243,9 @@ public class TournamentServiceTest extends AbstractJUnit4SpringContextTests {
         return tournamentNames;
     }
 
-    private Authentication switchAuthentication(String username) {
+    private Authentication switchAuthentication(String username, String role) {
         List<GrantedAuthority> grantedAuthorities = new ArrayList<>();
-        grantedAuthorities.add(new SimpleGrantedAuthority("TournamentDirector"));
+        grantedAuthorities.add(new SimpleGrantedAuthority(role));
         User principal = new User(username, "password", true, true, true, true,
                 grantedAuthorities);
         Authentication authentication = new UsernamePasswordAuthenticationToken(
@@ -208,7 +256,8 @@ public class TournamentServiceTest extends AbstractJUnit4SpringContextTests {
     }
 
     @Test
-    @WithMockUser(username="mario", authorities = {"TournamentDirector"})
+    @Ignore
+    @WithMockUser(username="mario", authorities = {UserRoles.TournamentDirectors})
     public void testEvents () {
         Tournament tournament = makeTournament("2020 Aurora Summer Open with events");
         Set<TournamentEventEntity> events = new HashSet<>();
@@ -241,5 +290,37 @@ public class TournamentServiceTest extends AbstractJUnit4SpringContextTests {
         return eventEntity;
     }
 
+    @Test
+    @WithMockUser(username="swavek", authorities = {UserRoles.TournamentDirectors})
+    public void testPersonnelAccess () {
+        Tournament tournament = makeTournament("2022 Aurora Summer Open");
+        addPersonnel("00u107pgb64tCP7wn0h8","Nagarathnam, Uma", UserRoles.DataEntryClerks, tournament);
+        addPersonnel("xyz09123214","Vanegas, Jorge", UserRoles.Umpires, tournament);
+        addPersonnel("xyz09123214","Leaf, Linda", UserRoles.Umpires, tournament);
+        tournament = tournamentService.saveTournament(tournament);
 
+//        Tournament tournament2 = makeTournament("2022 Badger Open");
+//        addPersonnel("xyz09123213","Robinson, Ted", UserRoles.DataEntryClerks, tournament2);
+//        addPersonnel("xyz09123214","Vanegas, Jorge", UserRoles.Umpires, tournament2);
+//        addPersonnel("xyz09123214","Leaf, Linda", UserRoles.Umpires, tournament2);
+//        tournament2 = tournamentService.saveTournament(tournament2);
+
+        Authentication savedAuthentication = switchAuthentication("swaveklorenc+uma@gmail.com", UserRoles.DataEntryClerks);
+        Collection<Tournament> tournamentsForUma = tournamentService.listOwned(0, 100);
+        SecurityContextHolder.getContext().setAuthentication(savedAuthentication);
+
+        Tournament[] tournamentsArray = tournamentsForUma.toArray(new Tournament [0]);
+        Tournament first = tournamentsArray[0];
+        assertEquals("2022 Aurora Summer Open", first.getName());
+
+        removePersonnel("00u107pgb64tCP7wn0h8", tournament);
+        tournament = tournamentService.saveTournament(tournament);
+
+        savedAuthentication = switchAuthentication("swaveklorenc+uma@gmail.com", UserRoles.DataEntryClerks);
+        Collection<Tournament> tournamentsForUma2 = tournamentService.listOwned(0, 100);
+        SecurityContextHolder.getContext().setAuthentication(savedAuthentication);
+
+        assertEquals("wrong number of tournaments", 0, tournamentsForUma2.size());
+
+    }
 }
