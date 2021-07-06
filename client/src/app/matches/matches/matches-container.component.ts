@@ -1,5 +1,5 @@
 import {Component, OnInit} from '@angular/core';
-import {Observable, Subscription} from 'rxjs';
+import {combineLatest, Observable, Subscription} from 'rxjs';
 import {TournamentEvent} from '../../tournament/tournament-config/tournament-event.model';
 import {TournamentEventConfigService} from '../../tournament/tournament-config/tournament-event-config.service';
 import {ActivatedRoute} from '@angular/router';
@@ -11,20 +11,24 @@ import {MatchCard} from '../model/match-card.model';
   selector: 'app-matches-container',
   template: `
     <app-matches [tournamentEvents]="tournamentEvents$ | async"
-    [matchCards]="matchCards$ | async"
-    (tournamentEventEmitter)="onTournamentEventSelected($event)">
+                 [matchCards]="matchCards$ | async"
+                 [selectedMatchCard]="selectedMatchCard$ | async"
+                 (tournamentEventEmitter)="onTournamentEventSelected($event)"
+                 (matchCardEmitter)="onMatchCardSelected($event)">
     </app-matches>
   `,
-  styles: [
-  ]
+  styles: []
 })
 export class MatchesContainerComponent implements OnInit {
 
   // list of tournament events
   tournamentEvents$: Observable<TournamentEvent[]>;
 
-  // match cards for selected event
+  // match cards for selected event - withouth matches
   matchCards$: Observable<MatchCard[]>;
+
+  // selected match card - with matches
+  selectedMatchCard$: Observable<MatchCard>;
 
   private tournamentId: number;
 
@@ -38,7 +42,7 @@ export class MatchesContainerComponent implements OnInit {
               private linearProgressBarService: LinearProgressBarService) {
     this.setupProgressIndicator();
     this.loadTournamentEvents();
-    this.setupMatches();
+    this.setupMatchCards();
   }
 
   ngOnInit(): void {
@@ -50,15 +54,14 @@ export class MatchesContainerComponent implements OnInit {
    */
   private setupProgressIndicator() {
     // if any of the service are loading show the loading progress
-    // this.loading$ = combineLatest(
-    //   this.tournamentEventConfigService.store.select(this.tournamentEventConfigService.selectors.selectLoading),
-    //   this.matchCardService.store.select(this.matchCardService.selectors.selectLoading),
-    //   (eventConfigsLoading: boolean, drawsLoading: boolean) => {
-    //     return eventConfigsLoading || drawsLoading;
-    //   }
-    // );
+    this.loading$ = combineLatest(
+      this.tournamentEventConfigService.store.select(this.tournamentEventConfigService.selectors.selectLoading),
+      this.matchCardService.store.select(this.matchCardService.selectors.selectLoading),
+      (eventConfigsLoading: boolean, drawsLoading: boolean) => {
+        return eventConfigsLoading || drawsLoading;
+      }
+    );
 
-    this.loading$ = this.tournamentEventConfigService.store.select(this.tournamentEventConfigService.selectors.selectLoading);
     const loadingSubscription = this.loading$.subscribe((loading: boolean) => {
       this.linearProgressBarService.setLoading(loading);
     });
@@ -74,14 +77,15 @@ export class MatchesContainerComponent implements OnInit {
     this.tournamentEventConfigService.loadTournamentEvents(this.tournamentId);
   }
 
-  private setupMatches () {
-
+  private setupMatchCards() {
+    this.matchCards$ = this.matchCardService.store.select(this.matchCardService.selectors.selectEntities);
   }
 
   onTournamentEventSelected(eventId: number) {
-    console.log('Loading match cards for event ' + eventId);
-    // load match cards for this tournament event id
-    // this.matchCardService.getAll();
+    this.matchCardService.loadForEvent(eventId);
+  }
 
+  onMatchCardSelected(matchCardId: number) {
+    this.selectedMatchCard$ = this.matchCardService.getByKey(matchCardId);
   }
 }

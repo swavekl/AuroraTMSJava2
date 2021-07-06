@@ -234,6 +234,10 @@ public class MatchCardService {
         return saved.getId();
     }
 
+    public List<MatchCard> findAllForEvent(long eventId) {
+        return this.matchCardRepository.findMatchCardByEventFkOrderByGroupNum(eventId);
+    }
+
     public List<MatchCard> findAllForEventAndDrawType(long evenId, DrawType drawType) {
         return this.matchCardRepository.findMatchCardByEventFkAndDrawTypeOrderByGroupNum(evenId, drawType);
     }

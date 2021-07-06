@@ -13,11 +13,26 @@
     <mat-list dense class="match-card-list">
       <mat-list-item *ngFor="let matchCard of matchCards" (click)="onSelectMatchCard(matchCard)"
                      [ngClass]="isSelectedMatchCard (matchCard) ? 'selected' : 'not-selected'">
-        {{matchCard.groupNum}}
+        <ng-container *ngIf="matchCard.drawType === 'ROUND_ROBIN'; else elseblock">
+          RR Group {{matchCard.groupNum}}
+        </ng-container>
+        <ng-template #elseblock>
+          SE {{matchCard.groupNum}}
+        </ng-template>
       </mat-list-item>
     </mat-list>
   </div>
-  <div fxFlex style="border: 1px solid red;">
-    <div>Here is my event match card</div>
+  <div fxFlex style="border: 0px solid red;">
+    <div>{{selectedEvent?.name}}
+    <ng-container *ngIf="selectedMatchCard?.drawType === 'ROUND_ROBIN'; else elseblock">
+      Round: Round Robin  Group: {{selectedMatchCard?.groupNum}}
+    </ng-container>
+    <ng-template #elseblock>
+      Single Elimination Round Of: {{selectedMatchCard?.groupNum}}
+    </ng-template>
+    </div>
+    <div *ngFor="let match of selectedMatchCard?.matches">
+      <div>Match: {{ match.matchNum }}</div>
+    </div>
   </div>
 </div>

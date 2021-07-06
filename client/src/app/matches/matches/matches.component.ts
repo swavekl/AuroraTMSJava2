@@ -15,13 +15,19 @@ export class MatchesComponent implements OnInit, OnChanges {
   @Input()
   matchCards: MatchCard[] = [];
 
+  @Input()
+  selectedMatchCard: MatchCard;
+
   @Output()
   private tournamentEventEmitter: EventEmitter<any> = new EventEmitter<any>();
+
+  @Output()
+  private matchCardEmitter: EventEmitter<any> = new EventEmitter<any>();
 
   // currently selected event for viewing draws
   selectedEvent: TournamentEvent;
 
-  selectedMatchCard: MatchCard;
+  selectedMatchCardId: number;
 
   constructor() { }
 
@@ -32,6 +38,7 @@ export class MatchesComponent implements OnInit, OnChanges {
     // load match cards for this event
     this.selectedEvent = tournamentEvent;
     this.tournamentEventEmitter.emit(tournamentEvent.id);
+    this.selectedMatchCardId = -1;
   }
 
   isSelected(tournamentEvent: TournamentEvent) {
@@ -46,10 +53,11 @@ export class MatchesComponent implements OnInit, OnChanges {
   }
 
   onSelectMatchCard(matchCard: MatchCard) {
-    this.selectedMatchCard = matchCard;
+    this.selectedMatchCardId = matchCard.id;
+    this.matchCardEmitter.emit(this.selectedMatchCardId);
   }
 
-  isSelectedMatchCard(matchCard: MatchCard) {
-    return this.selectedMatchCard.id = matchCard.id;
+  isSelectedMatchCard(matchCard: MatchCard): boolean {
+    return (this.selectedMatchCardId === matchCard.id);
   }
 }

@@ -24,5 +24,12 @@ public interface MatchCardRepository extends JpaRepository<MatchCard, Long> {
      * @param eventId
      * @return
      */
+    List<MatchCard> findMatchCardByEventFkOrderByGroupNum(long eventId);
+
+    /**
+     * Find all match cards for this event and draw type
+     * @param eventId
+     * @return
+     */
     List<MatchCard> findMatchCardByEventFkAndDrawTypeOrderByGroupNum(long eventId, DrawType drawType);
 }

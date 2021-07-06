@@ -10,6 +10,8 @@ import {MatListModule} from '@angular/material/list';
 import {FlexModule} from '@angular/flex-layout';
 import {MatIconModule} from '@angular/material/icon';
 import {MatButtonModule} from '@angular/material/button';
+import {EntityDataService, EntityServices} from '@ngrx/data';
+import {MatchCardService} from './service/match-card.service';
 
 
 @NgModule({
@@ -28,4 +30,19 @@ import {MatButtonModule} from '@angular/material/button';
     MatButtonModule
   ]
 })
-export class MatchesModule { }
+export class MatchesModule {
+  // Inject the service to ensure it registers with EntityServices
+  constructor(
+    entityServices: EntityServices,
+    entityDataService: EntityDataService,
+    matchCardService: MatchCardService
+  ) {
+
+    // register service for contacting REST API because it doesn't follow the pattern of standard REST call
+    // entityDataService.registerService('DrawItem', drawDataService);
+
+    entityServices.registerEntityCollectionServices([
+      matchCardService
+    ]);
+  }
+}

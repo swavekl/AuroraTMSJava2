@@ -1,6 +1,5 @@
 package com.auroratms.match;
 
-import com.auroratms.draw.DrawType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -30,10 +29,13 @@ public class MatchCardController {
      */
     @GetMapping("/matchcards")
     @ResponseBody
-    public ResponseEntity<List<MatchCard>> listMatchCards(@RequestParam long eventId,
-                                                          @RequestParam DrawType drawType) {
+    @Transactional(readOnly = true)
+    public ResponseEntity<List<MatchCard>> listMatchCards(@RequestParam long eventId) {
         try {
-            List<MatchCard> matchCards = matchCardService.findAllForEventAndDrawType(eventId, drawType);
+            List<MatchCard> matchCards = matchCardService.findAllForEvent(eventId);
+            for (MatchCard matchCard : matchCards) {
+                matchCard.setMatches(null);
+            }
             return new ResponseEntity<>(matchCards, HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity(e, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -43,16 +45,19 @@ public class MatchCardController {
     /**
      * Gets a match card with its matches
      *
-     * @param eventId
-     * @param groupNum
+     * @param matchCardId
      * @return
      */
-    @GetMapping("/matchcard")
+    @GetMapping("/matchcard/{matchCardId}")
     @ResponseBody
-    public ResponseEntity<MatchCard> getMatchCard(@RequestParam long eventId,
-                                                  @RequestParam int groupNum) {
+    @Transactional(readOnly = true)
+    public ResponseEntity<MatchCard> getMatchCard(@PathVariable Long matchCardId) {
         try {
-            MatchCard matchCard = matchCardService.getMatchCard(eventId, groupNum);
+            MatchCard matchCard = matchCardService.get(matchCardId);
+            List<Match> matches = matchCard.getMatches();
+            for (Match match : matches) {
+                match.setMatchCard(null);
+            }
             return new ResponseEntity<>(matchCard, HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity(e, HttpStatus.INTERNAL_SERVER_ERROR);
