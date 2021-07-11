@@ -2,6 +2,7 @@ package com.auroratms.match;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.NonNull;
 
 import javax.persistence.*;
 
@@ -34,7 +35,12 @@ public class Match {
     // profile id of two players for singles matches
     // for doubles matches profile ids of team members are separated by ; like this
     // playerAProfileId;playerAPartnerProfileId and playerBProfileId;playerBPartnerProfileId
+    @NonNull
+    @Column(length = 100)
     private String playerAProfileId;
+
+    @NonNull
+    @Column(length = 100)
     private String playerBProfileId;
 
     // true if the side defaulted.  If both are true the match wasn't played
@@ -48,21 +54,33 @@ public class Match {
     // indicates if side A is to serve first, if false side B servers first - help for umpire
     private boolean sideAServesFirst;
 
-    // game (set) scores of played match e.g. 11:7, 11:8,
-    // positive if match winner won the game,
-    // negative if match winner lost the game
+    // game (set) scores of played match e.g. 11:7, 11:8.  First number is for player A, second is for player B
     @Column(nullable = true)
-    private int game1Score;
+    private byte game1ScoreSideA;
     @Column(nullable = true)
-    private int game2Score;
+    private byte game1ScoreSideB;
     @Column(nullable = true)
-    private int game3Score;
+    private byte game2ScoreSideA;
     @Column(nullable = true)
-    private int game4Score;
+    private byte game2ScoreSideB;
     @Column(nullable = true)
-    private int game5Score;
+    private byte game3ScoreSideA;
     @Column(nullable = true)
-    private int game6Score;
+    private byte game3ScoreSideB;
     @Column(nullable = true)
-    private int game7Score;
+    private byte game4ScoreSideA;
+    @Column(nullable = true)
+    private byte game4ScoreSideB;
+    @Column(nullable = true)
+    private byte game5ScoreSideA;
+    @Column(nullable = true)
+    private byte game5ScoreSideB;
+    @Column(nullable = true)
+    private byte game6ScoreSideA;
+    @Column(nullable = true)
+    private byte game6ScoreSideB;
+    @Column(nullable = true)
+    private byte game7ScoreSideA;
+    @Column(nullable = true)
+    private byte game7ScoreSideB;
 }

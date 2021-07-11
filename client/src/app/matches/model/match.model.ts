@@ -30,13 +30,18 @@ export class Match {
   sideAServesFirst: boolean;
 
   // game (set) scores of played match e.g. 11:7, 11:8,
-  // positive if match winner won the game,
-  // negative if match winner lost the game
-  game1Score: number;
-  game2Score: number;
-  game3Score: number;
-  game4Score: number;
-  game5Score: number;
-  game6Score: number;
-  game7Score: number;
+  game1ScoreSideA: number;
+  game1ScoreSideB: number;
+  game2ScoreSideA: number;
+  game2ScoreSideB: number;
+  game3ScoreSideA: number;
+  game3ScoreSideB: number;
+  game4ScoreSideA: number;
+  game4ScoreSideB: number;
+  game5ScoreSideA: number;
+  game5ScoreSideB: number;
+  game6ScoreSideA: number;
+  game6ScoreSideB: number;
+  game7ScoreSideA: number;
+  game7ScoreSideB: number;
 }
