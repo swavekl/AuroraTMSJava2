@@ -29,16 +29,21 @@ export class MatchesComponent implements OnInit, OnChanges {
 
   selectedMatchCardId: number;
 
-  constructor() { }
+  games: number [];
+
+  constructor() {
+    this.games = [];
+  }
 
   ngOnInit(): void {
   }
 
   onSelectEvent(tournamentEvent: TournamentEvent) {
     // load match cards for this event
+    this.selectedMatchCardId = -1;
+    this.selectedMatchCard = null;
     this.selectedEvent = tournamentEvent;
     this.tournamentEventEmitter.emit(tournamentEvent.id);
-    this.selectedMatchCardId = -1;
   }
 
   isSelected(tournamentEvent: TournamentEvent) {
@@ -55,6 +60,8 @@ export class MatchesComponent implements OnInit, OnChanges {
   onSelectMatchCard(matchCard: MatchCard) {
     this.selectedMatchCardId = matchCard.id;
     this.matchCardEmitter.emit(this.selectedMatchCardId);
+    const numGames = matchCard.numberOfGames === 0 ? 5 : matchCard.numberOfGames;
+    this.games = Array(numGames);
   }
 
   isSelectedMatchCard(matchCard: MatchCard): boolean {

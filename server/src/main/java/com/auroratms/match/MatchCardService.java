@@ -6,15 +6,17 @@ import com.auroratms.draw.DrawType;
 import com.auroratms.error.ResourceNotFoundException;
 import com.auroratms.event.TournamentEventEntity;
 import com.auroratms.event.TournamentEventEntityService;
+import com.auroratms.profile.UserProfileExt;
+import com.auroratms.profile.UserProfileExtService;
+import com.auroratms.profile.UserProfileService;
+import com.auroratms.usatt.UsattDataService;
+import com.auroratms.usatt.UsattPlayerRecord;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Service for managing march cards which contain individual matches
@@ -31,6 +33,12 @@ public class MatchCardService {
 
     @Autowired
     private DrawService drawService;
+
+    @Autowired
+    private UserProfileExtService userProfileExtService;
+
+    @Autowired
+    private UsattDataService usattDataService;
 
     public MatchCardService() {
     }
@@ -172,7 +180,7 @@ public class MatchCardService {
      * Gets number of games to play in a given round as configured in event
      *
      * @param tournamentEventEntity event configuration
-     * @param roundOf round of 64, 32 etc.
+     * @param roundOf               round of 64, 32 etc.
      * @return
      */
     private int getNumberOfGames(TournamentEventEntity tournamentEventEntity, int roundOf) {
@@ -224,11 +232,107 @@ public class MatchCardService {
                 .orElseThrow(() -> new ResourceNotFoundException("Unable to find match card"));
     }
 
-    public MatchCard get(long id) {
-        return this.matchCardRepository.findById(id)
+    public MatchCard get(long matchCardId) {
+        MatchCard matchChard = this.matchCardRepository.findById(matchCardId)
                 .orElseThrow(() -> new ResourceNotFoundException("Unable to find match card"));
+
+        // get the names of players for all matches in this card
+        Map<String, String> profileIdToNameMap = buildProfileIdToNameMap(matchChard.getMatches());
+        matchChard.setProfileIdToNameMap(profileIdToNameMap);
+
+        return matchChard;
     }
 
+    /**
+     *
+     * @param matches
+     * @return
+     */
+    private Map<String, String> buildProfileIdToNameMap(List<Match> matches) {
+        boolean doublesEvent = false;
+        Set<String> playerProfileIds = new HashSet<String>();
+        for (Match match : matches) {
+            String playerAProfileId = match.getPlayerAProfileId();
+            String playerBProfileId = match.getPlayerBProfileId();
+            // if this is doubles event then 2 profiles are encoded in the string
+            if (playerAProfileId.indexOf(";") > 0 && playerBProfileId.indexOf(";") > 0) {
+                doublesEvent = true;
+                String[] teamAProfiles = playerAProfileId.split(";");
+                String[] teamBProfiles = playerBProfileId.split(";");
+                playerProfileIds.addAll(Arrays.asList(teamAProfiles));
+                playerProfileIds.addAll(Arrays.asList(teamBProfiles));
+            } else {
+                playerProfileIds.add(playerAProfileId);
+                playerProfileIds.add(playerBProfileId);
+            }
+        }
+
+        // using profile service - slower but more accurate
+//        Collection<UserProfile> userProfiles = this.userProfileService.listByProfileIds(uniquePlayerProfiles);
+//        for (UserProfile userProfile : userProfiles) {
+//            String fullName = userProfile.getLastName() + ", " + userProfile.getFirstName();
+//            profileIdToNameMap.put(userProfile.getUserId(), fullName);
+//        }
+
+        // get all player names - as if event was an individual event, not doubles event
+        List<String> uniquePlayerProfiles = new ArrayList<>(playerProfileIds);
+        Map<String, UserProfileExt> userProfileExtMap = this.userProfileExtService.findByProfileIds(uniquePlayerProfiles);
+        Map<Long, String> membershipIdToProfileIdMap = new HashMap<>();
+        for (UserProfileExt userProfileExt : userProfileExtMap.values()) {
+            membershipIdToProfileIdMap.put(userProfileExt.getMembershipId(), userProfileExt.getProfileId());
+        }
+        List<Long> membershipIds = new ArrayList<>(membershipIdToProfileIdMap.keySet());
+        List<UsattPlayerRecord> usattPlayerRecordList = this.usattDataService.findAllByMembershipIdIn(membershipIds);
+
+        Map<String, String> profileIdToNameMap = new HashMap<>();
+        for (UsattPlayerRecord usattPlayerRecord : usattPlayerRecordList) {
+            Long membershipId = usattPlayerRecord.getMembershipId();
+            String profileId = membershipIdToProfileIdMap.get(membershipId);
+            if (profileId != null) {
+                String fullName = usattPlayerRecord.getLastName() + ", " + usattPlayerRecord.getFirstName();
+                profileIdToNameMap.put(profileId, fullName);
+            }
+        }
+
+        if (!doublesEvent) {
+            return profileIdToNameMap;
+        } else {
+            // build doubles team member names like so team player 1 / team player 2
+            Map<String, String> doublesTeamsProfileIdToNameMap = new HashMap<>();
+            for (Match match : matches) {
+                String playerAProfileId = match.getPlayerAProfileId();
+                String teamAPlayersNames = getDoublesTeamPlayerNames(profileIdToNameMap, playerAProfileId);
+                doublesTeamsProfileIdToNameMap.put(playerAProfileId, teamAPlayersNames);
+
+                String playerBProfileId = match.getPlayerBProfileId();
+                String teamBPlayersNames = getDoublesTeamPlayerNames(profileIdToNameMap, playerBProfileId);
+                doublesTeamsProfileIdToNameMap.put(playerBProfileId, teamBPlayersNames);
+            }
+            return doublesTeamsProfileIdToNameMap;
+        }
+    }
+
+    /**
+     * Splits doubles team player profiles separated by ; and combines their full names
+     * @param profileIdToNameMap
+     * @param teamPlayerProfileIds
+     * @return
+     */
+    private String getDoublesTeamPlayerNames(Map<String, String> profileIdToNameMap, String teamPlayerProfileIds) {
+        String[] teamProfilesIds = teamPlayerProfileIds.split(";");
+        String teamPlayersNames = null;
+        for (String teamAPlayerProfile : teamProfilesIds) {
+            String playerFullName = profileIdToNameMap.get(teamAPlayerProfile);
+            teamPlayersNames = (teamPlayersNames == null) ? playerFullName : (teamPlayersNames + " / " + playerFullName);
+        }
+        return teamPlayersNames;
+    }
+
+    /**
+     *
+     * @param matchCard
+     * @return
+     */
     public long save(MatchCard matchCard) {
         MatchCard saved = this.matchCardRepository.save(matchCard);
         return saved.getId();

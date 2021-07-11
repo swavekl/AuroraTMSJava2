@@ -19,6 +19,7 @@ import { DateRangePipe } from './pipes/date-range.pipe';
 import { ErrorMessagePopupComponent } from './error-message-dialog/error-message-popup.component';
 import { StarLevelComponent } from './star-level/star-level.component';
 import {MatIconModule} from '@angular/material/icon';
+import {MatListModule} from '@angular/material/list';
 
 
 @NgModule({
@@ -49,15 +50,16 @@ import {MatIconModule} from '@angular/material/icon';
     TypographyComponent,
     StarLevelComponent
   ],
-  imports: [
-    CommonModule,
-    MatProgressBarModule,
-    MatCardModule,
-    MatDialogModule,
-    MatButtonModule,
-    FlexLayoutModule,
-    MatIconModule
-  ],
+    imports: [
+        CommonModule,
+        MatProgressBarModule,
+        MatCardModule,
+        MatDialogModule,
+        MatButtonModule,
+        FlexLayoutModule,
+        MatIconModule,
+        MatListModule
+    ],
   providers: [
     LocalStorageService
   ]

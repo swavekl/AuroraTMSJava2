@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.util.List;
+import java.util.Map;
 
 @Entity
 @Table(name = "matchcard")
@@ -38,4 +39,8 @@ public class MatchCard {
 
     // best of 3, 5, 7 or 9 games per match in the main round (i.e. round robin)
     private int numberOfGames;
+
+    // map of player profile ids to their names
+    @Transient
+    Map<String, String> profileIdToNameMap;
 }

@@ -23,4 +23,7 @@ export class MatchCard {
 
   // best of 3, 5, 7 or 9 games per match in the main round (i.e. round robin)
   numberOfGames: number;
+
+  // map of player profile ids to their names
+  profileIdToNameMap: any;
 }

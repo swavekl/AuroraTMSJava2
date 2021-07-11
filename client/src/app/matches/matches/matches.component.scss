@@ -31,3 +31,23 @@
 mat-list-item:hover {
   background-color: #7A73FF;
 }
+
+table.match-display {
+  border: 1px solid red;
+  tr {
+    margin-bottom: 16px;
+    th {
+      border: 1px solid green;
+      padding: 8px;
+    }
+    td {
+      border: 1px solid purple;
+      padding: 8px;
+    }
+    td.match-number {
+      text-align: center;
+      vertical-align: middle;
+      padding: 8px;
+    }
+  }
+}

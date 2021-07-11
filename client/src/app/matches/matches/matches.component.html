@@ -22,7 +22,7 @@
       </mat-list-item>
     </mat-list>
   </div>
-  <div fxFlex style="border: 0px solid red;">
+  <div fxFlex style="border: 0px solid red; padding: 16px;">
     <div>{{selectedEvent?.name}}
     <ng-container *ngIf="selectedMatchCard?.drawType === 'ROUND_ROBIN'; else elseblock">
       Round: Round Robin  Group: {{selectedMatchCard?.groupNum}}
@@ -31,8 +31,32 @@
       Single Elimination Round Of: {{selectedMatchCard?.groupNum}}
     </ng-template>
     </div>
-    <div *ngFor="let match of selectedMatchCard?.matches">
-      <div>Match: {{ match.matchNum }}</div>
-    </div>
+    <table class="match-display">
+      <thead>
+      <tr>
+        <th>Match</th>
+        <th>Player Name</th>
+        <th [colSpan]="selectedMatchCard?.numberOfGames === 0 ? 5 : selectedMatchCard?.numberOfGames">Games</th>
+      </tr>
+      <tr>
+        <th>#</th>
+        <th>&nbsp;</th>
+        <th *ngFor="let game of games; let idx = index;">{{idx + 1}}</th>
+      </tr>
+      </thead>
+      <tbody>
+      <ng-container *ngFor="let match of selectedMatchCard?.matches">
+        <tr>
+          <td [rowSpan]="2" class="match-number">{{ match.matchNum }}</td>
+          <td>{{selectedMatchCard.profileIdToNameMap[match.playerAProfileId]}}</td>
+          <td *ngFor="let game of games; let idx = index;">11</td>
+        </tr>
+        <tr>
+          <td>{{selectedMatchCard.profileIdToNameMap[match.playerBProfileId]}}</td>
+          <td *ngFor="let game of games; let idx = index;">2</td>
+        </tr>
+      </ng-container>
+      </tbody>
+    </table>
   </div>
 </div>
