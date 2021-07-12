@@ -1,17 +1,25 @@
-import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import {NgModule} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {FormsModule} from '@angular/forms';
 
-import { MatchesRoutingModule } from './matches-routing.module';
-import { MatchesComponent } from './matches/matches.component';
-import { MatchesContainerComponent } from './matches/matches-container.component';
-import { MatchesLandingContainerComponent } from './matches-landing/matches-landing-container.component';
-import { MatchesLandingComponent } from './matches-landing/matches-landing.component';
 import {MatListModule} from '@angular/material/list';
 import {FlexModule} from '@angular/flex-layout';
 import {MatIconModule} from '@angular/material/icon';
 import {MatButtonModule} from '@angular/material/button';
+import {MatDialogModule} from '@angular/material/dialog';
+import {MatCheckboxModule} from '@angular/material/checkbox';
+import {MatInputModule} from '@angular/material/input';
+
 import {EntityDataService, EntityServices} from '@ngrx/data';
+
+import {MatchesRoutingModule} from './matches-routing.module';
+import {MatchesComponent} from './matches/matches.component';
+import {MatchesContainerComponent} from './matches/matches-container.component';
+import {MatchesLandingContainerComponent} from './matches-landing/matches-landing-container.component';
+import {MatchesLandingComponent} from './matches-landing/matches-landing.component';
+import {ScoreEntryDialogComponent} from './score-entry-dialog/score-entry-dialog.component';
 import {MatchCardService} from './service/match-card.service';
+import {MatchService} from './service/match.service';
 
 
 @NgModule({
@@ -19,15 +27,20 @@ import {MatchCardService} from './service/match-card.service';
     MatchesComponent,
     MatchesContainerComponent,
     MatchesLandingContainerComponent,
-    MatchesLandingComponent
+    MatchesLandingComponent,
+    ScoreEntryDialogComponent
   ],
   imports: [
     CommonModule,
+    FormsModule,
     MatchesRoutingModule,
     MatListModule,
     FlexModule,
     MatIconModule,
-    MatButtonModule
+    MatButtonModule,
+    MatDialogModule,
+    MatCheckboxModule,
+    MatInputModule
   ]
 })
 export class MatchesModule {
@@ -35,14 +48,16 @@ export class MatchesModule {
   constructor(
     entityServices: EntityServices,
     entityDataService: EntityDataService,
-    matchCardService: MatchCardService
+    matchCardService: MatchCardService,
+    matchService: MatchService
   ) {
 
     // register service for contacting REST API because it doesn't follow the pattern of standard REST call
     // entityDataService.registerService('DrawItem', drawDataService);
 
     entityServices.registerEntityCollectionServices([
-      matchCardService
+      matchCardService,
+      matchService
     ]);
   }
 }

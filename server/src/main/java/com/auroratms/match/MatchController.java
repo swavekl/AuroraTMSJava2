@@ -52,7 +52,8 @@ public class MatchController {
      * @return
      */
     @PutMapping("/match/{matchId}")
-    public ResponseEntity<Match> updateMatch(@RequestBody Match match) {
+    public ResponseEntity<Match> updateMatch(@RequestBody Match match,
+                                             @PathVariable String matchId) {
         try {
             Match updatedMatch = matchService.updateMatch(match);
             return new ResponseEntity<>(updatedMatch, HttpStatus.OK);

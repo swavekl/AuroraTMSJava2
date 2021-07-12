@@ -128,6 +128,56 @@
           <input matInput type="text" name="numTablesPerGroup" [ngModel]="tournamentEvent?.numTablesPerGroup" required>
         </mat-form-field>
       </div>
+      <div fxLayout.lt-sm="column" fxLayout="row" fxLayoutGap="10px">
+        <mat-form-field fxFlex="20%">
+          <mat-label>Points per Game</mat-label>
+          <input matInput type="text" name="pointsPerGame" [ngModel]="tournamentEvent?.pointsPerGame" required>
+        </mat-form-field>
+        <mat-checkbox fxFlex="40%" name="play3rd4thPlace" [ngModel]="tournamentEvent?.play3rd4thPlace">Play for 3rd & 4th place</mat-checkbox>
+        <mat-checkbox fxFlex="40%" name="advanceUnratedWinner" [ngModel]="tournamentEvent?.advanceUnratedWinner">Advance Unrated Player</mat-checkbox>
+      </div>
+      <div fxLayout.lt-sm="column" fxLayout="row" fxLayoutGap="10px">
+        <mat-form-field fxFlex="20%">
+          <mat-label>Number of Games in First Round</mat-label>
+          <mat-select name="numberOfGames" [ngModel]="tournamentEvent?.numberOfGames">
+            <mat-option *ngFor="let numberOfGamesChoice of numberOfGamesChoices" [value]="numberOfGamesChoice.value">
+              {{ numberOfGamesChoice.label }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field fxFlex="20%">
+          <mat-label>Number of Games in Second Round</mat-label>
+          <mat-select name="numberOfGamesSEPlayoffs" [ngModel]="tournamentEvent?.numberOfGamesSEPlayoffs">
+            <mat-option *ngFor="let numberOfGamesChoice of numberOfGamesChoices" [value]="numberOfGamesChoice.value">
+              {{ numberOfGamesChoice.label }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field fxFlex="20%">
+          <mat-label>Number of Games in Quarter Finals</mat-label>
+          <mat-select name="numberOfGamesSEQuarterFinals" [ngModel]="tournamentEvent?.numberOfGamesSEQuarterFinals">
+            <mat-option *ngFor="let numberOfGamesChoice of numberOfGamesChoices" [value]="numberOfGamesChoice.value">
+              {{ numberOfGamesChoice.label }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field fxFlex="20%">
+          <mat-label>Number of Games in Semi Finals</mat-label>
+          <mat-select name="numberOfGamesSESemiFinals" [ngModel]="tournamentEvent?.numberOfGamesSESemiFinals">
+            <mat-option *ngFor="let numberOfGamesChoice of numberOfGamesChoices" [value]="numberOfGamesChoice.value">
+              {{ numberOfGamesChoice.label }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field fxFlex="20%">
+          <mat-label>Number of Games in Finals</mat-label>
+          <mat-select name="numberOfGamesSEFinals" [ngModel]="tournamentEvent?.numberOfGamesSEFinals">
+            <mat-option *ngFor="let numberOfGamesChoice of numberOfGamesChoices" [value]="numberOfGamesChoice.value">
+              {{ numberOfGamesChoice.label }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
     </mat-card-content>
   </mat-card>
 <!--  <p>ageRestrictionDate errors: {{ f.form.controls['ageRestrictionDate']?.errors | json }} </p>-->

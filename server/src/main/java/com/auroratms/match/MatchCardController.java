@@ -33,9 +33,9 @@ public class MatchCardController {
     public ResponseEntity<List<MatchCard>> listMatchCards(@RequestParam long eventId) {
         try {
             List<MatchCard> matchCards = matchCardService.findAllForEvent(eventId);
-            for (MatchCard matchCard : matchCards) {
-                matchCard.setMatches(null);
-            }
+//            for (MatchCard matchCard : matchCards) {
+//                matchCard.setMatches(null);
+//            }
             return new ResponseEntity<>(matchCards, HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity(e, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -54,10 +54,10 @@ public class MatchCardController {
     public ResponseEntity<MatchCard> getMatchCard(@PathVariable Long matchCardId) {
         try {
             MatchCard matchCard = matchCardService.get(matchCardId);
-            List<Match> matches = matchCard.getMatches();
-            for (Match match : matches) {
-                match.setMatchCard(null);
-            }
+//            List<Match> matches = matchCard.getMatches();
+//            for (Match match : matches) {
+//                match.setMatchCard(null);
+//            }
             return new ResponseEntity<>(matchCard, HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity(e, HttpStatus.INTERNAL_SERVER_ERROR);

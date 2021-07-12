@@ -67,6 +67,13 @@ export class TournamentEventConfigComponent implements OnInit, OnChanges, OnDest
     {value: DrawMethod.BY_RECORD.valueOf(), label: 'By Record'}
   ];
 
+  // choices of number of games in a match
+  numberOfGamesChoices: any [] = [
+    {value: 3, label: 'Best of 3'},
+    {value: 5, label: 'Best of 5'},
+    {value: 7, label: 'Best of 7'}
+  ];
+
   private subscriptions: Subscription = new Subscription();
 
   constructor(private tournamentConfigService: TournamentConfigService) {

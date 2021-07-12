@@ -22,7 +22,7 @@
       </mat-list-item>
     </mat-list>
   </div>
-  <div fxFlex style="border: 0px solid red; padding: 16px;">
+  <div fxFlex style="padding: 16px;" *ngIf="selectedMatchCard != null">
     <div>{{selectedEvent?.name}}
     <ng-container *ngIf="selectedMatchCard?.drawType === 'ROUND_ROBIN'; else elseblock">
       Round: Round Robin  Group: {{selectedMatchCard?.groupNum}}
@@ -35,19 +35,24 @@
       <thead>
       <tr>
         <th>Match</th>
-        <th>Player Name</th>
+        <th>Enter</th>
+        <th class="name-column">Player Name</th>
         <th [colSpan]="selectedMatchCard?.numberOfGames === 0 ? 5 : selectedMatchCard?.numberOfGames">Games</th>
       </tr>
       <tr>
         <th>#</th>
+        <th>Score</th>
         <th>&nbsp;</th>
         <th *ngFor="let game of games; let idx = index;">{{idx + 1}}</th>
       </tr>
       </thead>
       <tbody>
-      <ng-container *ngFor="let match of selectedMatchCard?.matches">
+      <ng-container *ngFor="let match of selectedMatchCard?.matches; let matchIndex = index">
         <tr>
           <td [rowSpan]="2" class="match-number">{{ match.matchNum }}</td>
+          <td [rowSpan]="2" class="match-number">
+            <button mat-raised-button (click)="onMatchScoreEntry(match, matchIndex)">Enter</button>
+          </td>
           <td>{{selectedMatchCard.profileIdToNameMap[match.playerAProfileId]}}</td>
           <td *ngFor="let game of games; let idx = index;">
             <ng-container  [ngSwitch]="idx">

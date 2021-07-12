@@ -1,6 +1,7 @@
 package com.auroratms.match;
 
 import com.auroratms.draw.DrawType;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -32,6 +33,7 @@ public class MatchCard {
 
     // list of matches for this match card
     @OneToMany(mappedBy = "matchCard", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JsonManagedReference
     private List<Match> matches;
 
     // match for draw type

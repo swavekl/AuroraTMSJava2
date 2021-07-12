@@ -1,0 +1,78 @@
+<div mat-dialog-title>Enter Match #: {{match.matchNum}} Score</div>
+<mat-dialog-content>
+    <form name="form" #f="ngForm" novalidate>
+      <table class="match-display">
+        <thead>
+        <tr>
+<!--          <th>Match</th>-->
+          <th class="name-column">Player Name</th>
+          <th>Defaulted</th>
+          <th [colSpan]="numberOfGames">Games</th>
+        </tr>
+        <tr>
+<!--          <th>#</th>-->
+          <th>&nbsp;</th>
+          <th>&nbsp;</th>
+          <th *ngFor="let game of games; let idx = index;">{{idx + 1}}</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+<!--          <td [rowSpan]="2" class="match-number">{{ match.matchNum }}</td>-->
+          <td>{{playerAName}}</td>
+          <td><mat-checkbox name="sideADefaulted" [ngModel]="match.sideADefaulted">&nbsp;</mat-checkbox></td>
+          <td *ngFor="let game of games; let idx = index;">
+            <ng-container  [ngSwitch]="idx">
+              <ng-container *ngSwitchCase="0"><input matInput class="game-score-input" type="number" min="0" max="60" name="game1ScoreSideA" [ngModel]="match.game1ScoreSideA" tabindex="1"></ng-container>
+              <ng-container *ngSwitchCase="1"><input matInput class="game-score-input" type="number" min="0" max="60" name="game2ScoreSideA" [ngModel]="match.game2ScoreSideA" tabindex="3"></ng-container>
+              <ng-container *ngSwitchCase="2"><input matInput class="game-score-input" type="number" min="0" max="60" name="game3ScoreSideA" [ngModel]="match.game3ScoreSideA" tabindex="5"></ng-container>
+              <ng-container *ngSwitchCase="3"><input matInput class="game-score-input" type="number" min="0" max="60" name="game4ScoreSideA" [ngModel]="match.game4ScoreSideA" tabindex="7"></ng-container>
+              <ng-container *ngSwitchCase="4"><input matInput class="game-score-input" type="number" min="0" max="60" name="game5ScoreSideA" [ngModel]="match.game5ScoreSideA" tabindex="9"></ng-container>
+              <ng-container *ngSwitchCase="5"><input matInput class="game-score-input" type="number" min="0" max="60" name="game6ScoreSideA" [ngModel]="match.game6ScoreSideA" tabindex="11"></ng-container>
+              <ng-container *ngSwitchCase="6"><input matInput class="game-score-input" type="number" min="0" max="60" name="game7ScoreSideA" [ngModel]="match.game7ScoreSideA" tabindex="13"></ng-container>
+            </ng-container>
+          </td>
+        </tr>
+        <tr>
+          <td>{{playerBName}}</td>
+          <td><mat-checkbox name="sideBDefaulted" [ngModel]="match.sideBDefaulted">&nbsp;</mat-checkbox></td>
+          <td *ngFor="let game of games; let idx = index;">
+            <ng-container  [ngSwitch]="idx">
+              <ng-container *ngSwitchCase="0"><input matInput class="game-score-input" type="number" min="0" max="60" name="game1ScoreSideB" [ngModel]="match.game1ScoreSideB" tabindex="2"></ng-container>
+              <ng-container *ngSwitchCase="1"><input matInput class="game-score-input" type="number" min="0" max="60" name="game2ScoreSideB" [ngModel]="match.game2ScoreSideB" tabindex="4"></ng-container>
+              <ng-container *ngSwitchCase="2"><input matInput class="game-score-input" type="number" min="0" max="60" name="game3ScoreSideB" [ngModel]="match.game3ScoreSideB" tabindex="6"></ng-container>
+              <ng-container *ngSwitchCase="3"><input matInput class="game-score-input" type="number" min="0" max="60" name="game4ScoreSideB" [ngModel]="match.game4ScoreSideB" tabindex="8"></ng-container>
+              <ng-container *ngSwitchCase="4"><input matInput class="game-score-input" type="number" min="0" max="60" name="game5ScoreSideB" [ngModel]="match.game5ScoreSideB" tabindex="10"></ng-container>
+              <ng-container *ngSwitchCase="5"><input matInput class="game-score-input" type="number" min="0" max="60" name="game6ScoreSideB" [ngModel]="match.game6ScoreSideB" tabindex="12"></ng-container>
+              <ng-container *ngSwitchCase="6"><input matInput class="game-score-input" type="number" min="0" max="60" name="game7ScoreSideB" [ngModel]="match.game7ScoreSideB" tabindex="14"></ng-container>
+            </ng-container>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+      <div fxLayout="column" fxLayoutGap="16px" fxFlexAlign="start stretch" style="padding-top: 16px; padding-bottom: 16px;">
+        <div fxLayout="row" fxLayoutGap="8px">
+          <ng-container *ngFor="let firstRowButton of firstRowButtons">
+            <button mat-raised-button (click)="setGameScore(firstRowButton)">{{firstRowButton}}</button>
+          </ng-container>
+        </div>
+        <div fxLayout="row">
+          <button mat-raised-button (click)="setGameScore(11)" style="min-width: 784px">11</button>
+        </div>
+        <div fxLayout="row" fxLayoutGap="8px">
+          <ng-container *ngFor="let secondRowButton of secondRowButtons">
+            <button mat-raised-button (click)="setGameScore(secondRowButton)">{{secondRowButton}}</button>
+          </ng-container>
+        </div>
+      </div>
+    </form>
+</mat-dialog-content>
+<mat-dialog-actions fxLayout="row">
+    <button mat-raised-button [mat-dialog-close]="false" (click)="onCancel()" [tabindex]="(numberOfGames * 2) + 1">Cancel</button>
+    <span fxFlex></span>
+    <button mat-raised-button (click)="onPrevious(f.value)" [disabled]="disablePreviousButton" [tabindex]="(numberOfGames * 2) + 2">Previous</button>
+    <button mat-raised-button (click)="onNext(f.value)" [disabled]="disableNextButton" [tabindex]="(numberOfGames * 2) + 3">Next</button>
+    <span fxFlex></span>
+    <button mat-raised-button color="primary" (click)="onOk(f.value)" [tabindex]="(numberOfGames * 2) + 4">OK</button>
+</mat-dialog-actions>
+

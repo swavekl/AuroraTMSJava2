@@ -94,7 +94,18 @@ export class TournamentEvent {
   static toTournamentEvent(formValues: any): TournamentEvent {
     const tournamentEvent = new TournamentEvent();
     Object.assign(tournamentEvent, formValues);
-    return tournamentEvent;
+    const eventWithDefaults = {
+      ...tournamentEvent,
+      numberOfGames: tournamentEvent.numberOfGames || 5,
+      numberOfGamesSEPlayoffs: tournamentEvent.numberOfGamesSEPlayoffs || 5,
+      numberOfGamesSEQuarterFinals: tournamentEvent.numberOfGamesSEQuarterFinals || 5,
+      numberOfGamesSESemiFinals: tournamentEvent.numberOfGamesSESemiFinals || 5,
+      numberOfGamesSEFinals: tournamentEvent.numberOfGamesSEFinals || 5,
+      advanceUnratedWinner: tournamentEvent.advanceUnratedWinner || false,
+      pointsPerGame: tournamentEvent.pointsPerGame || 11,
+      play3rd4thPlace: tournamentEvent.play3rd4thPlace || false
+    };
+    return eventWithDefaults;
   }
 
   static fromDefaults(tournamentId: number, selectedEvent: any): TournamentEvent {

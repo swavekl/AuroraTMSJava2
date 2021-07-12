@@ -1,12 +1,13 @@
-import {Component, OnInit} from '@angular/core';
-import {TournamentConfigService} from '../../tournament/tournament-config/tournament-config.service';
-import {LinearProgressBarService} from '../../shared/linear-progress-bar/linear-progress-bar.service';
+import {Component, OnDestroy, OnInit} from '@angular/core';
+import {Router} from '@angular/router';
 import {Observable, Subscription} from 'rxjs';
 import {map} from 'rxjs/operators';
+
+import {TournamentConfigService} from '../../tournament/tournament-config/tournament-config.service';
+import {LinearProgressBarService} from '../../shared/linear-progress-bar/linear-progress-bar.service';
 import {Tournament} from '../../tournament/tournament-config/tournament.model';
 import {AuthenticationService} from '../../user/authentication.service';
 import {DateUtils} from '../../shared/date-utils';
-import {Router} from '@angular/router';
 
 @Component({
   selector: 'app-matches-landing-container',
@@ -17,7 +18,7 @@ import {Router} from '@angular/router';
   styles: [
   ]
 })
-export class MatchesLandingContainerComponent implements OnInit {
+export class MatchesLandingContainerComponent implements OnInit, OnDestroy {
 
   private loading$: Observable<boolean>;
 
@@ -35,6 +36,10 @@ export class MatchesLandingContainerComponent implements OnInit {
 
   ngOnInit(): void {
     this.tournamentConfigService.getAll();
+  }
+
+  ngOnDestroy() {
+    this.subscriptions.unsubscribe();
   }
 
   /**

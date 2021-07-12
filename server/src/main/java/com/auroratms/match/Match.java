@@ -1,5 +1,6 @@
 package com.auroratms.match;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
@@ -23,6 +24,7 @@ public class Match {
     // match card grouping matches together
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "match_card_fk", nullable = false)
+    @JsonBackReference
     private MatchCard matchCard;
 
     // match number within a round so that matches are ordered properly on the match card
@@ -83,4 +85,34 @@ public class Match {
     private byte game7ScoreSideA;
     @Column(nullable = true)
     private byte game7ScoreSideB;
+
+    @Override
+    public String toString() {
+        return "Match{" +
+                "id=" + id +
+                ", matchNum=" + matchNum +
+                ", round=" + round +
+                ", playerAProfileId='" + playerAProfileId + '\'' +
+                ", playerBProfileId='" + playerBProfileId + '\'' +
+                ", sideADefaulted=" + sideADefaulted +
+                ", sideBDefaulted=" + sideBDefaulted +
+                ", sideATimeoutTaken=" + sideATimeoutTaken +
+                ", sideBTimeoutTaken=" + sideBTimeoutTaken +
+                ", sideAServesFirst=" + sideAServesFirst +
+                ", game1ScoreSideA=" + game1ScoreSideA +
+                ", game1ScoreSideB=" + game1ScoreSideB +
+                ", game2ScoreSideA=" + game2ScoreSideA +
+                ", game2ScoreSideB=" + game2ScoreSideB +
+                ", game3ScoreSideA=" + game3ScoreSideA +
+                ", game3ScoreSideB=" + game3ScoreSideB +
+                ", game4ScoreSideA=" + game4ScoreSideA +
+                ", game4ScoreSideB=" + game4ScoreSideB +
+                ", game5ScoreSideA=" + game5ScoreSideA +
+                ", game5ScoreSideB=" + game5ScoreSideB +
+                ", game6ScoreSideA=" + game6ScoreSideA +
+                ", game6ScoreSideB=" + game6ScoreSideB +
+                ", game7ScoreSideA=" + game7ScoreSideA +
+                ", game7ScoreSideB=" + game7ScoreSideB +
+                '}';
+    }
 }

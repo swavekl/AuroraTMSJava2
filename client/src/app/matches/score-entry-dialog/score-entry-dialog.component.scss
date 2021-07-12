@@ -1,0 +1,41 @@
+@import "~src/my-theme.scss";
+
+table.match-display {
+  border: 1px solid red;
+  tr {
+    margin-bottom: 16px;
+    th {
+      border: 1px solid green;
+      padding: 8px;
+      &.name-column {
+        min-width: 250px;
+      }
+    }
+    td {
+      border: 1px solid purple;
+      padding: 8px;
+
+    }
+    td.match-number {
+      text-align: center;
+      vertical-align: middle;
+      padding: 8px;
+    }
+  }
+}
+
+input.game-score-input {
+  max-width: 30px;
+}
+
+/* Chrome, Safari, Edge, Opera */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+input[type=number] {
+  -moz-appearance: textfield;
+}

@@ -39,6 +39,9 @@ table.match-display {
     th {
       border: 1px solid green;
       padding: 8px;
+      &.name-column {
+        min-width: 250px;
+      }
     }
     td {
       border: 1px solid purple;
