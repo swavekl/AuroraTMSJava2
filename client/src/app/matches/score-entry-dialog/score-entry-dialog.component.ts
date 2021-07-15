@@ -1,4 +1,5 @@
-import {ChangeDetectorRef, Component, EventEmitter, Inject, OnInit, Output} from '@angular/core';
+import {ChangeDetectorRef, Component, ElementRef, Inject, OnInit, QueryList, ViewChildren} from '@angular/core';
+import {MatInput} from '@angular/material/input';
 import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
 import {Match} from '../model/match.model';
 import {ScoreEntryDialogData, ScoreEntryDialogResult} from './score-entry-dialog-data';
@@ -41,6 +42,13 @@ export class ScoreEntryDialogComponent implements OnInit {
   disablePreviousButton: boolean;
   disableNextButton: boolean;
 
+  // name of the input element which currently has focus
+  private currentScoreInputName: string;
+
+  // all score input elements - used to set focus
+  @ViewChildren(MatInput, {read: ElementRef})
+  inputFieldsElementRefs: QueryList<ElementRef>;
+
   constructor(public dialogRef: MatDialogRef<ScoreEntryDialogComponent>,
               private cdr: ChangeDetectorRef,
               @Inject(MAT_DIALOG_DATA) public data: ScoreEntryDialogData) {
@@ -55,6 +63,7 @@ export class ScoreEntryDialogComponent implements OnInit {
     for (let i = 0; i < this.secondRowButtons.length; i++) {
       this.secondRowButtons[i] = 12 + i;
     }
+    this.currentScoreInputName = null;
   }
 
   private initialize(data: ScoreEntryDialogData) {
@@ -67,12 +76,13 @@ export class ScoreEntryDialogComponent implements OnInit {
     this.callbackFnScope = data.callbackFnScope;
     this.disablePreviousButton = (data.editedMatchIndex === 0);
     this.disableNextButton = !(data.editedMatchIndex < (data.numberOfMatchesInCard - 1));
+    this.currentScoreInputName = 'game1ScoreSideA';
   }
 
   ngOnInit(): void {
   }
 
-  onCancel() {
+  onClose() {
     const retValue = {
       match: this.match,
       action: 'cancel'
@@ -80,7 +90,7 @@ export class ScoreEntryDialogComponent implements OnInit {
     this.dialogRef.close(retValue);
   }
 
-  onOk(formValues: any) {
+  onSave(formValues: any) {
     const updatedMatch = {
       ...this.match,
       ...formValues
@@ -116,16 +126,62 @@ export class ScoreEntryDialogComponent implements OnInit {
     this.callbackFn(this.callbackFnScope, retValue);
   }
 
-  setGameScore(gameScore: number) {
-    // get currently focused game score and set number
-    console.log('score' + gameScore);
-  }
-
   displayMatch(data: ScoreEntryDialogData) {
-    console.log('in DisplayData', data);
     this.initialize(data);
+    this.setFocusToScoreInputField(this.currentScoreInputName, false);
     // refresh dialog with new data
     this.cdr.markForCheck();
+  }
+
+  /**
+   * Sets game score from the button press into currently focused score input field
+   * Advances focus to next field in tab order
+   * @param gameScore score to set
+   */
+  setGameScore(gameScore: number) {
+    // get currently focused game score and set number
+    if (this.currentScoreInputName != null) {
+      // set the score and let the dialog update itself
+      const focusedName = this.currentScoreInputName;
+      const updatedMatch = {...this.match};
+      updatedMatch[focusedName] = gameScore;
+      this.match = updatedMatch;
+
+      this.setFocusToScoreInputField(focusedName, true);
+    }
+  }
+
+  private setFocusToScoreInputField(focusedName: string, advanceToNext: boolean) {
+    // find tab index of currently focused field (before user clicked on the score button)
+    let nextInputTabIndex = -1;
+    this.inputFieldsElementRefs.forEach((elementRef: ElementRef) => {
+      if (focusedName === elementRef.nativeElement.name) {
+        const thisTabIndex: number = Number(elementRef.nativeElement.getAttribute('tabindex'));
+        // set focus to the next edit field
+        if (advanceToNext) {
+          nextInputTabIndex = thisTabIndex + 1;
+        } else {
+          // reset focus to this input field - this is used when we advance to previous or next match
+          elementRef.nativeElement.focus();
+        }
+      }
+    });
+    if (nextInputTabIndex !== -1) {
+      this.inputFieldsElementRefs.forEach((elementRef: ElementRef) => {
+        const thisTabIndex: number = Number(elementRef.nativeElement.getAttribute('tabindex'));
+        if (thisTabIndex === nextInputTabIndex) {
+          elementRef.nativeElement.focus();
+        }
+      });
+    }
+  }
+
+  /**
+   * Remember the input element which gained focus
+   * @param $event focus event
+   */
+  onFocus($event: FocusEvent) {
+    this.currentScoreInputName = (<HTMLInputElement>$event.target).name;
   }
 }
 
