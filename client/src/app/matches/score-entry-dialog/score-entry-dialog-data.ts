@@ -21,6 +21,9 @@ export interface ScoreEntryDialogData {
   // zero based match index
   editedMatchIndex: number;
 
+  // number of points per game to win 11 or 21
+  pointsPerGame: number;
+
   callbackFn: (scope: any, result: ScoreEntryDialogResult) => void;
   callbackFnScope: any;
 }

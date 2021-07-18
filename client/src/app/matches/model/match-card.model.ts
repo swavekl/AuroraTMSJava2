@@ -24,6 +24,29 @@ export class MatchCard {
   // best of 3, 5, 7 or 9 games per match in the main round (i.e. round robin)
   numberOfGames: number;
 
+  // for round robin phase 0,
+  // for single elimination - 64, 32, 16, 8 (quarter finals), 4 (semifinals), 2 (finals and 3rd/4th place)
+  round: number;
+
   // map of player profile ids to their names
   profileIdToNameMap: any;
+
+  public static getRoundShortName(round: number): string {
+    let strRound = '';
+    switch (round) {
+      case 2:
+        strRound = 'Final';
+        break;
+      case 4:
+        strRound = 'Semi-Final';
+        break;
+      case 8:
+        strRound = 'Quarter-Final';
+        break;
+      default:
+        strRound = `Round of ${round}`;
+        break;
+    }
+    return strRound;
+  }
 }

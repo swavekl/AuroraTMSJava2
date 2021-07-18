@@ -390,8 +390,8 @@ public class MatchGeneratorTest {
     private void checkResults(String[] expectedMatchOrder, List<MatchOpponents> matchOrder) {
         int index = 0;
         for (MatchOpponents matchOpponents : matchOrder) {
-            String leftSide = (matchOpponents.playerA != MatchOrderGenerator.BYE) ? ("" + matchOpponents.playerA) : "bye";
-            String rightSide = (matchOpponents.playerB != MatchOrderGenerator.BYE) ? ("" + matchOpponents.playerB) : "bye";
+            String leftSide = (matchOpponents.playerALetter != MatchOrderGenerator.BYE) ? ("" + matchOpponents.playerALetter) : "bye";
+            String rightSide = (matchOpponents.playerBLetter != MatchOrderGenerator.BYE) ? ("" + matchOpponents.playerBLetter) : "bye";
             String actualMatch = leftSide + " - " + rightSide;
             String expectedMatch = expectedMatchOrder[index];
             index++;

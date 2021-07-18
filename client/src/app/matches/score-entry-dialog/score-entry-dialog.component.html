@@ -5,12 +5,14 @@
         <thead>
         <tr>
 <!--          <th>Match</th>-->
+          <th>&nbsp;</th>
           <th class="name-column">Player Name</th>
-          <th>Defaulted</th>
+          <th>Default</th>
           <th [colSpan]="numberOfGames">Games</th>
         </tr>
         <tr>
 <!--          <th>#</th>-->
+          <th>&nbsp;</th>
           <th>&nbsp;</th>
           <th>&nbsp;</th>
           <th *ngFor="let game of games; let idx = index;">{{idx + 1}}</th>
@@ -19,32 +21,34 @@
         <tbody>
         <tr>
 <!--          <td [rowSpan]="2" class="match-number">{{ match.matchNum }}</td>-->
-          <td>{{playerAName}}</td>
-          <td><mat-checkbox name="sideADefaulted" [ngModel]="match.sideADefaulted">&nbsp;</mat-checkbox></td>
+          <td>{{match.playerALetter}}</td>
+          <td [ngClass]="isMatchWinner(match.playerAProfileId) ? 'match-winner' : 'not-match-winner'">{{playerAName}}</td>
+          <td><mat-checkbox name="sideADefaulted" [(ngModel)]="match.sideADefaulted" (change)="onDefaultValueChange($event)">&nbsp;</mat-checkbox></td>
           <td *ngFor="let game of games; let idx = index;">
             <ng-container  [ngSwitch]="idx">
-              <ng-container *ngSwitchCase="0"><input (focusin)="onFocus($event)" matInput class="game-score-input" type="number" min="0" max="60" name="game1ScoreSideA" [ngModel]="match.game1ScoreSideA" tabindex="1" cdkFocusInitial></ng-container>
-              <ng-container *ngSwitchCase="1"><input (focusin)="onFocus($event)" matInput class="game-score-input" type="number" min="0" max="60" name="game2ScoreSideA" [ngModel]="match.game2ScoreSideA" tabindex="3"></ng-container>
-              <ng-container *ngSwitchCase="2"><input (focusin)="onFocus($event)" matInput class="game-score-input" type="number" min="0" max="60" name="game3ScoreSideA" [ngModel]="match.game3ScoreSideA" tabindex="5"></ng-container>
-              <ng-container *ngSwitchCase="3"><input (focusin)="onFocus($event)" matInput class="game-score-input" type="number" min="0" max="60" name="game4ScoreSideA" [ngModel]="match.game4ScoreSideA" tabindex="7"></ng-container>
-              <ng-container *ngSwitchCase="4"><input (focusin)="onFocus($event)" matInput class="game-score-input" type="number" min="0" max="60" name="game5ScoreSideA" [ngModel]="match.game5ScoreSideA" tabindex="9"></ng-container>
-              <ng-container *ngSwitchCase="5"><input (focusin)="onFocus($event)" matInput class="game-score-input" type="number" min="0" max="60" name="game6ScoreSideA" [ngModel]="match.game6ScoreSideA" tabindex="11"></ng-container>
-              <ng-container *ngSwitchCase="6"><input (focusin)="onFocus($event)" matInput class="game-score-input" type="number" min="0" max="60" name="game7ScoreSideA" [ngModel]="match.game7ScoreSideA" tabindex="13"></ng-container>
+              <ng-container *ngSwitchCase="0"><input (focusin)="onFocus($event)" (change)="onScoreValueChange($event)" matInput class="game-score-input" type="number" min="0" max="60" name="game1ScoreSideA" [(ngModel)]="match.game1ScoreSideA" tabindex="1" cdkFocusInitial></ng-container>
+              <ng-container *ngSwitchCase="1"><input (focusin)="onFocus($event)" (change)="onScoreValueChange($event)" matInput class="game-score-input" type="number" min="0" max="60" name="game2ScoreSideA" [(ngModel)]="match.game2ScoreSideA" tabindex="3"></ng-container>
+              <ng-container *ngSwitchCase="2"><input (focusin)="onFocus($event)" (change)="onScoreValueChange($event)" matInput class="game-score-input" type="number" min="0" max="60" name="game3ScoreSideA" [(ngModel)]="match.game3ScoreSideA" tabindex="5"></ng-container>
+              <ng-container *ngSwitchCase="3"><input (focusin)="onFocus($event)" (change)="onScoreValueChange($event)" matInput class="game-score-input" type="number" min="0" max="60" name="game4ScoreSideA" [(ngModel)]="match.game4ScoreSideA" tabindex="7"></ng-container>
+              <ng-container *ngSwitchCase="4"><input (focusin)="onFocus($event)" (change)="onScoreValueChange($event)" matInput class="game-score-input" type="number" min="0" max="60" name="game5ScoreSideA" [(ngModel)]="match.game5ScoreSideA" tabindex="9"></ng-container>
+              <ng-container *ngSwitchCase="5"><input (focusin)="onFocus($event)" (change)="onScoreValueChange($event)" matInput class="game-score-input" type="number" min="0" max="60" name="game6ScoreSideA" [(ngModel)]="match.game6ScoreSideA" tabindex="11"></ng-container>
+              <ng-container *ngSwitchCase="6"><input (focusin)="onFocus($event)" (change)="onScoreValueChange($event)" matInput class="game-score-input" type="number" min="0" max="60" name="game7ScoreSideA" [(ngModel)]="match.game7ScoreSideA" tabindex="13"></ng-container>
             </ng-container>
           </td>
         </tr>
         <tr>
-          <td>{{playerBName}}</td>
-          <td><mat-checkbox name="sideBDefaulted" [ngModel]="match.sideBDefaulted">&nbsp;</mat-checkbox></td>
+          <td>{{match.playerBLetter}}</td>
+          <td [ngClass]="isMatchWinner(match.playerBProfileId) ? 'match-winner' : 'not-match-winner'">{{playerBName}}</td>
+          <td><mat-checkbox name="sideBDefaulted" [(ngModel)]="match.sideBDefaulted" (change)="onDefaultValueChange($event)">&nbsp;</mat-checkbox></td>
           <td *ngFor="let game of games; let idx = index;">
             <ng-container  [ngSwitch]="idx">
-              <ng-container *ngSwitchCase="0"><input (focusin)="onFocus($event)" matInput class="game-score-input" type="number" min="0" max="60" name="game1ScoreSideB" [ngModel]="match.game1ScoreSideB" tabindex="2"></ng-container>
-              <ng-container *ngSwitchCase="1"><input (focusin)="onFocus($event)" matInput class="game-score-input" type="number" min="0" max="60" name="game2ScoreSideB" [ngModel]="match.game2ScoreSideB" tabindex="4"></ng-container>
-              <ng-container *ngSwitchCase="2"><input (focusin)="onFocus($event)" matInput class="game-score-input" type="number" min="0" max="60" name="game3ScoreSideB" [ngModel]="match.game3ScoreSideB" tabindex="6"></ng-container>
-              <ng-container *ngSwitchCase="3"><input (focusin)="onFocus($event)" matInput class="game-score-input" type="number" min="0" max="60" name="game4ScoreSideB" [ngModel]="match.game4ScoreSideB" tabindex="8"></ng-container>
-              <ng-container *ngSwitchCase="4"><input (focusin)="onFocus($event)" matInput class="game-score-input" type="number" min="0" max="60" name="game5ScoreSideB" [ngModel]="match.game5ScoreSideB" tabindex="10"></ng-container>
-              <ng-container *ngSwitchCase="5"><input (focusin)="onFocus($event)" matInput class="game-score-input" type="number" min="0" max="60" name="game6ScoreSideB" [ngModel]="match.game6ScoreSideB" tabindex="12"></ng-container>
-              <ng-container *ngSwitchCase="6"><input (focusin)="onFocus($event)" matInput class="game-score-input" type="number" min="0" max="60" name="game7ScoreSideB" [ngModel]="match.game7ScoreSideB" tabindex="14"></ng-container>
+              <ng-container *ngSwitchCase="0"><input (focusin)="onFocus($event)" (change)="onScoreValueChange($event)" matInput class="game-score-input" type="number" min="0" max="60" name="game1ScoreSideB" [(ngModel)]="match.game1ScoreSideB" tabindex="2"></ng-container>
+              <ng-container *ngSwitchCase="1"><input (focusin)="onFocus($event)" (change)="onScoreValueChange($event)" matInput class="game-score-input" type="number" min="0" max="60" name="game2ScoreSideB" [(ngModel)]="match.game2ScoreSideB" tabindex="4"></ng-container>
+              <ng-container *ngSwitchCase="2"><input (focusin)="onFocus($event)" (change)="onScoreValueChange($event)" matInput class="game-score-input" type="number" min="0" max="60" name="game3ScoreSideB" [(ngModel)]="match.game3ScoreSideB" tabindex="6"></ng-container>
+              <ng-container *ngSwitchCase="3"><input (focusin)="onFocus($event)" (change)="onScoreValueChange($event)" matInput class="game-score-input" type="number" min="0" max="60" name="game4ScoreSideB" [(ngModel)]="match.game4ScoreSideB" tabindex="8"></ng-container>
+              <ng-container *ngSwitchCase="4"><input (focusin)="onFocus($event)" (change)="onScoreValueChange($event)" matInput class="game-score-input" type="number" min="0" max="60" name="game5ScoreSideB" [(ngModel)]="match.game5ScoreSideB" tabindex="10"></ng-container>
+              <ng-container *ngSwitchCase="5"><input (focusin)="onFocus($event)" (change)="onScoreValueChange($event)" matInput class="game-score-input" type="number" min="0" max="60" name="game6ScoreSideB" [(ngModel)]="match.game6ScoreSideB" tabindex="12"></ng-container>
+              <ng-container *ngSwitchCase="6"><input (focusin)="onFocus($event)" (change)="onScoreValueChange($event)" matInput class="game-score-input" type="number" min="0" max="60" name="game7ScoreSideB" [(ngModel)]="match.game7ScoreSideB" tabindex="14"></ng-container>
             </ng-container>
           </td>
         </tr>

@@ -8,10 +8,6 @@ export class Match {
   // match number within a round so that matches are ordered properly on the match card
   matchNum: number;
 
-  // for round robin phase 0,
-  // for single elimination - 64, 32, 16, 8 (quarter finals), 4 (semifinals), 2 (finals and 3rd/4th place)
-  round: number;
-
   // profile id of two players for singles matches
   // for doubles matches profile ids of team members are separated by ; like this
   // playerAProfileId;playerAPartnerProfileId and playerBProfileId;playerBPartnerProfileId
@@ -44,4 +40,72 @@ export class Match {
   game6ScoreSideB: number;
   game7ScoreSideA: number;
   game7ScoreSideB: number;
+
+  // left (A) side and right (B) side letter code for player in a group e.g. A, B, C, D etc.
+  playerALetter: string;
+  playerBLetter: string;
+
+  /**
+   *
+   * @param profileId
+   * @param match
+   * @param numberOfGames
+   * @param pointsPerGame
+   */
+  public static isMatchWinner(profileId: string,
+                              match: Match,
+                              numberOfGames: number,
+                              pointsPerGame: number): boolean {
+    let numGamesWonByA = 0;
+    let numGamesWonByB = 0;
+    for (let i = 0; i < numberOfGames; i++) {
+      let playerAGameScore = 0;
+      let playerBGameScore = 0;
+      switch (i) {
+        case 0:
+          playerAGameScore = match.game1ScoreSideA;
+          playerBGameScore = match.game1ScoreSideB;
+          break;
+        case 1:
+          playerAGameScore = match.game2ScoreSideA;
+          playerBGameScore = match.game2ScoreSideB;
+          break;
+        case 2:
+          playerAGameScore = match.game3ScoreSideA;
+          playerBGameScore = match.game3ScoreSideB;
+          break;
+        case 3:
+          playerAGameScore = match.game4ScoreSideA;
+          playerBGameScore = match.game4ScoreSideB;
+          break;
+        case 4:
+          playerAGameScore = match.game5ScoreSideA;
+          playerBGameScore = match.game5ScoreSideB;
+          break;
+        case 5:
+          playerAGameScore = match.game6ScoreSideA;
+          playerBGameScore = match.game6ScoreSideB;
+          break;
+        case 6:
+          playerAGameScore = match.game7ScoreSideA;
+          playerBGameScore = match.game7ScoreSideB;
+          break;
+      }
+
+      if (playerAGameScore >= pointsPerGame && playerBGameScore < playerAGameScore) {
+        numGamesWonByA++;
+      } else if (playerBGameScore >= pointsPerGame && playerAGameScore < playerBGameScore) {
+        numGamesWonByB++;
+      }
+    }
+    // console.log('A defaulted', this.sideADefaulted);
+    // console.log('B defaulted', this.sideBDefaulted);
+    // in best of 3 need to win 2 gaems, best of 5 need to win 3, best of 7 need to win 4
+    const minimumNumberOfGamesToWin = (numberOfGames === 3) ? 2 : ((numberOfGames === 5) ? 3 : 4);
+    if (profileId === match.playerAProfileId) {
+      return (numGamesWonByA === minimumNumberOfGamesToWin) || (match.sideBDefaulted && !match.sideADefaulted);
+    } else {
+      return (numGamesWonByB === minimumNumberOfGamesToWin) || (match.sideADefaulted && !match.sideBDefaulted);
+    }
+  }
 }

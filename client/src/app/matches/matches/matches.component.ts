@@ -1,14 +1,14 @@
 import {Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChange, SimpleChanges} from '@angular/core';
+import {MatDialogRef} from '@angular/material/dialog/dialog-ref';
+import {MatDialog} from '@angular/material/dialog';
+import {Subscription} from 'rxjs';
+import {first, switchMap} from 'rxjs/operators';
 import {TournamentEvent} from '../../tournament/tournament-config/tournament-event.model';
 import {MatchCard} from '../model/match-card.model';
 import {Match} from '../model/match.model';
 import {ScoreEntryDialogComponent} from '../score-entry-dialog/score-entry-dialog.component';
-import {MatDialog} from '@angular/material/dialog';
-import {Subscription} from 'rxjs';
 import {ScoreEntryDialogData, ScoreEntryDialogResult} from '../score-entry-dialog/score-entry-dialog-data';
 import {MatchService} from '../service/match.service';
-import {first, switchMap} from 'rxjs/operators';
-import {MatDialogRef} from '@angular/material/dialog/dialog-ref';
 
 @Component({
   selector: 'app-matches',
@@ -168,6 +168,15 @@ export class MatchesComponent implements OnInit, OnChanges, OnDestroy {
       editedMatchIndex: nextMatchIndex,
       callbackFn: this.onPreviousNextCallback,
       callbackFnScope: this,
+      pointsPerGame: this.selectedEvent.pointsPerGame
     };
+  }
+
+  public isMatchWinner(profileId: string, match: Match): boolean {
+    return Match.isMatchWinner(profileId, match, this.selectedMatchCard?.numberOfGames, this.selectedEvent?.pointsPerGame);
+  }
+
+  public getRoundShortName(round: number): string {
+    return MatchCard.getRoundShortName(round);
   }
 }

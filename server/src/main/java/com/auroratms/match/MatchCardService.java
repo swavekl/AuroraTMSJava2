@@ -8,7 +8,6 @@ import com.auroratms.event.TournamentEventEntity;
 import com.auroratms.event.TournamentEventEntityService;
 import com.auroratms.profile.UserProfileExt;
 import com.auroratms.profile.UserProfileExtService;
-import com.auroratms.profile.UserProfileService;
 import com.auroratms.usatt.UsattDataService;
 import com.auroratms.usatt.UsattPlayerRecord;
 import org.apache.commons.lang3.StringUtils;
@@ -105,23 +104,25 @@ public class MatchCardService {
                 matchCard.setEventFk(tournamentEventEntity.getId());
                 matchCard.setGroupNum(groupNumber);
                 matchCard.setDrawType(DrawType.ROUND_ROBIN);
+                matchCard.setRound(0);
                 matchCard.setNumberOfGames(tournamentEventEntity.getNumberOfGames());
                 List<Match> matches = new ArrayList<>();
 
                 int matchNumber = 0;
                 for (MatchOpponents matchOpponents : matchesInOrder) {
-                    if (matchOpponents.playerA != MatchOrderGenerator.BYE &&
-                            matchOpponents.playerB != MatchOrderGenerator.BYE) {
-                        String playerAProfileId = mapPlayerCodeToProfileId.get(matchOpponents.playerA);
-                        String playerBProfileId = mapPlayerCodeToProfileId.get(matchOpponents.playerB);
+                    if (matchOpponents.playerALetter != MatchOrderGenerator.BYE &&
+                            matchOpponents.playerBLetter != MatchOrderGenerator.BYE) {
+                        String playerAProfileId = mapPlayerCodeToProfileId.get(matchOpponents.playerALetter);
+                        String playerBProfileId = mapPlayerCodeToProfileId.get(matchOpponents.playerBLetter);
                         Match match = new Match();
                         match.setMatchCard(matchCard);
                         match.setMatchNum(++matchNumber);
-                        match.setRound(0);
                         match.setPlayerAProfileId(playerAProfileId);
                         match.setPlayerBProfileId(playerBProfileId);
                         match.setSideADefaulted(false);
                         match.setSideBDefaulted(false);
+                        match.setPlayerALetter(matchOpponents.playerALetter);
+                        match.setPlayerBLetter(matchOpponents.playerBLetter);
                         matches.add(match);
                     }
                 }
@@ -155,19 +156,21 @@ public class MatchCardService {
                 // create match card with one match
                 MatchCard matchCard = new MatchCard();
                 matchCard.setEventFk(tournamentEventEntity.getId());
-                matchCard.setGroupNum(0);
+                matchCard.setGroupNum(matchNum + 1);
                 matchCard.setNumberOfGames(numberOfGames);
                 matchCard.setDrawType(DrawType.SINGLE_ELIMINATION);
+                matchCard.setRound(roundOf);
 
                 List<Match> matches = new ArrayList<>();
                 Match match = new Match();
                 match.setMatchCard(matchCard);
-                match.setMatchNum(matchNum);
-                match.setRound(roundOf);
+                match.setMatchNum(matchNum + 1);
                 match.setPlayerAProfileId(playerAProfileId);
                 match.setPlayerBProfileId(playerBProfileId);
                 match.setSideADefaulted(false);
                 match.setSideBDefaulted(false);
+                match.setPlayerALetter('A');
+                match.setPlayerBLetter('B');
 
                 matches.add(match);
                 matchCard.setMatches(matches);
@@ -339,7 +342,7 @@ public class MatchCardService {
     }
 
     public List<MatchCard> findAllForEvent(long eventId) {
-        return this.matchCardRepository.findMatchCardByEventFkOrderByGroupNum(eventId);
+        return this.matchCardRepository.findMatchCardByEventFkOrderByDrawTypeDescGroupNumAsc(eventId);
     }
 
     public List<MatchCard> findAllForEventAndDrawType(long evenId, DrawType drawType) {

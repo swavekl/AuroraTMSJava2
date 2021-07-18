@@ -39,3 +39,11 @@ input::-webkit-inner-spin-button {
 input[type=number] {
   -moz-appearance: textfield;
 }
+
+td.match-winner {
+  background-color: greenyellow;
+}
+
+td.not-match-winner {
+  background-color: white;
+}

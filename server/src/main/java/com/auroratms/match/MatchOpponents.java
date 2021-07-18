@@ -5,6 +5,7 @@ package com.auroratms.match;
  */
 public class MatchOpponents {
 
-    char playerA;
-    char playerB;
+    // A, B, C, D letter codes for players in the left vs right match
+    char playerALetter;
+    char playerBLetter;
 }

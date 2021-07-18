@@ -3,6 +3,7 @@ import {MatInput} from '@angular/material/input';
 import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
 import {Match} from '../model/match.model';
 import {ScoreEntryDialogData, ScoreEntryDialogResult} from './score-entry-dialog-data';
+import {MatCheckboxChange} from '@angular/material/checkbox';
 
 /**
  * Dialog for entering match score
@@ -16,6 +17,9 @@ export class ScoreEntryDialogComponent implements OnInit {
 
   // number of games in this match
   numberOfGames: number;
+
+  // 11 or 21
+  pointsPerGame: number;
 
   // match data
   match: Match;
@@ -69,13 +73,14 @@ export class ScoreEntryDialogComponent implements OnInit {
   private initialize(data: ScoreEntryDialogData) {
     this.numberOfGames = data.numberOfGames;
     this.games = Array(this.numberOfGames);
-    this.match = data.match;
+    this.match = this.deepCloneMatch(data.match);
     this.playerAName = data.playerAName;
     this.playerBName = data.playerBName;
     this.callbackFn = data.callbackFn;
     this.callbackFnScope = data.callbackFnScope;
     this.disablePreviousButton = (data.editedMatchIndex === 0);
     this.disableNextButton = !(data.editedMatchIndex < (data.numberOfMatchesInCard - 1));
+    this.pointsPerGame = data.pointsPerGame ?? 11;
     this.currentScoreInputName = 'game1ScoreSideA';
   }
 
@@ -129,8 +134,6 @@ export class ScoreEntryDialogComponent implements OnInit {
   displayMatch(data: ScoreEntryDialogData) {
     this.initialize(data);
     this.setFocusToScoreInputField(this.currentScoreInputName, false);
-    // refresh dialog with new data
-    this.cdr.markForCheck();
   }
 
   /**
@@ -143,7 +146,7 @@ export class ScoreEntryDialogComponent implements OnInit {
     if (this.currentScoreInputName != null) {
       // set the score and let the dialog update itself
       const focusedName = this.currentScoreInputName;
-      const updatedMatch = {...this.match};
+      const updatedMatch = this.deepCloneMatch(this.match);
       updatedMatch[focusedName] = gameScore;
       this.match = updatedMatch;
 
@@ -182,6 +185,22 @@ export class ScoreEntryDialogComponent implements OnInit {
    */
   onFocus($event: FocusEvent) {
     this.currentScoreInputName = (<HTMLInputElement>$event.target).name;
+  }
+
+  onScoreValueChange($event: Event) {
+    console.log('onValueChange', $event);
+  }
+
+  onDefaultValueChange($event: MatCheckboxChange) {
+    console.log('onDefaultValueChange', $event);
+  }
+
+  isMatchWinner(profileId: string): boolean {
+    return (this.match) ? Match.isMatchWinner(profileId, this.match, this.numberOfGames, this.pointsPerGame) : false;
+  }
+
+  private deepCloneMatch (match: Match): Match {
+    return JSON.parse(JSON.stringify(match));
   }
 }
 

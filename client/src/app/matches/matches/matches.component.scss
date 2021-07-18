@@ -14,7 +14,7 @@
 }
 
 .match-card-list {
-  width: 220px;
+  width: 240px;
   height: calc(100vh - 100px);
   overflow-y: auto;
   //border: 1px solid magenta;
@@ -46,11 +46,24 @@ table.match-display {
     td {
       border: 1px solid purple;
       padding: 8px;
-    }
-    td.match-number {
-      text-align: center;
-      vertical-align: middle;
-      padding: 8px;
+
+      &.match-number {
+        text-align: center;
+        vertical-align: middle;
+        padding: 8px;
+      }
+
+      &.defaulted {
+        text-align: center;
+      }
+
+      &.match-winner {
+        background-color: greenyellow;
+      }
+
+      &.not-match-winner {
+        background-color: white;
+      }
     }
   }
 }

@@ -130,8 +130,8 @@ public class MatchOrderGenerator {
             Character leftSidePlayer = leftSidePlayers.get(i);
             Character rightSidePlayer = rightSidePlayers.get(i);
             MatchOpponents matchOpponents = new MatchOpponents();
-            matchOpponents.playerA = leftSidePlayer;
-            matchOpponents.playerB = rightSidePlayer;
+            matchOpponents.playerALetter = leftSidePlayer;
+            matchOpponents.playerBLetter = rightSidePlayer;
             matchOpponentsList.add(matchOpponents);
         }
 

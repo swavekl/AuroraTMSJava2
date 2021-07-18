@@ -41,11 +41,11 @@ public class MatchCardServiceTest extends AbstractServiceTest {
         for (MatchCard matchCard : allForEvent) {
             assertNotNull("matches is null", matches);
             assertEquals("one match per card in SE round", 6, matches.size());
+            assertEquals("wrong round of", 0, matchCard.getRound());
             for (Match match : matches) {
                 assertEquals(0, match.getGame1ScoreSideA());
                 assertFalse("default A should be false", match.isSideADefaulted());
                 assertFalse("default B should be false", match.isSideBDefaulted());
-                assertEquals("wrong round of", 0, match.getRound());
             }
         }
 
@@ -68,11 +68,11 @@ public class MatchCardServiceTest extends AbstractServiceTest {
             List<Match> matches = matchCard.getMatches();
             assertNotNull("matches is null", matches);
             assertEquals("one match per card in SE round", 1, matches.size());
+            assertEquals("wrong round of", 4, matchCard.getRound());
             for (Match match : matches) {
                 assertEquals(0, match.getGame1ScoreSideA());
                 assertFalse("default should be false", match.isSideADefaulted());
                 assertFalse("default should be false", match.isSideBDefaulted());
-                assertEquals("wrong round of", 4, match.getRound());
             }
         }
     }

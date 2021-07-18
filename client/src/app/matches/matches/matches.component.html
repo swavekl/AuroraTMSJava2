@@ -14,10 +14,10 @@
       <mat-list-item *ngFor="let matchCard of matchCards" (click)="onSelectMatchCard(matchCard)"
                      [ngClass]="isSelectedMatchCard (matchCard) ? 'selected' : 'not-selected'">
         <ng-container *ngIf="matchCard.drawType === 'ROUND_ROBIN'; else elseblock">
-          RR Group {{matchCard.groupNum}}
+          R.R. Group {{matchCard.groupNum}}
         </ng-container>
         <ng-template #elseblock>
-          SE {{matchCard.groupNum}}
+          {{ getRoundShortName(matchCard.round) }} M {{matchCard.groupNum}}
         </ng-template>
       </mat-list-item>
     </mat-list>
@@ -25,10 +25,10 @@
   <div fxFlex style="padding: 16px;" *ngIf="selectedMatchCard != null">
     <div>{{selectedEvent?.name}}
     <ng-container *ngIf="selectedMatchCard?.drawType === 'ROUND_ROBIN'; else elseblock">
-      Round: Round Robin  Group: {{selectedMatchCard?.groupNum}}
+      Round Robin Group: {{selectedMatchCard?.groupNum}}
     </ng-container>
     <ng-template #elseblock>
-      Single Elimination Round Of: {{selectedMatchCard?.groupNum}}
+      Single Elimination {{ getRoundShortName(selectedMatchCard?.round) }} Match # {{selectedMatchCard.groupNum}}
     </ng-template>
     </div>
     <table class="match-display">
@@ -36,12 +36,16 @@
       <tr>
         <th>Match</th>
         <th>Enter</th>
+        <th>&nbsp;</th>
         <th class="name-column">Player Name</th>
+        <th>Default</th>
         <th [colSpan]="selectedMatchCard?.numberOfGames === 0 ? 5 : selectedMatchCard?.numberOfGames">Games</th>
       </tr>
       <tr>
         <th>#</th>
         <th>Score</th>
+        <th>&nbsp;</th>
+        <th>&nbsp;</th>
         <th>&nbsp;</th>
         <th *ngFor="let game of games; let idx = index;">{{idx + 1}}</th>
       </tr>
@@ -53,7 +57,9 @@
           <td [rowSpan]="2" class="match-number">
             <button mat-raised-button (click)="onMatchScoreEntry(match, matchIndex)">Enter</button>
           </td>
-          <td>{{selectedMatchCard.profileIdToNameMap[match.playerAProfileId]}}</td>
+          <td>{{match.playerALetter}}</td>
+          <td [ngClass]="isMatchWinner(match.playerAProfileId, match) ? 'match-winner' : 'not-match-winner'">{{selectedMatchCard.profileIdToNameMap[match.playerAProfileId]}}</td>
+          <td class="defaulted">{{match.sideADefaulted ? 'Yes' : ''}}</td>
           <td *ngFor="let game of games; let idx = index;">
             <ng-container  [ngSwitch]="idx">
               <ng-container *ngSwitchCase="0">{{match.game1ScoreSideA}}</ng-container>
@@ -67,7 +73,9 @@
           </td>
         </tr>
         <tr>
-          <td>{{selectedMatchCard.profileIdToNameMap[match.playerBProfileId]}}</td>
+          <td>{{match.playerBLetter}}</td>
+          <td [ngClass]="isMatchWinner(match.playerBProfileId, match) ? 'match-winner' : 'not-match-winner'">{{selectedMatchCard.profileIdToNameMap[match.playerBProfileId]}}</td>
+          <td class="defaulted">{{match.sideBDefaulted ? 'Yes' : ''}}</td>
           <td *ngFor="let game of games; let idx = index;">
             <ng-container  [ngSwitch]="idx">
               <ng-container *ngSwitchCase="0">{{match.game1ScoreSideB}}</ng-container>

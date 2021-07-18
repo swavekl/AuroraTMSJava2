@@ -30,10 +30,6 @@ public class Match {
     // match number within a round so that matches are ordered properly on the match card
     private int matchNum;
 
-    // for round robin phase 0,
-    // for single elimination - 64, 32, 16, 8 (quarter finals), 4 (semifinals), 2 (finals and 3rd/4th place)
-    private int round;
-
     // profile id of two players for singles matches
     // for doubles matches profile ids of team members are separated by ; like this
     // playerAProfileId;playerAPartnerProfileId and playerBProfileId;playerBPartnerProfileId
@@ -86,12 +82,15 @@ public class Match {
     @Column(nullable = true)
     private byte game7ScoreSideB;
 
+    // letters A vs D, B vs C etc. codes for each player
+    private Character playerALetter;
+    private Character playerBLetter;
+
     @Override
     public String toString() {
         return "Match{" +
                 "id=" + id +
                 ", matchNum=" + matchNum +
-                ", round=" + round +
                 ", playerAProfileId='" + playerAProfileId + '\'' +
                 ", playerBProfileId='" + playerBProfileId + '\'' +
                 ", sideADefaulted=" + sideADefaulted +
@@ -113,6 +112,8 @@ public class Match {
                 ", game6ScoreSideB=" + game6ScoreSideB +
                 ", game7ScoreSideA=" + game7ScoreSideA +
                 ", game7ScoreSideB=" + game7ScoreSideB +
+                ", playerALetter=" + playerALetter +
+                ", playerBLetter=" + playerBLetter +
                 '}';
     }
 }

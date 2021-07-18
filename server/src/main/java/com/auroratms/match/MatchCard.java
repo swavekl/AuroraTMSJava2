@@ -42,6 +42,10 @@ public class MatchCard {
     // best of 3, 5, 7 or 9 games per match in the main round (i.e. round robin)
     private int numberOfGames;
 
+    // for round robin phase 0,
+    // for single elimination - 64, 32, 16, 8 (quarter finals), 4 (semifinals), 2 (finals and 3rd/4th place)
+    private int round;
+
     // map of player profile ids to their names
     @Transient
     Map<String, String> profileIdToNameMap;
