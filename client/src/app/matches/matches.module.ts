@@ -30,18 +30,18 @@ import {MatchService} from './service/match.service';
     MatchesLandingComponent,
     ScoreEntryDialogComponent
   ],
-  imports: [
-    CommonModule,
-    FormsModule,
-    MatchesRoutingModule,
-    MatListModule,
-    FlexModule,
-    MatIconModule,
-    MatButtonModule,
-    MatDialogModule,
-    MatCheckboxModule,
-    MatInputModule
-  ]
+    imports: [
+        CommonModule,
+        FormsModule,
+        MatchesRoutingModule,
+        MatListModule,
+        FlexModule,
+        MatIconModule,
+        MatButtonModule,
+        MatDialogModule,
+        MatCheckboxModule,
+        MatInputModule
+    ]
 })
 export class MatchesModule {
   // Inject the service to ensure it registers with EntityServices

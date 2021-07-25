@@ -93,10 +93,12 @@ public class MatchCardService {
                 List<MatchOpponents> matchesInOrder = MatchOrderGenerator.generateOrderOfMatches(playersDrawnIntoGroup, playersToAdvance);
 
                 // collect players information
+                Map<Character, Integer> playerCodeToRating = new HashMap<>();
                 for (DrawItem drawItem : groupDrawItems) {
                     int placeInGroup = drawItem.getPlaceInGroup();
                     Character playerCode = (char) ('A' + (placeInGroup - 1));
                     mapPlayerCodeToProfileId.put(playerCode, drawItem.getPlayerId());
+                    playerCodeToRating.put(playerCode, drawItem.getRating());
                 }
 
                 // convert match order into matches
@@ -114,6 +116,8 @@ public class MatchCardService {
                             matchOpponents.playerBLetter != MatchOrderGenerator.BYE) {
                         String playerAProfileId = mapPlayerCodeToProfileId.get(matchOpponents.playerALetter);
                         String playerBProfileId = mapPlayerCodeToProfileId.get(matchOpponents.playerBLetter);
+                        Integer playerARating = playerCodeToRating.get(matchOpponents.playerALetter);
+                        Integer playerBRating = playerCodeToRating.get(matchOpponents.playerBLetter);
                         Match match = new Match();
                         match.setMatchCard(matchCard);
                         match.setMatchNum(++matchNumber);
@@ -123,6 +127,8 @@ public class MatchCardService {
                         match.setSideBDefaulted(false);
                         match.setPlayerALetter(matchOpponents.playerALetter);
                         match.setPlayerBLetter(matchOpponents.playerBLetter);
+                        match.setPlayerARating(playerARating);
+                        match.setPlayerBRating(playerBRating);
                         matches.add(match);
                     }
                 }
@@ -150,6 +156,8 @@ public class MatchCardService {
             DrawItem playerBDrawItem = eventDrawItems.get(startIndex + 1);
             String playerAProfileId = playerADrawItem.getPlayerId();
             String playerBProfileId = playerBDrawItem.getPlayerId();
+            int playerARating = playerADrawItem.getRating();
+            int playerBRating = playerBDrawItem.getRating();
 
             if (!StringUtils.isEmpty(playerAProfileId) && !StringUtils.isEmpty(playerBProfileId)) {
 
@@ -171,6 +179,8 @@ public class MatchCardService {
                 match.setSideBDefaulted(false);
                 match.setPlayerALetter('A');
                 match.setPlayerBLetter('B');
+                match.setPlayerARating(playerARating);
+                match.setPlayerBRating(playerBRating);
 
                 matches.add(match);
                 matchCard.setMatches(matches);

@@ -86,6 +86,10 @@ public class Match {
     private Character playerALetter;
     private Character playerBLetter;
 
+    // player or combined team seed rating
+    private int playerARating;
+    private int playerBRating;
+
     @Override
     public String toString() {
         return "Match{" +

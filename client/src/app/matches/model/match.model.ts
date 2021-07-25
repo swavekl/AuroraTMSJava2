@@ -45,6 +45,10 @@ export class Match {
   playerALetter: string;
   playerBLetter: string;
 
+  // seed rating of player in a match
+  playerARating: number;
+  playerBRating: number;
+
   /**
    *
    * @param profileId

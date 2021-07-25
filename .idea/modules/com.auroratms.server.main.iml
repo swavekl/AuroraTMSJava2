@@ -110,6 +110,17 @@
     <orderEntry type="library" name="Gradle: org.apache.commons:commons-lang3:3.11" level="project" />
     <orderEntry type="library" name="Gradle: commons-beanutils:commons-beanutils:1.9.4" level="project" />
     <orderEntry type="library" name="Gradle: org.apache.commons:commons-collections4:4.4" level="project" />
+    <orderEntry type="library" name="Gradle: com.itextpdf:barcodes:7.1.16" level="project" />
+    <orderEntry type="library" name="Gradle: com.itextpdf:font-asian:7.1.16" level="project" />
+    <orderEntry type="library" name="Gradle: com.itextpdf:sign:7.1.16" level="project" />
+    <orderEntry type="library" name="Gradle: com.itextpdf:forms:7.1.16" level="project" />
+    <orderEntry type="library" name="Gradle: com.itextpdf:hyph:7.1.16" level="project" />
+    <orderEntry type="library" name="Gradle: com.itextpdf:svg:7.1.16" level="project" />
+    <orderEntry type="library" name="Gradle: com.itextpdf:styled-xml-parser:7.1.16" level="project" />
+    <orderEntry type="library" name="Gradle: com.itextpdf:layout:7.1.16" level="project" />
+    <orderEntry type="library" name="Gradle: com.itextpdf:pdfa:7.1.16" level="project" />
+    <orderEntry type="library" name="Gradle: com.itextpdf:kernel:7.1.16" level="project" />
+    <orderEntry type="library" name="Gradle: com.itextpdf:io:7.1.16" level="project" />
     <orderEntry type="library" name="Gradle: org.aspectj:aspectjweaver:1.9.6" level="project" />
     <orderEntry type="library" name="Gradle: com.zaxxer:HikariCP:3.4.5" level="project" />
     <orderEntry type="library" name="Gradle: org.hibernate.common:hibernate-commons-annotations:5.1.2.Final" level="project" />
@@ -143,12 +154,13 @@
     <orderEntry type="library" name="Gradle: org.springframework:spring-jcl:5.3.1" level="project" />
     <orderEntry type="library" name="Gradle: commons-codec:commons-codec:1.15" level="project" />
     <orderEntry type="library" name="Gradle: javax.activation:javax.activation-api:1.2.0" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Gradle: org.bouncycastle:bcpkix-jdk15on:1.64" level="project" />
+    <orderEntry type="library" name="Gradle: org.bouncycastle:bcpkix-jdk15on:1.68" level="project" />
     <orderEntry type="library" name="Gradle: org.junit.platform:junit-platform-commons:1.7.0" level="project" />
     <orderEntry type="library" name="Gradle: org.opentest4j:opentest4j:1.2.0" level="project" />
     <orderEntry type="library" name="Gradle: org.hamcrest:hamcrest-core:2.2" level="project" />
     <orderEntry type="library" name="Gradle: commons-logging:commons-logging:1.2" level="project" />
     <orderEntry type="library" name="Gradle: commons-collections:commons-collections:3.2.2" level="project" />
+    <orderEntry type="library" name="Gradle: org.bouncycastle:bcprov-jdk15on:1.68" level="project" />
     <orderEntry type="library" name="Gradle: jakarta.xml.bind:jakarta.xml.bind-api:2.3.3" level="project" />
     <orderEntry type="library" name="Gradle: org.glassfish.jaxb:txw2:2.3.3" level="project" />
     <orderEntry type="library" name="Gradle: com.sun.istack:istack-commons-runtime:3.0.11" level="project" />
@@ -162,7 +174,6 @@
     <orderEntry type="library" name="Gradle: com.github.stephenc.jcip:jcip-annotations:1.0-1" level="project" />
     <orderEntry type="library" name="Gradle: org.attoparser:attoparser:2.0.5.RELEASE" level="project" />
     <orderEntry type="library" name="Gradle: org.unbescape:unbescape:1.1.6.RELEASE" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Gradle: org.bouncycastle:bcprov-jdk15on:1.64" level="project" />
     <orderEntry type="library" name="Gradle: org.hamcrest:hamcrest:2.2" level="project" />
     <orderEntry type="library" name="Gradle: com.jayway.jsonpath:json-path:2.4.0" level="project" />
     <orderEntry type="library" name="Gradle: com.nimbusds:content-type:2.1" level="project" />
@@ -178,8 +189,6 @@
     <orderEntry type="library" scope="RUNTIME" name="Gradle: com.okta.sdk:okta-sdk-httpclient:3.0.1" level="project" />
     <orderEntry type="library" scope="RUNTIME" name="Gradle: javax.validation:validation-api:2.0.0.Final" level="project" />
     <orderEntry type="library" scope="RUNTIME" name="Gradle: io.jsonwebtoken:jjwt-jackson:0.11.1" level="project" />
-    <orderEntry type="library" scope="RUNTIME" name="Gradle: org.bouncycastle:bcpkix-jdk15on:1.66" level="project" />
-    <orderEntry type="library" scope="RUNTIME" name="Gradle: org.bouncycastle:bcprov-jdk15on:1.66" level="project" />
     <orderEntry type="library" scope="RUNTIME" name="Gradle: io.jsonwebtoken:jjwt-impl:0.11.1" level="project" />
     <orderEntry type="library" scope="RUNTIME" name="Gradle: io.jsonwebtoken:jjwt-api:0.11.1" level="project" />
     <orderEntry type="library" scope="RUNTIME" name="Gradle: com.okta.commons:okta-http-httpclient:1.2.4" level="project" />

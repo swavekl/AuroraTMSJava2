@@ -97,6 +97,9 @@ dependencies {
     // credit card payments & refunds
     implementation "com.stripe:stripe-java:19.45.0"
 
+    // match cards PDF generation
+    implementation "com.itextpdf:itext7-core:7.1.16"
+
 //    testImplementation ("com.auroratms:com.aurora.server.main")
 }
 

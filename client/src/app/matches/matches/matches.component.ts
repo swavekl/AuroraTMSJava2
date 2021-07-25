@@ -18,6 +18,9 @@ import {MatchService} from '../service/match.service';
 export class MatchesComponent implements OnInit, OnChanges, OnDestroy {
 
   @Input()
+  tournamentName: string;
+
+  @Input()
   tournamentEvents: TournamentEvent[] = [];
 
   @Input()

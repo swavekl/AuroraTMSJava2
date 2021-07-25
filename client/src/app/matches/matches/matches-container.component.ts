@@ -10,7 +10,8 @@ import {MatchCard} from '../model/match-card.model';
 @Component({
   selector: 'app-matches-container',
   template: `
-    <app-matches [tournamentEvents]="tournamentEvents$ | async"
+    <app-matches [tournamentName]="tournamentName"
+                 [tournamentEvents]="tournamentEvents$ | async"
                  [matchCards]="matchCards$ | async"
                  [selectedMatchCard]="selectedMatchCard$ | async"
                  (tournamentEventEmitter)="onTournamentEventSelected($event)"
@@ -20,6 +21,9 @@ import {MatchCard} from '../model/match-card.model';
   styles: []
 })
 export class MatchesContainerComponent implements OnInit {
+
+  // name of the tournament
+  tournamentName: string;
 
   // list of tournament events
   tournamentEvents$: Observable<TournamentEvent[]>;
@@ -40,6 +44,7 @@ export class MatchesContainerComponent implements OnInit {
               private activatedRoute: ActivatedRoute,
               private matchCardService: MatchCardService,
               private linearProgressBarService: LinearProgressBarService) {
+    this.tournamentName = history?.state?.tournamentName;
     this.setupProgressIndicator();
     this.loadTournamentEvents();
     this.setupMatchCards();

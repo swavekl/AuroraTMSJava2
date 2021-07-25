@@ -67,6 +67,12 @@ public class DrawService {
         return drawItemList;
     }
 
+    /**
+     * List all draw items for one event and draw type
+     * @param eventId
+     * @param drawType
+     * @return
+     */
     public List<DrawItem> list(long eventId, DrawType drawType) {
         if (drawType.equals(DrawType.ROUND_ROBIN)) {
             return this.drawRepository.findAllByEventFkAndDrawTypeOrderByGroupNumAscPlaceInGroupAsc(eventId, drawType);
@@ -75,14 +81,28 @@ public class DrawService {
         }
     }
 
+    /**
+     *
+     * @param eventIds
+     * @return
+     */
     public List<DrawItem> listAllDrawsForTournament(List<Long> eventIds) {
         return this.drawRepository.findAllByEventFkInOrderByEventFkAscGroupNumAscPlaceInGroupAsc(eventIds);
     }
 
+    /**
+     *
+     * @param drawItems
+     */
     public void updateDraws(List<DrawItem> drawItems) {
         this.drawRepository.saveAll(drawItems);
     }
 
+    /**
+     *
+     * @param eventId
+     * @param drawType
+     */
     public void deleteDraws(long eventId, DrawType drawType) {
         this.drawRepository.deleteAllByEventFkAndDrawType(eventId, drawType);
     }

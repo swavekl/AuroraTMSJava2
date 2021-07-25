@@ -73,7 +73,12 @@ export class MatchesLandingContainerComponent implements OnInit, OnDestroy {
             // navigate directly to today's tournament
             const tournamentId = filteredTournaments[0].id;
             console.log('navigating to tournament score entry ' + tournamentId);
-            this.router.navigateByUrl(`matches/scoreentry/${tournamentId}`);
+            const extras = {
+              state: {
+                tournamentName: filteredTournaments[0].name
+              }
+            };
+            this.router.navigateByUrl(`matches/scoreentry/${tournamentId}`, extras);
           }
 
           // return of(filteredTournaments);
