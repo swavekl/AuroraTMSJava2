@@ -28,7 +28,7 @@ export class MatchesContainerComponent implements OnInit {
   // list of tournament events
   tournamentEvents$: Observable<TournamentEvent[]>;
 
-  // match cards for selected event - withouth matches
+  // match cards for selected event - without matches
   matchCards$: Observable<MatchCard[]>;
 
   // selected match card - with matches

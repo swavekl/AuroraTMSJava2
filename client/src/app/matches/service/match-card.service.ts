@@ -16,4 +16,10 @@ export class MatchCardService extends EntityCollectionServiceBase<MatchCard> {
     super.clearCache();
     return super.getWithQuery(queryParams);
   }
+
+  public loadAllForTheTournamentDay(tournamentId: number, day: number) {
+    const queryParams = `tournamentId=${tournamentId}&day=${day}`;
+    super.clearCache();
+    return super.getWithQuery(queryParams);
+  }
 }

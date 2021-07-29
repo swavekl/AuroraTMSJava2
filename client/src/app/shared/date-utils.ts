@@ -1,4 +1,5 @@
 import * as moment from 'moment';
+import {StartTimePipe} from './pipes/start-time.pipe';
 
 export class DateUtils {
 
@@ -122,5 +123,20 @@ export class DateUtils {
     const mDateOfBirth = moment(dateOfBirth);
     const mOtherDate = moment(otherDate);
     return mOtherDate.diff(mDateOfBirth, 'years');
+  }
+
+  /**
+   * Gets a list of possible starting times for events
+   */
+  getEventStartingTimes(): any [] {
+    const startTimes: any [] = [];
+    const pipe: StartTimePipe = new StartTimePipe();
+    for (let i = 8; i <= 21; i++) {
+      const fullHour = pipe.transform(i);
+      startTimes.push({startTime: i, startTimeText: fullHour});
+      const halfPastHour = pipe.transform(i + 0.5);
+      startTimes.push({startTime: (i + 0.5), startTimeText: halfPastHour});
+    }
+    return startTimes;
   }
 }

@@ -1,0 +1,43 @@
+<mat-toolbar>
+  <mat-toolbar-row>
+    <mat-label>Tournament Day</mat-label>
+    <mat-select class="tournament-day-select" [value]="selectedDay" (selectionChange)="onDayChange($event)">
+      <mat-option *ngFor="let day of days" [value]="day.day">
+        {{day.dayText}}
+      </mat-option>
+    </mat-select>
+    <button mat-raised-button (click)="onGenerateSchedule()">Generate</button>
+  </mat-toolbar-row>
+</mat-toolbar>
+<div class="scheduling-container">
+  <table class="schedule-table">
+    <thead>
+    <!--    <tr>-->
+    <!--      <th>-->
+    <!--        Table-->
+    <!--      </th>-->
+    <!--      <th [colSpan]="startingTimes.length + 1">-->
+    <!--        Staring times-->
+    <!--      </th>-->
+    <!--    </tr>-->
+    <tr>
+      <th>
+        Table<br/>#
+      </th>
+      <th *ngFor="let startingTime of startingTimes">
+        {{ startingTime.startTimeText }}
+      </th>
+
+    </tr>
+
+    </thead>
+    <tbody>
+    <tr *ngFor="let table of tablesArray; let tableNum = index">
+      <td>{{tableNum + 1}}</td>
+      <td *ngFor="let startingTime of startingTimes; let idx = index;">
+        Event {{idx}}
+      </td>
+    </tr>
+    </tbody>
+  </table>
+</div>

@@ -46,6 +46,13 @@ const routes: Routes = [
     data: {
       roles: [UserRoles.ROLE_TOURNAMENT_DIRECTORS, UserRoles.ROLE_ADMINS, UserRoles.ROLE_DATA_ENTRY_CLERKS, UserRoles.ROLE_UMPIRES]
     }
+  },
+  {
+    path: 'scheduling',
+    loadChildren: () => import('./scheduling/scheduling.module').then(m => m.SchedulingModule),
+    data: {
+      roles: [UserRoles.ROLE_TOURNAMENT_DIRECTORS, UserRoles.ROLE_ADMINS, UserRoles.ROLE_REFEREES]
+    }
   }
 ];
 

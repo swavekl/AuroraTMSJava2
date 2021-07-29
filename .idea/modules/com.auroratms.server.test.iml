@@ -21,7 +21,6 @@
       <sourceFolder url="file://$MODULE_DIR$/../../server/src/test/resources" type="java-test-resource" />
     </content>
     <orderEntry type="inheritedJdk" />
-    <orderEntry type="module" module-name="com.auroratms.server.main" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module" module-name="com.auroratms.server.main" />
     <orderEntry type="library" name="Gradle: org.springframework.boot:spring-boot-starter-data-jpa:2.4.0" level="project" />

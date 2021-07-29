@@ -81,14 +81,7 @@ export class TournamentEventConfigComponent implements OnInit, OnChanges, OnDest
   }
 
   ngOnInit(): void {
-    this.startTimes = [];
-    const pipe: StartTimePipe = new StartTimePipe();
-    for (let i = 8; i <= 21; i++) {
-      const fullHour = pipe.transform(i);
-      this.startTimes.push({startTime: i, startTimeText: fullHour});
-      const halfPastHour = pipe.transform(i + 0.5);
-      this.startTimes.push({startTime: (i + 0.5), startTimeText: halfPastHour});
-    }
+    this.startTimes = new DateUtils().getEventStartingTimes();
   }
 
   ngOnChanges(changes: SimpleChanges): void {

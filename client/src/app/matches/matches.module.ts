@@ -20,6 +20,7 @@ import {MatchesLandingComponent} from './matches-landing/matches-landing.compone
 import {ScoreEntryDialogComponent} from './score-entry-dialog/score-entry-dialog.component';
 import {MatchCardService} from './service/match-card.service';
 import {MatchService} from './service/match.service';
+import {SharedModule} from '../shared/shared.module';
 
 
 @NgModule({
@@ -40,7 +41,8 @@ import {MatchService} from './service/match.service';
         MatButtonModule,
         MatDialogModule,
         MatCheckboxModule,
-        MatInputModule
+        MatInputModule,
+        SharedModule
     ]
 })
 export class MatchesModule {

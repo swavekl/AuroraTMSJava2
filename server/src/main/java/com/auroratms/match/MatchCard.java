@@ -46,6 +46,17 @@ public class MatchCard {
     // for single elimination - 64, 32, 16, 8 (quarter finals), 4 (semifinals), 2 (finals and 3rd/4th place)
     private int round;
 
+    // day of the tournament on which this event is played 1, 2, 3 etc
+    private int day;
+
+    // fractional start time e.g. 9.5 = 9:30 am, 17.0 = 5:00 pm, -1.0 = To be Determined
+    private double startTime;
+
+    // total scheduled duration in minutes of all matches on this match card.
+    // This is assuming that they will be played on 1 table only, if played on 2 tables divide that by 2, if on 3 dividde by
+    // so if played on 2 tables it will
+    private int duration;
+
     // map of player profile ids to their names
     @Transient
     Map<String, String> profileIdToNameMap;

@@ -53,11 +53,10 @@
           </ng-template>
         </td>
         <td class="mat-display-1">
-<!--          {{selectedMatchCard.assignedTable}} 121, 122-->
-          121, 122
+          {{ selectedMatchCard.assignedTables }}
         </td>
         <td class="mat-display-1">
-          10:45 AM
+          {{ selectedMatchCard.startTime | startTime }}
         </td>
       </tr>
       </tbody>

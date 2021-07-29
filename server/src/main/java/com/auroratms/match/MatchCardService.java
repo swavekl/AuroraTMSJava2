@@ -12,6 +12,7 @@ import com.auroratms.usatt.UsattDataService;
 import com.auroratms.usatt.UsattPlayerRecord;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -245,6 +246,32 @@ public class MatchCardService {
                 .orElseThrow(() -> new ResourceNotFoundException("Unable to find match card"));
     }
 
+    /**
+     * Gets all match cards for given day of the tournament
+     *
+     * @param tournamentId
+     * @param day
+     * @return
+     */
+    public List<MatchCard> findAllForTournamentAndDay(long tournamentId, int day) {
+        // find match cards generated for the events held on this day.
+        // In larger tournaments single elimination round matches may be scheduled for later days
+        // so grab all of them and let repository filter out those on different day
+        Collection<TournamentEventEntity> allTournamentEvents = this.tournamentEventEntityService.list(tournamentId, Pageable.unpaged());
+        List<Long> eventIds = new ArrayList<>();
+        for (TournamentEventEntity event : allTournamentEvents) {
+            eventIds.add(event.getId());
+        }
+
+        // now get all of them in one shot
+        return this.matchCardRepository.findMatchCardByEventFkInAndDayOrderByEventFkAscStartTimeAsc(eventIds, day);
+    }
+
+    /**
+     * Get one specified match card
+     * @param matchCardId
+     * @return
+     */
     public MatchCard get(long matchCardId) {
         MatchCard matchChard = this.matchCardRepository.findById(matchCardId)
                 .orElseThrow(() -> new ResourceNotFoundException("Unable to find match card"));

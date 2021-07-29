@@ -1,0 +1,28 @@
+@import "~src/my-theme.scss";
+
+.tournament-day-select {
+  width: 150px;
+  margin-right: 10px;
+  margin-left: 10px;
+}
+
+.scheduling-container {
+  overflow: auto;
+  //border: 1px solid yellow;
+  height: calc(100vh - 140px);
+}
+
+table.schedule-table {
+  border: 1px solid lime;
+
+  thead tr th {
+    border: 1px solid blue;
+  }
+
+  tbody tr td {
+    border: 1px solid deeppink;
+    text-align: center;
+    vertical-align: middle;
+  }
+
+}

@@ -30,9 +30,16 @@ public class MatchCardController {
     @GetMapping("/matchcards")
     @ResponseBody
     @Transactional(readOnly = true)
-    public ResponseEntity<List<MatchCard>> listMatchCards(@RequestParam long eventId) {
+    public ResponseEntity<List<MatchCard>> listMatchCards(@RequestParam(required = false) Long eventId,
+                                                          @RequestParam(required = false) Long tournamentId,
+                                                          @RequestParam(required = false) Integer day) {
         try {
-            List<MatchCard> matchCards = matchCardService.findAllForEvent(eventId);
+            List<MatchCard> matchCards = null;
+            if (eventId != null) {
+                matchCards = matchCardService.findAllForEvent(eventId);
+            } else if (tournamentId != null && day != null) {
+                matchCards = matchCardService.findAllForTournamentAndDay(tournamentId, day);
+            }
 //            for (MatchCard matchCard : matchCards) {
 //                matchCard.setMatches(null);
 //            }
@@ -54,10 +61,6 @@ public class MatchCardController {
     public ResponseEntity<MatchCard> getMatchCard(@PathVariable Long matchCardId) {
         try {
             MatchCard matchCard = matchCardService.get(matchCardId);
-//            List<Match> matches = matchCard.getMatches();
-//            for (Match match : matches) {
-//                match.setMatchCard(null);
-//            }
             return new ResponseEntity<>(matchCard, HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity(e, HttpStatus.INTERNAL_SERVER_ERROR);
