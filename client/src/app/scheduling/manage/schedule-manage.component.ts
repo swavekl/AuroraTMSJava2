@@ -74,7 +74,6 @@ export class ScheduleManageComponent implements OnInit, OnChanges {
 
   onDayChange($event: any) {
     this.selectedDay = $event.value;
-    console.log ('day', this.selectedDay);
     this.dayChangedEvent.emit(this.selectedDay);
   }
 
