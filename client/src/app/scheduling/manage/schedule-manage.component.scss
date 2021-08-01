@@ -13,16 +13,18 @@
 }
 
 table.schedule-table {
-  border: 1px solid lime;
+  //border: 1px solid lime;
 
   thead tr th {
     border: 1px solid blue;
   }
 
-  tbody tr td {
-    border: 1px solid deeppink;
-    text-align: center;
-    vertical-align: middle;
+  tbody tr {
+    td {
+      border: 1px solid black;
+      text-align: center;
+      vertical-align: middle;
+      font-size: 12px;
+    }
   }
-
 }

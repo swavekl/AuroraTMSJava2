@@ -1,20 +1,23 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 import {combineLatest, Observable, of, Subscription} from 'rxjs';
-import {Tournament} from '../../tournament/tournament-config/tournament.model';
-import {createSelector} from '@ngrx/store';
-import {TournamentConfigService} from '../../tournament/tournament-config/tournament-config.service';
-import {LinearProgressBarService} from '../../shared/linear-progress-bar/linear-progress-bar.service';
-import {MatchCardService} from '../../matches/service/match-card.service';
-import {MatchCard} from '../../matches/model/match-card.model';
-import {MatchSchedulingService} from '../service/match-scheduling.service';
 import {first} from 'rxjs/operators';
+import {createSelector} from '@ngrx/store';
+import {Tournament} from '../../tournament/tournament-config/tournament.model';
+import {TournamentConfigService} from '../../tournament/tournament-config/tournament-config.service';
+import {TournamentEvent} from '../../tournament/tournament-config/tournament-event.model';
+import {TournamentEventConfigService} from '../../tournament/tournament-config/tournament-event-config.service';
+import {LinearProgressBarService} from '../../shared/linear-progress-bar/linear-progress-bar.service';
+import {MatchCard} from '../../matches/model/match-card.model';
+import {MatchCardService} from '../../matches/service/match-card.service';
+import {MatchSchedulingService} from '../service/match-scheduling.service';
 
 @Component({
   selector: 'app-schedule-manage-container',
   template: `
     <app-schedule-manage
       [tournament]="tournament$ | async"
+      [tournamentEvents]="tournamentEvents$ | async"
       [matchCards]="matchCards$ | async"
       (dayChangedEvent)="onDayChangedEvent($event)"
       (generateScheduleForEvent)="onGenerateForDay($event)"
@@ -28,6 +31,9 @@ export class ScheduleManageContainerComponent implements OnInit, OnDestroy {
   // tournament information
   tournament$: Observable<Tournament>;
 
+  // list of tournament events
+  tournamentEvents$: Observable<TournamentEvent[]>;
+
   // match cards for selected event
   matchCards$: Observable<MatchCard[]>;
 
@@ -39,6 +45,7 @@ export class ScheduleManageContainerComponent implements OnInit, OnDestroy {
 
   constructor(private activatedRoute: ActivatedRoute,
               private tournamentConfigService: TournamentConfigService,
+              private tournamentEventConfigService: TournamentEventConfigService,
               private matchCardService: MatchCardService,
               private matchSchedulingService: MatchSchedulingService,
               private linearProgressBarService: LinearProgressBarService) {
@@ -46,6 +53,7 @@ export class ScheduleManageContainerComponent implements OnInit, OnDestroy {
     this.tournamentId = Number(strTournamentId);
     this.setupProgressIndicator();
     this.loadTournament(this.tournamentId);
+    this.loadTournamentEvents(this.tournamentId);
     this.setupMatchCards(this.tournamentId);
   }
 
@@ -53,9 +61,10 @@ export class ScheduleManageContainerComponent implements OnInit, OnDestroy {
     // if any of the service are loading show the loading progress
     this.loading$ = combineLatest(
       this.tournamentConfigService.store.select(this.tournamentConfigService.selectors.selectLoading),
+      this.tournamentEventConfigService.store.select(this.tournamentEventConfigService.selectors.selectLoading),
       this.matchCardService.store.select(this.matchCardService.selectors.selectLoading),
-      (tournamentConfigLoading: boolean, matchCardsLoading: boolean) => {
-        return tournamentConfigLoading || matchCardsLoading;
+      (tournamentConfigLoading: boolean, eventConfigsLoading: boolean, matchCardsLoading: boolean) => {
+        return tournamentConfigLoading || eventConfigsLoading || matchCardsLoading;
       }
     );
 
@@ -102,8 +111,8 @@ export class ScheduleManageContainerComponent implements OnInit, OnDestroy {
   }
 
   /**
-   *
-   * @param day
+   * Generates schedule for the specified day
+   * @param day day to generate for
    */
   onGenerateForDay(day: number) {
     const subscription = this.matchSchedulingService.generateScheduleForTournamentAndDay(this.tournamentId, day)
@@ -116,4 +125,12 @@ export class ScheduleManageContainerComponent implements OnInit, OnDestroy {
         });
     this.subscriptions.add(subscription);
   }
+
+  private loadTournamentEvents(tournamentId: number) {
+    this.tournamentEvents$ = this.tournamentEventConfigService.store.select(
+      this.tournamentEventConfigService.selectors.selectEntities);
+    // load them - they will surface via this selector
+    this.tournamentEventConfigService.loadTournamentEvents(this.tournamentId);
+  }
+
 }

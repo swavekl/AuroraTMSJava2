@@ -41,7 +41,13 @@ public class MatchSchedulingService {
         // generate them
         List<TournamentEventEntity> daysEvents = this.tournamentEventEntityService.listDaysEvents(tournamentId, day);
         int startingTableNumber = 1;
+        double previousEventStartTime = 8.0d;
         for (TournamentEventEntity event : daysEvents) {
+            // start scheduling this event's matches from the 1st table if it is starting later
+            if (event.getStartTime() != previousEventStartTime) {
+                startingTableNumber = 1;
+            }
+            previousEventStartTime = event.getStartTime();
             if (!event.isSingleElimination()) {
                 startingTableNumber = scheduleRoundRobinMatches(startingTableNumber, totalAvailableTables, event, matrix);
             } else {
@@ -82,24 +88,32 @@ public class MatchSchedulingService {
                 // assign tables and mark them as used - one at a time
                 String assignedTables = "";
                 int durationOnOneTable = Math.floorDiv(allMatchesDuration, tablesToAssign);
+                String name = event.getName();
+//                System.out.println("eventName = " + name + " startTime = " + event.getStartTime());
+                double assignedStartTime = event.getStartTime();
                 for (int i = 0; i < tablesToAssign; i++) {
                     TableAvailabilityMatrix.AvailableTableInfo availableTable = matrix.findAvailableTable(event.getStartTime(), durationOnOneTable, currentTableNum);
                     if (availableTable != null) {
                         matrix.markTableAsUnavailable (availableTable.tableNum, availableTable.startTime, durationOnOneTable);
+                        assignedStartTime = availableTable.startTime;
                         assignedTables += (StringUtils.isEmpty(assignedTables)) ? "": ",";
                         assignedTables += (availableTable.tableNum);
 
                         currentTableNum = availableTable.tableNum + 1;
                     }
                 }
+//                System.out.println("assignedStartTime = " +assignedStartTime);
+//                System.out.println("assignedTables = " + assignedTables);
 
                 matchCard.setAssignedTables(assignedTables);
-                matchCard.setDay(event.getDay());
-                matchCard.setStartTime(event.getStartTime());
+                matchCard.setStartTime(assignedStartTime);
                 matchCard.setDuration(durationOnOneTable);
-
-                matchCardService.save(matchCard);
+            } else {
+                matchCard.setAssignedTables("N/A");
             }
+
+            matchCard.setDay(event.getDay());
+            matchCardService.save(matchCard);
         }
 
         // even when all tables are not used 'reserve' them by skipping unused tables

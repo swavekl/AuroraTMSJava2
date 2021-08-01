@@ -108,6 +108,8 @@ public class MatchCardService {
                 matchCard.setGroupNum(groupNumber);
                 matchCard.setDrawType(DrawType.ROUND_ROBIN);
                 matchCard.setRound(0);
+                matchCard.setDay(tournamentEventEntity.getDay());
+                matchCard.setStartTime(tournamentEventEntity.getStartTime());
                 matchCard.setNumberOfGames(tournamentEventEntity.getNumberOfGames());
                 List<Match> matches = new ArrayList<>();
 
@@ -169,6 +171,8 @@ public class MatchCardService {
                 matchCard.setNumberOfGames(numberOfGames);
                 matchCard.setDrawType(DrawType.SINGLE_ELIMINATION);
                 matchCard.setRound(roundOf);
+                matchCard.setDay(tournamentEventEntity.getDay());
+                matchCard.setStartTime(tournamentEventEntity.getStartTime());
 
                 List<Match> matches = new ArrayList<>();
                 Match match = new Match();

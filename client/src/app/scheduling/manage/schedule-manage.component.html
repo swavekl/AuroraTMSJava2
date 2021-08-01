@@ -34,9 +34,17 @@
     <tbody>
     <tr *ngFor="let table of tablesArray; let tableNum = index">
       <td>{{tableNum + 1}}</td>
-      <td *ngFor="let startingTime of startingTimes; let idx = index;">
-        Event {{idx}}
-      </td>
+      <ng-container *ngFor="let scheduleTimeBlock of scheduleTimeBlocks[tableNum + 1];">
+        <td [rowSpan]="scheduleTimeBlock.rowSpan"
+            [colSpan]="scheduleTimeBlock.colSpan"
+            [style]="{'background-color': scheduleTimeBlock.color}"
+        >
+          <ng-container *ngIf="scheduleTimeBlock.eventName != ''; else elseblock3">
+            {{scheduleTimeBlock.eventName}}<br>{{getRoundGroup(scheduleTimeBlock)}}
+          </ng-container>
+          <ng-template #elseblock3></ng-template>
+        </td>
+      </ng-container>
     </tr>
     </tbody>
   </table>
