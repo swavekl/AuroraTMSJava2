@@ -54,6 +54,16 @@ public class MatchSchedulingService {
 
             }
         }
+
+        // schedule single elimination round matches after round robin is scheduled and tables are assigned
+        for (TournamentEventEntity event : daysEvents) {
+            if (!event.isSingleElimination()) {
+                // if there is a single elimination following round robin
+                if (event.getPlayersToAdvance() > 0) {
+                    scheduleSingleEliminationMatches (totalAvailableTables, event, matrix);
+                }
+            }
+        }
         // get them
         return this.matchCardService.findAllForTournamentAndDay(tournamentId, day);
     }
@@ -170,5 +180,73 @@ public class MatchSchedulingService {
         }
 
         return (numMatchesToPlay * singleMatchDuration);
+    }
+
+    /**
+     * Schedule single elimination round matches
+     * @param totalAvailableTables
+     * @param event
+     * @param matrix
+     */
+    private void scheduleSingleEliminationMatches(int totalAvailableTables, TournamentEventEntity event, TableAvailabilityMatrix matrix) {
+        // schedule the single elimination round matches on the same tables where the round robin round matches were played
+        int maxDuration = 0;
+        double eventStart = event.getStartTime();
+        // range of tables the matches are played on in this event.
+        int eventFirstTableNum = totalAvailableTables;
+        int eventLastTableNum = 1;
+        // find time when the round robin matches end
+        List<MatchCard> roundRobinMatchCards = matchCardService.findAllForEventAndDrawType(event.getId(), DrawType.ROUND_ROBIN);
+        for (MatchCard matchCard : roundRobinMatchCards) {
+            int duration = matchCard.getDuration();
+            maxDuration = Math.max(duration, maxDuration);
+            String assignedTables = matchCard.getAssignedTables();
+            String[] tableNumbers = assignedTables.split(",");
+            if (tableNumbers.length > 0) {
+                int matchCardFirstTable = Integer.valueOf(tableNumbers[0]);
+                eventFirstTableNum = Math.min(eventFirstTableNum, matchCardFirstTable);
+                eventLastTableNum = Math.max(eventLastTableNum, matchCardFirstTable);
+            }
+        }
+
+        // When the round robin round is finished, start single elimination rounds 30 minutes later
+        double singleEliminationStartTime = eventStart + (TableAvailabilityMatrix.TIME_SLOT_SIZE * Math.floorDiv(maxDuration, TableAvailabilityMatrix.TIME_SLOT_SIZE_INT));
+        singleEliminationStartTime += TableAvailabilityMatrix.TIME_SLOT_SIZE;
+
+        // schedule the single elimination round matches on the same tables where the round robin round matches were played
+        int currentTableNum = eventFirstTableNum;
+        List<MatchCard> singleEliminationMatchCards = matchCardService.findAllForEventAndDrawType(event.getId(), DrawType.SINGLE_ELIMINATION);
+        double currentRoundStartTime = singleEliminationStartTime;
+        int previousRoundDuration = TableAvailabilityMatrix.TIME_SLOT_SIZE_INT;
+        int currentRound = event.getMaxEntries();
+        boolean firstMatch = true;
+        for (MatchCard matchCard : singleEliminationMatchCards) {
+            int duration = calculateAllMatchesDuration(matchCard.getNumberOfGames(), 1);
+            // get the first match round and duration
+            if (firstMatch) {
+                firstMatch = false;
+                currentRound = matchCard.getRound();
+                previousRoundDuration = duration;
+            }
+
+            // all matches in the same round should have the same starting time and duration
+            if (matchCard.getRound() != currentRound) {
+                currentRound = matchCard.getRound();
+                currentRoundStartTime += (previousRoundDuration / TableAvailabilityMatrix.TIME_SLOT_SIZE_INT) * TableAvailabilityMatrix.TIME_SLOT_SIZE;
+                previousRoundDuration = duration;
+            }
+
+            TableAvailabilityMatrix.AvailableTableInfo availableTable = matrix.findAvailableTable(currentRoundStartTime, duration, currentTableNum);
+            if (availableTable != null) {
+                matrix.markTableAsUnavailable(availableTable.tableNum, availableTable.startTime, duration);
+                currentTableNum = availableTable.tableNum + 1;
+
+                String assignedTables = Integer.toString(availableTable.tableNum);
+                matchCard.setAssignedTables(assignedTables);
+                matchCard.setStartTime(availableTable.startTime);
+                matchCard.setDuration(duration);
+                matchCardService.save(matchCard);
+            }
+        }
     }
 }

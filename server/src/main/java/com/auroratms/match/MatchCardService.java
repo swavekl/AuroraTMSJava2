@@ -192,6 +192,66 @@ public class MatchCardService {
                 this.matchCardRepository.save(matchCard);
             }
         }
+        generateRemainingSERoundMatchCards(tournamentEventEntity, roundOf);
+    }
+
+    /**
+     *
+     * @param tournamentEventEntity
+     * @param firstSERoundParticipants
+     */
+    private void generateRemainingSERoundMatchCards(TournamentEventEntity tournamentEventEntity, int firstSERoundParticipants) {
+        // how many players in this round
+        int roundOf = firstSERoundParticipants / 2;
+        int remainingRounds = (int) Math.ceil(Math.log(roundOf) / Math.log(2));
+        for (int round = 0; round < remainingRounds; round++) {
+            int numGamesInRound = getNumberOfGames(tournamentEventEntity, roundOf);
+            int numMatchesInRound = roundOf / 2;
+            for (int matchNum = 0; matchNum < numMatchesInRound; matchNum++) {
+                makeSERoundMatchCard(matchNum, roundOf, tournamentEventEntity, numGamesInRound);
+            }
+            // last round and play for 3 & 4th place ?
+            if ((round + 1) == remainingRounds && tournamentEventEntity.isPlay3rd4thPlace()) {
+                makeSERoundMatchCard(1, roundOf, tournamentEventEntity, numGamesInRound);
+            }
+            roundOf = roundOf / 2;
+        }
+    }
+
+    /**
+     *
+     * @param matchNum
+     * @param roundOf
+     * @param tournamentEventEntity
+     * @param numberOfGames
+     */
+    private void makeSERoundMatchCard (int matchNum, int roundOf, TournamentEventEntity tournamentEventEntity, int numberOfGames) {
+        MatchCard matchCard = new MatchCard();
+        matchCard.setEventFk(tournamentEventEntity.getId());
+        matchCard.setGroupNum(matchNum + 1);
+        matchCard.setNumberOfGames(numberOfGames);
+        matchCard.setDrawType(DrawType.SINGLE_ELIMINATION);
+        matchCard.setRound(roundOf);
+        matchCard.setDay(tournamentEventEntity.getDay());
+        matchCard.setStartTime(tournamentEventEntity.getStartTime());
+        matchCard.setDuration(30);
+
+        List<Match> matches = new ArrayList<>();
+        Match match = new Match();
+        match.setMatchCard(matchCard);
+        match.setMatchNum(matchNum + 1);
+        match.setPlayerAProfileId("TBD");
+        match.setPlayerBProfileId("TBD");
+        match.setSideADefaulted(false);
+        match.setSideBDefaulted(false);
+        match.setPlayerALetter('A');
+        match.setPlayerBLetter('B');
+        match.setPlayerARating(0);
+        match.setPlayerBRating(0);
+
+        matches.add(match);
+        matchCard.setMatches(matches);
+        this.matchCardRepository.save(matchCard);
     }
 
     /**
@@ -386,15 +446,12 @@ public class MatchCardService {
         return this.matchCardRepository.findMatchCardByEventFkOrderByDrawTypeDescGroupNumAsc(eventId);
     }
 
-    public List<MatchCard> findAllForEventAndDrawType(long evenId, DrawType drawType) {
-        return this.matchCardRepository.findMatchCardByEventFkAndDrawTypeOrderByGroupNum(evenId, drawType);
+    public List<MatchCard> findAllForEventAndDrawType(long eventId, DrawType drawType) {
+        return this.matchCardRepository.findMatchCardByEventFkAndDrawTypeOrderByRoundDescGroupNumAsc(eventId, drawType);
     }
 
-    public void deleteAllForEvent(long evenId, DrawType drawType) {
-        List<MatchCard> matchCardByEventFk = this.matchCardRepository.findMatchCardByEventFkAndDrawTypeOrderByGroupNum(evenId, drawType);
-        for (MatchCard matchCard : matchCardByEventFk) {
-            this.matchCardRepository.delete(matchCard);
-        }
+    public void deleteAllForEventAndDrawType(long eventId, DrawType drawType) {
+        this.matchCardRepository.deleteAllByEventFkAndDrawType(eventId, drawType);
     }
 
     public void delete(long eventId, DrawType drawType, int groupNum) {

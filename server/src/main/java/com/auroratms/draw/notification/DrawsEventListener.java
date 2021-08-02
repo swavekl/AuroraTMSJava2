@@ -50,7 +50,7 @@ public class DrawsEventListener {
     }
 
     private void createMatchCards(long eventId, DrawType drawType) {
-        this.matchCardService.deleteAllForEvent(eventId, drawType);
+        this.matchCardService.deleteAllForEventAndDrawType(eventId, drawType);
         this.matchCardService.generateMatchCardsForEvent(eventId, drawType);
     }
 
@@ -64,6 +64,6 @@ public class DrawsEventListener {
     }
 
     private void deleteMatchCards(long eventId, DrawType drawType) {
-        this.matchCardService.deleteAllForEvent(eventId, drawType);
+        this.matchCardService.deleteAllForEventAndDrawType(eventId, drawType);
     }
 }

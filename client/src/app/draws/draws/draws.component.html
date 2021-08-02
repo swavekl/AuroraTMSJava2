@@ -33,7 +33,7 @@
         <span *ngIf="selectedEvent" class="mat-h2" style="padding-top: 12px;">Draws for: {{selectedEvent?.name}}</span>
       </mat-toolbar-row>
     </mat-toolbar>
-    <div class="draws-panel" *ngIf="!showPlayoffDraw">
+    <div class="draws-panel" *ngIf="!showPlayoffDraw && selectedEvent != null">
       <div fxLayout="row wrap"
            fxLayoutGap="32px"
            fxLayoutAlign="flex-start" cdkDropListGroup>
@@ -46,7 +46,7 @@
                 Group: {{group.groupNum}} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                 <!--                </th>-->
                 <!--                <th>-->
-                {{selectedEvent.startTime | startTime}}
+                {{selectedEvent?.startTime | startTime}}
               </th>
             </tr>
             </thead>

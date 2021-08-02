@@ -31,7 +31,7 @@ public interface MatchCardRepository extends JpaRepository<MatchCard, Long> {
      * @param eventId
      * @return
      */
-    List<MatchCard> findMatchCardByEventFkAndDrawTypeOrderByGroupNum(long eventId, DrawType drawType);
+    List<MatchCard> findMatchCardByEventFkAndDrawTypeOrderByRoundDescGroupNumAsc(long eventId, DrawType drawType);
 
     /**
      * Finds all match cards for given day for events in the list of event ids
@@ -40,4 +40,11 @@ public interface MatchCardRepository extends JpaRepository<MatchCard, Long> {
      * @return
      */
     List<MatchCard> findMatchCardByEventFkInAndDayOrderByEventFkAscStartTimeAsc(List<Long> eventFks, int day);
+
+    /**
+     * Deletes all match cards for this event and draw type
+     * @param eventId
+     * @param drawType
+     */
+    void deleteAllByEventFkAndDrawType(long eventId, DrawType drawType);
 }

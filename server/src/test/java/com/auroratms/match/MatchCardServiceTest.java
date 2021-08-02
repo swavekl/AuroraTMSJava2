@@ -24,8 +24,9 @@ public class MatchCardServiceTest extends AbstractServiceTest {
 
         MatchCard firstGroupMatchCard = matchCardService.getMatchCard(eventId, 1);
         assertNotNull("no match card for group 1", firstGroupMatchCard);
+        assertEquals("wrong group number", 1, firstGroupMatchCard.getGroupNum());
         List<Match> matches = firstGroupMatchCard.getMatches();
-        assertEquals("wrong number of matches for group 1", 3, matches.size());
+        assertEquals("wrong number of matches for group 1", 6, matches.size());
 
         for (int groupNum = 2; groupNum < 5; groupNum++) {
             firstGroupMatchCard = matchCardService.getMatchCard(eventId, groupNum);
@@ -49,7 +50,7 @@ public class MatchCardServiceTest extends AbstractServiceTest {
             }
         }
 
-        matchCardService.deleteAllForEvent(eventId, drawType);
+        matchCardService.deleteAllForEventAndDrawType(eventId, drawType);
 
         allForEvent = matchCardService.findAllForEventAndDrawType(eventId, drawType);
         assertEquals("match cards exist after delete", 0, allForEvent.size());
@@ -62,13 +63,13 @@ public class MatchCardServiceTest extends AbstractServiceTest {
         matchCardService.generateMatchCardsForEvent(eventId, drawType);
 
         List<MatchCard> matchCards = matchCardService.findAllForEventAndDrawType(eventId, drawType);
-        assertEquals("match cards wrong number", 2, matchCards.size());
+        assertEquals("match cards wrong number", 4, matchCards.size());
 
         for (MatchCard matchCard : matchCards) {
             List<Match> matches = matchCard.getMatches();
             assertNotNull("matches is null", matches);
             assertEquals("one match per card in SE round", 1, matches.size());
-            assertEquals("wrong round of", 4, matchCard.getRound());
+            assertTrue("wrong round of either 4 or 2", (matchCard.getRound() == 4 || matchCard.getRound() == 2));
             for (Match match : matches) {
                 assertEquals(0, match.getGame1ScoreSideA());
                 assertFalse("default should be false", match.isSideADefaulted());

@@ -211,7 +211,12 @@ export class ScheduleManageComponent implements OnInit, OnChanges {
   }
 
   getRoundGroup(scheduleTimeBlock: ScheduleTimeBlock) {
-    return (scheduleTimeBlock.round === 0) ? `RR Group ${scheduleTimeBlock.groupNum}` : `SE Round of ${scheduleTimeBlock.round} / M 1`;
+    const matchNumber: string = (scheduleTimeBlock.round > 2)
+      ? `M ${scheduleTimeBlock.groupNum}`
+      : ((scheduleTimeBlock.groupNum === 1) ? '' : '3rd/4th pl');
+    return (scheduleTimeBlock.round === 0)
+      ? `RR Group ${scheduleTimeBlock.groupNum}`
+      : `${MatchCard.getRoundShortName(scheduleTimeBlock.round)} / ${matchNumber}`;
   }
 }
 

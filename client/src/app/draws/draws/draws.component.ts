@@ -117,29 +117,33 @@ export class DrawsComponent implements OnInit, OnChanges {
    * Generates draw for currently selected event
    */
   generateDraw() {
-    this.undoStack = [];
-    this.showPlayoffDraw = false;
-    const drawType: DrawType = this.selectedEvent.singleElimination ? DrawType.SINGLE_ELIMINATION : DrawType.ROUND_ROBIN;
-    const action: DrawAction = {
-      actionType: DrawActionType.DRAW_ACTION_GENERATE,
-      eventId: this.selectedEvent.id,
-      payload: {drawType: drawType}
-    };
-    this.drawsAction.emit(action);
+    if (this.selectedEvent != null) {
+      this.undoStack = [];
+      this.showPlayoffDraw = false;
+      const drawType: DrawType = this.selectedEvent.singleElimination ? DrawType.SINGLE_ELIMINATION : DrawType.ROUND_ROBIN;
+      const action: DrawAction = {
+        actionType: DrawActionType.DRAW_ACTION_GENERATE,
+        eventId: this.selectedEvent.id,
+        payload: {drawType: drawType}
+      };
+      this.drawsAction.emit(action);
+    }
   }
 
   /**
    * Clears draw for selected event
    */
   clearDraw() {
-    this.undoStack = [];
-    this.showPlayoffDraw = false;
-    const action: DrawAction = {
-      actionType: DrawActionType.DRAW_ACTION_CLEAR,
-      eventId: this.selectedEvent.id,
-      payload: {}
-    };
-    this.drawsAction.emit(action);
+    if (this.selectedEvent != null) {
+      this.undoStack = [];
+      this.showPlayoffDraw = false;
+      const action: DrawAction = {
+        actionType: DrawActionType.DRAW_ACTION_CLEAR,
+        eventId: this.selectedEvent.id,
+        payload: {}
+      };
+      this.drawsAction.emit(action);
+    }
   }
 
   isSelected(tournamentEvent: TournamentEvent) {
@@ -335,7 +339,7 @@ export class DrawsComponent implements OnInit, OnChanges {
           drawRound.drawItems.push(drawItem);
         }
         // last round and play for 3 & 4th place ?
-        if ((round + 1) === rounds && this.selectedEvent) {
+        if ((round + 1) === rounds && this.selectedEvent?.play3rd4thPlace) {
           for (let i = 0; i < drawRound.round; i++) {
             const drawItem: DrawItem = {
               id: 0, eventFk: eventFK, drawType: DrawType.SINGLE_ELIMINATION, groupNum: (i + 3), placeInGroup: 0,
