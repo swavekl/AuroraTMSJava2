@@ -43,10 +43,10 @@ export class ScheduleManageComponent implements OnInit, OnChanges {
   scheduleTimeBlocks: any = {};
 
   eventColors: string [] = [
-    '#8a2be2', '#00ffff', '#ffff00', '#f08080',
+    '#00ffff', '#ffff00', '#f08080',
     '#f7347a', '#666666', '#00ff00', '#c6e2ff',
     '#bada55', '#ffc0cb', '#fff68f', '#990000',
-    '#000080', '#daa520'
+    '#000080', '#daa520', '#8a2be2'
   ];
 
   constructor() {
@@ -160,10 +160,12 @@ export class ScheduleManageComponent implements OnInit, OnChanges {
         const endTime = startTime + (0.5 * colSpan);
         const eventColor = eventToColorMap[matchCard.eventFk];
         let firstTable = true;
+        // console.log('match card for event ' + this.getEventName(matchCard.eventFk) + ' round '
+        //   + MatchCard.getRoundAbbreviatedName(matchCard.round) + ' M ' + matchCard.groupNum + ' tables ' + matchCard.assignedTables +
+        // ' at ' + matchCard.startTime);
         for (let i = 0; i < strTableNums.length; i++) {
           const tableNum = Number(strTableNums[i]);
           const tableSchedule = newSchedule[tableNum];
-          // console.log('tableNum ' + tableNum);
           const slotsToRemove: number [] = [];
           for (let j = 0; j < tableSchedule.length; j++) {
             const scheduleTimeBlock: ScheduleTimeBlock = tableSchedule[j];
@@ -175,7 +177,7 @@ export class ScheduleManageComponent implements OnInit, OnChanges {
 
           // remove the empty time slots
           // go from the end
-          // console.log('Removing ' + slotsToRemove.length + ' slots for event ' + this.getEventName(matchCard.eventFk));
+          // console.log('Removing slots ' + slotsToRemove + ' for table ' + tableNum);
           for (let k = (slotsToRemove.length - 1); k >= 0; k--) {
             const index = slotsToRemove[k];
             tableSchedule.splice(index, 1);
@@ -186,7 +188,7 @@ export class ScheduleManageComponent implements OnInit, OnChanges {
             const insertionIndex = (slotsToRemove.length > 0) ? slotsToRemove[0] : -1;
             if (insertionIndex >= 0) {
               const eventName = this.getEventName(matchCard.eventFk);
-              // console.log('eventName', eventName);
+              // console.log(`adding ${eventName} schedule block (row, colspan) = ${rowSpan}, ${colSpan} at insertionIndex ${insertionIndex}`);
               const matchCardScheduleTimeBlock = new ScheduleTimeBlock(firstTableNum,
                 startTime, rowSpan, colSpan, matchCard.id, eventColor, eventName, matchCard.groupNum, matchCard.round);
               tableSchedule.splice(insertionIndex, 0, matchCardScheduleTimeBlock);
@@ -211,12 +213,12 @@ export class ScheduleManageComponent implements OnInit, OnChanges {
   }
 
   getRoundGroup(scheduleTimeBlock: ScheduleTimeBlock) {
-    const matchNumber: string = (scheduleTimeBlock.round > 2)
-      ? `M ${scheduleTimeBlock.groupNum}`
-      : ((scheduleTimeBlock.groupNum === 1) ? '' : '3rd/4th pl');
+    const seMatchIdentifier: string = (scheduleTimeBlock.round > 2)
+      ? `${MatchCard.getRoundAbbreviatedName(scheduleTimeBlock.round)} M ${scheduleTimeBlock.groupNum}`
+      : ((scheduleTimeBlock.groupNum === 1) ? 'Final' : '3rd & 4th');
     return (scheduleTimeBlock.round === 0)
       ? `RR Group ${scheduleTimeBlock.groupNum}`
-      : `${MatchCard.getRoundShortName(scheduleTimeBlock.round)} / ${matchNumber}`;
+      : `${seMatchIdentifier}`;
   }
 }
 

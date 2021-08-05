@@ -56,7 +56,7 @@ public class TableAvailabilityMatrix {
      * @return
      */
     public AvailableTableInfo findAvailableTable(double startTime, int duration) {
-        return this.findAvailableTable(startTime, duration, 1);
+        return this.findAvailableTable(startTime, duration, 1, false);
     }
 
     /**
@@ -65,26 +65,31 @@ public class TableAvailabilityMatrix {
      * @param startTime           start looking at this start time
      * @param duration            required duration
      * @param startingTableNumber start searching with this table number
+     * @param mustStartAtStartTime if true start time found must match desired start time
      * @return
      */
-    public AvailableTableInfo findAvailableTable(double startTime, int duration, int startingTableNumber) {
+    public AvailableTableInfo findAvailableTable(double startTime, int duration, int startingTableNumber, boolean mustStartAtStartTime) {
         AvailableTableInfo availableTableInfo = null;
         try {
             int timeSlotsNeeded = (int) (duration / TIME_SLOT_SIZE_INT);
             for (int tableIndex = (startingTableNumber - 1); tableIndex < this.availableTableTimeSlotsMatrix.length; tableIndex++) {
                 boolean[] tableTimeSlots = this.availableTableTimeSlotsMatrix[tableIndex];
                 double foundStartTime = findEarliestAvailableTable(startTime, timeSlotsNeeded, tableTimeSlots);
+                // if found desired time on this table
                 if (foundStartTime != 0) {
-                    if (availableTableInfo == null) {
-                        availableTableInfo = new AvailableTableInfo();
-                        availableTableInfo.tableNum = tableIndex + 1;
-                        availableTableInfo.startTime = foundStartTime;
-                        availableTableInfo.duration = duration;
-                    } else {
-                        // if time found is earlier lets use it instead of the later time to compress schedule
-                        if (foundStartTime < availableTableInfo.startTime && foundStartTime > startTime) {
+                    if ((mustStartAtStartTime && foundStartTime == startTime) ||
+                        (!mustStartAtStartTime && foundStartTime >= startTime)) {
+                        if (availableTableInfo == null) {
+                            availableTableInfo = new AvailableTableInfo();
                             availableTableInfo.tableNum = tableIndex + 1;
                             availableTableInfo.startTime = foundStartTime;
+                            availableTableInfo.duration = duration;
+                        } else {
+                            // if time found is earlier lets use it instead of the later time to compress schedule
+                            if (foundStartTime < availableTableInfo.startTime) {
+                                availableTableInfo.tableNum = tableIndex + 1;
+                                availableTableInfo.startTime = foundStartTime;
+                            }
                         }
                     }
                 }
@@ -109,11 +114,16 @@ public class TableAvailabilityMatrix {
         do {
             boolean allAvailable = true;
             int startTimeSlot = timeSlotIndex(startTime);
-            for (int timeSlotIndex = startTimeSlot; timeSlotIndex < (startTimeSlot + timeSlotsNeeded); timeSlotIndex++) {
-                if (!tableTimeSlots[timeSlotIndex]) {
-                    allAvailable = false;
-                    break;
+            if (startTimeSlot + timeSlotsNeeded <= tableTimeSlots.length) {
+                int endTimeSlotIndex = startTimeSlot + timeSlotsNeeded;
+                for (int timeSlotIndex = startTimeSlot; timeSlotIndex < endTimeSlotIndex; timeSlotIndex++) {
+                    if (!tableTimeSlots[timeSlotIndex]) {
+                        allAvailable = false;
+                        break;
+                    }
                 }
+            } else {
+                allAvailable = false;
             }
             if (allAvailable) {
                 foundStartTime = startTime;

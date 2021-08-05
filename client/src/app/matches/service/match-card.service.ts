@@ -22,4 +22,8 @@ export class MatchCardService extends EntityCollectionServiceBase<MatchCard> {
     super.clearCache();
     return super.getWithQuery(queryParams);
   }
+
+  public putIntoCache(matchCards: MatchCard[]) {
+    super.addAllToCache(matchCards);
+  }
 }

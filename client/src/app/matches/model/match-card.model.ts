@@ -60,4 +60,23 @@ export class MatchCard {
     }
     return strRound;
   }
+
+  public static getRoundAbbreviatedName(round: number): string {
+    let strRound = '';
+    switch (round) {
+      case 2:
+        strRound = 'Final';
+        break;
+      case 4:
+        strRound = 'S.F.';
+        break;
+      case 8:
+        strRound = 'Q.F.';
+        break;
+      default:
+        strRound = `R. of ${round}`;
+        break;
+    }
+    return strRound;
+  }
 }

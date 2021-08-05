@@ -63,8 +63,9 @@ export class ScheduleManageContainerComponent implements OnInit, OnDestroy {
       this.tournamentConfigService.store.select(this.tournamentConfigService.selectors.selectLoading),
       this.tournamentEventConfigService.store.select(this.tournamentEventConfigService.selectors.selectLoading),
       this.matchCardService.store.select(this.matchCardService.selectors.selectLoading),
-      (tournamentConfigLoading: boolean, eventConfigsLoading: boolean, matchCardsLoading: boolean) => {
-        return tournamentConfigLoading || eventConfigsLoading || matchCardsLoading;
+      this.matchSchedulingService.loading$,
+      (tournamentConfigLoading: boolean, eventConfigsLoading: boolean, matchCardsLoading: boolean, scheduleGenerating: boolean) => {
+        return tournamentConfigLoading || eventConfigsLoading || matchCardsLoading || scheduleGenerating;
       }
     );
 
@@ -119,7 +120,7 @@ export class ScheduleManageContainerComponent implements OnInit, OnDestroy {
       .pipe(first())
       .subscribe(
         (matchCards: MatchCard[]) => {
-          this.matchCards$ = of(matchCards);
+          this.matchCardService.putIntoCache(matchCards);
         }, (error: any) => {
           console.log('error ', error);
         });

@@ -11,7 +11,7 @@ public class TableAvailabilityMatrixTest {
         TableAvailabilityMatrix matrix = new TableAvailabilityMatrix(1);
         matrix.markTableAsUnavailable(1, 9.0d, 90);
 
-        TableAvailabilityMatrix.AvailableTableInfo availableTable = matrix.findAvailableTable(9.0d, 60, 1);
+        TableAvailabilityMatrix.AvailableTableInfo availableTable = matrix.findAvailableTable(9.0d, 60, 1, false);
         assertEquals ("table not found", 1, availableTable.tableNum);
         assertEquals ("wrong start time", 10.5d, availableTable.startTime, 0.0d);
 
@@ -27,10 +27,12 @@ public class TableAvailabilityMatrixTest {
         matrix.markTableAsUnavailable(1, 20.0d, 60);
 
         TableAvailabilityMatrix.AvailableTableInfo availableTable = matrix.findAvailableTable(9.0d, 60);
+        assertNotNull(availableTable);
         assertEquals ("table not found", 1, availableTable.tableNum);
         assertEquals ("wrong start time", 21.0d, availableTable.startTime, 0.0d);
 
         matrix.markTableAsUnavailable(1, availableTable.startTime, availableTable.duration);
+        assertNotNull(availableTable);
         TableAvailabilityMatrix.AvailableTableInfo availableTable2 = matrix.findAvailableTable(9.0d, 60);
         assertNull("wrong table", availableTable2);
     }

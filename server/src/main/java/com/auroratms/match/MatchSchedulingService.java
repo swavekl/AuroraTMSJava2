@@ -9,7 +9,6 @@ import io.micrometer.core.instrument.util.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -102,7 +101,7 @@ public class MatchSchedulingService {
 //                System.out.println("eventName = " + name + " startTime = " + event.getStartTime());
                 double assignedStartTime = event.getStartTime();
                 for (int i = 0; i < tablesToAssign; i++) {
-                    TableAvailabilityMatrix.AvailableTableInfo availableTable = matrix.findAvailableTable(event.getStartTime(), durationOnOneTable, currentTableNum);
+                    TableAvailabilityMatrix.AvailableTableInfo availableTable = matrix.findAvailableTable(event.getStartTime(), durationOnOneTable, currentTableNum, true);
                     if (availableTable != null) {
                         matrix.markTableAsUnavailable (availableTable.tableNum, availableTable.startTime, durationOnOneTable);
                         assignedStartTime = availableTable.startTime;
@@ -217,11 +216,15 @@ public class MatchSchedulingService {
         int currentTableNum = eventFirstTableNum;
         List<MatchCard> singleEliminationMatchCards = matchCardService.findAllForEventAndDrawType(event.getId(), DrawType.SINGLE_ELIMINATION);
         double currentRoundStartTime = singleEliminationStartTime;
+        double previousRoundStartTime = currentRoundStartTime;
         int previousRoundDuration = TableAvailabilityMatrix.TIME_SLOT_SIZE_INT;
         int currentRound = event.getMaxEntries();
         boolean firstMatch = true;
+//        System.out.println("event = " + event.getName());
         for (MatchCard matchCard : singleEliminationMatchCards) {
             int duration = calculateAllMatchesDuration(matchCard.getNumberOfGames(), 1);
+//            System.out.println("matchCard = " + matchCard);
+//            System.out.println("duration = " + duration);
             // get the first match round and duration
             if (firstMatch) {
                 firstMatch = false;
@@ -232,14 +235,20 @@ public class MatchSchedulingService {
             // all matches in the same round should have the same starting time and duration
             if (matchCard.getRound() != currentRound) {
                 currentRound = matchCard.getRound();
-                currentRoundStartTime += (previousRoundDuration / TableAvailabilityMatrix.TIME_SLOT_SIZE_INT) * TableAvailabilityMatrix.TIME_SLOT_SIZE;
+                currentRoundStartTime = previousRoundStartTime + (previousRoundDuration / TableAvailabilityMatrix.TIME_SLOT_SIZE_INT) * TableAvailabilityMatrix.TIME_SLOT_SIZE;
                 previousRoundDuration = duration;
+                currentTableNum = eventFirstTableNum;
             }
+//            System.out.println("currentRound = " + currentRound + ", currentRoundStartTime = " + currentRoundStartTime + ", currentTableNum = " + currentTableNum);
 
-            TableAvailabilityMatrix.AvailableTableInfo availableTable = matrix.findAvailableTable(currentRoundStartTime, duration, currentTableNum);
+            TableAvailabilityMatrix.AvailableTableInfo availableTable = matrix.findAvailableTable(currentRoundStartTime, duration, currentTableNum, false);
             if (availableTable != null) {
                 matrix.markTableAsUnavailable(availableTable.tableNum, availableTable.startTime, duration);
                 currentTableNum = availableTable.tableNum + 1;
+//                System.out.println("availableTable.startTime = " + availableTable.startTime + ", availableTable.tableNum = " + availableTable.tableNum);
+
+                // save the latest start number so next round starts after that match
+                previousRoundStartTime = Math.max(previousRoundStartTime, availableTable.startTime);
 
                 String assignedTables = Integer.toString(availableTable.tableNum);
                 matchCard.setAssignedTables(assignedTables);
