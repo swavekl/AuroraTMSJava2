@@ -43,10 +43,10 @@ export class ScheduleManageComponent implements OnInit, OnChanges {
   scheduleTimeBlocks: any = {};
 
   eventColors: string [] = [
-    '#00ffff', '#ffff00', '#f08080',
-    '#f7347a', '#666666', '#00ff00', '#c6e2ff',
-    '#bada55', '#ffc0cb', '#fff68f', '#990000',
-    '#000080', '#daa520', '#8a2be2'
+    '#98FB98', '#EAF509', '#FFE4B5', '#00BFFF',
+    '#DDA0DD', '#40E0D0', '#FF6347', '#87CEFA',
+    '#7E95CD', '#daa520', '#9370DB', '#D3D3D3',
+    '#bada55', '#ffc0cb', '#fff68f', '#66CDAA'
   ];
 
   constructor() {
@@ -151,50 +151,52 @@ export class ScheduleManageComponent implements OnInit, OnChanges {
         // convert match cards into schedule
       matchCards.forEach((matchCard: MatchCard) => {
         const assignedTables = matchCard.assignedTables;
-        const strTableNums: string [] = (assignedTables != null) ? assignedTables.split(',') : ['1'];
-        const firstTableNum = Number(strTableNums[0]);
-        const duration = matchCard.duration;
-        const rowSpan = strTableNums.length;
-        const colSpan = (duration / 30);
-        const startTime = matchCard.startTime;
-        const endTime = startTime + (0.5 * colSpan);
-        const eventColor = eventToColorMap[matchCard.eventFk];
-        let firstTable = true;
-        // console.log('match card for event ' + this.getEventName(matchCard.eventFk) + ' round '
-        //   + MatchCard.getRoundAbbreviatedName(matchCard.round) + ' M ' + matchCard.groupNum + ' tables ' + matchCard.assignedTables +
-        // ' at ' + matchCard.startTime);
-        for (let i = 0; i < strTableNums.length; i++) {
-          const tableNum = Number(strTableNums[i]);
-          const tableSchedule = newSchedule[tableNum];
-          const slotsToRemove: number [] = [];
-          for (let j = 0; j < tableSchedule.length; j++) {
-            const scheduleTimeBlock: ScheduleTimeBlock = tableSchedule[j];
-            // console.log('table # ' + scheduleTimeBlock.tableNum + ' startTime ' + scheduleTimeBlock.time);
-            if (startTime <= scheduleTimeBlock.time && scheduleTimeBlock.time < endTime) {
-              slotsToRemove.push(j);
+        if (assignedTables != null && assignedTables !== '') {
+          const strTableNums: string [] = assignedTables.split(',');
+          const firstTableNum = (strTableNums.length > 0) ? Number(strTableNums[0]) : 1;
+          const duration = matchCard.duration;
+          const rowSpan = strTableNums.length;
+          const colSpan = (duration / 30);
+          const startTime = matchCard.startTime;
+          const endTime = startTime + (0.5 * colSpan);
+          const eventColor = eventToColorMap[matchCard.eventFk];
+          let firstTable = true;
+          // console.log('match card for event ' + this.getEventName(matchCard.eventFk) + ' round '
+          //   + MatchCard.getRoundAbbreviatedName(matchCard.round) + ' M ' + matchCard.groupNum + ' tables ' + matchCard.assignedTables +
+          // ' at ' + matchCard.startTime);
+          for (let i = 0; i < strTableNums.length; i++) {
+            const tableNum = Number(strTableNums[i]);
+            const tableSchedule = newSchedule[tableNum];
+            const slotsToRemove: number [] = [];
+            for (let j = 0; j < tableSchedule.length; j++) {
+              const scheduleTimeBlock: ScheduleTimeBlock = tableSchedule[j];
+              // console.log('table # ' + scheduleTimeBlock.tableNum + ' startTime ' + scheduleTimeBlock.time);
+              if (startTime <= scheduleTimeBlock.time && scheduleTimeBlock.time < endTime) {
+                slotsToRemove.push(j);
+              }
             }
-          }
 
-          // remove the empty time slots
-          // go from the end
-          // console.log('Removing slots ' + slotsToRemove + ' for table ' + tableNum);
-          for (let k = (slotsToRemove.length - 1); k >= 0; k--) {
-            const index = slotsToRemove[k];
-            tableSchedule.splice(index, 1);
-          }
-
-          // place the match cards in place of first time slot
-          if (firstTable) {
-            const insertionIndex = (slotsToRemove.length > 0) ? slotsToRemove[0] : -1;
-            if (insertionIndex >= 0) {
-              const eventName = this.getEventName(matchCard.eventFk);
-              // console.log(`adding ${eventName} schedule block (row, colspan) = ${rowSpan}, ${colSpan} at insertionIndex ${insertionIndex}`);
-              const matchCardScheduleTimeBlock = new ScheduleTimeBlock(firstTableNum,
-                startTime, rowSpan, colSpan, matchCard.id, eventColor, eventName, matchCard.groupNum, matchCard.round);
-              tableSchedule.splice(insertionIndex, 0, matchCardScheduleTimeBlock);
+            // remove the empty time slots
+            // go from the end
+            // console.log('Removing slots ' + slotsToRemove + ' for table ' + tableNum);
+            for (let k = (slotsToRemove.length - 1); k >= 0; k--) {
+              const index = slotsToRemove[k];
+              tableSchedule.splice(index, 1);
             }
+
+            // place the match cards in place of first time slot
+            if (firstTable) {
+              const insertionIndex = (slotsToRemove.length > 0) ? slotsToRemove[0] : -1;
+              if (insertionIndex >= 0) {
+                const eventName = this.getEventName(matchCard.eventFk);
+                // console.log(`adding ${eventName} schedule block (row, colspan) = ${rowSpan}, ${colSpan} at insertionIndex ${insertionIndex}`);
+                const matchCardScheduleTimeBlock = new ScheduleTimeBlock(firstTableNum,
+                  startTime, rowSpan, colSpan, matchCard.id, eventColor, eventName, matchCard.groupNum, matchCard.round);
+                tableSchedule.splice(insertionIndex, 0, matchCardScheduleTimeBlock);
+              }
+            }
+            firstTable = false;
           }
-          firstTable = false;
         }
 
       });

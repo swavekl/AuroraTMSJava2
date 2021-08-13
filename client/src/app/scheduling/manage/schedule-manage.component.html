@@ -38,6 +38,7 @@
         <td [rowSpan]="scheduleTimeBlock.rowSpan"
             [colSpan]="scheduleTimeBlock.colSpan"
             [style]="{'background-color': scheduleTimeBlock.color}"
+            [class]="(scheduleTimeBlock.round > 16) ? (scheduleTimeBlock.eventName != '' ? 'round-preliminary' : '') : 'round-of-' + scheduleTimeBlock.round"
         >
           <ng-container *ngIf="scheduleTimeBlock.eventName != ''; else elseblock3">
             {{scheduleTimeBlock.eventName}}<br>{{getRoundGroup(scheduleTimeBlock)}}

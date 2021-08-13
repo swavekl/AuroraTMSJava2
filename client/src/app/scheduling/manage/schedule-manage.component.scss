@@ -13,10 +13,10 @@
 }
 
 table.schedule-table {
-  //border: 1px solid lime;
+  border-collapse: separate;
 
   thead tr th {
-    border: 1px solid blue;
+    border: 1px solid black;
   }
 
   tbody tr {
@@ -25,6 +25,31 @@ table.schedule-table {
       text-align: center;
       vertical-align: middle;
       font-size: 12px;
+
+      &.round-preliminary {
+        border: 3px solid black;
+        border-radius: 8px;
+      }
+
+      &.round-of-16 {
+       border: 4px solid fuchsia;
+        border-radius: 8px;
+      }
+
+      &.round-of-8 {
+       border: 4px solid cyan;
+        border-radius: 8px;
+      }
+
+      &.round-of-4 {
+       border: 4px solid yellow;
+        border-radius: 8px;
+      }
+
+      &.round-of-2 {
+       border: 4px solid lawngreen;
+        border-radius: 8px;
+      }
     }
   }
 }
