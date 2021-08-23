@@ -53,3 +53,6 @@ table.schedule-table {
     }
   }
 }
+
+// disable showing placeholder for drop place so indexes don't shift
+.cdk-drag-placeholder { display:none; }

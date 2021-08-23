@@ -1,4 +1,5 @@
 import {Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChange, SimpleChanges} from '@angular/core';
+import {CdkDrag, CdkDragDrop, CdkDragEnter, CdkDragStart, CdkDropList, moveItemInArray, transferArrayItem} from '@angular/cdk/drag-drop';
 import {Tournament} from '../../tournament/tournament-config/tournament.model';
 import {TournamentEvent} from '../../tournament/tournament-config/tournament-event.model';
 import {DateUtils} from '../../shared/date-utils';
@@ -49,9 +50,25 @@ export class ScheduleManageComponent implements OnInit, OnChanges {
     '#bada55', '#ffc0cb', '#fff68f', '#66CDAA'
   ];
 
+  // index of item over which we are currently hovering, since it is not correctly computed
+  private targetItemTableNum: number;
+  private targetItemIndex: number;
+  private sourceItemIndex: number;
+  // debug
+  private fromTableNumber: number;
+  private fromTime: number;
+  // debug information
+  movementDetail: string;
+
+
   constructor() {
     this.startingTimes = new DateUtils().getEventStartingTimes();
     this.selectedDay = 1;
+    this.targetItemIndex = -1;
+    this.targetItemTableNum = -1;
+    this.sourceItemIndex = -1;
+    this.fromTableNumber = 0;
+    this.fromTime = 0;
   }
 
   ngOnInit(): void {
@@ -83,7 +100,7 @@ export class ScheduleManageComponent implements OnInit, OnChanges {
     }
 
     if (this.matchCards.length > 0 && this.tournamentEvents.length > 0) {
-      this.scheduleTimeBlocks = this.buildScheduleArray(this.matchCards, this.tournamentEvents);
+      this.scheduleTimeBlocks = this.buildScheduleArray(this.matchCards);
     }
   }
 
@@ -122,7 +139,7 @@ export class ScheduleManageComponent implements OnInit, OnChanges {
    * @param matchCards
    * @private
    */
-  private buildScheduleArray(matchCards: MatchCard[], tournamentEvents: TournamentEvent[]): any {
+  private buildScheduleArray(matchCards: MatchCard[]): any {
     const newSchedule = {};
     const numTables = this.tournament?.configuration?.numberOfTables ?? 0;
     if (numTables > 0) {
@@ -151,6 +168,7 @@ export class ScheduleManageComponent implements OnInit, OnChanges {
         // convert match cards into schedule
       matchCards.forEach((matchCard: MatchCard) => {
         const assignedTables = matchCard.assignedTables;
+        // console.log(matchCard.id + ' assignedTables ' + assignedTables + ' time ' + matchCard.startTime);
         if (assignedTables != null && assignedTables !== '') {
           const strTableNums: string [] = assignedTables.split(',');
           const firstTableNum = (strTableNums.length > 0) ? Number(strTableNums[0]) : 1;
@@ -189,6 +207,8 @@ export class ScheduleManageComponent implements OnInit, OnChanges {
               const insertionIndex = (slotsToRemove.length > 0) ? slotsToRemove[0] : -1;
               if (insertionIndex >= 0) {
                 const eventName = this.getEventName(matchCard.eventFk);
+
+                // tslint:disable-next-line:max-line-length
                 // console.log(`adding ${eventName} schedule block (row, colspan) = ${rowSpan}, ${colSpan} at insertionIndex ${insertionIndex}`);
                 const matchCardScheduleTimeBlock = new ScheduleTimeBlock(firstTableNum,
                   startTime, rowSpan, colSpan, matchCard.id, eventColor, eventName, matchCard.groupNum, matchCard.round);
@@ -221,6 +241,170 @@ export class ScheduleManageComponent implements OnInit, OnChanges {
     return (scheduleTimeBlock.round === 0)
       ? `RR Group ${scheduleTimeBlock.groupNum}`
       : `${seMatchIdentifier}`;
+  }
+
+  /**
+   *
+   * @param event
+   */
+  onDropItem(event: CdkDragDrop<ScheduleTimeBlock[]>) {
+    console.log ('onDropItem');
+    const fromTableScheduleBlock: ScheduleTimeBlock = event.previousContainer.data[this.sourceItemIndex];
+    // const fromTableScheduleBlock: ScheduleTimeBlock = event.previousContainer.data[event.previousIndex];
+    const toTableScheduleBlock: ScheduleTimeBlock = event.container.data[this.targetItemIndex];
+    const fromTableNumber: number = fromTableScheduleBlock.tableNum;
+    const toTableNumber: number = toTableScheduleBlock.tableNum;
+    this.movementDetail = `From: ${fromTableNumber} / ${fromTableScheduleBlock.time}, To: ${toTableNumber} / ${toTableScheduleBlock.time}`;
+
+    // console.log('fromTableScheduleBlock.matchCardId', fromTableScheduleBlock.matchCardId);
+    // console.log('toTableScheduleBlock.matchCardId', toTableScheduleBlock.matchCardId);
+    // console.log('fromTableNumber', fromTableNumber);
+    // console.log('from start time', fromTableScheduleBlock.time);
+    // console.log('toTableNumber', toTableNumber);
+    // console.log('to   start time', toTableScheduleBlock.time);
+    const updatedMatchCards: MatchCard[] = [];
+    this.matchCards.forEach((matchCard: MatchCard) => {
+        if (matchCard.id === fromTableScheduleBlock.matchCardId) {
+          const assignedTables = this.generateUpdatedTableNumbers(matchCard, toTableNumber);
+          // console.log('toTableNumber ' + toTableNumber + ', assignedTables ' + assignedTables + ' time ' + toTableScheduleBlock.time);
+          const updatedMatchCard = {
+            ...matchCard,
+            assignedTables: assignedTables,
+            startTime: toTableScheduleBlock.time
+          };
+          updatedMatchCards.push(updatedMatchCard);
+        } else if (matchCard.id === toTableScheduleBlock.matchCardId) {
+          const assignedTables = this.generateUpdatedTableNumbers(matchCard, fromTableNumber);
+          // console.log('fromTableNumber ' + fromTableNumber + ', assignedTables ' + assignedTables + ' time ' + fromTableScheduleBlock.time);
+          const updatedMatchCard = {
+            ...matchCard,
+            assignedTables: assignedTables,
+            startTime: fromTableScheduleBlock.time
+          };
+          updatedMatchCards.push(updatedMatchCard);
+        } else {
+          updatedMatchCards.push(matchCard);
+        }
+    });
+    this.matchCards = updatedMatchCards;
+    // this.scheduleTimeBlocks = this.buildScheduleArray(updatedMatchCards);
+
+
+    console.log('previous container id ' + event.previousContainer.id + ' previousIndex ' + this.sourceItemIndex);
+    console.log('current container  id ' + event.container.id + ' targetItemIndex ' + this.targetItemIndex);
+    const fromItem = event.previousContainer.data[this.sourceItemIndex];
+    const toItem = event.container.data[this.targetItemIndex];
+    const numTablesNeeded = fromItem.rowSpan;
+    const numTimeSlotsNeeded = fromItem.colSpan;
+    const fromTableNum = fromItem.tableNum;
+    const toTableNum = this.targetItemTableNum;
+    if (event.previousContainer === event.container) {
+      console.log('move in same container numTimeSlotsNeeded ', numTimeSlotsNeeded);
+      // move dragged item
+      moveItemInArray(event.container.data, this.sourceItemIndex, this.targetItemIndex);
+      // move the other item(s) or empty slots
+      // for (let table = 0; table < numTablesNeeded; table++) {
+        const fromTableSchedule = this.scheduleTimeBlocks[toTableNum];
+        const toTableSchedule = this.scheduleTimeBlocks[fromTableNum];
+        console.log(`fromTableSchedule = this.scheduleTimeBlocks[${toTableNum}] (len)= ${fromTableSchedule.length}`);
+        console.log(`toTableSchedule   = this.scheduleTimeBlocks[${fromTableNum}] (len)=${toTableSchedule.length}`);
+        for (let timeSlot = 1; timeSlot < numTimeSlotsNeeded; timeSlot++) {
+          const fromIndex = this.targetItemIndex + timeSlot; // + ((table === 0) ? 1 : 0);
+          const toIndex   = this.sourceItemIndex + timeSlot;
+          console.log(`fromIndex: ${fromIndex} / toIndex ${toIndex}`);
+          moveItemInArray(event.container.data, fromIndex, toIndex);
+        }
+      // }
+    } else {
+      if (fromItem.colSpan === toItem.colSpan && fromItem.rowSpan === toItem.rowSpan) {
+        // exchange items
+        // move into new group
+        transferArrayItem(event.previousContainer.data,
+          event.container.data,
+          this.sourceItemIndex,
+          this.targetItemIndex);
+        // move the other item out of new group
+        transferArrayItem(event.container.data,
+          event.previousContainer.data,
+          this.targetItemIndex + 1,
+          this.sourceItemIndex);
+      } else {
+        // transfer event time block
+        console.log('transfer event block from/to index ' +  event.previousIndex + ' -> ' + this.targetItemIndex);
+        transferArrayItem(event.previousContainer.data,
+          event.container.data,
+          this.sourceItemIndex,
+          this.targetItemIndex);
+        // transfer the empty time slots
+        for (let table = 0; table < numTablesNeeded; table++) {
+          const fromTableSchedule = this.scheduleTimeBlocks[toTableNum + table];
+          const toTableSchedule = this.scheduleTimeBlocks[fromTableNum + table];
+          console.log(`fromTableSchedule = this.scheduleTimeBlocks[${toTableNum + table}] (len)= ${fromTableSchedule.length}`);
+          console.log(`toTableSchedule   = this.scheduleTimeBlocks[${fromTableNum + table}] (len)=${toTableSchedule.length}`);
+          for (let timeSlot = 0; timeSlot < numTimeSlotsNeeded; timeSlot++) {
+            const fromIndex = this.targetItemIndex + timeSlot + ((table === 0) ? 1 : 0);
+            const toIndex   = this.sourceItemIndex + timeSlot;
+            console.log(`fromIndex: ${fromIndex} / toIndex ${toIndex}`);
+            transferArrayItem(fromTableSchedule, toTableSchedule, fromIndex, toIndex);
+          }
+        }
+      }
+    }
+    this.fromTime = 0;
+    this.fromTableNumber = 0;
+    this.sourceItemIndex = -1;
+    this.targetItemIndex = -1;
+  }
+
+  private generateUpdatedTableNumbers(matchCard: MatchCard, newTableNumber: number): string {
+    const assignedTables: string [] = matchCard.assignedTables.split(',');
+    const assignedTableNumbers: number [] = [];
+    for (let i = 0; i < assignedTables.length; i++) {
+      assignedTableNumbers.push(newTableNumber);
+      newTableNumber++;
+    }
+    return assignedTableNumbers.join(',');
+  }
+
+  canDropItem(index: number, item: CdkDrag<ScheduleTimeBlock>, drop: CdkDropList) {
+    // console.log('canDropItem index ' + index + ' ' + item.data.eventName + ' ' + item.data.matchCardId + ' drop ' + drop.id);
+    return true;
+  }
+
+  canMoveItem(item: CdkDrag<ScheduleTimeBlock>, drop: CdkDropList) {
+    // console.log('canMoveItem ' + item.data.eventName + ' ' + item.data.matchCardId);
+    return true;
+  }
+
+  onItemDroppedOn($event: CdkDragDrop<ScheduleTimeBlock>) {
+    // console.log('onItemDroppedOn targetItemIndex', $event.currentIndex);
+
+  }
+
+  onMouseOver(event: MouseEvent, scheduleTimeBlock: ScheduleTimeBlock, itemIndex: number, tableNum: number) {
+    this.targetItemIndex = itemIndex;
+    this.targetItemTableNum = tableNum;
+    const fromTableNumber: string = (this.fromTableNumber !== 0) ? `${this.fromTableNumber}` : '-';
+    const fromTime: string = (this.fromTime !== 0) ? `${this.fromTime}` : '-';
+    // console.log('table ' + tableNum + ' index ' + itemIndex);
+    this.movementDetail = `From: ${fromTableNumber} / ${fromTime}, To: ${tableNum} / ${scheduleTimeBlock?.time} TII ${this.targetItemIndex}`;
+  }
+
+  onItemEntered($event: CdkDragEnter<ScheduleTimeBlock>) {
+    // const x = event.clientX, y = event.clientY,
+    //   elementMouseIsOver = document.elementFromPoint(x, y);
+    console.log('onItemEntered event.targetItemIndex ' + $event.currentIndex + ' itemIndex ' + this.targetItemIndex);
+    // $event.currentIndex = this.targetItemIndex;
+    // console.log('onItemEntered', $event);
+  }
+
+  onItemDragStarted($event: CdkDragStart<ScheduleTimeBlock>, itemIndex: number, tableNumber: number) {
+    const draggedItem = $event?.source?.data;
+    this.fromTableNumber = draggedItem.tableNum;
+    this.fromTime = draggedItem.time;
+    this.sourceItemIndex = itemIndex;
+    console.log ('this.sourceItemIndex', this.sourceItemIndex);
+    this.movementDetail = `From: ${this.fromTableNumber} / ${this.fromTime}, To: `;
   }
 }
 
