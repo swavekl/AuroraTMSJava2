@@ -21,6 +21,7 @@ import {MatchSchedulingService} from '../service/match-scheduling.service';
       [matchCards]="matchCards$ | async"
       (dayChangedEvent)="onDayChangedEvent($event)"
       (generateScheduleForEvent)="onGenerateForDay($event)"
+      (updateMatchCardsEvent)="onUpdateMatchCards($event)"
     >
     </app-schedule-manage>
   `,
@@ -134,4 +135,13 @@ export class ScheduleManageContainerComponent implements OnInit, OnDestroy {
     this.tournamentEventConfigService.loadTournamentEvents(this.tournamentId);
   }
 
+  onUpdateMatchCards(updatedMatchCards: MatchCard[]) {
+    console.log('matchCards', updatedMatchCards);
+    this.matchSchedulingService.updateMatchCards(updatedMatchCards)
+      .subscribe(() => {
+        console.log('finished updating');
+      }, (error) => {
+        console.log('Error during updating', error);
+      });
+  }
 }

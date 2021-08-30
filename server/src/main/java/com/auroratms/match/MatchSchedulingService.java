@@ -268,4 +268,18 @@ public class MatchSchedulingService {
             matchCardService.save(matchCard);
         }
     }
+
+    /**
+     * Updates existing match card start time and table numbers only
+     * @param matchCards
+     */
+    public void updateMatches(List<MatchCard> matchCards) {
+        for (MatchCard matchCard : matchCards) {
+            MatchCard existingMatchCard = matchCardService.getMatchCard(matchCard.getId());
+            existingMatchCard.setDay(matchCard.getDay());
+            existingMatchCard.setStartTime(matchCard.getStartTime());
+            existingMatchCard.setAssignedTables(matchCard.getAssignedTables());
+            matchCardService.save(existingMatchCard);
+        }
+    }
 }

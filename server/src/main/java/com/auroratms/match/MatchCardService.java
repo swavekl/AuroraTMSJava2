@@ -310,6 +310,11 @@ public class MatchCardService {
                 .orElseThrow(() -> new ResourceNotFoundException("Unable to find match card"));
     }
 
+    public MatchCard getMatchCard(long id) {
+        return this.matchCardRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Unable to find match card"));
+    }
+
     /**
      * Gets all match cards for given day of the tournament
      *

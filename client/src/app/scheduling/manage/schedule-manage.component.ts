@@ -28,6 +28,9 @@ export class ScheduleManageComponent implements OnInit, OnChanges {
   @Output()
   public generateScheduleForEvent: EventEmitter<number> = new EventEmitter<number>();
 
+  @Output()
+  public updateMatchCardsEvent: EventEmitter<MatchCard[]> = new EventEmitter<MatchCard[]>();
+
   // days
   days: any [] = [];
 
@@ -262,33 +265,7 @@ export class ScheduleManageComponent implements OnInit, OnChanges {
     // console.log('from start time', fromTableScheduleBlock.time);
     // console.log('toTableNumber', toTableNumber);
     // console.log('to   start time', toTableScheduleBlock.time);
-    const updatedMatchCards: MatchCard[] = [];
-    this.matchCards.forEach((matchCard: MatchCard) => {
-        if (matchCard.id === fromTableScheduleBlock.matchCardId) {
-          const assignedTables = this.generateUpdatedTableNumbers(matchCard, toTableNumber);
-          // console.log('toTableNumber ' + toTableNumber + ', assignedTables ' + assignedTables + ' time ' + toTableScheduleBlock.time);
-          const updatedMatchCard = {
-            ...matchCard,
-            assignedTables: assignedTables,
-            startTime: toTableScheduleBlock.time
-          };
-          updatedMatchCards.push(updatedMatchCard);
-        } else if (matchCard.id === toTableScheduleBlock.matchCardId) {
-          const assignedTables = this.generateUpdatedTableNumbers(matchCard, fromTableNumber);
-          // console.log('fromTableNumber ' + fromTableNumber + ', assignedTables ' + assignedTables + ' time ' + fromTableScheduleBlock.time);
-          const updatedMatchCard = {
-            ...matchCard,
-            assignedTables: assignedTables,
-            startTime: fromTableScheduleBlock.time
-          };
-          updatedMatchCards.push(updatedMatchCard);
-        } else {
-          updatedMatchCards.push(matchCard);
-        }
-    });
-    this.matchCards = updatedMatchCards;
-    // this.scheduleTimeBlocks = this.buildScheduleArray(updatedMatchCards);
-
+    this.updateMatchCards(fromTableScheduleBlock, toTableNumber, toTableScheduleBlock, fromTableNumber);
 
     console.log('previous container id ' + event.previousContainer.id + ' previousIndex ' + this.sourceItemIndex);
     console.log('current container  id ' + event.container.id + ' targetItemIndex ' + this.targetItemIndex);
@@ -354,6 +331,40 @@ export class ScheduleManageComponent implements OnInit, OnChanges {
     this.fromTableNumber = 0;
     this.sourceItemIndex = -1;
     this.targetItemIndex = -1;
+  }
+
+  private updateMatchCards(fromTableScheduleBlock: ScheduleTimeBlock, toTableNumber: number, toTableScheduleBlock: ScheduleTimeBlock, fromTableNumber: number) {
+    const updatedMatchCards: MatchCard[] = [];
+    const updatedMatchCardsDelta: MatchCard[] = [];
+    this.matchCards.forEach((matchCard: MatchCard) => {
+      if (matchCard.id === fromTableScheduleBlock.matchCardId) {
+        const assignedTables = this.generateUpdatedTableNumbers(matchCard, toTableNumber);
+        // console.log('toTableNumber ' + toTableNumber + ', assignedTables ' + assignedTables + ' time ' + toTableScheduleBlock.time);
+        const updatedMatchCard = {
+          ...matchCard,
+          assignedTables: assignedTables,
+          startTime: toTableScheduleBlock.time
+        };
+        updatedMatchCards.push(updatedMatchCard);
+        updatedMatchCardsDelta.push(updatedMatchCard);
+      } else if (matchCard.id === toTableScheduleBlock.matchCardId) {
+        const assignedTables = this.generateUpdatedTableNumbers(matchCard, fromTableNumber);
+        // console.log('fromTableNumber ' + fromTableNumber + ', assignedTables ' + assignedTables + ' time ' + fromTableScheduleBlock.time);
+        const updatedMatchCard = {
+          ...matchCard,
+          assignedTables: assignedTables,
+          startTime: fromTableScheduleBlock.time
+        };
+        updatedMatchCards.push(updatedMatchCard);
+        updatedMatchCardsDelta.push(updatedMatchCard);
+      } else {
+        updatedMatchCards.push(matchCard);
+      }
+    });
+    this.matchCards = updatedMatchCards;
+    this.updateMatchCardsEvent.emit(updatedMatchCardsDelta);
+
+
   }
 
   private generateUpdatedTableNumbers(matchCard: MatchCard, newTableNumber: number): string {

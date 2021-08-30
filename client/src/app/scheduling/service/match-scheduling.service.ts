@@ -1,8 +1,7 @@
-import { Injectable } from '@angular/core';
+import {Injectable} from '@angular/core';
 import {BehaviorSubject, Observable} from 'rxjs';
-import {HttpClient} from '@angular/common/http';
+import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {distinctUntilChanged, map, tap} from 'rxjs/operators';
-import {UsattPlayerRecord} from '../../profile/model/usatt-player-record.model';
 import {MatchCard} from '../../matches/model/match-card.model';
 
 @Injectable({
@@ -37,6 +36,25 @@ export class MatchSchedulingService {
             if (matchCards) {
               return matchCards;
             }
+          }
+        )
+      );
+  }
+
+  public updateMatchCards(matchCards: MatchCard[]): Observable<void> {
+    const url = `/api/schedule`;
+    this.setLoading(true);
+    return this.http.put<void>(url, matchCards, {
+      headers: new HttpHeaders({
+        'Content-Type': 'application/json'
+      })
+    })
+      .pipe(
+        tap(() => {
+            this.setLoading(false);
+          },
+          () => {
+            this.setLoading(false);
           }
         )
       );

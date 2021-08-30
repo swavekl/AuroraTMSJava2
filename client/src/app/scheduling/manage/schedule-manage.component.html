@@ -62,7 +62,7 @@
             [id]="(tableNum + 1) + ' ' + scheduleTimeBlock.time"
         >
           <ng-container *ngIf="scheduleTimeBlock.eventName != ''; else elseblock3">
-            {{itemIndex}} {{scheduleTimeBlock.eventName}}<br>{{getRoundGroup(scheduleTimeBlock)}}
+            {{scheduleTimeBlock.eventName}}<br>{{getRoundGroup(scheduleTimeBlock)}}
           </ng-container>
           <ng-template #elseblock3>{{itemIndex}}</ng-template>
         </td>
