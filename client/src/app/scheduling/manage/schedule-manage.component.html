@@ -11,63 +11,26 @@
   </mat-toolbar-row>
 </mat-toolbar>
 <div class="scheduling-container">
-  <table class="schedule-table">
+  <table>
     <thead>
-    <!--    <tr>-->
-    <!--      <th>-->
-    <!--        Table-->
-    <!--      </th>-->
-    <!--      <th [colSpan]="startingTimes.length + 1">-->
-    <!--        Staring times-->
-    <!--      </th>-->
-    <!--    </tr>-->
     <tr>
-      <th>
-        Table<br/>#
-      </th>
-      <th *ngFor="let startingTime of startingTimes">
-        {{ startingTime.startTimeText }}
-      </th>
-
+          <th>
+            Table<br/>#
+          </th>
+          <th *ngFor="let startingTime of startingTimes">
+            {{ startingTime.startTimeText }}
+          </th>
     </tr>
-
     </thead>
-    <tbody cdkDropListGroup>
-    <tr *ngFor="let table of tablesArray; let tableNum = index"
-        cdkDropList
-        [id]="'tableNum-' + (tableNum + 1)"
-        [cdkDropListData]="scheduleTimeBlocks[tableNum + 1]"
-        [cdkDropListEnterPredicate]="canMoveItem"
-        [cdkDropListSortPredicate]="canDropItem"
-        (cdkDropListDropped)="onDropItem($event)"
-        cdkDropListSortingDisabled
-    >
-      <td>{{tableNum + 1}}</td>
-      <ng-container *ngFor="let scheduleTimeBlock of scheduleTimeBlocks[tableNum + 1]; let itemIndex = index">
-        <td [rowSpan]="scheduleTimeBlock.rowSpan"
-            [colSpan]="scheduleTimeBlock.colSpan"
-            [style]="{
-            'background-color': scheduleTimeBlock.color,
-            'height': (scheduleTimeBlock.rowSpan * 48) + 'px',
-            'width': (scheduleTimeBlock.colSpan * 60) + 'px'
-            }"
-            [class]="(scheduleTimeBlock.round > 16) ? (scheduleTimeBlock.eventName != '' ? 'round-preliminary' : '') : 'round-of-' + scheduleTimeBlock.round"
-            cdkDrag
-            cdkDragBoundary="tbody"
-            (cdkDragStarted)="onItemDragStarted($event, itemIndex, tableNum + 1)"
-            (cdkDragDropped)="onItemDroppedOn($event)"
-            (mouseover)="onMouseOver($event, scheduleTimeBlock, itemIndex, tableNum + 1)"
-            (cdkDragEntered)="onItemEntered($event)"
-            [cdkDragData]="scheduleTimeBlock"
-            [id]="(tableNum + 1) + ' ' + scheduleTimeBlock.time"
-        >
-          <ng-container *ngIf="scheduleTimeBlock.eventName != ''; else elseblock3">
-            {{scheduleTimeBlock.eventName}}<br>{{getRoundGroup(scheduleTimeBlock)}}
-          </ng-container>
-          <ng-template #elseblock3>{{itemIndex}}</ng-template>
-        </td>
-      </ng-container>
-    </tr>
-    </tbody>
   </table>
+  <gridster [options]="gridsterOptions">
+    <gridster-item [item]="item" *ngFor="let item of gridsterItems">
+      <div *ngIf="item.isTableNum" class="table-number">
+        {{item.label}}
+      </div>
+      <div *ngIf="!item.isHeader" [class]="getItemClass(item)" [style]="{'background-color': item.backgroundColor}">
+        {{item.label}} <br> {{getRoundGroupLabel(item.groupNum, item.round)}}
+      </div>
+    </gridster-item>
+  </gridster>
 </div>

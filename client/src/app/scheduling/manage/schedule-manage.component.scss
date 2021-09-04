@@ -7,52 +7,88 @@
 }
 
 .scheduling-container {
-  overflow: auto;
-  //border: 1px solid yellow;
-  height: calc(100vh - 140px);
+  overflow: scroll hidden;
+  height: calc(100vh - 125px);
+  width: calc((60px * 29) + 18px);
 }
 
-table.schedule-table {
-  border-collapse: separate;
+gridster {
+  height: calc(100vh - 200px);
+  width: 100%;
+}
 
-  thead tr th {
-    border: 1px solid black;
+gridster gridster-item div {
+  height: 93%;
+  line-height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 12px;
+  padding: 2px 0 0 3px;
+
+  &.header {
+    height: 100%;
+    font-weight: bold;
+    border-left: 1px solid black;
+    border-right: 1px solid black;
   }
 
-  tbody tr {
-    td {
-      border: 1px solid black;
-      text-align: center;
-      vertical-align: middle;
-      font-size: 12px;
+  &.table-number {
+    height: 100%;
+    font-weight: bold;
+    border-top: 1px solid black;
+    border-bottom: 2px solid black;
+  }
 
-      &.round-preliminary {
-        border: 3px solid black;
-        border-radius: 8px;
-      }
+  &.round-round-robin {
+    border: 4px solid black;
+    border-radius: 8px;
+  }
 
-      &.round-of-16 {
-       border: 4px solid fuchsia;
-        border-radius: 8px;
-      }
+  &.round-preliminary {
+    border: 4px solid black;
+    border-radius: 8px;
+    height: 85%;
+  }
 
-      &.round-of-8 {
-       border: 4px solid cyan;
-        border-radius: 8px;
-      }
+  &.round-of-16 {
+    border: 4px solid fuchsia;
+    border-radius: 8px;
+    height: 85%;
+  }
 
-      &.round-of-4 {
-       border: 4px solid yellow;
-        border-radius: 8px;
-      }
+  &.round-of-8 {
+    border: 4px solid cyan;
+    border-radius: 8px;
+    height: 85%;
+  }
 
-      &.round-of-2 {
-       border: 4px solid lawngreen;
-        border-radius: 8px;
-      }
-    }
+  &.round-of-4 {
+    border: 4px solid yellow;
+    border-radius: 8px;
+    height: 85%;
+  }
+
+  &.round-of-2 {
+    border: 4px solid lawngreen;
+    border-radius: 8px;
+    height: 85%;
   }
 }
 
-// disable showing placeholder for drop place so indexes don't shift
-.cdk-drag-placeholder { display:none; }
+// sticky header with time line
+table thead tr th {
+  min-width: 59px;
+  width: 59px;
+  min-height: 60px;
+  height: 60px;
+  border-width: 1px;
+  border-style: solid;
+  border-color: black;
+  background-color: #d7c8f5;
+  overflow: hidden;
+  text-align: center;
+  vertical-align: middle;
+  font-size: 12px;
+  font-weight: bold;
+}
