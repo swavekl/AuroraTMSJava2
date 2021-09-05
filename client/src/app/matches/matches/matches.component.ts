@@ -9,6 +9,8 @@ import {Match} from '../model/match.model';
 import {ScoreEntryDialogComponent} from '../score-entry-dialog/score-entry-dialog.component';
 import {ScoreEntryDialogData, ScoreEntryDialogResult} from '../score-entry-dialog/score-entry-dialog-data';
 import {MatchService} from '../service/match.service';
+import {TieBreakingService} from '../service/tie-breaking.service';
+import {GroupTieBreakingInfo} from '../model/tie-breaking/group-tie-breaking-info.model';
 
 @Component({
   selector: 'app-matches',
@@ -28,6 +30,9 @@ export class MatchesComponent implements OnInit, OnChanges, OnDestroy {
 
   @Input()
   selectedMatchCard: MatchCard;
+
+  @Input()
+  rankedPlayerInfos: any [] = [];
 
   @Output()
   private tournamentEventEmitter: EventEmitter<any> = new EventEmitter<any>();
@@ -49,7 +54,8 @@ export class MatchesComponent implements OnInit, OnChanges, OnDestroy {
   private scoreEntryDialogRef: MatDialogRef<ScoreEntryDialogComponent>;
 
   constructor(private dialog: MatDialog,
-              private matchService: MatchService) {
+              private matchService: MatchService,
+              private tieBreakingService: TieBreakingService) {
     this.games = [];
     this.subscriptions = new Subscription();
   }
@@ -78,6 +84,13 @@ export class MatchesComponent implements OnInit, OnChanges, OnDestroy {
     if (tournamentEventsChanges) {
       const te = tournamentEventsChanges.currentValue;
       // console.log('DrawsComponent got tournament events of length ' + te.length);
+    }
+    const selectedMatchCardChange: SimpleChange = changes.selectedMatchCard;
+    if (selectedMatchCardChange) {
+      const selectedMatchCard: MatchCard = selectedMatchCardChange.currentValue;
+      if (selectedMatchCard) {
+        // this.rankedPlayerNames = this.makeRankedPlayerNames(selectedMatchCard);
+      }
     }
   }
 
@@ -181,5 +194,44 @@ export class MatchesComponent implements OnInit, OnChanges, OnDestroy {
 
   public getRoundShortName(round: number): string {
     return MatchCard.getRoundShortName(round);
+  }
+
+  private makeRankedPlayerNames(selectedMatchCard: MatchCard): string [] {
+      const playerNames = [];
+      const matches = selectedMatchCard.matches;
+      if (matches?.length > 1) {
+        const theMap = selectedMatchCard.profileIdToNameMap;
+        for (const [profileId, playerName] of Object.entries(selectedMatchCard.profileIdToNameMap)) {
+          playerNames.push(playerName);
+        }
+      }
+
+      return playerNames;
+  }
+
+  public rankAndAdvance() {
+    const subscription = this.tieBreakingService.rankAndAdvance(this.selectedMatchCardId)
+      .subscribe((groupTieBreakingInfo: GroupTieBreakingInfo) => {
+        this.rankedPlayerInfos = this.processTieBreakingInfo(groupTieBreakingInfo);
+      });
+    this.subscriptions.add(subscription);
+  }
+
+  private processTieBreakingInfo(groupTieBreakingInfo: GroupTieBreakingInfo) {
+    const playerTieBreakingInfoList = groupTieBreakingInfo.playerTieBreakingInfoList ?? [];
+    const rankedPlayerInfos = [];
+    for (let i = 0; i < playerTieBreakingInfoList.length; i++) {
+      const playerTieBreakingInfo = playerTieBreakingInfoList[i];
+      const playerName = this.selectedMatchCard.profileIdToNameMap[playerTieBreakingInfo.playerProfileId];
+      rankedPlayerInfos.push({
+        rank: playerTieBreakingInfo.rank,
+        letterCode: playerTieBreakingInfo.playerCode,
+        playerName: playerName
+      });
+    }
+    rankedPlayerInfos.sort((player1: any, player2: any) => {
+      return (player1.rank > player2.rank) ? 1 : ((player1.rank < player2.rank) ? -1 : 0);
+    });
+    return rankedPlayerInfos;
   }
 }

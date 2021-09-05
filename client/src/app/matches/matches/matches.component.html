@@ -23,107 +23,144 @@
     </mat-list>
   </div>
   <div fxFlex class="match-card-section" *ngIf="selectedMatchCard != null">
-    <table class="match-card-header">
-      <thead>
-      <tr>
-        <th colspan="4" class="mat-display-2 tournament-name-row">{{tournamentName}}</th>
-      </tr>
-      <tr>
-        <th class="event-name-col">Event</th>
-        <ng-container *ngIf="selectedMatchCard?.drawType === 'ROUND_ROBIN'; else elseblock2">
-          <th class="event-group-col" *ngIf="selectedMatchCard?.drawType === 'ROUND_ROBIN'">Group</th>
-          <th class="event-assigned-tables-col">Tables</th>
-        </ng-container>
-        <ng-template #elseblock2>
-          <th class="event-round-col">Round</th>
-          <th class="event-assigned-one-table-col">Table</th>
-        </ng-template>
-        <th class="event-time-col">Time</th>
-      </tr>
-      </thead>
-      <tbody>
-      <tr>
-        <td class="mat-display-1">{{selectedEvent?.name}}</td>
-        <td class="mat-display-1">
-          <ng-container *ngIf="selectedMatchCard?.drawType === 'ROUND_ROBIN'; else elseblock">
-            {{selectedMatchCard?.groupNum}}
-          </ng-container>
-          <ng-template #elseblock>
-            {{ getRoundShortName(selectedMatchCard?.round) }}
-          </ng-template>
-        </td>
-        <td class="mat-display-1">
-          {{ selectedMatchCard.assignedTables }}
-        </td>
-        <td class="mat-display-1">
-          {{ selectedMatchCard.startTime | startTime }}
-        </td>
-      </tr>
-      </tbody>
-    </table>
-    <table class="match-display">
-      <thead>
-      <tr>
-        <th>Match</th>
-        <th>&nbsp;</th>
-        <th>Rating</th>
-        <th class="name-column">Player Name</th>
-        <th>Default</th>
-        <th [colSpan]="selectedMatchCard?.numberOfGames === 0 ? 5 : selectedMatchCard?.numberOfGames">Games</th>
-        <th>Enter</th>
-      </tr>
-      <tr>
-        <th>#</th>
-        <th>&nbsp;</th>
-        <th>&nbsp;</th>
-        <th>&nbsp;</th>
-        <th>&nbsp;</th>
-        <th *ngFor="let game of games; let idx = index;">{{idx + 1}}</th>
-        <th>Score</th>
-      </tr>
-      </thead>
-      <tbody>
-      <ng-container *ngFor="let match of selectedMatchCard?.matches; let matchIndex = index">
-        <tr>
-          <td [rowSpan]="2" class="match-number">{{ match.matchNum }}</td>
-          <td>{{match.playerALetter}}</td>
-          <td class="player-rating">{{match.playerARating}}</td>
-          <td [ngClass]="isMatchWinner(match.playerAProfileId, match) ? 'match-winner' : 'not-match-winner'">{{selectedMatchCard.profileIdToNameMap[match.playerAProfileId]}}</td>
-          <td class="defaulted">{{match.sideADefaulted ? 'Yes' : ''}}</td>
-          <td class="match-game-score" *ngFor="let game of games; let idx = index;">
-            <ng-container  [ngSwitch]="idx">
-              <ng-container *ngSwitchCase="0">{{match.game1ScoreSideA}}</ng-container>
-              <ng-container *ngSwitchCase="1">{{match.game2ScoreSideA}}</ng-container>
-              <ng-container *ngSwitchCase="2">{{match.game3ScoreSideA}}</ng-container>
-              <ng-container *ngSwitchCase="3">{{match.game4ScoreSideA}}</ng-container>
-              <ng-container *ngSwitchCase="4">{{match.game5ScoreSideA}}</ng-container>
-              <ng-container *ngSwitchCase="5">{{match.game6ScoreSideA}}</ng-container>
-              <ng-container *ngSwitchCase="6">{{match.game7ScoreSideA}}</ng-container>
+    <div fxLayout="column">
+      <div>
+        <mat-toolbar>
+          <mat-toolbar-row>
+            <span fxFlex></span>
+            <button type="button" mat-button (click)="rankAndAdvance()">
+              <mat-icon matListIcon>reorder</mat-icon>Rank And Advance
+            </button>
+          </mat-toolbar-row>
+        </mat-toolbar>
+      </div>
+      <div fxFlex fxLayout="row">
+        <div fxFlex>
+          <table class="match-card-header">
+            <thead>
+            <tr>
+              <th colspan="4" class="mat-display-2 tournament-name-row">{{tournamentName}}</th>
+            </tr>
+            <tr>
+              <th class="event-name-col">Event</th>
+              <ng-container *ngIf="selectedMatchCard?.drawType === 'ROUND_ROBIN'; else elseblock2">
+                <th class="event-group-col" *ngIf="selectedMatchCard?.drawType === 'ROUND_ROBIN'">Group</th>
+                <th class="event-assigned-tables-col">Tables</th>
+              </ng-container>
+              <ng-template #elseblock2>
+                <th class="event-round-col">Round</th>
+                <th class="event-assigned-one-table-col">Table</th>
+              </ng-template>
+              <th class="event-time-col">Time</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+              <td class="mat-display-1">{{selectedEvent?.name}}</td>
+              <td class="mat-display-1">
+                <ng-container *ngIf="selectedMatchCard?.drawType === 'ROUND_ROBIN'; else elseblock">
+                  {{selectedMatchCard?.groupNum}}
+                </ng-container>
+                <ng-template #elseblock>
+                  {{ getRoundShortName(selectedMatchCard?.round) }}
+                </ng-template>
+              </td>
+              <td class="mat-display-1">
+                {{ selectedMatchCard.assignedTables }}
+              </td>
+              <td class="mat-display-1">
+                {{ selectedMatchCard.startTime | startTime }}
+              </td>
+            </tr>
+            </tbody>
+          </table>
+          <table class="match-display">
+            <thead>
+            <tr>
+              <th>Match</th>
+              <th>&nbsp;</th>
+              <th>Rating</th>
+              <th class="name-column">Player Name</th>
+              <th>Default</th>
+              <th [colSpan]="selectedMatchCard?.numberOfGames === 0 ? 5 : selectedMatchCard?.numberOfGames">Games</th>
+              <th>Enter</th>
+            </tr>
+            <tr>
+              <th>#</th>
+              <th>&nbsp;</th>
+              <th>&nbsp;</th>
+              <th>&nbsp;</th>
+              <th>&nbsp;</th>
+              <th *ngFor="let game of games; let idx = index;">{{idx + 1}}</th>
+              <th>Score</th>
+            </tr>
+            </thead>
+            <tbody>
+            <ng-container *ngFor="let match of selectedMatchCard?.matches; let matchIndex = index">
+              <tr>
+                <td [rowSpan]="2" class="match-number">{{ match.matchNum }}</td>
+                <td>{{match.playerALetter}}</td>
+                <td class="player-rating">{{match.playerARating}}</td>
+                <td [ngClass]="isMatchWinner(match.playerAProfileId, match) ? 'match-winner' : 'not-match-winner'">{{selectedMatchCard.profileIdToNameMap[match.playerAProfileId]}}</td>
+                <td class="defaulted">{{match.sideADefaulted ? 'Yes' : ''}}</td>
+                <td class="match-game-score" *ngFor="let game of games; let idx = index;">
+                  <ng-container  [ngSwitch]="idx">
+                    <ng-container *ngSwitchCase="0">{{match.game1ScoreSideA}}</ng-container>
+                    <ng-container *ngSwitchCase="1">{{match.game2ScoreSideA}}</ng-container>
+                    <ng-container *ngSwitchCase="2">{{match.game3ScoreSideA}}</ng-container>
+                    <ng-container *ngSwitchCase="3">{{match.game4ScoreSideA}}</ng-container>
+                    <ng-container *ngSwitchCase="4">{{match.game5ScoreSideA}}</ng-container>
+                    <ng-container *ngSwitchCase="5">{{match.game6ScoreSideA}}</ng-container>
+                    <ng-container *ngSwitchCase="6">{{match.game7ScoreSideA}}</ng-container>
+                  </ng-container>
+                </td>
+                <td [rowSpan]="2" class="enter-score-button">
+                  <button mat-raised-button (click)="onMatchScoreEntry(match, matchIndex)">Enter</button>
+                </td>
+              </tr>
+              <tr style="border-bottom: 8px solid lightgray">
+                <td>{{match.playerBLetter}}</td>
+                <td class="player-rating">{{match.playerBRating}}</td>
+                <td [ngClass]="isMatchWinner(match.playerBProfileId, match) ? 'match-winner' : 'not-match-winner'">{{selectedMatchCard.profileIdToNameMap[match.playerBProfileId]}}</td>
+                <td class="defaulted">{{match.sideBDefaulted ? 'Yes' : ''}}</td>
+                <td class="match-game-score" *ngFor="let game of games; let idx = index;">
+                  <ng-container  [ngSwitch]="idx">
+                    <ng-container *ngSwitchCase="0">{{match.game1ScoreSideB}}</ng-container>
+                    <ng-container *ngSwitchCase="1">{{match.game2ScoreSideB}}</ng-container>
+                    <ng-container *ngSwitchCase="2">{{match.game3ScoreSideB}}</ng-container>
+                    <ng-container *ngSwitchCase="3">{{match.game4ScoreSideB}}</ng-container>
+                    <ng-container *ngSwitchCase="4">{{match.game5ScoreSideB}}</ng-container>
+                    <ng-container *ngSwitchCase="5">{{match.game6ScoreSideB}}</ng-container>
+                    <ng-container *ngSwitchCase="6">{{match.game7ScoreSideB}}</ng-container>
+                  </ng-container>
+                </td>
+              </tr>
             </ng-container>
-          </td>
-          <td [rowSpan]="2" class="enter-score-button">
-            <button mat-raised-button (click)="onMatchScoreEntry(match, matchIndex)">Enter</button>
-          </td>
-        </tr>
-        <tr style="border-bottom: 8px solid lightgray">
-          <td>{{match.playerBLetter}}</td>
-          <td class="player-rating">{{match.playerBRating}}</td>
-          <td [ngClass]="isMatchWinner(match.playerBProfileId, match) ? 'match-winner' : 'not-match-winner'">{{selectedMatchCard.profileIdToNameMap[match.playerBProfileId]}}</td>
-          <td class="defaulted">{{match.sideBDefaulted ? 'Yes' : ''}}</td>
-          <td class="match-game-score" *ngFor="let game of games; let idx = index;">
-            <ng-container  [ngSwitch]="idx">
-              <ng-container *ngSwitchCase="0">{{match.game1ScoreSideB}}</ng-container>
-              <ng-container *ngSwitchCase="1">{{match.game2ScoreSideB}}</ng-container>
-              <ng-container *ngSwitchCase="2">{{match.game3ScoreSideB}}</ng-container>
-              <ng-container *ngSwitchCase="3">{{match.game4ScoreSideB}}</ng-container>
-              <ng-container *ngSwitchCase="4">{{match.game5ScoreSideB}}</ng-container>
-              <ng-container *ngSwitchCase="5">{{match.game6ScoreSideB}}</ng-container>
-              <ng-container *ngSwitchCase="6">{{match.game7ScoreSideB}}</ng-container>
-            </ng-container>
-          </td>
-        </tr>
-      </ng-container>
-      </tbody>
-    </table>
+            </tbody>
+          </table>
+        </div>
+        <div fxFlex>
+          <table class="ranking">
+            <thead>
+            <tr>
+              <th colspan="2">
+                Ranking within group
+              </th>
+            </tr>
+            <tr>
+              <th>Rank</th>
+              <th>Player Name</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr *ngFor="let info of rankedPlayerInfos">
+              <td class="rank-column">{{ info.rank }}</td>
+              <td class="player-name-column">{{ info.playerName }}</td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
   </div>
 </div>

@@ -21,6 +21,7 @@ import {ScoreEntryDialogComponent} from './score-entry-dialog/score-entry-dialog
 import {MatchCardService} from './service/match-card.service';
 import {MatchService} from './service/match.service';
 import {SharedModule} from '../shared/shared.module';
+import {MatToolbarModule} from '@angular/material/toolbar';
 
 
 @NgModule({
@@ -42,7 +43,8 @@ import {SharedModule} from '../shared/shared.module';
         MatDialogModule,
         MatCheckboxModule,
         MatInputModule,
-        SharedModule
+        SharedModule,
+        MatToolbarModule
     ]
 })
 export class MatchesModule {
