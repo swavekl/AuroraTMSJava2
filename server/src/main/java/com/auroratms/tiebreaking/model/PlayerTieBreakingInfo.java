@@ -16,15 +16,26 @@ public class PlayerTieBreakingInfo {
 
     private int matchPoints;
 
+    private int gamesWon;
+    private int gamesLost;
+
+    private int pointsWon;
+    private int pointsLost;
+
     List<PlayerMatchResults> allPlayerMatchResults;
 
-    public PlayerTieBreakingInfo(String playerProfileId, int numPlayers, char playerCode) {
+    /**
+     * Used for subset of
+     * @param playerProfileId
+     * @param playerLetterCode
+     * @param allPlayerCodes this and o
+     */
+    public PlayerTieBreakingInfo(String playerProfileId, char playerLetterCode, List<Character> allPlayerCodes) {
         this.playerProfileId = playerProfileId;
-        this.playerCode = playerCode;
-        this.allPlayerMatchResults = new ArrayList<>(numPlayers);
-        for (int i = 0; i < numPlayers; i++) {
-            char opponentCode = (char) ('A' + i);
-            PlayerMatchResults playerMatchResults = new PlayerMatchResults(opponentCode);
+        this.playerCode = playerLetterCode;
+        this.allPlayerMatchResults = new ArrayList<>(allPlayerCodes.size());
+        for (Character opponentLetterCode : allPlayerCodes) {
+            PlayerMatchResults playerMatchResults = new PlayerMatchResults(opponentLetterCode);
             this.allPlayerMatchResults.add(playerMatchResults);
         }
     }

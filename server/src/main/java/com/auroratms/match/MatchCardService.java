@@ -294,15 +294,28 @@ public class MatchCardService {
     public void updateMatchCardsForEvent(long eventId, DrawType drawType) {
         List<DrawItem> eventDrawItems = drawService.list(eventId, drawType);
         TournamentEventEntity tournamentEventEntity = tournamentEventEntityService.get(eventId);
-        if (drawType == DrawType.ROUND_ROBIN) {
-//            updateRoundRobinMatchCards (eventId);
-        } else if (drawType == DrawType.SINGLE_ELIMINATION) {
-            updateSingleEliminationCards(eventDrawItems, tournamentEventEntity);
-        }
-    }
 
-    private void updateSingleEliminationCards(List<DrawItem> eventDrawItems, TournamentEventEntity tournamentEventEntity) {
-        List<MatchCard> matchCards = this.findAllForEventAndDrawType(tournamentEventEntity.getId(), DrawType.SINGLE_ELIMINATION);
+        List<MatchCard> existingMatchCards = this.findAllForEventAndDrawType(eventId, drawType);
+
+        deleteAllForEventAndDrawType(eventId, drawType);
+        if (drawType == DrawType.ROUND_ROBIN) {
+            generateRoundRobinMatchCards(eventDrawItems, tournamentEventEntity);
+        } else if (drawType == DrawType.SINGLE_ELIMINATION) {
+            generateSingleEliminationCards(eventDrawItems, tournamentEventEntity);
+        }
+
+        // transfer start times, assigned table numbers etc. to the updated match cards
+        List<MatchCard> updatedMatchCards = this.findAllForEventAndDrawType(eventId, drawType);
+        for (MatchCard existingMatchCard : existingMatchCards) {
+            for (MatchCard updatedMatchCard : updatedMatchCards) {
+                if (existingMatchCard.getGroupNum() == updatedMatchCard.getGroupNum()) {
+                    updatedMatchCard.setAssignedTables(existingMatchCard.getAssignedTables());
+                    updatedMatchCard.setDuration(existingMatchCard.getDuration());
+                    updatedMatchCard.setStartTime(existingMatchCard.getStartTime());
+                }
+            }
+        }
+        matchCardRepository.saveAll(updatedMatchCards);
     }
 
     public MatchCard getMatchCard(long eventId, int groupNum) {

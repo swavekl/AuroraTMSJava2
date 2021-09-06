@@ -409,6 +409,10 @@ public class DrawController {
     @PreAuthorize("hasAuthority('TournamentDirectors') or hasAuthority('Admins') or hasAuthority('Referees')")
     public void update(@RequestBody List<DrawItem> drawItemsList) {
         this.drawService.updateDraws(drawItemsList);
+        if (drawItemsList.size() > 0) {
+            DrawItem drawItem = drawItemsList.get(0);
+            this.drawsEventPublisher.publishEvent(drawItem.getEventFk(), DrawAction.UPDATED, drawItem.getDrawType());
+        }
     }
 
     /**

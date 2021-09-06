@@ -8,6 +8,12 @@ export class PlayerTieBreakingInfo {
 
   matchPoints: number;
 
+  gamesWon: number;
+  gamesLost: number;
+
+  pointsWon: number;
+  pointsLost: number;
+
   allPlayerMatchResults: PlayerMatchResults[];
 
 }
