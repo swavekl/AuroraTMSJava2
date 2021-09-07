@@ -54,9 +54,9 @@ public class MatchOrderGenerator {
                 rotateSpots(leftSidePlayers, rightSidePlayers);
             }
             // for more than one player to advance rotate twice after 1st and before last round
+            boolean lastRound = round == (totalRounds - 1);
             if (playersToAdvance > 1) {
                 boolean matchToBePlayed = isMatchToBePlayed(avoidMatchPlayer1, avoidMatchPlayer2, leftSidePlayers, rightSidePlayers);
-                boolean lastRound = round == (totalRounds - 1);
                 // check that B vs C match is not played in this round unless it is the last round
                 if (matchToBePlayed && !lastRound) {
                     // avoid this match until the last round
@@ -71,9 +71,39 @@ public class MatchOrderGenerator {
             }
 
             List<MatchOpponents> matchOpponentsList = convertToMatchOpponentsList(leftSidePlayers, rightSidePlayers);
+
+            // ensure that match to avoid is the match that is played last e.g. A vs B for 1 player advancing
+            if (lastRound) {
+                pushStrongestPlayersMatchToBePlayedLast(avoidMatchPlayer1, avoidMatchPlayer2, matchOpponentsList);
+            }
             allMatchOpponents.addAll(matchOpponentsList);
         }
         return allMatchOpponents;
+    }
+
+    /**
+     * Moves the match to be played last to the end
+     * if 1 player advances it is A vs B (the two strongest players) that will play last match
+     * if 2 players advance it is B vs C
+     * @param avoidMatchPlayer1
+     * @param avoidMatchPlayer2
+     * @param matchOpponentsList
+     * @return
+     */
+    private static void pushStrongestPlayersMatchToBePlayedLast(char avoidMatchPlayer1, char avoidMatchPlayer2, List<MatchOpponents> matchOpponentsList) {
+        int index = 0;
+        MatchOpponents removedMatchOpponents = null;
+        for (MatchOpponents matchOpponents : matchOpponentsList) {
+            if ((matchOpponents.playerALetter == avoidMatchPlayer1 && matchOpponents.playerBLetter == avoidMatchPlayer2) ||
+                (matchOpponents.playerALetter == avoidMatchPlayer2 && matchOpponents.playerBLetter == avoidMatchPlayer1)) {
+                removedMatchOpponents = matchOpponentsList.remove(index);
+                break;
+            }
+            index++;
+        }
+        if (removedMatchOpponents != null) {
+            matchOpponentsList.add(removedMatchOpponents);
+        }
     }
 
     /**

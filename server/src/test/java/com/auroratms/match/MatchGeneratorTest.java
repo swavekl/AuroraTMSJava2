@@ -32,8 +32,8 @@ public class MatchGeneratorTest {
             "A - C",
             "bye - B",
             // round 3
-            "A - B",
-            "C - bye"
+            "C - bye",
+            "A - B"
         };
 
 
@@ -70,8 +70,8 @@ public class MatchGeneratorTest {
                 "A - C",
                 "D - B",
                 // round 3
-                "A - B",
-                "C - D"
+                "C - D",
+                "A - B"
         };
 
         List<MatchOpponents> matchOrder = MatchOrderGenerator.generateOrderOfMatches(4, 1);
@@ -116,9 +116,9 @@ public class MatchGeneratorTest {
                 "D - B",
                 "E - bye",
                 // round 5
-                "A - B",
                 "C - bye",
-                "D - E"
+                "D - E",
+                "A - B"
         };
 
         List<MatchOpponents> matchOrder = MatchOrderGenerator.generateOrderOfMatches(5, 1);
@@ -174,9 +174,9 @@ public class MatchGeneratorTest {
                 "D - B",
                 "E - F",
                 // round 5
-                "A - B",
                 "C - F",
-                "D - E"
+                "D - E",
+                "A - B"
         };
 
         List<MatchOpponents> matchOrder = MatchOrderGenerator.generateOrderOfMatches(6, 1);
@@ -246,10 +246,10 @@ public class MatchGeneratorTest {
                 "E - bye",
                 "F - G",
                 // round 7
-                "A - B",
                 "C - bye",
                 "D - G",
-                "E - F"
+                "E - F",
+                "A - B"
         };
 
         List<MatchOpponents> matchOrder = MatchOrderGenerator.generateOrderOfMatches(7, 1);
@@ -333,10 +333,10 @@ public class MatchGeneratorTest {
                 "E - H",
                 "F - G",
                 // round 7
-                "A - B",
                 "C - H",
                 "D - G",
-                "E - F"
+                "E - F",
+                "A - B"
         };
 
         List<MatchOpponents> matchOrder = MatchOrderGenerator.generateOrderOfMatches(8, 1);
