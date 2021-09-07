@@ -9,10 +9,14 @@ import com.auroratms.tiebreaking.model.GroupTieBreakingInfo;
 import com.auroratms.tiebreaking.model.MatchStatus;
 import com.auroratms.tiebreaking.model.PlayerMatchResults;
 import com.auroratms.tiebreaking.model.PlayerTieBreakingInfo;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
+import java.io.StringWriter;
 import java.util.*;
 
 /**
@@ -42,7 +46,30 @@ public class TieBreakingService {
         int pointsPerGame = tournamentEventEntity.getPointsPerGame();
         int numberOfGames = matchCard.getNumberOfGames();
 
-        return rankAndAdvancePlayersInternal(matchCard, pointsPerGame, numberOfGames);
+        GroupTieBreakingInfo groupTieBreakingInfo = rankPlayers(matchCard, pointsPerGame, numberOfGames);
+
+        // advance players
+        advancePlayers(matchCard, tournamentEventEntity, groupTieBreakingInfo);
+
+        return groupTieBreakingInfo;
+    }
+
+    /**
+     * Computes ranking
+     *
+     * @param matchCardId
+     * @return
+     */
+    public GroupTieBreakingInfo rankAndExplain(Long matchCardId) {
+        MatchCard matchCard = matchCardService.get(matchCardId);
+
+        // get number of games and points per game
+        long eventFk = matchCard.getEventFk();
+        TournamentEventEntity tournamentEventEntity = tournamentEventEntityService.get(eventFk);
+        int pointsPerGame = tournamentEventEntity.getPointsPerGame();
+        int numberOfGames = matchCard.getNumberOfGames();
+
+        return rankPlayers(matchCard, pointsPerGame, numberOfGames);
     }
 
     /**
@@ -51,7 +78,7 @@ public class TieBreakingService {
      * @param numberOfGames
      * @return
      */
-    public GroupTieBreakingInfo rankAndAdvancePlayersInternal(MatchCard matchCard, int pointsPerGame, int numberOfGames) {
+    public GroupTieBreakingInfo rankPlayers(MatchCard matchCard, int pointsPerGame, int numberOfGames) {
         Map<String, String> profileIdToNameMap = matchCard.getProfileIdToNameMap();
         int numPlayers = profileIdToNameMap.size();
         List<Character> allPlayerCodes = new ArrayList<>(numPlayers);
@@ -644,4 +671,36 @@ public class TieBreakingService {
         }
         return null;
     }
+
+    /**
+     *
+     * @param matchCard
+     * @param tournamentEventEntity
+     * @param groupTieBreakingInfo
+     */
+    private void advancePlayers(MatchCard matchCard, TournamentEventEntity tournamentEventEntity, GroupTieBreakingInfo groupTieBreakingInfo) {
+        // create a JSON representation of the ranking
+        // extract player ranking
+        List<PlayerTieBreakingInfo> playerTieBreakingInfoList = groupTieBreakingInfo.getPlayerTieBreakingInfoList();
+        Map<Integer, String> rankToProfileIdMap = new TreeMap<>();
+        for (PlayerTieBreakingInfo playerTieBreakingInfo : playerTieBreakingInfoList) {
+            rankToProfileIdMap.put(playerTieBreakingInfo.getRank(), playerTieBreakingInfo.getPlayerProfileId());
+        }
+
+        // convert to a string for saving in match card
+        try {
+            StringWriter stringWriter = new StringWriter();
+            ObjectMapper mapper = new ObjectMapper();
+            mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+            mapper.writeValue(stringWriter, rankToProfileIdMap);
+            String content = stringWriter.toString();
+            matchCard.setPlayerRankings(content);
+            matchCardService.save(matchCard);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        matchCardService.advancePlayers(matchCard, tournamentEventEntity.getId(), rankToProfileIdMap);
+    }
+
 }

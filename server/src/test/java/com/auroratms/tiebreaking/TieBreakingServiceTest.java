@@ -254,7 +254,7 @@ public class TieBreakingServiceTest extends AbstractServiceTest {
         List<Match> matches = makeMatchesWithoutDefaults();
         MatchCard matchCard = makeMatchCard(matches, numberOfGames, playerCodeToExpectedRankMap.size());
 
-        GroupTieBreakingInfo groupTieBreakingInfo = tieBreakingService.rankAndAdvancePlayersInternal(matchCard, pointsPerGame, numberOfGames);
+        GroupTieBreakingInfo groupTieBreakingInfo = tieBreakingService.rankPlayers(matchCard, pointsPerGame, numberOfGames);
         List<PlayerTieBreakingInfo> playerTieBreakingInfoList = groupTieBreakingInfo.getPlayerTieBreakingInfoList();
         for (PlayerTieBreakingInfo playerTieBreakingInfo : playerTieBreakingInfoList) {
             char playerCode = playerTieBreakingInfo.getPlayerCode();
@@ -292,7 +292,7 @@ public class TieBreakingServiceTest extends AbstractServiceTest {
         List<Match> matches = makeMatchesWithDefaults();
         MatchCard matchCard = makeMatchCard(matches, numberOfGames, playerCodeToExpectedRankMap.size());
 
-        GroupTieBreakingInfo groupTieBreakingInfo = tieBreakingService.rankAndAdvancePlayersInternal(matchCard, pointsPerGame, numberOfGames);
+        GroupTieBreakingInfo groupTieBreakingInfo = tieBreakingService.rankPlayers(matchCard, pointsPerGame, numberOfGames);
         List<PlayerTieBreakingInfo> playerTieBreakingInfoList = groupTieBreakingInfo.getPlayerTieBreakingInfoList();
         for (PlayerTieBreakingInfo playerTieBreakingInfo : playerTieBreakingInfoList) {
             char playerCode = playerTieBreakingInfo.getPlayerCode();

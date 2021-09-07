@@ -39,6 +39,9 @@ export class MatchCard {
   // so if played on 2 tables it will
   duration: number;
 
+  // String representing player rankings
+  playerRankings: any;
+
   // map of player profile ids to their names
   profileIdToNameMap: any;
 

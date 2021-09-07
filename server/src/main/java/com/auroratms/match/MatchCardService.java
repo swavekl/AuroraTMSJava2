@@ -480,4 +480,25 @@ public class MatchCardService {
         this.matchCardRepository.delete(matchCard);
     }
 
+    public void advancePlayers(MatchCard matchCard, Long eventId, Map<Integer, String> rankToProfileIdMap) {
+        List<DrawItem> seDrawItems = this.drawService.list(eventId, DrawType.SINGLE_ELIMINATION);
+        TournamentEventEntity tournamentEventEntity = this.tournamentEventEntityService.get(eventId);
+        int placeRankNum = 1;
+        // update draws
+        for (DrawItem drawItem : seDrawItems) {
+            if (drawItem.getGroupNum() == matchCard.getGroupNum()) {
+                String playerProfileId = rankToProfileIdMap.get(placeRankNum);
+                drawItem.setPlayerId(playerProfileId);
+                List<DrawItem> updatedDrawItems = Arrays.asList(drawItem);
+//                this.drawService.updateDraws(updatedDrawItems);
+                placeRankNum++;
+                if (placeRankNum > tournamentEventEntity.getPlayersToAdvance()) {
+                    break;
+                }
+            }
+        }
+
+        // update match cards
+        // MatchCard seMatchCard = this.getMatchCard(eventId, matchCard.getGroupNum());
+    }
 }

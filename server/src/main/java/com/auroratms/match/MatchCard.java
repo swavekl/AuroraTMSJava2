@@ -57,6 +57,14 @@ public class MatchCard {
     // so if played on 2 tables it will
     private int duration;
 
+    // String representing player rankings
+    @Column(length = 400)
+    private String playerRankings;
+
+//    // same but as a map
+//    @Transient
+//    private Map<Integer, String> playerRankings;
+
     // map of player profile ids to their names
     @Transient
     Map<String, String> profileIdToNameMap;

@@ -89,7 +89,7 @@ export class MatchesComponent implements OnInit, OnChanges, OnDestroy {
     if (selectedMatchCardChange) {
       const selectedMatchCard: MatchCard = selectedMatchCardChange.currentValue;
       if (selectedMatchCard) {
-        // this.rankedPlayerNames = this.makeRankedPlayerNames(selectedMatchCard);
+        this.rankedPlayerInfos = this.makeRankedPlayerInfos(selectedMatchCard);
       }
     }
   }
@@ -130,7 +130,7 @@ export class MatchesComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   /**
-   * Entry point for calling back from dialgo
+   * Entry point for calling back from dialog
    * @param scope
    * @param result
    */
@@ -196,19 +196,6 @@ export class MatchesComponent implements OnInit, OnChanges, OnDestroy {
     return MatchCard.getRoundShortName(round);
   }
 
-  private makeRankedPlayerNames(selectedMatchCard: MatchCard): string [] {
-      const playerNames = [];
-      const matches = selectedMatchCard.matches;
-      if (matches?.length > 1) {
-        const theMap = selectedMatchCard.profileIdToNameMap;
-        for (const [profileId, playerName] of Object.entries(selectedMatchCard.profileIdToNameMap)) {
-          playerNames.push(playerName);
-        }
-      }
-
-      return playerNames;
-  }
-
   public rankAndAdvance() {
     const subscription = this.tieBreakingService.rankAndAdvance(this.selectedMatchCardId)
       .subscribe((groupTieBreakingInfo: GroupTieBreakingInfo) => {
@@ -217,6 +204,11 @@ export class MatchesComponent implements OnInit, OnChanges, OnDestroy {
     this.subscriptions.add(subscription);
   }
 
+  /**
+   * Processes incoming rankings information
+   * @param groupTieBreakingInfo
+   * @private
+   */
   private processTieBreakingInfo(groupTieBreakingInfo: GroupTieBreakingInfo) {
     const playerTieBreakingInfoList = groupTieBreakingInfo.playerTieBreakingInfoList ?? [];
     const rankedPlayerInfos = [];
@@ -225,10 +217,50 @@ export class MatchesComponent implements OnInit, OnChanges, OnDestroy {
       const playerName = this.selectedMatchCard.profileIdToNameMap[playerTieBreakingInfo.playerProfileId];
       rankedPlayerInfos.push({
         rank: playerTieBreakingInfo.rank,
-        letterCode: playerTieBreakingInfo.playerCode,
+        playerCode: playerTieBreakingInfo.playerCode,
         playerName: playerName
       });
     }
+    return this.sortRankedPlayerInfos(rankedPlayerInfos);
+  }
+
+  /**
+   * Makes ranking information from data saved in match card
+   * @param selectedMatchCard
+   * @private
+   */
+  private makeRankedPlayerInfos(selectedMatchCard: MatchCard): any[] {
+    const rankedPlayerInfos = [];
+    // make map of player profile id to letter code A, B, C ...
+    const matches = selectedMatchCard?.matches;
+    const profileIdToPlayerLetterMap = {};
+    matches.forEach((match: Match) => {
+      profileIdToPlayerLetterMap[match.playerAProfileId] = match.playerALetter;
+      profileIdToPlayerLetterMap[match.playerBProfileId] = match.playerBLetter;
+    });
+
+    // build ranking table information
+    const playerRankingsJSON = selectedMatchCard?.playerRankings;
+    if (playerRankingsJSON && playerRankingsJSON?.length > 0) {
+      const playerRankings = JSON.parse(playerRankingsJSON);
+      if (Object.keys(playerRankings).length > 0) {
+        const profileIdToNameMap = selectedMatchCard?.profileIdToNameMap;
+        for (const [rank, playerProfileId] of Object.entries(playerRankings)) {
+          const playerCode = profileIdToPlayerLetterMap[playerProfileId as string];
+          const playerName = profileIdToNameMap[playerProfileId as string];
+          rankedPlayerInfos.push({
+            rank: rank,
+            playerCode: playerCode,
+            playerName: playerName
+          });
+        }
+      }
+    }
+
+    return this.sortRankedPlayerInfos(rankedPlayerInfos);
+  }
+
+  private sortRankedPlayerInfos(rankedPlayerInfos) {
     rankedPlayerInfos.sort((player1: any, player2: any) => {
       return (player1.rank > player2.rank) ? 1 : ((player1.rank < player2.rank) ? -1 : 0);
     });

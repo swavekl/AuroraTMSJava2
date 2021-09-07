@@ -37,7 +37,7 @@ public class DrawItem {
 
     private DrawType drawType;
 
-    // id of the player (Okta) for fetching state, club etc.
+    // player profile id (Okta) for fetching state, club etc.
     @NonNull
     private String playerId;
 

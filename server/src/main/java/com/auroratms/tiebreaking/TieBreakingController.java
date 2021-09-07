@@ -32,4 +32,14 @@ public class TieBreakingController {
             return new ResponseEntity(e, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    @GetMapping("/tiebreaking/{matchCardId}/explain")
+    public ResponseEntity<GroupTieBreakingInfo> performTieBreakingAndExplain (@PathVariable Long matchCardId) {
+        try {
+            GroupTieBreakingInfo groupTieBreakingInfo = this.tieBreakingService.rankAndExplain(matchCardId);
+            return new ResponseEntity(groupTieBreakingInfo, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity(e, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 }
