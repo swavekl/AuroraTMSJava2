@@ -83,6 +83,7 @@ export class MatchesContainerComponent implements OnInit {
   }
 
   private setupMatchCards() {
+    this.matchCardService.clearCache();
     this.matchCards$ = this.matchCardService.store.select(this.matchCardService.selectors.selectEntities);
   }
 
