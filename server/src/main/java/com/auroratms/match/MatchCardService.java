@@ -480,6 +480,12 @@ public class MatchCardService {
         this.matchCardRepository.delete(matchCard);
     }
 
+    /**
+     *
+     * @param matchCard
+     * @param eventId
+     * @param rankToProfileIdMap
+     */
     public void advancePlayers(MatchCard matchCard, Long eventId, Map<Integer, String> rankToProfileIdMap) {
         List<DrawItem> seDrawItems = this.drawService.list(eventId, DrawType.SINGLE_ELIMINATION);
         TournamentEventEntity tournamentEventEntity = this.tournamentEventEntityService.get(eventId);
@@ -488,17 +494,17 @@ public class MatchCardService {
         for (DrawItem drawItem : seDrawItems) {
             if (drawItem.getGroupNum() == matchCard.getGroupNum()) {
                 String playerProfileId = rankToProfileIdMap.get(placeRankNum);
-                drawItem.setPlayerId(playerProfileId);
-                List<DrawItem> updatedDrawItems = Arrays.asList(drawItem);
-//                this.drawService.updateDraws(updatedDrawItems);
+                // if changed player who advanced then update draws
+                if (!playerProfileId.equals(drawItem.getPlayerId())) {
+                    drawItem.setPlayerId(playerProfileId);
+                    List<DrawItem> updatedDrawItems = Arrays.asList(drawItem);
+                    this.drawService.updateDraws(updatedDrawItems);
+                }
                 placeRankNum++;
                 if (placeRankNum > tournamentEventEntity.getPlayersToAdvance()) {
                     break;
                 }
             }
         }
-
-        // update match cards
-        // MatchCard seMatchCard = this.getMatchCard(eventId, matchCard.getGroupNum());
     }
 }

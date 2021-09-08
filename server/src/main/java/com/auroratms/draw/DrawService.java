@@ -1,6 +1,8 @@
 package com.auroratms.draw;
 
 import com.auroratms.draw.generation.*;
+import com.auroratms.draw.notification.DrawsEventPublisher;
+import com.auroratms.draw.notification.event.DrawAction;
 import com.auroratms.event.TournamentEventEntity;
 import com.auroratms.tournamentevententry.TournamentEventEntry;
 import com.auroratms.tournamentevententry.doubles.DoublesPair;
@@ -23,9 +25,14 @@ public class DrawService {
 
     private DoublesService doublesService;
 
-    public DrawService(DrawRepository drawRepository, DoublesService doublesService) {
+    private DrawsEventPublisher drawsEventPublisher;
+
+    public DrawService(DrawRepository drawRepository,
+                       DoublesService doublesService,
+                       DrawsEventPublisher drawsEventPublisher) {
         this.drawRepository = drawRepository;
         this.doublesService = doublesService;
+        this.drawsEventPublisher = drawsEventPublisher;
     }
 
     /**
@@ -37,8 +44,10 @@ public class DrawService {
      * @param entryIdToPlayerDrawInfo
      * @return
      */
-    public List<DrawItem> generateDraws(TournamentEventEntity tournamentEvent, DrawType drawType,
-                                        List<TournamentEventEntry> eventEntries, List<DrawItem> existingDrawItems,
+    public List<DrawItem> generateDraws(TournamentEventEntity tournamentEvent,
+                                        DrawType drawType,
+                                        List<TournamentEventEntry> eventEntries,
+                                        List<DrawItem> existingDrawItems,
                                         Map<Long, PlayerDrawInfo> entryIdToPlayerDrawInfo) {
         List<DrawItem> drawItemList = Collections.emptyList();
         try {
@@ -63,6 +72,8 @@ public class DrawService {
             e.printStackTrace();
             throw e;
         }
+
+        this.drawsEventPublisher.publishEvent(tournamentEvent.getId(), DrawAction.GENERATED, drawType);
 
         return drawItemList;
     }
@@ -95,7 +106,11 @@ public class DrawService {
      * @param drawItems
      */
     public void updateDraws(List<DrawItem> drawItems) {
-        this.drawRepository.saveAll(drawItems);
+        if (drawItems.size() > 0) {
+            this.drawRepository.saveAll(drawItems);
+            DrawItem drawItem = drawItems.get(0);
+            this.drawsEventPublisher.publishEvent(drawItem.getEventFk(), DrawAction.UPDATED, drawItem.getDrawType());
+        }
     }
 
     /**
@@ -105,5 +120,6 @@ public class DrawService {
      */
     public void deleteDraws(long eventId, DrawType drawType) {
         this.drawRepository.deleteAllByEventFkAndDrawType(eventId, drawType);
+        this.drawsEventPublisher.publishEvent(eventId, DrawAction.DELETED, drawType);
     }
 }

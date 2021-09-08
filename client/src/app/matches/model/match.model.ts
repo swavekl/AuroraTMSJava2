@@ -112,4 +112,15 @@ export class Match {
       return (numGamesWonByB === minimumNumberOfGamesToWin) || (match.sideADefaulted && !match.sideBDefaulted);
     }
   }
+
+  /**
+   * Tests if the complete match score was entered
+   * @param match
+   * @param numberOfGames
+   * @param pointsPerGame
+   */
+  public static isMatchFinished (match: Match, numberOfGames, pointsPerGame): boolean {
+    return Match.isMatchWinner(match.playerAProfileId, match, numberOfGames, pointsPerGame) ||
+           Match.isMatchWinner(match.playerBProfileId, match, numberOfGames, pointsPerGame);
+  }
 }

@@ -28,7 +28,7 @@
         <mat-toolbar>
           <mat-toolbar-row>
             <span fxFlex></span>
-            <button type="button" mat-button (click)="rankAndAdvance()">
+            <button type="button" mat-button (click)="rankAndAdvance()" [disabled]="isRankAndAdvanceDisabled()">
               <mat-icon matListIcon>reorder</mat-icon>Rank And Advance
             </button>
           </mat-toolbar-row>

@@ -4,8 +4,6 @@ import com.auroratms.club.ClubEntity;
 import com.auroratms.club.ClubService;
 import com.auroratms.draw.generation.PlayerDrawInfo;
 import com.auroratms.draw.generation.singleelim.SingleEliminationEntriesConverter;
-import com.auroratms.draw.notification.DrawsEventPublisher;
-import com.auroratms.draw.notification.event.DrawAction;
 import com.auroratms.event.TournamentEventEntity;
 import com.auroratms.event.TournamentEventEntityService;
 import com.auroratms.profile.UserProfile;
@@ -53,8 +51,6 @@ public class DrawController {
 
     private ClubService clubService;
 
-    private DrawsEventPublisher drawsEventPublisher;
-
     public DrawController(DrawService drawService,
                           TournamentEventEntityService eventService,
                           TournamentEventEntryService eventEntryService,
@@ -62,8 +58,7 @@ public class DrawController {
                           UserProfileExtService userProfileExtService,
                           UserProfileService userProfileService,
                           UsattDataService usattDataService,
-                          ClubService clubService,
-                          DrawsEventPublisher drawsEventPublisher) {
+                          ClubService clubService) {
         this.drawService = drawService;
         this.eventService = eventService;
         this.eventEntryService = eventEntryService;
@@ -72,7 +67,6 @@ public class DrawController {
         this.userProfileService = userProfileService;
         this.usattDataService = usattDataService;
         this.clubService = clubService;
-        this.drawsEventPublisher = drawsEventPublisher;
     }
 
     /**
@@ -343,8 +337,6 @@ public class DrawController {
             List<DrawItem> drawItems = this.drawService.generateDraws(thisEvent, drawType, eventEntries,
                         existingDrawItems, entryIdToPlayerDrawInfo);
 
-            this.drawsEventPublisher.publishEvent(thisEvent.getId(), DrawAction.GENERATED, drawType);
-
             // see if we need to create draw for single elimination round
             if (thisEvent.getPlayersToAdvance() > 0) {
                 List<TournamentEventEntry> seSimulatedEventEntries = SingleEliminationEntriesConverter.generateSEEventEntriesFromDraws(
@@ -353,7 +345,6 @@ public class DrawController {
                 List<DrawItem> seDrawItems = this.drawService.generateDraws(thisEvent, DrawType.SINGLE_ELIMINATION,
                         seSimulatedEventEntries, existingDrawItems, entryIdToPlayerDrawInfo);
                 drawItems.addAll(seDrawItems);
-                this.drawsEventPublisher.publishEvent(thisEvent.getId(), DrawAction.GENERATED, DrawType.SINGLE_ELIMINATION);
             }
             
             // response
@@ -409,10 +400,6 @@ public class DrawController {
     @PreAuthorize("hasAuthority('TournamentDirectors') or hasAuthority('Admins') or hasAuthority('Referees')")
     public void update(@RequestBody List<DrawItem> drawItemsList) {
         this.drawService.updateDraws(drawItemsList);
-        if (drawItemsList.size() > 0) {
-            DrawItem drawItem = drawItemsList.get(0);
-            this.drawsEventPublisher.publishEvent(drawItem.getEventFk(), DrawAction.UPDATED, drawItem.getDrawType());
-        }
     }
 
     /**
@@ -426,14 +413,11 @@ public class DrawController {
         boolean singleElimination = thisEvent.isSingleElimination();
         if (singleElimination) {
             this.drawService.deleteDraws(eventId, DrawType.SINGLE_ELIMINATION);
-            this.drawsEventPublisher.publishEvent(eventId, DrawAction.DELETED, DrawType.SINGLE_ELIMINATION);
         } else {
             // if RR is followed by Single elimination then delete that too
             this.drawService.deleteDraws(eventId, DrawType.ROUND_ROBIN);
-            this.drawsEventPublisher.publishEvent(eventId, DrawAction.DELETED, DrawType.ROUND_ROBIN);
             if (thisEvent.getPlayersToAdvance() > 0) {
                 this.drawService.deleteDraws(eventId, DrawType.SINGLE_ELIMINATION);
-                this.drawsEventPublisher.publishEvent(eventId, DrawAction.DELETED, DrawType.SINGLE_ELIMINATION);
             }
         }
     }

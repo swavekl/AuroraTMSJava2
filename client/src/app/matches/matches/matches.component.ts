@@ -11,6 +11,7 @@ import {ScoreEntryDialogData, ScoreEntryDialogResult} from '../score-entry-dialo
 import {MatchService} from '../service/match.service';
 import {TieBreakingService} from '../service/tie-breaking.service';
 import {GroupTieBreakingInfo} from '../model/tie-breaking/group-tie-breaking-info.model';
+import {DrawType} from '../../draws/model/draw-type.enum';
 
 @Component({
   selector: 'app-matches',
@@ -265,5 +266,22 @@ export class MatchesComponent implements OnInit, OnChanges, OnDestroy {
       return (player1.rank > player2.rank) ? 1 : ((player1.rank < player2.rank) ? -1 : 0);
     });
     return rankedPlayerInfos;
+  }
+
+  /**
+   * Checks if Rank and Advance button should be disabled i.e. when not all matches are entered
+   */
+  isRankAndAdvanceDisabled(): boolean {
+    let isEnabled = true;
+    if (this.selectedMatchCard && this.selectedEvent) {
+      const pointsPerGame = this.selectedEvent.pointsPerGame;
+      const numberOfGames = this.selectedMatchCard.numberOfGames;
+      const matches: Match[] = this.selectedMatchCard.matches;
+      matches.forEach((match: Match) => {
+        isEnabled = isEnabled && Match.isMatchFinished(match, numberOfGames, pointsPerGame);
+      });
+     isEnabled = isEnabled && (this.selectedMatchCard.drawType === DrawType.ROUND_ROBIN);
+    }
+    return !isEnabled;
   }
 }
