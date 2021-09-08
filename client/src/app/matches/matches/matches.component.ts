@@ -93,6 +93,32 @@ export class MatchesComponent implements OnInit, OnChanges, OnDestroy {
         this.rankedPlayerInfos = this.makeRankedPlayerInfos(selectedMatchCard);
       }
     }
+    const matchCardsChange: SimpleChange = changes.matchCards;
+    if (matchCardsChange) {
+      const matchCards: MatchCard [] = matchCardsChange.currentValue;
+      if (matchCards) {
+        this.matchCards = matchCards.sort((left: MatchCard, right: MatchCard) => {
+          if (left.drawType === DrawType.ROUND_ROBIN && right.drawType === DrawType.SINGLE_ELIMINATION) {
+            return -1;
+          } else if (left.drawType === DrawType.SINGLE_ELIMINATION && right.drawType === DrawType.ROUND_ROBIN) {
+            return 1;
+          } else {
+            if (left.drawType === DrawType.ROUND_ROBIN) {
+              return (left.groupNum === right.groupNum) ? 0 : ((left.groupNum > right.groupNum) ? 1 : -1);
+            } else {
+              // round of 16
+              if (left.round === right.round) {
+                const leftMatchNum = left.matches[0].matchNum;
+                const rightMatchNum = right.matches[0].matchNum;
+                return (leftMatchNum === rightMatchNum) ? 0 : (leftMatchNum > rightMatchNum) ? 1 : -1;
+              } else {
+                return (left.round < right.round) ? 1 : -1;
+              }
+            }
+          }
+        } );
+      }
+    }
   }
 
   onSelectMatchCard(matchCard: MatchCard) {
