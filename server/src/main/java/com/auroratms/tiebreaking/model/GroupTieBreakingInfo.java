@@ -12,7 +12,7 @@ public class GroupTieBreakingInfo {
     // main matrix holding final results for all players
     List<PlayerTieBreakingInfo> playerTieBreakingInfoList;
 
-    // subsets of tie breaking infos when n-way tie
-    // maps a string indicating which players are involved and which level
-    Map<String, List<PlayerTieBreakingInfo>> nWayTieBreakingInfoList;
+    // maps a string indicating the order in which tie breaks are resolved
+    // to a subset of matrix used to do the tie breaking
+    Map<String, List<PlayerTieBreakingInfo>> nWayTieBreakingInfosMap;
 }

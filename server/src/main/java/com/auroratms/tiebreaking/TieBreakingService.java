@@ -74,7 +74,7 @@ public class TieBreakingService {
 
     /**
      * @param matchCard
-     * @param pointsPerGame
+     * @param pointsPerGame points per game e.g. 11 or 21
      * @param numberOfGames
      * @return
      */
@@ -105,11 +105,13 @@ public class TieBreakingService {
             }
         });
 
-
+        // build a matrix of match results for tie breaking
         buildMatrix(matchCard, profileIdToLetterCodeMap, playerTieBreakingInfoList, pointsPerGame, numberOfGames);
 
-        Map<String, List<PlayerTieBreakingInfo>> nWayTieMap = performTieBreakingProcedure(groupTieBreakingInfo.getPlayerTieBreakingInfoList(), true, pointsPerGame);
-        groupTieBreakingInfo.setNWayTieBreakingInfoList(nWayTieMap);
+        // perform tie breaking and record second pass tie-breaking results in this map
+        Map<String, List<PlayerTieBreakingInfo>> nWayTieMap = new TreeMap<>();
+        groupTieBreakingInfo.setNWayTieBreakingInfosMap(nWayTieMap);
+        performTieBreakingProcedure(groupTieBreakingInfo.getPlayerTieBreakingInfoList(), true, pointsPerGame, nWayTieMap);
 
         return groupTieBreakingInfo;
     }
@@ -119,19 +121,20 @@ public class TieBreakingService {
      *
      * @param playerTieBreakingInfoList
      * @param firstLevel
-     * @param pointsPerGame
+     * @param pointsPerGame             points per game e.g. 11 or 21
+     * @param nWayTieMap                collect n-way tie results here
      */
-    private Map<String, List<PlayerTieBreakingInfo>> performTieBreakingProcedure(List<PlayerTieBreakingInfo> playerTieBreakingInfoList,
-                                                                                 boolean firstLevel,
-                                                                                 int pointsPerGame) {
-        Map<String, List<PlayerTieBreakingInfo>> nWayTieMap = new HashMap<>();
+    private void performTieBreakingProcedure(List<PlayerTieBreakingInfo> playerTieBreakingInfoList,
+                                             boolean firstLevel,
+                                             int pointsPerGame,
+                                             Map<String, List<PlayerTieBreakingInfo>> nWayTieMap) {
         // compute match points
         for (PlayerTieBreakingInfo playerTieBreakingInfo : playerTieBreakingInfoList) {
             calculateMatchPoints(playerTieBreakingInfo);
         }
 
         // see if there are any tie-breaks
-        // build a sorted map of match points to player codes who have that many match points
+        // build a sorted map of match points to player codes who have the same number of match points
         Map<Integer, List<Character>> matchPointsToLetterCodes = new TreeMap<>(Collections.reverseOrder());
         for (PlayerTieBreakingInfo playerTieBreakingInfo : playerTieBreakingInfoList) {
             int matchPoints = playerTieBreakingInfo.getMatchPoints();
@@ -139,25 +142,34 @@ public class TieBreakingService {
             playerCodes.add(playerTieBreakingInfo.getPlayerCode());
         }
 
-        // make a first pass assigning ranks assuming there are some players not requiring tie-breaks
+        // assign ranks based on match points
         int rank = 1;
         for (Integer matchPoints : matchPointsToLetterCodes.keySet()) {
-            List<Character> playerLetterCodes = matchPointsToLetterCodes.get(matchPoints);
-            for (Character playerLetterCode : playerLetterCodes) {
-                PlayerTieBreakingInfo playerTieBreakingInfo = getPlayerTieBreakingInfo(playerTieBreakingInfoList, playerLetterCode);
+            List<Character> playerCodes = matchPointsToLetterCodes.get(matchPoints);
+            // assign the same rank to all players with same number of match points
+            for (Character playerCode : playerCodes) {
+                PlayerTieBreakingInfo playerTieBreakingInfo = getPlayerTieBreakingInfo(playerTieBreakingInfoList, playerCode);
                 if (playerTieBreakingInfo != null) {
                     playerTieBreakingInfo.setRank(rank);
                 }
             }
-            rank += playerLetterCodes.size();
+            // skip rank number by players with the same match point
+            rank += playerCodes.size();
         }
 
         // determine if we have any ties.  if not every player has a distinct number of match points then we have a tie somewhere
         boolean hasTies = (playerTieBreakingInfoList.size() != matchPointsToLetterCodes.size());
         if (hasTies) {
             if (firstLevel) {
-                nWayTieMap = resolveTies(matchPointsToLetterCodes, playerTieBreakingInfoList, pointsPerGame);
+                // for each number of match points that have more than one player with that many MPs resolve the tie
+                for (Integer matchPoints : matchPointsToLetterCodes.keySet()) {
+                    List<Character> playerLetterCodes = matchPointsToLetterCodes.get(matchPoints);
+                    if (playerLetterCodes.size() > 1) {
+                        resolveNWayTie(playerLetterCodes, playerTieBreakingInfoList, pointsPerGame, nWayTieMap);
+                    }
+                }
             } else {
+                // levels after first one follow this procedure.
                 hasTies = determineRankBasedOnGamesRatio(playerTieBreakingInfoList);
                 if (hasTies) {
                     hasTies = determineRankBasedOnPointsRatio(playerTieBreakingInfoList, pointsPerGame);
@@ -167,20 +179,22 @@ public class TieBreakingService {
                 }
             }
         }
-        return nWayTieMap;
     }
 
     /**
-     * @param playerTieBreakingInfoList
-     * @param pointsPerGame
+     * Determines ranks based on points won vs lost ratio
+     *
+     * @param playerTieBreakingInfoList matches to consider for calculating ratios
+     * @param pointsPerGame             points per game e.g. 11 or 21
      */
     private boolean determineRankBasedOnPointsRatio(List<PlayerTieBreakingInfo> playerTieBreakingInfoList,
                                                     int pointsPerGame) {
         for (PlayerTieBreakingInfo playerTieBreakingInfo : playerTieBreakingInfoList) {
             calculatePointsWonToLost(playerTieBreakingInfo, pointsPerGame);
         }
+
         // consider points won / lost ratio
-        // put them in the sorted map
+        // put players with the same ratio in list and then sorted descending map by ratio
         Map<Float, List<Character>> pointsRatioToPlayerCodeMap = new TreeMap<>(Collections.reverseOrder());
         for (PlayerTieBreakingInfo playerTieBreakingInfo : playerTieBreakingInfoList) {
 //            System.out.println("player " + playerTieBreakingInfo.getPlayerCode() +
@@ -191,10 +205,7 @@ public class TieBreakingService {
             pointsRatioToPlayerCodeMap.put(pointsRatio, playerCodes);
         }
 
-        // see if there are any ties based on this ratio
-        // if every player has a different ratio then we don't have any ties
-        boolean hasTies = (playerTieBreakingInfoList.size() != pointsRatioToPlayerCodeMap.size());
-
+        // assign ranks
         int rank = 1;
         for (Float ratio : pointsRatioToPlayerCodeMap.keySet()) {
             List<Character> playerCodes = pointsRatioToPlayerCodeMap.get(ratio);
@@ -206,11 +217,17 @@ public class TieBreakingService {
             rank += playerCodes.size();
         }
 
+        // see if there are any ties based on this ratio
+        // if every player has a different ratio then we don't have any ties
+        boolean hasTies = (playerTieBreakingInfoList.size() != pointsRatioToPlayerCodeMap.size());
+
         return hasTies;
     }
 
     /**
-     * @param playerTieBreakingInfoList
+     * Determines ranks based on games won to lost ratio
+     *
+     * @param playerTieBreakingInfoList list of match infos to use for tiebreaking
      * @return
      */
     private boolean determineRankBasedOnGamesRatio(List<PlayerTieBreakingInfo> playerTieBreakingInfoList) {
@@ -227,10 +244,7 @@ public class TieBreakingService {
             gamesRatioToPlayerCodeMap.put(gamesRatio, playerCodes);
         }
 
-        // see if there are any ties based on this ratio
-        // if every player has a different ratio then we don't have any ties
-        boolean hasTies = (playerTieBreakingInfoList.size() != gamesRatioToPlayerCodeMap.size());
-
+        // assign ranks based on games ratio
         int rank = 1;
         for (Float ratio : gamesRatioToPlayerCodeMap.keySet()) {
             List<Character> playerCodes = gamesRatioToPlayerCodeMap.get(ratio);
@@ -238,21 +252,17 @@ public class TieBreakingService {
                 char playerCode = playerCodes.get(0);
                 PlayerTieBreakingInfo playerTieBreakingInfo = getPlayerTieBreakingInfo(playerTieBreakingInfoList, playerCode);
                 playerTieBreakingInfo.setRank(rank);
-            } else {
-//                if (playerCodes.size() == 2) {
-//                    // two-way tie
-//                    resolveTwoWayTie(playerCodes, playerTieBreakingInfoList);
-//                } else if (playerCodes.size() > 2) {
-//                    // another n-way tie
-//                    resolveNWayTie(playerCodes, playerTieBreakingInfoList);
-//                }
             }
             rank += playerCodes.size();
         }
+        // if every player has a different ratio then we don't have any ties
+        boolean hasTies = (playerTieBreakingInfoList.size() != gamesRatioToPlayerCodeMap.size());
         return hasTies;
     }
 
     /**
+     * Calculates match points and puts them in players tie breaking info
+     *
      * @param playerTieBreakingInfo
      */
     private void calculateMatchPoints(PlayerTieBreakingInfo playerTieBreakingInfo) {
@@ -301,7 +311,7 @@ public class TieBreakingService {
 
     /**
      * @param playerTieBreakingInfo
-     * @param pointsPerGame
+     * @param pointsPerGame         points per game e.g. 11 or 21
      */
     public void calculatePointsWonToLost(PlayerTieBreakingInfo playerTieBreakingInfo, int pointsPerGame) {
         int pointsWon = 0;
@@ -338,43 +348,19 @@ public class TieBreakingService {
     }
 
     /**
-     * Resolves 2 way tie. the winner has a higher rank than looser
-     *
-     * @param matchPointsToLetterCodes
-     * @param playerTieBreakingInfoList
-     * @param pointsPerGame
-     */
-    private Map<String, List<PlayerTieBreakingInfo>> resolveTies(Map<Integer, List<Character>> matchPointsToLetterCodes,
-                                                                 List<PlayerTieBreakingInfo> playerTieBreakingInfoList,
-                                                                 int pointsPerGame) {
-        Map<String, List<PlayerTieBreakingInfo>> nWayTiesMap = new HashMap<>();
-        // resolve ties if any
-        for (Integer matchPoints : matchPointsToLetterCodes.keySet()) {
-            List<Character> playerLetterCodes = matchPointsToLetterCodes.get(matchPoints);
-            if (playerLetterCodes.size() > 1) {
-                List<PlayerTieBreakingInfo> tiedPlayersTieBreakingInfoList = null;
-                if (playerLetterCodes.size() == 2) {
-                    // resolve two-way tie
-                    tiedPlayersTieBreakingInfoList = resolveTwoWayTie(playerLetterCodes, playerTieBreakingInfoList);
-                } else {
-                    // resolve 3 or more way tie
-                    tiedPlayersTieBreakingInfoList = resolveNWayTie(playerLetterCodes, playerTieBreakingInfoList, pointsPerGame);
-                }
-                String tieBreakingListKey = String.format("Tie breaking between players %s", playerLetterCodes);
-                nWayTiesMap.put(tieBreakingListKey, tiedPlayersTieBreakingInfoList);
-            }
-        }
-        return nWayTiesMap;
-    }
-
-    /**
      * @param playerLetterCodes
      * @param playerTieBreakingInfoList
-     * @param pointsPerGame
+     * @param pointsPerGame             points per game e.g. 11 or 21
+     * @param nWayTieMap
      */
-    private List<PlayerTieBreakingInfo> resolveNWayTie(List<Character> playerLetterCodes, List<PlayerTieBreakingInfo> playerTieBreakingInfoList, int pointsPerGame) {
+    private void resolveNWayTie(List<Character> playerLetterCodes,
+                                List<PlayerTieBreakingInfo> playerTieBreakingInfoList,
+                                int pointsPerGame,
+                                Map<String, List<PlayerTieBreakingInfo>> nWayTieMap) {
+        // extract matches only between players who are tied
         List<PlayerTieBreakingInfo> tiedPlayersTieBreakingInfoList = extractTiedPlayersTieBreakingInfo(playerLetterCodes, playerTieBreakingInfoList);
-        performTieBreakingProcedure(tiedPlayersTieBreakingInfoList, false, pointsPerGame);
+        // do the tie breaking
+        performTieBreakingProcedure(tiedPlayersTieBreakingInfoList, false, pointsPerGame, nWayTieMap);
 
         for (PlayerTieBreakingInfo tiedPlayerTieBreakingInfo : tiedPlayersTieBreakingInfoList) {
             char playerCode = tiedPlayerTieBreakingInfo.getPlayerCode();
@@ -385,11 +371,17 @@ public class TieBreakingService {
             rank += (tieResolvingRank - 1);
             playerTieBreakingInfo.setRank(rank);
         }
-        return tiedPlayersTieBreakingInfoList;
+
+        // save in the map to allow easy
+        String tieBreakingListKey = String.format("%d) %d-way tie breaking between players %s",
+                (nWayTieMap.size() + 1), playerLetterCodes.size(), playerLetterCodes);
+        nWayTieMap.put(tieBreakingListKey, tiedPlayersTieBreakingInfoList);
     }
 
     /**
-     * @param playerLetterCodes
+     * Creates a matrix of player matches for players whose letter codes are in the playerLetterCodes list
+     *
+     * @param playerLetterCodes         player codes to extract matches for
      * @param playerTieBreakingInfoList
      * @return
      */
@@ -423,70 +415,13 @@ public class TieBreakingService {
     }
 
     /**
-     * @param playerLetterCodes
-     * @param playerTieBreakingInfoList
-     * @return
-     */
-    private List<PlayerTieBreakingInfo> resolveTwoWayTie(List<Character> playerLetterCodes, List<PlayerTieBreakingInfo> playerTieBreakingInfoList) {
-        Map<Character, Integer> ranks = new HashMap<>();
-
-        // find a match between these 2 players
-        char player1 = playerLetterCodes.get(0);
-        char player2 = playerLetterCodes.get(1);
-        for (PlayerTieBreakingInfo playerTieBreakingInfo : playerTieBreakingInfoList) {
-            if (playerTieBreakingInfo.getPlayerCode() == player1) {
-                List<PlayerMatchResults> allPlayerMatchResults = playerTieBreakingInfo.getAllPlayerMatchResults();
-                for (PlayerMatchResults playerMatchResult : allPlayerMatchResults) {
-                    if (playerMatchResult.getOpponentCode() == player2) {
-                        MatchStatus matchStatus = playerMatchResult.getMatchStatus();
-                        if (matchStatus == MatchStatus.WIN) {
-                            ranks.put(player1, 1);
-                            ranks.put(player2, 2);
-                        } else if (matchStatus == MatchStatus.LOSS) {
-                            ranks.put(player2, 1);
-                            ranks.put(player1, 2);
-                        }
-                        break;
-                    }
-                }
-            }
-        }
-
-        // compute overall rank and set it
-        for (PlayerTieBreakingInfo playerTieBreakingInfo : playerTieBreakingInfoList) {
-            for (Character playerCode : ranks.keySet()) {
-                if (playerTieBreakingInfo.getPlayerCode() == playerCode) {
-                    Integer tieBreakingRank = ranks.get(playerCode);
-                    int overallRank = playerTieBreakingInfo.getRank();
-                    overallRank += (tieBreakingRank - 1);
-                    playerTieBreakingInfo.setRank(overallRank);
-                    break;
-                }
-            }
-        }
-
-        // prepare the rank within these 2 players and return it
-        List<PlayerTieBreakingInfo> tiedPlayersTieBreakingInfoList = extractTiedPlayersTieBreakingInfo(playerLetterCodes, playerTieBreakingInfoList);
-        for (PlayerTieBreakingInfo playerTieBreakingInfo : tiedPlayersTieBreakingInfoList) {
-            for (Character playerCode : ranks.keySet()) {
-                if (playerTieBreakingInfo.getPlayerCode() == playerCode) {
-                    Integer tieBreakingRank = ranks.get(playerCode);
-                    playerTieBreakingInfo.setRank(tieBreakingRank);
-                }
-            }
-        }
-        return tiedPlayersTieBreakingInfoList;
-
-    }
-
-    /**
      * Builds a martix of all players matches
      *
      * @param matchCard
      * @param profileIdToLetterCodeMap
      * @param playerTieBreakingInfoList
-     * @param pointsPerGame
-     * @param numberOfGames
+     * @param pointsPerGame             points per game e.g. 11 or 21
+     * @param numberOfGames             number of games in a match 3, 5, or 7
      */
     private void buildMatrix(MatchCard matchCard, Map<String, Character> profileIdToLetterCodeMap, List<PlayerTieBreakingInfo> playerTieBreakingInfoList, int pointsPerGame, int numberOfGames) {
         List<Match> matches = matchCard.getMatches();
@@ -499,7 +434,7 @@ public class TieBreakingService {
             MatchStatus playerBMatchStatus = (isPlayerBMatchWinner ? MatchStatus.WIN : (!match.isSideBDefaulted()) ? MatchStatus.LOSS : MatchStatus.NOT_PLAYED);
             Character playerACode = profileIdToLetterCodeMap.get(playerAProfileId);
             Character playerBCode = profileIdToLetterCodeMap.get(playerBProfileId);
-            List<Integer> winnerCompactMatchNotation = createCompactMatchNotation(match, numberOfGames, pointsPerGame, isPlayerAMatchWinner);
+            List<Integer> winnerCompactMatchNotation = createCompactMatchNotation(match, numberOfGames, isPlayerAMatchWinner);
             List<Integer> loserCompactMatchNotation = createOppositeCompactMatchNotation(winnerCompactMatchNotation);
             PlayerTieBreakingInfo playerATieBreakingInfo = getPlayerTieBreakingInfo(playerTieBreakingInfoList, playerACode);
             PlayerTieBreakingInfo playerBTieBreakingInfo = getPlayerTieBreakingInfo(playerTieBreakingInfoList, playerBCode);
@@ -510,6 +445,10 @@ public class TieBreakingService {
         }
     }
 
+    /**
+     * @param winnerCompactMatchNotation
+     * @return
+     */
     public List<Integer> createOppositeCompactMatchNotation(List<Integer> winnerCompactMatchNotation) {
         List<Integer> loserCompactMatchNotation = new ArrayList<>(winnerCompactMatchNotation.size());
         for (Integer gamePoints : winnerCompactMatchNotation) {
@@ -519,10 +458,12 @@ public class TieBreakingService {
     }
 
     /**
-     * @param profileId
-     * @param match
-     * @param numberOfGames
-     * @param pointsPerGame
+     * Determines if specified player won this match
+     *
+     * @param profileId     player profile id to determine if he won
+     * @param match         match to determine winner for
+     * @param numberOfGames number of games in a match 3, 5, or 7
+     * @param pointsPerGame points per game e.g. 11 or 21
      * @return
      */
     public boolean isMatchWinner(String profileId,
@@ -585,11 +526,10 @@ public class TieBreakingService {
      *
      * @param match
      * @param numberOfGames
-     * @param pointsPerGame
-     * @param playerMatchStatus
+     * @param sideAWon
      * @return
      */
-    public List<Integer> createCompactMatchNotation(Match match, int numberOfGames, int pointsPerGame, boolean sideAWon) {
+    public List<Integer> createCompactMatchNotation(Match match, int numberOfGames, boolean sideAWon) {
         List<Integer> gamesList = new ArrayList<>(numberOfGames);
         for (int i = 0; i < numberOfGames; i++) {
             int playerAGameScore = 0;
@@ -673,7 +613,6 @@ public class TieBreakingService {
     }
 
     /**
-     *
      * @param matchCard
      * @param tournamentEventEntity
      * @param groupTieBreakingInfo
