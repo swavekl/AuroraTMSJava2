@@ -52,20 +52,26 @@ public class MatchCardService {
     public void generateMatchCardsForEvent(long eventId, DrawType drawType) {
         List<DrawItem> eventDrawItems = drawService.list(eventId, drawType);
         TournamentEventEntity tournamentEventEntity = tournamentEventEntityService.get(eventId);
+        List<MatchCard> matchCardList = new ArrayList<>();
         if (drawType == DrawType.ROUND_ROBIN) {
-            generateRoundRobinMatchCards(eventDrawItems, tournamentEventEntity);
+            generateRoundRobinMatchCards(eventDrawItems, tournamentEventEntity, matchCardList);
         } else if (drawType == DrawType.SINGLE_ELIMINATION) {
-            generateSingleEliminationCards(eventDrawItems, tournamentEventEntity);
+            generateSingleEliminationCards(eventDrawItems, tournamentEventEntity, matchCardList);
+        }
+        if (matchCardList != null) {
+            matchCardRepository.saveAll(matchCardList);
         }
     }
 
     /**
      * Generates round robin phase match cards
-     *
-     * @param eventDrawItems
+     *  @param eventDrawItems
      * @param tournamentEventEntity
+     * @param matchCardList
      */
-    private void generateRoundRobinMatchCards(List<DrawItem> eventDrawItems, TournamentEventEntity tournamentEventEntity) {
+    private void generateRoundRobinMatchCards(List<DrawItem> eventDrawItems,
+                                              TournamentEventEntity tournamentEventEntity,
+                                              List<MatchCard> matchCardList) {
         int currentGroupNum = 0;
         // separate group draws into their own lists
         List<DrawItem> groupDrawItems = new ArrayList<>();
@@ -136,7 +142,7 @@ public class MatchCardService {
                     }
                 }
                 matchCard.setMatches(matches);
-                this.matchCardRepository.save(matchCard);
+                matchCardList.add(matchCard);
             }
         }
     }
@@ -144,10 +150,24 @@ public class MatchCardService {
     /**
      * @param eventDrawItems
      * @param tournamentEventEntity
+     * @return
      */
-    private void generateSingleEliminationCards(List<DrawItem> eventDrawItems, TournamentEventEntity tournamentEventEntity) {
+    private void generateSingleEliminationCards(List<DrawItem> eventDrawItems,
+                                                           TournamentEventEntity tournamentEventEntity,
+                                                           List<MatchCard> matchCardList) {
         // round of is a number of players in a round e.g. 64, 32, etc.
-        int roundOf = eventDrawItems.size();
+        int roundOf = 0; // eventDrawItems.size();
+        for (DrawItem eventDrawItem : eventDrawItems) {
+            roundOf = Math.max(roundOf, eventDrawItem.getRound());
+        }
+        // remove items not for this round
+        List<DrawItem> drawItemsForThisRound = new ArrayList<>();
+        for (DrawItem eventDrawItem : eventDrawItems) {
+            if (eventDrawItem.getRound() == roundOf) {
+                drawItemsForThisRound.add(eventDrawItem);
+            }
+        }
+
         // in round of 64 players there will be 32 matches to play
         // draw items are for each player so in S.E. phase we need to pair them up to create a match
         int matchesToPlay = roundOf / 2;
@@ -155,8 +175,8 @@ public class MatchCardService {
         int numberOfGames = getNumberOfGames(tournamentEventEntity, roundOf);
         for (int matchNum = 0; matchNum < matchesToPlay; matchNum++) {
             int startIndex = matchNum * 2;
-            DrawItem playerADrawItem = eventDrawItems.get(startIndex);
-            DrawItem playerBDrawItem = eventDrawItems.get(startIndex + 1);
+            DrawItem playerADrawItem = drawItemsForThisRound.get(startIndex);
+            DrawItem playerBDrawItem = drawItemsForThisRound.get(startIndex + 1);
             String playerAProfileId = playerADrawItem.getPlayerId();
             String playerBProfileId = playerBDrawItem.getPlayerId();
             int playerARating = playerADrawItem.getRating();
@@ -189,18 +209,23 @@ public class MatchCardService {
 
                 matches.add(match);
                 matchCard.setMatches(matches);
-                this.matchCardRepository.save(matchCard);
+                matchCardList.add(matchCard);
             }
         }
-        generateRemainingSERoundMatchCards(tournamentEventEntity, roundOf);
+
+        generateRemainingSERoundMatchCards(tournamentEventEntity, roundOf, matchCardList, eventDrawItems);
     }
 
     /**
-     *
      * @param tournamentEventEntity
      * @param firstSERoundParticipants
+     * @param matchCardList
+     * @param eventDrawItems
      */
-    private void generateRemainingSERoundMatchCards(TournamentEventEntity tournamentEventEntity, int firstSERoundParticipants) {
+    private void generateRemainingSERoundMatchCards(TournamentEventEntity tournamentEventEntity,
+                                                    int firstSERoundParticipants,
+                                                    List<MatchCard> matchCardList,
+                                                    List<DrawItem> eventDrawItems) {
         // how many players in this round
         int roundOf = firstSERoundParticipants / 2;
         int remainingRounds = (int) Math.ceil(Math.log(roundOf) / Math.log(2));
@@ -208,24 +233,58 @@ public class MatchCardService {
             int numGamesInRound = getNumberOfGames(tournamentEventEntity, roundOf);
             int numMatchesInRound = roundOf / 2;
             for (int matchNum = 0; matchNum < numMatchesInRound; matchNum++) {
-                makeSERoundMatchCard(matchNum, roundOf, tournamentEventEntity, numGamesInRound);
+                makeSERoundMatchCard(matchNum, roundOf, tournamentEventEntity,
+                        numGamesInRound, matchCardList, eventDrawItems);
             }
             // last round and play for 3 & 4th place ?
             if ((round + 1) == remainingRounds && tournamentEventEntity.isPlay3rd4thPlace()) {
-                makeSERoundMatchCard(1, roundOf, tournamentEventEntity, numGamesInRound);
+                makeSERoundMatchCard(1, roundOf, tournamentEventEntity,
+                        numGamesInRound, matchCardList, eventDrawItems);
             }
             roundOf = roundOf / 2;
         }
     }
 
     /**
-     *
      * @param matchNum
      * @param roundOf
      * @param tournamentEventEntity
      * @param numberOfGames
+     * @param matchCardList
+     * @param eventDrawItems
+     * @return
      */
-    private void makeSERoundMatchCard (int matchNum, int roundOf, TournamentEventEntity tournamentEventEntity, int numberOfGames) {
+    private void makeSERoundMatchCard(int matchNum,
+                                      int roundOf,
+                                      TournamentEventEntity tournamentEventEntity,
+                                      int numberOfGames,
+                                      List<MatchCard> matchCardList,
+                                      List<DrawItem> eventDrawItems) {
+        DrawItem advancedPlayerADrawItem = null;
+        DrawItem advancedPlayerBDrawItem = null;
+        // find the draw items corresponding to this match card
+        for (DrawItem drawItem : eventDrawItems) {
+            if (drawItem.getRound() == roundOf) {
+                // previous round group line 1 & 2 go to match #1, lines 3 & 4 to match # 2 and so on
+                int matchNumToGoTo = (int) Math.ceil((double)drawItem.getSingleElimLineNum() / 2);
+                if (matchNum + 1 == matchNumToGoTo) {
+                    // odd numbers => A player
+                    if (drawItem.getSingleElimLineNum() % 2 == 1) {
+                        advancedPlayerADrawItem = drawItem;
+                    }
+                    // even number => B player
+                    if (drawItem.getSingleElimLineNum() % 2 == 0) {
+                        advancedPlayerBDrawItem = drawItem;
+                    }
+                }
+            }
+        }
+
+        String playerAProfileId = (advancedPlayerADrawItem != null) ? advancedPlayerADrawItem.getPlayerId() : "TBD";
+        String playerBProfileId = (advancedPlayerBDrawItem != null) ? advancedPlayerBDrawItem.getPlayerId() : "TBD";
+        int playerARating = (advancedPlayerADrawItem != null) ? advancedPlayerADrawItem.getRating() : 0;
+        int playerBRating = (advancedPlayerBDrawItem != null) ? advancedPlayerBDrawItem.getRating() : 0;
+
         MatchCard matchCard = new MatchCard();
         matchCard.setEventFk(tournamentEventEntity.getId());
         matchCard.setGroupNum(matchNum + 1);
@@ -240,18 +299,18 @@ public class MatchCardService {
         Match match = new Match();
         match.setMatchCard(matchCard);
         match.setMatchNum(matchNum + 1);
-        match.setPlayerAProfileId("TBD");
-        match.setPlayerBProfileId("TBD");
+        match.setPlayerAProfileId(playerAProfileId);
+        match.setPlayerBProfileId(playerBProfileId);
         match.setSideADefaulted(false);
         match.setSideBDefaulted(false);
         match.setPlayerALetter('A');
         match.setPlayerBLetter('B');
-        match.setPlayerARating(0);
-        match.setPlayerBRating(0);
+        match.setPlayerARating(playerARating);
+        match.setPlayerBRating(playerBRating);
 
         matches.add(match);
         matchCard.setMatches(matches);
-        this.matchCardRepository.save(matchCard);
+        matchCardList.add(matchCard);
     }
 
     /**
@@ -290,32 +349,70 @@ public class MatchCardService {
      *
      * @param eventId
      * @param drawType
+     * @param updatedDrawItems
      */
-    public void updateMatchCardsForEvent(long eventId, DrawType drawType) {
+    public void updateMatchCardsForEvent(long eventId, DrawType drawType, List<DrawItem> updatedDrawItems) {
         List<DrawItem> eventDrawItems = drawService.list(eventId, drawType);
         TournamentEventEntity tournamentEventEntity = tournamentEventEntityService.get(eventId);
 
         List<MatchCard> existingMatchCards = this.findAllForEventAndDrawType(eventId, drawType);
 
-        deleteAllForEventAndDrawType(eventId, drawType);
+        // regenerate the match cards based on updated draws.
+        List<MatchCard> matchCardList = new ArrayList<>(existingMatchCards.size());
         if (drawType == DrawType.ROUND_ROBIN) {
-            generateRoundRobinMatchCards(eventDrawItems, tournamentEventEntity);
+            generateRoundRobinMatchCards(eventDrawItems, tournamentEventEntity, matchCardList);
         } else if (drawType == DrawType.SINGLE_ELIMINATION) {
-            generateSingleEliminationCards(eventDrawItems, tournamentEventEntity);
+            generateSingleEliminationCards(eventDrawItems, tournamentEventEntity, matchCardList);
+        }
+
+        int changedRound = 0;
+        for (DrawItem updatedDrawItem : updatedDrawItems) {
+            changedRound = updatedDrawItem.getRound();
+            break;
         }
 
         // transfer start times, assigned table numbers etc. to the updated match cards
-        List<MatchCard> updatedMatchCards = this.findAllForEventAndDrawType(eventId, drawType);
         for (MatchCard existingMatchCard : existingMatchCards) {
-            for (MatchCard updatedMatchCard : updatedMatchCards) {
-                if (existingMatchCard.getGroupNum() == updatedMatchCard.getGroupNum()) {
-                    updatedMatchCard.setAssignedTables(existingMatchCard.getAssignedTables());
-                    updatedMatchCard.setDuration(existingMatchCard.getDuration());
-                    updatedMatchCard.setStartTime(existingMatchCard.getStartTime());
+            // skip other round matches
+            if (existingMatchCard.getRound() != changedRound) {
+                continue;
+            }
+
+            // get all players ids to see if they changed
+            Set<String> oldPlayerProfileIds = getPlayerIdsForMatchCard(existingMatchCard);
+
+            for (MatchCard updatedMatchCard : matchCardList) {
+                if (existingMatchCard.getGroupNum() == updatedMatchCard.getGroupNum() &&
+                        existingMatchCard.getRound() == updatedMatchCard.getRound()) {
+                    // see if players changed
+                    Set<String> newPlayerIdsForMatchCard = getPlayerIdsForMatchCard(updatedMatchCard);
+                    if (!oldPlayerProfileIds.equals(newPlayerIdsForMatchCard)) {
+                        List<Match> oldMatches = existingMatchCard.getMatches();
+                        for (int i = 0; i < oldMatches.size(); i++) {
+                            oldMatches.remove(0);
+                        }
+                        matchCardRepository.save(existingMatchCard);
+                        List<Match> newMatches = updatedMatchCard.getMatches();
+                        for (Match match : newMatches) {
+                            match.setMatchCard(existingMatchCard);
+                        }
+                        existingMatchCard.getMatches().addAll(newMatches);
+                    }
+
+                    break;
                 }
             }
         }
-        matchCardRepository.saveAll(updatedMatchCards);
+    }
+
+    private Set<String> getPlayerIdsForMatchCard(MatchCard existingMatchCard) {
+        Set<String> playerProfileIds = new TreeSet<>();
+        List<Match> oldMatches = existingMatchCard.getMatches();
+        for (Match oldMatch : oldMatches) {
+            playerProfileIds.add(oldMatch.getPlayerAProfileId());
+            playerProfileIds.add(oldMatch.getPlayerBProfileId());
+        }
+        return playerProfileIds;
     }
 
     public MatchCard getMatchCard(long eventId, int groupNum) {
@@ -351,6 +448,7 @@ public class MatchCardService {
 
     /**
      * Get one specified match card
+     *
      * @param matchCardId
      * @return
      */
@@ -366,7 +464,6 @@ public class MatchCardService {
     }
 
     /**
-     *
      * @param matches
      * @return
      */
@@ -436,6 +533,7 @@ public class MatchCardService {
 
     /**
      * Splits doubles team player profiles separated by ; and combines their full names
+     *
      * @param profileIdToNameMap
      * @param teamPlayerProfileIds
      * @return
@@ -451,7 +549,6 @@ public class MatchCardService {
     }
 
     /**
-     *
      * @param matchCard
      * @return
      */
@@ -481,30 +578,121 @@ public class MatchCardService {
     }
 
     /**
-     *
      * @param matchCard
      * @param eventId
      * @param rankToProfileIdMap
      */
     public void advancePlayers(MatchCard matchCard, Long eventId, Map<Integer, String> rankToProfileIdMap) {
         List<DrawItem> seDrawItems = this.drawService.list(eventId, DrawType.SINGLE_ELIMINATION);
+        // find the first round of the single elimination round
+        int firstSeRoundOf = 1;
+        for (DrawItem seDrawItem : seDrawItems) {
+            firstSeRoundOf = Math.max(seDrawItem.getRound(), firstSeRoundOf);
+        }
+        // draw items already exist so just update them if necessary
         TournamentEventEntity tournamentEventEntity = this.tournamentEventEntityService.get(eventId);
-        int placeRankNum = 1;
-        // update draws
-        for (DrawItem drawItem : seDrawItems) {
-            if (drawItem.getGroupNum() == matchCard.getGroupNum()) {
-                String playerProfileId = rankToProfileIdMap.get(placeRankNum);
-                // if changed player who advanced then update draws
-                if (!playerProfileId.equals(drawItem.getPlayerId())) {
+
+        if (matchCard.getDrawType() == DrawType.ROUND_ROBIN) {
+            // first round of SE round
+            // find out if this is the first round in the single elimination phase or later round
+            // later rounds don't have draw items.
+            int placeRankNum = 1;
+            // update draws
+            for (DrawItem drawItem : seDrawItems) {
+                if (drawItem.getRound() == firstSeRoundOf &&
+                        drawItem.getGroupNum() == matchCard.getGroupNum()) {
+                    System.out.println("advancing player from round robin round of " + drawItem.getRound() + " group " + drawItem.getGroupNum());
+                    String playerProfileId = rankToProfileIdMap.get(placeRankNum);
+                    int rating = getPlayerRating(playerProfileId, matchCard);
+                    drawItem.setRating(rating);
+                    // if changed player who advanced then update draws
+//                    if (!playerProfileId.equals(drawItem.getPlayerId())) {
                     drawItem.setPlayerId(playerProfileId);
                     List<DrawItem> updatedDrawItems = Arrays.asList(drawItem);
+                    // todo - need to pass which draw items changed
+                    // otherwise the round matches are erased.
                     this.drawService.updateDraws(updatedDrawItems);
+//                    }
+                    // todo - where do we place the second and nth player who advances
+                    placeRankNum++;
+                    if (placeRankNum > tournamentEventEntity.getPlayersToAdvance()) {
+                        break;
+                    }
                 }
-                placeRankNum++;
-                if (placeRankNum > tournamentEventEntity.getPlayersToAdvance()) {
+            }
+        } else {
+            // next round has half the players
+            int roundOf = matchCard.getRound() / 2;
+            // later round - i.e. draw item may or may not exist for it - if score is corrected it will exist
+            // if the later rounds (you lose you are out) so we only need one player
+            String playerProfileId = rankToProfileIdMap.get(1);
+            if (playerProfileId != null) {
+                int rating = getPlayerRating(playerProfileId, matchCard);
+                // group 1 & 2 winners, go to this round's group 1, group 3 & 4 winners into group 2, 5 & 6 to 3 etc.
+                int groupNum = (int) Math.ceil((double) matchCard.getGroupNum() / 2);
+                // there are only two places in this group - 1 or 2
+                int placeInGroup = (matchCard.getGroupNum() % 2 == 1) ? 1 : 2;
+                int singleElimLineNumber = ((groupNum - 1) * 2) + placeInGroup;
+                updateDrawItem(matchCard.getEventFk(), roundOf, playerProfileId, rating, groupNum, placeInGroup, singleElimLineNumber);
+            }
+
+            // last round but if we play for 3rd and 4th place update draw item for that as well
+            // with the player who lost
+            if (tournamentEventEntity.isPlay3rd4thPlace() && roundOf == 2) {
+                String losingPlayerProfileId = rankToProfileIdMap.get(2);
+                // make sure this player can play
+                int rating = (losingPlayerProfileId != null) ? getPlayerRating(losingPlayerProfileId, matchCard) : 0;
+                // 3 & 4th place match is group 2 in round of 2
+                int groupNum = 2;
+                // there are only two places in this group
+                int placeInGroup = (matchCard.getGroupNum() % 2 == 1) ? 1 : 2;
+                int singleElimLineNumber = ((groupNum - 1) * 2) + placeInGroup; // i.e. 3 or 4
+                updateDrawItem(matchCard.getEventFk(), roundOf, losingPlayerProfileId, rating, groupNum, placeInGroup, singleElimLineNumber);
+            }
+        }
+    }
+
+    /**
+     * Updates draw item
+     * @param eventFk
+     * @param roundOf
+     * @param playerProfileId
+     * @param rating
+     * @param groupNum
+     * @param placeInGroup
+     * @param singleElimLineNumber
+     */
+    private void updateDrawItem(long eventFk, int roundOf, String playerProfileId, int rating, int groupNum, int placeInGroup, int singleElimLineNumber) {
+        DrawItem drawItem = new DrawItem();
+        drawItem.setRound(roundOf);
+        drawItem.setDrawType(DrawType.SINGLE_ELIMINATION);
+        drawItem.setGroupNum(groupNum);
+        drawItem.setPlaceInGroup(placeInGroup);
+        drawItem.setEventFk(eventFk);
+        drawItem.setSingleElimLineNum(singleElimLineNumber);
+        if (drawService.existsByEventFkAndDrawTypeAndRoundAndSingleElimLineNum(eventFk, DrawType.SINGLE_ELIMINATION, roundOf, singleElimLineNumber)) {
+            drawItem = drawService.findByEventFkAndDrawTypeAndRoundAndSingleElimLineNum(eventFk, DrawType.SINGLE_ELIMINATION, roundOf, singleElimLineNumber);
+        }
+        drawItem.setPlayerId(playerProfileId);
+        drawItem.setRating(rating);
+        drawService.save(drawItem);
+    }
+
+    private int getPlayerRating(String playerProfileId, MatchCard matchCard) {
+        int rating = 0;
+        List<Match> matches = matchCard.getMatches();
+        if (matches != null) {
+            for (Match match : matches) {
+                if (playerProfileId.equals(match.getPlayerAProfileId())) {
+                    rating = match.getPlayerARating();
+                    break;
+                }
+                if (playerProfileId.equals(match.getPlayerBProfileId())) {
+                    rating = match.getPlayerBRating();
                     break;
                 }
             }
         }
+        return rating;
     }
 }

@@ -19,7 +19,11 @@ spring:
 
 #logging.level.org.hibernate.SQL: DEBUG
 #logging.level.org.hibernate.type: TRACE
-
+# transaction debugging
+#logging:
+#  level:
+#    org.springframework.orm.jpa: DEBUG
+#    org.springframework.transaction: DEBUG
 #logging.level.org.springframework.security: TRACE
 #logging:
 #  level:

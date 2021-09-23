@@ -1,9 +1,12 @@
 package com.auroratms.draw.notification.event;
 
 
+import com.auroratms.draw.DrawItem;
 import com.auroratms.draw.DrawType;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.util.List;
 
 @Data
 //@NoArgsConstructor
@@ -18,10 +21,14 @@ public class DrawsEvent {
     // generated, deleted, updated
     private DrawAction action;
 
-    public DrawsEvent(long eventId, DrawType drawType, DrawAction action) {
+    // items that changed
+    private List<DrawItem> updatedItems;
+
+    public DrawsEvent(long eventId, DrawType drawType, DrawAction action, List<DrawItem> updatedItems) {
         this.eventId = eventId;
         this.drawType = drawType;
         this.action = action;
+        this.updatedItems = updatedItems;
     }
 }
 

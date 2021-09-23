@@ -54,6 +54,8 @@ export class MatchesComponent implements OnInit, OnChanges, OnDestroy {
 
   private scoreEntryDialogRef: MatDialogRef<ScoreEntryDialogComponent>;
 
+  private performRankAndAdvance = false;
+
   constructor(private dialog: MatDialog,
               private matchService: MatchService,
               private tieBreakingService: TieBreakingService) {
@@ -91,6 +93,12 @@ export class MatchesComponent implements OnInit, OnChanges, OnDestroy {
       const selectedMatchCard: MatchCard = selectedMatchCardChange.currentValue;
       if (selectedMatchCard) {
         this.rankedPlayerInfos = this.makeRankedPlayerInfos(selectedMatchCard);
+        if (this.performRankAndAdvance) {
+          this.performRankAndAdvance = false;
+          if (this.isMatchCardCompleted()) {
+            this.rankAndAdvance();
+          }
+        }
       }
     }
     const matchCardsChange: SimpleChange = changes.matchCards;
@@ -145,13 +153,17 @@ export class MatchesComponent implements OnInit, OnChanges, OnDestroy {
 
     this.scoreEntryDialogRef = this.dialog.open(ScoreEntryDialogComponent, config);
     const subscription = this.scoreEntryDialogRef.afterClosed().subscribe((result: ScoreEntryDialogResult) => {
-      this.matchService.update(result.match)
-        .pipe(first())
-        .subscribe(
-          (updatedMatch: Match) => {
-            this.matchCardEmitter.emit(this.selectedMatchCardId);
-          }
-        );
+      if (result.action === 'ok') {
+        this.matchService.update(result.match)
+          .pipe(first())
+          .subscribe(
+            (updatedMatch: Match) => {
+              this.matchCardEmitter.emit(this.selectedMatchCardId);
+              // after updated match card is loaded we need to rank and advance if ready
+              this.performRankAndAdvance = true;
+            }
+          );
+      }
     });
     this.subscriptions.add(subscription);
   }
@@ -241,7 +253,7 @@ export class MatchesComponent implements OnInit, OnChanges, OnDestroy {
     const rankedPlayerInfos = [];
     for (let i = 0; i < playerTieBreakingInfoList.length; i++) {
       const playerTieBreakingInfo = playerTieBreakingInfoList[i];
-      const playerName = this.selectedMatchCard.profileIdToNameMap[playerTieBreakingInfo.playerProfileId];
+      const playerName = groupTieBreakingInfo.profileIdToNameMap[playerTieBreakingInfo.playerProfileId];
       rankedPlayerInfos.push({
         rank: playerTieBreakingInfo.rank,
         playerCode: playerTieBreakingInfo.playerCode,
@@ -298,16 +310,24 @@ export class MatchesComponent implements OnInit, OnChanges, OnDestroy {
    * Checks if Rank and Advance button should be disabled i.e. when not all matches are entered
    */
   isRankAndAdvanceDisabled(): boolean {
-    let isEnabled = true;
+    return !(this.isMatchCardCompleted() &&
+      (this.selectedMatchCard.drawType === DrawType.ROUND_ROBIN));
+  }
+
+  /**
+   *
+   * @private
+   */
+  private isMatchCardCompleted(): boolean {
+    let isCompleted = true;
     if (this.selectedMatchCard && this.selectedEvent) {
       const pointsPerGame = this.selectedEvent.pointsPerGame;
       const numberOfGames = this.selectedMatchCard.numberOfGames;
       const matches: Match[] = this.selectedMatchCard.matches;
       matches.forEach((match: Match) => {
-        isEnabled = isEnabled && Match.isMatchFinished(match, numberOfGames, pointsPerGame);
+        isCompleted = isCompleted && Match.isMatchFinished(match, numberOfGames, pointsPerGame);
       });
-     isEnabled = isEnabled && (this.selectedMatchCard.drawType === DrawType.ROUND_ROBIN);
     }
-    return !isEnabled;
+    return isCompleted;
   }
 }

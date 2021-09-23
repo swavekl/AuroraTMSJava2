@@ -12,6 +12,10 @@ export interface DrawItem {
   // draw group number
   groupNum: number;
 
+  // for round robin phase 0,
+  // for single elimination - 64, 32, 16, 8 (quarter finals), 4 (semifinals), 2 (finals and 3rd/4th place)
+  round: number;
+
   // Players place in the draw for the group
   placeInGroup: number;
 

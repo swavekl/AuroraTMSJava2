@@ -1,5 +1,6 @@
 package com.auroratms.tiebreaking;
 
+import com.auroratms.draw.DrawType;
 import com.auroratms.event.TournamentEventEntity;
 import com.auroratms.event.TournamentEventEntityService;
 import com.auroratms.match.Match;
@@ -88,6 +89,7 @@ public class TieBreakingService {
         Map<String, Character> profileIdToLetterCodeMap = makeProfileIdToLetterCodeMap(matchCard.getMatches());
 
         GroupTieBreakingInfo groupTieBreakingInfo = new GroupTieBreakingInfo();
+        groupTieBreakingInfo.setProfileIdToNameMap(profileIdToNameMap);
         List<PlayerTieBreakingInfo> playerTieBreakingInfoList = new ArrayList<>();
         groupTieBreakingInfo.setPlayerTieBreakingInfoList(playerTieBreakingInfoList);
         for (String playerProfileId : profileIdToNameMap.keySet()) {
@@ -613,11 +615,13 @@ public class TieBreakingService {
     }
 
     /**
-     * @param matchCard
-     * @param tournamentEventEntity
-     * @param groupTieBreakingInfo
+     * @param matchCard             Match card which was just entered
+     * @param tournamentEventEntity event information for this match
+     * @param groupTieBreakingInfo  tie breaking information
      */
-    private void advancePlayers(MatchCard matchCard, TournamentEventEntity tournamentEventEntity, GroupTieBreakingInfo groupTieBreakingInfo) {
+    private void advancePlayers(MatchCard matchCard,
+                                TournamentEventEntity tournamentEventEntity,
+                                GroupTieBreakingInfo groupTieBreakingInfo) {
         // create a JSON representation of the ranking
         // extract player ranking
         List<PlayerTieBreakingInfo> playerTieBreakingInfoList = groupTieBreakingInfo.getPlayerTieBreakingInfoList();
@@ -626,20 +630,27 @@ public class TieBreakingService {
             rankToProfileIdMap.put(playerTieBreakingInfo.getRank(), playerTieBreakingInfo.getPlayerProfileId());
         }
 
-        // convert to a string for saving in match card
-        try {
-            StringWriter stringWriter = new StringWriter();
-            ObjectMapper mapper = new ObjectMapper();
-            mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-            mapper.writeValue(stringWriter, rankToProfileIdMap);
-            String content = stringWriter.toString();
-            matchCard.setPlayerRankings(content);
-            matchCardService.save(matchCard);
-        } catch (IOException e) {
-            e.printStackTrace();
+        // record player ranking but only for round robin round
+        if (matchCard.getDrawType() == DrawType.ROUND_ROBIN) {
+            // convert to a string for saving in match card
+            try {
+                StringWriter stringWriter = new StringWriter();
+                ObjectMapper mapper = new ObjectMapper();
+                mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+                mapper.writeValue(stringWriter, rankToProfileIdMap);
+                String content = stringWriter.toString();
+                matchCard.setPlayerRankings(content);
+                matchCardService.save(matchCard);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
 
-        matchCardService.advancePlayers(matchCard, tournamentEventEntity.getId(), rankToProfileIdMap);
+        // round robin match card rounds are 0, single elimination rounds cards are 2, 4, 8 etc,
+        // so if this is the last round i.e. 2 there is nowhere to advance to
+        // todo unless we advance to another event
+        if (matchCard.getRound() > 2 || matchCard.getRound() == 0) {
+            matchCardService.advancePlayers(matchCard, tournamentEventEntity.getId(), rankToProfileIdMap);
+        }
     }
-
 }

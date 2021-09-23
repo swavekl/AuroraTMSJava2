@@ -78,6 +78,7 @@ public class SingleEliminationDrawsGeneratorTest extends AbstractDrawsGeneratorT
         tournamentEventEntity.setPlayersToSeed(0);
         tournamentEventEntity.setPlayersToAdvance(1);
         tournamentEventEntity.setDrawMethod(DrawMethod.SNAKE);
+        tournamentEventEntity.setPlay3rd4thPlace(true);
 
         // make RR round entries
         List<TournamentEventEntry> seEventEntries = this.makeExamTournamentEntries(tournamentFk, eventFk);

@@ -1,6 +1,5 @@
 package com.auroratms.draw.notification;
 
-import com.auroratms.draw.DrawType;
 import com.auroratms.draw.notification.event.DrawsEvent;
 import com.auroratms.match.MatchCardService;
 import com.auroratms.notification.SystemPrincipalExecutor;
@@ -38,32 +37,17 @@ public class DrawsEventListener {
     private void processEvent(DrawsEvent drawsEvent) {
         switch (drawsEvent.getAction()) {
             case GENERATED:
-                createMatchCards(drawsEvent.getEventId(), drawsEvent.getDrawType());
+                this.matchCardService.deleteAllForEventAndDrawType(drawsEvent.getEventId(), drawsEvent.getDrawType());
+                this.matchCardService.generateMatchCardsForEvent(drawsEvent.getEventId(), drawsEvent.getDrawType());
                 break;
+
             case UPDATED:
-                updateMatchCards(drawsEvent.getEventId(), drawsEvent.getDrawType());
+                this.matchCardService.updateMatchCardsForEvent(drawsEvent.getEventId(), drawsEvent.getDrawType(), drawsEvent.getUpdatedItems());
                 break;
+
             case DELETED:
-                deleteMatchCards(drawsEvent.getEventId(), drawsEvent.getDrawType());
+                this.matchCardService.deleteAllForEventAndDrawType(drawsEvent.getEventId(), drawsEvent.getDrawType());
                 break;
         }
-    }
-
-    private void createMatchCards(long eventId, DrawType drawType) {
-        this.matchCardService.deleteAllForEventAndDrawType(eventId, drawType);
-        this.matchCardService.generateMatchCardsForEvent(eventId, drawType);
-    }
-
-    /**
-     *
-     * @param eventId
-     * @param drawType
-     */
-    private void updateMatchCards(long eventId, DrawType drawType) {
-        this.matchCardService.updateMatchCardsForEvent(eventId, drawType);
-    }
-
-    private void deleteMatchCards(long eventId, DrawType drawType) {
-        this.matchCardService.deleteAllForEventAndDrawType(eventId, drawType);
     }
 }

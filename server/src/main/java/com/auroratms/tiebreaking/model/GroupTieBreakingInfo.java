@@ -9,6 +9,9 @@ import java.util.Map;
 @Data
 @NoArgsConstructor
 public class GroupTieBreakingInfo {
+    // handy map of player ids to their names
+    Map<String, String> profileIdToNameMap;
+
     // main matrix holding final results for all players
     List<PlayerTieBreakingInfo> playerTieBreakingInfoList;
 

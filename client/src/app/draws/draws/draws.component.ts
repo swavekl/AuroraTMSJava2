@@ -70,7 +70,7 @@ export class DrawsComponent implements OnInit, OnChanges {
       let groupNum = 0;
       let currentGroup: DrawGroup = null;
       this.groups = [];
-      const currentSingleEliminationRound = new DrawRound();
+      const seRounds = {};
       this.singleEliminationRounds = [];
       drawItems.forEach((drawItem: DrawItem) => {
         if (drawItem.drawType === DrawType.ROUND_ROBIN) {
@@ -83,13 +83,10 @@ export class DrawsComponent implements OnInit, OnChanges {
           }
           currentGroup.drawItems.push(drawItem);
         } else if (drawItem.drawType === DrawType.SINGLE_ELIMINATION) {
-          currentSingleEliminationRound.drawItems.push(drawItem);
+          const drawRound: DrawRound = this.findDrawRound(drawItem.round);
+          drawRound.drawItems.push(drawItem);
         }
       });
-
-      if (currentSingleEliminationRound.drawItems.length > 0) {
-        this.singleEliminationRounds.push(currentSingleEliminationRound);
-      }
 
       this.finishRemainingSERounds();
 
@@ -184,7 +181,8 @@ export class DrawsComponent implements OnInit, OnChanges {
               playerName: ' ',
               state: ' ',
               clubName: ' ',
-              byeNum: 0
+              byeNum: 0,
+              round: 0
             };
             drawGroup.drawItems.push(fakeDrawItem);
           }
@@ -322,33 +320,111 @@ export class DrawsComponent implements OnInit, OnChanges {
   private finishRemainingSERounds() {
     if (this.selectedEvent && this.singleEliminationRounds.length > 0) {
       const eventFK = this.selectedEvent.id;
-      const firstRound: DrawRound = this.singleEliminationRounds[0];
+      // find the first round of single elimination e.g. round of 32 or 16 etc.
+      let firstRound: DrawRound = null;
+      let firstRoundOf = 0;
+      for (let i = 0; i < this.singleEliminationRounds.length; i++) {
+        const singleEliminationRound = this.singleEliminationRounds[i];
+        if (singleEliminationRound.round > firstRoundOf) {
+          firstRoundOf = singleEliminationRound.round;
+          firstRound = singleEliminationRound;
+        }
+      }
+
       const firstRoundParticipants = firstRound.drawItems.length;
       firstRound.round = firstRound.drawItems.length;
       const rounds = Math.ceil(Math.log(firstRoundParticipants) / Math.log(2));
       for (let round = 1; round < rounds; round++) {
-        const drawRound: DrawRound = new DrawRound();
         const divider = Math.pow(2, round);
-        drawRound.round = firstRoundParticipants / divider;
-        this.singleEliminationRounds.push(drawRound);
+        const thisRoundOf = firstRoundParticipants / divider;
+        // find round - it may exists from rank and advance
+        const drawRound: DrawRound = this.findDrawRound(thisRoundOf);
         for (let i = 0; i < drawRound.round; i++) {
-          const drawItem: DrawItem = {
-            id: 0, eventFk: eventFK, drawType: DrawType.SINGLE_ELIMINATION, groupNum: (i + 1), placeInGroup: 0,
-            state: null, rating: 0, clubName: null, playerName: null, playerId: null, conflicts: null, byeNum: 0
-          };
-          drawRound.drawItems.push(drawItem);
-        }
-        // last round and play for 3 & 4th place ?
-        if ((round + 1) === rounds && this.selectedEvent?.play3rd4thPlace) {
-          for (let i = 0; i < drawRound.round; i++) {
-            const drawItem: DrawItem = {
-              id: 0, eventFk: eventFK, drawType: DrawType.SINGLE_ELIMINATION, groupNum: (i + 3), placeInGroup: 0,
-              state: null, rating: 0, clubName: null, playerName: null, playerId: null, conflicts: null, byeNum: 0
+          // find draw item - it may exist from rank and advance
+          const groupNum: number = Math.floor(i / 2) + 1;
+          const placeInGroup: number = (i % 2) + 1;
+          let drawItem: DrawItem = this.findDrawItem(drawRound, groupNum, placeInGroup);
+          // not found create one and add
+          if (drawItem == null) {
+            drawItem = {
+              id: 0, eventFk: eventFK, drawType: DrawType.SINGLE_ELIMINATION, groupNum: groupNum, placeInGroup: placeInGroup,
+              state: null, rating: 0, clubName: null, playerName: null, playerId: null, conflicts: null, byeNum: 0,
+              round: drawRound.round
             };
             drawRound.drawItems.push(drawItem);
           }
         }
+        // last round and play for 3 & 4th place ?
+        if ((round + 1) === rounds && this.selectedEvent?.play3rd4thPlace) {
+          for (let i = 0; i < drawRound.round; i++) {
+            const groupNum = 2;
+            const placeInGroup: number = (i % 2) + 1;
+            let drawItem: DrawItem = this.findDrawItem(drawRound, groupNum, placeInGroup);
+            if (drawItem == null) {
+              drawItem = {
+                id: 0, eventFk: eventFK, drawType: DrawType.SINGLE_ELIMINATION, groupNum: groupNum, placeInGroup: placeInGroup,
+                state: null, rating: 0, clubName: null, playerName: null, playerId: null, conflicts: null, byeNum: 0,
+                round: 2
+              };
+              drawRound.drawItems.push(drawItem);
+            }
+          }
+        }
+
+        // sort items by group number and placeInGroup
+        drawRound.drawItems.sort((drawItem1: DrawItem, drawItem2: DrawItem) => {
+          return (drawItem1.groupNum === drawItem2.groupNum)
+            ? ((drawItem1.placeInGroup < drawItem2.placeInGroup) ? -1 : 1)
+            : ((drawItem1.groupNum < drawItem2.groupNum) ? -1 : 1);
+        });
       }
+
+      // sort array by round from highest to lowest
+      this.singleEliminationRounds.sort((round1: DrawRound, round2: DrawRound) => {
+        return (round1.round === round2.round) ? 0 : ((round1.round < round2.round) ? 1 : -1);
+      });
     }
   }
+
+  /**
+   *
+   * @param round
+   * @private
+   */
+  private findDrawRound (round: number): DrawRound {
+    let drawRound: DrawRound = null;
+    for (let i = 0; i < this.singleEliminationRounds.length; i++) {
+      const singleEliminationRound = this.singleEliminationRounds[i];
+      if (singleEliminationRound.round === round) {
+        drawRound = singleEliminationRound;
+        break;
+      }
+    }
+    // not found - create one
+    if (drawRound == null) {
+      drawRound = new DrawRound();
+      drawRound.round = round;
+      this.singleEliminationRounds.push(drawRound);
+    }
+    return drawRound;
+  }
+
+  /**
+   *
+   * @param drawRound
+   * @param groupNum
+   * @param placeInGroup
+   * @private
+   */
+  private findDrawItem(drawRound: DrawRound, groupNum: number, placeInGroup: number): DrawItem {
+    const drawItems: DrawItem[] = drawRound.drawItems;
+    for (const drawItem of drawItems) {
+      if (drawItem.groupNum === groupNum &&
+          drawItem.placeInGroup === placeInGroup) {
+        return drawItem;
+      }
+    }
+    return null;
+  }
+
 }

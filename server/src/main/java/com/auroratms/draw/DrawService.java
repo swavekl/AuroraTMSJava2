@@ -3,6 +3,7 @@ package com.auroratms.draw;
 import com.auroratms.draw.generation.*;
 import com.auroratms.draw.notification.DrawsEventPublisher;
 import com.auroratms.draw.notification.event.DrawAction;
+import com.auroratms.error.ResourceNotFoundException;
 import com.auroratms.event.TournamentEventEntity;
 import com.auroratms.tournamentevententry.TournamentEventEntry;
 import com.auroratms.tournamentevententry.doubles.DoublesPair;
@@ -10,6 +11,7 @@ import com.auroratms.tournamentevententry.doubles.DoublesService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -73,7 +75,7 @@ public class DrawService {
             throw e;
         }
 
-        this.drawsEventPublisher.publishEvent(tournamentEvent.getId(), DrawAction.GENERATED, drawType);
+        this.drawsEventPublisher.publishEvent(tournamentEvent.getId(), DrawAction.GENERATED, drawType, null);
 
         return drawItemList;
     }
@@ -84,6 +86,7 @@ public class DrawService {
      * @param drawType
      * @return
      */
+    @Transactional(readOnly = true)
     public List<DrawItem> list(long eventId, DrawType drawType) {
         if (drawType.equals(DrawType.ROUND_ROBIN)) {
             return this.drawRepository.findAllByEventFkAndDrawTypeOrderByGroupNumAscPlaceInGroupAsc(eventId, drawType);
@@ -92,13 +95,37 @@ public class DrawService {
         }
     }
 
+    @Transactional(readOnly = true)
+    public boolean existsByEventFkAndDrawTypeAndRoundAndSingleElimLineNum(long eventId, DrawType drawType, int roundOf, int singleElimLineNum) {
+        return this.drawRepository.existsByEventFkAndDrawTypeAndRoundAndSingleElimLineNum(eventId, drawType, roundOf, singleElimLineNum);
+    }
+
+    @Transactional(readOnly = true)
+    public DrawItem findByEventFkAndDrawTypeAndRoundAndSingleElimLineNum(long eventId, DrawType drawType, int roundOf, int singleElimLineNum) {
+        return this.drawRepository.findByEventFkAndDrawTypeAndRoundAndSingleElimLineNum(eventId, drawType, roundOf, singleElimLineNum)
+                .orElseThrow(() -> new ResourceNotFoundException("Unable to find draw item"));
+    }
+
     /**
      *
      * @param eventIds
      * @return
      */
+    @Transactional(readOnly = true)
     public List<DrawItem> listAllDrawsForTournament(List<Long> eventIds) {
         return this.drawRepository.findAllByEventFkInOrderByEventFkAscGroupNumAscPlaceInGroupAsc(eventIds);
+    }
+
+    /**
+     * Saves newly created item
+     * @param drawItem
+     * @return
+     */
+    public DrawItem save(DrawItem drawItem) {
+        DrawItem savedItem = this.drawRepository.save(drawItem);
+        List<DrawItem> updatedDrawItems = Arrays.asList(drawItem);
+        this.drawsEventPublisher.publishEvent(savedItem.getEventFk(), DrawAction.UPDATED, savedItem.getDrawType(), updatedDrawItems);
+        return savedItem;
     }
 
     /**
@@ -109,7 +136,7 @@ public class DrawService {
         if (drawItems.size() > 0) {
             this.drawRepository.saveAll(drawItems);
             DrawItem drawItem = drawItems.get(0);
-            this.drawsEventPublisher.publishEvent(drawItem.getEventFk(), DrawAction.UPDATED, drawItem.getDrawType());
+            this.drawsEventPublisher.publishEvent(drawItem.getEventFk(), DrawAction.UPDATED, drawItem.getDrawType(), drawItems);
         }
     }
 
@@ -120,6 +147,6 @@ public class DrawService {
      */
     public void deleteDraws(long eventId, DrawType drawType) {
         this.drawRepository.deleteAllByEventFkAndDrawType(eventId, drawType);
-        this.drawsEventPublisher.publishEvent(eventId, DrawAction.DELETED, drawType);
+        this.drawsEventPublisher.publishEvent(eventId, DrawAction.DELETED, drawType, null);
     }
 }

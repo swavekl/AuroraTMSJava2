@@ -22,8 +22,7 @@ public class MatchCard {
     // event id to which this match belongs
     private long eventFk;
 
-    // group number. if this is a card for group of matches it is 1, 2, 3 etc.
-    // for single elimination phase it will be 0
+    // group number e.g. 1, 2, 3 etc.
     private int groupNum;
 
     // table numbers assigned to this match card could be one e.g. table number 4
@@ -32,7 +31,7 @@ public class MatchCard {
     private String assignedTables;
 
     // list of matches for this match card
-    @OneToMany(mappedBy = "matchCard", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "matchCard", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     private List<Match> matches;
 

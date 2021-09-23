@@ -26,6 +26,10 @@ public class DrawItem {
     // draw group number
     private int groupNum;
 
+    // for round robin phase 0,
+    // for single elimination - 64, 32, 16, 8 (quarter finals), 4 (semifinals), 2 (finals and 3rd/4th place)
+    private int round;
+
     // Players place in the draw for the group
     private int placeInGroup;
 
