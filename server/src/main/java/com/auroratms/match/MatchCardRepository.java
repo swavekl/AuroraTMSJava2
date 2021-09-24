@@ -17,7 +17,7 @@ public interface MatchCardRepository extends JpaRepository<MatchCard, Long> {
      * @param groupNum
      * @return
      */
-    Optional<MatchCard> findMatchCardByEventFkAndGroupNum(long eventId, int groupNum);
+    Optional<MatchCard> findMatchCardByEventFkAndRoundAndGroupNum(long eventId, int round, int groupNum);
 
     /**
      * Find all match cards for this event

@@ -8,6 +8,7 @@ import com.auroratms.tournament.TournamentService;
 import io.micrometer.core.instrument.util.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -15,6 +16,7 @@ import java.util.List;
  * Service for generating automatic schedule of matches for tournament events
  */
 @Service
+@Transactional
 public class MatchSchedulingService {
 
     @Autowired

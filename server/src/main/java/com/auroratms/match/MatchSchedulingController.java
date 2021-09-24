@@ -29,9 +29,9 @@ public class MatchSchedulingController {
         try {
             // gets match cards for events for this day with schedule information filled in
             List<MatchCard> daysMatchCards = matchSchedulingService.generateScheduleForDay(tournamentId, day);
-            for (MatchCard matchCard : daysMatchCards) {
-                matchCard.setMatches(null);
-            }
+//            for (MatchCard matchCard : daysMatchCards) {
+//                matchCard.setMatches(null);
+//            }
             return new ResponseEntity(daysMatchCards, HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity(e, HttpStatus.INTERNAL_SERVER_ERROR);

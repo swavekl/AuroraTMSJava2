@@ -352,6 +352,8 @@ public class MatchCardService {
      * @param updatedDrawItems
      */
     public void updateMatchCardsForEvent(long eventId, DrawType drawType, List<DrawItem> updatedDrawItems) {
+//        System.out.println("updateMatchCardsForEvent thread " + Thread.currentThread().getName());
+//        System.out.println("updatedDrawItems = " + updatedDrawItems);
         List<DrawItem> eventDrawItems = drawService.list(eventId, drawType);
         TournamentEventEntity tournamentEventEntity = tournamentEventEntityService.get(eventId);
 
@@ -365,41 +367,36 @@ public class MatchCardService {
             generateSingleEliminationCards(eventDrawItems, tournamentEventEntity, matchCardList);
         }
 
-        int changedRound = 0;
         for (DrawItem updatedDrawItem : updatedDrawItems) {
-            changedRound = updatedDrawItem.getRound();
-            break;
-        }
+            for (MatchCard existingMatchCard : existingMatchCards) {
+                // skip other round matches
+                if (existingMatchCard.getRound() == updatedDrawItem.getRound() &&
+                    existingMatchCard.getGroupNum() == updatedDrawItem.getGroupNum()) {
+//                    System.out.println("Found existing match card for this draw item " + existingMatchCard.getId());
+                    // get all players ids to see if they changed
+                    Set<String> oldPlayerProfileIds = getPlayerIdsForMatchCard(existingMatchCard);
 
-        // transfer start times, assigned table numbers etc. to the updated match cards
-        for (MatchCard existingMatchCard : existingMatchCards) {
-            // skip other round matches
-            if (existingMatchCard.getRound() != changedRound) {
-                continue;
-            }
+                    for (MatchCard updatedMatchCard : matchCardList) {
+                        if (updatedMatchCard.getGroupNum() == updatedDrawItem.getGroupNum() &&
+                            updatedMatchCard.getRound() == updatedDrawItem.getRound()) {
+//                            System.out.println("Found updated match card");
+                            // see if players changed
+                            Set<String> newPlayerIdsForMatchCard = getPlayerIdsForMatchCard(updatedMatchCard);
+                            if (!oldPlayerProfileIds.equals(newPlayerIdsForMatchCard)) {
+//                                System.out.println("UPDATING matches in existingMatchCard.id = " + existingMatchCard.getId() + " round " + existingMatchCard.getRound() + " groupNum " + existingMatchCard.getGroupNum());
+                                List<Match> oldMatches = existingMatchCard.getMatches();
+                                oldMatches.clear();
+                                List<Match> newMatches = updatedMatchCard.getMatches();
+                                existingMatchCard.getMatches().addAll(newMatches);
+                                for (Match match : newMatches) {
+                                    match.setMatchCard(existingMatchCard);
+                                }
+                                matchCardRepository.save(existingMatchCard);
+                            }
 
-            // get all players ids to see if they changed
-            Set<String> oldPlayerProfileIds = getPlayerIdsForMatchCard(existingMatchCard);
-
-            for (MatchCard updatedMatchCard : matchCardList) {
-                if (existingMatchCard.getGroupNum() == updatedMatchCard.getGroupNum() &&
-                        existingMatchCard.getRound() == updatedMatchCard.getRound()) {
-                    // see if players changed
-                    Set<String> newPlayerIdsForMatchCard = getPlayerIdsForMatchCard(updatedMatchCard);
-                    if (!oldPlayerProfileIds.equals(newPlayerIdsForMatchCard)) {
-                        List<Match> oldMatches = existingMatchCard.getMatches();
-                        for (int i = 0; i < oldMatches.size(); i++) {
-                            oldMatches.remove(0);
+                            break;
                         }
-                        matchCardRepository.save(existingMatchCard);
-                        List<Match> newMatches = updatedMatchCard.getMatches();
-                        for (Match match : newMatches) {
-                            match.setMatchCard(existingMatchCard);
-                        }
-                        existingMatchCard.getMatches().addAll(newMatches);
                     }
-
-                    break;
                 }
             }
         }
@@ -415,8 +412,8 @@ public class MatchCardService {
         return playerProfileIds;
     }
 
-    public MatchCard getMatchCard(long eventId, int groupNum) {
-        return this.matchCardRepository.findMatchCardByEventFkAndGroupNum(eventId, groupNum)
+    public MatchCard getMatchCard(long eventId, int round, int groupNum) {
+        return this.matchCardRepository.findMatchCardByEventFkAndRoundAndGroupNum(eventId, round, groupNum)
                 .orElseThrow(() -> new ResourceNotFoundException("Unable to find match card"));
     }
 

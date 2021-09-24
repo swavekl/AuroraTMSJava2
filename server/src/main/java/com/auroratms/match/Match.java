@@ -118,6 +118,8 @@ public class Match {
                 ", game7ScoreSideB=" + game7ScoreSideB +
                 ", playerALetter=" + playerALetter +
                 ", playerBLetter=" + playerBLetter +
+                ", playerARating=" + playerARating +
+                ", playerBRating=" + playerBRating +
                 '}';
     }
 }

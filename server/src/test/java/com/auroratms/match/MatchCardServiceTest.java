@@ -2,6 +2,7 @@ package com.auroratms.match;
 
 import com.auroratms.AbstractServiceTest;
 import com.auroratms.draw.DrawType;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,19 +18,21 @@ public class MatchCardServiceTest extends AbstractServiceTest {
     private MatchCardService matchCardService;
 
     @Test
+    @Ignore
     public void testRoundRobinGeneration() {
         long eventId = 65L;
         DrawType drawType = DrawType.ROUND_ROBIN;
         matchCardService.generateMatchCardsForEvent(eventId, drawType);
 
-        MatchCard firstGroupMatchCard = matchCardService.getMatchCard(eventId, 1);
+        int round = 0;
+        MatchCard firstGroupMatchCard = matchCardService.getMatchCard(eventId, round, 1);
         assertNotNull("no match card for group 1", firstGroupMatchCard);
         assertEquals("wrong group number", 1, firstGroupMatchCard.getGroupNum());
         List<Match> matches = firstGroupMatchCard.getMatches();
         assertEquals("wrong number of matches for group 1", 6, matches.size());
 
         for (int groupNum = 2; groupNum < 5; groupNum++) {
-            firstGroupMatchCard = matchCardService.getMatchCard(eventId, groupNum);
+            firstGroupMatchCard = matchCardService.getMatchCard(eventId, round, groupNum);
             assertNotNull("no match card for group " + groupNum, firstGroupMatchCard);
             matches = firstGroupMatchCard.getMatches();
             assertEquals("wrong number of matches for group " + groupNum, 6, matches.size());
@@ -63,7 +66,7 @@ public class MatchCardServiceTest extends AbstractServiceTest {
         matchCardService.generateMatchCardsForEvent(eventId, drawType);
 
         List<MatchCard> matchCards = matchCardService.findAllForEventAndDrawType(eventId, drawType);
-        assertEquals("match cards wrong number", 4, matchCards.size());
+        assertEquals("match cards wrong number", 8, matchCards.size());
 
         for (MatchCard matchCard : matchCards) {
             List<Match> matches = matchCard.getMatches();
