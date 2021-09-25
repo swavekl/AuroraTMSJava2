@@ -352,8 +352,6 @@ public class MatchCardService {
      * @param updatedDrawItems
      */
     public void updateMatchCardsForEvent(long eventId, DrawType drawType, List<DrawItem> updatedDrawItems) {
-//        System.out.println("updateMatchCardsForEvent thread " + Thread.currentThread().getName());
-//        System.out.println("updatedDrawItems = " + updatedDrawItems);
         List<DrawItem> eventDrawItems = drawService.list(eventId, drawType);
         TournamentEventEntity tournamentEventEntity = tournamentEventEntityService.get(eventId);
 
@@ -368,22 +366,20 @@ public class MatchCardService {
         }
 
         for (DrawItem updatedDrawItem : updatedDrawItems) {
+            // find match card for this player in the round that was updated
+            int groupNum = (int) Math.ceil((double)updatedDrawItem.getSingleElimLineNum() / 2);
             for (MatchCard existingMatchCard : existingMatchCards) {
-                // skip other round matches
                 if (existingMatchCard.getRound() == updatedDrawItem.getRound() &&
-                    existingMatchCard.getGroupNum() == updatedDrawItem.getGroupNum()) {
-//                    System.out.println("Found existing match card for this draw item " + existingMatchCard.getId());
+                    existingMatchCard.getGroupNum() == groupNum) {
                     // get all players ids to see if they changed
                     Set<String> oldPlayerProfileIds = getPlayerIdsForMatchCard(existingMatchCard);
-
+                    // find corresponding updated match card
                     for (MatchCard updatedMatchCard : matchCardList) {
-                        if (updatedMatchCard.getGroupNum() == updatedDrawItem.getGroupNum() &&
-                            updatedMatchCard.getRound() == updatedDrawItem.getRound()) {
-//                            System.out.println("Found updated match card");
-                            // see if players changed
+                        if (updatedMatchCard.getGroupNum() == existingMatchCard.getGroupNum() &&
+                            updatedMatchCard.getRound() == existingMatchCard.getRound()) {
+                            // see if players changed, if not don't update the match card
                             Set<String> newPlayerIdsForMatchCard = getPlayerIdsForMatchCard(updatedMatchCard);
                             if (!oldPlayerProfileIds.equals(newPlayerIdsForMatchCard)) {
-//                                System.out.println("UPDATING matches in existingMatchCard.id = " + existingMatchCard.getId() + " round " + existingMatchCard.getRound() + " groupNum " + existingMatchCard.getGroupNum());
                                 List<Match> oldMatches = existingMatchCard.getMatches();
                                 oldMatches.clear();
                                 List<Match> newMatches = updatedMatchCard.getMatches();
@@ -572,124 +568,5 @@ public class MatchCardService {
         matchCard.setGroupNum(groupNum);
         matchCard.setDrawType(drawType);
         this.matchCardRepository.delete(matchCard);
-    }
-
-    /**
-     * @param matchCard
-     * @param eventId
-     * @param rankToProfileIdMap
-     */
-    public void advancePlayers(MatchCard matchCard, Long eventId, Map<Integer, String> rankToProfileIdMap) {
-        List<DrawItem> seDrawItems = this.drawService.list(eventId, DrawType.SINGLE_ELIMINATION);
-        // find the first round of the single elimination round
-        int firstSeRoundOf = 1;
-        for (DrawItem seDrawItem : seDrawItems) {
-            firstSeRoundOf = Math.max(seDrawItem.getRound(), firstSeRoundOf);
-        }
-        // draw items already exist so just update them if necessary
-        TournamentEventEntity tournamentEventEntity = this.tournamentEventEntityService.get(eventId);
-
-        if (matchCard.getDrawType() == DrawType.ROUND_ROBIN) {
-            // first round of SE round
-            // find out if this is the first round in the single elimination phase or later round
-            // later rounds don't have draw items.
-            int placeRankNum = 1;
-            // update draws
-            for (DrawItem drawItem : seDrawItems) {
-                if (drawItem.getRound() == firstSeRoundOf &&
-                        drawItem.getGroupNum() == matchCard.getGroupNum()) {
-                    System.out.println("advancing player from round robin round of " + drawItem.getRound() + " group " + drawItem.getGroupNum());
-                    String playerProfileId = rankToProfileIdMap.get(placeRankNum);
-                    int rating = getPlayerRating(playerProfileId, matchCard);
-                    drawItem.setRating(rating);
-                    // if changed player who advanced then update draws
-//                    if (!playerProfileId.equals(drawItem.getPlayerId())) {
-                    drawItem.setPlayerId(playerProfileId);
-                    List<DrawItem> updatedDrawItems = Arrays.asList(drawItem);
-                    // todo - need to pass which draw items changed
-                    // otherwise the round matches are erased.
-                    this.drawService.updateDraws(updatedDrawItems);
-//                    }
-                    // todo - where do we place the second and nth player who advances
-                    placeRankNum++;
-                    if (placeRankNum > tournamentEventEntity.getPlayersToAdvance()) {
-                        break;
-                    }
-                }
-            }
-        } else {
-            // next round has half the players
-            int roundOf = matchCard.getRound() / 2;
-            // later round - i.e. draw item may or may not exist for it - if score is corrected it will exist
-            // if the later rounds (you lose you are out) so we only need one player
-            String playerProfileId = rankToProfileIdMap.get(1);
-            if (playerProfileId != null) {
-                int rating = getPlayerRating(playerProfileId, matchCard);
-                // group 1 & 2 winners, go to this round's group 1, group 3 & 4 winners into group 2, 5 & 6 to 3 etc.
-                int groupNum = (int) Math.ceil((double) matchCard.getGroupNum() / 2);
-                // there are only two places in this group - 1 or 2
-                int placeInGroup = (matchCard.getGroupNum() % 2 == 1) ? 1 : 2;
-                int singleElimLineNumber = ((groupNum - 1) * 2) + placeInGroup;
-                updateDrawItem(matchCard.getEventFk(), roundOf, playerProfileId, rating, groupNum, placeInGroup, singleElimLineNumber);
-            }
-
-            // last round but if we play for 3rd and 4th place update draw item for that as well
-            // with the player who lost
-            if (tournamentEventEntity.isPlay3rd4thPlace() && roundOf == 2) {
-                String losingPlayerProfileId = rankToProfileIdMap.get(2);
-                // make sure this player can play
-                int rating = (losingPlayerProfileId != null) ? getPlayerRating(losingPlayerProfileId, matchCard) : 0;
-                // 3 & 4th place match is group 2 in round of 2
-                int groupNum = 2;
-                // there are only two places in this group
-                int placeInGroup = (matchCard.getGroupNum() % 2 == 1) ? 1 : 2;
-                int singleElimLineNumber = ((groupNum - 1) * 2) + placeInGroup; // i.e. 3 or 4
-                updateDrawItem(matchCard.getEventFk(), roundOf, losingPlayerProfileId, rating, groupNum, placeInGroup, singleElimLineNumber);
-            }
-        }
-    }
-
-    /**
-     * Updates draw item
-     * @param eventFk
-     * @param roundOf
-     * @param playerProfileId
-     * @param rating
-     * @param groupNum
-     * @param placeInGroup
-     * @param singleElimLineNumber
-     */
-    private void updateDrawItem(long eventFk, int roundOf, String playerProfileId, int rating, int groupNum, int placeInGroup, int singleElimLineNumber) {
-        DrawItem drawItem = new DrawItem();
-        drawItem.setRound(roundOf);
-        drawItem.setDrawType(DrawType.SINGLE_ELIMINATION);
-        drawItem.setGroupNum(groupNum);
-        drawItem.setPlaceInGroup(placeInGroup);
-        drawItem.setEventFk(eventFk);
-        drawItem.setSingleElimLineNum(singleElimLineNumber);
-        if (drawService.existsByEventFkAndDrawTypeAndRoundAndSingleElimLineNum(eventFk, DrawType.SINGLE_ELIMINATION, roundOf, singleElimLineNumber)) {
-            drawItem = drawService.findByEventFkAndDrawTypeAndRoundAndSingleElimLineNum(eventFk, DrawType.SINGLE_ELIMINATION, roundOf, singleElimLineNumber);
-        }
-        drawItem.setPlayerId(playerProfileId);
-        drawItem.setRating(rating);
-        drawService.save(drawItem);
-    }
-
-    private int getPlayerRating(String playerProfileId, MatchCard matchCard) {
-        int rating = 0;
-        List<Match> matches = matchCard.getMatches();
-        if (matches != null) {
-            for (Match match : matches) {
-                if (playerProfileId.equals(match.getPlayerAProfileId())) {
-                    rating = match.getPlayerARating();
-                    break;
-                }
-                if (playerProfileId.equals(match.getPlayerBProfileId())) {
-                    rating = match.getPlayerBRating();
-                    break;
-                }
-            }
-        }
-        return rating;
     }
 }

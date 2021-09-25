@@ -1,5 +1,6 @@
 package com.auroratms.tiebreaking;
 
+import com.auroratms.draw.DrawService;
 import com.auroratms.draw.DrawType;
 import com.auroratms.event.TournamentEventEntity;
 import com.auroratms.event.TournamentEventEntityService;
@@ -32,6 +33,9 @@ public class TieBreakingService {
 
     @Autowired
     private TournamentEventEntityService tournamentEventEntityService;
+
+    @Autowired
+    private DrawService drawService;
 
     /**
      * Computes ranking and causes players to advance to next round
@@ -650,7 +654,15 @@ public class TieBreakingService {
         // so if this is the last round i.e. 2 there is nowhere to advance to
         // todo unless we advance to another event
         if (matchCard.getRound() > 2 || matchCard.getRound() == 0) {
-            matchCardService.advancePlayers(matchCard, tournamentEventEntity.getId(), rankToProfileIdMap);
+            // colllect player ratings into map of profile id to rating
+            Map<String, Integer> playerProfileToRatingMap = new HashMap<>();
+            List<Match> matches = matchCard.getMatches();
+            for (Match match : matches) {
+                playerProfileToRatingMap.put(match.getPlayerAProfileId(), match.getPlayerARating());
+                playerProfileToRatingMap.put (match.getPlayerBProfileId(), match.getPlayerBRating());
+            }
+            drawService.advancePlayers(matchCard.getDrawType(), matchCard.getGroupNum(), matchCard.getRound(),
+                    tournamentEventEntity, rankToProfileIdMap, playerProfileToRatingMap);
         }
     }
 }
