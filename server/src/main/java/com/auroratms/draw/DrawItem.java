@@ -33,6 +33,10 @@ public class DrawItem {
     // Players place in the draw for the group
     private int placeInGroup;
 
+    // seed number of player/doubles team in single elimination round,
+    // 0 in round robin round
+    private int seSeedNumber;
+
     // bye number if this draw item represents a bye (e.g. 1, 2, 3 etc), 0 otherwise
     private int byeNum;
 

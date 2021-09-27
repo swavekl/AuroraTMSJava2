@@ -35,6 +35,7 @@ public class SingleEliminationDrawsGeneratorTest extends AbstractDrawsGeneratorT
         // pick top n players to advance and get their entries
         List<TournamentEventEntry> seEventEntries = SingleEliminationEntriesConverter.generateSEEventEntriesFromDraws(
                 rrDrawItems, eventEntries, tournamentEventEntity, entryIdToPlayerDrawInfo);
+        SingleEliminationEntriesConverter.fillRRGroupNumberForSEPlayers(rrDrawItems, entryIdToPlayerDrawInfo, tournamentEventEntity);
         assertEquals("wrong number of advancing player entries", 6, seEventEntries.size());
 
         // make SE draws
@@ -42,13 +43,13 @@ public class SingleEliminationDrawsGeneratorTest extends AbstractDrawsGeneratorT
         assertNotNull("SE round generator is null", seRoundGenerator);
 
         List<DrawItem> seDrawItems = seRoundGenerator.generateDraws(seEventEntries, entryIdToPlayerDrawInfo, existingDrawItems);
-        assertEquals("wrong number of SE entries", 8, seDrawItems.size());
+        assertEquals("wrong number of SE entries", 14, seDrawItems.size());
 
         int i = 0;
         int[] expectedSeedNumbers = {1, 8, 6, 3, 4, 5, 7, 2};
         int[] expectedByes = {0, 1, 0, 0, 0, 0, 2, 0};
         for (DrawItem drawItem : seDrawItems) {
-            int seedNumber = drawItem.getGroupNum();
+            int seedNumber = drawItem.getSeSeedNumber();
 //            System.out.print(seedNumber + ", ");
             int expectedSeedNum = expectedSeedNumbers[i];
             assertEquals("wrong seed number", expectedSeedNum, seedNumber);
@@ -93,11 +94,12 @@ public class SingleEliminationDrawsGeneratorTest extends AbstractDrawsGeneratorT
 //        assertEquals("wrong number of advancing player entries", 32, seEventEntries.size());
 
         // make SE draws
+//        SingleEliminationEntriesConverter.fillRRGroupNumberForSEPlayers(rrDrawItems, entryIdToPlayerDrawInfo, tournamentEventEntity);
         IDrawsGenerator seRoundGenerator = DrawGeneratorFactory.makeGenerator(tournamentEventEntity, DrawType.SINGLE_ELIMINATION);
         assertNotNull("SE round generator is null", seRoundGenerator);
 
         List<DrawItem> seDrawItems = seRoundGenerator.generateDraws(seEventEntries, entryIdToPlayerDrawInfo, existingDrawItems);
-        assertEquals("wrong number of SE entries", 32, seDrawItems.size());
+        assertEquals("wrong number of SE entries", 64, seDrawItems.size());
 
         int i = 0;
         int[] expectedSeedNumbers = {1, 8, 5, 3, 4, 6, 7, 2};
@@ -107,7 +109,7 @@ public class SingleEliminationDrawsGeneratorTest extends AbstractDrawsGeneratorT
                 0, 4, 0, 0, 0, 0, 0, 0,
                 0, 6, 0, 0, 0, 0, 2, 0};
         for (DrawItem drawItem : seDrawItems) {
-            int seedNumber = drawItem.getGroupNum();
+            int seedNumber = drawItem.getSeSeedNumber();
 //            System.out.print(seedNumber + ", ");
 //            int expectedSeedNum = expectedSeedNumbers[i];
 //            assertEquals("wrong seed number", expectedSeedNum, seedNumber);

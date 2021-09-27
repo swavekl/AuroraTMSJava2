@@ -80,13 +80,30 @@ public class DoublesSingleEliminationDrawsGenerator extends AbstractDoublesDraws
         for (DrawItem drawItem : drawItemsArray) {
             if (drawItem != null) {
                 drawItem.setSingleElimLineNum(singleElimLineNum);
+                drawItem.setRound(bracketLines.length);
                 drawItems.add(drawItem);
                 singleElimLineNum++;
             } else {
                 System.out.println("draw item is null");
             }
         }
+
+        // todo - generate remaining draws
+        List<DrawItem> remainingRoundsDrawItems = generateRemainingRoundsDrawItems();
+        drawItems.addAll(remainingRoundsDrawItems);
+
         return drawItems;
+    }
+
+    /**
+     *
+     * @return
+     */
+    private List<DrawItem> generateRemainingRoundsDrawItems() {
+        List<DrawItem> drawItemList = new ArrayList<>();
+
+        return drawItemList;
+
     }
 
     /**
@@ -97,7 +114,11 @@ public class DoublesSingleEliminationDrawsGenerator extends AbstractDoublesDraws
      * @param bracketLines
      * @param drawItemsArray
      */
-    private void placeTeamFromSublist(int playerSeedNum, List<TournamentEventEntry> entriesSubList, Map<Long, PlayerDrawInfo> entryIdToPlayerDrawInfo, BracketLine[] bracketLines, DrawItem[] drawItemsArray) {
+    private void placeTeamFromSublist(int playerSeedNum,
+                                      List<TournamentEventEntry> entriesSubList,
+                                      Map<Long, PlayerDrawInfo> entryIdToPlayerDrawInfo,
+                                      BracketLine[] bracketLines,
+                                      DrawItem[] drawItemsArray) {
         long eventFk = this.tournamentEventEntity.getId();
         int currentPlayerSeedNum = playerSeedNum;
         boolean firstPlayer = true;
@@ -114,7 +135,16 @@ public class DoublesSingleEliminationDrawsGenerator extends AbstractDoublesDraws
                                     entryIdToPlayerDrawInfo, entriesSubList, DrawType.SINGLE_ELIMINATION);
                             if (drawItem != null) {
                                 drawItemsArray[i] = drawItem;
-                                drawItem.setGroupNum(currentPlayerSeedNum);
+                                int groupNum = 0;
+                                if (doublesPair.getPlayerAEventEntryFk() == eventEntryId) {
+                                    PlayerDrawInfo playerADrawInfo = getPlayerDrawInfo(doublesPair.getPlayerAEventEntryFk(), entriesSubList, entryIdToPlayerDrawInfo);
+                                    groupNum = playerADrawInfo.getRRGroupNum();
+                                } else {
+                                    PlayerDrawInfo playerBDrawInfo = getPlayerDrawInfo(doublesPair.getPlayerBEventEntryFk(), entriesSubList, entryIdToPlayerDrawInfo);
+                                    groupNum = playerBDrawInfo.getRRGroupNum();
+                                }
+                                drawItem.setGroupNum(groupNum);
+                                drawItem.setSeSeedNumber(currentPlayerSeedNum);
                                 currentPlayerSeedNum++;
                                 break;
                             }

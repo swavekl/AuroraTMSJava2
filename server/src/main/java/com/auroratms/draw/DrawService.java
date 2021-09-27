@@ -181,7 +181,7 @@ public class DrawService {
                         drawItem.getGroupNum() == matchGroupNum) {
                     String playerProfileId = rankToProfileIdMap.get(placeRankNum);
                     int rating = playerProfileToRatingMap.get(playerProfileId);
-                    System.out.println("MatchCardService advancing player " + playerProfileId + " with rating " + rating + " from round robin round of " + drawItem.getRound() + " group " + drawItem.getGroupNum());
+                    System.out.println("DrawService advancing player " + playerProfileId + " with rating " + rating + " from round robin round of " + drawItem.getRound() + " group " + drawItem.getGroupNum());
                     // if changed player who advanced then update draws
 //                    if (!playerProfileId.equals(drawItem.getPlayerId())) {
                     drawItem.setRating(rating);
@@ -194,6 +194,7 @@ public class DrawService {
 
                     DrawItem nextRoundDrawItem = advanceToSecondRoundIfBye(drawItem, seDrawItems, firstSeRoundOf);
                     if (nextRoundDrawItem != null) {
+                        System.out.println("Updating draw in the next round for player who got a bye " + nextRoundDrawItem);
                         nextRoundDrawItem.setPlayerId(playerProfileId);
                         nextRoundDrawItem.setRating(rating);
                         this.updateDraws(Arrays.asList(nextRoundDrawItem));

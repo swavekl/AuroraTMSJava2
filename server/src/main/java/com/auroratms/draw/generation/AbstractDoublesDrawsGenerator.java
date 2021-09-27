@@ -67,7 +67,7 @@ public abstract class AbstractDoublesDrawsGenerator extends AbstractDrawsGenerat
      * @param entryIdToPlayerDrawInfo
      * @return
      */
-    private PlayerDrawInfo getPlayerDrawInfo(long eventEntryFk,
+    protected PlayerDrawInfo getPlayerDrawInfo(long eventEntryFk,
                                              List<TournamentEventEntry> eventEntries,
                                              Map<Long, PlayerDrawInfo> entryIdToPlayerDrawInfo) {
         PlayerDrawInfo playerDrawInfo = null;

@@ -6,6 +6,7 @@ import com.auroratms.event.TournamentEventEntity;
 import com.auroratms.tournamentevententry.TournamentEventEntry;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -16,7 +17,6 @@ import java.util.Map;
 public class SingleEliminationEntriesConverter {
 
     /**
-     *
      * @param rrDrawItems
      * @param rrEventEntries
      * @param tournamentEventEntity
@@ -24,23 +24,23 @@ public class SingleEliminationEntriesConverter {
      * @return
      */
     public static List<TournamentEventEntry> generateSEEventEntriesFromDraws(List<DrawItem> rrDrawItems,
-                                                                       List<TournamentEventEntry> rrEventEntries,
-                                                                       TournamentEventEntity tournamentEventEntity,
-                                                                       Map<Long, PlayerDrawInfo> entryIdToPlayerDrawInfo) {
+                                                                             List<TournamentEventEntry> rrEventEntries,
+                                                                             TournamentEventEntity tournamentEventEntity,
+                                                                             Map<Long, PlayerDrawInfo> entryIdToPlayerDrawInfo) {
         List<TournamentEventEntry> seEventEntries = new ArrayList<>();
         int playersToAdvance = tournamentEventEntity.getPlayersToAdvance();
         boolean doubles = tournamentEventEntity.isDoubles();
         for (DrawItem rrDrawItem : rrDrawItems) {
             if (rrDrawItem.getPlaceInGroup() <= playersToAdvance) {
                 String playerId = rrDrawItem.getPlayerId();
-                if(!doubles) {
+                if (!doubles) {
                     TournamentEventEntry eventEntry = findEventEntry(playerId, rrEventEntries, entryIdToPlayerDrawInfo);
                     if (eventEntry != null) {
                         seEventEntries.add(eventEntry);
                     }
                 } else {
                     // find both player entries
-                    TournamentEventEntry [] eventEntries = findDoublesEventEntries(playerId, rrEventEntries, entryIdToPlayerDrawInfo);
+                    TournamentEventEntry[] eventEntries = findDoublesEventEntries(playerId, rrEventEntries, entryIdToPlayerDrawInfo);
                     for (int i = 0; i < eventEntries.length; i++) {
                         TournamentEventEntry eventEntry = eventEntries[i];
                         if (eventEntry != null) {
@@ -55,7 +55,6 @@ public class SingleEliminationEntriesConverter {
     }
 
     /**
-     *
      * @param playerId
      * @param rrEventEntries
      * @param entryIdToPlayerDrawInfo
@@ -90,7 +89,7 @@ public class SingleEliminationEntriesConverter {
                                                                   List<TournamentEventEntry> rrEventEntries,
                                                                   Map<Long, PlayerDrawInfo> entryIdToPlayerDrawInfo) {
         String[] playerIds = teamPlayerIds.split(";");
-        TournamentEventEntry [] tournamentEventEntries = new TournamentEventEntry[playerIds.length];
+        TournamentEventEntry[] tournamentEventEntries = new TournamentEventEntry[playerIds.length];
         for (int i = 0; i < playerIds.length; i++) {
             String playerId = playerIds[i];
             for (Map.Entry<Long, PlayerDrawInfo> playerDrawInfoEntry : entryIdToPlayerDrawInfo.entrySet()) {
@@ -107,5 +106,79 @@ public class SingleEliminationEntriesConverter {
         }
 
         return tournamentEventEntries;
+    }
+
+    /**
+     * Fill RR group number from which players came from
+     *
+     * @param rrDrawItems
+     * @param entryIdToPlayerDrawInfo
+     * @param tournamentEventEntity
+     */
+    public static void fillRRGroupNumberForSEPlayers(List<DrawItem> rrDrawItems,
+                                                     Map<Long, PlayerDrawInfo> entryIdToPlayerDrawInfo,
+                                                     TournamentEventEntity tournamentEventEntity) {
+        int playersToAdvance = tournamentEventEntity.getPlayersToAdvance();
+        boolean doubles = tournamentEventEntity.isDoubles();
+        for (DrawItem rrDrawItem : rrDrawItems) {
+            if (rrDrawItem.getPlaceInGroup() <= playersToAdvance) {
+                String playerId = rrDrawItem.getPlayerId();
+                if (!doubles) {
+                    PlayerDrawInfo playerDrawInfo = findPlayerDrawInfo(playerId, entryIdToPlayerDrawInfo);
+                    if (playerDrawInfo != null) {
+                        playerDrawInfo.setRRGroupNum(rrDrawItem.getGroupNum());
+                    }
+                } else {
+                    PlayerDrawInfo [] playerDrawInfoArray = findDoublesTeamDrawInfo(playerId, entryIdToPlayerDrawInfo);
+                    for (PlayerDrawInfo playerDrawInfo : playerDrawInfoArray) {
+                        playerDrawInfo.setRRGroupNum(rrDrawItem.getGroupNum());
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * finds player draw info
+     *
+     * @param playerId
+     * @param entryIdToPlayerDrawInfo
+     * @return
+     */
+    private static PlayerDrawInfo findPlayerDrawInfo(String playerId,
+                                                     Map<Long, PlayerDrawInfo> entryIdToPlayerDrawInfo) {
+        PlayerDrawInfo retPlayerDrawInfo = null;
+        Collection<PlayerDrawInfo> playerDrawInfos = entryIdToPlayerDrawInfo.values();
+        for (PlayerDrawInfo playerDrawInfo : playerDrawInfos) {
+            if (playerDrawInfo.getProfileId().equals(playerId)) {
+                retPlayerDrawInfo = playerDrawInfo;
+                break;
+            }
+        }
+
+        return retPlayerDrawInfo;
+    }
+
+    /**
+     * Finds player draw infos for each doubles team member
+     * @param teamPlayerIds
+     * @param entryIdToPlayerDrawInfo
+     * @return
+     */
+    private static PlayerDrawInfo[] findDoublesTeamDrawInfo(String teamPlayerIds,
+                                                            Map<Long, PlayerDrawInfo> entryIdToPlayerDrawInfo) {
+        String[] playerIds = teamPlayerIds.split(";");
+        PlayerDrawInfo[] playerDrawInfos = new PlayerDrawInfo[playerIds.length];
+        for (int i = 0; i < playerIds.length; i++) {
+            String playerId = playerIds[i];
+            for (PlayerDrawInfo playerDrawInfo : entryIdToPlayerDrawInfo.values()) {
+                if (playerDrawInfo.getProfileId().equals(playerId)) {
+                    playerDrawInfos[i] = playerDrawInfo;
+                    break;
+                }
+            }
+        }
+
+        return playerDrawInfos;
     }
 }

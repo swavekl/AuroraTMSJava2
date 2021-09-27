@@ -366,8 +366,10 @@ public class MatchCardService {
         }
 
         for (DrawItem updatedDrawItem : updatedDrawItems) {
+            int groupNum = (drawType == DrawType.ROUND_ROBIN)
+                    ? updatedDrawItem.getGroupNum()
+                    : (int) Math.ceil((double)updatedDrawItem.getSingleElimLineNum() / 2);
             // find match card for this player in the round that was updated
-            int groupNum = (int) Math.ceil((double)updatedDrawItem.getSingleElimLineNum() / 2);
             for (MatchCard existingMatchCard : existingMatchCards) {
                 if (existingMatchCard.getRound() == updatedDrawItem.getRound() &&
                     existingMatchCard.getGroupNum() == groupNum) {
@@ -398,12 +400,17 @@ public class MatchCardService {
         }
     }
 
-    private Set<String> getPlayerIdsForMatchCard(MatchCard existingMatchCard) {
+    /**
+     *
+     * @param matchCard
+     * @return
+     */
+    private Set<String> getPlayerIdsForMatchCard(MatchCard matchCard) {
         Set<String> playerProfileIds = new TreeSet<>();
-        List<Match> oldMatches = existingMatchCard.getMatches();
-        for (Match oldMatch : oldMatches) {
-            playerProfileIds.add(oldMatch.getPlayerAProfileId());
-            playerProfileIds.add(oldMatch.getPlayerBProfileId());
+        List<Match> matches = matchCard.getMatches();
+        for (Match match : matches) {
+            playerProfileIds.add(match.getPlayerAProfileId());
+            playerProfileIds.add(match.getPlayerBProfileId());
         }
         return playerProfileIds;
     }

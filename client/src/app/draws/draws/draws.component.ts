@@ -182,7 +182,8 @@ export class DrawsComponent implements OnInit, OnChanges {
               state: ' ',
               clubName: ' ',
               byeNum: 0,
-              round: 0
+              round: 0,
+              seSeedNumber: 0
             };
             drawGroup.drawItems.push(fakeDrawItem);
           }
@@ -349,7 +350,7 @@ export class DrawsComponent implements OnInit, OnChanges {
             drawItem = {
               id: 0, eventFk: eventFK, drawType: DrawType.SINGLE_ELIMINATION, groupNum: groupNum, placeInGroup: placeInGroup,
               state: null, rating: 0, clubName: null, playerName: null, playerId: null, conflicts: null, byeNum: 0,
-              round: drawRound.round
+              round: drawRound.round, seSeedNumber: 0
             };
             drawRound.drawItems.push(drawItem);
           }
@@ -364,7 +365,7 @@ export class DrawsComponent implements OnInit, OnChanges {
               drawItem = {
                 id: 0, eventFk: eventFK, drawType: DrawType.SINGLE_ELIMINATION, groupNum: groupNum, placeInGroup: placeInGroup,
                 state: null, rating: 0, clubName: null, playerName: null, playerId: null, conflicts: null, byeNum: 0,
-                round: 2
+                round: 2, seSeedNumber: 0
               };
               drawRound.drawItems.push(drawItem);
             }

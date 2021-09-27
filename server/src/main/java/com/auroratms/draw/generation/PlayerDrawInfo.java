@@ -33,4 +33,7 @@ public class PlayerDrawInfo {
 
     // country of player
     private String country = "US";
+
+    // round robin group number that the player came from.  Needed for recording in Single Elimination draws
+    private int RRGroupNum;
 }

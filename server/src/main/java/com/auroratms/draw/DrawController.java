@@ -342,6 +342,7 @@ public class DrawController {
                 List<TournamentEventEntry> seSimulatedEventEntries = SingleEliminationEntriesConverter.generateSEEventEntriesFromDraws(
                         drawItems, eventEntries, thisEvent, entryIdToPlayerDrawInfo);
                 fillCityStateCountryForSEPlayers (seSimulatedEventEntries, entryIdToPlayerDrawInfo);
+                SingleEliminationEntriesConverter.fillRRGroupNumberForSEPlayers(drawItems, entryIdToPlayerDrawInfo, thisEvent);
                 List<DrawItem> seDrawItems = this.drawService.generateDraws(thisEvent, DrawType.SINGLE_ELIMINATION,
                         seSimulatedEventEntries, existingDrawItems, entryIdToPlayerDrawInfo);
                 drawItems.addAll(seDrawItems);
@@ -359,7 +360,8 @@ public class DrawController {
      * @param seSimulatedEventEntries
      * @param entryIdToPlayerDrawInfo
      */
-    private void fillCityStateCountryForSEPlayers(List<TournamentEventEntry> seSimulatedEventEntries, Map<Long, PlayerDrawInfo> entryIdToPlayerDrawInfo) {
+    private void fillCityStateCountryForSEPlayers(List<TournamentEventEntry> seSimulatedEventEntries,
+                                                  Map<Long, PlayerDrawInfo> entryIdToPlayerDrawInfo) {
         long start = System.currentTimeMillis();
         Map<String, PlayerDrawInfo> profileIdToInfoMap = new HashMap<>();
         List<String> profileIds = new ArrayList<>(seSimulatedEventEntries.size());

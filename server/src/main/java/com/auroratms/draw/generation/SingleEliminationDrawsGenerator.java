@@ -152,7 +152,8 @@ public class SingleEliminationDrawsGenerator extends AbstractDrawsGenerator impl
                                 DrawType.SINGLE_ELIMINATION, entryId);
                         drawItemsArray[i] = drawItem;
 
-                        drawItem.setGroupNum(currentPlayerSeedNum);
+                        drawItem.setGroupNum(playerDrawInfo.getRRGroupNum());
+                        drawItem.setSeSeedNumber(currentPlayerSeedNum);
 
                         currentPlayerSeedNum++;
                     }
@@ -200,7 +201,8 @@ public class SingleEliminationDrawsGenerator extends AbstractDrawsGenerator impl
                         DrawType.SINGLE_ELIMINATION, entryId);
                 drawItemsArray[i] = drawItem;
 
-                drawItem.setGroupNum(currentPlayerSeedNum);
+                drawItem.setGroupNum(playerDrawInfo.getRRGroupNum());
+                drawItem.setSeSeedNumber(currentPlayerSeedNum);
 
                 currentPlayerSeedNum++;
             }
