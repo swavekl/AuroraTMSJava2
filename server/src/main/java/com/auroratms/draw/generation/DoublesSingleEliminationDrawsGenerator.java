@@ -88,8 +88,9 @@ public class DoublesSingleEliminationDrawsGenerator extends AbstractDoublesDraws
             }
         }
 
-        // todo - generate remaining draws
-        List<DrawItem> remainingRoundsDrawItems = generateRemainingRoundsDrawItems();
+        // generate remaining draws
+        int roundOf = (int)Math.pow(2, rounds);
+        List<DrawItem> remainingRoundsDrawItems = addDrawItemsForLaterRounds(roundOf, drawItems);
         drawItems.addAll(remainingRoundsDrawItems);
 
         return drawItems;
@@ -99,11 +100,106 @@ public class DoublesSingleEliminationDrawsGenerator extends AbstractDoublesDraws
      *
      * @return
      */
-    private List<DrawItem> generateRemainingRoundsDrawItems() {
-        List<DrawItem> drawItemList = new ArrayList<>();
+    private List<DrawItem> addDrawItemsForLaterRounds(int firstRoundOf, List<DrawItem> firstRoundDrawItems) {
+        List<DrawItem> laterRoundsDrawItems = new ArrayList<>(firstRoundOf);
+        int additionalRounds = (int) (Math.log(firstRoundOf / 2) / Math.log(2));
+        for (int round = additionalRounds; round >= 1; round--) {
+            int roundOf = (int) Math.pow(2, round);
+            for (int playerNum = 0; playerNum < roundOf; playerNum++) {
+                int groupNum = 1 + Math.floorDiv(playerNum, 2);
+                int placeInGroup = (playerNum % 2 == 0) ? 1 : 2;
+                int thisPlayerSingleElimLineNumber = playerNum + 1;
 
-        return drawItemList;
+                // determine if any player gets a bye from the matches in the previous round which feed into this match
+                // so we can propagate this player's player id to this round
+                // but only in the second round not 3rd or fourth
+                boolean teamAGetsBye = false;
+                boolean teamBGetsBye = false;
+                DrawItem teamADrawItem = null;
+                DrawItem teamBDrawItem = null;
+                if (roundOf == firstRoundOf / 2) {
+                    int advancingPlayerSingleElimLineNumber = -1;
+                    for (DrawItem drawItem : firstRoundDrawItems) {
+                        // previous round group line 1 & 2 go to line #1 in this round,
+                        // lines 3 & 4 to line # 2 in this round and so on
+                        int targetLineNum = (int) Math.ceil((double)drawItem.getSingleElimLineNum() / 2);
+                        if (targetLineNum == thisPlayerSingleElimLineNumber) {
+                            // this draw item is for bye, find out if the player who gets a bye is A or B
+                            if (drawItem.getByeNum() != 0) {
+                                // odd line number is a bye e.g. 1, 3 then it's the player on the next line i.e. B who advances
+                                teamBGetsBye = ((drawItem.getSingleElimLineNum() % 2) == 1);
+                                if (teamBGetsBye) {
+                                    advancingPlayerSingleElimLineNumber = drawItem.getSingleElimLineNum() + 1;
+                                    break;
+                                }
+                                // even line number is a bye 2, 4, then it's the player on the previous line i.e. A who advances
+                                teamAGetsBye = ((drawItem.getSingleElimLineNum() % 2) == 0);
+                                if (teamAGetsBye) {
+                                    advancingPlayerSingleElimLineNumber = drawItem.getSingleElimLineNum() - 1;
+                                    break;
+                                }
+                            }
+                        }
+                    }
 
+                    // now find the player from this line number
+                    if (advancingPlayerSingleElimLineNumber != -1) {
+                        for (DrawItem drawItem : firstRoundDrawItems) {
+                            if (drawItem.getSingleElimLineNum() == advancingPlayerSingleElimLineNumber) {
+                                if (teamAGetsBye) {
+                                    teamADrawItem = drawItem;
+                                }
+                                if (teamBGetsBye) {
+                                    teamBDrawItem = drawItem;
+                                }
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                PlayerDrawInfo teamPlayerDrawInfo = new PlayerDrawInfo();
+                if (teamAGetsBye && teamADrawItem != null) {
+                    teamPlayerDrawInfo.setPlayerName(teamADrawItem.getPlayerName());
+                    teamPlayerDrawInfo.setProfileId(teamADrawItem.getPlayerId());
+                    teamPlayerDrawInfo.setRating(teamADrawItem.getRating());
+                } else if (teamBGetsBye && teamBDrawItem != null) {
+                    teamPlayerDrawInfo.setPlayerName(teamBDrawItem.getPlayerName());
+                    teamPlayerDrawInfo.setProfileId(teamBDrawItem.getPlayerId());
+                    teamPlayerDrawInfo.setRating(teamBDrawItem.getRating());
+                } else {
+                    teamPlayerDrawInfo.setPlayerName(DrawItem.TBD_PROFILE_ID);
+                    teamPlayerDrawInfo.setProfileId(DrawItem.TBD_PROFILE_ID);
+                    teamPlayerDrawInfo.setRating(0);
+                }
+                DrawItem drawItem = makeDrawItem(tournamentEventEntity.getId(), groupNum, placeInGroup,
+                        teamPlayerDrawInfo, DrawType.SINGLE_ELIMINATION, 0L);
+                drawItem.setSingleElimLineNum(thisPlayerSingleElimLineNumber);
+                drawItem.setRound(roundOf);
+                drawItem.setByeNum(0);
+                laterRoundsDrawItems.add(drawItem);
+            }
+        }
+
+        if (tournamentEventEntity.isPlay3rd4thPlace()) {
+            PlayerDrawInfo tbdPlayerDrawInfo = new PlayerDrawInfo();
+            tbdPlayerDrawInfo.setPlayerName(DrawItem.TBD_PROFILE_ID);
+            tbdPlayerDrawInfo.setProfileId(DrawItem.TBD_PROFILE_ID);
+
+            DrawItem drawItem3 = makeDrawItem(tournamentEventEntity.getId(), 2, 1,
+                    tbdPlayerDrawInfo, DrawType.SINGLE_ELIMINATION, 0L);
+            drawItem3.setSingleElimLineNum(3);
+            drawItem3.setRound(2);
+            laterRoundsDrawItems.add(drawItem3);
+
+            DrawItem drawItem4 = makeDrawItem(tournamentEventEntity.getId(), 2, 2,
+                    tbdPlayerDrawInfo, DrawType.SINGLE_ELIMINATION, 0L);
+            drawItem4.setSingleElimLineNum(4);
+            drawItem4.setRound(2);
+            laterRoundsDrawItems.add(drawItem4);
+        }
+
+        return laterRoundsDrawItems;
     }
 
     /**

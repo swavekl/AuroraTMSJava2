@@ -280,8 +280,8 @@ public class MatchCardService {
             }
         }
 
-        String playerAProfileId = (advancedPlayerADrawItem != null) ? advancedPlayerADrawItem.getPlayerId() : "TBD";
-        String playerBProfileId = (advancedPlayerBDrawItem != null) ? advancedPlayerBDrawItem.getPlayerId() : "TBD";
+        String playerAProfileId = (advancedPlayerADrawItem != null) ? advancedPlayerADrawItem.getPlayerId() : DrawItem.TBD_PROFILE_ID;
+        String playerBProfileId = (advancedPlayerBDrawItem != null) ? advancedPlayerBDrawItem.getPlayerId() : DrawItem.TBD_PROFILE_ID;
         int playerARating = (advancedPlayerADrawItem != null) ? advancedPlayerADrawItem.getRating() : 0;
         int playerBRating = (advancedPlayerBDrawItem != null) ? advancedPlayerBDrawItem.getRating() : 0;
 

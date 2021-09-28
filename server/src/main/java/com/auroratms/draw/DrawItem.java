@@ -49,6 +49,9 @@ public class DrawItem {
     @NonNull
     private String playerId;
 
+    // constant indicating that player id is to be determined
+    public static final String TBD_PROFILE_ID = "TBD";
+
     // list of conflicts - possibly null or list like 1, 2, 5 representing conflict types
     private String conflicts;
 

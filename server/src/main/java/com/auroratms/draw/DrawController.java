@@ -123,12 +123,14 @@ public class DrawController {
         // set club name for player(s)
         for (DrawItem drawItem : drawItems) {
             String profileId = drawItem.getPlayerId();
-            // doubles event has playerA/playerB profile ids
-            if (thisEvent.isDoubles()) {
-                String[] playersProfileIds = profileId.split(";");
-                fillDoublesTeamClubNames(userProfileExtMap, clubEntityList, drawItem, playersProfileIds);
-            } else {
-                fillClubName(userProfileExtMap, clubEntityList, drawItem, profileId);
+            if (!profileId.equals(DrawItem.TBD_PROFILE_ID)) {
+                // doubles event has playerA/playerB profile ids
+                if (thisEvent.isDoubles()) {
+                    String[] playersProfileIds = profileId.split(";");
+                    fillDoublesTeamClubNames(userProfileExtMap, clubEntityList, drawItem, playersProfileIds);
+                } else {
+                    fillClubName(userProfileExtMap, clubEntityList, drawItem, profileId);
+                }
             }
         }
 
@@ -140,11 +142,13 @@ public class DrawController {
         List<UsattPlayerRecord> usattPlayerRecordList = this.usattDataService.findAllByMembershipIdIn(membershipIds);
         for (DrawItem drawItem : drawItems) {
             String profileId = drawItem.getPlayerId();
-            if (thisEvent.isDoubles()) {
-                String[] playersProfileIds = profileId.split(";");
-                fillDoublesTeamPlayerNames(userProfileExtMap, usattPlayerRecordList, drawItem, playersProfileIds);
-            } else {
-                fillPlayerNameAndState(userProfileExtMap, usattPlayerRecordList, drawItem, profileId);
+            if (!profileId.equals(DrawItem.TBD_PROFILE_ID)) {
+                if (thisEvent.isDoubles()) {
+                    String[] playersProfileIds = profileId.split(";");
+                    fillDoublesTeamPlayerNames(userProfileExtMap, usattPlayerRecordList, drawItem, playersProfileIds);
+                } else {
+                    fillPlayerNameAndState(userProfileExtMap, usattPlayerRecordList, drawItem, profileId);
+                }
             }
         }
 

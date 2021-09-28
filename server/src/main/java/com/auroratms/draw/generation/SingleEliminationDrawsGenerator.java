@@ -520,17 +520,17 @@ public class SingleEliminationDrawsGenerator extends AbstractDrawsGenerator impl
                 }
 
                 PlayerDrawInfo tbdPlayerDrawInfo = new PlayerDrawInfo();
-                if (playerAGetsBye) {
+                if (playerAGetsBye && playerADrawItem != null) {
                     tbdPlayerDrawInfo.setPlayerName(playerADrawItem.getPlayerName());
                     tbdPlayerDrawInfo.setProfileId(playerADrawItem.getPlayerId());
                     tbdPlayerDrawInfo.setRating(playerADrawItem.getRating());
-                } else if (playerBGetsBye) {
+                } else if (playerBGetsBye && playerBDrawItem != null) {
                     tbdPlayerDrawInfo.setPlayerName(playerBDrawItem.getPlayerName());
                     tbdPlayerDrawInfo.setProfileId(playerBDrawItem.getPlayerId());
                     tbdPlayerDrawInfo.setRating(playerBDrawItem.getRating());
                 } else {
-                    tbdPlayerDrawInfo.setPlayerName("TBD");
-                    tbdPlayerDrawInfo.setProfileId("TBD");
+                    tbdPlayerDrawInfo.setPlayerName(DrawItem.TBD_PROFILE_ID);
+                    tbdPlayerDrawInfo.setProfileId(DrawItem.TBD_PROFILE_ID);
                     tbdPlayerDrawInfo.setRating(0);
                 }
                 DrawItem drawItem = makeDrawItem(tournamentEventEntity.getId(), groupNum, placeInGroup,
@@ -544,8 +544,8 @@ public class SingleEliminationDrawsGenerator extends AbstractDrawsGenerator impl
 
         if (tournamentEventEntity.isPlay3rd4thPlace()) {
             PlayerDrawInfo tbdPlayerDrawInfo = new PlayerDrawInfo();
-            tbdPlayerDrawInfo.setPlayerName("TBD");
-            tbdPlayerDrawInfo.setProfileId("TBD");
+            tbdPlayerDrawInfo.setPlayerName(DrawItem.TBD_PROFILE_ID);
+            tbdPlayerDrawInfo.setProfileId(DrawItem.TBD_PROFILE_ID);
 
             DrawItem drawItem3 = makeDrawItem(tournamentEventEntity.getId(), 2, 1,
                     tbdPlayerDrawInfo, DrawType.SINGLE_ELIMINATION, 0L);
