@@ -67,4 +67,24 @@ public class MatchCard {
     // map of player profile ids to their names
     @Transient
     Map<String, String> profileIdToNameMap;
+
+
+    @Override
+    public String toString() {
+        return "MatchCard{" +
+                "id=" + id +
+                ", eventFk=" + eventFk +
+                ", drawType=" + drawType +
+                ", round=" + round +
+                ", groupNum=" + groupNum +
+                ", assignedTables='" + assignedTables + '\'' +
+                ", numberOfGames=" + numberOfGames +
+                ", day=" + day +
+                ", startTime=" + startTime +
+                ", duration=" + duration +
+                ", playerRankings='" + playerRankings + '\'' +
+                ", profileIdToNameMap=" + profileIdToNameMap +
+                ", matches=" + matches +
+                '}';
+    }
 }

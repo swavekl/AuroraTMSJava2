@@ -654,13 +654,17 @@ public class TieBreakingService {
         // so if this is the last round i.e. 2 there is nowhere to advance to
         // todo unless we advance to another event
         if (matchCard.getRound() > 2 || matchCard.getRound() == 0) {
-            // colllect player ratings into map of profile id to rating
+            // collect player ratings into map of profile id to rating
             Map<String, Integer> playerProfileToRatingMap = new HashMap<>();
             List<Match> matches = matchCard.getMatches();
             for (Match match : matches) {
                 playerProfileToRatingMap.put(match.getPlayerAProfileId(), match.getPlayerARating());
                 playerProfileToRatingMap.put (match.getPlayerBProfileId(), match.getPlayerBRating());
             }
+//            Map<String, String> profileIdToNameMap = matchCard.getProfileIdToNameMap();
+//            for (Map.Entry<String, String> entry : profileIdToNameMap.entrySet()) {
+//                System.out.println(entry.getKey()+ " => " + entry.getValue());
+//            }
             drawService.advancePlayers(matchCard.getDrawType(), matchCard.getGroupNum(), matchCard.getRound(),
                     tournamentEventEntity, rankToProfileIdMap, playerProfileToRatingMap);
         }

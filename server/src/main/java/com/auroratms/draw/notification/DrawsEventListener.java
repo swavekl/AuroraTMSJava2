@@ -6,11 +6,9 @@ import com.auroratms.notification.SystemPrincipalExecutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Async;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.event.TransactionPhase;
-import org.springframework.transaction.event.TransactionalEventListener;
 
 @Component
 public class DrawsEventListener {
@@ -20,8 +18,7 @@ public class DrawsEventListener {
     @Autowired
     private MatchCardService matchCardService;
 
-    @Async
-    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    @EventListener()
     public void handleEvent(DrawsEvent drawsEvent) {
         // run this task as system principal so we have access to various services
         SystemPrincipalExecutor task = new SystemPrincipalExecutor() {
@@ -35,9 +32,9 @@ public class DrawsEventListener {
     }
 
     private void processEvent(DrawsEvent drawsEvent) {
+        logger.info("Begin processing DrawsEvent" + drawsEvent);
         switch (drawsEvent.getAction()) {
             case GENERATED:
-                this.matchCardService.deleteAllForEventAndDrawType(drawsEvent.getEventId(), drawsEvent.getDrawType());
                 this.matchCardService.generateMatchCardsForEvent(drawsEvent.getEventId(), drawsEvent.getDrawType());
                 break;
 
@@ -49,5 +46,6 @@ public class DrawsEventListener {
                 this.matchCardService.deleteAllForEventAndDrawType(drawsEvent.getEventId(), drawsEvent.getDrawType());
                 break;
         }
+        logger.info("Finished processing DrawsEvent" + drawsEvent);
     }
 }

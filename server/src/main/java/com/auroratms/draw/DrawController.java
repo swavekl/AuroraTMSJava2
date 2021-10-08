@@ -123,7 +123,7 @@ public class DrawController {
         // set club name for player(s)
         for (DrawItem drawItem : drawItems) {
             String profileId = drawItem.getPlayerId();
-            if (!profileId.equals(DrawItem.TBD_PROFILE_ID)) {
+            if (!profileId.equals(DrawItem.TBD_PROFILE_ID) && !StringUtils.isEmpty(profileId)) {
                 // doubles event has playerA/playerB profile ids
                 if (thisEvent.isDoubles()) {
                     String[] playersProfileIds = profileId.split(";");
@@ -142,7 +142,7 @@ public class DrawController {
         List<UsattPlayerRecord> usattPlayerRecordList = this.usattDataService.findAllByMembershipIdIn(membershipIds);
         for (DrawItem drawItem : drawItems) {
             String profileId = drawItem.getPlayerId();
-            if (!profileId.equals(DrawItem.TBD_PROFILE_ID)) {
+            if (!profileId.equals(DrawItem.TBD_PROFILE_ID) && !StringUtils.isEmpty(profileId)) {
                 if (thisEvent.isDoubles()) {
                     String[] playersProfileIds = profileId.split(";");
                     fillDoublesTeamPlayerNames(userProfileExtMap, usattPlayerRecordList, drawItem, playersProfileIds);
