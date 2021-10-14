@@ -25,10 +25,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -69,6 +66,18 @@ public class TournamentService {
         }
         return tournaments;
     }
+
+    /**
+     * List all tournaments which are played on given day
+     * @param date
+     * @return
+     */
+    public Collection<Tournament> listDaysTournaments(Date date) {
+        Collection<TournamentEntity> tournamentEntities = repository.findDaysTournaments(date).stream()
+                .collect(Collectors.toList());
+        return toTournamentCollection(tournamentEntities);
+    }
+
 
     /**
      * List tournaments owned by the current user (e.g. tournament director) or admin

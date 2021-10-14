@@ -53,7 +53,8 @@ const routes: Routes = [
     data: {
       roles: [UserRoles.ROLE_TOURNAMENT_DIRECTORS, UserRoles.ROLE_ADMINS, UserRoles.ROLE_REFEREES]
     }
-  }
+  },
+  { path: 'today', loadChildren: () => import('./today/today.module').then(m => m.TodayModule) }
 ];
 
 @NgModule({

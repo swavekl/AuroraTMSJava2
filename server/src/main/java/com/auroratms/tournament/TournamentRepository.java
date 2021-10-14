@@ -7,6 +7,9 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
+import java.util.Collection;
+import java.util.Date;
+
 @RepositoryRestResource
 public interface TournamentRepository extends JpaRepository<TournamentEntity, Long> {
 
@@ -58,4 +61,12 @@ public interface TournamentRepository extends JpaRepository<TournamentEntity, Lo
                                    @Param("authority") String authority,
                                    @Param("permission") Integer permission,
                                    Pageable pageable);
+
+    @Query (nativeQuery = true,
+            value = "SELECT *" +
+                    " FROM tournament" +
+                    " WHERE tournament.start_date <= :day" +
+                    " AND :day <= tournament.end_date"
+    )
+    Collection<TournamentEntity> findDaysTournaments(Date day);
 }

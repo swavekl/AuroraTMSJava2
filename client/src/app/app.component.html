@@ -20,6 +20,9 @@
       <mat-list-item *ngIf="(isAuthenticated$ | async)" (click)="editProfile()" routerLinkActive="active">
         <a matLine>Profile</a>
       </mat-list-item>
+      <mat-list-item *ngIf="(isAuthenticated$ | async) && hasTournamentToday()" (click)="goToToday()" routerLinkActive="active">
+        <a matLine>Today</a>
+      </mat-list-item>
       <mat-list-item *ngIf="!(isAuthenticated$ | async)" (click)="closeAndNavigateToRoute('/login/signin')" routerLinkActive="active">
         <a matLine>Login</a>
       </mat-list-item>

@@ -7,4 +7,9 @@
     <p class="mat-subheading-2" >USATT Membership {{ membershipExpired ? 'expired' : 'expires' }} on</p>
     <p [style.color]="membershipExpired ? 'red' : 'green'">{{ membershipExpirationDate | date }}</p>
   </div>
+  <div *ngIf="tournamentDay">
+    <button type="button" mat-button color="primary" [routerLink]="todayService.todayUrl">
+      <mat-icon matListIcon>how_to_reg</mat-icon>Today
+    </button>
+  </div>
 </app-centered-panel>

@@ -11,6 +11,7 @@ import {HomeComponent} from './home/home.component';
 import { UserWelcomeComponent } from './user-welcome/user-welcome.component';
 import {FlexLayoutModule} from '@angular/flex-layout';
 import {SharedModule} from '../shared/shared.module';
+import {MatIconModule} from '@angular/material/icon';
 
 const homeRoutes: Routes = [
     {
@@ -38,7 +39,8 @@ const homeRoutes: Routes = [
         MatListModule,
         MatToolbarModule,
         FlexLayoutModule,
-        SharedModule
+        SharedModule,
+        MatIconModule
     ],
   exports: [
     HomeComponent

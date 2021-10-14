@@ -1,6 +1,7 @@
 package com.auroratms.tournamententry;
 
 import com.auroratms.error.ResourceNotFoundException;
+import com.auroratms.tournament.Tournament;
 import com.auroratms.tournament.TournamentService;
 import com.auroratms.utils.SecurityService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,7 +12,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
+import java.util.*;
 
 @Service
 @CacheConfig (cacheNames = {"tournament-entries"})
@@ -42,10 +43,40 @@ public class TournamentEntryService {
                 .orElseThrow(() -> new ResourceNotFoundException("TournamentEntry " + entryId + " not found"));
     }
 
+    /**
+     *
+     * @param tournamentId
+     * @param profileId
+     * @return
+     */
     public List<TournamentEntry> listForTournamentAndUser(Long tournamentId, String profileId) {
         List<TournamentEntry> entries = repository.findByTournamentFkAndProfileId(tournamentId, profileId);
         if (entries.size() > 0) {
             cacheIt(entries.get(0));
+        }
+        return entries;
+    }
+
+    /**
+     *
+     * @param profileId
+     * @param date
+     * @return
+     */
+    public List<TournamentEntry> listTodaysTournamentForUser(String profileId, Date date){
+        List<TournamentEntry> entries = Collections.emptyList();
+        // find all tournaments which are played today
+        Collection<Tournament> todaysTournaments = tournamentService.listDaysTournaments(date);
+        List<Long> tournamentIdList = new ArrayList<>(todaysTournaments.size());
+        for (Tournament tournament : todaysTournaments) {
+            tournamentIdList.add(tournament.getId());
+        }
+        // find which of today's tournament were entered by this player
+        if (todaysTournaments.size() > 0) {
+            entries = repository.findByTournamentFkInAndProfileId(tournamentIdList, profileId);
+            if (entries.size() > 0) {
+                cacheIt(entries.get(0));
+            }
         }
         return entries;
     }

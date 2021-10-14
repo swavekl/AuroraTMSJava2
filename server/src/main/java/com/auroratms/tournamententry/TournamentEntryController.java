@@ -55,8 +55,13 @@ public class TournamentEntryController {
      */
     @GetMapping("/tournamententries")
     public List<TournamentEntry> query(@RequestParam Long tournamentId,
-                                 @RequestParam String profileId) {
-        return tournamentEntryService.listForTournamentAndUser(tournamentId, profileId);
+                                       @RequestParam String profileId,
+                                       @RequestParam(required = false) Date date) {
+        if (tournamentId != 0) {
+            return tournamentEntryService.listForTournamentAndUser(tournamentId, profileId);
+        } else {
+            return tournamentEntryService.listTodaysTournamentForUser(profileId, date);
+        }
     }
 
     @PostMapping("/tournamententry")

@@ -7,6 +7,7 @@ import {TournamentEntryService} from '../../tournament-entry/service/tournament-
 import {TournamentEvent} from '../../tournament-config/tournament-event.model';
 import {DateUtils} from '../../../shared/date-utils';
 import {Tournament} from '../../tournament-config/tournament.model';
+import {NavigateUtil} from '../../../shared/navigate-util';
 
 @Component({
   selector: 'app-tournament-view',
@@ -89,18 +90,9 @@ export class TournamentViewComponent implements OnInit, OnChanges {
   }
 
   getDirectionsURL(): string {
-    let destination = null;
     if (this.tournament) {
-      if (this.tournament.venueName !== '') {
-        destination = this.tournament.venueName;
-        destination += ' ' + this.tournament.streetAddress;
-      } else {
-        destination = this.tournament.streetAddress;
-      }
-      destination += ' ' + this.tournament.city;
-      destination += ' ' + this.tournament.state;
-      destination = encodeURIComponent(destination);
-      return `https://www.google.com/maps/dir/?api=1&travelmode=driving&dir_action=navigate&destination=${destination}`;
+      return NavigateUtil.getNavigationURL(this.tournament.streetAddress, this.tournament.city,
+        this.tournament.state, this.tournament.venueName);
     } else {
       return '';
     }

@@ -5,6 +5,7 @@ import {map} from 'rxjs/operators';
 import {AuthenticationService} from './user/authentication.service';
 import {Route, Router} from '@angular/router';
 import {MatSidenav} from '@angular/material/sidenav';
+import {TodayService} from './shared/today.service';
 
 @Component({
   selector: 'app-root',
@@ -30,6 +31,7 @@ export class AppComponent implements OnInit {
 
   constructor(private breakpointObserver: BreakpointObserver,
               private authenticationService: AuthenticationService,
+              private todayService: TodayService,
               private router: Router) {
   }
 
@@ -45,6 +47,17 @@ export class AppComponent implements OnInit {
   editProfile() {
     const profileId: string = this.authenticationService.getCurrentUserProfileId();
     this.closeAndNavigateToRoute(`/userprofile/${profileId}`);
+  }
+
+  hasTournamentToday(): boolean {
+    return this.todayService.hasTournamentToday;
+  }
+
+  goToToday() {
+    const url = this.todayService.todayUrl;
+    if (url) {
+      this.closeAndNavigateToRoute(url);
+    }
   }
 
   /**

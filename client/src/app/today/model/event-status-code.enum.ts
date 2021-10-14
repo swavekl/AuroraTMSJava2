@@ -1,0 +1,5 @@
+export enum EventStatusCode {
+  WILL_PLAY = 'WILL_PLAY',
+  WILL_PLAY_BUT_IS_LATE = 'WILL_PLAY_BUT_IS_LATE',
+  WILL_NOT_PLAY = 'WILL_NOT_PLAY'
+}
