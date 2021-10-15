@@ -1,7 +1,7 @@
 <app-centered-panel noTopGap="true">
 <form name="form" (ngSubmit)="onSave(f.value)" #f="ngForm" novalidate>
   <mat-card style="height: 80%">
-    <mat-card-title>Check-In/Communicate</mat-card-title>
+    <mat-card-title>Check-In / Communicate</mat-card-title>
     <mat-card-actions>
       <div class="profile-button-bar" fxLayout="row">
         <button mat-raised-button type="button" (click)="onCancel()">Cancel</button>
@@ -12,12 +12,15 @@
       <!--<p>Form status: {{ f.status | json }} </p>-->
     </mat-card-actions>
     <mat-card-content>
-      <mat-radio-group fxLayout="column" fxLayoutGap="40" [ngModel]="playerStatus?.eventStatusCode" name="eventStatusCode">
-        <mat-radio-button value="WILL_PLAY" style="padding-top: 20px;">I will play today</mat-radio-button>
+      <mat-radio-group fxLayout="column" fxLayoutGap="40" [ngModel]="playerStatus?.eventStatusCode"
+                       name="eventStatusCode" (change)="onStatusChange($event)" required="true">
+        <mat-radio-button value="WILL_PLAY">I will play today</mat-radio-button>
         <mat-radio-button value="WILL_PLAY_BUT_IS_LATE">I will play but I will be late</mat-radio-button>
         <mat-form-field>
             <mat-label>Estimated Time of Arrival</mat-label>
-            <input matInput type="text" name="estimatedArrivalTime" [ngModel]="playerStatus?.estimatedArrivalTime">
+            <input matInput type="text" name="estimatedArrivalTime"
+                   [ngModel]="playerStatus?.estimatedArrivalTime"
+                   [disabled]="etaControlDisabled">
         </mat-form-field>
         <mat-radio-button value="WILL_NOT_PLAY">I will not play</mat-radio-button>
         <!--        <mat-radio-group>-->

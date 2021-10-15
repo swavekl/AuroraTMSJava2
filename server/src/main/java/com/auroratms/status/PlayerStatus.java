@@ -44,5 +44,5 @@ public class PlayerStatus {
     private String reason;
 
     // estimated arrival time
-    private Double estimatedArrivalTime;
+    private String estimatedArrivalTime;
 }

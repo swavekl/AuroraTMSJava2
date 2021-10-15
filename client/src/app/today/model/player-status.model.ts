@@ -27,6 +27,6 @@ export class PlayerStatus {
   reason: string;
 
   // estimated arrival time
-  estimatedArrivalTime: number;
+  estimatedArrivalTime: string;
 
 }
