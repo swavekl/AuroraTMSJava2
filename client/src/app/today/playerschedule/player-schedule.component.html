@@ -1,0 +1,26 @@
+<div fxLayout="row" fxFlexAlign="center center" class="my-schedule-container">
+  <div fxHide.xs="true" fxFlex.gt-xs="50%">&nbsp;</div>
+  <div fxFlexFill fxFlex.gt-xs="350px">
+  <div *ngIf="playerDaySchedules != null && tournamentInfo != null">
+    <h1>{{tournamentInfo.name}}</h1>
+    <ng-container *ngFor="let daySchedule of playerDaySchedules">
+      <div>
+        <div class="day-header">
+          <h3>Day {{daySchedule.day}} - {{daySchedule.day | eventDay: tournamentStartDate}}</h3>
+        </div>
+        <mat-list dense>
+          <mat-divider></mat-divider>
+          <mat-list-item  *ngFor="let playerScheduleItem of daySchedule.playerScheduleItems; last as last; first as first">
+            <div matLine>{{ playerScheduleItem.startTime | startTime }} - {{playerScheduleItem.eventName}}</div>
+            <div matLine>{{ playerScheduleItem.round | roundName }}, Group: {{playerScheduleItem.group}}</div>
+            <div matLine>Tables: {{ playerScheduleItem.assignedTables}}</div>
+            <mat-icon matListIcon (click)="showEventDetails(playerScheduleItem.matchCardId)">info</mat-icon>
+            <mat-divider *ngIf="!last"></mat-divider>
+          </mat-list-item>
+        </mat-list>
+      </div>
+    </ng-container>
+  </div>
+  </div>
+  <div fxHide.xs="true" fxFlex.gt-xs="50%">&nbsp;</div>
+</div>

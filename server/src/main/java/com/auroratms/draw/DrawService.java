@@ -106,6 +106,11 @@ public class DrawService {
                 .orElseThrow(() -> new ResourceNotFoundException("Unable to find draw item"));
     }
 
+    @Transactional(readOnly = true)
+    public List<DrawItem> listByProfileIdAndEventFkIn(String profileId, List<Long> eventIdList) {
+        return this.drawRepository.findAllByPlayerIdAndEventFkIn(profileId, eventIdList);
+    }
+
     /**
      *
      * @param eventIds

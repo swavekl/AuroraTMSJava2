@@ -1,0 +1,12 @@
+
+mat-icon.will-play {
+  color: green;
+}
+
+mat-icon.will-not-play {
+  color: red;
+}
+
+mat-icon.will-play-late {
+  color: orange;
+}

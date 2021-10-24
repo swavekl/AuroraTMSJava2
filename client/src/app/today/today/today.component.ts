@@ -7,8 +7,6 @@ import {LinearProgressBarService} from '../../shared/linear-progress-bar/linear-
 import {TournamentEntryService} from '../../tournament/tournament-entry/service/tournament-entry.service';
 import {TournamentInfoService} from '../../tournament/service/tournament-info.service';
 import {TournamentInfo} from '../../tournament/model/tournament-info.model';
-import {DateUtils} from '../../shared/date-utils';
-import * as moment from 'moment';
 
 /**
  * Page for today's task at the tournament
@@ -112,6 +110,6 @@ export class TodayComponent implements OnInit, OnDestroy {
   }
 
   todaysSchedule() {
-    console.log('todays schedule');
+    this.router.navigateByUrl(`/today/playerschedule/${this.tournamentId}/${this.tournamentDay}/${this.tournamentEntryId}`);
   }
 }

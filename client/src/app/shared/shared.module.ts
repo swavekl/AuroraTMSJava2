@@ -20,6 +20,7 @@ import { ErrorMessagePopupComponent } from './error-message-dialog/error-message
 import { StarLevelComponent } from './star-level/star-level.component';
 import {MatIconModule} from '@angular/material/icon';
 import {MatListModule} from '@angular/material/list';
+import { RoundNamePipe } from './pipes/round-name.pipe';
 
 
 @NgModule({
@@ -35,7 +36,8 @@ import {MatListModule} from '@angular/material/list';
     TypographyComponent,
     DateRangePipe,
     ErrorMessagePopupComponent,
-    StarLevelComponent
+    StarLevelComponent,
+    RoundNamePipe
   ],
   exports: [
     LinearProgressBarComponent,
@@ -48,7 +50,8 @@ import {MatListModule} from '@angular/material/list';
     DebounceClicksDirective,
     MessageAreaComponent,
     TypographyComponent,
-    StarLevelComponent
+    StarLevelComponent,
+    RoundNamePipe
   ],
     imports: [
         CommonModule,

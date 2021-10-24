@@ -18,7 +18,7 @@ import {TodayService} from '../../shared/today.service';
   `,
   styles: []
 })
-export class CheckinCommunicateContainerComponentComponent implements OnInit, OnDestroy {
+export class CheckinCommunicateContainerComponent implements OnInit, OnDestroy {
 
   playerStatus$: Observable<PlayerStatus>;
   private subscriptions: Subscription = new Subscription();

@@ -66,6 +66,15 @@ public class TournamentEventEntityService {
     }
 
     /**
+     * Gets all specified events
+     * @param eventIds
+     * @return
+     */
+    public List<TournamentEventEntity> findAllById(List<Long> eventIds) {
+        return repository.findAllById(eventIds);
+    }
+
+    /**
      * Gets list of doubles events for this tournament
      * @param tournamentId
      * @return

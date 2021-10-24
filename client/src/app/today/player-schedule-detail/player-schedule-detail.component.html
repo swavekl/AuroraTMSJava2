@@ -1,0 +1,32 @@
+<div fxLayout="row" fxFlexAlign="center center" class="my-schedule-container">
+  <div fxHide.xs="true" fxFlex.gt-xs="50%">&nbsp;</div>
+  <div fxFlexFill fxFlex.gt-xs="350px">
+    <mat-card *ngIf="playerScheduleItem" style="text-align: left !important;">
+      <mat-card-title>
+        <div>{{ playerScheduleItem.startTime | startTime }} - {{playerScheduleItem.eventName}}</div>
+      </mat-card-title>
+      <mat-card-subtitle>
+        <div>{{ playerScheduleItem.round | roundName }}, Group: {{playerScheduleItem.group}}</div>
+        <div>Tables: {{playerScheduleItem.assignedTables}}</div>
+      </mat-card-subtitle>
+      <mat-card-content>
+        <mat-list dense>
+          <mat-divider></mat-divider>
+          <mat-list-item  *ngFor="let playerDetail of playerScheduleItem.playerDetails; last as last; first as first">
+            <mat-icon matListIcon [className]="getStatusIconClass(playerDetail.statusCode)">{{getStatusIcon(playerDetail.statusCode)}}</mat-icon>
+            <div matLine>{{playerDetail.playerFullName}}</div>
+            <div matLine>{{playerDetail.rating}} {{playerDetail.estimated ? 'est.' : ''}}</div>
+            <div matLine> <span *ngIf="playerDetail.statusCode === 'WILL_PLAY_BUT_IS_LATE'">E.T.A. {{ playerDetail.estimatedArrivalTime }}</span></div>
+            <mat-divider *ngIf="!last"></mat-divider>
+          </mat-list-item>
+        </mat-list>
+        <mat-divider></mat-divider>
+      </mat-card-content>
+      <mat-card-actions>
+        <span fxFlex></span>
+        <button mat-raised-button color="primary">Matches</button>
+      </mat-card-actions>
+    </mat-card>
+  </div>
+  <div fxHide.xs="true" fxFlex.gt-xs="50%">&nbsp;</div>
+</div>

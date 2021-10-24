@@ -21,6 +21,11 @@ public class PlayerStatusService {
         return playerStatusRepository.findAllByTournamentIdAndTournamentDay(tournamentId, tournamentDay);
     }
 
+    public List<PlayerStatus> listPlayersByIds(List<String> profileIdList, long tournamentId, int tournamentDay) {
+        return playerStatusRepository.findAllByPlayerProfileIdIsInAndTournamentIdAndTournamentDay(
+                profileIdList, tournamentId, tournamentDay);
+    }
+
     public List<PlayerStatus> listOnePlayer(String profileId, long tournamentId, int tournamentDay) {
         return playerStatusRepository.findAllByPlayerProfileIdAndTournamentIdAndTournamentDay(profileId, tournamentId, tournamentDay);
     }

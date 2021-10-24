@@ -11,19 +11,29 @@ import {MatButtonModule} from '@angular/material/button';
 import {MatListModule} from '@angular/material/list';
 import {FlexLayoutModule} from '@angular/flex-layout';
 import {MatInputModule} from '@angular/material/input';
+import {MatCardModule} from '@angular/material/card';
 import {FormsModule} from '@angular/forms';
 import {EntityDataService, EntityServices} from '@ngrx/data';
 import {PlayerStatusService} from './service/player-status.service';
 import {SharedModule} from '../shared/shared.module';
-import {MatCardModule} from '@angular/material/card';
-import { CheckinCommunicateContainerComponentComponent } from './checkincommunicate/checkin-communicate-container-component.component';
+import { CheckinCommunicateContainerComponent } from './checkincommunicate/checkin-communicate-container.component';
+import { PlayerScheduleContainerComponent } from './playerschedule/player-schedule-container.component';
+import { PlayerScheduleComponent } from './playerschedule/player-schedule.component';
+import { PlayerStatusPipe } from './pipe/player-status.pipe';
+import { PlayerScheduleDetailComponent } from './player-schedule-detail/player-schedule-detail.component';
+import { PlayerScheduleDetailContainerComponent } from './player-schedule-detail/player-schedule-detail-container.component';
 
 
 @NgModule({
   declarations: [
     TodayComponent,
     CheckinCommunicateComponent,
-    CheckinCommunicateContainerComponentComponent
+    CheckinCommunicateContainerComponent,
+    PlayerScheduleContainerComponent,
+    PlayerScheduleComponent,
+    PlayerStatusPipe,
+    PlayerScheduleDetailComponent,
+    PlayerScheduleDetailContainerComponent
   ],
   imports: [
     CommonModule,

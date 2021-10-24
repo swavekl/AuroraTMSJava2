@@ -26,14 +26,13 @@ public class PlayerStatus {
     private String playerProfileId;
 
     // tournament id for to which this status refers.  This is to support check-in for the whole tournament
-    @NonNull
     private long tournamentId;
 
     // day of tournament to which this status refers.  This is to support daily check-in but not for each event.
     // this should let us catch players who have not shown for the nth day.
     private int tournamentDay;
 
-    // event id for to which this status refers.  This is to support check-in for each event
+    // event id to which this status refers.  This is to support check-in for each event
     private long eventId;
 
     // status code

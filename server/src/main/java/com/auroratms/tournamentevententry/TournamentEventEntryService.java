@@ -104,4 +104,13 @@ public class TournamentEventEntryService {
     public List<TournamentEventEntry> listAllForEvent(Long eventId) {
         return repository.findAllByTournamentEventFkEqualsAndStatusEquals(eventId, EventEntryStatus.ENTERED);
     }
+
+    /**
+     * Finds all entries associated with one tournament entry i.e. player entry
+     * @param tournamentEntryId
+     * @return
+     */
+    public List<TournamentEventEntry> listAllForTournamentEntry(Long tournamentEntryId) {
+        return repository.findAllByTournamentEntryFk(tournamentEntryId);
+    }
 }

@@ -16,6 +16,9 @@ public interface TournamentEventEntryRepository extends JpaRepository<Tournament
     // gets all event entries in one particular event that are ready for draws - i.e. confirmed
     List<TournamentEventEntry> findAllByTournamentEventFkEqualsAndStatusEquals(Long tournamentEventFk, EventEntryStatus eventEntryStatus);
 
+    // gets all event entries for a particular tournament entry i.e. player
+    List<TournamentEventEntry> findAllByTournamentEntryFk(Long tournamentEntryId);
+
     // count of all event entries in one particular event that are in several different statuses
     long countByTournamentEventFkEqualsAndStatusIn(Long tournamentEventFk, List<EventEntryStatus> statusList);
 
@@ -25,5 +28,4 @@ public interface TournamentEventEntryRepository extends JpaRepository<Tournament
     @Query("select count(distinct tee.tournamentEntryFk) from TournamentEventEntry tee " +
             "where tee.tournamentFk = ?1 and tee.status in (?2)")
     int countTournamentEntries(Long tournamentFk, List<EventEntryStatus> statusList);
-
 }

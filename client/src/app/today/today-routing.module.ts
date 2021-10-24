@@ -1,9 +1,10 @@
 import {NgModule} from '@angular/core';
 import {RouterModule, Routes} from '@angular/router';
 import {TodayComponent} from './today/today.component';
-import {CheckinCommunicateComponent} from './checkincommunicate/checkin-communicate.component';
 import {AuthGuard} from '../guards/auth.guard';
-import {CheckinCommunicateContainerComponentComponent} from './checkincommunicate/checkin-communicate-container-component.component';
+import {CheckinCommunicateContainerComponent} from './checkincommunicate/checkin-communicate-container.component';
+import {PlayerScheduleContainerComponent} from './playerschedule/player-schedule-container.component';
+import {PlayerScheduleDetailContainerComponent} from './player-schedule-detail/player-schedule-detail-container.component';
 
 const routes: Routes = [
   {
@@ -13,7 +14,17 @@ const routes: Routes = [
   },
   {
     path: 'checkincommunicate/:tournamentId/:tournamentDay/:tournamentEntryId',
-    component: CheckinCommunicateContainerComponentComponent,
+    component: CheckinCommunicateContainerComponent,
+    canActivate: [AuthGuard]
+  },
+  {
+    path: 'playerschedule/:tournamentId/:tournamentDay/:tournamentEntryId',
+    component: PlayerScheduleContainerComponent,
+    canActivate: [AuthGuard]
+  },
+  {
+    path: 'playerschedule/detail/:matchCardId',
+    component: PlayerScheduleDetailContainerComponent,
     canActivate: [AuthGuard]
   }
 ];
