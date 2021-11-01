@@ -1,5 +1,5 @@
 import {NgModule} from '@angular/core';
-import {Routes, RouterModule} from '@angular/router';
+import {RouterModule, Routes} from '@angular/router';
 import {HomeComponent} from './home/home/home.component';
 import {LogoutComponent} from './user/logout/logout.component';
 import {UserRoles} from './user/user-roles.enum';
@@ -58,7 +58,7 @@ const routes: Routes = [
 ];
 
 @NgModule({
-  imports: [RouterModule.forRoot(routes, {relativeLinkResolution: 'legacy'})],
+  imports: [RouterModule.forRoot(routes, {relativeLinkResolution: 'legacy', enableTracing: false})],
   exports: [RouterModule]
 })
 export class AppRoutingModule {

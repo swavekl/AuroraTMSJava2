@@ -16,12 +16,15 @@ import {FormsModule} from '@angular/forms';
 import {EntityDataService, EntityServices} from '@ngrx/data';
 import {PlayerStatusService} from './service/player-status.service';
 import {SharedModule} from '../shared/shared.module';
-import { CheckinCommunicateContainerComponent } from './checkincommunicate/checkin-communicate-container.component';
-import { PlayerScheduleContainerComponent } from './playerschedule/player-schedule-container.component';
-import { PlayerScheduleComponent } from './playerschedule/player-schedule.component';
-import { PlayerStatusPipe } from './pipe/player-status.pipe';
-import { PlayerScheduleDetailComponent } from './player-schedule-detail/player-schedule-detail.component';
-import { PlayerScheduleDetailContainerComponent } from './player-schedule-detail/player-schedule-detail-container.component';
+import {CheckinCommunicateContainerComponent} from './checkincommunicate/checkin-communicate-container.component';
+import {PlayerScheduleContainerComponent} from './playerschedule/player-schedule-container.component';
+import {PlayerScheduleComponent} from './playerschedule/player-schedule.component';
+import {PlayerStatusPipe} from './pipe/player-status.pipe';
+import {PlayerScheduleDetailComponent} from './player-schedule-detail/player-schedule-detail.component';
+import {PlayerScheduleDetailContainerComponent} from './player-schedule-detail/player-schedule-detail-container.component';
+import {PlayerMatchesComponent} from '../matches/player-matches/player-matches.component';
+import {PlayerMatchesContainerComponent} from '../matches/player-matches/player-matches-container.component';
+import {MatExpansionModule} from '@angular/material/expansion';
 
 
 @NgModule({
@@ -33,22 +36,25 @@ import { PlayerScheduleDetailContainerComponent } from './player-schedule-detail
     PlayerScheduleComponent,
     PlayerStatusPipe,
     PlayerScheduleDetailComponent,
-    PlayerScheduleDetailContainerComponent
+    PlayerScheduleDetailContainerComponent,
+    PlayerMatchesComponent,
+    PlayerMatchesContainerComponent
   ],
-  imports: [
-    CommonModule,
-    TodayRoutingModule,
-    MatRadioModule,
-    MatFormFieldModule,
-    MatIconModule,
-    MatButtonModule,
-    MatListModule,
-    FlexLayoutModule,
-    MatInputModule,
-    FormsModule,
-    SharedModule,
-    MatCardModule
-  ]
+    imports: [
+        CommonModule,
+        TodayRoutingModule,
+        MatRadioModule,
+        MatFormFieldModule,
+        MatIconModule,
+        MatButtonModule,
+        MatListModule,
+        FlexLayoutModule,
+        MatInputModule,
+        FormsModule,
+        SharedModule,
+        MatCardModule,
+        MatExpansionModule
+    ]
 })
 export class TodayModule {  // Inject the service to ensure it registers with EntityServices
   constructor(

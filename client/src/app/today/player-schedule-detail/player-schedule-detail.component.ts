@@ -1,6 +1,7 @@
-import {Component, Input, OnChanges, OnInit, SimpleChange, SimpleChanges} from '@angular/core';
+import {Component, Input, OnChanges, OnInit, SimpleChanges} from '@angular/core';
 import {PlayerScheduleItem} from '../model/player-schedule-item.model';
 import {EventStatusCode} from '../model/event-status-code.enum';
+import {Router} from '@angular/router';
 
 @Component({
   selector: 'app-player-schedule-detail',
@@ -12,7 +13,10 @@ export class PlayerScheduleDetailComponent implements OnInit, OnChanges {
   @Input()
   public playerScheduleItem: PlayerScheduleItem;
 
-  constructor() { }
+  @Input()
+  public returnUrl: string;
+
+  constructor(private router: Router) { }
 
   ngOnInit(): void {
   }
@@ -52,5 +56,17 @@ export class PlayerScheduleDetailComponent implements OnInit, OnChanges {
   ngOnChanges(changes: SimpleChanges): void {
     // const playerScheduleItemChange: SimpleChange = changes.playerScheduleItem;
     // console.log('playerScheduleItemChange', playerScheduleItemChange);
+  }
+
+  getPlayerRowStyle(doubles: boolean, index: number, last: boolean): string {
+    if (!last) {
+      return (doubles && index % 2 !== 0) ? 'player-row-not-separated' : 'player-row-separated';
+    } else {
+      return (doubles) ? 'player-row-last' : 'player-row-separated  player-row-last';
+    }
+  }
+
+  goBack() {
+    this.router.navigateByUrl(this.returnUrl);
   }
 }

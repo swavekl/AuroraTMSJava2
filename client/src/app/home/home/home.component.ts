@@ -167,7 +167,7 @@ export class HomeComponent implements OnInit, OnDestroy {
                   this.todaysTournamentId = tournamentEntry.tournamentFk;
                   this.todaysTournamentEntryId = tournamentEntry.id;
                   // get tournament start and end date
-                  console.log('loading todays tournament information ');
+                  // console.log('loading todays tournament information ');
                   this.loadTournamentInfo(this.todaysTournamentId, today);
                   break;
                 }
@@ -192,12 +192,11 @@ export class HomeComponent implements OnInit, OnDestroy {
       .subscribe(
         (tournamentInfo: TournamentInfo) => {
           if (tournamentInfo) {
-            console.log('tournamentInfo IS in cache.');
             const difference = new DateUtils().daysBetweenDates(tournamentInfo.startDate, today);
             this.todayService.tournamentDay = difference + 1;
-            console.log('setting tournamentDay to ', this.todayService.tournamentDay);
+            // console.log('setting tournamentDay to ', this.todayService.tournamentDay);
             this.todayService.todayUrl = `/today/landing/${this.todaysTournamentId}/${this.todayService.tournamentDay}/${this.todaysTournamentEntryId}`;
-            console.log('setting today url', this.todayService.todayUrl);
+            // console.log('setting today url', this.todayService.todayUrl);
           } else {
             // console.log('tournamentInfo not in cache. getting from SERVER');
             // not in cache so get it. Since it is an entity collection it will be

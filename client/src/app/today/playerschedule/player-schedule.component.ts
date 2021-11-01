@@ -77,6 +77,12 @@ export class PlayerScheduleComponent implements OnInit, OnChanges {
   }
 
   showEventDetails(matchCardId: number) {
-    this.router.navigateByUrl(`/today/playerschedule/detail/${matchCardId}`);
+    const returnUrl = window.location.pathname;
+    const extras = {
+      state: {
+        returnUrl:  returnUrl
+      }
+    };
+    this.router.navigateByUrl(`/today/playerschedule/detail/${matchCardId}`, extras);
   }
 }

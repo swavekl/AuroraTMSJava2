@@ -73,7 +73,6 @@ export class ResetPasswordStartComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     if (this.subscription) {
-      console.log('unsubscribing');
       this.subscription.unsubscribe();
       this.subscription = null;
     }

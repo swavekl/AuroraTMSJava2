@@ -10,12 +10,14 @@
         </div>
         <mat-list dense>
           <mat-divider></mat-divider>
-          <mat-list-item  *ngFor="let playerScheduleItem of daySchedule.playerScheduleItems; last as last; first as first">
-            <div matLine>{{ playerScheduleItem.startTime | startTime }} - {{playerScheduleItem.eventName}}</div>
+          <mat-list-item  *ngFor="let playerScheduleItem of daySchedule.playerScheduleItems; last as last; first as first"
+                          (click)="showEventDetails(playerScheduleItem.matchCardId)">
+            <div matLine>{{playerScheduleItem.eventName}}</div>
+            <div matLine>{{ playerScheduleItem.startTime | startTime }} / Tables: {{ playerScheduleItem.assignedTables}}</div>
             <div matLine>{{ playerScheduleItem.round | roundName }}, Group: {{playerScheduleItem.group}}</div>
-            <div matLine>Tables: {{ playerScheduleItem.assignedTables}}</div>
-            <mat-icon matListIcon (click)="showEventDetails(playerScheduleItem.matchCardId)">info</mat-icon>
-            <mat-divider *ngIf="!last"></mat-divider>
+<!--            <div matLine>Tables: {{ playerScheduleItem.assignedTables}}</div>-->
+<!--            <mat-icon matListIcon>info</mat-icon>-->
+            <mat-divider></mat-divider>
           </mat-list-item>
         </mat-list>
       </div>

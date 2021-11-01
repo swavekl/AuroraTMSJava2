@@ -25,6 +25,9 @@ public class PlayerScheduleItem {
     // event id
     private long eventId;
 
+    // true if doubles event
+    private boolean doubles;
+
     // 0 for RR, 16, 8, 4, 2 etc for single elimination phase
     private int round;
 
@@ -39,4 +42,5 @@ public class PlayerScheduleItem {
 
     // details of each player in this item (group or match)
     private List<PlayerDetail> playerDetails;
+
 }

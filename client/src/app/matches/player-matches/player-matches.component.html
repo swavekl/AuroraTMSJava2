@@ -1,0 +1,71 @@
+<div *ngIf="matchCard">
+  <mat-accordion>
+    <mat-expansion-panel *ngFor="let match of matchCard.matches; index as index"
+                         [expanded]="isMatchExpanded(index)" (opened)="expandMatch(index)">
+      <mat-expansion-panel-header>
+        <mat-panel-title>
+          <table class="expansion-header-players">
+            <tr>
+              <td rowspan="2" class="match-num-column">{{index + 1}}</td>
+              <td class="player-code-column" [ngClass]="isMatchWinner(match, match.playerAProfileId) ? 'match-winner' : 'not-match-winner'">{{match.playerALetter}}</td>
+              <td class="names-column">
+                {{matchCard.profileIdToNameMap[match.playerAProfileId]}}
+              </td>
+            </tr>
+            <tr>
+              <td class="player-code-column"  [ngClass]="isMatchWinner(match, match.playerBProfileId) ? 'match-winner' : 'not-match-winner'">{{match.playerBLetter}}</td>
+              <td class="names-column">
+                {{matchCard.profileIdToNameMap[match.playerBProfileId]}}
+              </td>
+            </tr>
+          </table>
+        </mat-panel-title>
+      </mat-expansion-panel-header>
+      <table class="scores-table">
+        <thead>
+        <tr>
+          <th>&nbsp;</th>
+          <th>Default</th>
+          <th *ngFor="let game of games; let idx = index;">{{idx + 1}}</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+          <td class="player-code-column">
+            {{match.playerALetter}}
+          </td>
+          <td class="default-column">{{match.sideADefaulted ? 'Yes' : '&nbsp;'}}</td>
+          <td class="game-score-column" *ngFor="let game of games; let idx = index;">
+          <ng-container  [ngSwitch]="idx">
+            <ng-container *ngSwitchCase="0">{{match.game1ScoreSideA}}</ng-container>
+            <ng-container *ngSwitchCase="1">{{match.game2ScoreSideA}}</ng-container>
+            <ng-container *ngSwitchCase="2">{{match.game3ScoreSideA}}</ng-container>
+            <ng-container *ngSwitchCase="3">{{match.game4ScoreSideA}}</ng-container>
+            <ng-container *ngSwitchCase="4">{{match.game5ScoreSideA}}</ng-container>
+            <ng-container *ngSwitchCase="5">{{match.game6ScoreSideA}}</ng-container>
+            <ng-container *ngSwitchCase="6">{{match.game7ScoreSideA}}</ng-container>
+          </ng-container>
+          </td>
+        </tr>
+        <tr>
+          <td class="player-code-column">
+            {{match.playerBLetter}}
+          </td>
+          <td class="default-column">{{match.sideBDefaulted ? 'Yes' : '&nbsp;'}}</td>
+          <td class="game-score-column" *ngFor="let game of games; let idx = index;">
+          <ng-container  [ngSwitch]="idx">
+            <ng-container *ngSwitchCase="0">{{match.game1ScoreSideB}}</ng-container>
+            <ng-container *ngSwitchCase="1">{{match.game2ScoreSideB}}</ng-container>
+            <ng-container *ngSwitchCase="2">{{match.game3ScoreSideB}}</ng-container>
+            <ng-container *ngSwitchCase="3">{{match.game4ScoreSideB}}</ng-container>
+            <ng-container *ngSwitchCase="4">{{match.game5ScoreSideB}}</ng-container>
+            <ng-container *ngSwitchCase="5">{{match.game6ScoreSideB}}</ng-container>
+            <ng-container *ngSwitchCase="6">{{match.game7ScoreSideB}}</ng-container>
+          </ng-container>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </mat-expansion-panel>
+  </mat-accordion>
+</div>

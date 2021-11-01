@@ -40,12 +40,12 @@ export class AccountLandingComponent implements OnInit, OnDestroy {
    * Resumes account configuration
    */
   onResumeAccount() {
-    console.log('resuming account configuration');
+    // console.log('resuming account configuration');
     const userProfileId = this.authenticationService.getCurrentUserProfileId();
     this.accountService.resumeAccountConfiguration(userProfileId)
       .pipe(first())
       .subscribe((accountLinkUrl: string) => {
-        console.log('got resume account link url - navigating to ' + accountLinkUrl);
+        // console.log('got resume account link url - navigating to ' + accountLinkUrl);
         window.location.href = accountLinkUrl;
       });
   }

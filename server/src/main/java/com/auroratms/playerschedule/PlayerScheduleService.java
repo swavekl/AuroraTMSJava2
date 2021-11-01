@@ -17,10 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Service for retrieving schedule and status information for one player
@@ -72,8 +69,8 @@ public class PlayerScheduleService {
             MatchCard matchCard = this.matchCardService.getMatchCard(drawItem.getEventFk(), drawItem.getRound(), drawItem.getGroupNum());
             for (TournamentEventEntity eventEntity : enteredEventEntities) {
                 if (eventEntity.getId().equals(matchCard.getEventFk())) {
-                    PlayerScheduleItem playerScheduleItem = toPlayerScheduleItem(matchCard, eventEntity.getName(),
-                            false, eventEntity.getTournamentFk(), eventEntity.getDay());
+                    PlayerScheduleItem playerScheduleItem = toPlayerScheduleItem(matchCard, eventEntity,
+                            false);
                     playerScheduleItems.add(playerScheduleItem);
                 }
             }
@@ -103,28 +100,24 @@ public class PlayerScheduleService {
     public PlayerScheduleItem getPlayerSchedule(Long matchCardId) {
         MatchCard matchCard = this.matchCardService.get(matchCardId);
         TournamentEventEntity eventEntity = this.tournamentEventEntityService.get(matchCard.getEventFk());
-        return toPlayerScheduleItem(matchCard, eventEntity.getName(),
-                true, eventEntity.getTournamentFk(), eventEntity.getDay());
+        return toPlayerScheduleItem(matchCard, eventEntity,
+                true);
     }
 
     /**
      * Converts match card into PlayerScheduleItem and optionally fills in all player details
      *
      * @param matchCard
-     * @param eventName
+     * @param eventEntity
      * @param fetchDetails
-     * @param tournamentId
-     * @param tournamentDay
      * @return
      */
     private PlayerScheduleItem toPlayerScheduleItem(MatchCard matchCard,
-                                                    String eventName,
-                                                    boolean fetchDetails,
-                                                    long tournamentId,
-                                                    int tournamentDay) {
+                                                    TournamentEventEntity eventEntity,
+                                                    boolean fetchDetails) {
         PlayerScheduleItem playerScheduleItem = new PlayerScheduleItem();
 
-        playerScheduleItem.setEventName(eventName);
+        playerScheduleItem.setEventName(eventEntity.getName());
         playerScheduleItem.setMatchCardId(matchCard.getId());
         playerScheduleItem.setEventId(matchCard.getEventFk());
         playerScheduleItem.setAssignedTables(matchCard.getAssignedTables());
@@ -132,8 +125,9 @@ public class PlayerScheduleService {
         playerScheduleItem.setGroup(matchCard.getGroupNum());
         playerScheduleItem.setRound(matchCard.getRound());
         playerScheduleItem.setStartTime(matchCard.getStartTime());
+        playerScheduleItem.setDoubles(eventEntity.isDoubles());
         if (fetchDetails) {
-            List<PlayerDetail> playerDetails = makePlayerDetails(matchCard, tournamentId, tournamentDay);
+            List<PlayerDetail> playerDetails = makePlayerDetails(matchCard, eventEntity);
             playerScheduleItem.setPlayerDetails(playerDetails);
         }
         return playerScheduleItem;
@@ -143,15 +137,36 @@ public class PlayerScheduleService {
      * Makes player details showing each player status and other information
      *
      * @param matchCard     match card
-     * @param tournamentId  tournament id
-     * @param tournamentDay tournament day
+     * @param eventEntity
      * @return player details
      */
-    private List<PlayerDetail> makePlayerDetails(MatchCard matchCard, long tournamentId, int tournamentDay) {
+    private List<PlayerDetail> makePlayerDetails(MatchCard matchCard, TournamentEventEntity eventEntity) {
+        long tournamentId = eventEntity.getTournamentFk();
+        int tournamentDay = eventEntity.getDay();
         List<PlayerDetail> playerDetailsList = new ArrayList<>();
         Map<String, String> profileIdToNameMap = matchCard.getProfileIdToNameMap();
         List<Match> matches = matchCard.getMatches();
-        List<String> playerProfileIds = new ArrayList<>(profileIdToNameMap.keySet());
+        List<String> playerProfileIds = null;
+        if (!eventEntity.isDoubles()) {
+            playerProfileIds = new ArrayList<>(profileIdToNameMap.keySet());
+        } else {
+            playerProfileIds = new ArrayList<>();
+            // split doubles team players to get status of each player individually
+            Map<String, String> doublesProfileIdToNameMap = new HashMap<>();
+            Set<String> combinedProfiles = profileIdToNameMap.keySet();
+            for (String combinedProfile : combinedProfiles) {
+                String combinedFullNames = profileIdToNameMap.get(combinedProfile);
+                String[] playerProfiles = combinedProfile.split(";");
+                playerProfileIds.add(playerProfiles[0]);
+                playerProfileIds.add(playerProfiles[1]);
+                String[] playerFullNames = combinedFullNames.split("/");
+                doublesProfileIdToNameMap.put(playerProfiles[0], playerFullNames[0]);
+                doublesProfileIdToNameMap.put(playerProfiles[1], playerFullNames[1]);
+            }
+            profileIdToNameMap = doublesProfileIdToNameMap;
+        }
+//        List<String> playerProfileIds = new ArrayList<>(profileIdToNameMap.keySet());
+        // get status of each player
         List<PlayerStatus> playerStatuses = this.playerStatusService.listPlayersByIds(playerProfileIds, tournamentId, tournamentDay);
         for (Map.Entry<String, String> entry : profileIdToNameMap.entrySet()) {
             String playerProfileId = entry.getKey();
@@ -167,12 +182,12 @@ public class PlayerScheduleService {
                 }
             }
             for (Match match : matches) {
-                if (match.getPlayerAProfileId().equals(playerProfileId)) {
+                if (match.getPlayerAProfileId().contains(playerProfileId)) {
                     playerDetail.setPlayerCode(match.getPlayerALetter());
                     playerDetail.setRating(match.getPlayerARating());
                     playerDetail.setEstimated(false);
                     break;
-                } else if (match.getPlayerBProfileId().equals(playerProfileId)) {
+                } else if (match.getPlayerBProfileId().contains(playerProfileId)) {
                     playerDetail.setPlayerCode(match.getPlayerBLetter());
                     playerDetail.setRating(match.getPlayerBRating());
                     playerDetail.setEstimated(false);

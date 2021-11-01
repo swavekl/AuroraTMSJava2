@@ -108,7 +108,7 @@ public class DrawService {
 
     @Transactional(readOnly = true)
     public List<DrawItem> listByProfileIdAndEventFkIn(String profileId, List<Long> eventIdList) {
-        return this.drawRepository.findAllByPlayerIdAndEventFkIn(profileId, eventIdList);
+        return this.drawRepository.findAllByPlayerIdContainsAndEventFkIsIn(profileId, eventIdList);
     }
 
     /**

@@ -70,7 +70,7 @@ export class CheckinCommunicateContainerComponent implements OnInit, OnDestroy {
         first(),
         map(
           (playerStatusList: PlayerStatus[]) => {
-            console.log('got player status list', playerStatusList);
+            // console.log('got player status list', playerStatusList);
             if (playerStatusList.length > 0) {
               this.playerStatus$ = of(playerStatusList[0]);
             } else {
@@ -79,7 +79,7 @@ export class CheckinCommunicateContainerComponent implements OnInit, OnDestroy {
               playerStatus.playerProfileId = profileId;
               playerStatus.tournamentId = this.tournamentId;
               playerStatus.tournamentDay = this.tournamentDay;
-              console.log('creating new player profile');
+              // console.log('creating new player profile');
               this.playerStatus$ = of(playerStatus);
             }
           })

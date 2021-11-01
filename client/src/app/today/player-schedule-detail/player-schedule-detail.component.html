@@ -1,30 +1,48 @@
-<div fxLayout="row" fxFlexAlign="center center" class="my-schedule-container">
+<div fxLayout="row" fxFlexAlign="center center">
   <div fxHide.xs="true" fxFlex.gt-xs="50%">&nbsp;</div>
-  <div fxFlexFill fxFlex.gt-xs="350px">
-    <mat-card *ngIf="playerScheduleItem" style="text-align: left !important;">
+  <div fxFlexFill fxFlex.gt-xs="550px">
+    <mat-card *ngIf="playerScheduleItem">
       <mat-card-title>
-        <div>{{ playerScheduleItem.startTime | startTime }} - {{playerScheduleItem.eventName}}</div>
+        <div>{{playerScheduleItem.eventName}}</div>
       </mat-card-title>
       <mat-card-subtitle>
+        <div>{{ playerScheduleItem.startTime | startTime }} / Tables: {{playerScheduleItem.assignedTables}}</div>
         <div>{{ playerScheduleItem.round | roundName }}, Group: {{playerScheduleItem.group}}</div>
-        <div>Tables: {{playerScheduleItem.assignedTables}}</div>
       </mat-card-subtitle>
       <mat-card-content>
-        <mat-list dense>
-          <mat-divider></mat-divider>
-          <mat-list-item  *ngFor="let playerDetail of playerScheduleItem.playerDetails; last as last; first as first">
-            <mat-icon matListIcon [className]="getStatusIconClass(playerDetail.statusCode)">{{getStatusIcon(playerDetail.statusCode)}}</mat-icon>
-            <div matLine>{{playerDetail.playerFullName}}</div>
-            <div matLine>{{playerDetail.rating}} {{playerDetail.estimated ? 'est.' : ''}}</div>
-            <div matLine> <span *ngIf="playerDetail.statusCode === 'WILL_PLAY_BUT_IS_LATE'">E.T.A. {{ playerDetail.estimatedArrivalTime }}</span></div>
-            <mat-divider *ngIf="!last"></mat-divider>
-          </mat-list-item>
-        </mat-list>
-        <mat-divider></mat-divider>
+        <table style="width: 100%">
+          <thead>
+          <tr>
+            <th>Status</th>
+            <th>Player Name</th>
+            <td class="player-rating-column">Rating</td>
+          </tr>
+          </thead>
+          <tbody>
+          <tr
+            *ngFor="let playerDetail of playerScheduleItem?.playerDetails; last as last; first as first; index as index"
+            [class]="getPlayerRowStyle(playerScheduleItem.doubles, index, last)">
+            <td class="player-status-column">
+              <mat-icon
+                [className]="getStatusIconClass(playerDetail.statusCode)">{{getStatusIcon(playerDetail.statusCode)}}</mat-icon>
+            </td>
+            <td class="player-name-column">
+              <div>{{playerDetail.playerFullName}}</div>
+            </td>
+            <td *ngIf="(playerScheduleItem.doubles && index % 2 === 0) || (!playerScheduleItem.doubles)"
+                class="player-rating-column" [rowSpan]="!playerScheduleItem.doubles ? 1 : 2">
+              {{playerDetail.rating}} {{playerDetail.estimated ? 'est.' : ''}}
+            </td>
+          </tr>
+          </tbody>
+        </table>
       </mat-card-content>
       <mat-card-actions>
+        <button mat-raised-button
+                (click)="goBack()">Back</button>
         <span fxFlex></span>
-        <button mat-raised-button color="primary">Matches</button>
+        <button mat-raised-button color="primary"
+                [routerLink]="['/matches/playermatches/', playerScheduleItem.matchCardId]">Matches</button>
       </mat-card-actions>
     </mat-card>
   </div>

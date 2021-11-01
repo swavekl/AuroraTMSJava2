@@ -1,0 +1,53 @@
+.mat-expansion-panel-header {
+  margin: 12px 0;
+  //border: 1px solid red;
+}
+
+table.expansion-header-players {
+  tr td {
+    &.match-num-column {
+      padding-right: 8px;
+      vertical-align: middle;
+    }
+    &.player-code-column {
+      padding: 0 8px;
+      text-align: center;
+      vertical-align: middle;
+    }
+    &.names-column {
+    }
+    &.match-winner {
+      background-color: greenyellow;
+    }
+    &.not-match-winner {
+    }
+  }
+}
+
+table.scores-table {
+  margin-left: 24px;
+
+  thead tr th {
+    padding: 4px 4px;
+    border: 1px solid gray;
+    background-color: #F5F5F5;
+  }
+
+  tbody tr {
+    td {
+      border: 1px solid lightgray;
+      padding: 4px 4px;
+      &.player-code-column {
+        vertical-align: middle;
+      }
+      &.game-score-column {
+        width: 25px;
+        text-align: right;
+      }
+      &.default-column {
+        text-align: center;
+        //width: 80px;
+      }
+    }
+  }
+}

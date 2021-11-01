@@ -19,6 +19,9 @@ export class PlayerScheduleItem {
   // event id
   eventId: number;
 
+  // true if doubles event
+  doubles: boolean;
+
   // 0 for RR, 16, 8, 4, 2 etc for single elimination phase
   round: number;
 

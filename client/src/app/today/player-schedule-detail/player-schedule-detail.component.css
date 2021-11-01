@@ -10,3 +10,34 @@ mat-icon.will-not-play {
 mat-icon.will-play-late {
   color: orange;
 }
+
+tr.player-row-separated {
+  border-top: 1px solid lightgray
+}
+
+tr.player-row-last {
+  border-bottom: 1px solid lightgray
+}
+
+tr.player-row-not-separated {
+  border-top: 0;
+}
+
+td.player-status-column {
+  padding: 8px;
+  vertical-align: middle;
+  width: 20px;
+  /*border: 1px solid red;*/
+}
+
+td.player-name-column {
+  vertical-align: middle;
+  padding-top: 1px;
+  border: 0px solid blue;
+}
+
+td.player-rating-column {
+  text-align: right;
+  vertical-align: middle;
+  /*border: 1px solid green;*/
+}

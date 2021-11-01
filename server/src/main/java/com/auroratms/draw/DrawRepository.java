@@ -25,7 +25,7 @@ public interface DrawRepository extends JpaRepository<DrawItem, Long> {
 
     Optional<DrawItem> findByEventFkAndDrawTypeAndRoundAndSingleElimLineNum(long eventId, DrawType drawType, int roundOf, int singleElimLineNum);
 
-    List<DrawItem> findAllByPlayerIdAndEventFkIn(String profileId, List<Long> eventIdList);
+    List<DrawItem> findAllByPlayerIdContainsAndEventFkIsIn(String profileId, List<Long> eventIdList);
 
 
 }
