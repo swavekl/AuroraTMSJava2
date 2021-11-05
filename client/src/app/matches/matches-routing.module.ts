@@ -5,6 +5,7 @@ import {MatchesLandingContainerComponent} from './matches-landing/matches-landin
 import {MatchesContainerComponent} from './matches/matches-container.component';
 import {PlayerMatchesContainerComponent} from './player-matches/player-matches-container.component';
 import {UserRoles} from '../user/user-roles.enum';
+import {ScoreEntryPhoneContainerComponent} from './score-entry-phone/score-entry-phone-container.component';
 
 const restrictedAccessRoles = [
   UserRoles.ROLE_TOURNAMENT_DIRECTORS, UserRoles.ROLE_ADMINS, UserRoles.ROLE_DATA_ENTRY_CLERKS, UserRoles.ROLE_UMPIRES
@@ -32,6 +33,14 @@ const routes: Routes = [
   {
     path: 'playermatches/:matchCardId',
     component: PlayerMatchesContainerComponent,
+    canActivate: [AuthGuard],
+    data: {
+      roles: unrestrictedAccessRoles
+    }
+  },
+  {
+    path: 'scoreentryphone/:matchCardId/:matchIndex',
+    component: ScoreEntryPhoneContainerComponent,
     canActivate: [AuthGuard],
     data: {
       roles: unrestrictedAccessRoles

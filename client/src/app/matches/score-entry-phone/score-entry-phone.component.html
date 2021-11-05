@@ -1,0 +1,43 @@
+<div>Touch winner name or team first</div>
+<div class="mat-title" style="text-align: center">Game: {{gameIndex + 1}}</div>
+<form name="form" #f="ngForm" novalidate>
+  <table class="scores-table" *ngIf="match">
+    <tbody>
+    <tr>
+      <td colSpan="5" (click)="setWinner(0)">{{match.playerALetter}} {{playerAName}}</td>
+    </tr>
+    <tr>
+      <td rowspan="2" class="previous-next-button">
+        <button mat-icon-button (click)="previousGame()" [disabled]="!hasPreviousGame()"><mat-icon>skip_previous</mat-icon></button>
+      </td>
+      <td>
+        <button mat-icon-button (click)="subtractPoint(0)" [disabled]="isSubtractDisabled(0)"><mat-icon>remove</mat-icon></button>
+      </td>
+      <td>
+        <input (focusin)="onFocus($event)" (change)="onScoreValueChange($event)" matInput class="game-score-input" type="text" name="gameScoreSideA" [(ngModel)]="gameScoreSideA">
+      </td>
+      <td>
+        <button mat-icon-button (click)="addPoint(0)" [disabled]="isAddDisabled(0)"><mat-icon>add</mat-icon></button>
+      </td>
+      <td rowspan="2" class="previous-next-button">
+        <button mat-icon-button (click)="nextGame()" [disabled]="!hasNextGame()"><mat-icon>skip_next</mat-icon></button>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <button mat-icon-button (click)="subtractPoint(1)" [disabled]="isSubtractDisabled(1)"><mat-icon>remove</mat-icon></button>
+      </td>
+      <td>
+        <input (focusin)="onFocus($event)" (change)="onScoreValueChange($event)" matInput class="game-score-input" type="text" name="gameScoreSideB" [(ngModel)]="gameScoreSideB">
+      </td>
+      <td>
+        <button mat-icon-button (click)="addPoint(1)" [disabled]="isAddDisabled(1)"><mat-icon>add</mat-icon></button>
+      </td>
+    </tr>
+    <tr>
+      <td colSpan="5" (click)="setWinner(1)">{{match.playerBLetter}} {{playerBName}}</td>
+    </tr>
+    </tbody>
+  </table>
+</form>
+

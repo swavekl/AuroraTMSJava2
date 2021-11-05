@@ -1,0 +1,40 @@
+
+table.scores-table {
+  margin-left: 24px;
+
+  thead tr th {
+    padding: 4px 4px;
+    border: 1px solid gray;
+    background-color: #F5F5F5;
+  }
+
+  tbody tr {
+    td {
+      border: 1px solid lightgray;
+      padding: 4px 4px;
+      font-size: 20px;
+      //&.player-code-column {
+      //  vertical-align: middle;
+      //}
+      //&.game-score-column {
+      //  width: 25px;
+      //  text-align: right;
+      //}
+      //&.default-column {
+      //  text-align: center;
+      //  width: 80px;
+      //}
+      &.previous-next-button {
+        vertical-align: middle;
+        text-align: center;
+        border: 1px solid purple;
+        font-size: 30px;
+      }
+    }
+
+    input.game-score-input {
+      max-width: 30px;
+      font-size: large;
+    }
+  }
+}

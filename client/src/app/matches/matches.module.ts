@@ -22,6 +22,8 @@ import {MatchCardService} from './service/match-card.service';
 import {MatchService} from './service/match.service';
 import {SharedModule} from '../shared/shared.module';
 import {MatToolbarModule} from '@angular/material/toolbar';
+import { ScoreEntryPhoneComponent } from './score-entry-phone/score-entry-phone.component';
+import { ScoreEntryPhoneContainerComponent } from './score-entry-phone/score-entry-phone-container.component';
 
 
 @NgModule({
@@ -30,7 +32,9 @@ import {MatToolbarModule} from '@angular/material/toolbar';
     MatchesContainerComponent,
     MatchesLandingContainerComponent,
     MatchesLandingComponent,
-    ScoreEntryDialogComponent
+    ScoreEntryDialogComponent,
+    ScoreEntryPhoneComponent,
+    ScoreEntryPhoneContainerComponent
   ],
     imports: [
         CommonModule,

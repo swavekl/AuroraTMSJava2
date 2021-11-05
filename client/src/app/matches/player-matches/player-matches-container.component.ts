@@ -12,10 +12,12 @@ import {MatchCard} from '../model/match-card.model';
 @Component({
   selector: 'app-player-matches-container',
   template: `
-      <app-player-matches [matchCard]="matchCard$ | async"></app-player-matches>
+    <app-player-matches
+      [matchCard]="matchCard$ | async"
+      [doubles]="doubles">
+    </app-player-matches>
   `,
-  styles: [
-  ]
+  styles: []
 })
 export class PlayerMatchesContainerComponent implements OnInit, OnDestroy {
 
@@ -23,10 +25,13 @@ export class PlayerMatchesContainerComponent implements OnInit, OnDestroy {
 
   private subscriptions: Subscription = new Subscription();
 
+  public doubles: boolean;
+
   constructor(private activatedRoute: ActivatedRoute,
               private linearProgressBarService: LinearProgressBarService,
               private matchCardService: MatchCardService) {
     const matchCardId = this.activatedRoute.snapshot.params['matchCardId'] || 0;
+    this.doubles = (history?.state?.doubles === true);
     this.setupProgressIndicator();
     this.loadMatchesInformation(matchCardId);
   }
@@ -41,12 +46,12 @@ export class PlayerMatchesContainerComponent implements OnInit, OnDestroy {
   private setupProgressIndicator() {
     const subscription = this.matchCardService.store.select(this.matchCardService.selectors.selectLoading)
       .subscribe((loading: boolean) => {
-      this.linearProgressBarService.setLoading(loading);
-    });
+        this.linearProgressBarService.setLoading(loading);
+      });
     this.subscriptions.add(subscription);
   }
 
-  private loadMatchesInformation (matchCardId: number) {
+  private loadMatchesInformation(matchCardId: number) {
     this.matchCardService.store.select(this.matchCardService.selectors.selectLoading);
     const selectedEntrySelector = createSelector(
       this.matchCardService.selectors.selectEntityMap,
@@ -61,5 +66,5 @@ export class PlayerMatchesContainerComponent implements OnInit, OnDestroy {
       }
     });
     this.subscriptions.add(subscription);
-    }
+  }
 }
