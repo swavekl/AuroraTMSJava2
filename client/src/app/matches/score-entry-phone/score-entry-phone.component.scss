@@ -1,4 +1,3 @@
-
 table.scores-table {
   margin-left: 24px;
 
@@ -11,19 +10,18 @@ table.scores-table {
   tbody tr {
     td {
       border: 1px solid lightgray;
-      padding: 4px 4px;
-      font-size: 20px;
-      //&.player-code-column {
-      //  vertical-align: middle;
-      //}
-      //&.game-score-column {
-      //  width: 25px;
-      //  text-align: right;
-      //}
-      //&.default-column {
-      //  text-align: center;
-      //  width: 80px;
-      //}
+      padding: 16px 16px;
+
+      &.game-winner {
+        background-color: #c9ed91;
+      }
+
+      &.score-column {
+        font-size: 32px;
+        text-align: center;
+        vertical-align: middle;
+      }
+
       &.previous-next-button {
         vertical-align: middle;
         text-align: center;

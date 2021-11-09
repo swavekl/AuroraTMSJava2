@@ -1,11 +1,12 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {Observable, of, Subscription} from 'rxjs';
 import {MatchCard} from '../model/match-card.model';
-import {ActivatedRoute} from '@angular/router';
+import {ActivatedRoute, Router} from '@angular/router';
 import {LinearProgressBarService} from '../../shared/linear-progress-bar/linear-progress-bar.service';
 import {MatchCardService} from '../service/match-card.service';
 import {createSelector} from '@ngrx/store';
 import {Match} from '../model/match.model';
+import {MatchService} from '../service/match.service';
 
 @Component({
   selector: 'app-score-entry-phone-container',
@@ -15,7 +16,9 @@ import {Match} from '../model/match.model';
       [playerAName]="playerAName$ | async"
       [playerBName]="playerBName$ | async"
       [numberOfGames]="numberOfGames"
-      [pointsPerGame]="pointsPerGame">
+      [pointsPerGame]="pointsPerGame"
+    (saveMatch)="onSaveMatch($event)"
+    (cancelMatch)="onCancelMatch()">
     </app-score-entry-phone>
   `,
   styles: []
@@ -24,6 +27,8 @@ export class ScoreEntryPhoneContainerComponent implements OnInit, OnDestroy {
 
 
   public match$: Observable<Match>;
+
+  private matchCard: MatchCard;
 
   public playerAName$: Observable<String>;
   public playerBName$: Observable<String>;
@@ -37,7 +42,9 @@ export class ScoreEntryPhoneContainerComponent implements OnInit, OnDestroy {
 
   constructor(private activatedRoute: ActivatedRoute,
               private linearProgressBarService: LinearProgressBarService,
-              private matchCardService: MatchCardService) {
+              private matchCardService: MatchCardService,
+              private matchService: MatchService,
+              private router: Router) {
     const matchCardId = this.activatedRoute.snapshot.params['matchCardId'] || 0;
     this.matchIndex = this.activatedRoute.snapshot.params['matchIndex'] || 0;
     this.pointsPerGame = 11;
@@ -82,6 +89,7 @@ export class ScoreEntryPhoneContainerComponent implements OnInit, OnDestroy {
         this.matchCardService.getByKey(matchCardId);
       } else {
         console.log('get match card from cache');
+        this.matchCard = matchCard;
         const allMatches = matchCard.matches;
         if (this.matchIndex < allMatches.length) {
           const match = allMatches[matchIndex];
@@ -93,5 +101,22 @@ export class ScoreEntryPhoneContainerComponent implements OnInit, OnDestroy {
       }
     });
     this.subscriptions.add(subscription);
+  }
+
+  onSaveMatch(updatedMatch: Match) {
+    const matchCardId = this.matchCard.id;
+    const subscription: Subscription = this.matchService.update(updatedMatch)
+      .subscribe((match: Match) => {
+        // reload the match card with this.
+        this.matchCardService.getByKey(matchCardId);
+        const url = `/matches/playermatches/${matchCardId}`;
+        this.router.navigateByUrl(url);
+
+      });
+    this.subscriptions.add(subscription);
+  }
+
+  onCancelMatch() {
+    // console.log('cancelling match');
   }
 }
