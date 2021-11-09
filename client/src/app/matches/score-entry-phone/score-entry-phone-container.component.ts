@@ -37,6 +37,7 @@ export class ScoreEntryPhoneContainerComponent implements OnInit, OnDestroy {
 
   public numberOfGames: number;
   public pointsPerGame: number;
+  private doubles: boolean;
 
   private subscriptions: Subscription = new Subscription();
 
@@ -47,6 +48,7 @@ export class ScoreEntryPhoneContainerComponent implements OnInit, OnDestroy {
               private router: Router) {
     const matchCardId = this.activatedRoute.snapshot.params['matchCardId'] || 0;
     this.matchIndex = this.activatedRoute.snapshot.params['matchIndex'] || 0;
+    this.doubles = history?.state?.doubles || false;
     this.pointsPerGame = 11;
     this.numberOfGames = 5;
     this.setupProgressIndicator();
@@ -84,7 +86,7 @@ export class ScoreEntryPhoneContainerComponent implements OnInit, OnDestroy {
     const matchCard$: Observable<MatchCard> = this.matchCardService.store.select(selectedEntrySelector);
     const subscription = matchCard$.subscribe((matchCard: MatchCard) => {
       if (matchCard == null) {
-        console.log('getting match card from server');
+        // console.log('getting match card from server');
         // get from the server if not cached yet
         this.matchCardService.getByKey(matchCardId);
       } else {
@@ -94,7 +96,7 @@ export class ScoreEntryPhoneContainerComponent implements OnInit, OnDestroy {
         if (this.matchIndex < allMatches.length) {
           const match = allMatches[matchIndex];
           this.match$ = of(match);
-          console.log('match is', match);
+          // console.log('match is', match);
           this.playerAName$ = of(matchCard.profileIdToNameMap[match.playerAProfileId]);
           this.playerBName$ = of(matchCard.profileIdToNameMap[match.playerBProfileId]);
         }
@@ -104,19 +106,27 @@ export class ScoreEntryPhoneContainerComponent implements OnInit, OnDestroy {
   }
 
   onSaveMatch(updatedMatch: Match) {
-    const matchCardId = this.matchCard.id;
     const subscription: Subscription = this.matchService.update(updatedMatch)
       .subscribe((match: Match) => {
         // reload the match card with this.
-        this.matchCardService.getByKey(matchCardId);
-        const url = `/matches/playermatches/${matchCardId}`;
-        this.router.navigateByUrl(url);
+        this.matchCardService.getByKey(this.matchCard.id);
+        this.backToMatchCard();
 
       });
     this.subscriptions.add(subscription);
   }
 
   onCancelMatch() {
-    // console.log('cancelling match');
+    this.backToMatchCard();
+  }
+
+  private backToMatchCard() {
+    const url = `/matches/playermatches/${this.matchCard.id}`;
+    const extras = {
+      state: {
+        doubles: this.doubles
+      }
+    };
+    this.router.navigateByUrl(url, extras);
   }
 }

@@ -1,6 +1,9 @@
 <div fxLayout="row" fxFlexAlign="center center">
   <div fxHide.xs="true" fxFlex.gt-xs="50%">&nbsp;</div>
   <div fxFlexFill fxFlex.gt-xs="350px">
+    <mat-toolbar>
+      <button mat-raised-button (click)="onBack()">Back</button>
+    </mat-toolbar>
     <mat-accordion *ngIf="matchCard">
       <mat-expansion-panel *ngFor="let match of matchCard.matches; index as matchIndex"
                            [expanded]="isMatchExpanded(matchIndex)" (opened)="expandMatch(matchIndex)">
@@ -161,7 +164,10 @@
           </mat-card-content>
           <mat-card-actions>
             <span fxFlex></span>
-            <button mat-raised-button color="primary" *ngIf="isPlayerMatch(match)" [disabled]="!isPlayerMatch(match)" [routerLink]="['/matches/scoreentryphone', matchCard.id, matchIndex]">Edit Score</button>
+            <button mat-raised-button color="primary" *ngIf="isPlayerMatch(match)" [disabled]="!isPlayerMatch(match)"
+                    [routerLink]="['/matches/scoreentryphone', matchCard.id, matchIndex]"
+                    [state]="{doubles: doubles}">
+              Edit Score</button>
           </mat-card-actions>
         </mat-card>
       </mat-expansion-panel>

@@ -1,5 +1,5 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
-import {ActivatedRoute} from '@angular/router';
+import {ActivatedRoute, Router} from '@angular/router';
 import {MatchCardService} from '../service/match-card.service';
 import {LinearProgressBarService} from '../../shared/linear-progress-bar/linear-progress-bar.service';
 import {Observable, Subscription} from 'rxjs';
@@ -14,7 +14,8 @@ import {MatchCard} from '../model/match-card.model';
   template: `
     <app-player-matches
       [matchCard]="matchCard$ | async"
-      [doubles]="doubles">
+      [doubles]="doubles"
+      (back)="onGoBack()">
     </app-player-matches>
   `,
   styles: []
@@ -23,17 +24,20 @@ export class PlayerMatchesContainerComponent implements OnInit, OnDestroy {
 
   public matchCard$: Observable<MatchCard>;
 
+  private matchCardId: number;
+
   private subscriptions: Subscription = new Subscription();
 
   public doubles: boolean;
 
   constructor(private activatedRoute: ActivatedRoute,
               private linearProgressBarService: LinearProgressBarService,
-              private matchCardService: MatchCardService) {
-    const matchCardId = this.activatedRoute.snapshot.params['matchCardId'] || 0;
+              private matchCardService: MatchCardService,
+              private router: Router) {
+    this.matchCardId = this.activatedRoute.snapshot.params['matchCardId'] || 0;
     this.doubles = (history?.state?.doubles === true);
     this.setupProgressIndicator();
-    this.loadMatchesInformation(matchCardId);
+    this.loadMatchesInformation(this.matchCardId);
   }
 
   ngOnInit(): void {
@@ -66,5 +70,15 @@ export class PlayerMatchesContainerComponent implements OnInit, OnDestroy {
       }
     });
     this.subscriptions.add(subscription);
+  }
+
+  onGoBack() {
+    const url = `today/playerschedule/detail/${this.matchCardId}`;
+    const extras = {
+      state: {
+        doubles: this.doubles
+      }
+    };
+    this.router.navigateByUrl(url, extras);
   }
 }

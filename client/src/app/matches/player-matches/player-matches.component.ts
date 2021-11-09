@@ -1,4 +1,4 @@
-import {Component, Input, OnChanges, OnInit, SimpleChange, SimpleChanges} from '@angular/core';
+import {Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChange, SimpleChanges} from '@angular/core';
 import {MatchCard} from '../model/match-card.model';
 import {Match} from '../model/match.model';
 import {AuthenticationService} from '../../user/authentication.service';
@@ -23,6 +23,9 @@ export class PlayerMatchesComponent implements OnInit, OnChanges {
   public doubles: boolean;
 
   private expandedMatchIndex: number;
+
+  @Output()
+  public back: EventEmitter<any> = new EventEmitter<any>();
 
   // array so we can use iteration in the template
   games: number [];
@@ -85,5 +88,9 @@ export class PlayerMatchesComponent implements OnInit, OnChanges {
 
   getPlayerName(profileId: string): string {
     return this.matchCard.profileIdToNameMap[profileId];
+  }
+
+  onBack() {
+    this.back.emit(null);
   }
 }

@@ -25,6 +25,7 @@ import {PlayerScheduleDetailContainerComponent} from './player-schedule-detail/p
 import {PlayerMatchesComponent} from '../matches/player-matches/player-matches.component';
 import {PlayerMatchesContainerComponent} from '../matches/player-matches/player-matches-container.component';
 import {MatExpansionModule} from '@angular/material/expansion';
+import {MatToolbarModule} from '@angular/material/toolbar';
 
 
 @NgModule({
@@ -53,7 +54,8 @@ import {MatExpansionModule} from '@angular/material/expansion';
         FormsModule,
         SharedModule,
         MatCardModule,
-        MatExpansionModule
+        MatExpansionModule,
+        MatToolbarModule
     ]
 })
 export class TodayModule {  // Inject the service to ensure it registers with EntityServices
