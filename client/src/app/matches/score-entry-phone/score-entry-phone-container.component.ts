@@ -31,13 +31,13 @@ export class ScoreEntryPhoneContainerComponent implements OnInit, OnDestroy {
   public playerAName$: Observable<String>;
   public playerBName$: Observable<String>;
 
+  private tournamentId: number;
   private matchCardId: number;
   private matchIndex: number;
-
   public numberOfGames: number;
   public pointsPerGame: number;
-  public doubles: boolean;
 
+  public doubles: boolean;
   private subscriptions: Subscription = new Subscription();
 
   constructor(private activatedRoute: ActivatedRoute,
@@ -45,6 +45,7 @@ export class ScoreEntryPhoneContainerComponent implements OnInit, OnDestroy {
               private matchCardService: MatchCardService,
               private matchService: MatchService,
               private router: Router) {
+    this.tournamentId = this.activatedRoute.snapshot.params['tournamentId'] || 0;
     this.matchCardId = this.activatedRoute.snapshot.params['matchCardId'] || 0;
     this.matchIndex = this.activatedRoute.snapshot.params['matchIndex'] || 0;
     this.doubles = (history?.state?.doubles === true);
@@ -119,7 +120,7 @@ export class ScoreEntryPhoneContainerComponent implements OnInit, OnDestroy {
   }
 
   private backToMatchCard() {
-    const url = `/matches/playermatches/${this.matchCardId}`;
+    const url = `/matches/playermatches/${this.tournamentId}/${this.matchCardId}`;
     const extras = {
       state: {
         doubles: this.doubles,

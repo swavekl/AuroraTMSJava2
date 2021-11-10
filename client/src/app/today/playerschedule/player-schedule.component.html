@@ -11,7 +11,7 @@
         <mat-list dense>
           <mat-divider></mat-divider>
           <mat-list-item  *ngFor="let playerScheduleItem of daySchedule.playerScheduleItems; last as last; first as first"
-                          (click)="showEventDetails(playerScheduleItem.matchCardId)">
+                          (click)="showScheduleDetail(playerScheduleItem.matchCardId)">
             <div matLine>{{playerScheduleItem.eventName}}</div>
             <div matLine>{{ playerScheduleItem.startTime | startTime }} / Tables: {{ playerScheduleItem.assignedTables}}</div>
             <div matLine>{{ playerScheduleItem.round | roundName }}, Group: {{playerScheduleItem.group}}</div>

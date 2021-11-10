@@ -9,7 +9,8 @@ import {PlayerScheduleItem} from '../model/player-schedule-item.model';
   selector: 'app-player-schedule-detail-container',
   template: `
     <app-player-schedule-detail [playerScheduleItem]="playerScheduleItem$ | async"
-    [returnUrl]="returnUrl">
+    [returnUrl]="returnUrl"
+    [tournamentId]="tournamentId">
     </app-player-schedule-detail>
   `,
   styles: [
@@ -23,10 +24,15 @@ export class PlayerScheduleDetailContainerComponent implements OnInit, OnDestroy
 
   private subscriptions: Subscription = new Subscription();
 
+  public tournamentId: number;
+
   constructor(private activatedRoute: ActivatedRoute,
               private linearProgressBarService: LinearProgressBarService,
               private playerScheduleService: PlayerScheduleService) {
+    this.tournamentId = this.activatedRoute.snapshot.params['tournamentId'] || 0;
     const matchCardId = this.activatedRoute.snapshot.params['matchCardId'] || 0;
+    console.log('in detail tournamentId', this.tournamentId);
+    console.log('in detail matchCardId', matchCardId);
     this.returnUrl = history.state?.returnUrl || '/home';
     this.setupProgressIndicator();
     this.loadPlayerScheduleDetail(matchCardId);

@@ -165,9 +165,9 @@
           <mat-card-actions>
             <span fxFlex></span>
             <button mat-raised-button color="primary" *ngIf="isPlayerMatch(match)" [disabled]="!isPlayerMatch(match)"
-                    [routerLink]="['/matches/scoreentryphone', matchCard.id, matchIndex]"
+                    [routerLink]="['/matches/scoreentryphone', tournamentId, matchCard.id, matchIndex]"
                     [state]="{doubles: doubles}">
-              Edit Score</button>
+              Enter Score</button>
           </mat-card-actions>
         </mat-card>
       </mat-expansion-panel>

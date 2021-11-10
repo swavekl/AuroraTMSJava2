@@ -16,6 +16,9 @@ export class PlayerScheduleDetailComponent implements OnInit, OnChanges {
   @Input()
   public returnUrl: string;
 
+  @Input()
+  public tournamentId: number;
+
   constructor(private router: Router) { }
 
   ngOnInit(): void {

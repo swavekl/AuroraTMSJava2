@@ -14,6 +14,9 @@ export class PlayerMatchesComponent implements OnInit, OnChanges {
   public matchCard: MatchCard;
 
   @Input()
+  public tournamentId: number;
+
+  @Input()
   public pointsPerGame: number;
 
   @Input()

@@ -12,9 +12,18 @@ table.scores-table {
   tbody tr {
     td {
       //border: 1px solid lightgray;
+      &.player-code-column {
+        padding: 8px 8px;
+        text-align: center;
+        vertical-align: middle;
+      }
+
+      &.match-winner {
+        background-color: greenyellow;
+      }
 
       &.name-cell {
-        padding: 16px 8px 4px 0;
+        padding: 8px 8px;
         //border: 1px solid blue;
         text-align: left;
       }
@@ -24,21 +33,12 @@ table.scores-table {
         //border: 1px solid lightgray;
       }
 
-      &.game-winner {
-        background-color: #c9ed91;
-      }
-
-      &.player-code-column {
-        padding: 0 8px;
-        text-align: center;
-        vertical-align: middle;
-      }
-
       &.score-column {
         font-size: 32px;
         text-align: center;
         vertical-align: middle;
         padding: 16px 12px;
+        min-width: 35px;
       }
 
       &.previous-next-button {
@@ -47,11 +47,6 @@ table.scores-table {
         //border: 1px solid purple;
         font-size: 30px;
       }
-    }
-
-    input.game-score-input {
-      max-width: 26px;
-      font-size: large;
     }
   }
 }

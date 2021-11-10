@@ -267,15 +267,8 @@ export class ScoreEntryPhoneComponent implements OnInit, OnChanges {
     }
   }
 
-  isGameWinner(playerIndex: number): boolean {
-    if (this.isScoreValid()) {
-      if (playerIndex === 0) {
-        return this.gameScoreSideA > this.gameScoreSideB;
-      } else {
-        return this.gameScoreSideB > this.gameScoreSideA;
-      }
-    }
-    return false;
+  isMatchWinner(profileId: string): boolean {
+    return (this.matchCopy) ? Match.isMatchWinner(profileId, this.matchCopy, this.numberOfGames, this.pointsPerGame) : false;
   }
 
   getDoublesPlayerName (playerNames: string, index: number): string {
