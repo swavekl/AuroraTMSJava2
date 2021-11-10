@@ -17,6 +17,7 @@ import {MatchService} from '../service/match.service';
       [playerBName]="playerBName$ | async"
       [numberOfGames]="numberOfGames"
       [pointsPerGame]="pointsPerGame"
+      [doubles]="doubles"
     (saveMatch)="onSaveMatch($event)"
     (cancelMatch)="onCancelMatch()">
     </app-score-entry-phone>
@@ -25,19 +26,17 @@ import {MatchService} from '../service/match.service';
 })
 export class ScoreEntryPhoneContainerComponent implements OnInit, OnDestroy {
 
-
   public match$: Observable<Match>;
-
-  private matchCard: MatchCard;
 
   public playerAName$: Observable<String>;
   public playerBName$: Observable<String>;
 
+  private matchCardId: number;
   private matchIndex: number;
 
   public numberOfGames: number;
   public pointsPerGame: number;
-  private doubles: boolean;
+  public doubles: boolean;
 
   private subscriptions: Subscription = new Subscription();
 
@@ -46,13 +45,13 @@ export class ScoreEntryPhoneContainerComponent implements OnInit, OnDestroy {
               private matchCardService: MatchCardService,
               private matchService: MatchService,
               private router: Router) {
-    const matchCardId = this.activatedRoute.snapshot.params['matchCardId'] || 0;
+    this.matchCardId = this.activatedRoute.snapshot.params['matchCardId'] || 0;
     this.matchIndex = this.activatedRoute.snapshot.params['matchIndex'] || 0;
-    this.doubles = history?.state?.doubles || false;
+    this.doubles = (history?.state?.doubles === true);
     this.pointsPerGame = 11;
     this.numberOfGames = 5;
     this.setupProgressIndicator();
-    this.loadMatchInformation(matchCardId, this.matchIndex);
+    this.loadMatchInformation(this.matchCardId, this.matchIndex);
   }
 
   ngOnInit(): void {
@@ -90,8 +89,7 @@ export class ScoreEntryPhoneContainerComponent implements OnInit, OnDestroy {
         // get from the server if not cached yet
         this.matchCardService.getByKey(matchCardId);
       } else {
-        console.log('get match card from cache');
-        this.matchCard = matchCard;
+        // console.log('get match card from cache');
         const allMatches = matchCard.matches;
         if (this.matchIndex < allMatches.length) {
           const match = allMatches[matchIndex];
@@ -100,6 +98,7 @@ export class ScoreEntryPhoneContainerComponent implements OnInit, OnDestroy {
           this.playerAName$ = of(matchCard.profileIdToNameMap[match.playerAProfileId]);
           this.playerBName$ = of(matchCard.profileIdToNameMap[match.playerBProfileId]);
         }
+        this.numberOfGames = matchCard.numberOfGames;
       }
     });
     this.subscriptions.add(subscription);
@@ -108,10 +107,9 @@ export class ScoreEntryPhoneContainerComponent implements OnInit, OnDestroy {
   onSaveMatch(updatedMatch: Match) {
     const subscription: Subscription = this.matchService.update(updatedMatch)
       .subscribe((match: Match) => {
-        // reload the match card with this.
-        this.matchCardService.getByKey(this.matchCard.id);
+        // reload the match card with this match
+        this.matchCardService.getByKey(this.matchCardId);
         this.backToMatchCard();
-
       });
     this.subscriptions.add(subscription);
   }
@@ -121,10 +119,11 @@ export class ScoreEntryPhoneContainerComponent implements OnInit, OnDestroy {
   }
 
   private backToMatchCard() {
-    const url = `/matches/playermatches/${this.matchCard.id}`;
+    const url = `/matches/playermatches/${this.matchCardId}`;
     const extras = {
       state: {
-        doubles: this.doubles
+        doubles: this.doubles,
+        matchIndex: this.matchIndex
       }
     };
     this.router.navigateByUrl(url, extras);

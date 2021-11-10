@@ -1,37 +1,56 @@
 table.scores-table {
-  margin-left: 24px;
+  //margin-left: 24px;
+  margin-top: 16px;
+  //border: 1px solid darkcyan;
 
   thead tr th {
-    padding: 4px 4px;
-    border: 1px solid gray;
+    padding: 16px 4px;
+    //border: 1px solid gray;
     background-color: #F5F5F5;
   }
 
   tbody tr {
     td {
-      border: 1px solid lightgray;
-      padding: 16px 16px;
+      //border: 1px solid lightgray;
+
+      &.name-cell {
+        padding: 16px 8px 4px 0;
+        //border: 1px solid blue;
+        text-align: left;
+      }
+
+      &.button-cell {
+        padding: 20px 10px;
+        //border: 1px solid lightgray;
+      }
 
       &.game-winner {
         background-color: #c9ed91;
+      }
+
+      &.player-code-column {
+        padding: 0 8px;
+        text-align: center;
+        vertical-align: middle;
       }
 
       &.score-column {
         font-size: 32px;
         text-align: center;
         vertical-align: middle;
+        padding: 16px 12px;
       }
 
       &.previous-next-button {
         vertical-align: middle;
         text-align: center;
-        border: 1px solid purple;
+        //border: 1px solid purple;
         font-size: 30px;
       }
     }
 
     input.game-score-input {
-      max-width: 30px;
+      max-width: 26px;
       font-size: large;
     }
   }

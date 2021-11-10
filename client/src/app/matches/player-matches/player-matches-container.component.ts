@@ -15,6 +15,7 @@ import {MatchCard} from '../model/match-card.model';
     <app-player-matches
       [matchCard]="matchCard$ | async"
       [doubles]="doubles"
+      [expandedMatchIndex]="expandedMatchIndex"
       (back)="onGoBack()">
     </app-player-matches>
   `,
@@ -26,6 +27,8 @@ export class PlayerMatchesContainerComponent implements OnInit, OnDestroy {
 
   private matchCardId: number;
 
+  public expandedMatchIndex: number;
+
   private subscriptions: Subscription = new Subscription();
 
   public doubles: boolean;
@@ -36,6 +39,8 @@ export class PlayerMatchesContainerComponent implements OnInit, OnDestroy {
               private router: Router) {
     this.matchCardId = this.activatedRoute.snapshot.params['matchCardId'] || 0;
     this.doubles = (history?.state?.doubles === true);
+    this.expandedMatchIndex = isNaN(history?.state?.matchIndex) ? 0 : parseInt(history.state.matchIndex, 10);
+    // console.log('numeric expandedMatchIndex', {num: this.expandedMatchIndex});
     this.setupProgressIndicator();
     this.loadMatchesInformation(this.matchCardId);
   }

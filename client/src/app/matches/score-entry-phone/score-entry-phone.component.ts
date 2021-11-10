@@ -25,25 +25,29 @@ export class ScoreEntryPhoneComponent implements OnInit, OnChanges {
   @Input()
   public numberOfGames: number;
 
+  @Input()
+  public doubles: boolean;
+
   @Output()
   public saveMatch: EventEmitter<Match> = new EventEmitter<Match>();
 
   @Output()
   public cancelMatch: EventEmitter<any> = new EventEmitter<any>();
 
-
-  public gameIndex: number;
+  // index of the game to show 0, 1, etc
+  public gameToShowIndex: number;
 
   // array so we can use iteration in the template
   games: number [];
 
+  // game scores that are edited
   gameScoreSideA: number;
   gameScoreSideB: number;
 
   constructor() {
     this.games = [];
     this.pointsPerGame = 11;
-    this.gameIndex = 0;
+    this.gameToShowIndex = 0;
     this.numberOfGames = 5;
     this.gameScoreSideA = 0;
     this.gameScoreSideB = 0;
@@ -65,7 +69,7 @@ export class ScoreEntryPhoneComponent implements OnInit, OnChanges {
       const match: Match = matchChanges.currentValue;
       if (match) {
         this.matchCopy = JSON.parse(JSON.stringify(match));
-        this.gameIndex = this.getNextGameIndex(match);
+        this.gameToShowIndex = this.getNextGameIndex(this.matchCopy);
         this.getGameScore();
       }
     }
@@ -73,22 +77,35 @@ export class ScoreEntryPhoneComponent implements OnInit, OnChanges {
 
   previousGame() {
     this.saveGameScore();
-    this.gameIndex--;
+    this.gameToShowIndex--;
     this.getGameScore();
   }
 
   hasPreviousGame() {
-    return this.gameIndex > 0;
+    return this.gameToShowIndex > 0;
   }
 
   nextGame() {
     this.saveGameScore();
-    this.gameIndex++;
+    this.gameToShowIndex++;
     this.getGameScore();
   }
 
   hasNextGame() {
-    return this.gameIndex < this.numberOfGames;
+    let hasNextGame: boolean;
+    const matchFinished = Match.isMatchFinished(this.matchCopy, this.numberOfGames, this.pointsPerGame);
+    if (matchFinished) {
+      // console.log('matchFinished', matchFinished);
+      // don't allow to advance past the last entered match
+      // they need to change prior games to do that
+      const nextBlankGameIndex = Match.nextNotEnteredGameIndex(this.matchCopy, this.numberOfGames);
+      hasNextGame = this.gameToShowIndex < (nextBlankGameIndex - 1);
+    } else {
+      // let them enter games until match is fully entered
+      hasNextGame = this.gameToShowIndex < (this.numberOfGames - 1);
+    }
+    // console.log('in hasNextGame', hasNextGame);
+    return hasNextGame;
   }
 
   isAddDisabled(playerIndex: number) {
@@ -129,23 +146,17 @@ export class ScoreEntryPhoneComponent implements OnInit, OnChanges {
       this.gameScoreSideA = this.pointsPerGame - 5;
       this.gameScoreSideB = this.pointsPerGame;
     }
+    this.saveGameScore();
   }
 
   private getNextGameIndex(match: Match): number {
-    if (match.game1ScoreSideA === 0 && match.game1ScoreSideB === 0) {
+    const matchFinished = Match.isMatchFinished(match, this.numberOfGames, this.pointsPerGame);
+    // console.log('matchFinished', matchFinished);
+    if (matchFinished) {
+      // show first game - maybe they want to correct it
       return 0;
-    } else if (match.game2ScoreSideA === 0 && match.game2ScoreSideB === 0) {
-      return 1;
-    } else if (match.game3ScoreSideA === 0 && match.game3ScoreSideB === 0) {
-      return 2;
-    } else if (match.game4ScoreSideA === 0 && match.game4ScoreSideB === 0) {
-      return 3;
-    } else if (match.game5ScoreSideA === 0 && match.game5ScoreSideB === 0) {
-      return 4;
-    } else if (match.game6ScoreSideA === 0 && match.game6ScoreSideB === 0) {
-      return 5;
-    } else if (match.game7ScoreSideA === 0 && match.game7ScoreSideB === 0) {
-      return 6;
+    } else {
+      return Match.nextNotEnteredGameIndex(match, this.numberOfGames);
     }
   }
 
@@ -153,7 +164,7 @@ export class ScoreEntryPhoneComponent implements OnInit, OnChanges {
    * Sets current game score
    */
   getGameScore() {
-    switch (this.gameIndex) {
+    switch (this.gameToShowIndex) {
       case 0:
         this.gameScoreSideA = this.matchCopy.game1ScoreSideA;
         this.gameScoreSideB = this.matchCopy.game1ScoreSideB;
@@ -190,10 +201,10 @@ export class ScoreEntryPhoneComponent implements OnInit, OnChanges {
   }
 
   /**
-   * Saves currently displyed game score
+   * Saves currently displayed game score
    */
   saveGameScore() {
-    switch (this.gameIndex) {
+    switch (this.gameToShowIndex) {
       case 0:
         this.matchCopy.game1ScoreSideA = this.gameScoreSideA;
         this.matchCopy.game1ScoreSideB = this.gameScoreSideB;
@@ -232,6 +243,7 @@ export class ScoreEntryPhoneComponent implements OnInit, OnChanges {
   reset() {
     this.gameScoreSideA = 0;
     this.gameScoreSideB = 0;
+    this.saveGameScore();
   }
 
   save() {
@@ -264,5 +276,10 @@ export class ScoreEntryPhoneComponent implements OnInit, OnChanges {
       }
     }
     return false;
+  }
+
+  getDoublesPlayerName (playerNames: string, index: number): string {
+    const playerNamesArray = playerNames.split('/');
+    return playerNamesArray[index].trim();
   }
 }

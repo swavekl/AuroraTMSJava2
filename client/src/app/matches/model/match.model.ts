@@ -119,8 +119,33 @@ export class Match {
    * @param numberOfGames
    * @param pointsPerGame
    */
-  public static isMatchFinished (match: Match, numberOfGames, pointsPerGame): boolean {
+  public static isMatchFinished (match: Match, numberOfGames: number, pointsPerGame: number): boolean {
     return Match.isMatchWinner(match.playerAProfileId, match, numberOfGames, pointsPerGame) ||
            Match.isMatchWinner(match.playerBProfileId, match, numberOfGames, pointsPerGame);
+  }
+
+  /**
+   * Gets index of the first game whose score has not been entered
+   * @param match
+   * @param numberOfGames
+   */
+  public static nextNotEnteredGameIndex(match: Match, numberOfGames: number): number {
+    if (match.game1ScoreSideA === 0 && match.game1ScoreSideB === 0) {
+      return 0;
+    } else if (match.game2ScoreSideA === 0 && match.game2ScoreSideB === 0) {
+      return 1;
+    } else if (match.game3ScoreSideA === 0 && match.game3ScoreSideB === 0) {
+      return 2;
+    } else if (match.game4ScoreSideA === 0 && match.game4ScoreSideB === 0) {
+      return 3;
+    } else if (match.game5ScoreSideA === 0 && match.game5ScoreSideB === 0) {
+      return 4;
+    } else if (match.game6ScoreSideA === 0 && match.game6ScoreSideB === 0) {
+      return 5;
+    } else if (match.game7ScoreSideA === 0 && match.game7ScoreSideB === 0) {
+      return 6;
+    } else {
+      return 0;
+    }
   }
 }
