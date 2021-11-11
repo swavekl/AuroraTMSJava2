@@ -1,13 +1,14 @@
 <div fxLayout="row" fxFlexAlign="center center">
   <div fxHide.xs="true" fxFlex.gt-xs="50%">&nbsp;</div>
-  <div fxFlexFill fxFlex.gt-xs="350px">
+  <div fxFlexFill fxFlex.gt-xs="400px">
     <mat-toolbar>
       <button mat-raised-button (click)="onBack()">Back</button>
     </mat-toolbar>
     <mat-accordion *ngIf="matchCard">
       <mat-expansion-panel *ngFor="let match of matchCard.matches; index as matchIndex"
                            [expanded]="isMatchExpanded(matchIndex)" (opened)="expandMatch(matchIndex)">
-        <mat-expansion-panel-header [ngClass]="doubles ? 'doubles-expansion-header' : 'singles-expansion-header'">
+        <mat-expansion-panel-header [ngClass.lt-sm]="doubles ? 'doubles-expansion-header-lt-sm' : 'singles-expansion-header-lt-sm'"
+                                    [ngClass.gt-xs]="doubles ? 'doubles-expansion-header' : 'singles-expansion-header'">
           <mat-panel-title>
             <table class="expansion-header-players">
               <ng-container *ngIf="doubles; else singles">
@@ -21,7 +22,7 @@
                     {{getDoublesPlayerName(match.playerAProfileId, 0)}}
                   </td>
                 </tr>
-                <tr>
+                <tr style="border-bottom: 1px solid lightgray;">
                   <td [ngClass]="isDoublesPlayerNameBolded(match.playerAProfileId, 1) ? 'names-column-this-player' : 'names-column'">
                     {{getDoublesPlayerName(match.playerAProfileId, 1)}}
                   </td>
@@ -31,12 +32,14 @@
                       [ngClass]="isMatchWinner(match, match.playerBProfileId) ? 'match-winner' : 'not-match-winner'">
                     {{match.playerBLetter}}
                   </td>
-                  <td [ngClass]="isDoublesPlayerNameBolded(match.playerBProfileId, 0) ? 'names-column-this-player' : 'names-column'">
+                  <td
+                    [ngClass]="isDoublesPlayerNameBolded(match.playerBProfileId, 0) ? 'names-column-this-player' : 'names-column'">
                     {{getDoublesPlayerName(match.playerBProfileId, 0)}}
                   </td>
                 </tr>
                 <tr>
-                  <td [ngClass]="isDoublesPlayerNameBolded(match.playerBProfileId, 1) ? 'names-column-this-player' : 'names-column'">
+                  <td
+                    [ngClass]="isDoublesPlayerNameBolded(match.playerBProfileId, 1) ? 'names-column-this-player' : 'names-column'">
                     {{getDoublesPlayerName(match.playerBProfileId, 1)}}
                   </td>
                 </tr>
@@ -61,115 +64,77 @@
             </table>
           </mat-panel-title>
         </mat-expansion-panel-header>
-<!--        <div fxLayout="column" fxLayoutAlign="start start" fxLayoutGap="20px" style="border: 1px solid purple;">-->
-<!--          <div style="border: 1px solid lightsalmon;">-->
-<!--            <table class="scores-table">-->
-<!--              <thead>-->
-<!--              <tr>-->
-<!--                <th>&nbsp;</th>-->
-<!--                <th>Default</th>-->
-<!--                <th *ngFor="let game of games; let idx = index;">{{idx + 1}}</th>-->
-<!--              </tr>-->
-<!--              </thead>-->
-<!--              <tbody>-->
-<!--              <tr>-->
-<!--                <td class="player-code-column">-->
-<!--                  {{match.playerALetter}}-->
-<!--                </td>-->
-<!--                <td class="default-column">{{match.sideADefaulted ? 'Yes' : '&nbsp;'}}</td>-->
-<!--                <td class="game-score-column" *ngFor="let game of games; let idx = index;">-->
-<!--                  <ng-container [ngSwitch]="idx">-->
-<!--                    <ng-container *ngSwitchCase="0">{{match.game1ScoreSideA}}</ng-container>-->
-<!--                    <ng-container *ngSwitchCase="1">{{match.game2ScoreSideA}}</ng-container>-->
-<!--                    <ng-container *ngSwitchCase="2">{{match.game3ScoreSideA}}</ng-container>-->
-<!--                    <ng-container *ngSwitchCase="3">{{match.game4ScoreSideA}}</ng-container>-->
-<!--                    <ng-container *ngSwitchCase="4">{{match.game5ScoreSideA}}</ng-container>-->
-<!--                    <ng-container *ngSwitchCase="5">{{match.game6ScoreSideA}}</ng-container>-->
-<!--                    <ng-container *ngSwitchCase="6">{{match.game7ScoreSideA}}</ng-container>-->
-<!--                  </ng-container>-->
-<!--                </td>-->
-<!--              </tr>-->
-<!--              <tr>-->
-<!--                <td class="player-code-column">-->
-<!--                  {{match.playerBLetter}}-->
-<!--                </td>-->
-<!--                <td class="default-column">{{match.sideBDefaulted ? 'Yes' : '&nbsp;'}}</td>-->
-<!--                <td class="game-score-column" *ngFor="let game of games; let idx = index;">-->
-<!--                  <ng-container [ngSwitch]="idx">-->
-<!--                    <ng-container *ngSwitchCase="0">{{match.game1ScoreSideB}}</ng-container>-->
-<!--                    <ng-container *ngSwitchCase="1">{{match.game2ScoreSideB}}</ng-container>-->
-<!--                    <ng-container *ngSwitchCase="2">{{match.game3ScoreSideB}}</ng-container>-->
-<!--                    <ng-container *ngSwitchCase="3">{{match.game4ScoreSideB}}</ng-container>-->
-<!--                    <ng-container *ngSwitchCase="4">{{match.game5ScoreSideB}}</ng-container>-->
-<!--                    <ng-container *ngSwitchCase="5">{{match.game6ScoreSideB}}</ng-container>-->
-<!--                    <ng-container *ngSwitchCase="6">{{match.game7ScoreSideB}}</ng-container>-->
-<!--                  </ng-container>-->
-<!--                </td>-->
-<!--              </tr>-->
-<!--              </tbody>-->
-<!--            </table>-->
-<!--          </div>-->
-<!--          <div class="play-button-container" fxLayout="row" fxLayoutAlign="end stretch">-->
-<!--            <span fxFlex></span>-->
-<!--            <button mat-raised-button color="primary" *ngIf="isPlayerMatch(match)" [disabled]="!isPlayerMatch(match)" [routerLink]="['/matches/scoreentryphone', matchCard.id, matchIndex]">Play</button>-->
-<!--         </div>-->
-<!--        </div>-->
-        <mat-card>
-          <mat-card-content>
-            <table class="scores-table">
-              <thead>
-              <tr>
-                <th>&nbsp;</th>
-                <th>Default</th>
-                <th *ngFor="let game of games; let idx = index;">{{idx + 1}}</th>
-              </tr>
-              </thead>
-              <tbody>
-              <tr>
-                <td class="player-code-column">
-                  {{match.playerALetter}}
-                </td>
-                <td class="default-column">{{match.sideADefaulted ? 'Yes' : '&nbsp;'}}</td>
-                <td class="game-score-column" *ngFor="let game of games; let idx = index;">
-                  <ng-container [ngSwitch]="idx">
-                    <ng-container *ngSwitchCase="0">{{match.game1ScoreSideA}}</ng-container>
-                    <ng-container *ngSwitchCase="1">{{match.game2ScoreSideA}}</ng-container>
-                    <ng-container *ngSwitchCase="2">{{match.game3ScoreSideA}}</ng-container>
-                    <ng-container *ngSwitchCase="3">{{match.game4ScoreSideA}}</ng-container>
-                    <ng-container *ngSwitchCase="4">{{match.game5ScoreSideA}}</ng-container>
-                    <ng-container *ngSwitchCase="5">{{match.game6ScoreSideA}}</ng-container>
-                    <ng-container *ngSwitchCase="6">{{match.game7ScoreSideA}}</ng-container>
-                  </ng-container>
-                </td>
-              </tr>
-              <tr>
-                <td class="player-code-column">
-                  {{match.playerBLetter}}
-                </td>
-                <td class="default-column">{{match.sideBDefaulted ? 'Yes' : '&nbsp;'}}</td>
-                <td class="game-score-column" *ngFor="let game of games; let idx = index;">
-                  <ng-container [ngSwitch]="idx">
-                    <ng-container *ngSwitchCase="0">{{match.game1ScoreSideB}}</ng-container>
-                    <ng-container *ngSwitchCase="1">{{match.game2ScoreSideB}}</ng-container>
-                    <ng-container *ngSwitchCase="2">{{match.game3ScoreSideB}}</ng-container>
-                    <ng-container *ngSwitchCase="3">{{match.game4ScoreSideB}}</ng-container>
-                    <ng-container *ngSwitchCase="4">{{match.game5ScoreSideB}}</ng-container>
-                    <ng-container *ngSwitchCase="5">{{match.game6ScoreSideB}}</ng-container>
-                    <ng-container *ngSwitchCase="6">{{match.game7ScoreSideB}}</ng-container>
-                  </ng-container>
-                </td>
-              </tr>
-              </tbody>
-            </table>
-          </mat-card-content>
-          <mat-card-actions>
-            <span fxFlex></span>
-            <button mat-raised-button color="primary" *ngIf="isPlayerMatch(match)" [disabled]="!isPlayerMatch(match)"
-                    [routerLink]="['/matches/scoreentryphone', tournamentId, matchCard.id, matchIndex]"
-                    [state]="{doubles: doubles}">
-              Enter Score</button>
-          </mat-card-actions>
-        </mat-card>
+        <table class="scores-table">
+          <thead>
+          <tr>
+            <th>&nbsp;</th>
+            <th>Default</th>
+            <th *ngFor="let game of games; let idx = index;">{{idx + 1}}</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr style="border-bottom: 8px solid #F5F5F5">
+            <td class="player-code-column">
+              {{match.playerALetter}}
+            </td>
+            <td class="default-column">
+              <mat-checkbox *ngIf="isPlayerMatch(match)"
+                            [id]="getCheckboxId(matchIndex,0)"
+                            [checked]="match.sideADefaulted"
+                            (click)="defaultPlayer(match,matchIndex,0)">
+              </mat-checkbox>
+            </td>
+            <td class="game-score-column" *ngFor="let game of games; let idx = index;">
+              <ng-container [ngSwitch]="idx">
+                <ng-container *ngSwitchCase="0">{{match.game1ScoreSideA}}</ng-container>
+                <ng-container *ngSwitchCase="1">{{match.game2ScoreSideA}}</ng-container>
+                <ng-container *ngSwitchCase="2">{{match.game3ScoreSideA}}</ng-container>
+                <ng-container *ngSwitchCase="3">{{match.game4ScoreSideA}}</ng-container>
+                <ng-container *ngSwitchCase="4">{{match.game5ScoreSideA}}</ng-container>
+                <ng-container *ngSwitchCase="5">{{match.game6ScoreSideA}}</ng-container>
+                <ng-container *ngSwitchCase="6">{{match.game7ScoreSideA}}</ng-container>
+              </ng-container>
+            </td>
+          </tr>
+          <tr>
+            <td class="player-code-column">
+              {{match.playerBLetter}}
+            </td>
+            <td class="default-column">
+              <mat-checkbox *ngIf="isPlayerMatch(match)"
+                            [id]="getCheckboxId(matchIndex,1)"
+                            [checked]="match.sideBDefaulted"
+                            (click)="defaultPlayer(match,matchIndex,1)">
+              </mat-checkbox>
+            </td>
+            <td class="game-score-column" *ngFor="let game of games; let idx = index;">
+              <ng-container [ngSwitch]="idx">
+                <ng-container *ngSwitchCase="0">{{match.game1ScoreSideB}}</ng-container>
+                <ng-container *ngSwitchCase="1">{{match.game2ScoreSideB}}</ng-container>
+                <ng-container *ngSwitchCase="2">{{match.game3ScoreSideB}}</ng-container>
+                <ng-container *ngSwitchCase="3">{{match.game4ScoreSideB}}</ng-container>
+                <ng-container *ngSwitchCase="4">{{match.game5ScoreSideB}}</ng-container>
+                <ng-container *ngSwitchCase="5">{{match.game6ScoreSideB}}</ng-container>
+                <ng-container *ngSwitchCase="6">{{match.game7ScoreSideB}}</ng-container>
+              </ng-container>
+            </td>
+          </tr>
+          </tbody>
+          <tfoot>
+          <tr>
+            <td [colSpan]="games.length + 2">
+              <div fxLayout="row" fxLayoutAlign="end start" style="width: 100%; margin-top: 16px;">
+                <button mat-raised-button color="primary" *ngIf="isPlayerMatch(match)"
+                        [disabled]="!isPlayerMatch(match)"
+                        [routerLink]="['/matches/scoreentryphone', tournamentId, matchCard.id, matchIndex]"
+                        [state]="{doubles: doubles}">
+                  Enter Score
+                </button>
+              </div>
+            </td>
+          </tr>
+          </tfoot>
+        </table>
       </mat-expansion-panel>
     </mat-accordion>
   </div>

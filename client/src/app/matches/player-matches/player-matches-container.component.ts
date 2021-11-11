@@ -8,6 +8,8 @@ import {MatchCard} from '../model/match-card.model';
 import {TournamentEventConfigService} from '../../tournament/tournament-config/tournament-event-config.service';
 import {TournamentEvent} from '../../tournament/tournament-config/tournament-event.model';
 import {first} from 'rxjs/operators';
+import {MatchService} from '../service/match.service';
+import {Match} from '../model/match.model';
 
 /**
  * List of matches for a single match card for viewing by player
@@ -21,6 +23,7 @@ import {first} from 'rxjs/operators';
       [doubles]="doubles"
       [pointsPerGame]="pointsPerGame"
       [expandedMatchIndex]="expandedMatchIndex"
+      (updateMatch)="onUpdateMatch($event)"
       (back)="onGoBack()">
     </app-player-matches>
   `,
@@ -49,6 +52,7 @@ export class PlayerMatchesContainerComponent implements OnInit, OnDestroy {
   constructor(private activatedRoute: ActivatedRoute,
               private linearProgressBarService: LinearProgressBarService,
               private matchCardService: MatchCardService,
+              private matchService: MatchService,
               private tournamentEventConfigService: TournamentEventConfigService,
               private router: Router) {
     this.tournamentId = this.activatedRoute.snapshot.params['tournamentId'] || 0;
@@ -145,5 +149,15 @@ export class PlayerMatchesContainerComponent implements OnInit, OnDestroy {
       }
     };
     this.router.navigateByUrl(url, extras);
+  }
+
+  public onUpdateMatch(updatedMatch: Match) {
+    const subscription = this.matchService.update(updatedMatch)
+      .pipe(first())
+      .subscribe((match: Match) => {
+        console.log('Finished updating match', match);
+        this.matchCardService.getByKey(this.matchCardId);
+    });
+    this.subscriptions.add(subscription);
   }
 }

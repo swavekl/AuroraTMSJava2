@@ -1,7 +1,18 @@
-<div fxLayout="row" fxFlexAlign="center center">
+<div fxLayout="row" fxFlexAlign="center center" *ngIf="playerScheduleItem">
   <div fxHide.xs="true" fxFlex.gt-xs="50%">&nbsp;</div>
-  <div fxFlexFill fxFlex.gt-xs="550px">
-    <mat-card *ngIf="playerScheduleItem">
+  <div fxFlexFill fxFlex.gt-xs="550px" >
+    <mat-toolbar>
+      <div fxLayout="row" fxLayoutAlign="space-between start" style="width: 100%;">
+        <button mat-raised-button
+                (click)="goBack()">Back</button>
+        <span fxFlex></span>
+        <button mat-raised-button color="primary"
+                [routerLink]="['/matches/playermatches/', tournamentId, playerScheduleItem.matchCardId]"
+                [state]="{doubles: playerScheduleItem.doubles}">
+          Matches</button>
+      </div>
+    </mat-toolbar>
+    <mat-card>
       <mat-card-title>
         <div>{{playerScheduleItem.eventName}}</div>
       </mat-card-title>
@@ -37,15 +48,6 @@
           </tbody>
         </table>
       </mat-card-content>
-      <mat-card-actions>
-        <button mat-raised-button
-                (click)="goBack()">Back</button>
-        <span fxFlex></span>
-        <button mat-raised-button color="primary"
-                [routerLink]="['/matches/playermatches/', tournamentId, playerScheduleItem.matchCardId]"
-                [state]="{doubles: playerScheduleItem.doubles}">
-          Matches</button>
-      </mat-card-actions>
     </mat-card>
   </div>
   <div fxHide.xs="true" fxFlex.gt-xs="50%">&nbsp;</div>

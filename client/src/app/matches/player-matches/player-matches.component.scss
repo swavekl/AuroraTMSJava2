@@ -1,9 +1,15 @@
-//.mat-expansion-panel-header {
-//  margin: 24px 0;
-//  //border: 1px solid red;
-//}
+.doubles-expansion-header-lt-sm {
+  margin: 40px 0;
+  font-size: 20px;
+}
+
 .doubles-expansion-header {
-  margin: 24px 0;
+  margin: 28px 0;
+}
+
+.singles-expansion-header-lt-sm {
+  margin: 12px 0;
+  font-size: 20px;
 }
 
 .singles-expansion-header {
@@ -22,8 +28,10 @@ table.expansion-header-players {
       vertical-align: middle;
     }
     &.names-column {
+      padding: 4px 8px;
     }
     &.names-column-this-player {
+      padding: 4px 8px;
       font-weight: bold;
     }
     &.match-winner {
@@ -32,11 +40,6 @@ table.expansion-header-players {
     &.not-match-winner {
     }
   }
-}
-
-div.play-button-container {
-  margin-left: 18px;
-  border: 1px solid green;
 }
 
 table.scores-table {
@@ -62,7 +65,7 @@ table.scores-table {
       }
       &.default-column {
         text-align: center;
-        //width: 80px;
+        padding: 8px;
       }
     }
   }
