@@ -443,6 +443,10 @@ public class MatchCardService {
                 .orElseThrow(() -> new ResourceNotFoundException("Unable to find match card"));
     }
 
+    public boolean existsMatchCard(long eventId, int round, int groupNum) {
+        return this.matchCardRepository.findMatchCardByEventFkAndRoundAndGroupNum(eventId, round, groupNum).isPresent();
+    }
+
     public MatchCard getMatchCard(long id) {
         return this.matchCardRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Unable to find match card"));
@@ -603,4 +607,5 @@ public class MatchCardService {
         matchCard.setDrawType(drawType);
         this.matchCardRepository.delete(matchCard);
     }
+
 }

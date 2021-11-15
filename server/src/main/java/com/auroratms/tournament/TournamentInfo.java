@@ -43,4 +43,6 @@ public class TournamentInfo {
     // name of logo file
     private String logo;
 
+    // daily or for each event
+    private CheckInType checkInType;
 }

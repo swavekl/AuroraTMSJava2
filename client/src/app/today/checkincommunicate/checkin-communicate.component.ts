@@ -11,6 +11,12 @@ export class CheckinCommunicateComponent implements OnInit, OnChanges {
   @Input()
   playerStatus: PlayerStatus;
 
+  @Input()
+  eventName: string;
+
+  @Input()
+  tournamentDay: number;
+
   @Output()
   saved: EventEmitter<PlayerStatus> = new EventEmitter<PlayerStatus>();
 

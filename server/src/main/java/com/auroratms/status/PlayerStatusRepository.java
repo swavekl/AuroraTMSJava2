@@ -13,7 +13,9 @@ public interface PlayerStatusRepository extends JpaRepository<PlayerStatus, Long
     List<PlayerStatus> findAllByTournamentIdAndTournamentDay(long tournamentId, int tournamentDay);
 
     // one player for given tournament and day
-    List<PlayerStatus> findAllByPlayerProfileIdAndTournamentIdAndTournamentDay(String profileId, long tournamentId, int tournamentDay);
+    List<PlayerStatus> findAllByPlayerProfileIdAndTournamentIdAndTournamentDayAndEventId(
+            String profileId, long tournamentId, int tournamentDay, long eventId);
 
-    List<PlayerStatus> findAllByPlayerProfileIdIsInAndTournamentIdAndTournamentDay(List<String> playerProfileIds, long tournamentId, int tournamentDay);
+    List<PlayerStatus> findAllByPlayerProfileIdIsInAndTournamentIdAndTournamentDayAndEventId(
+            List<String> playerProfileIds, long tournamentId, int tournamentDay, long eventId);
 }

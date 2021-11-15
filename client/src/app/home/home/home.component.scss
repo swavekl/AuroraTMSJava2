@@ -1,0 +1,12 @@
+button.icon-button {
+  width: 80px;
+  height: 80px;
+  text-align: center;
+  vertical-align: middle;
+
+  mat-icon {
+    font-size: 34px;
+    //border: 1px solid red;
+    margin-bottom: 20px;
+  }
+}

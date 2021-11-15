@@ -18,24 +18,6 @@ public class PlayerStatusController {
     @Autowired
     private PlayerStatusService playerStatusService;
 
-//    /**
-//     * lists status of all players for this tournament and day
-//     *
-//     * @param tournamentId  id of the tournament
-//     * @param tournamentDay
-//     */
-//    @GetMapping("/playerstatus/{tournamentId}/{tournamentDay}")
-//    @ResponseBody
-//    public ResponseEntity<List<PlayerStatus>> list(@PathVariable Long tournamentId,
-//                                                   @PathVariable Integer tournamentDay) {
-//        try {
-//            List<PlayerStatus> playerStatuses = playerStatusService.listAllPlayers(tournamentId, tournamentDay);
-//            return new ResponseEntity<>(playerStatuses, HttpStatus.OK);
-//        } catch (Exception e) {
-//            return new ResponseEntity(e, HttpStatus.INTERNAL_SERVER_ERROR);
-//        }
-//    }
-
     /**
      * lists status of all or one player for this tournament and day
      *
@@ -46,11 +28,12 @@ public class PlayerStatusController {
     @ResponseBody
     public ResponseEntity<List<PlayerStatus>> list(@RequestParam Long tournamentId,
                                                    @RequestParam Integer tournamentDay,
-                                                   @RequestParam(required = false) String playerProfileId) {
+                                                   @RequestParam(required = false) String playerProfileId,
+                                                   @RequestParam(required = false) Long eventId) {
         try {
             List<PlayerStatus> playerStatuses = null;
             if (playerProfileId != null) {
-                playerStatuses = playerStatusService.listOnePlayer(playerProfileId, tournamentId, tournamentDay);
+                playerStatuses = playerStatusService.listOnePlayer(playerProfileId, tournamentId, tournamentDay, eventId);
             } else {
                 playerStatuses = playerStatusService.listAllPlayers(tournamentId, tournamentDay);
             }

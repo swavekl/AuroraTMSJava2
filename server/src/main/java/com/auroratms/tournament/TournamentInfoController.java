@@ -52,7 +52,9 @@ public class TournamentInfoController {
         tournamentInfo.setTournamentDirectorPhone(tournament.getPhone());
         if (tournament.getConfiguration() != null) {
             tournamentInfo.setTournamentType(tournament.getConfiguration().getTournamentType());
+            tournamentInfo.setCheckInType(tournament.getConfiguration().getCheckInType());
         } else {
+            tournamentInfo.setCheckInType(CheckInType.DAILY);
             tournamentInfo.setTournamentType(TournamentType.RatingsRestricted);
         }
         tournamentInfo.setNumEntries(tournament.getNumEntries());

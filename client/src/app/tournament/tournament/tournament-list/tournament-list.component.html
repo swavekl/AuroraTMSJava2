@@ -17,6 +17,7 @@
         </div>
       </mat-card-title-group>
       <mat-card-content>
+        <ng-container *ngIf="tournaments?.length > 0; else noTournaments">
         <div fxLayout.lt-md="row" fxLayout.gt-md="column">
 <!--          For small devices-->
           <div style="margin-left: -16px" fxShow.gt-md="false" fxShow.md="false" fxShow.lt-md="true">
@@ -41,7 +42,6 @@
           </div>
 <!--          for larger devices -->
           <div fxShow.gt-md="true" fxShow.md="true" fxHide.lt-md="true">
-            <mat-list>
               <div mat-line fxLayout="row" style="margin-left: 72px; margin-right: 16px; margin-bottom: 8px;">
                 <div fxFlex="30%">Tournament Name</div>
                 <div fxFlex="10%">Star Level</div>
@@ -67,9 +67,14 @@
                   <mat-divider></mat-divider>
                 </div>
               </mat-list-item>
-            </mat-list>
           </div>
         </div>
+      </ng-container>
+      <ng-template #noTournaments>
+        <div *ngIf="tournaments?.length === 0" style="width: 100%; text-align: center">
+          No tournaments found in {{selectedRegion}} region.  Please choose a different region.
+        </div>
+      </ng-template>
       </mat-card-content>
     </mat-card>
   </div>

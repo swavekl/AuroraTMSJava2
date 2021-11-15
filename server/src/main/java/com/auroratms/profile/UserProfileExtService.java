@@ -1,6 +1,7 @@
 package com.auroratms.profile;
 
 import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -46,6 +47,12 @@ public class UserProfileExtService {
     @CachePut(key = "#result.profileId")
     public UserProfileExt save(UserProfileExt userProfileExt) {
         return this.repository.save(userProfileExt);
+    }
+
+    @CacheEvict(key = "#profileId")
+    public void delete (String profileId) {
+        this.repository.deleteById(profileId);
+        this.repository.flush();
     }
 
     /**

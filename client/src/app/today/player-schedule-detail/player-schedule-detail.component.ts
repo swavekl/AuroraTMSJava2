@@ -2,6 +2,7 @@ import {Component, Input, OnChanges, OnInit, SimpleChanges} from '@angular/core'
 import {PlayerScheduleItem} from '../model/player-schedule-item.model';
 import {EventStatusCode} from '../model/event-status-code.enum';
 import {Router} from '@angular/router';
+import {CheckInType} from '../../tournament/model/check-in-type.enum';
 
 @Component({
   selector: 'app-player-schedule-detail',
@@ -18,6 +19,9 @@ export class PlayerScheduleDetailComponent implements OnInit, OnChanges {
 
   @Input()
   public tournamentId: number;
+
+  @Input()
+  public checkInType: CheckInType;
 
   constructor(private router: Router) { }
 
@@ -71,5 +75,20 @@ export class PlayerScheduleDetailComponent implements OnInit, OnChanges {
 
   goBack() {
     this.router.navigateByUrl(this.returnUrl);
+  }
+
+  isPerEventCheckIn() {
+    // return (this.playerScheduleItem.eventId !== 0);
+    return (this.checkInType === CheckInType.PEREVENT);
+  }
+
+  checkInForEvent() {
+    const url = `/today/checkincommunicate/${this.tournamentId}/${this.playerScheduleItem.day}/${this.playerScheduleItem.eventId}`;
+    const extras = {
+      state: {
+        eventName: this.playerScheduleItem.eventName
+      }
+    };
+    this.router.navigateByUrl(url, extras);
   }
 }

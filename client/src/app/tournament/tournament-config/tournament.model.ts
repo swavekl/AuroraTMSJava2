@@ -3,6 +3,7 @@ import {TournamentEvent} from './tournament-event.model';
 import * as moment from 'moment';
 import {PricingMethod} from '../model/pricing-method.enum';
 import {Personnel} from './model/personnel.model';
+import {CheckInType} from '../model/check-in-type.enum';
 
 export class Tournament {
   id: number;
@@ -91,6 +92,7 @@ export class Tournament {
     configuration.pricingMethod = formValues.pricingMethod;
     configuration.registrationFee = formValues.registrationFee;
     configuration.lateEntryFee = formValues.lateEntryFee;
+    configuration.checkInType = formValues.checkInType;
 // console.log ('toTournament', tournament);
     return tournament;
   }
@@ -131,6 +133,7 @@ export class Tournament {
     tournament.configuration.registrationFee = 0;
     tournament.configuration.lateEntryFee = 0;
     tournament.configuration.personnelList = [];
+    tournament.configuration.checkInType = CheckInType.DAILY;
     return tournament;
   }
 
@@ -211,4 +214,6 @@ class TournamentConfiguration {
   pricingMethod: PricingMethod;
   // list of personnel showing their role at the tournament
   personnelList: Personnel[];
+  // type of check in for the tournament
+  checkInType: CheckInType;
 }

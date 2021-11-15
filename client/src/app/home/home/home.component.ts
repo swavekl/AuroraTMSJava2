@@ -14,11 +14,12 @@ import {TodayService} from '../../shared/today.service';
 import {createSelector} from '@ngrx/store';
 import {TournamentInfo} from '../../tournament/model/tournament-info.model';
 import {TournamentInfoService} from '../../tournament/service/tournament-info.service';
+import {NavigateUtil} from '../../shared/navigate-util';
 
 @Component({
   selector: 'app-home',
   templateUrl: './home.component.html',
-  styleUrls: ['./home.component.css']
+  styleUrls: ['./home.component.scss']
 })
 export class HomeComponent implements OnInit, OnDestroy {
 
@@ -32,11 +33,15 @@ export class HomeComponent implements OnInit, OnDestroy {
   // true if player has a rating
   ratedPlayer: boolean;
   // if true player players in a tournament today
-  tournamentDay: boolean;
+  hasTournamentToday: boolean;
   // this players entry into today's tournament
   todaysTournamentEntryId: number;
   // today's tournament id in which player participates
   todaysTournamentId: number;
+  // tournament name if playing today
+  tournamentName: string;
+  // today's tournament full information
+  tournamentInfo: TournamentInfo;
 
   private loading$: Observable<boolean>;
 
@@ -46,6 +51,7 @@ export class HomeComponent implements OnInit, OnDestroy {
    * @param router
    * @param usattPlayerRecordService
    * @param tournamentEntryService
+   * @param tournamentInfoService
    * @param todayService
    * @param linearProgressBarService
    */
@@ -60,7 +66,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.membershipExpirationDate = new Date();
     this.membershipExpired = false;
     this.ratedPlayer = false;
-    this.tournamentDay = false;
+    this.hasTournamentToday = false;
     this.todaysTournamentId = 0;
     this.todaysTournamentEntryId = 0;
     this.setupProgressIndicator();
@@ -160,8 +166,8 @@ export class HomeComponent implements OnInit, OnDestroy {
         map(
           (tournamentEntries: TournamentEntry[]) => {
             // console.log('got today tournament entries', tournamentEntries);
-            this.tournamentDay = (tournamentEntries.length > 0);
-            if (this.tournamentDay) {
+            this.hasTournamentToday = (tournamentEntries.length > 0);
+            if (this.hasTournamentToday) {
               for (const tournamentEntry of tournamentEntries) {
                 if (tournamentEntry.tournamentFk === 153) {
                   this.todaysTournamentId = tournamentEntry.tournamentFk;
@@ -173,7 +179,7 @@ export class HomeComponent implements OnInit, OnDestroy {
                 }
               }
             }
-            this.todayService.hasTournamentToday = this.tournamentDay;
+            this.todayService.hasTournamentToday = this.hasTournamentToday;
           })
       ).subscribe();
     this.subscriptions.add(subscription);
@@ -192,11 +198,14 @@ export class HomeComponent implements OnInit, OnDestroy {
       .subscribe(
         (tournamentInfo: TournamentInfo) => {
           if (tournamentInfo) {
+            this.tournamentInfo = tournamentInfo;
             const difference = new DateUtils().daysBetweenDates(tournamentInfo.startDate, today);
             this.todayService.tournamentDay = difference + 1;
             // console.log('setting tournamentDay to ', this.todayService.tournamentDay);
             this.todayService.todayUrl = `/today/landing/${this.todaysTournamentId}/${this.todayService.tournamentDay}/${this.todaysTournamentEntryId}`;
             // console.log('setting today url', this.todayService.todayUrl);
+            this.tournamentName = tournamentInfo.name;
+            console.log('' +tournamentInfo.checkInType);
           } else {
             // console.log('tournamentInfo not in cache. getting from SERVER');
             // not in cache so get it. Since it is an entity collection it will be
@@ -206,4 +215,23 @@ export class HomeComponent implements OnInit, OnDestroy {
         });
     this.subscriptions.add(subscription);
   }
+
+  checkInCommunicate() {
+    const tournamentDay = this.todayService.tournamentDay;
+    this.router.navigateByUrl(`/today/checkincommunicate/${this.todaysTournamentId}/${tournamentDay}/0`);
+  }
+
+  directionsToVenue() {
+    if (this.tournamentInfo) {
+      const url = NavigateUtil.getNavigationURL(this.tournamentInfo.streetAddress, this.tournamentInfo.city,
+        this.tournamentInfo.state, this.tournamentInfo.venueName);
+      window.open(url);
+    }
+  }
+
+  todaysSchedule() {
+    const tournamentDay = this.todayService.tournamentDay;
+    this.router.navigateByUrl(`/today/playerschedule/${this.todaysTournamentId}/${tournamentDay}/${this.todaysTournamentEntryId}`);
+  }
+
 }

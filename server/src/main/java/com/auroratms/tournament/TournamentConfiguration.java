@@ -21,7 +21,7 @@ public class TournamentConfiguration {
     private String blankEntryUrl;
     // maximum events player can enter per day
     private int maxDailyEvents;
-    // maximum events player can enter in a tournament
+    // maximum number of events a player can enter in a tournament
     private int maxTournamentEvents;
     // number of tables available for play
     private int numberOfTables;
@@ -35,4 +35,6 @@ public class TournamentConfiguration {
     private PricingMethod pricingMethod;
     // list of personnel showing their role at the tournament
     private List<Personnel> personnelList;
+    // type of check in for the tournament
+    private CheckInType checkInType;
 }

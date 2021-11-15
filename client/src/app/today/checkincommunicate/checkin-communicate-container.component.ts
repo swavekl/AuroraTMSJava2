@@ -12,6 +12,8 @@ import {TodayService} from '../../shared/today.service';
   selector: 'app-checkin-communicate-container-component',
   template: `
     <app-checkincommunicate [playerStatus]="playerStatus$ | async"
+                            [eventName]="eventName"
+                            [tournamentDay]="tournamentDay"
                             (saved)="onPlayerStatusSaved($event)"
                             (canceled)="onPlayerStatusCanceled($event)"
     ></app-checkincommunicate>
@@ -22,9 +24,10 @@ export class CheckinCommunicateContainerComponent implements OnInit, OnDestroy {
 
   playerStatus$: Observable<PlayerStatus>;
   private subscriptions: Subscription = new Subscription();
-  private tournamentEntryId: number;
-  private tournamentDay: number;
+  private eventId: number;
+  public tournamentDay: number;
   private tournamentId: number;
+  public eventName: string;
 
   constructor(private router: Router,
               private activatedRoute: ActivatedRoute,
@@ -32,7 +35,8 @@ export class CheckinCommunicateContainerComponent implements OnInit, OnDestroy {
               private authenticationService: AuthenticationService,
               private todayService: TodayService,
               private linearProgressBarService: LinearProgressBarService) {
-    // this.tournamentEntryId = this.activatedRoute.snapshot.params['tournamentEntryId'] || 0;
+    this.eventId = this.activatedRoute.snapshot.params['eventId'] || 0;
+    this.eventName = history?.state?.eventName || '';
     this.tournamentId = this.activatedRoute.snapshot.params['tournamentId'] || 0;
     this.tournamentDay = this.activatedRoute.snapshot.params['tournamentDay'] || 1;
     this.setupProgressIndicator();
@@ -64,7 +68,10 @@ export class CheckinCommunicateContainerComponent implements OnInit, OnDestroy {
    */
   private loadPlayerStatus() {
     const profileId = this.authenticationService.getCurrentUserProfileId();
-    const params = `tournamentId=${this.tournamentId}&tournamentDay=${this.tournamentDay}&playerProfileId=${profileId}`;
+    let params = `tournamentId=${this.tournamentId}&tournamentDay=${this.tournamentDay}&playerProfileId=${profileId}`;
+    if (this.eventId !== 0) {
+      params += `&eventId=${this.eventId}`;
+    }
     const subscription: Subscription = this.playerStatusService.getWithQuery(params)
       .pipe(
         first(),
@@ -79,6 +86,7 @@ export class CheckinCommunicateContainerComponent implements OnInit, OnDestroy {
               playerStatus.playerProfileId = profileId;
               playerStatus.tournamentId = this.tournamentId;
               playerStatus.tournamentDay = this.tournamentDay;
+              playerStatus.eventId = this.eventId;
               // console.log('creating new player profile');
               this.playerStatus$ = of(playerStatus);
             }
@@ -108,8 +116,9 @@ export class CheckinCommunicateContainerComponent implements OnInit, OnDestroy {
   }
 
   navigateBack() {
-    console.log('navigating back to ', this.todayService.todayUrl);
-    this.router.navigateByUrl(this.todayService.todayUrl);
+    // console.log('navigating back to ', this.todayService.todayUrl);
+    // this.router.navigateByUrl(this.todayService.todayUrl);
+    this.router.navigateByUrl('/home');
   }
 
 }

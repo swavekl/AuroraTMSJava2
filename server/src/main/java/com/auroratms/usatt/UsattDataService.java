@@ -84,6 +84,13 @@ public class UsattDataService {
         UserProfileExt userProfileExt = new UserProfileExt();
         userProfileExt.setProfileId(profileId);
         userProfileExt.setMembershipId(membershipId);
+        if(userProfileExtService.existsByMembershipId(membershipId)) {
+            UserProfileExt oldUserProfileExt = userProfileExtService.getByMembershipId(membershipId);
+            System.out.println("oldUserProfileExt = " + oldUserProfileExt);
+            userProfileExt.setClubFk(oldUserProfileExt.getClubFk());
+            userProfileExtService.delete(oldUserProfileExt.getProfileId());
+        }
+        System.out.println("userProfileExt = " + userProfileExt);
         userProfileExtService.save(userProfileExt);
 
         return recordToReturn;

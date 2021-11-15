@@ -98,7 +98,7 @@ export class TodayComponent implements OnInit, OnDestroy {
   }
 
   checkInCommunicate() {
-    this.router.navigateByUrl(`/today/checkincommunicate/${this.tournamentId}/${this.tournamentDay}/${this.tournamentEntryId}`);
+    this.router.navigateByUrl(`/today/checkincommunicate/${this.tournamentId}/${this.tournamentDay}/0`);
   }
 
   directionsToVenue() {

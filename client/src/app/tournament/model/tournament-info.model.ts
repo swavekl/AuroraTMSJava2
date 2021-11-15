@@ -1,4 +1,5 @@
 import {DateUtils} from '../../shared/date-utils';
+import {CheckInType} from './check-in-type.enum';
 
 export class TournamentInfo {
   id: number;
@@ -22,6 +23,8 @@ export class TournamentInfo {
 
   // path to graphic file with tournament logo
   logo: string;
+  // daily or for each event
+  checkInType: CheckInType;
 
   // convert dates from string to date objects
   static convert(tournamentInfo: TournamentInfo): TournamentInfo {

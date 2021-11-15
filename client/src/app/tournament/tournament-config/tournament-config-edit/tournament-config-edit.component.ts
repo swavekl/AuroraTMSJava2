@@ -8,6 +8,7 @@ import {ProfileFindPopupComponent, ProfileSearchData} from '../../../profile/pro
 import {MatDialog} from '@angular/material/dialog';
 import {Subscription} from 'rxjs';
 import {Personnel} from '../model/personnel.model';
+import {CheckInType} from '../../model/check-in-type.enum';
 
 @Component({
   selector: 'app-tournament-config-edit',
@@ -30,6 +31,7 @@ export class TournamentConfigEditComponent implements OnChanges {
   statesList: any [];
   tournamentTypes: any [];
   pricingMethods: any[] = [];
+  checkInMethods: any[] = [];
 
   // list of personnel is given roles
   refereeList: Personnel[] = [];
@@ -46,6 +48,9 @@ export class TournamentConfigEditComponent implements OnChanges {
     this.tournamentTypes.push({name: 'Round Robin', value: 'RoundRobin'});
     this.tournamentTypes.push({name: 'Teams', value: 'Teams'});
     this.pricingMethods = this.getPricingMethods(this.tournament?.configuration?.tournamentType);
+    this.checkInMethods = [];
+    this.checkInMethods.push({name: 'Daily', value: 'DAILY'});
+    this.checkInMethods.push({name: 'Before Each Event', value: 'PEREVENT'});
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -100,6 +105,14 @@ export class TournamentConfigEditComponent implements OnChanges {
   public onChangeTournamentType(tournamentType: string) {
     this.pricingMethods = this.getPricingMethods(tournamentType);
     this.pricingMethod = this.getDefaultPricingMethod(tournamentType);
+  }
+
+  public get checkInType(): CheckInType {
+    return this.tournament?.configuration?.checkInType;
+  }
+
+  public set checkInType(checkInType: string) {
+    this.tournament.configuration.checkInType = <CheckInType>checkInType;
   }
 
   private getDefaultPricingMethod(tournamentType: string): PricingMethod {

@@ -13,7 +13,7 @@ const routes: Routes = [
     canActivate: [AuthGuard]
   },
   {
-    path: 'checkincommunicate/:tournamentId/:tournamentDay/:tournamentEntryId',
+    path: 'checkincommunicate/:tournamentId/:tournamentDay/:eventId',
     component: CheckinCommunicateContainerComponent,
     canActivate: [AuthGuard]
   },
