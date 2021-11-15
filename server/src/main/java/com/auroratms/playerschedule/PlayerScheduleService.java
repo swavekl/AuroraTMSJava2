@@ -73,8 +73,8 @@ public class PlayerScheduleService {
         List<DrawItem> drawItems = drawService.listByProfileIdAndEventFkIn(playerProfileId, enteredEventIds);
         List<PlayerScheduleItem> playerScheduleItems = new ArrayList<>(drawItems.size());
         for (DrawItem drawItem : drawItems) {
-            String message = String.format("Getting match card for (%d, %d, %d)", drawItem.getEventFk(), drawItem.getRound(), drawItem.getGroupNum());
-            System.out.println(message);
+//            String message = String.format("Getting match card for (%d, %d, %d)", drawItem.getEventFk(), drawItem.getRound(), drawItem.getGroupNum());
+//            System.out.println(message);
             if (drawItem.getDrawType() == DrawType.ROUND_ROBIN) {
                 // player who gets a bye in the single elimination round doesn't have a match card
                 if (this.matchCardService.existsMatchCard(drawItem.getEventFk(), drawItem.getRound(), drawItem.getGroupNum())) {
@@ -95,8 +95,8 @@ public class PlayerScheduleService {
                     if (matchCard.getRound() == drawItem.getRound()) {
                         List<Match> matches = matchCard.getMatches();
                         for (Match match : matches) {
-                            if (match.getPlayerAProfileId().equals(playerProfileId) ||
-                                match.getPlayerBProfileId().equals(playerProfileId)) {
+                            if (match.getPlayerAProfileId().contains(playerProfileId) ||
+                                match.getPlayerBProfileId().contains(playerProfileId)) {
                                 for (TournamentEventEntity eventEntity : enteredEventEntities) {
                                     if (eventEntity.getId().equals(matchCard.getEventFk())) {
                                         PlayerScheduleItem playerScheduleItem = toPlayerScheduleItem(matchCard, eventEntity,
