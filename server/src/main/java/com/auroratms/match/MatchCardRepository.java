@@ -20,6 +20,15 @@ public interface MatchCardRepository extends JpaRepository<MatchCard, Long> {
     Optional<MatchCard> findMatchCardByEventFkAndRoundAndGroupNum(long eventId, int round, int groupNum);
 
     /**
+     * Finds match card for given round of event and draw type (used for single elimination round)
+     * @param eventId
+     * @param drawType
+     * @param round
+     * @return
+     */
+    List<MatchCard> findMatchCardByEventFkAndDrawTypeAndRound(long eventId, DrawType drawType, int round);
+
+    /**
      * Find all match cards for this event
      * @param eventId
      * @return

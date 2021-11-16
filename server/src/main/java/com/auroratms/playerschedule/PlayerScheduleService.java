@@ -84,31 +84,31 @@ public class PlayerScheduleService {
                             PlayerScheduleItem playerScheduleItem = toPlayerScheduleItem(matchCard, eventEntity,
                                     false);
                             playerScheduleItems.add(playerScheduleItem);
+                            break;
                         }
                     }
                 }
             } else {
                 // single elimination - need to look at match details
-                List<MatchCard> singleEliminationMatchCards = matchCardService.findAllForEventAndDrawType(drawItem.getEventFk(), drawItem.getDrawType());
+                List<MatchCard> singleEliminationMatchCards = matchCardService.findAllForEventAndDrawTypeAndRound(drawItem.getEventFk(), drawItem.getDrawType(), drawItem.getRound());
                 boolean found = false;
                 for (MatchCard matchCard : singleEliminationMatchCards) {
-                    if (matchCard.getRound() == drawItem.getRound()) {
-                        List<Match> matches = matchCard.getMatches();
-                        for (Match match : matches) {
-                            if (match.getPlayerAProfileId().contains(playerProfileId) ||
+                    List<Match> matches = matchCard.getMatches();
+                    for (Match match : matches) {
+                        if (match.getPlayerAProfileId().contains(playerProfileId) ||
                                 match.getPlayerBProfileId().contains(playerProfileId)) {
-                                for (TournamentEventEntity eventEntity : enteredEventEntities) {
-                                    if (eventEntity.getId().equals(matchCard.getEventFk())) {
-                                        PlayerScheduleItem playerScheduleItem = toPlayerScheduleItem(matchCard, eventEntity,
-                                                false);
-                                        playerScheduleItems.add(playerScheduleItem);
-                                        found = true;
-                                    }
+                            for (TournamentEventEntity eventEntity : enteredEventEntities) {
+                                if (eventEntity.getId().equals(matchCard.getEventFk())) {
+                                    PlayerScheduleItem playerScheduleItem = toPlayerScheduleItem(matchCard, eventEntity,
+                                            false);
+                                    playerScheduleItems.add(playerScheduleItem);
+                                    found = true;
+                                    break;
                                 }
                             }
-                            if (found) {
-                                break;
-                            }
+                        }
+                        if (found) {
+                            break;
                         }
                     }
                     if (found) {

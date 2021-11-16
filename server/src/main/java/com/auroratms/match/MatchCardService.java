@@ -592,6 +592,10 @@ public class MatchCardService {
         return this.matchCardRepository.findMatchCardByEventFkAndDrawTypeOrderByRoundDescGroupNumAsc(eventId, drawType);
     }
 
+    public List<MatchCard> findAllForEventAndDrawTypeAndRound(long eventId, DrawType drawType, int round) {
+        return this.matchCardRepository.findMatchCardByEventFkAndDrawTypeAndRound(eventId, drawType, round);
+    }
+
     public void deleteAllForEventAndDrawType(long eventId, DrawType drawType) {
         // retrieve all and delete all so when this is part of same transaction they are deleted individually perhaps
         // by id and avoid deleting those which are created later (by eventId and drawType)

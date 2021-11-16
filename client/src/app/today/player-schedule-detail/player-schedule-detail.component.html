@@ -16,11 +16,14 @@
     </mat-toolbar>
     <mat-card>
       <mat-card-title>
-        <div>{{playerScheduleItem.eventName}}</div>
+        <div>{{ playerScheduleItem.startTime | startTime }}&nbsp;&nbsp;
+          <span *ngIf="playerScheduleItem.assignedTables">{{ (playerScheduleItem.assignedTables.indexOf(',') !== -1) ? 'Tables:' : 'Table:'}} {{ playerScheduleItem.assignedTables}}</span>
+        </div>
       </mat-card-title>
       <mat-card-subtitle>
-        <div>{{ playerScheduleItem.startTime | startTime }} / Tables: {{playerScheduleItem.assignedTables}}</div>
-        <div>{{ playerScheduleItem.round | roundName }}, Group: {{playerScheduleItem.group}}</div>
+        <div>{{playerScheduleItem.eventName}}</div>
+        <span>{{ playerScheduleItem.round | roundName: playerScheduleItem.group }}</span>
+        <span *ngIf="playerScheduleItem.round === 0">, Group: {{playerScheduleItem.group}}</span>
       </mat-card-subtitle>
       <mat-card-content>
         <table style="width: 100%">

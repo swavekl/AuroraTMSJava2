@@ -1,6 +1,6 @@
 <div fxLayout="row" fxFlexAlign="center center" class="my-schedule-container">
   <div fxHide.xs="true" fxFlex.gt-xs="50%">&nbsp;</div>
-  <div fxFlexFill fxFlex.gt-xs="350px">
+  <div fxFlexFill fxFlex.gt-xs="400px">
   <div *ngIf="playerDaySchedules != null && tournamentInfo != null">
     <div class="mat-title" style="text-align: center">{{tournamentInfo.name}}</div>
     <ng-container *ngFor="let daySchedule of playerDaySchedules">
@@ -12,13 +12,14 @@
           <mat-divider></mat-divider>
           <mat-list-item *ngFor="let playerScheduleItem of daySchedule.playerScheduleItems; last as last; first as first"
                           (click)="showScheduleDetail(playerScheduleItem.matchCardId)">
-            <div matLine><span style="font-weight: bold">{{ playerScheduleItem.startTime | startTime }}</span></div>
+            <div matLine>
+              <span style="font-weight: bold">{{ playerScheduleItem.startTime | startTime }}</span>&nbsp;&nbsp;
+              <span *ngIf="playerScheduleItem.assignedTables">{{ (playerScheduleItem.assignedTables.indexOf(',') !== -1) ? 'Tables:' : 'Table:'}} {{ playerScheduleItem.assignedTables}}</span>
+            </div>
             <div matLine>{{playerScheduleItem.eventName}}</div>
               <div matLine>
-                {{ playerScheduleItem.round | roundName }},
-                <span *ngIf="playerScheduleItem.round === 0">Group: {{playerScheduleItem.group}},</span>
-                <span *ngIf="playerScheduleItem.assignedTables.indexOf(',') !== -1">Tables: {{ playerScheduleItem.assignedTables}}</span>
-                <span *ngIf="playerScheduleItem.assignedTables.indexOf(',') === -1">Table: {{ playerScheduleItem.assignedTables}}</span>
+                <span>{{ playerScheduleItem.round | roundName: playerScheduleItem.group }}</span>
+                <span *ngIf="playerScheduleItem.round === 0">, Group: {{playerScheduleItem.group}}</span>
               </div>
             <mat-divider></mat-divider>
           </mat-list-item>
