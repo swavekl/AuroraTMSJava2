@@ -13,10 +13,10 @@
     </mat-card-actions>
     <mat-card-content>
       <div *ngIf="eventName !== ''">Event: {{eventName}}</div>
-      <div *ngIf="eventName === ''">Day: {{tournamentDay}}</div>
+      <div *ngIf="eventName === ''">Tournament Day: {{tournamentDay}}</div>
       <mat-radio-group fxLayout="column" fxLayoutGap="40" [ngModel]="playerStatus?.eventStatusCode"
                        name="eventStatusCode" (change)="onStatusChange($event)" required="true">
-        <mat-radio-button value="WILL_PLAY">I will play today</mat-radio-button>
+        <mat-radio-button value="WILL_PLAY">I will play</mat-radio-button>
         <mat-radio-button value="WILL_PLAY_BUT_IS_LATE">I will play but I will be late</mat-radio-button>
         <mat-form-field>
             <mat-label>Estimated Time of Arrival</mat-label>
@@ -25,10 +25,14 @@
                    [disabled]="etaControlDisabled">
         </mat-form-field>
         <mat-radio-button value="WILL_NOT_PLAY">I will not play</mat-radio-button>
-        <!--        <mat-radio-group>-->
-        <!--          <mat-radio-button value="travelproblems">I can't get to venue</mat-radio-button>-->
-        <!--          <mat-radio-button value="changedplans">My plans changed</mat-radio-button>-->
-        <!--        </mat-radio-group>-->
+        <mat-form-field>
+          <mat-label>Reason</mat-label>
+          <mat-select name="reason" [ngModel]="playerStatus?.reason" [disabled]="reasonControlDisabled">
+            <mat-option *ngFor="let reasonOption of reasonOptions" [value]="reasonOption.value">
+              {{ reasonOption.value }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
       </mat-radio-group>
     </mat-card-content>
   </mat-card>

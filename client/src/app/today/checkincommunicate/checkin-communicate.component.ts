@@ -23,9 +23,18 @@ export class CheckinCommunicateComponent implements OnInit, OnChanges {
   @Output()
   canceled: EventEmitter<any> = new EventEmitter<any>();
 
+  public reasonOptions: any [] = [];
+
   public etaControlDisabled = true;
+  public reasonControlDisabled = true;
 
   constructor() {
+    this.reasonOptions = [];
+    this.reasonOptions.push({value: 'I can\'t get to the venue'});
+    this.reasonOptions.push({value: 'My flight was canceled'});
+    this.reasonOptions.push({value: 'I got injured'});
+    this.reasonOptions.push({value: 'I am sick'});
+    this.reasonOptions.push({value: 'My plans changed'});
   }
 
   ngOnInit(): void {
@@ -41,27 +50,32 @@ export class CheckinCommunicateComponent implements OnInit, OnChanges {
       const playerStatus: PlayerStatus = playerStatusChange.currentValue;
       if (playerStatus != null) {
         this.etaControlDisabled = playerStatus.eventStatusCode !== 'WILL_PLAY_BUT_IS_LATE';
+        this.reasonControlDisabled = playerStatus.eventStatusCode !== 'WILL_NOT_PLAY';
       }
     }
   }
 
   onSave(formValues: any) {
-    console.log('on Save formValues', formValues);
     const updatedPlayerStatus = {
       ...this.playerStatus,
       eventStatusCode: formValues.eventStatusCode,
-      estimatedArrivalTime: formValues.estimatedArrivalTime
+      estimatedArrivalTime: formValues.estimatedArrivalTime,
+      reason: formValues.reason
     };
     this.saved.emit(updatedPlayerStatus);
   }
 
   onStatusChange($event: any) {
     if ($event.value) {
-      const disabled = ($event.value !== 'WILL_PLAY_BUT_IS_LATE');
-      if (disabled) {
-        this.playerStatus = {...this.playerStatus, estimatedArrivalTime: ''};
-      }
-      this.etaControlDisabled = disabled;
+      this.etaControlDisabled = ($event.value !== 'WILL_PLAY_BUT_IS_LATE');
+      this.reasonControlDisabled = ($event.value !== 'WILL_NOT_PLAY');
+      const estimatedArrivalTime = this.etaControlDisabled ? '' : this.playerStatus.estimatedArrivalTime;
+      const reason = this.reasonControlDisabled ? '' : this.playerStatus.reason;
+      this.playerStatus = {
+        ...this.playerStatus,
+        estimatedArrivalTime: estimatedArrivalTime,
+        reason: reason
+      };
     }
   }
 }

@@ -27,6 +27,7 @@ import {PlayerMatchesContainerComponent} from '../matches/player-matches/player-
 import {MatExpansionModule} from '@angular/material/expansion';
 import {MatToolbarModule} from '@angular/material/toolbar';
 import {MatCheckboxModule} from '@angular/material/checkbox';
+import {MatSelectModule} from '@angular/material/select';
 
 
 @NgModule({
@@ -57,7 +58,8 @@ import {MatCheckboxModule} from '@angular/material/checkbox';
         MatCardModule,
         MatExpansionModule,
         MatToolbarModule,
-        MatCheckboxModule
+        MatCheckboxModule,
+        MatSelectModule
     ]
 })
 export class TodayModule {  // Inject the service to ensure it registers with EntityServices
