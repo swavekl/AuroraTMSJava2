@@ -78,7 +78,6 @@ export class PlayerScheduleDetailComponent implements OnInit, OnChanges {
   }
 
   isPerEventCheckIn() {
-    // return (this.playerScheduleItem.eventId !== 0);
     return (this.checkInType === CheckInType.PEREVENT);
   }
 
