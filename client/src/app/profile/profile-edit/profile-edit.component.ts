@@ -1,4 +1,16 @@
-import {ChangeDetectorRef, Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChange, SimpleChanges} from '@angular/core';
+import {
+  AfterViewInit,
+  ChangeDetectorRef,
+  Component,
+  EventEmitter,
+  Input,
+  OnChanges, OnDestroy,
+  OnInit,
+  Output,
+  SimpleChange,
+  SimpleChanges,
+  ViewChild
+} from '@angular/core';
 import {Profile} from '../profile';
 import {StatesList} from '../../shared/states/states-list';
 import {CountriesList} from '../../shared/countries-list';
@@ -6,13 +18,20 @@ import {DateUtils} from '../../shared/date-utils';
 import {UsattRecordSearchCallbackData, UsattRecordSearchPopupService} from '../service/usatt-record-search-popup.service';
 import {RecordSearchData} from '../usatt-record-search-popup/usatt-record-search-popup.component';
 import {UsattPlayerRecord} from '../model/usatt-player-record.model';
+import {Observable, of, Subscription} from 'rxjs';
+import {Club} from '../../club/model/club.model';
+import {ClubService} from '../../club/service/club.service';
+import {AbstractControl, FormControl, NgForm} from '@angular/forms';
+import {debounceTime, distinctUntilChanged, filter, finalize, first, map, skip, switchMap, tap} from 'rxjs/operators';
+import {MatAutocompleteSelectedEvent} from '@angular/material/autocomplete';
+import {ClubEditCallbackData, ClubEditPopupService} from '../../club/service/club-edit-popup.service';
 
 @Component({
   selector: 'app-profile-edit',
   templateUrl: './profile-edit.component.html',
   styleUrls: ['./profile-edit.component.css']
 })
-export class ProfileEditComponent implements OnInit, OnChanges {
+export class ProfileEditComponent implements OnInit, OnChanges, AfterViewInit, OnDestroy {
 
   // this is what we edit
   @Input() profile: Profile;
@@ -37,15 +56,33 @@ export class ProfileEditComponent implements OnInit, OnChanges {
   public zipCodePattern;
   public zipCodeLength: number;
 
+  private subscriptions: Subscription = new Subscription();
+  public filteredClubs: Club [] = [];
+
+  // control showing home club name for autocompletion loading of clubs
+  @ViewChild('homeClubName')
+  private homeClubNameControl: FormControl;
+
   constructor(private usattRecordSearchPopupService: UsattRecordSearchPopupService,
+              private clubService: ClubService,
+              private clubEditPopupService: ClubEditPopupService,
               private cdr: ChangeDetectorRef) {
     this.profile = new Profile();
     this.maxDateOfBirth = new Date();
     this.countries = CountriesList.getList();
+    this.filteredClubs = [];
     this.setZipCodeOptions ('US');
   }
 
   ngOnInit() {
+  }
+
+  ngOnDestroy(): void {
+    this.subscriptions.unsubscribe();
+  }
+
+  ngAfterViewInit(): void {
+    this.initClubFilter();
   }
 
   onSave(formValues: any) {
@@ -72,6 +109,21 @@ export class ProfileEditComponent implements OnInit, OnChanges {
         }
       }
       this.setZipCodeOptions(this.profile?.countryCode);
+      if (this.profile?.homeClubId !== null && this.profile?.homeClubName != null) {
+        // make a fake result of query to be able to validate without
+        // going to the server for just one club name
+        const currentClub: Club = {
+          id: this.profile.homeClubId,
+          clubName: this.profile.homeClubName,
+          alternateClubNames: null,
+          streetAddress: null,
+          city: null,
+          state: null,
+          zipCode: null,
+          countryCode: null
+        };
+        this.filteredClubs = [currentClub];
+      }
     }
   }
 
@@ -128,8 +180,83 @@ export class ProfileEditComponent implements OnInit, OnChanges {
     updatedProfile.membershipId = selectedPlayerData.membershipId;
     updatedProfile.membershipExpirationDate = selectedPlayerData.membershipExpirationDate;
     updatedProfile.tournamentRating = selectedPlayerData.tournamentRating;
-//    console.log('updatedProfile' + JSON.stringify(updatedProfile));
     this.profile = updatedProfile;
     this.cdr.markForCheck();
+  }
+
+  initClubFilter() {
+    if (this.homeClubNameControl) {
+      // whenever the home club name changes reload the list of clubs matching this string
+      // for auto completion
+      const subscription = this.homeClubNameControl.valueChanges
+        .pipe(
+          distinctUntilChanged(),
+          debounceTime(250),
+          skip(1), // skip form initialization phase - to save one trip to the server
+          filter(homeClubName => {
+            // don't query until you have a few characters
+            return homeClubName && homeClubName.length >= 3;
+          }),
+          switchMap((homeClubName): Observable<Club []> => {
+            const params = `?nameContains=${homeClubName}&sort=clubName,ASC`;
+            return this.clubService.getWithQuery(params);
+          })
+        ).subscribe((clubs: Club []) => {
+          this.filteredClubs = clubs;
+          // refresh the drop down contents and show it
+          this.cdr.markForCheck();
+        });
+      this.subscriptions.add(subscription);
+    }
+  }
+
+  /**
+   * Called when user choses from auto completion options
+   * @param $event
+   */
+  onClubSuggestionSelected($event: MatAutocompleteSelectedEvent) {
+    const clubName: string = $event.option.value;
+    let homeClubId = null;
+    for (const club of this.filteredClubs) {
+      if (club.clubName === clubName) {
+        homeClubId = club.id;
+        break;
+      }
+    }
+    this.updateClubInfoAndRefresh(clubName, homeClubId);
+  }
+
+  clearClubName() {
+    this.filteredClubs = [];
+    this.updateClubInfoAndRefresh(null, null);
+  }
+
+  private updateClubInfoAndRefresh(clubName: string, clubId: number) {
+    const updatedProfile: Profile = new Profile();
+    updatedProfile.clone(this.profile);
+    updatedProfile.homeClubId = clubId;
+    updatedProfile.homeClubName = clubName;
+    this.profile = updatedProfile;
+    this.filteredClubs = [];
+    this.cdr.markForCheck();
+  }
+
+  onAddClub() {
+    const callbackParams: ClubEditCallbackData = {
+      successCallbackFn: this.onAddClubOKCallback,
+      cancelCallbackFn: null,
+      callbackScope: this
+    };
+    const newClub: Club = new Club();
+    this.clubEditPopupService.showPopup(newClub, callbackParams);
+  }
+
+  onAddClubOKCallback(scope: any, club: Club) {
+    const me = scope;
+    me.clubService.upsert(club)
+      .pipe(first())
+      .subscribe((savedClub: Club) => {
+        me.updateClubInfoAndRefresh(savedClub.clubName, savedClub.id);
+      });
   }
 }

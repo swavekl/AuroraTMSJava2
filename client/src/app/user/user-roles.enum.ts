@@ -1,5 +1,5 @@
 /**
- * User roles in application
+ * User roles in application - these are Okta Groups
  */
 export enum UserRoles {
   ROLE_EVERYONE = 'Everyone',
@@ -7,5 +7,6 @@ export enum UserRoles {
   ROLE_TOURNAMENT_DIRECTORS = 'TournamentDirectors',
   ROLE_REFEREES = 'Referees',
   ROLE_UMPIRES = 'Umpires',
-  ROLE_DATA_ENTRY_CLERKS = 'DataEntryClerks'
+  ROLE_DATA_ENTRY_CLERKS = 'DataEntryClerks',
+  ROLE_USATT_OFFICIALS = 'USATTOfficials'
 }

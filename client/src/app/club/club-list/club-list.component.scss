@@ -1,0 +1,28 @@
+div.clubs-table-container {
+  overflow: auto;
+  height: calc(100vh - 220px);
+  //border: 1px solid greenyellow;
+}
+
+.toolbar-spacer-2 {
+  margin-right: 16px;
+}
+
+.clubs-table {
+  width: 100%;
+}
+
+// naming states like so
+.mat-column-clubName {
+  flex: 3;
+}
+
+.mat-column-city {
+  flex: 2;
+}
+
+.mat-column-state {
+  flex: 1;
+}
+
+

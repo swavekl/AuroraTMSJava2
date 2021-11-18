@@ -1,0 +1,50 @@
+<form #f="ngForm" name="form" *ngIf="club" fxFlexFill>
+  <h2 mat-dialog-title>Club Information</h2>
+  <mat-dialog-content>
+    <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="10px">
+      <mat-form-field fxFlex="100%">
+        <mat-label>Club Name</mat-label>
+        <input matInput type="text" name="city" [(ngModel)]="club.clubName" required>
+        <mat-error>This field is required</mat-error>
+      </mat-form-field>
+    </div>
+    <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="10px">
+      <mat-form-field fxFlex="100%">
+        <mat-label>Acronym and/or Alternate Club Names</mat-label>
+        <input matInput type="text" name="city" [(ngModel)]="club.alternateClubNames" required>
+      </mat-form-field>
+    </div>
+    <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="10px">
+      <mat-form-field fxFlex="45%">
+        <mat-label>City</mat-label>
+        <input matInput type="text" name="city" [(ngModel)]="club.city" required>
+        <mat-error>This field is required</mat-error>
+      </mat-form-field>
+      <mat-form-field fxFlex="20%">
+        <mat-label>State</mat-label>
+        <mat-select type="text" name="state" [(ngModel)]="club.state" required>
+          <mat-option *ngFor="let state of statesList" value="{{state.abbreviation}}">{{state.abbreviation}}
+          </mat-option>
+        </mat-select>
+        <mat-error>This field is required</mat-error>
+      </mat-form-field>
+      <mat-form-field fxFlex="25%">
+        <mat-label>Zip Code</mat-label>
+        <input matInput type="text" name="zipCode" [(ngModel)]="club.zipCode"
+               [pattern]="zipCodePattern" [maxlength]="zipCodeLength" #zipCode="ngModel"
+               required>
+        <mat-error *ngIf="zipCode.control?.hasError('pattern')">Invalid zip code</mat-error>
+        <mat-error *ngIf="zipCode.control?.hasError('required')">This field is required</mat-error>
+      </mat-form-field>
+    </div>
+  </mat-dialog-content>
+  <mat-dialog-actions>
+    <div fxLayout="row" fxLayoutAlign="space-between start" fxLayoutGap="10" style="width: 100%;">
+      <button mat-raised-button type="button" (click)="onCancel()">Cancel</button>
+      <span fxFlex></span>
+      <button mat-raised-button type="button" color="primary" [disabled]="!f.form.valid" (click)="onSave()">
+        Save
+      </button>
+    </div>
+  </mat-dialog-actions>
+</form>

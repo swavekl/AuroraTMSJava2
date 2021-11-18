@@ -26,6 +26,8 @@ import { UsattRecordSearchComponent } from './usatt-record-search/usatt-record-s
 import { OnBoardCompleteComponent } from './on-board-complete/on-board-complete.component';
 import {MatProgressBarModule} from '@angular/material/progress-bar';
 import { UsattRecordSearchPopupComponent } from './usatt-record-search-popup/usatt-record-search-popup.component';
+import {MatAutocompleteModule} from '@angular/material/autocomplete';
+import {ClubModule} from '../club/club.module';
 
 const profileRoutes: Routes = [
   {
@@ -77,7 +79,9 @@ const profileRoutes: Routes = [
     MatDialogModule,
     SharedModule,
     MatRadioModule,
-    MatProgressBarModule
+    MatProgressBarModule,
+    MatAutocompleteModule,
+    ClubModule
   ]
 })
 export class ProfileModule {

@@ -30,4 +30,6 @@ public class UserProfile {
     private Date dateOfBirth;
     private Date membershipExpirationDate;
     private Integer tournamentRating;
+    private Long homeClubId;
+    private String homeClubName;
 }

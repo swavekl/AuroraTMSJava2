@@ -205,7 +205,6 @@ export class HomeComponent implements OnInit, OnDestroy {
             this.todayService.todayUrl = `/today/landing/${this.todaysTournamentId}/${this.todayService.tournamentDay}/${this.todaysTournamentEntryId}`;
             // console.log('setting today url', this.todayService.todayUrl);
             this.tournamentName = tournamentInfo.name;
-            console.log('' +tournamentInfo.checkInType);
           } else {
             // console.log('tournamentInfo not in cache. getting from SERVER');
             // not in cache so get it. Since it is an entity collection it will be

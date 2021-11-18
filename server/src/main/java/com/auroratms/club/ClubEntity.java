@@ -19,7 +19,11 @@ public class ClubEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
+    // full name of the club
     private String clubName;
+
+    // alternative names and acronym, comma separated
+    private String alternateClubNames;
 
     // address
     private String streetAddress;

@@ -17,6 +17,8 @@ export class Profile {
   dateOfBirth: Date;
   membershipExpirationDate: Date;
   tournamentRating: number;
+  homeClubId: number;
+  homeClubName: string;
 
   constructor() {
 
@@ -39,6 +41,8 @@ export class Profile {
     this.membershipId = formValues.membershipId;
     this.membershipExpirationDate = new DateUtils().convertFromString(formValues.membershipExpirationDate);
     this.tournamentRating = formValues.tournamentRating;
+    this.homeClubId = formValues.homeClubId;
+    this.homeClubName = formValues.homeClubName;
   }
 
   clone(otherProfile: Profile) {
@@ -58,5 +62,7 @@ export class Profile {
     this.membershipId = otherProfile.membershipId;
     this.membershipExpirationDate = otherProfile.membershipExpirationDate;
     this.tournamentRating = otherProfile.tournamentRating;
+    this.homeClubId = otherProfile.homeClubId;
+    this.homeClubName = otherProfile.homeClubName;
   }
 }

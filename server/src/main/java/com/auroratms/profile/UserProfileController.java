@@ -1,6 +1,8 @@
 package com.auroratms.profile;
 
 import com.auroratms.AbstractOktaController;
+import com.auroratms.club.ClubEntity;
+import com.auroratms.club.ClubService;
 import com.auroratms.usatt.UsattPlayerRecord;
 import com.auroratms.usatt.UsattPlayerRecordRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +33,9 @@ public class UserProfileController extends AbstractOktaController {
     @Autowired
     private UsattPlayerRecordRepository playerRecordRepository;
 
+    @Autowired
+    private ClubService clubService;
+
     /**
      * Gets user profile
      *
@@ -52,6 +57,11 @@ public class UserProfileController extends AbstractOktaController {
                     if (userPlayerRecord != null) {
                         userProfile.setMembershipExpirationDate(userPlayerRecord.getMembershipExpirationDate());
                         userProfile.setTournamentRating(userPlayerRecord.getTournamentRating());
+                    }
+
+                    if (userProfile.getHomeClubId() != null && userProfile.getHomeClubId() != 0) {
+                        ClubEntity club = this.clubService.findById(userProfile.getHomeClubId());
+                        userProfile.setHomeClubName(club.getClubName());
                     }
                 }
             }
@@ -158,6 +168,7 @@ public class UserProfileController extends AbstractOktaController {
         UserProfileExt userProfileExt = new UserProfileExt();
         userProfileExt.setProfileId(userProfile.getUserId());
         userProfileExt.setMembershipId(userProfile.getMembershipId());
+        userProfileExt.setClubFk(userProfile.getHomeClubId());
         return  userProfileExt;
     }
 
@@ -169,7 +180,7 @@ public class UserProfileController extends AbstractOktaController {
      */
     private UserProfile fromUserProfileExt(UserProfile userProfile, UserProfileExt userProfileExt) {
         userProfile.setMembershipId(userProfileExt.getMembershipId());
-//        userProfile.setHomeClub(userProfileExt.getProfileId());
+        userProfile.setHomeClubId(userProfileExt.getClubFk());
         return userProfile;
     }
 }

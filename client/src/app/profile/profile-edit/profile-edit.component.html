@@ -10,7 +10,7 @@
             <span fxFlex></span>
             <button mat-raised-button color="primary" type="submit" [disabled]="!f.form.valid">Save</button>
           </div>
-          <!--<p>Form values: {{ f.value | json }} </p>-->
+<!--          <p>Form values: {{ f.value | json }} </p>-->
           <!--<p>Form status: {{ f.status | json }} </p>-->
           <!--<p>Zip code ALL errors: {{ zipCode.control?.errors | json }} </p>-->
           <!--<p>Zip code required is: {{ zipCode.control?.errors?.required | json }} </p>-->
@@ -118,6 +118,26 @@
           <div>
             <button [fxShow]="canChangeMembershipId" mat-raised-button type="button" (click)="onChangeMembershipId()">Change Membership Id</button>
             <span fxFlex></span>
+          </div>
+          <div fxLayout="row" fxLayoutGap="10px">
+            <mat-form-field fxFlex="100%">
+              <mat-label>Your Club</mat-label>
+              <input matInput name="homeClubName" #homeClubName="ngModel" [ngModel]="profile?.homeClubName" [matAutocomplete]="auto" required [appClubName]="filteredClubs">
+              <button *ngIf="profile?.homeClubName" matSuffix mat-icon-button aria-label="Clear" (click)="clearClubName()">
+                <mat-icon>close</mat-icon>
+              </button>
+              <mat-error>Choose one of the existing clubs or add new club</mat-error>
+              <mat-autocomplete #auto="matAutocomplete" (optionSelected)="onClubSuggestionSelected($event)">
+                <mat-option *ngFor="let club of filteredClubs" [value]="club.clubName">
+                  {{club.clubName}}
+                </mat-option>
+              </mat-autocomplete>
+              <input type="hidden" name="homeClubId" [ngModel]="profile?.homeClubId">
+            </mat-form-field>
+          </div>
+          <div fxLayout="row">
+            <span fxFlex></span>
+            <button mat-raised-button color="" type="button" (click)="onAddClub()">Add Club</button>
           </div>
         </mat-card-content>
       </mat-card>
