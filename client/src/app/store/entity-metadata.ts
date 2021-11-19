@@ -50,7 +50,11 @@ const entityMetadata: EntityMetadataMap = {
   MatchCard: {},
   Match: {},
   PlayerStatus: {},
-  Club: {}
+  Club: {
+    additionalCollectionState: {
+      total: 0
+    }
+  }
 };
 
 // because the plural of "hero" is not "heros"

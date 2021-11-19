@@ -1,5 +1,5 @@
 import {Injectable} from '@angular/core';
-import {EntityCollectionServiceBase, EntityCollectionServiceElementsFactory} from '@ngrx/data';
+import {EntityCache, EntityCollectionServiceBase, EntityCollectionServiceElementsFactory} from '@ngrx/data';
 import {Club} from '../model/club.model';
 
 @Injectable({
@@ -10,3 +10,9 @@ export class ClubService extends EntityCollectionServiceBase<Club> {
     super('Club', serviceElementsFactory);
   }
 }
+
+// crude selector for extracting the total entities satisfying query
+export const selectClubsTotal = (entityCache: EntityCache) => {
+  const clubsEntityCollection = entityCache?.entityCache['Club'];
+  return (clubsEntityCollection) ? clubsEntityCollection['total'] as number : 0;
+};

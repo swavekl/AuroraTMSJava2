@@ -4,7 +4,7 @@ import {MatSort} from '@angular/material/sort';
 import {map, tap} from 'rxjs/operators';
 import {BehaviorSubject, merge, Observable, of} from 'rxjs';
 import {Club} from '../model/club.model';
-import {ClubService} from '../service/club.service';
+import {ClubService, selectClubsTotal} from '../service/club.service';
 
 /**
  * Data source for the ClubList view. This class should
@@ -13,6 +13,7 @@ import {ClubService} from '../service/club.service';
  */
 export class ClubListDataSource extends DataSource<Club> {
   clubs$: Observable<Club[]>;
+  totalClubs$: Observable<number>;
   clubs: Club [];
   paginator: MatPaginator | undefined;
   sort: MatSort | undefined;
@@ -21,6 +22,9 @@ export class ClubListDataSource extends DataSource<Club> {
   constructor(private clubService: ClubService) {
     super();
     this.clubs = [];
+    // select club entities from cache
+    this.clubs$ = this.clubService.store.select(this.clubService.selectors.selectEntities);
+    this.totalClubs$ = this.clubService.store.select(selectClubsTotal);
   }
 
   /**
@@ -30,8 +34,6 @@ export class ClubListDataSource extends DataSource<Club> {
    */
   connect(): Observable<Club[]> {
     if (this.paginator && this.sort) {
-      // select club entities from cache
-      this.clubs$ = this.clubService.store.select(this.clubService.selectors.selectEntities);
       // load first page
       this.loadPage();
       // when results arrive or next page or sort order changes
@@ -65,7 +67,7 @@ export class ClubListDataSource extends DataSource<Club> {
    * Paginate the data (client-side). If you're using server-side pagination,
    * this would be replaced by requesting the appropriate data from the server.
    */
-  private loadPage() {
+  public loadPage() {
       let query = `page=${this.paginator.pageIndex}&size=${this.paginator.pageSize}`;
       if (this.sort && this.sort?.active && this.sort.direction !== '') {
         query += `&sort=${this.sort?.active},${this.sort?.direction}`;
@@ -79,9 +81,5 @@ export class ClubListDataSource extends DataSource<Club> {
         .pipe(tap((clubs: Club[]) => {
           this.clubs = clubs;
         }));
-  }
-
-  getCount() {
-    return 70;
   }
 }

@@ -48,12 +48,7 @@ public class ClubService {
         this.clubRepository.deleteById(id);
     }
 
-    public List<ClubEntity> findByNameLike(String nameContains, Pageable pageable) {
+    public Page<ClubEntity> findByNameLike(String nameContains, Pageable pageable) {
         return this.clubRepository.findAllByClubNameContainsOrAlternateClubNamesContains(nameContains, nameContains, pageable);
-    }
-
-    public List<ClubEntity> findOnePage(Pageable pageable) {
-        Page<ClubEntity> result = this.clubRepository.findAll(pageable);
-        return result.get().collect(Collectors.toList());
     }
 }

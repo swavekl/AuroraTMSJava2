@@ -17,13 +17,15 @@ import {FlexModule} from '@angular/flex-layout';
 import {FormsModule} from '@angular/forms';
 import {MatDialogModule} from '@angular/material/dialog';
 import {MatSelectModule} from '@angular/material/select';
+import { ClubAffiliationListComponent } from './club-affiliation-list/club-affiliation-list.component';
 
 
 @NgModule({
     declarations: [
         ClubEditComponent,
         ClubNameValidatorDirective,
-        ClubListComponent
+        ClubListComponent,
+        ClubAffiliationListComponent
     ],
     exports: [
         ClubNameValidatorDirective

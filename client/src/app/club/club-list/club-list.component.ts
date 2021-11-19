@@ -8,7 +8,7 @@ import {Club} from '../model/club.model';
 import {AuthenticationService} from '../../user/authentication.service';
 import {UserRoles} from '../../user/user-roles.enum';
 import {FormControl} from '@angular/forms';
-import {debounceTime, distinctUntilChanged, skip} from 'rxjs/operators';
+import {debounceTime, distinctUntilChanged, first, skip} from 'rxjs/operators';
 import {ClubEditCallbackData, ClubEditPopupService} from '../service/club-edit-popup.service';
 
 @Component({
@@ -69,6 +69,11 @@ export class ClubListComponent implements AfterViewInit {
 
   onAddClubOKCallback(scope: any, club: Club) {
     const me: ClubListComponent = scope;
-    me.clubService.upsert(club);
+    me.clubService.upsert(club)
+      .pipe(first())
+      .subscribe(() => {
+        // refresh the page
+      me.dataSource.loadPage();
+    });
   }
 }

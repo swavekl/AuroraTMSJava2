@@ -2,6 +2,7 @@ package com.auroratms.club;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,11 +23,11 @@ public class ClubController {
     private ClubService clubService;
 
     @GetMapping("/clubs")
-    public ResponseEntity<List<ClubEntity>> listClubs(@RequestParam Map<String, String> params, Pageable pageable) {
+    public ResponseEntity<Page<ClubEntity>> listClubs(@RequestParam Map<String, String> params, Pageable pageable) {
         String nameContains = params.get("nameContains");
         nameContains = (!StringUtils.isEmpty(nameContains)) ? nameContains : "";
-        List<ClubEntity> clubs = clubService.findByNameLike(nameContains, pageable);
-        return new ResponseEntity<List<ClubEntity>>(clubs, HttpStatus.OK);
+        Page<ClubEntity> page = clubService.findByNameLike(nameContains, pageable);
+        return new ResponseEntity<Page<ClubEntity>>(page, HttpStatus.OK);
     }
 
     @PostMapping("/club")
