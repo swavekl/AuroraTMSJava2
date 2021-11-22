@@ -4,6 +4,7 @@ import com.auroratms.error.ResourceNotFoundException;
 import com.auroratms.profile.UserProfile;
 import com.auroratms.profile.UserProfileService;
 import com.auroratms.users.UserRoles;
+import com.auroratms.users.UserRolesHelper;
 import com.auroratms.utils.SecurityService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheConfig;
@@ -17,9 +18,9 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.acls.domain.BasePermission;
 import org.springframework.security.acls.domain.GrantedAuthoritySid;
 import org.springframework.security.acls.domain.PrincipalSid;
-import org.springframework.security.acls.model.*;
+import org.springframework.security.acls.model.Acl;
+import org.springframework.security.acls.model.Sid;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -86,7 +87,7 @@ public class TournamentService {
      */
     public Collection<Tournament> listOwned(int page, int size) {
         String currentUser = getCurrentUsername();
-        String authority = isAdmin() ? UserRoles.Admins : UserRoles.Everyone;
+        String authority = UserRolesHelper.isAdmin() ? UserRoles.Admins : UserRoles.Everyone;
         PageRequest pageRequest = PageRequest.of(page, size, Sort.Direction.ASC, "name");
         Page<TournamentEntity> ownedTournaments = repository.findWriteable(currentUser, authority, BasePermission.WRITE.getMask(), pageRequest);
         List<TournamentEntity> tournamentEntities = ownedTournaments.get().collect(Collectors.toList());
@@ -245,7 +246,7 @@ public class TournamentService {
      * @param objectId
      */
     private void provideAccessToUSATTOfficials(long objectId) {
-        GrantedAuthoritySid grantedAuthoritySid = new GrantedAuthoritySid(UserRoles.USATTOfficial);
+        GrantedAuthoritySid grantedAuthoritySid = new GrantedAuthoritySid(UserRoles.USATTOfficials);
         this.securityService.addPermission(objectId, ACL_MANAGED_OBJECT_CLASS, grantedAuthoritySid, BasePermission.READ);
         this.securityService.addPermission(objectId, ACL_MANAGED_OBJECT_CLASS, grantedAuthoritySid, BasePermission.WRITE);
     }
@@ -293,49 +294,5 @@ public class TournamentService {
         return (owner instanceof PrincipalSid)
                 ? ((PrincipalSid)owner).getPrincipal()
                 : ((GrantedAuthoritySid)owner).getGrantedAuthority();
-    }
-
-    /**
-     * Tests if current user is an Admin authority
-     *
-     * @return
-     */
-    public boolean isAdmin() {
-        return this.hasRole(UserRoles.Admins);
-    }
-
-    public boolean isDataEntryClerk() {
-        return this.hasRole(UserRoles.DataEntryClerks);
-    }
-
-    public boolean isTournamentDirector() {
-        return this.hasRole(UserRoles.TournamentDirectors);
-    }
-
-    public boolean isTournamentReferee() {
-        return this.hasRole(UserRoles.Umpires);
-    }
-
-    public boolean isTournamentUmpire() {
-        return this.hasRole(UserRoles.Umpires);
-    }
-
-    /**
-     * Tests if current user is an specified authority (role)
-     *
-     * @return
-     */
-    public boolean hasRole(String role) {
-        boolean isAdmin = false;
-        SecurityContext context = SecurityContextHolder.getContext();
-        Authentication authentication = context.getAuthentication();
-        Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
-        for (GrantedAuthority authority : authorities) {
-            if (authority.getAuthority().equals(role)) {
-                isAdmin = true;
-            }
-        }
-        return isAdmin;
-
     }
 }

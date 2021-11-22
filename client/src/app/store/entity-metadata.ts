@@ -54,6 +54,11 @@ const entityMetadata: EntityMetadataMap = {
     additionalCollectionState: {
       total: 0
     }
+  },
+  ClubAffiliationApplication: {
+    additionalCollectionState: {
+      total: 0
+    }
   }
 };
 

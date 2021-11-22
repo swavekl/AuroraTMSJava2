@@ -24,7 +24,7 @@ import com.itextpdf.layout.property.TextAlignment;
 import com.itextpdf.layout.property.UnitValue;
 import com.itextpdf.layout.property.VerticalAlignment;
 import org.apache.commons.lang3.StringUtils;
-import org.dom4j.DocumentException;
+//import org.dom4j.DocumentException;
 import org.hibernate.engine.spi.ExceptionConverter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -85,8 +85,8 @@ public class MatchCardPrinterService {
             generateContent(document, matchCard, tournament, event);
 
             document.close();
-        } catch (DocumentException e) {
-            e.printStackTrace();
+//        } catch (DocumentException e) {
+//            e.printStackTrace();
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -105,7 +105,8 @@ public class MatchCardPrinterService {
      * @throws DocumentException
      * @throws IOException
      */
-    private void generateContent(Document document, MatchCard matchCard, Tournament tournament, TournamentEventEntity event) throws DocumentException, IOException {
+    private void generateContent(Document document, MatchCard matchCard, Tournament tournament, TournamentEventEntity event) throws IOException {
+//    private void generateContent(Document document, MatchCard matchCard, Tournament tournament, TournamentEventEntity event) throws DocumentException, IOException {
         String tournamentName = tournament.getName();
         tournamentName = "2021 US National Table Tennis Championships";
         String eventName = event.getName();

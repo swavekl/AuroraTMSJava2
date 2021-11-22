@@ -1,0 +1,357 @@
+<div fxLayout="row">
+  <div fxFlex></div>
+  <div fxFlex="50%" fxFlex.lt-sm="100%" *ngIf="clubAffiliationApplication">
+    <form name="form" (ngSubmit)="onSave(f.value)" #f="ngForm" novalidate>
+      <mat-card>
+        <mat-card-title>Club Affiliation Application Form</mat-card-title>
+        <mat-card-actions>
+          <button mat-raised-button type="button" (click)="onCancel()">Cancel</button>
+          <span fxFlex></span>
+          <button mat-raised-button type="submit">Save</button>
+          <!--<p>Form values: {{ f.value | json }} </p>-->
+          <!--<p>Form status: {{ f.status | json }} </p>-->
+          <!--<p>Zip code ALL errors: {{ zipCode.control?.errors | json }} </p>-->
+          <!--<p>Zip code required is: {{ zipCode.control?.errors?.required | json }} </p>-->
+          <!--<p>Zip code pattern is: {{ zipCode.control?.errors?.pattern | json }} </p>-->
+        </mat-card-actions>
+        <mat-card-content>
+          <mat-horizontal-stepper linear>
+            <mat-step label="General Information">
+              <div fxLayout="column">
+                <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="10px">
+                  <mat-form-field fxFlex="75%">
+                    <input matInput type="text" placeholder="Club Name" name="name" [(ngModel)]="clubAffiliationApplication.name" required>
+                    <mat-error>This field is required</mat-error>
+                  </mat-form-field>
+                  <div fxFlex="40%"><span>Affiliation Expiration Date: {{ clubAffiliationApplication.affiliationExpirationDate | date:'MM-dd-yyyy'}} </span></div>
+                  <!--<mat-form-field fxFlex="25%" disabled>-->
+                  <!--<input matInput type="text" placeholder="USATT Affiliation Expires on"-->
+                  <!--name="affiliationExpirationDate"-->
+                  <!--[(ngModel)]="clubAffiliationApplication.affiliationExpirationDate | date:'MM-dd-yyyy'">-->
+                  <!--</mat-form-field>-->
+                </div>
+                <mat-card-subtitle class="mat-title">Playing Site Address</mat-card-subtitle>
+                <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="10px">
+                  <mat-form-field fxFlex="50%">
+                    <input matInput type="text" placeholder="Building Name" name="buildingName"
+                           [(ngModel)]="clubAffiliationApplication.buildingName">
+                  </mat-form-field>
+
+                  <mat-form-field fxFlex="50%">
+                    <input matInput type="text" placeholder="Street Address" name="streetAddress"
+                           [(ngModel)]="clubAffiliationApplication.streetAddress"
+                           required>
+                  </mat-form-field>
+                </div>
+
+                <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="10px">
+                  <mat-form-field fxFlex="55%">
+                    <input matInput type="text" placeholder="City" name="city" [(ngModel)]="clubAffiliationApplication.city" required>
+                    <mat-error>This field is required</mat-error>
+                  </mat-form-field>
+                  <mat-form-field fxFlex="20%">
+                    <mat-select matInput type="text" placeholder="State" name="state" [(ngModel)]="clubAffiliationApplication.state">
+                      <mat-option *ngFor="let state of statesList" value="{{state.abbreviation}}">{{state.abbreviation}}
+                      </mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                  <mat-form-field fxFlex="25%">
+                    <input matInput type="text" placeholder="Zip Code" name="zipCode" [(ngModel)]="clubAffiliationApplication.zipCode"
+                           pattern="[0-9]{5}" maxlength="5" #zipCode="ngModel">
+                    <!--<mat-error *ngIf="zipCode.control?.hasError('required')">This field is required</mat-error>-->
+                    <mat-error *ngIf="zipCode.control?.hasError('pattern')">Zip code must be 5 digit number</mat-error>
+                  </mat-form-field>
+                </div>
+
+                <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="10px">
+                  <mat-form-field fxFlex="100%">
+                  <textarea rows="4" matInput type="hoursAndDates" placeholder="Hours and Days or Operation"
+                            name="hoursAndDates" [(ngModel)]="clubAffiliationApplication.hoursAndDates"></textarea>
+                  </mat-form-field>
+                </div>
+
+                <mat-card-subtitle class="mat-title">Club's Mailing Address (if different from playing site)
+                </mat-card-subtitle>
+                <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="10px">
+                  <mat-form-field fxFlex="50%">
+                    <input matInput type="text" placeholder="Correspondent's Name" name="mailingCorrespondentsName"
+                           [(ngModel)]="clubAffiliationApplication.mailingCorrespondentsName">
+                  </mat-form-field>
+                  <mat-form-field fxFlex="50%">
+                    <input matInput type="text" placeholder="Street Address" name="mailingStreetAddress"
+                           [(ngModel)]="clubAffiliationApplication.mailingStreetAddress">
+                  </mat-form-field>
+                </div>
+
+                <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="10px">
+                  <mat-form-field fxFlex="55%">
+                    <input matInput type="text" placeholder="City" name="mailingCity" [(ngModel)]="clubAffiliationApplication.mailingCity" >
+                  </mat-form-field>
+                  <mat-form-field fxFlex="20%">
+                    <mat-select matInput type="text" placeholder="State" name="mailingState"
+                                [(ngModel)]="clubAffiliationApplication.mailingState">
+                      <mat-option *ngFor="let state of statesList" value="{{state.abbreviation}}">{{state.abbreviation}}
+                      </mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                  <mat-form-field fxFlex="25%">
+                    <input matInput type="text" placeholder="Zip Code" name="mailingZipCode"
+                           [(ngModel)]="clubAffiliationApplication.mailingZipCode"
+                           pattern="[0-9]{5}" maxlength="5" #mailingZipCode="ngModel">
+                    <mat-error *ngIf="mailingZipCode.control?.hasError('pattern')">Zip code must be 5 digit number</mat-error>
+                  </mat-form-field>
+                </div>
+
+                <mat-card-subtitle class="mat-title">Club Contact Person</mat-card-subtitle>
+                <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="10px">
+                  <mat-form-field fxFlex="50%">
+                    <input matInput type="text" placeholder="First and Last Name" name="clubAdminName"
+                           [(ngModel)]="clubAffiliationApplication.clubAdminName">
+                  </mat-form-field>
+
+                  <mat-form-field fxFlex="25%">
+                    <input matInput type="tel" placeholder="Home Phone" name="clubPhoneNumber"
+                           [(ngModel)]="clubAffiliationApplication.clubPhoneNumber" required>
+                  </mat-form-field>
+
+                  <mat-form-field fxFlex="25%">
+                    <input matInput type="tel" placeholder="Work Phone" name="clubPhoneNumber2"
+                           [(ngModel)]="clubAffiliationApplication.clubPhoneNumber2">
+                  </mat-form-field>
+                </div>
+
+                <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="10px">
+                  <mat-form-field fxFlex="50%">
+                    <input matInput type="email" placeholder="Email" name="clubAdminEmail"
+                           [(ngModel)]="clubAffiliationApplication.clubAdminEmail" email>
+                    <mat-error>Invalid email address</mat-error>
+                  </mat-form-field>
+
+                  <mat-form-field fxFlex="50%">
+                    <input matInput type="url" placeholder="Club Website URL" name="clubWebsite"
+                           [(ngModel)]="clubAffiliationApplication.clubWebsite">
+                  </mat-form-field>
+                </div>
+
+              </div>
+              <div fxLayout="row" fxLayoutAlign="end">
+                <button mat-raised-button color="primary" matStepperNext type="button" >Next</button>
+              </div>
+            </mat-step>
+            <mat-step label="Officers & Programs">
+              <div fxLayout="column">
+                <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="10px">
+                  <mat-form-field fxFlex="40%">
+                    <input matInput type="text" placeholder="President Name" name="presidentName"
+                           [(ngModel)]="clubAffiliationApplication.presidentName" required>
+                    <mat-error>This field is required</mat-error>
+                  </mat-form-field>
+
+                  <mat-form-field fxFlex="35%">
+                    <input matInput type="email" placeholder="Email" name="presidentEmail" [(ngModel)]="clubAffiliationApplication.presidentEmail"
+                           email>
+                    <mat-error>Invalid email address</mat-error>
+                  </mat-form-field>
+
+                  <mat-form-field fxFlex="25%">
+                    <input matInput type="tel" placeholder="Phone" name="presidentPhoneNumber" [(ngModel)]="clubAffiliationApplication.presidentPhoneNumber"
+                           required>
+                    <mat-error>Invalid phone</mat-error>
+                  </mat-form-field>
+                </div>
+
+                <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="10px">
+                  <mat-form-field fxFlex="40%">
+                    <input matInput type="text" placeholder="Vice President Name" name="vicePresidentName"
+                           [(ngModel)]="clubAffiliationApplication.vicePresidentName">
+                  </mat-form-field>
+
+                  <mat-form-field fxFlex="35%">
+                    <input matInput type="email" placeholder="Email" name="vicePresidentEmail" [(ngModel)]="clubAffiliationApplication.vicePresidentEmail">
+                  </mat-form-field>
+
+                  <mat-form-field fxFlex="25%">
+                    <input matInput type="tel" placeholder="Phone" name="vicePresidentPhoneNumber" [(ngModel)]="clubAffiliationApplication.vicePresidentPhoneNumber">
+                  </mat-form-field>
+                </div>
+
+                <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="10px">
+                  <mat-form-field fxFlex="40%">
+                    <input matInput type="text" placeholder="Secretary Name" name="secretaryName"
+                           [(ngModel)]="clubAffiliationApplication.secretaryName">
+                  </mat-form-field>
+
+                  <mat-form-field fxFlex="35%">
+                    <input matInput type="email" placeholder="Email" name="secretaryEmail" [(ngModel)]="clubAffiliationApplication.secretaryEmail">
+                  </mat-form-field>
+
+                  <mat-form-field fxFlex="25%">
+                    <input matInput type="tel" placeholder="Phone" name="secretaryPhoneNumber" [(ngModel)]="clubAffiliationApplication.secretaryPhoneNumber">
+                  </mat-form-field>
+                </div>
+
+                <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="10px">
+                  <mat-form-field fxFlex="40%">
+                    <input matInput type="text" placeholder="Treasurer Name" name="treasurerName"
+                           [(ngModel)]="clubAffiliationApplication.treasurerName">
+                  </mat-form-field>
+
+                  <mat-form-field fxFlex="35%">
+                    <input matInput type="email" placeholder="Email" name="treasurerEmail" [(ngModel)]="clubAffiliationApplication.treasurerEmail">
+                  </mat-form-field>
+
+                  <mat-form-field fxFlex="25%">
+                    <input matInput type="tel" placeholder="Phone" name="treasurerPhoneNumber" [(ngModel)]="clubAffiliationApplication.treasurerPhoneNumber">
+                  </mat-form-field>
+                </div>
+
+                <div fxLayout="row" fxLayoutGap="10px">
+                  <div><span class=mat-caption>Does the club have a membership structure?</span></div>
+                  <div>
+                    <mat-radio-group [(ngModel)]="clubAffiliationApplication.hasMembershipStructure" name="hasMembershipStructure">
+                      <mat-radio-button [value]="true">Yes</mat-radio-button>&nbsp;&nbsp;
+                      <mat-radio-button [value]="false">No</mat-radio-button>
+                    </mat-radio-group>
+                  </div>
+                </div>
+
+                <div fxLayout="column">
+                  <div><span class="mat-caption">If yes, please describe (For example, does the club maintain a membership list? Are membership fees monthly, annual? What are the membership fees?)</span>
+                  </div>
+                  <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="10px">
+                    <mat-form-field fxFlex="100%">
+                    <textarea rows="3" matInput type="text" name="membershipStructure"
+                              [(ngModel)]="clubAffiliationApplication.membershipStructure"></textarea>
+                    </mat-form-field>
+                  </div>
+                </div>
+
+                <div fxLayout="row" fxLayoutGap="10px">
+                  <div><span>If yes, how many members does the club currently have?</span></div>
+                  <div>
+                    <mat-form-field>
+                      <input matInput type="text" name="membersCount" [(ngModel)]="clubAffiliationApplication.membersCount">
+                    </mat-form-field>
+                  </div>
+                </div>
+
+                <div fxLayout="row" fxLayoutGap="10px">
+                  <div><span>How many tables does your club use when open for play?</span></div>
+                  <div>
+                    <mat-form-field>
+                      <input matInput type="text" name="tablesCount" [(ngModel)]="clubAffiliationApplication.tablesCount">
+                    </mat-form-field>
+                  </div>
+                </div>
+
+                <div fxLayout="column">
+                  <div><span class=mat-caption>What programs does your club offer/provide? (For example: Leagues, Coaching, Tournaments, Open Play, Junior Program)</span>
+                  </div>
+                  <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="10px">
+                    <mat-form-field fxFlex="100%">
+                      <textarea rows="3" matInput type="text" name="programs" [(ngModel)]="clubAffiliationApplication.programs"></textarea>
+                    </mat-form-field>
+                  </div>
+                </div>
+
+                <div fxLayout="row" fxLayoutGap="10px">
+                  <div><span class=mat-caption>Does the club have a bank account?</span></div>
+                  <div>
+                    <mat-radio-group [(ngModel)]="clubAffiliationApplication.hasBankAccount" name="hasBankAccount">
+                      <mat-radio-button [value]="true">Yes</mat-radio-button>&nbsp;&nbsp;
+                      <mat-radio-button [value]="false">No</mat-radio-button>
+                    </mat-radio-group>
+                  </div>
+                </div>
+
+              </div>
+              <div fxLayout="row" fxLayoutAlign="space-between">
+                <button mat-button matStepperPrevious type="button">Back</button>
+                <button mat-raised-button color="primary" matStepperNext type="button" >Next</button>
+              </div>
+            </mat-step>
+            <!--            Additional playing sites - optional-->
+            <mat-step label="Playing Sites">
+              <div>
+                <ng-container *ngFor="let playingSite of clubAffiliationApplication.alternatePlayingSites; index as rowNum">
+                  <mat-card-subtitle class="mat-title">Additional Playing Site ({{rowNum + 1}})</mat-card-subtitle>
+                  <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="10px">
+                    <mat-form-field fxFlex="50%">
+                      <input matInput type="text" placeholder="Building Name" name="buildingName"
+                             [(ngModel)]="playingSite.buildingName">
+                    </mat-form-field>
+
+                    <mat-form-field fxFlex="50%">
+                      <input matInput type="text" placeholder="Street Address" name="streetAddress"
+                             [(ngModel)]="playingSite.streetAddress"
+                             required>
+                    </mat-form-field>
+                  </div>
+
+                  <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="10px">
+                    <mat-form-field fxFlex="55%">
+                      <input matInput type="text" placeholder="City" name="city" [(ngModel)]="playingSite.city" required>
+                      <mat-error>This field is required</mat-error>
+                    </mat-form-field>
+                    <mat-form-field fxFlex="20%">
+                      <mat-select matInput type="text" placeholder="State" name="state" [(ngModel)]="playingSite.state">
+                        <mat-option *ngFor="let state of statesList" value="{{state.abbreviation}}">{{state.abbreviation}}
+                        </mat-option>
+                      </mat-select>
+                    </mat-form-field>
+                    <mat-form-field fxFlex="25%">
+                      <input matInput type="text" placeholder="Zip Code" name="zipCode" [(ngModel)]="playingSite.zipCode"
+                             pattern="[0-9]{5}" maxlength="5" #zipCode="ngModel">
+                      <!--<mat-error *ngIf="zipCode.control?.hasError('required')">This field is required</mat-error>-->
+                      <mat-error *ngIf="zipCode.control?.hasError('pattern')">Zip code must be 5 digit number</mat-error>
+                    </mat-form-field>
+                  </div>
+
+                  <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="10px">
+                    <mat-form-field fxFlex="100%">
+                  <textarea rows="2" matInput type="hoursAndDates" placeholder="Hours and Days or Operation"
+                            name="hoursAndDates" [(ngModel)]="playingSite.hoursAndDates"></textarea>
+                    </mat-form-field>
+                  </div>
+                </ng-container>
+                <div>
+                  <button mat-raised-button color="" (click)="onAddPlayingSite()">Add Site</button>
+                </div>
+              </div>
+              <div fxLayout="row" fxLayoutAlign="space-between">
+                <button mat-button matStepperPrevious type="button">Back</button>
+                <button mat-raised-button color="primary" matStepperNext type="button" >Next</button>
+              </div>
+            </mat-step>
+            <mat-step label="Pay and Submit">
+              <div fxLayout="column" fxLayoutGap="10px">
+                <mat-card-subtitle>List of past payments:</mat-card-subtitle>
+                <div>
+                  <mat-list>
+                    <mat-list-item>$75 on 04/03/2017</mat-list-item>
+                    <mat-list-item>$75 on 02/11/2016</mat-list-item>
+                    <mat-list-item>$75 on 03/15/2015</mat-list-item>
+                  </mat-list>
+                </div>
+                <div fxLayout="row" fxLayoutAlign="space-between">
+                  <div>
+                    <span>Affiliation Expiration Date: {{ clubAffiliationApplication.affiliationExpirationDate | date:'MM-dd-yyyy'}} </span>
+                  </div>
+                  <div>
+                    <button mat-raised-button color="primary" type="button" (click)="onPayment()">Pay $75 Now to Renew</button>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <button mat-button matStepperPrevious type="button">Back</button>
+              </div>
+            </mat-step>
+
+          </mat-horizontal-stepper>
+        </mat-card-content>
+      </mat-card>
+    </form>
+  </div>
+  <div fxFlex></div>
+</div>

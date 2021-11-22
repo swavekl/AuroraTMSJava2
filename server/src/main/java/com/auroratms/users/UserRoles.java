@@ -10,5 +10,5 @@ public interface UserRoles {
     public static final String Referees = "Referees";
     public static final String Umpires = "Umpires";
     public static final String DataEntryClerks = "DataEntryClerks";
-    public static final String USATTOfficial = "USATTOfficial";
+    public static final String USATTOfficials = "USATTOfficials";
 }

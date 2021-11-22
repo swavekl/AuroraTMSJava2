@@ -1,0 +1,32 @@
+div.table-container {
+  overflow: auto;
+  height: calc(100vh - 220px);
+//border: 1px solid greenyellow;
+}
+
+.toolbar-spacer-2 {
+  margin-right: 16px;
+}
+
+.club-affiliation-application-table {
+  width: 100%;
+}
+
+.mat-column-id {
+     flex: 1;
+}
+
+.mat-column-name {
+     flex: 3;
+   }
+
+.mat-column-city {
+  flex: 2;
+}
+
+.mat-column-state {
+  flex: 1;
+}
+
+
+

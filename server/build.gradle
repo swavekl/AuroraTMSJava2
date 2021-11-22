@@ -1,6 +1,6 @@
 buildscript {
     ext {
-        springBootVersion = '2.4.0'
+        springBootVersion = '2.6.0'
     }
     repositories {
         mavenCentral()
@@ -75,7 +75,7 @@ dependencies {
     // old Junit 4 unit testing
     implementation 'org.junit.vintage:junit-vintage-engine:5.7.0'
 
-    implementation ('com.fasterxml.jackson.core:jackson-core:2.11.4')
+    implementation ('com.fasterxml.jackson.core:jackson-core:2.13.0')
 
     // okta APIs
     implementation ("com.okta.sdk:okta-sdk-api:${oktaSdkVersion}")
