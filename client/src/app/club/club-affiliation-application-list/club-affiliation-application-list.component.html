@@ -17,19 +17,13 @@
     <!-- Name Column -->
     <ng-container matColumnDef="name">
       <mat-header-cell *matHeaderCellDef mat-sort-header>Name</mat-header-cell>
-      <mat-cell *matCellDef="let row">{{row.name}}</mat-cell>
+      <mat-cell *matCellDef="let row" [routerLink]="['/club/affiliationedit', row.id]">{{row.name}}</mat-cell>
     </ng-container>
 
-    <!-- City Column -->
-    <ng-container matColumnDef="city">
-      <mat-header-cell *matHeaderCellDef mat-sort-header>City</mat-header-cell>
-      <mat-cell *matCellDef="let row">{{row.city}}</mat-cell>
-    </ng-container>
-
-    <!-- State Column -->
-    <ng-container matColumnDef="state">
-      <mat-header-cell *matHeaderCellDef mat-sort-header>State</mat-header-cell>
-      <mat-cell *matCellDef="let row">{{row.state}}</mat-cell>
+    <!-- City & State Column -->
+    <ng-container matColumnDef="cityState">
+      <mat-header-cell *matHeaderCellDef mat-sort-header>City & State</mat-header-cell>
+      <mat-cell *matCellDef="let row">{{row.city}}, {{row.state}}</mat-cell>
     </ng-container>
 
     <!-- Affiliation Expiration Date Column -->

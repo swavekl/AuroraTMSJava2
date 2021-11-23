@@ -81,6 +81,7 @@ export class AppComponent implements OnInit {
     const routesConfigurations: Route[] = this.router.config;
     for (let i = 0; i < routesConfigurations.length; i++) {
       const route: Route = routesConfigurations[i];
+      // console.log('path', route.path);
       if (route.path === routerLink) {
         // console.log ('route found');
         const routeData = route.data;

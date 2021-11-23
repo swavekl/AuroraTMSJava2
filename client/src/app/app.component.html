@@ -26,10 +26,10 @@
       <mat-list-item *ngIf="isLinkVisible('/usattdashboard')" (click)="closeAndNavigateToRoute('/usattdashboard')" routerLinkActive="active">
         <a matLine>USATT Dashboard</a>
       </mat-list-item>
-      <mat-list-item *ngIf="(isAuthenticated$ | async)" (click)="closeAndNavigateToRoute('/club/list')" routerLinkActive="active">
+      <mat-list-item *ngIf="isLinkVisible('/club')" (click)="closeAndNavigateToRoute('/club/list')" routerLinkActive="active">
         <a matLine>Clubs</a>
       </mat-list-item>
-      <mat-list-item *ngIf="isLinkVisible('/club/affiliationlist')" (click)="closeAndNavigateToRoute('/club/affiliationlist')" routerLinkActive="active">
+      <mat-list-item *ngIf="isLinkVisible('/club')" (click)="closeAndNavigateToRoute('/club/affiliationlist')" routerLinkActive="active">
         <a matLine>Club Affiliation</a>
       </mat-list-item>
       <mat-list-item *ngIf="!(isAuthenticated$ | async)" (click)="closeAndNavigateToRoute('/login/signin')" routerLinkActive="active">

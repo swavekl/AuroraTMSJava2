@@ -12,19 +12,23 @@ div.table-container {
   width: 100%;
 }
 
-.mat-column-id {
-     flex: 1;
-}
-
 .mat-column-name {
      flex: 3;
    }
 
-.mat-column-city {
+.mat-column-cityState {
   flex: 2;
 }
 
-.mat-column-state {
+.mat-column-expirationDate {
+  flex: 1;
+}
+
+.mat-column-status {
+  flex: 1;
+}
+
+.mat-column-actions {
   flex: 1;
 }
 

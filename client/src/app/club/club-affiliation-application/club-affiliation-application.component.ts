@@ -2,6 +2,7 @@ import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {ClubAffiliationApplication} from '../model/club-affiliation-application.model';
 import {StatesList} from '../../shared/states/states-list';
 import {PlayingSite} from '../model/playing-site';
+import {Router} from '@angular/router';
 
 @Component({
   selector: 'app-club-affiliation-application',
@@ -18,19 +19,19 @@ export class ClubAffiliationApplicationComponent implements OnInit {
 
   statesList: any[] = [];
 
-  constructor() {
+  constructor(private router: Router) {
     this.statesList = StatesList.getCountryStatesList('US');
   }
 
   ngOnInit(): void {
   }
 
-  onSave(value: any) {
+  onSave() {
     this.saved.emit(this.clubAffiliationApplication);
   }
 
   onCancel() {
-
+    this.router.navigateByUrl('/club/affiliationlist');
   }
 
   onPayment() {
@@ -38,8 +39,18 @@ export class ClubAffiliationApplicationComponent implements OnInit {
   }
 
   onAddPlayingSite() {
-    const clone: ClubAffiliationApplication = this.clubAffiliationApplication.deepClone();
-    clone.alternatePlayingSites = [...clone.alternatePlayingSites, new PlayingSite()];
+    const clone: ClubAffiliationApplication = JSON.parse(JSON.stringify(this.clubAffiliationApplication));
+    const alternatePlayingSites: PlayingSite [] = clone.alternatePlayingSites || [];
+    alternatePlayingSites.push(new PlayingSite());
+    clone.alternatePlayingSites = alternatePlayingSites;
+    this.clubAffiliationApplication = clone;
+  }
+
+  onRemovePlayingSite(playingSiteIndex: number) {
+    const clone: ClubAffiliationApplication = JSON.parse(JSON.stringify(this.clubAffiliationApplication));
+    const alternatePlayingSites: PlayingSite [] = clone.alternatePlayingSites || [];
+    alternatePlayingSites.splice(playingSiteIndex, 1);
+    clone.alternatePlayingSites = alternatePlayingSites;
     this.clubAffiliationApplication = clone;
   }
 }

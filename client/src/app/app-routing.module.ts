@@ -65,7 +65,13 @@ const routes: Routes = [
       roles: [UserRoles.ROLE_ADMINS, UserRoles.ROLE_USATT_OFFICIALS]
     }
   },
-  { path: 'club', loadChildren: () => import('./club/club.module').then(m => m.ClubModule) }
+  {
+    path: 'club',
+    loadChildren: () => import('./club/club.module').then(m => m.ClubModule),
+    data: {
+      roles: [UserRoles.ROLE_ADMINS, UserRoles.ROLE_USATT_OFFICIALS, UserRoles.ROLE_TOURNAMENT_DIRECTORS]
+    }
+  }
 ];
 
 @NgModule({
