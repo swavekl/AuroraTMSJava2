@@ -28,6 +28,14 @@ const routes: Routes = [
     data: {
       roles: [UserRoles.ROLE_ADMINS, UserRoles.ROLE_USATT_OFFICIALS, UserRoles.ROLE_TOURNAMENT_DIRECTORS]
     }
+  },
+  {
+    path: 'affiliationcreate/:id',
+    component: ClubAffiliationApplicationContainerComponent,
+    canActivate: [AuthGuard],
+    data: {
+      roles: [UserRoles.ROLE_ADMINS, UserRoles.ROLE_TOURNAMENT_DIRECTORS]
+    }
   }
 ];
 

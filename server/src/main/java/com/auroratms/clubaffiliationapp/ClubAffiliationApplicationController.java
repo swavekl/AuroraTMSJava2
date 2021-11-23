@@ -6,12 +6,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.URI;
 import java.util.Map;
 
 @RestController
@@ -21,41 +21,51 @@ import java.util.Map;
 public class ClubAffiliationApplicationController {
 
     private static final Logger logger = LoggerFactory.getLogger(ClubAffiliationApplicationController.class);
-    
+
     @Autowired
     private ClubAffiliationApplicationService service;
-    
+
+    /**
+     * Save application
+     * @param application
+     * @return
+     */
     @PostMapping("/clubaffiliationapplication")
-    public @ResponseBody ResponseEntity<ClubAffiliationApplication> save(
+    public @ResponseBody
+    ResponseEntity<ClubAffiliationApplication> save(
             @RequestBody ClubAffiliationApplication application) {
         try {
+            boolean creating = (application.getId() == null);
             ClubAffiliationApplication savedClub = service.save(application);
-            return new ResponseEntity<>(savedClub, HttpStatus.CREATED);
+            URI uri = new URI("/api/clubaffiliationapplication/" + savedClub.getId());
+            return (creating)
+                    ? ResponseEntity.created(uri).body(savedClub)
+                    : ResponseEntity.ok(savedClub);
         } catch (Exception e) {
-            String message = e.getMessage();
-            message = message.substring(message.indexOf("{"));
-            return new ResponseEntity(message, HttpStatus.BAD_REQUEST);
+            logger.error(e.getMessage());
+            return ResponseEntity.badRequest().build();
         }
     }
 
     /**
-     * Get single applicaiton
+     * Get single applicaition
+     *
      * @return
      */
     @GetMapping("/clubaffiliationapplication/{applicationId}")
-    public ResponseEntity<ClubAffiliationApplication> get (@PathVariable Long applicationId) {
+    public ResponseEntity<ClubAffiliationApplication> get(@PathVariable Long applicationId) {
         try {
             ClubAffiliationApplication clubAffiliationApplication = this.service.findById(applicationId);
-            return new ResponseEntity<>(clubAffiliationApplication, HttpStatus.OK);
+            return ResponseEntity.ok(clubAffiliationApplication);
         } catch (Exception e) {
-            String message = e.getMessage();
-            message = message.substring(message.indexOf("{"));
-            return new ResponseEntity(message, HttpStatus.BAD_REQUEST);
+            logger.error(e.getMessage());
+            return ResponseEntity.notFound().build();
         }
     }
 
     /**
      * Deletes request
+     *
      * @param applicationId
      * @return
      */
@@ -73,17 +83,23 @@ public class ClubAffiliationApplicationController {
 
     /**
      * Get page worth of applications
+     *
      * @param params
      * @param pageable
      * @return
      */
     @GetMapping("/clubaffiliationapplications")
-    public ResponseEntity<Page<ClubAffiliationApplication>> list (
+    public ResponseEntity<Page<ClubAffiliationApplication>> list(
             @RequestParam Map<String, String> params,
             Pageable pageable) {
-        String nameContains = params.get("nameContains");
-        nameContains = (StringUtils.isNotEmpty(nameContains)) ? nameContains : "";
-        Page<ClubAffiliationApplication> page = this.service.findByName(nameContains, pageable);
-        return new ResponseEntity<>(page, HttpStatus.OK);
+        try {
+            String nameContains = params.get("nameContains");
+            nameContains = (StringUtils.isNotEmpty(nameContains)) ? nameContains : "";
+            Page<ClubAffiliationApplication> page = this.service.findByName(nameContains, pageable);
+            return ResponseEntity.ok(page);
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+            return ResponseEntity.badRequest().build();
+        }
     }
 }

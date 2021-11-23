@@ -99,6 +99,8 @@ public class ClubAffiliationApplication {
 
         ClubAffiliationApplicationConfiguration configuration = new ClubAffiliationApplicationConfiguration();
         String content = configuration.convertToContent(this);
+        // content must be less than 6000 chars
+//        System.out.println("content.length() = " + content.length());
         entity.setContent(content);
 
         return entity;

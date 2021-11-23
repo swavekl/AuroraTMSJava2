@@ -1,13 +1,15 @@
 import {AfterViewInit, Component, ViewChild} from '@angular/core';
+import {Router} from '@angular/router';
+import {FormControl} from '@angular/forms';
 import {MatPaginator} from '@angular/material/paginator';
 import {MatSort} from '@angular/material/sort';
 import {MatTable} from '@angular/material/table';
+import {MatDialog} from '@angular/material/dialog';
+import {debounceTime, distinctUntilChanged, skip} from 'rxjs/operators';
 import {ClubAffiliationApplicationListDataSource} from './club-affiliation-application-list-datasource';
 import {ClubAffiliationApplication} from '../model/club-affiliation-application.model';
 import {ClubAffiliationApplicationService} from '../service/club-affiliation-application.service';
-import {FormControl} from '@angular/forms';
-import {debounceTime, distinctUntilChanged, skip} from 'rxjs/operators';
-import {Router} from '@angular/router';
+import {ConfirmationPopupComponent} from '../../shared/confirmation-popup/confirmation-popup.component';
 
 @Component({
   selector: 'app-club-affiliation-application-list',
@@ -26,7 +28,8 @@ export class ClubAffiliationApplicationListComponent implements AfterViewInit {
   displayedColumns = ['name', 'cityState', 'expirationDate', 'status', 'actions'];
 
   constructor(private clubAffiliationApplicationService: ClubAffiliationApplicationService,
-              private router: Router) {
+              private router: Router,
+              private dialog: MatDialog) {
     this.dataSource = new ClubAffiliationApplicationListDataSource(clubAffiliationApplicationService);
   }
 
@@ -53,15 +56,17 @@ export class ClubAffiliationApplicationListComponent implements AfterViewInit {
     return true;
   }
 
-  onDeleteApplication(applicationId: number) {
-    this.dataSource.deleteApplication(applicationId);
-  }
-
-  onCloneApplication(applicationId: number) {
-
-  }
-
-  onEditApplication(applicationId: number) {
-
+  onDeleteApplication(applicationId: number, clubName: string) {
+    const config = {
+      width: '450px', height: '230px', data: {
+        message: `Are you sure you want to delete application for '${clubName}'?`,
+      }
+    };
+    const dialogRef = this.dialog.open(ConfirmationPopupComponent, config);
+    dialogRef.afterClosed().subscribe(result => {
+      if (result === 'ok') {
+        this.dataSource.deleteApplication(applicationId);
+      }
+    });
   }
 }

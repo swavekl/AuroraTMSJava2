@@ -1,7 +1,7 @@
 <div class="mat-title" style="padding-left: 8px; width: 100%;">Club Affiliation Applications</div>
 <mat-toolbar fxLayout="row" fxLayoutGap="10">
   <form>
-    <button type="button" mat-raised-button color="" (click)="newApplication()" [disabled]="!canAddApplication()">
+    <button type="button" mat-raised-button color="" [routerLink]="['/club/affiliationedit', 0]" [disabled]="!canAddApplication()">
       <mat-icon matListIcon>add</mat-icon>
       New Application
     </button>
@@ -42,10 +42,10 @@
     <ng-container matColumnDef="actions">
       <mat-header-cell *matHeaderCellDef mat-sort-header>Actions</mat-header-cell>
       <mat-cell *matCellDef="let row">
-        <button mat-icon-button (click)="onDeleteApplication(row.id)" matTooltip="Delete" style="margin-right: 20px">
+        <button mat-icon-button (click)="onDeleteApplication(row.id, row.name)" matTooltip="Delete" style="margin-right: 20px">
           <mat-icon matListIcon>delete</mat-icon>
         </button>
-        <button mat-icon-button (click)="onCloneApplication(row.id)" matTooltip="Copy" style="margin-right: 20px">
+        <button mat-icon-button [routerLink]="['/club/affiliationcreate', row.id]" matTooltip="Copy" style="margin-right: 20px">
           <mat-icon matListIcon>flip_to_front</mat-icon>
         </button>
         <button mat-icon-button [routerLink]="['/club/affiliationedit', row.id]" matTooltip="Edit">

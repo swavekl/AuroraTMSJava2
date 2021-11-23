@@ -327,7 +327,7 @@
                   <mat-divider></mat-divider>
                   <div fxLayout="row" fxLayoutAlign="space-between center" style="margin-top: 12px;">
                     <div class="mat-subheader">Playing Site (#{{rowNum + 2}})</div>
-                    <button mat-raised-button color="" (click)="onRemovePlayingSite(rowNum)">Remove Site</button>
+                    <button mat-raised-button type="button" color="" (click)="onRemovePlayingSite(rowNum)">Remove Site</button>
                   </div>
                   <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="10px">
                     <mat-form-field fxFlex="50%">
@@ -374,12 +374,12 @@
                   </div>
                 </ng-container>
                 <div style="margin: 12px 0;">
-                  <button mat-raised-button color="" (click)="onAddPlayingSite()">Add Site</button>
+                  <button mat-raised-button type="button" color="" (click)="onAddPlayingSite()">Add Site</button>
                 </div>
               </div>
               <div fxLayout="row" fxLayoutAlign="space-between">
                 <button mat-raised-button matStepperPrevious type="button">Back</button>
-                <button mat-raised-button color="primary" matStepperNext type="button">Next</button>
+                <button mat-raised-button matStepperNext type="button" color="primary" >Next</button>
               </div>
             </mat-step>
             <mat-step label="Pay and Submit">
