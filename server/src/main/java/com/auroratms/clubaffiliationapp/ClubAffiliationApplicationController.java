@@ -102,4 +102,18 @@ public class ClubAffiliationApplicationController {
             return ResponseEntity.badRequest().build();
         }
     }
+
+    @PutMapping("/clubaffiliationapplication/{applicationId}")
+    public ResponseEntity<Void> update(@RequestBody ClubAffiliationApplication clubAffiliationApplication,
+                                       @PathVariable Long applicationId) {
+        try {
+            this.service.updateStatus(clubAffiliationApplication.getId(),
+                    clubAffiliationApplication.getStatus());
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+            return ResponseEntity.notFound().build();
+        }
+    }
+
 }

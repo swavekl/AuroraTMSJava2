@@ -29,7 +29,7 @@
     <!-- Affiliation Expiration Date Column -->
     <ng-container matColumnDef="expirationDate">
       <mat-header-cell *matHeaderCellDef mat-sort-header>Expiration Date</mat-header-cell>
-      <mat-cell *matCellDef="let row">{{row.affiliationExpirationDate}}</mat-cell>
+      <mat-cell *matCellDef="let row">{{row.affiliationExpirationDate | date }}</mat-cell>
     </ng-container>
 
     <!-- Status Column -->

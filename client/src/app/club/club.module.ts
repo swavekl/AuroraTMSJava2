@@ -26,6 +26,7 @@ import {ClubAffiliationApplicationComponent} from './club-affiliation-applicatio
 // tslint:disable-next-line:max-line-length
 import {ClubAffiliationApplicationContainerComponent} from './club-affiliation-application/club-affiliation-application-container.component';
 import {MatTooltipModule} from '@angular/material/tooltip';
+import {MatDatepickerModule} from '@angular/material/datepicker';
 
 
 @NgModule({
@@ -58,7 +59,8 @@ import {MatTooltipModule} from '@angular/material/tooltip';
         MatCardModule,
         MatStepperModule,
         MatRadioModule,
-        MatTooltipModule
+        MatTooltipModule,
+        MatDatepickerModule
     ]
 })
 export class ClubModule {

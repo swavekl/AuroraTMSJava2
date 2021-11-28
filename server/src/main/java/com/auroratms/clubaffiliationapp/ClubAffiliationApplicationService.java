@@ -118,4 +118,17 @@ public class ClubAffiliationApplicationService {
         this.securityService.addPermission(objectId, ACL_MANAGED_OBJECT_CLASS, grantedAuthoritySid, BasePermission.WRITE);
     }
 
+    /**
+     *
+     * @param applicationId
+     * @param status
+     */
+    public void updateStatus(Long applicationId, ClubAffiliationApplicationStatus status) {
+        ClubAffiliationApplication clubAffiliationApplication = this.findById(applicationId);
+        clubAffiliationApplication.setStatus(status);
+        if (status == ClubAffiliationApplicationStatus.Completed) {
+            // get id of the payment
+        }
+        this.save(clubAffiliationApplication);
+    }
 }

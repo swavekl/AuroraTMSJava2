@@ -7,6 +7,14 @@ import {ActivatedRoute, Router} from '@angular/router';
 import {createSelector} from '@ngrx/store';
 import {first} from 'rxjs/operators';
 import {ClubAffiliationApplicationStatus} from '../model/club-affiliation-application-status';
+import {PaymentDialogService} from '../../account/service/payment-dialog.service';
+import {ApplicationAndPayment} from './club-affiliation-application.component';
+import {PaymentRequest} from '../../account/model/payment-request.model';
+import {PaymentRefundFor} from '../../account/model/payment-refund-for.enum';
+import {PaymentDialogData} from '../../account/payment-dialog/payment-dialog-data';
+import {CallbackData} from '../../account/model/callback-data';
+import {AuthenticationService} from '../../user/authentication.service';
+import {Profile} from '../../profile/profile';
 
 @Component({
   selector: 'app-club-affiliation-application-container',
@@ -29,6 +37,8 @@ export class ClubAffiliationApplicationContainerComponent implements OnInit, OnD
 
   constructor(private clubAffiliationApplicationService: ClubAffiliationApplicationService,
               private activatedRoute: ActivatedRoute,
+              private paymentDialogService: PaymentDialogService,
+              private authenticationService: AuthenticationService,
               private router: Router,
               private linearProgressBarService: LinearProgressBarService) {
     const routePath = this.activatedRoute.snapshot.routeConfig.path;
@@ -56,17 +66,26 @@ export class ClubAffiliationApplicationContainerComponent implements OnInit, OnD
     this.subscriptions.unsubscribe();
   }
 
-  onSaved(clubAffiliationApplication: ClubAffiliationApplication) {
-    this.clubAffiliationApplicationService.upsert(clubAffiliationApplication)
+  onSaved(applicationAndPayment: ApplicationAndPayment) {
+    this.clubAffiliationApplicationService.upsert(applicationAndPayment.clubAffiliationApplication)
       .pipe(first())
       .subscribe(
-        (saved: ClubAffiliationApplication) => {
-          // go back to list
-          this.router.navigateByUrl('/club/affiliationlist');
+        (savedClubAffiliationApplication: ClubAffiliationApplication) => {
+          this.applicationId = savedClubAffiliationApplication.id;
+          if (!applicationAndPayment.payFee) {
+            this.goBackToList();
+          } else {
+            this.showPaymentDialog(savedClubAffiliationApplication);
+          }
         },
         (error: any) => {
           console.log('error on save', error);
         });
+  }
+
+  private goBackToList() {
+    // go back to list
+    this.router.navigateByUrl('/club/affiliationlist');
   }
 
   private loadApplication() {
@@ -100,5 +119,62 @@ export class ClubAffiliationApplicationContainerComponent implements OnInit, OnD
       // new application
       this.clubAffiliationApplication$ = of (new ClubAffiliationApplication());
     }
+  }
+
+  public showPaymentDialog(clubAffiliationApplication: ClubAffiliationApplication) {
+    const currencyOfPayment = 'USD';
+    const amount: number = 75 * 100;
+    const amountInAccountCurrency: number = amount;
+    const currentUserProfile: Profile = this.authenticationService.getCurrentUser().profile;
+    const fullName = currentUserProfile.firstName + ' ' + currentUserProfile.lastName;
+    const postalCode = currentUserProfile.zipCode;
+    const email = currentUserProfile.email;
+    const clubName = 'Club Affiliation Fee for ' + clubAffiliationApplication.name;
+    const paymentRequest: PaymentRequest = {
+      paymentRefundFor: PaymentRefundFor.USATT_FEE,
+      accountItemId: 0, // USATT account id
+      transactionItemId: clubAffiliationApplication.id,
+      amount: amount,
+      currencyCode: currencyOfPayment,
+      amountInAccountCurrency: amountInAccountCurrency,
+      statementDescriptor: clubName,
+      fullName: fullName,
+      postalCode: postalCode,
+      receiptEmail: email,
+    };
+
+    const paymentDialogData: PaymentDialogData = {
+      paymentRequest: paymentRequest,
+      stripeInstance: null
+    };
+
+    const callbackData: CallbackData = {
+      successCallbackFn: this.onPaymentSuccessful,
+      cancelCallbackFn: this.onPaymentCanceled,
+      callbackScope: this
+    };
+    this.paymentDialogService.showPaymentDialog(paymentDialogData, callbackData);
+  }
+
+  /**
+   * Callback from payment dialog when payment is successful
+   */
+  onPaymentSuccessful(scope: any) {
+    if (scope != null) {
+      scope.clubAffiliationApplicationService.update({
+        id: this.applicationId,
+        status: ClubAffiliationApplicationStatus.Completed
+      }).pipe(first())
+        .subscribe(() => {
+          scope.goBackToList();
+        });
+    }
+  }
+
+  /**
+   *
+   */
+  onPaymentCanceled(scope: any) {
+    console.log('in onPaymentCanceled');
   }
 }

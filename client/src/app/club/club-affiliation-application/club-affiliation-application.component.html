@@ -1,7 +1,7 @@
 <div fxLayout="row">
   <div fxFlex></div>
   <div fxFlex="60%" *ngIf="clubAffiliationApplication">
-    <form name="form" (ngSubmit)="onSave()" #f="ngForm" novalidate>
+    <form name="form" (ngSubmit)="onSave(false)" #f="ngForm" novalidate>
       <mat-card>
         <mat-card-title>Club Affiliation Application</mat-card-title>
         <mat-card-actions>
@@ -390,28 +390,37 @@
             </mat-step>
             <mat-step label="Pay and Submit">
               <div fxLayout="column" fxLayoutGap="10px">
-                <mat-card-subtitle>List of past payments:</mat-card-subtitle>
-                <div>
-                  <mat-list>
-                    <mat-list-item>$75 on 04/03/2017</mat-list-item>
-                    <mat-list-item>$75 on 02/11/2016</mat-list-item>
-                    <mat-list-item>$75 on 03/15/2015</mat-list-item>
-                  </mat-list>
-                </div>
-                <div fxLayout="row" fxLayoutAlign="space-between">
-                  <div>
-                    <span>Affiliation Expiration Date: {{ clubAffiliationApplication.affiliationExpirationDate | date:'MM-dd-yyyy'}} </span>
+                <div fxLayout="row" fxLayoutAlign="start start">
+                  <div fxFlex="60%" fxLayout="column" fxLayoutGap="10px">
+                    <div class=mat-caption>Status</div>
+                    <mat-radio-group [(ngModel)]="clubAffiliationApplication.status"
+                                     name="status" fxFlex="50%">
+                      <mat-radio-button value="Approved">Approved</mat-radio-button>&nbsp;&nbsp;
+                      <mat-radio-button value="Rejected">Rejected</mat-radio-button>
+                    </mat-radio-group>
                   </div>
-                  <div>
-                    <button mat-raised-button color="primary" type="button" (click)="onPayment()">Pay $75 Now to Renew
+                  <mat-form-field fxFlex="40%">
+                    <mat-label>New Affiliation Expiration Date</mat-label>
+                    <input matInput [matDatepicker]="affiliationExpirationDate" placeholder="mm/dd/yyyy"
+                           name="affiliationExpirationDate"
+                           [(ngModel)]="clubAffiliationApplication.affiliationExpirationDate"
+                           [disabled]="!canSetExpirationDate()">
+                    <mat-datepicker-toggle matSuffix [for]="affiliationExpirationDate"></mat-datepicker-toggle>
+                    <mat-datepicker #affiliationExpirationDate disabled="false"></mat-datepicker>
+                  </mat-form-field>
+                </div>
+                <div fxLayout="row" fxLayoutAlign="start start" fxLayoutGap="10px">
+                    <button mat-raised-button color="primary" type="button" (click)="onSubmitApplication()"
+                            [disabled]="!isSubmitEnabled()">Submit
+                    </button>
+                    <button mat-raised-button color="primary" type="button" (click)="onSave(true)"
+                            [disabled]="!isPaymentEnabled()">Pay $75 Now to Renew
                     </button>
                   </div>
+                  <div>
+                    <button mat-raised-button matStepperPrevious type="button">Back</button>
+                  </div>
                 </div>
-              </div>
-
-              <div>
-                <button mat-raised-button matStepperPrevious type="button">Back</button>
-              </div>
             </mat-step>
 
           </mat-horizontal-stepper>
