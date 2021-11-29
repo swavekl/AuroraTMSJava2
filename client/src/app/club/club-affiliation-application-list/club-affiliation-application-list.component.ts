@@ -25,7 +25,7 @@ export class ClubAffiliationApplicationListComponent implements AfterViewInit {
   filterClubName: string;
 
   /** Columns displayed in the table. Columns IDs can be added, removed, or reordered. */
-  displayedColumns = ['name', 'cityState', 'expirationDate', 'status', 'actions'];
+  displayedColumns = ['name', 'cityState', 'affiliation_expiration_date', 'status', 'actions'];
 
   constructor(private clubAffiliationApplicationService: ClubAffiliationApplicationService,
               private router: Router,

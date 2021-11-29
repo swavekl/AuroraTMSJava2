@@ -126,9 +126,6 @@ public class ClubAffiliationApplicationService {
     public void updateStatus(Long applicationId, ClubAffiliationApplicationStatus status) {
         ClubAffiliationApplication clubAffiliationApplication = this.findById(applicationId);
         clubAffiliationApplication.setStatus(status);
-        if (status == ClubAffiliationApplicationStatus.Completed) {
-            // get id of the payment
-        }
         this.save(clubAffiliationApplication);
     }
 }

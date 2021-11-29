@@ -15,8 +15,6 @@ export class ClubAffiliationApplication {
   zipCode: number;
   status: ClubAffiliationApplicationStatus = ClubAffiliationApplicationStatus.New;
   affiliationExpirationDate: Date;
-  // payment id if the application fee of $75 was paid
-  paymentId: number;
 
   // Wednesday & Friday - 6:30 - 9:30PM
   hoursAndDates: string;
@@ -59,6 +57,9 @@ export class ClubAffiliationApplication {
   hasBankAccount: boolean;
 
   alternatePlayingSites: PlayingSite[];
+
+  // optional notes for approval rejection
+  approvalRejectionNotes: string;
 
   constructor() {
 

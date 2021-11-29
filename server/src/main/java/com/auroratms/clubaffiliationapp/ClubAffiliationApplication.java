@@ -33,9 +33,6 @@ public class ClubAffiliationApplication {
     // date when USATT affiliation expires
     private Date affiliationExpirationDate;
 
-    // payment id if the application fee of $75 was paid
-    private Long paymentId;
-
     // Wednesday & Friday - 6:30 - 9:30PM
     private String hoursAndDates;
 
@@ -83,6 +80,8 @@ public class ClubAffiliationApplication {
 
     private List<PlayingSite> alternatePlayingSites;
 
+    private String approvalRejectionNotes;
+
     public ClubAffiliationApplicationEntity convertToEntity() {
         ClubAffiliationApplicationEntity entity = new ClubAffiliationApplicationEntity();
         entity.setId(this.getId());
@@ -94,7 +93,6 @@ public class ClubAffiliationApplication {
         entity.setZipCode(this.getZipCode());
         entity.setStatus(this.getStatus());
         entity.setAffiliationExpirationDate(this.getAffiliationExpirationDate());
-        entity.setPaymentId(this.getPaymentId());
         entity.setHoursAndDates(this.getHoursAndDates());
 
         ClubAffiliationApplicationConfiguration configuration = new ClubAffiliationApplicationConfiguration();
@@ -117,7 +115,6 @@ public class ClubAffiliationApplication {
         this.status = entity.getStatus();
         this.status = (this.status != null) ? this.status : ClubAffiliationApplicationStatus.New;
         this.affiliationExpirationDate = entity.getAffiliationExpirationDate();
-        this.paymentId = entity.getPaymentId();
         this.hoursAndDates = entity.getHoursAndDates();
         String content = entity.getContent();
         ClubAffiliationApplicationConfiguration.convertFromContent(content, this);

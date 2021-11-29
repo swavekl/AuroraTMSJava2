@@ -1,0 +1,36 @@
+table.summary-table {
+  width: 100%;
+
+  & tr {
+    th {
+      padding-top: 4px;
+
+      &:first-child {
+        width: 80%;
+        text-align: left;
+      }
+
+      &:last-child {
+        width: 20%;
+        text-align: right;
+      }
+    }
+
+    td {
+      &:first-child {
+        width: 80%;
+        text-align: left;
+      }
+
+      &:last-child {
+        width: 20%;
+        text-align: right;
+        vertical-align: text-top;
+      }
+
+      div.summary-item-second-line {
+        font-size: 14px;
+      }
+    }
+  }
+}

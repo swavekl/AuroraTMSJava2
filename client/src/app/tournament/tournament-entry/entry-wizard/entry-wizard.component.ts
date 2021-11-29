@@ -577,7 +577,7 @@ export class EntryWizardComponent implements OnInit, OnChanges, OnDestroy {
       // console.log ('profile is ready let\'s get currency exchange rates');
       this.currencyExchangeRate = 1.0;
       // fetch account information in case they want to pay so the payment dialog comes up faster
-      this.paymentDialogService.prepareForPayment(tournamentId)
+      this.paymentDialogService.prepareForPayment(PaymentRefundFor.TOURNAMENT_ENTRY, tournamentId)
         .pipe(first())
         .subscribe(
           (tournamentCurrency: string) => {

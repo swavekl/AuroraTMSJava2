@@ -7,6 +7,7 @@ import {Observable} from 'rxjs';
 import {first, map} from 'rxjs/operators';
 import {PaymentDialogComponent} from '../payment-dialog/payment-dialog.component';
 import {CallbackData} from '../model/callback-data';
+import {PaymentRefundFor} from '../model/payment-refund-for.enum';
 
 /**
  * Service which retrieves the Stripe public key dynamically and initializes Stripe service with it
@@ -36,17 +37,18 @@ export class PaymentDialogService {
 
   /**
    * Prepares for payment by fetching account id and currency for given account
+   * @param paymentFor what this payment is for
    * @param accountItemId id of tournament or clinic or whatever
    */
-  public prepareForPayment(accountItemId: number): Observable<string> {
+  public prepareForPayment(paymentFor: PaymentRefundFor, accountItemId: number): Observable<string> {
     // get stripe public key
-    return this.paymentRefundService.getKeyAccountInfo(accountItemId)
+    return this.paymentRefundService.getKeyAccountInfo(paymentFor, accountItemId)
       .pipe(
         map(
           (keyAccountInfo: KeyAccountInfo) => {
             // console.log('got public key ' + publicKey);
             this.stripeInstance = this.stripeFactoryService.create(keyAccountInfo.stripePublicKey, {
-              stripeAccount: keyAccountInfo.tournamentAccountId  // connected account id
+              stripeAccount: keyAccountInfo.stripeAccountId  // connected account id
             });
             this.defaultAccountCurrency = keyAccountInfo?.defaultAccountCurrency.toUpperCase();
             return this.defaultAccountCurrency;
@@ -68,13 +70,14 @@ export class PaymentDialogService {
       this.doShowDialog(paymentDialogData, callbackData);
     } else {
       // get stripe public key
-      this.paymentRefundService.getKeyAccountInfo(paymentDialogData.paymentRequest.accountItemId)
+      this.paymentRefundService.getKeyAccountInfo(paymentDialogData.paymentRequest.paymentRefundFor,
+        paymentDialogData.paymentRequest.accountItemId)
         .pipe(first())
         .subscribe(
           (keyAccountInfo: KeyAccountInfo) => {
             // console.log('got public key ' + publicKey);
             paymentDialogData.stripeInstance = this.stripeFactoryService.create(keyAccountInfo.stripePublicKey, {
-              stripeAccount: keyAccountInfo.tournamentAccountId  // connected account id
+              stripeAccount: keyAccountInfo.stripeAccountId  // connected account id
             });
             this.doShowDialog(paymentDialogData, callbackData);
           },

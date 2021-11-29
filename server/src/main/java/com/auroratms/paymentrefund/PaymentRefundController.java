@@ -50,25 +50,29 @@ public class PaymentRefundController {
     @Value("${stripe.public.key}")
     private String stripePublicKey;
 
+    @Value("${association.profileid}")
+    private String associationProfileId;
+
     /**
      * Gets the stripe public key for the Connect account
      *
      * @return
      */
-    @GetMapping("/keyaccountinfo/{tournamentId}")
+    @GetMapping("/keyaccountinfo/{paymentRefundFor}/{accountItemId}")
     @ResponseBody
-    public ResponseEntity getStripeKey(@PathVariable long tournamentId) {
+    public ResponseEntity getStripeKey(@PathVariable PaymentRefundFor paymentRefundFor,
+                                       @PathVariable long accountItemId) {
         Map<String, String> map = new HashMap<>();
-        AccountEntity accountForTournament = this.getAccountForTournament(tournamentId);
-        if (accountForTournament != null) {
+        AccountEntity accountEntity = getAccountForItem(paymentRefundFor, accountItemId);
+        if (accountEntity != null) {
             if (stripePublicKey != null && stripePublicKey.length() > 0) {
                 map.put("stripePublicKey", this.stripePublicKey);
 
                 Stripe.apiKey = this.stripeApiKey;
-                map.put("tournamentAccountId", accountForTournament.getAccountId());
+                map.put("stripeAccountId", accountEntity.getAccountId());
                 String defaultAccountCurrency = "usd";
                 try {
-                    Account stripeAccount = Account.retrieve(accountForTournament.getAccountId());
+                    Account stripeAccount = Account.retrieve(accountEntity.getAccountId());
                     defaultAccountCurrency = stripeAccount.getDefaultCurrency();
                 } catch (StripeException e) {
 
@@ -79,7 +83,7 @@ public class PaymentRefundController {
                 return new ResponseEntity("Stripe public key is empty", HttpStatus.NOT_FOUND);
             }
         } else {
-            String errorMessage = String.format("Stripe account for tournament%d not found", tournamentId);
+            String errorMessage = String.format("Stripe account for account item id %d not found", accountItemId);
             return new ResponseEntity(errorMessage, HttpStatus.NOT_FOUND);
         }
     }
@@ -95,24 +99,7 @@ public class PaymentRefundController {
     public ResponseEntity getSecret(@RequestBody PaymentRequest paymentRequest) {
         try {
             // retrieve the account for this entity
-            long accountItemId = paymentRequest.getAccountItemId();
-            PaymentRefundFor paymentRefundFor = paymentRequest.getPaymentRefundFor();
-            String clientSecret = null;
-            switch (paymentRefundFor) {
-                case TOURNAMENT_ENTRY:
-                    clientSecret = makeTournamentPaymentIntent(accountItemId,
-                            paymentRequest.getAmount(),
-                            paymentRequest.getCurrencyCode(),
-                            paymentRequest.getStatementDescriptor(),
-                            paymentRequest.getFullName(),
-                            paymentRequest.getReceiptEmail());
-                    break;
-                case CLINIC:
-                    break;
-                case USATT_FEE:
-                    break;
-            }
-
+            String clientSecret = getClientSecret(paymentRequest);
             Map<String, String> map = new HashMap<>();
             map.put("clientSecret", clientSecret);
             return new ResponseEntity(map, HttpStatus.CREATED);
@@ -121,54 +108,85 @@ public class PaymentRefundController {
         }
     }
 
-    /**
-     * @param tournamentId
-     * @param customerFullName
-     * @param receiptEmail
-     * @return
-     */
-    private String makeTournamentPaymentIntent(long tournamentId,
-                                               int amount,
-                                               String currencyCode,
-                                               String statementDescriptor,
-                                               String customerFullName,
-                                               String receiptEmail) {
+    private String getClientSecret(PaymentRequest paymentRequest) {
         String clientSecret = null;
         // get email address representing login of the tournament director who created this tournament
+        PaymentRefundFor paymentRefundFor = paymentRequest.getPaymentRefundFor();
+        long accountItemId = paymentRequest.getAccountItemId();
+        int amount = paymentRequest.getAmount();
+        int applicationFee = 0;
+        String paymentType = "";
+        switch (paymentRefundFor) {
+            case TOURNAMENT_ENTRY:
+                paymentType = "tournament";
+                applicationFee = (int) (amount * 0.01);
+                break;
+            case CLINIC:
+                paymentType = "clinic";
+                applicationFee = (int) (amount * 0.01);
+                break;
+            case CLUB_AFFILIATION_FEE:
+                paymentType = "club affiliation";
+                break;
+            case TOURNAMENT_SANCTION_FEE:
+                paymentType = "tournament sanction";
+                break;
+            case MEMBERSHIP_FEE:
+                paymentType = "membership";
+                break;
+        }
         try {
-            AccountEntity accountForTournament = this.getAccountForTournament(tournamentId);
-            if (accountForTournament != null) {
-                String accountId = accountForTournament.getAccountId();
+            AccountEntity accountEntity = this.getAccountForItem(paymentRefundFor, accountItemId);
+            if (accountEntity != null) {
+                String accountId = accountEntity.getAccountId();
+                String currencyCode = paymentRequest.getCurrencyCode();
+                String statementDescriptor = paymentRequest.getStatementDescriptor();
+                String customerFullName = paymentRequest.getFullName();
+                String receiptEmail = paymentRequest.getReceiptEmail();
                 // get currency for charge and create a payment intent
-                int applicationFee = (int) (amount * 0.01);
                 PaymentIntent paymentIntent = this.paymentRefundService.createPaymentIntent(amount, applicationFee,
                         currencyCode.toLowerCase(), accountId, statementDescriptor, customerFullName, receiptEmail);
                 clientSecret = paymentIntent.getClientSecret();
             } else {
-                String errorMessage = String.format("Unable to find Stripe account id for tournament with id %d", tournamentId);
+                String errorMessage = String.format("Unable to find Stripe account id to %s with id %d",
+                        paymentType, accountItemId);
                 throw new PaymentException(errorMessage, null);
             }
         } catch (Exception e) {
-            String errorMessage = String.format("Unable to make a payment to tournament with id %d in the amount %d", tournamentId, amount);
+            String errorMessage = String.format("Unable to make a payment to %s with id %d in the amount %d",
+                    paymentType, accountItemId, amount);
             throw new PaymentException(errorMessage, e);
         }
         return clientSecret;
     }
 
     /**
-     * Gets account for tournament by finding its owner (Tournament Director)
+     * Gets account for item and payment type
      *
-     * @param tournamentId id of the tournament for which to get the account id
+     * @param paymentRefundFor
+     * @param accountItemId
      * @return
      */
-    private AccountEntity getAccountForTournament(long tournamentId) {
+    private AccountEntity getAccountForItem(PaymentRefundFor paymentRefundFor, long accountItemId) {
         AccountEntity accountEntity = null;
-        String tournamentOwnerLoginId = tournamentService.getTournamentOwner(tournamentId);
-        if (tournamentOwnerLoginId != null) {
-            String userProfileId = this.userProfileService.getProfileByLoginId(tournamentOwnerLoginId);
-            if (userProfileId != null) {
-                accountEntity = this.accountService.findById(userProfileId);
-            }
+        switch (paymentRefundFor) {
+            case CLUB_AFFILIATION_FEE:
+            case TOURNAMENT_SANCTION_FEE:
+            case MEMBERSHIP_FEE:
+                accountEntity = this.accountService.findById(associationProfileId);
+                break;
+            case TOURNAMENT_ENTRY:
+                String tournamentOwnerLoginId = tournamentService.getTournamentOwner(accountItemId);
+                if (tournamentOwnerLoginId != null) {
+                    String userProfileId = this.userProfileService.getProfileByLoginId(tournamentOwnerLoginId);
+                    if (userProfileId != null) {
+                        accountEntity = this.accountService.findById(userProfileId);
+                    }
+                }
+                break;
+            case CLINIC:
+            default:
+                throw new RuntimeException("Not implemented");
         }
         return accountEntity;
     }
@@ -195,13 +213,15 @@ public class PaymentRefundController {
     /**
      * Gets a list of payments and refunds
      *
-     * @param tournamentEntryId
+     * @param paymentRefundFor what the payment is for - i.e. tournament entry, application fee
+     * @param accountItemId id of that item for which to get payments
      * @return
      */
-    @GetMapping("/listforentry/{tournamentEntryId}")
+    @GetMapping("/list/{paymentRefundFor}/{accountItemId}")
     @ResponseBody
-    public ResponseEntity<List<PaymentRefund>> listTournamentEntryPaymentsAndRefunds(@PathVariable long tournamentEntryId) {
-        List<PaymentRefund> paymentRefunds = this.paymentRefundService.getPaymentRefunds(tournamentEntryId, PaymentRefundFor.TOURNAMENT_ENTRY);
+    public ResponseEntity<List<PaymentRefund>> listPaymentsAndRefunds(@PathVariable PaymentRefundFor paymentRefundFor,
+                                                                      @PathVariable long accountItemId) {
+        List<PaymentRefund> paymentRefunds = this.paymentRefundService.getPaymentRefunds(accountItemId, paymentRefundFor);
         return new ResponseEntity(paymentRefunds, HttpStatus.OK);
     }
 
@@ -215,25 +235,20 @@ public class PaymentRefundController {
     @ResponseBody
     public ResponseEntity issueRefund(@RequestBody RefundRequest refundRequest) {
         try {
+            // accountItemId could be tournament id for tournament entry fees
+            // tournament sanction application id for tournament sanction
+            // club affiliation application id for those fees,
+            // membership id for memberships
             long accountItemId = refundRequest.getAccountItemId();
             PaymentRefundFor paymentRefundFor = refundRequest.getPaymentRefundFor();
-            List<Long> processedRefundIds = new ArrayList<>();
-            List<PaymentRefund> paymentRefunds = new ArrayList<>();
-            switch (paymentRefundFor) {
-                case TOURNAMENT_ENTRY:
-                    // get account id for this tournament
-                    long tournamentEntryId = refundRequest.getTransactionItemId();
-                    AccountEntity accountEntity = getAccountForTournament(accountItemId);
-                    // get all previous payments and refunds
-                    paymentRefunds = this.paymentRefundService.getPaymentRefunds(tournamentEntryId,
-                            PaymentRefundFor.TOURNAMENT_ENTRY);
-                    processedRefundIds = issueRefunds(paymentRefunds, refundRequest, accountEntity.getAccountId());
-                    break;
-                case CLINIC:
-                    break;
-                case USATT_FEE:
-                    break;
-            }
+            // get account which should issue the refund
+            AccountEntity accountEntity = getAccountForItem(paymentRefundFor, accountItemId);
+
+            // get all previous payments and refunds
+            List<PaymentRefund> paymentRefunds = this.paymentRefundService.getPaymentRefunds(
+                    refundRequest.getTransactionItemId(), paymentRefundFor);
+            // issue refunds
+            List<Long> processedRefundIds = issueRefunds(paymentRefunds, refundRequest, accountEntity.getAccountId());
 
             // notify user of refund
             RefundsEvent refundsEvent = new RefundsEvent(refundRequest, processedRefundIds);
@@ -287,16 +302,4 @@ public class PaymentRefundController {
         event.setPaidCurrency(paymentRefund.getPaidCurrency());
         return event;
     }
-
-    /**
-     * Prepares the event which
-     * @param refundIds
-     * @param refundRequest
-     * @return
-     */
-    private RefundsEvent makeRefundsEvent(List<Long> refundIds, RefundRequest refundRequest) {
-        RefundsEvent refundsEvent = new RefundsEvent();
-        return refundsEvent;
-    }
-
 }

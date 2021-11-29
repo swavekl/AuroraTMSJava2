@@ -17,6 +17,7 @@ import {PaymentRefund} from '../../../account/model/payment-refund.model';
 import {PaymentRefundService} from '../../../account/service/payment-refund.service';
 import {TournamentConfigService} from '../../tournament-config/tournament-config.service';
 import {Tournament} from '../../tournament-config/tournament.model';
+import {PaymentRefundFor} from '../../../account/model/payment-refund-for.enum';
 
 @Component({
   selector: 'app-entry-wizard-container',
@@ -254,8 +255,8 @@ export class EntryWizardContainerComponent implements OnInit, OnDestroy {
    * @private
    */
   private loadPaymentRefunds(tournamentEntryId: number) {
-    console.log('loading payments refunds for entry ' + tournamentEntryId);
-    this.paymentRefundService.listTournamentPaymentsRefunds(tournamentEntryId)
+    // console.log('loading payments refunds for entry ' + tournamentEntryId);
+    this.paymentRefundService.listPaymentsRefunds(PaymentRefundFor.TOURNAMENT_ENTRY, tournamentEntryId)
       .pipe(first())
       .subscribe(
         (paymentsRefunds: PaymentRefund[]) => {

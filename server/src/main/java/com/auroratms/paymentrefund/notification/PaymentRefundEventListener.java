@@ -65,7 +65,7 @@ public class PaymentRefundEventListener {
                         break;
                     case CLINIC:
                         break;
-                    case USATT_FEE:
+                    case CLUB_AFFILIATION_FEE:
                         break;
                 }
             }
@@ -89,7 +89,7 @@ public class PaymentRefundEventListener {
                         break;
                     case CLINIC:
                         break;
-                    case USATT_FEE:
+                    case CLUB_AFFILIATION_FEE:
                         break;
                 }
             }

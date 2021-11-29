@@ -5,6 +5,7 @@ import {distinctUntilChanged, map, tap} from 'rxjs/operators';
 import {PaymentRefund} from '../model/payment-refund.model';
 import {RefundRequest} from '../model/refund-request.model';
 import {PaymentRequest} from '../model/payment-request.model';
+import {PaymentRefundFor} from '../model/payment-refund-for.enum';
 
 /**
  * Service for initiating Stripe charges with payment intent and
@@ -88,22 +89,22 @@ export class PaymentRefundService {
   /**
    * Gets public key for either testing or live system
    */
-  public getKeyAccountInfo(tournamentId: number): Observable<KeyAccountInfo> {
-    const url = `/api/paymentrefund/keyaccountinfo/${tournamentId}`;
+  public getKeyAccountInfo(paymentFor: PaymentRefundFor, accountItemId: number): Observable<KeyAccountInfo> {
+    const url = `/api/paymentrefund/keyaccountinfo/${paymentFor}/${accountItemId}`;
     return this.httpClient.get<KeyAccountInfo>(url)
       .pipe(
         map((response: KeyAccountInfo) => {
-          // console.log ('got KeyAccountInfo ' + JSON.stringify(response));
+          console.log ('got KeyAccountInfo ' + JSON.stringify(response));
           return response;
         })
       );
   }
 
   /**
-   * Gets public key for either testing or live system
+   * Gets payments refunds for given type of item and item id
    */
-  public listTournamentPaymentsRefunds(tournamentEntryId: number): Observable<PaymentRefund[]> {
-    const url = `/api/paymentrefund/listforentry/${tournamentEntryId}`;
+  public listPaymentsRefunds(paymentFor: PaymentRefundFor, accountItemId: number): Observable<PaymentRefund[]> {
+    const url = `/api/paymentrefund/list/${paymentFor}/${accountItemId}`;
     return this.httpClient.get<PaymentRefund[]>(url)
       .pipe(
         map((response: PaymentRefund[]) => {
@@ -130,14 +131,14 @@ export interface RefundResponse {
 }
 
 /**
- * response from KeyAccountInfo
+ * response from KeyAccountInfo, this is translated from a map of values
  */
 export interface KeyAccountInfo {
   // public key associated with main account
   stripePublicKey: string;
 
   // id of the connected account
-  tournamentAccountId: string;
+  stripeAccountId: string;
 
   // default account currency code e.g. 'USD'
   defaultAccountCurrency: string;

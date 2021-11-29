@@ -25,14 +25,6 @@
                            [(ngModel)]="clubAffiliationApplication.name" required>
                     <mat-error>This field is required</mat-error>
                   </mat-form-field>
-                  <div fxFlex="40%">
-                    <span>Affiliation Expiration Date: {{ clubAffiliationApplication.affiliationExpirationDate | date:'MM-dd-yyyy'}} </span>
-                  </div>
-                  <!--<mat-form-field fxFlex="25%" disabled>-->
-                  <!--<input matInput type="text" placeholder="USATT Affiliation Expires on"-->
-                  <!--name="affiliationExpirationDate"-->
-                  <!--[(ngModel)]="clubAffiliationApplication.affiliationExpirationDate | date:'MM-dd-yyyy'">-->
-                  <!--</mat-form-field>-->
                 </div>
                 <mat-card-subtitle class="mat-title">Playing Site Address</mat-card-subtitle>
                 <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="10px">
@@ -249,7 +241,7 @@
                   </mat-form-field>
                 </div>
 
-                <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="10px"  style="margin-bottom: 20px;">
+                <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="10px" style="margin-bottom: 20px;">
                   <div><span class=mat-caption>Does the club have a membership structure?</span></div>
                   <div>
                     <mat-radio-group [(ngModel)]="clubAffiliationApplication.hasMembershipStructure"
@@ -327,7 +319,8 @@
                   <mat-divider></mat-divider>
                   <div fxLayout="row" fxLayoutAlign="space-between center" style="margin-top: 12px;">
                     <div class="mat-subheader">Playing Site (#{{rowNum + 2}})</div>
-                    <button mat-raised-button type="button" color="" (click)="onRemovePlayingSite(rowNum)">Remove Site</button>
+                    <button mat-raised-button type="button" color="" (click)="onRemovePlayingSite(rowNum)">Remove Site
+                    </button>
                   </div>
                   <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="10px">
                     <mat-form-field fxFlex="50%">
@@ -385,19 +378,15 @@
               </div>
               <div fxLayout="row" fxLayoutAlign="space-between">
                 <button mat-raised-button matStepperPrevious type="button">Back</button>
-                <button mat-raised-button matStepperNext type="button" color="primary" >Next</button>
+                <button mat-raised-button matStepperNext type="button" color="primary">Next</button>
               </div>
             </mat-step>
             <mat-step label="Pay and Submit">
-              <div fxLayout="column" fxLayoutGap="10px">
+              <div fxLayout="column">
                 <div fxLayout="row" fxLayoutAlign="start start">
                   <div fxFlex="60%" fxLayout="column" fxLayoutGap="10px">
                     <div class=mat-caption>Status</div>
-                    <mat-radio-group [(ngModel)]="clubAffiliationApplication.status"
-                                     name="status" fxFlex="50%">
-                      <mat-radio-button value="Approved">Approved</mat-radio-button>&nbsp;&nbsp;
-                      <mat-radio-button value="Rejected">Rejected</mat-radio-button>
-                    </mat-radio-group>
+                    <div>{{clubAffiliationApplication.status}}</div>
                   </div>
                   <mat-form-field fxFlex="40%">
                     <mat-label>New Affiliation Expiration Date</mat-label>
@@ -406,21 +395,65 @@
                            [(ngModel)]="clubAffiliationApplication.affiliationExpirationDate"
                            [disabled]="!canSetExpirationDate()">
                     <mat-datepicker-toggle matSuffix [for]="affiliationExpirationDate"></mat-datepicker-toggle>
-                    <mat-datepicker #affiliationExpirationDate disabled="false"></mat-datepicker>
+                    <mat-datepicker #affiliationExpirationDate [disabled]="!canSetExpirationDate()"></mat-datepicker>
                   </mat-form-field>
                 </div>
-                <div fxLayout="row" fxLayoutAlign="start start" fxLayoutGap="10px">
-                    <button mat-raised-button color="primary" type="button" (click)="onSubmitApplication()"
-                            [disabled]="!isSubmitEnabled()">Submit
-                    </button>
-                    <button mat-raised-button color="primary" type="button" (click)="onSave(true)"
-                            [disabled]="!isPaymentEnabled()">Pay $75 Now to Renew
-                    </button>
-                  </div>
-                  <div>
-                    <button mat-raised-button matStepperPrevious type="button">Back</button>
-                  </div>
+                <div fxLayout="row" fxLayoutAlign="start start">
+                  <mat-form-field fxFlex="100%">
+                    <mat-label>Approval/Rejection Notes</mat-label>
+                    <textarea rows="3" matInput type="text" name="approvalRejectionNotes" maxlength="500"
+                              [(ngModel)]="clubAffiliationApplication.approvalRejectionNotes"
+                    [disabled]="!isApproveRejectEnabled()">
+                    </textarea>
+                  </mat-form-field>
                 </div>
+                <table class="summary-table">
+                  <tbody>
+                  <ng-container *ngIf="paymentsRefunds?.length > 0">
+                    <tr>
+                      <th>Payments & Refunds</th>
+                      <th></th>
+                    </tr>
+                    <tr *ngFor="let paymentRefund of paymentsRefunds; last as last">
+                      <td>
+                        <div>{{ isPayment(paymentRefund) ? 'Payment' : 'Refund' }}</div>
+                        <div class="summary-item-second-line">
+                          on {{ paymentRefund.transactionDate | date:'medium'}}</div>
+                      </td>
+                      <td>
+                        <ng-container *ngIf="paymentRefund.paidAmount !== paymentRefund.amount">
+                          {{ isPayment(paymentRefund) ? '' : '-' }}{{ (paymentRefund.paidAmount / 100) | currency: paymentRefund.paidCurrency }}
+                          =
+                        </ng-container>
+                        {{ isPayment(paymentRefund) ? '' : '-' }}{{ (paymentRefund.amount / 100) | currency: associationCurrency }}
+                      </td>
+                    </tr>
+                    <tr>
+                      <td style="border-top: 1px solid black"><h2>Payments & Refunds Total</h2></td>
+                      <td style="border-top: 1px solid black">
+                        <h2>{{getPaymentsRefundsTotal() | currency: associationCurrency}}</h2></td>
+                    </tr>
+                  </ng-container>
+                  </tbody>
+                </table>
+                <div fxLayout="row" fxLayoutAlign="start start" fxLayoutGap="10px">
+                  <button mat-raised-button color="primary" type="button" (click)="onSubmitApplication()"
+                          [disabled]="!isSubmitEnabled()">Submit
+                  </button>
+                  <button mat-raised-button color="primary" type="button" (click)="onApproveApplication()"
+                          [disabled]="!isApproveRejectEnabled()">Approve
+                  </button>
+                  <button mat-raised-button color="primary" type="button" (click)="onRejectApplication()"
+                          [disabled]="!isApproveRejectEnabled()">Reject
+                  </button>
+                  <button mat-raised-button color="primary" type="button" (click)="onSave(true)"
+                          [disabled]="!isPaymentEnabled()">Pay $75 Now to Renew
+                  </button>
+                </div>
+                <div style="margin-top: 12px;">
+                  <button mat-raised-button matStepperPrevious type="button">Back</button>
+                </div>
+              </div>
             </mat-step>
 
           </mat-horizontal-stepper>

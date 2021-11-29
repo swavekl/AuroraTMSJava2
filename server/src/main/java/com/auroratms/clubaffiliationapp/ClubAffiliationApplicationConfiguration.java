@@ -62,6 +62,8 @@ public class ClubAffiliationApplicationConfiguration {
 
     private List<PlayingSite> alternatePlayingSites;
 
+    private String approvalRejectionNotes;
+
     /**
      *
      * @param application
@@ -105,6 +107,7 @@ public class ClubAffiliationApplicationConfiguration {
         this.setHasBankAccount(application.isHasBankAccount());
 
         this.setAlternatePlayingSites(application.getAlternatePlayingSites());
+        this.setApprovalRejectionNotes(application.getApprovalRejectionNotes());
         String content = null;
         try {
             StringWriter stringWriter = new StringWriter();
@@ -170,6 +173,7 @@ public class ClubAffiliationApplicationConfiguration {
                 application.setHasBankAccount(configuration.isHasBankAccount());
 
                 application.setAlternatePlayingSites(configuration.getAlternatePlayingSites());
+                application.setApprovalRejectionNotes(configuration.getApprovalRejectionNotes());
             } catch (IOException e) {
                 e.printStackTrace();
             }

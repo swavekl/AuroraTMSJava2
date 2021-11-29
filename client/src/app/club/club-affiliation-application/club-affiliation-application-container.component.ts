@@ -1,6 +1,6 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {ClubAffiliationApplicationService} from '../service/club-affiliation-application.service';
-import {Observable, of, Subscription} from 'rxjs';
+import {combineLatest, Observable, of, Subscription} from 'rxjs';
 import {ClubAffiliationApplication} from '../model/club-affiliation-application.model';
 import {LinearProgressBarService} from '../../shared/linear-progress-bar/linear-progress-bar.service';
 import {ActivatedRoute, Router} from '@angular/router';
@@ -15,20 +15,24 @@ import {PaymentDialogData} from '../../account/payment-dialog/payment-dialog-dat
 import {CallbackData} from '../../account/model/callback-data';
 import {AuthenticationService} from '../../user/authentication.service';
 import {Profile} from '../../profile/profile';
+import {PaymentRefundService} from '../../account/service/payment-refund.service';
+import {PaymentRefund} from '../../account/model/payment-refund.model';
 
 @Component({
   selector: 'app-club-affiliation-application-container',
   template: `
-    <app-club-affiliation-application [clubAffiliationApplication]="clubAffiliationApplication$ | async"
-    (saved)="onSaved($event)">
+    <app-club-affiliation-application
+      [clubAffiliationApplication]="clubAffiliationApplication$ | async"
+      [paymentsRefunds]="paymentsRefunds$ | async"
+      (saved)="onSaved($event)">
     </app-club-affiliation-application>
   `,
-  styles: [
-  ]
+  styles: []
 })
 export class ClubAffiliationApplicationContainerComponent implements OnInit, OnDestroy {
 
   public clubAffiliationApplication$: Observable<ClubAffiliationApplication>;
+  public paymentsRefunds$: Observable<PaymentRefund[]>;
 
   private loading$: Observable<boolean>;
   private subscriptions: Subscription = new Subscription();
@@ -39,6 +43,7 @@ export class ClubAffiliationApplicationContainerComponent implements OnInit, OnD
               private activatedRoute: ActivatedRoute,
               private paymentDialogService: PaymentDialogService,
               private authenticationService: AuthenticationService,
+              private paymentRefundService: PaymentRefundService,
               private router: Router,
               private linearProgressBarService: LinearProgressBarService) {
     const routePath = this.activatedRoute.snapshot.routeConfig.path;
@@ -47,10 +52,17 @@ export class ClubAffiliationApplicationContainerComponent implements OnInit, OnD
     this.applicationId = Number(strId);
     this.setupProgressIndicator();
     this.loadApplication();
-    }
+    this.loadPaymentRefunds();
+  }
 
   private setupProgressIndicator() {
-    this.loading$ = this.clubAffiliationApplicationService.store.select(this.clubAffiliationApplicationService.selectors.selectLoading);
+    this.loading$ = combineLatest(
+      this.clubAffiliationApplicationService.store.select(this.clubAffiliationApplicationService.selectors.selectLoading),
+      this.paymentRefundService.loading$,
+      (applicationLoading: boolean, paymentLoading: boolean) => {
+        return applicationLoading || paymentLoading;
+      }
+    );
 
     const loadingSubscription = this.loading$.subscribe((loading: boolean) => {
       this.linearProgressBarService.setLoading(loading);
@@ -100,24 +112,35 @@ export class ClubAffiliationApplicationContainerComponent implements OnInit, OnD
       this.clubAffiliationApplication$ = this.clubAffiliationApplicationService.store.select(selector);
       const subscription = this.clubAffiliationApplication$
         .subscribe((clubAffiliationApplication: ClubAffiliationApplication) => {
-        if (!clubAffiliationApplication) {
-          this.clubAffiliationApplicationService.getByKey(this.applicationId);
-        } else {
-          // clone it so that Angular template driven form can modify the values
-          const applicationToEdit: ClubAffiliationApplication =  JSON.parse(JSON.stringify(clubAffiliationApplication));
-          if (this.creating && this.applicationId !== 0) {
-            applicationToEdit.id = null;
-            applicationToEdit.affiliationExpirationDate = null;
-            applicationToEdit.status = ClubAffiliationApplicationStatus.New;
-            applicationToEdit.paymentId = null;
+          if (!clubAffiliationApplication) {
+            this.clubAffiliationApplicationService.getByKey(this.applicationId);
+          } else {
+            // clone it so that Angular template driven form can modify the values
+            const applicationToEdit: ClubAffiliationApplication = JSON.parse(JSON.stringify(clubAffiliationApplication));
+            if (this.creating && this.applicationId !== 0) {
+              applicationToEdit.id = null;
+              applicationToEdit.affiliationExpirationDate = null;
+              applicationToEdit.status = ClubAffiliationApplicationStatus.New;
+            }
+            this.clubAffiliationApplication$ = of(applicationToEdit);
           }
-          this.clubAffiliationApplication$ = of (applicationToEdit);
-        }
-      });
+        });
       this.subscriptions.add(subscription);
     } else {
       // new application
-      this.clubAffiliationApplication$ = of (new ClubAffiliationApplication());
+      this.clubAffiliationApplication$ = of(new ClubAffiliationApplication());
+    }
+  }
+
+  private loadPaymentRefunds() {
+    if (this.applicationId !== 0 && !this.creating) {
+      this.paymentRefundService.listPaymentsRefunds(PaymentRefundFor.CLUB_AFFILIATION_FEE, this.applicationId)
+        .pipe(first())
+        .subscribe((paymentsRefunds: PaymentRefund[]) => {
+          this.paymentsRefunds$ = of(paymentsRefunds);
+        });
+    } else {
+      this.paymentsRefunds$ = of ([]);
     }
   }
 
@@ -129,15 +152,15 @@ export class ClubAffiliationApplicationContainerComponent implements OnInit, OnD
     const fullName = currentUserProfile.firstName + ' ' + currentUserProfile.lastName;
     const postalCode = currentUserProfile.zipCode;
     const email = currentUserProfile.email;
-    const clubName = 'Club Affiliation Fee for ' + clubAffiliationApplication.name;
+    const statementDescriptor = 'Club Affiliation Fee for ' + clubAffiliationApplication.name;
     const paymentRequest: PaymentRequest = {
-      paymentRefundFor: PaymentRefundFor.USATT_FEE,
+      paymentRefundFor: PaymentRefundFor.CLUB_AFFILIATION_FEE,
       accountItemId: 0, // USATT account id
       transactionItemId: clubAffiliationApplication.id,
       amount: amount,
       currencyCode: currencyOfPayment,
       amountInAccountCurrency: amountInAccountCurrency,
-      statementDescriptor: clubName,
+      statementDescriptor: statementDescriptor,
       fullName: fullName,
       postalCode: postalCode,
       receiptEmail: email,
@@ -162,7 +185,7 @@ export class ClubAffiliationApplicationContainerComponent implements OnInit, OnD
   onPaymentSuccessful(scope: any) {
     if (scope != null) {
       scope.clubAffiliationApplicationService.update({
-        id: this.applicationId,
+        id: scope.applicationId,
         status: ClubAffiliationApplicationStatus.Completed
       }).pipe(first())
         .subscribe(() => {

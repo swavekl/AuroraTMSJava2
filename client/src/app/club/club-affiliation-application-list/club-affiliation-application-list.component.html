@@ -22,12 +22,12 @@
 
     <!-- City & State Column -->
     <ng-container matColumnDef="cityState">
-      <mat-header-cell *matHeaderCellDef mat-sort-header>City & State</mat-header-cell>
+      <mat-header-cell *matHeaderCellDef>City & State</mat-header-cell>
       <mat-cell *matCellDef="let row">{{row.city}}, {{row.state}}</mat-cell>
     </ng-container>
 
     <!-- Affiliation Expiration Date Column -->
-    <ng-container matColumnDef="expirationDate">
+    <ng-container matColumnDef="affiliation_expiration_date">
       <mat-header-cell *matHeaderCellDef mat-sort-header>Expiration Date</mat-header-cell>
       <mat-cell *matCellDef="let row">{{row.affiliationExpirationDate | date }}</mat-cell>
     </ng-container>
@@ -40,7 +40,7 @@
 
     <!-- Action Column -->
     <ng-container matColumnDef="actions">
-      <mat-header-cell *matHeaderCellDef mat-sort-header>Actions</mat-header-cell>
+      <mat-header-cell *matHeaderCellDef>Actions</mat-header-cell>
       <mat-cell *matCellDef="let row">
         <button mat-icon-button (click)="onDeleteApplication(row.id, row.name)" matTooltip="Delete" style="margin-right: 20px">
           <mat-icon matListIcon>delete</mat-icon>
