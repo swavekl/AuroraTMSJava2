@@ -1,5 +1,6 @@
 package com.auroratms.clubaffiliationapp;
 
+import com.auroratms.clubaffiliationapp.notification.ClubAffiliationApplicationEventPublisher;
 import com.auroratms.error.ResourceNotFoundException;
 import com.auroratms.users.UserRoles;
 import com.auroratms.users.UserRolesHelper;
@@ -34,6 +35,9 @@ public class ClubAffiliationApplicationService {
 
     @Autowired
     private SecurityService securityService;
+
+    @Autowired
+    ClubAffiliationApplicationEventPublisher eventPublisher;
 
     private static final Class ACL_MANAGED_OBJECT_CLASS = ClubAffiliationApplicationEntity.class;
 
@@ -85,6 +89,13 @@ public class ClubAffiliationApplicationService {
             provideAccessToAdmin(savedEntity.getId());
             provideAccessToUSATTOfficials(savedEntity.getId());
         }
+
+        // send email about payment completed, approval/rejection etc.
+        // create/update club information in club table.
+        if (clubAffiliationApplication.getStatus() != ClubAffiliationApplicationStatus.New) {
+            clubAffiliationApplication.setId(savedEntity.getId());
+            eventPublisher.publishEvent(clubAffiliationApplication);
+        }
         return new ClubAffiliationApplication().convertFromEntity(entity);
     }
 
@@ -126,8 +137,10 @@ public class ClubAffiliationApplicationService {
     public void updateStatus(Long applicationId, ClubAffiliationApplicationStatus status) {
         ClubAffiliationApplication clubAffiliationApplication = this.findById(applicationId);
         clubAffiliationApplication.setStatus(status);
-        // todo: send email about payment completed, approval/rejection etc.
-        // todo: copy new expiration date and other data to club table.
         this.save(clubAffiliationApplication);
+
+        // send email about payment completed, approval/rejection etc.
+        // create/update club information in club table.
+        eventPublisher.publishEvent(clubAffiliationApplication);
     }
 }

@@ -94,7 +94,7 @@ export class PaymentRefundService {
     return this.httpClient.get<KeyAccountInfo>(url)
       .pipe(
         map((response: KeyAccountInfo) => {
-          console.log ('got KeyAccountInfo ' + JSON.stringify(response));
+          // console.log ('got KeyAccountInfo ' + JSON.stringify(response));
           return response;
         })
       );

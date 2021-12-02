@@ -99,7 +99,8 @@ export class ClubAffiliationApplicationComponent implements OnInit {
   }
 
   canSetExpirationDate() {
-    const statusOK = this.clubAffiliationApplication.status === ClubAffiliationApplicationStatus.Approved ||
+    const statusOK = this.clubAffiliationApplication.status === ClubAffiliationApplicationStatus.Submitted ||
+      this.clubAffiliationApplication.status === ClubAffiliationApplicationStatus.Approved ||
       this.clubAffiliationApplication.status === ClubAffiliationApplicationStatus.Completed;
     const isPermitted = this.authenticationService.hasCurrentUserRole(
       [UserRoles.ROLE_ADMINS, UserRoles.ROLE_USATT_OFFICIALS]);

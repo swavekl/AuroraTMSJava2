@@ -17,4 +17,6 @@ public interface ClubRepository extends JpaRepository<ClubEntity, Long> {
     List<ClubEntity> findAllByIdIn (List<Long> clubIdsList);
 
     Page<ClubEntity> findAllByClubNameContainsOrAlternateClubNamesContains(String nameLike, String alternativeNameLike, Pageable pageable);
+
+    List<ClubEntity> findAllByClubNameAndState(String clubName, String state);
 }

@@ -25,6 +25,9 @@ public class ClubEntity {
     // alternative names and acronym, comma separated
     private String alternateClubNames;
 
+    // e.g Eola Community Center
+    private String buildingName;
+
     // address
     private String streetAddress;
     private String city;
@@ -32,4 +35,17 @@ public class ClubEntity {
     private String zipCode;
     private String countryCode;
 
+    // if true this is an affiliated club
+    private boolean isAffiliated;
+
+    // Wednesday & Friday - 6:30 - 9:30PM
+    private String hoursAndDates;
+
+    private String clubAdminName;
+    private String clubAdminEmail;
+
+    private String clubPhoneNumber;
+    private String clubPhoneNumber2;
+
+    private String clubWebsite;
 }
