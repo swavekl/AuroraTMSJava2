@@ -12,9 +12,9 @@ export class RoundNamePipe implements PipeTransform {
       case 2:
         return (groupNum === 1) ? 'Finals' : '3rd & 4th Place';
       case 4:
-        return 'Semi-Finals';
+        return 'Semifinals';
       case 8:
-        return 'Quarter-Finals';
+        return 'Quarterfinals';
       default:
         return 'Round of ' + round;
     }

@@ -9,17 +9,4 @@ export class DrawRound {
 
   // items in this round
   drawItems: DrawItem [] = [];
-
-  getRoundName (): string {
-    switch (this.round) {
-      case 2:
-        return 'Finals';
-      case 4:
-        return 'Semi-Finals';
-      case 8:
-        return 'Quarter-Finals';
-      default:
-        return 'Round of ' + this.round;
-    }
-  }
 }

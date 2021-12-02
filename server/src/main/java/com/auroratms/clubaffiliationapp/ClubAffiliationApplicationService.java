@@ -126,6 +126,8 @@ public class ClubAffiliationApplicationService {
     public void updateStatus(Long applicationId, ClubAffiliationApplicationStatus status) {
         ClubAffiliationApplication clubAffiliationApplication = this.findById(applicationId);
         clubAffiliationApplication.setStatus(status);
+        // todo: send email about payment completed, approval/rejection etc.
+        // todo: copy new expiration date and other data to club table.
         this.save(clubAffiliationApplication);
     }
 }
