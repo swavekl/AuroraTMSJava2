@@ -37,19 +37,19 @@ export class ClubAffiliationApplicationListDataSource extends DataSource<ClubAff
   connect(): Observable<ClubAffiliationApplication[]> {
     if (this.paginator && this.sort) {
       // load first page
-      this.loadPage();
+      this.loadPage(false);
       // when results arrive or next page or sort order changes
       return merge(this.clubAffiliationApplications$,
         this.paginator.page, this.sort.sortChange, this.filterByName$.asObservable())
         .pipe(
           map((value: any, index: number) => {
-            // console.log('value', value);
             if (Array.isArray(value)) {
               // results arrived - return them
               return value;
             } else {
+              const resetToPageOne = typeof value === 'string';
               // next/previous page requested or sort change, request new page
-              this.loadPage();
+              this.loadPage(resetToPageOne);
               // return current page for now
               return this.clubAffiliationApplications;
             }
@@ -70,7 +70,10 @@ export class ClubAffiliationApplicationListDataSource extends DataSource<ClubAff
    * Paginate the data (client-side). If you're using server-side pagination,
    * this would be replaced by requesting the appropriate data from the server.
    */
-  public loadPage() {
+  public loadPage(resetToPageOne: boolean) {
+    if (resetToPageOne) {
+      this.paginator.pageIndex = 0;
+    }
     let query = `page=${this.paginator.pageIndex}&size=${this.paginator.pageSize}`;
     if (this.sort && this.sort?.active && this.sort.direction !== '') {
       query += `&sort=${this.sort?.active},${this.sort?.direction}`;
@@ -94,7 +97,7 @@ export class ClubAffiliationApplicationListDataSource extends DataSource<ClubAff
     this.clubAffiliationApplicationService.delete(applicationId)
       .pipe(first())
       .subscribe(() => {
-      this.loadPage();
+      this.loadPage(false);
     });
   }
 }

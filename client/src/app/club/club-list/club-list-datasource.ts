@@ -35,7 +35,7 @@ export class ClubListDataSource extends DataSource<Club> {
   connect(): Observable<Club[]> {
     if (this.paginator && this.sort) {
       // load first page
-      this.loadPage();
+      this.loadPage(false);
       // when results arrive or next page or sort order changes
       return merge(this.clubs$, this.paginator.page, this.sort.sortChange, this.filterByName$.asObservable())
         .pipe(
@@ -45,8 +45,10 @@ export class ClubListDataSource extends DataSource<Club> {
               // results arrived - return them
               return value;
             } else {
+              // was it a filter that changed
+              const resetToPageOne = typeof value === 'string';
               // next/previous page requested or sort change, request new page
-              this.loadPage();
+              this.loadPage(resetToPageOne);
               // return current page for now
               return this.clubs;
             }
@@ -61,25 +63,29 @@ export class ClubListDataSource extends DataSource<Club> {
    *  Called when the table is being destroyed. Use this function, to clean up
    * any open connections or free any held resources that were set up during connect.
    */
-  disconnect(): void {}
+  disconnect(): void {
+  }
 
   /**
    * Paginate the data (client-side). If you're using server-side pagination,
    * this would be replaced by requesting the appropriate data from the server.
    */
-  public loadPage() {
-      let query = `page=${this.paginator.pageIndex}&size=${this.paginator.pageSize}`;
-      if (this.sort && this.sort?.active && this.sort.direction !== '') {
-        query += `&sort=${this.sort?.active},${this.sort?.direction}`;
-      }
-      const filterValue = this.filterByName$.value;
-      if (filterValue !== '') {
-        query += `&nameContains=${filterValue}`;
-      }
-      this.clubService.clearCache();
-      this.clubService.getWithQuery(query)
-        .pipe(tap((clubs: Club[]) => {
-          this.clubs = clubs;
-        }));
+  public loadPage(resetToPageOne: boolean) {
+    if (resetToPageOne) {
+      this.paginator.pageIndex = 0;
+    }
+    let query = `page=${this.paginator.pageIndex}&size=${this.paginator.pageSize}`;
+    if (this.sort && this.sort?.active && this.sort.direction !== '') {
+      query += `&sort=${this.sort?.active},${this.sort?.direction}`;
+    }
+    const filterValue = this.filterByName$.value;
+    if (filterValue !== '') {
+      query += `&nameContains=${filterValue}`;
+    }
+    this.clubService.clearCache();
+    this.clubService.getWithQuery(query)
+      .pipe(tap((clubs: Club[]) => {
+        this.clubs = clubs;
+      }));
   }
 }

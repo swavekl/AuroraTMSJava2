@@ -87,9 +87,10 @@ public class ClubAffiliationApplicationEventListener {
         clubEntity.setBuildingName(clubAffiliationApplication.getBuildingName());
         clubEntity.setStreetAddress(clubAffiliationApplication.getStreetAddress());
         clubEntity.setCity(clubAffiliationApplication.getCity());
+        clubEntity.setState(clubAffiliationApplication.getState());
         clubEntity.setZipCode(clubAffiliationApplication.getZipCode());
-        clubEntity.setHoursAndDates(clubAffiliationApplication.getHoursAndDates());
         clubEntity.setCountryCode("US");
+        clubEntity.setHoursAndDates(clubAffiliationApplication.getHoursAndDates());
         clubEntity.setClubAdminName(clubAffiliationApplication.getClubAdminName());
         clubEntity.setClubAdminEmail(clubAffiliationApplication.getClubAdminEmail());
         clubEntity.setClubPhoneNumber(clubAffiliationApplication.getClubPhoneNumber());

@@ -73,7 +73,7 @@ export class ClubListComponent implements AfterViewInit {
       .pipe(first())
       .subscribe(() => {
         // refresh the page
-      me.dataSource.loadPage();
+      me.dataSource.loadPage(true);
     });
   }
 }
