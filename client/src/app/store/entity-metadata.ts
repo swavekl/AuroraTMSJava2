@@ -59,6 +59,11 @@ const entityMetadata: EntityMetadataMap = {
     additionalCollectionState: {
       total: 0
     }
+  },
+  InsuranceRequest: {
+    additionalCollectionState: {
+      total: 0
+    }
   }
 };
 

@@ -5,8 +5,8 @@ import com.auroratms.club.ClubService;
 import com.auroratms.clubaffiliationapp.ClubAffiliationApplication;
 import com.auroratms.clubaffiliationapp.ClubAffiliationApplicationStatus;
 import com.auroratms.clubaffiliationapp.notification.event.ClubAffiliationApplicationEvent;
-import com.auroratms.tournamententry.notification.TournamentEventListener;
 import com.auroratms.utils.EmailService;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +15,6 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
-import org.thymeleaf.util.StringUtils;
 
 import javax.mail.MessagingException;
 import java.util.HashMap;
@@ -25,7 +24,7 @@ import java.util.Map;
 @Component
 public class ClubAffiliationApplicationEventListener {
 
-    private static final Logger logger = LoggerFactory.getLogger(TournamentEventListener.class);
+    private static final Logger logger = LoggerFactory.getLogger(ClubAffiliationApplicationEventListener.class);
 
     @Autowired
     private EmailService emailService;
@@ -65,11 +64,13 @@ public class ClubAffiliationApplicationEventListener {
             ClubEntity newClub = new ClubEntity();
             transferData(newClub, clubAffiliationApplication);
             clubService.save(newClub);
+            logger.info("Created new club for club " + newClub.getClubName());
         } else {
             for (ClubEntity clubEntity : clubEntityList) {
                 // find the right club so we can update its data
                 transferData(clubEntity, clubAffiliationApplication);
                 clubService.save(clubEntity);
+                logger.info("Updated club information for club " + clubEntity.getClubName());
                 break;
             }
         }

@@ -71,6 +71,13 @@ const routes: Routes = [
     data: {
       roles: [UserRoles.ROLE_ADMINS, UserRoles.ROLE_USATT_OFFICIALS, UserRoles.ROLE_TOURNAMENT_DIRECTORS]
     }
+  },
+  {
+    path: 'insurance',
+    loadChildren: () => import('./insurance/insurance.module').then(m => m.InsuranceModule),
+    data: {
+      roles: [UserRoles.ROLE_ADMINS, UserRoles.ROLE_USATT_OFFICIALS, UserRoles.ROLE_TOURNAMENT_DIRECTORS]
+    }
   }
 ];
 

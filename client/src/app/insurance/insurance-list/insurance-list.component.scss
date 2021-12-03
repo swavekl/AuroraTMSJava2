@@ -1,0 +1,31 @@
+.insurancecard {
+  width: 80%;
+}
+
+div.table-container {
+  overflow: auto;
+  height: calc(100vh - 220px);
+  //border: 1px solid greenyellow;
+}
+
+.toolbar-spacer-2 {
+  margin-right: 16px;
+}
+
+.mat-column-eventName {
+  flex: 3;
+}
+
+.mat-column-eventStartDate {
+  flex: 1;
+}
+
+.mat-column-status {
+  flex: 1;
+}
+
+.mat-column-actions {
+  flex: 1;
+}
+
+

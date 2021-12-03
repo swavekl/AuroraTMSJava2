@@ -64,7 +64,7 @@ public class ClubAffiliationApplicationController {
     }
 
     /**
-     * Deletes request
+     * Deletes application
      *
      * @param applicationId
      * @return

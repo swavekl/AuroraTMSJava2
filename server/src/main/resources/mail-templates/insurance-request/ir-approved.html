@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <title></title>
+</head>
+<body>
+Hello <span th:text="${clubAdminName}"></span>,
+<p>
+    Your insurance certificate request has been approved.
+</p>
+<p th:if="${reason != null}">
+    The following comments were added: <span th:text="${reason}"></span>
+</p>
+<p>
+    Please visit <a th:href="${applicationUrl}">this link</a> to make a payment and complete the application.
+</p>
+Thank you,
+
+<div th:text="${associationAdminName}"></div>
+<div th:text="${associationAdminEmail}"></div>
+</body>
+</html>
