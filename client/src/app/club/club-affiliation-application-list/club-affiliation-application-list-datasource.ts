@@ -79,11 +79,9 @@ export class ClubAffiliationApplicationListDataSource extends DataSource<ClubAff
     if (filterValue !== '') {
       query += `&nameContains=${filterValue}`;
     }
-    console.log('getting applications with query', query);
     this.clubAffiliationApplicationService.clearCache();
     this.clubAffiliationApplicationService.getWithQuery(query)
       .pipe(tap((clubAffiliationApplications: ClubAffiliationApplication[]) => {
-        console.log('got applications');
         this.clubAffiliationApplications = clubAffiliationApplications;
       }));
   }
@@ -96,7 +94,6 @@ export class ClubAffiliationApplicationListDataSource extends DataSource<ClubAff
     this.clubAffiliationApplicationService.delete(applicationId)
       .pipe(first())
       .subscribe(() => {
-        console.log('deleted application ' + applicationId);
       this.loadPage();
     });
   }

@@ -19,7 +19,7 @@ spring:
 #    properties.hibernate.format_sql: true
 
 #logging.level.org.hibernate.SQL: TRACE
-# trace how many results were returned
+# # trace how many results were returned
 #logging.level.org.hibernate.loader: TRACE
 # show parameter values
 #logging.level.org.hibernate.type: TRACE

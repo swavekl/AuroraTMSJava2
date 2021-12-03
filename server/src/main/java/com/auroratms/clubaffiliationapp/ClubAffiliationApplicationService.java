@@ -83,6 +83,11 @@ public class ClubAffiliationApplicationService {
     @CachePut(key = "#result.id")
     public ClubAffiliationApplication save(ClubAffiliationApplication clubAffiliationApplication) {
         boolean isCreating = (clubAffiliationApplication.getId() == null);
+        ClubAffiliationApplicationStatus oldStatus = null;
+        if (!isCreating) {
+            ClubAffiliationApplication oldEntity = this.findById(clubAffiliationApplication.getId());
+            oldStatus = oldEntity.getStatus();
+        }
         ClubAffiliationApplicationEntity entity = clubAffiliationApplication.convertToEntity();
         ClubAffiliationApplicationEntity savedEntity = this.repository.save(entity);
         if (isCreating) {
@@ -90,13 +95,12 @@ public class ClubAffiliationApplicationService {
             provideAccessToUSATTOfficials(savedEntity.getId());
         }
 
-        // send email about payment completed, approval/rejection etc.
+        ClubAffiliationApplication retValue = new ClubAffiliationApplication().convertFromEntity(entity);
+        // send email about payment completed, approval/rejection etc. if status changed
         // create/update club information in club table.
-        if (clubAffiliationApplication.getStatus() != ClubAffiliationApplicationStatus.New) {
-            clubAffiliationApplication.setId(savedEntity.getId());
-            eventPublisher.publishEvent(clubAffiliationApplication);
-        }
-        return new ClubAffiliationApplication().convertFromEntity(entity);
+        eventPublisher.publishEvent(retValue, oldStatus);
+
+        return retValue;
     }
 
     @CacheEvict(key = "#id")
@@ -132,15 +136,11 @@ public class ClubAffiliationApplicationService {
     /**
      *
      * @param applicationId
-     * @param status
+     * @param newStatus
      */
-    public void updateStatus(Long applicationId, ClubAffiliationApplicationStatus status) {
+    public void updateStatus(Long applicationId, ClubAffiliationApplicationStatus newStatus) {
         ClubAffiliationApplication clubAffiliationApplication = this.findById(applicationId);
-        clubAffiliationApplication.setStatus(status);
+        clubAffiliationApplication.setStatus(newStatus);
         this.save(clubAffiliationApplication);
-
-        // send email about payment completed, approval/rejection etc.
-        // create/update club information in club table.
-        eventPublisher.publishEvent(clubAffiliationApplication);
     }
 }

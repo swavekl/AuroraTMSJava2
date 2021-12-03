@@ -39,7 +39,13 @@ public class ClubAffiliationApplicationEventListener {
     @Async
     @TransactionalEventListener(phase= TransactionPhase.AFTER_COMMIT)
     public void handleEvent(ClubAffiliationApplicationEvent event) {
-        sendEmail(event);
+        ClubAffiliationApplicationStatus newStatus = event.getClubAffiliationApplication().getStatus();
+        ClubAffiliationApplicationStatus oldStatus = event.getOldStatus();
+        // avoid sending unnecessary emails - only when status changes
+        if (newStatus != oldStatus) {
+            sendEmail(event);
+        }
+        // only update once it is completed
         if (event.getClubAffiliationApplication().getStatus() == ClubAffiliationApplicationStatus.Completed) {
             updateClubTable(event);
         }

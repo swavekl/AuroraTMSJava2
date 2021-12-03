@@ -48,9 +48,7 @@ export class ClubAffiliationApplicationComponent implements OnInit {
   }
 
   onSubmitApplication() {
-    const applicationToEdit: ClubAffiliationApplication =  JSON.parse(JSON.stringify(this.clubAffiliationApplication));
-    applicationToEdit.status = ClubAffiliationApplicationStatus.Submitted;
-    this.clubAffiliationApplication = applicationToEdit;
+    this.clubAffiliationApplication.status = ClubAffiliationApplicationStatus.Submitted;
     this.onSave(false);
   }
 

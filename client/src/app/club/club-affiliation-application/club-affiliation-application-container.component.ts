@@ -38,6 +38,7 @@ export class ClubAffiliationApplicationContainerComponent implements OnInit, OnD
   private subscriptions: Subscription = new Subscription();
   private applicationId: number;
   private creating: boolean;
+  private showingPaymentDialog: boolean;
 
   constructor(private clubAffiliationApplicationService: ClubAffiliationApplicationService,
               private activatedRoute: ActivatedRoute,
@@ -50,9 +51,10 @@ export class ClubAffiliationApplicationContainerComponent implements OnInit, OnD
     this.creating = (routePath.indexOf('create') !== -1);
     const strId = this.activatedRoute.snapshot.params['id'] || 0;
     this.applicationId = Number(strId);
+    this.showingPaymentDialog = false;
     this.setupProgressIndicator();
     this.loadApplication();
-    this.loadPaymentRefunds();
+    this.loadPayments();
   }
 
   private setupProgressIndicator() {
@@ -60,7 +62,13 @@ export class ClubAffiliationApplicationContainerComponent implements OnInit, OnD
       this.clubAffiliationApplicationService.store.select(this.clubAffiliationApplicationService.selectors.selectLoading),
       this.paymentRefundService.loading$,
       (applicationLoading: boolean, paymentLoading: boolean) => {
-        return applicationLoading || paymentLoading;
+        if (this.showingPaymentDialog) {
+          // ignore paymentLoading indicator when the dialog is being shown - it is coming from
+          // a popup not using the service, not in this page
+          return applicationLoading;
+        } else {
+          return applicationLoading || paymentLoading;
+        }
       }
     );
 
@@ -69,7 +77,6 @@ export class ClubAffiliationApplicationContainerComponent implements OnInit, OnD
     });
     this.subscriptions.add(loadingSubscription);
   }
-
 
   ngOnInit(): void {
   }
@@ -120,6 +127,7 @@ export class ClubAffiliationApplicationContainerComponent implements OnInit, OnD
             if (this.creating && this.applicationId !== 0) {
               applicationToEdit.id = null;
               applicationToEdit.affiliationExpirationDate = null;
+              applicationToEdit.approvalRejectionNotes = null;
               applicationToEdit.status = ClubAffiliationApplicationStatus.New;
             }
             this.clubAffiliationApplication$ = of(applicationToEdit);
@@ -132,13 +140,14 @@ export class ClubAffiliationApplicationContainerComponent implements OnInit, OnD
     }
   }
 
-  private loadPaymentRefunds() {
+  private loadPayments() {
     if (this.applicationId !== 0 && !this.creating) {
-      this.paymentRefundService.listPaymentsRefunds(PaymentRefundFor.CLUB_AFFILIATION_FEE, this.applicationId)
+      const subscription = this.paymentRefundService.listPaymentsRefunds(PaymentRefundFor.CLUB_AFFILIATION_FEE, this.applicationId)
         .pipe(first())
         .subscribe((paymentsRefunds: PaymentRefund[]) => {
           this.paymentsRefunds$ = of(paymentsRefunds);
         });
+      this.subscriptions.add (subscription);
     } else {
       this.paymentsRefunds$ = of ([]);
     }
@@ -176,6 +185,7 @@ export class ClubAffiliationApplicationContainerComponent implements OnInit, OnD
       cancelCallbackFn: this.onPaymentCanceled,
       callbackScope: this
     };
+    this.showingPaymentDialog = true;
     this.paymentDialogService.showPaymentDialog(paymentDialogData, callbackData);
   }
 
@@ -183,13 +193,14 @@ export class ClubAffiliationApplicationContainerComponent implements OnInit, OnD
    * Callback from payment dialog when payment is successful
    */
   onPaymentSuccessful(scope: any) {
+    this.showingPaymentDialog = false;
     if (scope != null) {
       scope.clubAffiliationApplicationService.update({
         id: scope.applicationId,
         status: ClubAffiliationApplicationStatus.Completed
       }).pipe(first())
-        .subscribe(() => {
-          scope.goBackToList();
+        .subscribe((updatedClubAffiliationApplication: ClubAffiliationApplication) => {
+          scope.loadPayments();
         });
     }
   }
@@ -198,6 +209,7 @@ export class ClubAffiliationApplicationContainerComponent implements OnInit, OnD
    *
    */
   onPaymentCanceled(scope: any) {
-    console.log('in onPaymentCanceled');
+    this.showingPaymentDialog = false;
+    // console.log('in onPaymentCanceled');
   }
 }
