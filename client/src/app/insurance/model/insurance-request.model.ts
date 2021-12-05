@@ -15,7 +15,7 @@ export class InsuranceRequest {
   orgZip: number;
   orgState: string;
 
-  requestDate: Date;
+  requestDate: Date = new Date();
 
   contactName: string;
   contactPhoneNumber: string;
