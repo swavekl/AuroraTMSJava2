@@ -14,7 +14,7 @@ import {ConfirmationPopupComponent} from '../../shared/confirmation-popup/confir
 @Component({
   selector: 'app-club-affiliation-application-list',
   templateUrl: './club-affiliation-application-list.component.html',
-  styleUrls: ['./club-affiliation-application-list.component.css']
+  styleUrls: ['./club-affiliation-application-list.component.scss']
 })
 export class ClubAffiliationApplicationListComponent implements AfterViewInit {
   @ViewChild(MatPaginator) paginator!: MatPaginator;

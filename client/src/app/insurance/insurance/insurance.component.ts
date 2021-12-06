@@ -2,6 +2,7 @@ import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {InsuranceRequest} from '../model/insurance-request.model';
 import {StatesList} from '../../shared/states/states-list';
 import {DateUtils} from '../../shared/date-utils';
+import {InsuranceRequestStatus} from '../model/insurance-request-status';
 
 @Component({
   selector: 'app-insurance',
@@ -45,13 +46,13 @@ export class InsuranceComponent implements OnInit {
     this.maxEndDate.setDate(this.maxEndDate.getDate() + 7);
   }
 
-  save(formValues: any) {
+  save() {
     const requestDate: Date = (this.insuranceRequest.requestDate != null) ? new Date (this.insuranceRequest.requestDate) : new Date();
     const dateUtils = new DateUtils();
     this.insuranceRequest.eventStartDate = dateUtils.convertFromLocalToUTCDate (this.insuranceRequest.eventStartDate);
     this.insuranceRequest.eventEndDate = dateUtils.convertFromLocalToUTCDate(this.insuranceRequest.eventEndDate);
     this.insuranceRequest.requestDate = dateUtils.convertFromLocalToUTCDate (requestDate);
-    console.log('saving insurance request', this.insuranceRequest);
+    // console.log('saving insurance request', this.insuranceRequest);
     this.saved.emit (this.insuranceRequest);
   }
 
@@ -59,4 +60,8 @@ export class InsuranceComponent implements OnInit {
     this.canceled.emit('cancelled');
   }
 
+  onSubmitRequest() {
+    this.insuranceRequest.status = InsuranceRequestStatus.Submitted;
+    this.save();
+  }
 }

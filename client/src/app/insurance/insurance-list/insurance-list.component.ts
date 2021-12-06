@@ -25,7 +25,7 @@ export class InsuranceListComponent implements AfterViewInit {
   filterClubName: string;
 
   /** Columns displayed in the table. Columns IDs can be added, removed, or reordered. */
-  displayColumns = ['eventName', 'eventStartDate', 'status', 'actions'];
+  displayColumns = ['eventName', 'eventStartDate', 'status', 'requestDate', 'actions'];
 
   constructor(private insuranceRequestService: InsuranceRequestService,
               private router: Router,

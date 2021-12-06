@@ -17,17 +17,22 @@
   <mat-table matSort aria-label="Insurance Requests">
     <ng-container matColumnDef="eventName">
       <mat-header-cell *matHeaderCellDef>Event Name</mat-header-cell>
-      <mat-cell *matCellDef="let insuranceRequest">{{ insuranceRequest.eventName }}</mat-cell>
+      <mat-cell *matCellDef="let insuranceRequest" [routerLink]="['/insurance/edit', insuranceRequest.id]">{{ insuranceRequest.eventName }}</mat-cell>
     </ng-container>
 
     <ng-container matColumnDef="eventStartDate">
       <mat-header-cell *matHeaderCellDef>Event Start Date</mat-header-cell>
-      <mat-cell *matCellDef="let insuranceRequest">{{ insuranceRequest.eventStartDate | date }}</mat-cell>
+      <mat-cell *matCellDef="let insuranceRequest" [routerLink]="['/insurance/edit', insuranceRequest.id]">{{ insuranceRequest.eventStartDate | date }}</mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="requestDate">
+      <mat-header-cell *matHeaderCellDef>Request Date</mat-header-cell>
+      <mat-cell *matCellDef="let insuranceRequest" [routerLink]="['/insurance/edit', insuranceRequest.id]">{{ insuranceRequest.requestDate | date }}</mat-cell>
     </ng-container>
 
     <ng-container matColumnDef="status">
       <mat-header-cell *matHeaderCellDef>Status</mat-header-cell>
-      <mat-cell *matCellDef="let insuranceRequest">{{ insuranceRequest.status }}</mat-cell>
+      <mat-cell *matCellDef="let insuranceRequest" [routerLink]="['/insurance/edit', insuranceRequest.id]">{{ insuranceRequest.status }}</mat-cell>
     </ng-container>
 
     <ng-container matColumnDef="actions">
@@ -40,9 +45,6 @@
         <button mat-icon-button [routerLink]="['/insurance/create', insuranceRequest.id]" matTooltip="Copy"
                 style="margin-right: 20px">
           <mat-icon matListIcon>flip_to_front</mat-icon>
-        </button>
-        <button mat-icon-button [routerLink]="['/insurance/edit', insuranceRequest.id]">
-          <mat-icon aria-label="Edit">edit</mat-icon>
         </button>
       </mat-cell>
     </ng-container>

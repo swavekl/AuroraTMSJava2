@@ -1,13 +1,14 @@
 <div fxLayout="row">
   <div fxFlex></div>
   <div fxFlex="60%">
-    <form name="form" (ngSubmit)="save(f.value)" #f="ngForm" novalidate>
+    <form name="form" (ngSubmit)="save()" #f="ngForm" novalidate>
       <mat-card>
         <mat-card-title>Certificate of Insurance Request</mat-card-title>
         <mat-card-actions>
           <button mat-raised-button (click)="onCancel()">Cancel</button>
           <span fxFlex></span>
-          <button mat-raised-button type="submit" color="primary">Save</button>
+          <button mat-raised-button (click)="onSubmitRequest()" [disabled]="!f.valid">Submit</button>
+          <button mat-raised-button type="submit" color="primary" [disabled]="!f.valid">Save</button>
         </mat-card-actions>
         <mat-card-content>
           <div fxLayout="column" class="insurance-form" *ngIf="insuranceRequest != null">
@@ -82,7 +83,7 @@
               </mat-form-field>
               <mat-form-field fxFlex="20%">
                 <mat-label>Phone</mat-label>
-                <input matInput type="tel" placeholder="Contact Phone" name="contactPhoneNumber"
+                <input matInput type="tel" placeholder="xxx-xxx-xxxx" name="contactPhoneNumber"
                        [(ngModel)]="insuranceRequest.contactPhoneNumber">
               </mat-form-field>
               <mat-form-field fxFlex="35%">
@@ -146,11 +147,11 @@
             <div fxLayout="row" fxLayoutGap="10px">
               <mat-form-field fxFlex="45%">
                 <mat-label>Certificate Holder Phone</mat-label>
-                <input matInput type="tel" placeholder="Contact Person Phone" name="certPersonPhoneNumber"
+                <input matInput type="tel" placeholder="XXX-XXX-XXXX" name="certPersonPhoneNumber"
                        [(ngModel)]="insuranceRequest.certPersonPhoneNumber"
                        #certPersonPhoneNumber="ngModel" pattern="\d{3}[\-]\d{3}[\-]\d{4}" minlength="12">
                 <mat-error *ngIf="certPersonPhoneNumber.control?.hasError('pattern')">Please provide valid phone
-                  number
+                  number with dashes
                 </mat-error>
                 <mat-error *ngIf="certPersonPhoneNumber.control?.hasError('minlength')">Phone number can not be less
                   than 10 digits
@@ -229,7 +230,7 @@
               </mat-radio-group>
               <mat-form-field>
                 <mat-label>Other</mat-label>
-                <input matInput type="text" placeholder="Other"
+                <input matInput type="text" placeholder="Other" [disabled]="insuranceRequest.additionalInsuredRole != 'Other'"
                        [(ngModel)]="insuranceRequest.otherRoleDescription" name="otherRoleDescription">
               </mat-form-field>
             </div>

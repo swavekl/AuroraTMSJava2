@@ -23,19 +23,19 @@
     <!-- City & State Column -->
     <ng-container matColumnDef="cityState">
       <mat-header-cell *matHeaderCellDef>City & State</mat-header-cell>
-      <mat-cell *matCellDef="let row">{{row.city}}, {{row.state}}</mat-cell>
+      <mat-cell *matCellDef="let row" [routerLink]="['/club/affiliationedit', row.id]">{{row.city}}, {{row.state}}</mat-cell>
     </ng-container>
 
     <!-- Affiliation Expiration Date Column -->
     <ng-container matColumnDef="affiliation_expiration_date">
       <mat-header-cell *matHeaderCellDef mat-sort-header>Expiration Date</mat-header-cell>
-      <mat-cell *matCellDef="let row">{{row.affiliationExpirationDate | date }}</mat-cell>
+      <mat-cell *matCellDef="let row" [routerLink]="['/club/affiliationedit', row.id]">{{row.affiliationExpirationDate | date }}</mat-cell>
     </ng-container>
 
     <!-- Status Column -->
     <ng-container matColumnDef="status">
       <mat-header-cell *matHeaderCellDef mat-sort-header>Status</mat-header-cell>
-      <mat-cell *matCellDef="let row">{{row.status}}</mat-cell>
+      <mat-cell *matCellDef="let row" [routerLink]="['/club/affiliationedit', row.id]">{{row.status}}</mat-cell>
     </ng-container>
 
     <!-- Action Column -->
@@ -47,9 +47,6 @@
         </button>
         <button mat-icon-button [routerLink]="['/club/affiliationcreate', row.id]" matTooltip="Copy" style="margin-right: 20px">
           <mat-icon matListIcon>flip_to_front</mat-icon>
-        </button>
-        <button mat-icon-button [routerLink]="['/club/affiliationedit', row.id]" matTooltip="Edit">
-          <mat-icon matListIcon>edit</mat-icon>
         </button>
       </mat-cell>
     </ng-container>
