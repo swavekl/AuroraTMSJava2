@@ -46,15 +46,13 @@ export class InsuranceComponent implements OnInit {
   }
 
   save(formValues: any) {
-    // copy changed values into this new object
-    let insuranceRequestToSave: InsuranceRequest = new InsuranceRequest();
-    insuranceRequestToSave = Object.assign (insuranceRequestToSave, formValues);
-    const requestDate: Date = (formValues.requestDate != null) ? new Date (formValues.requestDate) : new Date();
+    const requestDate: Date = (this.insuranceRequest.requestDate != null) ? new Date (this.insuranceRequest.requestDate) : new Date();
     const dateUtils = new DateUtils();
-    insuranceRequestToSave.eventStartDate = dateUtils.convertFromLocalToUTCDate (formValues.eventStartDate);
-    insuranceRequestToSave.eventEndDate = dateUtils.convertFromLocalToUTCDate(formValues.eventEndDate);
-    insuranceRequestToSave.requestDate = dateUtils.convertFromLocalToUTCDate (requestDate);
-    this.saved.emit (insuranceRequestToSave);
+    this.insuranceRequest.eventStartDate = dateUtils.convertFromLocalToUTCDate (this.insuranceRequest.eventStartDate);
+    this.insuranceRequest.eventEndDate = dateUtils.convertFromLocalToUTCDate(this.insuranceRequest.eventEndDate);
+    this.insuranceRequest.requestDate = dateUtils.convertFromLocalToUTCDate (requestDate);
+    console.log('saving insurance request', this.insuranceRequest);
+    this.saved.emit (this.insuranceRequest);
   }
 
   onCancel () {

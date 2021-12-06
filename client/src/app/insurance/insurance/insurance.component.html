@@ -1,227 +1,243 @@
 <div fxLayout="row">
-  <div fxFlex class="sidebars"></div>
-  <div class="insurance-form">
-    <div class="mat-title">Certificate of Insurance Request</div>
-    <form name="form" (ngSubmit)="save(f.value)" #f="ngForm" novalidate class="insurance-form">
-      <mat-toolbar>
-        <button mat-raised-button (click)="onCancel()">Cancel</button>
-        <span fxFlex></span>
-        <button mat-raised-button type="submit">Save</button>
-      </mat-toolbar>
-      <div fxLayout="column">
-        <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="10px">
-          <mat-form-field fxFlex="100%">
-            <mat-label>Name of Insured Organization</mat-label>
-            <input matInput type="text" placeholder="Name" name="orgName" [(ngModel)]="insuranceRequest.orgName"
-                   required>
-            <mat-error>This field is required</mat-error>
-          </mat-form-field>
-        </div>
+  <div fxFlex></div>
+  <div fxFlex="60%">
+    <form name="form" (ngSubmit)="save(f.value)" #f="ngForm" novalidate>
+      <mat-card>
+        <mat-card-title>Certificate of Insurance Request</mat-card-title>
+        <mat-card-actions>
+          <button mat-raised-button (click)="onCancel()">Cancel</button>
+          <span fxFlex></span>
+          <button mat-raised-button type="submit" color="primary">Save</button>
+        </mat-card-actions>
+        <mat-card-content>
+          <div fxLayout="column" class="insurance-form" *ngIf="insuranceRequest != null">
+            <input type="hidden" name="id" [ngModel]="insuranceRequest.id">
+            <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="10px">
+              <mat-form-field fxFlex="75%">
+                <mat-label>Name of Insured Organization</mat-label>
+                <input matInput type="text" placeholder="Name" name="orgName" [(ngModel)]="insuranceRequest.orgName"
+                       required>
+                <mat-error>This field is required</mat-error>
+              </mat-form-field>
+              <mat-form-field fxFlex="20%">
+                <mat-label>Status</mat-label>
+                <input matInput type="text" placeholder="Status" name="status" [(ngModel)]="insuranceRequest.status"
+                       readonly>
+              </mat-form-field>
+            </div>
 
-        <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="10px">
-          <mat-form-field fxFlex="30%">
-            <mat-label>Date of Request</mat-label>
-            <input matInput [matDatepicker]="pickerRequestDate" placeholder="mm/dd/yyyy"
-                   name="requestDate" [min]="minStartDate"
-                   [(ngModel)]="insuranceRequest.requestDate" disabled>
-            <mat-datepicker-toggle matSuffix [for]="pickerRequestDate"></mat-datepicker-toggle>
-            <mat-datepicker #pickerRequestDate></mat-datepicker>
-          </mat-form-field>
+            <div class="mat-subheading-2">Mailing Address of Organization</div>
+            <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="10px">
+              <mat-form-field fxFlex="95%">
+                <mat-label>Street Address</mat-label>
+                <input matInput type="text" placeholder="Street Address" name="orgStreetAddress"
+                       [(ngModel)]="insuranceRequest.orgStreetAddress" required>
+                <mat-error>This field is required</mat-error>
+              </mat-form-field>
+            </div>
+            <!--city, state, zip code -->
+            <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="10px">
+              <mat-form-field fxFlex="55%">
+                <mat-label>City</mat-label>
+                <input matInput type="text" placeholder="City" name="orgCity" [(ngModel)]="insuranceRequest.orgCity"
+                       required>
+                <mat-error>This field is required</mat-error>
+              </mat-form-field>
+              <mat-form-field fxFlex="20%">
+                <mat-label>State</mat-label>
+                <mat-select matInput type="text" placeholder="State" name="orgState"
+                            [(ngModel)]="insuranceRequest.orgState" required>
+                  <mat-option *ngFor="let state of statesList"
+                              value="{{state.abbreviation}}">{{state.abbreviation}}</mat-option>
+                </mat-select>
+                <mat-error>This field is required</mat-error>
+              </mat-form-field>
+              <mat-form-field fxFlex="20%">
+                <mat-label>Zip Code</mat-label>
+                <input matInput type="text" placeholder="Zip Code" name="orgZip" [(ngModel)]="insuranceRequest.orgZip"
+                       #orgZip="ngModel" required pattern="^[1-9][0-9]{4}" maxlength="5">
+                <mat-error *ngIf="orgZip.control?.hasError('required')">This field is required</mat-error>
+                <mat-error *ngIf="orgZip.control?.hasError('pattern')">Zip code requires numbers</mat-error>
+              </mat-form-field>
+            </div>
 
-          <mat-form-field fxFlex="20%">
-            <input matInput type="text" placeholder="Status" name="status" [(ngModel)]="insuranceRequest.status"
-                   readonly>
-          </mat-form-field>
-        </div>
+            <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="10px">
+              <mat-form-field fxFlex="30%">
+                <mat-label>Date of Request</mat-label>
+                <input matInput [matDatepicker]="pickerRequestDate" placeholder="mm/dd/yyyy"
+                       name="requestDate" [min]="minStartDate"
+                       [(ngModel)]="insuranceRequest.requestDate" disabled>
+                <mat-datepicker-toggle matSuffix [for]="pickerRequestDate"></mat-datepicker-toggle>
+                <mat-datepicker #pickerRequestDate></mat-datepicker>
+              </mat-form-field>
 
-        <div class="mat-subheading-2">Person Completing This Form</div>
-        <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="10px">
-          <mat-form-field fxFlex="40%">
-            <mat-label>Name</mat-label>
-            <input matInput type="text" placeholder="Contact Name" name="contactName"
-                   [(ngModel)]="insuranceRequest.contactName">
-          </mat-form-field>
-          <mat-form-field fxFlex="20%">
-            <mat-label>Phone</mat-label>
-            <input matInput type="tel" placeholder="Contact Phone" name="contactPhoneNumber"
-                   [(ngModel)]="insuranceRequest.contactPhoneNumber">
-          </mat-form-field>
-          <mat-form-field fxFlex="40%">
-            <mat-label>Email</mat-label>
-            <input matInput type="email" name="contactEmail" [(ngModel)]="insuranceRequest.contactEmail"
-                   #contactEmail="ngModel" email>
-            <mat-error *ngIf="contactEmail.control?.hasError('email')">Please provide valid email address
-            </mat-error>
-          </mat-form-field>
-        </div>
+            </div>
 
-        <div class="mat-subheading-2">Organization Mailing Address</div>
-        <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="10px">
-          <mat-form-field fxFlex="100%">
-            <mat-label>Street Address</mat-label>
-            <input matInput type="text" placeholder="Street Address" name="orgStreetAddress"
-                   [(ngModel)]="insuranceRequest.orgStreetAddress" required>
-            <mat-error>This field is required</mat-error>
-          </mat-form-field>
-        </div>
-        <!--city, state, zip code -->
-        <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="10px">
-          <mat-form-field fxFlex="55%">
-            <mat-label>City</mat-label>
-            <input matInput type="text" placeholder="City" name="orgCity" [(ngModel)]="insuranceRequest.orgCity"
-                   required>
-            <mat-error>This field is required</mat-error>
-          </mat-form-field>
-          <mat-form-field fxFlex="20%">
-            <mat-label>State</mat-label>
-            <mat-select matInput type="text" placeholder="State" name="orgState"
-                        [(ngModel)]="insuranceRequest.orgState" required>
-              <mat-option *ngFor="let state of statesList"
-                          value="{{state.abbreviation}}">{{state.abbreviation}}</mat-option>
-            </mat-select>
-            <mat-error>This field is required</mat-error>
-          </mat-form-field>
-          <mat-form-field fxFlex="25%">
-            <mat-label>Zip Code</mat-label>
-            <input matInput type="text" placeholder="Zip Code" name="orgZip" [(ngModel)]="insuranceRequest.orgZip"
-                   #orgZip="ngModel" required pattern="^[1-9][0-9]{4}" maxlength="5">
-            <mat-error *ngIf="orgZip.control?.hasError('required')">This field is required</mat-error>
-            <mat-error *ngIf="orgZip.control?.hasError('pattern')">Zip code requires numbers</mat-error>
-          </mat-form-field>
-        </div>
+            <div class="mat-subheading-2">Person Completing This Form</div>
+            <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="10px">
+              <mat-form-field fxFlex="40%">
+                <mat-label>Person Name</mat-label>
+                <input matInput type="text" placeholder="Contact Name" name="contactName"
+                       [(ngModel)]="insuranceRequest.contactName">
+              </mat-form-field>
+              <mat-form-field fxFlex="20%">
+                <mat-label>Phone</mat-label>
+                <input matInput type="tel" placeholder="Contact Phone" name="contactPhoneNumber"
+                       [(ngModel)]="insuranceRequest.contactPhoneNumber">
+              </mat-form-field>
+              <mat-form-field fxFlex="35%">
+                <mat-label>Email</mat-label>
+                <input matInput type="email" name="contactEmail" [(ngModel)]="insuranceRequest.contactEmail"
+                       #contactEmail="ngModel" email>
+                <mat-error *ngIf="contactEmail.control?.hasError('email')">Please provide valid email address
+                </mat-error>
+              </mat-form-field>
+            </div>
 
-        <!-- Certificate holder information block -->
-        <div class="mat-subheading-2">Certificate Holder</div>
-        <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="10px">
-          <mat-form-field fxFlex="100%">
-            <mat-label>Facility Name</mat-label>
-            <input matInput type="text" placeholder="Facility Name" name="certFacilityName"
-                   [(ngModel)]="insuranceRequest.certFacilityName" required>
-          </mat-form-field>
-        </div>
+            <!-- Certificate holder information block -->
+            <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="10px">
+              <mat-form-field fxFlex="95%">
+                <mat-label>Certificate Holder (Name of Facility)</mat-label>
+                <input matInput type="text" placeholder="Facility Name" name="certFacilityName"
+                       [(ngModel)]="insuranceRequest.certFacilityName" required>
+              </mat-form-field>
+            </div>
 
-        <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="10px">
-          <mat-form-field fxFlex="100%">
-            <input matInput type="text" placeholder="Contact Person Name" name="certPersonName"
-                   [(ngModel)]="insuranceRequest.certPersonName" required>
-          </mat-form-field>
-        </div>
+            <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="10px">
+              <mat-form-field fxFlex="95%">
+                <mat-label>Certificate Contact Person</mat-label>
+                <input matInput type="text" placeholder="Contact Person Name" name="certPersonName"
+                       [(ngModel)]="insuranceRequest.certPersonName" required>
+              </mat-form-field>
+            </div>
 
-        <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="10px">
-          <mat-form-field fxFlex="100%">
-            <mat-label>Street Address</mat-label>
-            <input matInput type="text" placeholder="Street Address" name="certStreetAddress"
-                   [(ngModel)]="insuranceRequest.certStreetAddress" required>
-          </mat-form-field>
-        </div>
+            <div class="mat-subheading-2">Certificate Holder Address</div>
+            <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="10px">
+              <mat-form-field fxFlex="95%">
+                <mat-label>Street Address</mat-label>
+                <input matInput type="text" placeholder="Street Address" name="certStreetAddress"
+                       [(ngModel)]="insuranceRequest.certStreetAddress" required>
+              </mat-form-field>
+            </div>
 
-        <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="10px">
-          <mat-form-field fxFlex="60%">
-            <input matInput type="text" placeholder="City" name="certCity" [(ngModel)]="insuranceRequest.certCity"
-                   required>
-            <mat-error>This field is required</mat-error>
-          </mat-form-field>
-          <mat-form-field fxFlex="20%">
-            <mat-select matInput type="text" placeholder="State" name="certState"
-                        [(ngModel)]="insuranceRequest.certState">
-              <mat-option *ngFor="let state of statesList"
-                          value="{{state.abbreviation}}">{{state.abbreviation}}</mat-option>
-            </mat-select>
-          </mat-form-field>
-          <mat-form-field fxFlex="20%">
-            <input matInput type="text" placeholder="Zip Code" name="certZip" [(ngModel)]="insuranceRequest.certZip"
-                   #certZip="ngModel" required pattern="^[1-9][0-9]{4}" maxlength="5">
-            <mat-error *ngIf="certZip.control?.hasError('required')">This field is required</mat-error>
-            <mat-error *ngIf="certZip.control?.hasError('pattern')">Zip code requires numbers</mat-error>
-          </mat-form-field>
-        </div>
-        <div fxLayout="row">
-          <mat-form-field fxFlex="50%">
-            <mat-label>Certificate Holder Phone</mat-label>
-            <input matInput type="tel" placeholder="Contact Person Phone" name="certPersonPhoneNumber"
-                   [(ngModel)]="insuranceRequest.certPersonPhoneNumber"
-                   #certPersonPhoneNumber="ngModel" pattern="\d{3}[\-]\d{3}[\-]\d{4}" minlength="12">
-            <mat-error *ngIf="certPersonPhoneNumber.control?.hasError('pattern')">Please provide valid phone
-              number
-            </mat-error>
-            <mat-error *ngIf="certPersonPhoneNumber.control?.hasError('minlength')">Phone number can not be less
-              than 10 digits
-            </mat-error>
-          </mat-form-field>
-          <mat-form-field fxFlex="50%">
-            <mat-label>Certificate Holder Email</mat-label>
-            <input matInput type="email" placeholder="Contact Person Email" name="certPersonEmail"
-                   [(ngModel)]="insuranceRequest.certPersonEmail" #certPersonEmail="ngModel" email>
-            <mat-error *ngIf="certPersonEmail.control?.hasError('email')">Please provide valid email address
-            </mat-error>
-          </mat-form-field>
-        </div>
-        <div class="mat-subheading-2">Event Information</div>
-        <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="10px">
-          <mat-form-field fxFlex="60%">
-            <mat-label>Name of Event</mat-label>
-            <input matInput type="text" placeholder="Name of Event" name="eventName"
-                   [(ngModel)]="insuranceRequest.eventName">
-          </mat-form-field>
+            <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="10px">
+              <mat-form-field fxFlex="55%">
+                <mat-label>City</mat-label>
+                <input matInput type="text" placeholder="City" name="certCity" [(ngModel)]="insuranceRequest.certCity"
+                       required>
+                <mat-error>This field is required</mat-error>
+              </mat-form-field>
+              <mat-form-field fxFlex="20%">
+                <mat-label>State</mat-label>
+                <mat-select matInput type="text" placeholder="State" name="certState"
+                            [(ngModel)]="insuranceRequest.certState">
+                  <mat-option *ngFor="let state of statesList"
+                              value="{{state.abbreviation}}">{{state.abbreviation}}</mat-option>
+                </mat-select>
+              </mat-form-field>
+              <mat-form-field fxFlex="20%">
+                <mat-label>Zip Code</mat-label>
+                <input matInput type="text" placeholder="Zip Code" name="certZip" [(ngModel)]="insuranceRequest.certZip"
+                       #certZip="ngModel" required pattern="^[1-9][0-9]{4}" maxlength="5">
+                <mat-error *ngIf="certZip.control?.hasError('required')">This field is required</mat-error>
+                <mat-error *ngIf="certZip.control?.hasError('pattern')">Zip code requires numbers</mat-error>
+              </mat-form-field>
+            </div>
+            <div fxLayout="row" fxLayoutGap="10px">
+              <mat-form-field fxFlex="45%">
+                <mat-label>Certificate Holder Phone</mat-label>
+                <input matInput type="tel" placeholder="Contact Person Phone" name="certPersonPhoneNumber"
+                       [(ngModel)]="insuranceRequest.certPersonPhoneNumber"
+                       #certPersonPhoneNumber="ngModel" pattern="\d{3}[\-]\d{3}[\-]\d{4}" minlength="12">
+                <mat-error *ngIf="certPersonPhoneNumber.control?.hasError('pattern')">Please provide valid phone
+                  number
+                </mat-error>
+                <mat-error *ngIf="certPersonPhoneNumber.control?.hasError('minlength')">Phone number can not be less
+                  than 10 digits
+                </mat-error>
+              </mat-form-field>
+              <mat-form-field fxFlex="50%">
+                <mat-label>Certificate Holder Email</mat-label>
+                <input matInput type="email" placeholder="Contact Person Email" name="certPersonEmail"
+                       [(ngModel)]="insuranceRequest.certPersonEmail" #certPersonEmail="ngModel" email>
+                <mat-error *ngIf="certPersonEmail.control?.hasError('email')">Please provide valid email address
+                </mat-error>
+              </mat-form-field>
+            </div>
+            <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="10px">
+              <mat-form-field fxFlex="55%">
+                <mat-label>Name of Event</mat-label>
+                <input matInput type="text" placeholder="Name of Event" name="eventName"
+                       [(ngModel)]="insuranceRequest.eventName">
+              </mat-form-field>
 
-          <mat-form-field fxFlex="20%">
-            <mat-label>Event Start Date</mat-label>
-            <input matInput [matDatepicker]="pickerESD" placeholder="mm/dd/yyyy"
-                   name="eventStartDate" [min]="minStartDate" [max]="maxStartDate"
-                   [(ngModel)]="insuranceRequest.eventStartDate" required
-                   (dateChange)="onEnableEndDate($event)"
-                   (input)="onEnableEndDate($event)" disabled>
-            <mat-datepicker-toggle matSuffix [for]="pickerESD"></mat-datepicker-toggle>
-            <mat-datepicker #pickerESD disabled="false"></mat-datepicker>
-          </mat-form-field>
+              <mat-form-field fxFlex="20%">
+                <mat-label>Event Start Date</mat-label>
+                <input matInput [matDatepicker]="pickerESD" placeholder="mm/dd/yyyy"
+                       name="eventStartDate" [min]="minStartDate" [max]="maxStartDate"
+                       [(ngModel)]="insuranceRequest.eventStartDate" required
+                       (dateChange)="onEnableEndDate($event)"
+                       (input)="onEnableEndDate($event)" disabled>
+                <mat-datepicker-toggle matSuffix [for]="pickerESD"></mat-datepicker-toggle>
+                <mat-datepicker #pickerESD disabled="false"></mat-datepicker>
+              </mat-form-field>
 
-          <mat-form-field fxFlex="20%">
-            <mat-label>Event End Date</mat-label>
-            <input matInput [matDatepicker]="pickerEED" placeholder="mm/dd/yyyy"
-                   name="eventEndDate" [min]="minEndDate" [max]="maxEndDate"
-                   [(ngModel)]="insuranceRequest.eventEndDate" disabled>
-            <mat-datepicker-toggle matSuffix [for]="pickerEED"></mat-datepicker-toggle>
-            <mat-datepicker #pickerEED [disabled]="!endDateEnabled"></mat-datepicker>
-          </mat-form-field>
-        </div>
+              <mat-form-field fxFlex="20%">
+                <mat-label>Event End Date</mat-label>
+                <input matInput [matDatepicker]="pickerEED" placeholder="mm/dd/yyyy"
+                       name="eventEndDate" [min]="minEndDate" [max]="maxEndDate"
+                       [(ngModel)]="insuranceRequest.eventEndDate" disabled>
+                <mat-datepicker-toggle matSuffix [for]="pickerEED"></mat-datepicker-toggle>
+                <mat-datepicker #pickerEED [disabled]="!endDateEnabled"></mat-datepicker>
+              </mat-form-field>
+            </div>
 
-        <div class="mat-subheading-2">
-          ADDITIONAL INSURED SHOULD ONLY BE REQUESTED IF IT IS A REQUIREMENT OF THE CERTIFICATE HOLDER
-        </div>
-        <div>
-          <P class=mat-caption>Have you entered into any agreement, contract or permit that contains assumption of
-            liability, indemnification, or hold harmless language? If
-            "yes" please forward a copy of the document with this certificate request form.
-          </P>
-          <mat-radio-group [(ngModel)]="insuranceRequest.isAdditionalInsured" name="isAdditionalInsured">
-            <mat-radio-button [value]="true">Yes</mat-radio-button>&nbsp;&nbsp;
-            <mat-radio-button [value]="false">No</mat-radio-button>
-          </mat-radio-group>
-        </div>
-        <div fxLayout="row">
-          <mat-form-field fxFlex="100%">
-            <mat-label>Additional Insured</mat-label>
-            <input matInput type="text" placeholder="Additional Insured"
-                   [(ngModel)]="insuranceRequest.additionalInsuredName" name="additionalInsuredName">
-          </mat-form-field>
-        </div>
-        <div class="mat-caption">If requesting additional insured status, please indicate the role of the additional
-          insured : </div>
-        <div fxLayout="column">
-          <mat-radio-group [(ngModel)]="insuranceRequest.additionalInsuredRole" name="additionalInsuredRole">
-            <mat-radio-button class="additional-insured-radio" value="OwnerOfPremises">Owner Of Premises</mat-radio-button>&nbsp;
-            <mat-radio-button class="additional-insured-radio" value="Sponsor">Sponsor</mat-radio-button>&nbsp;
-            <mat-radio-button class="additional-insured-radio" value="Other">Other (please specify)</mat-radio-button>&nbsp;
-          </mat-radio-group>
-          <mat-form-field fxFlexFill>
-            <mat-label>Other</mat-label>
-            <input matInput type="text" placeholder="Other"
-                   [(ngModel)]="insuranceRequest.otherRoleDescription" name="otherRoleDescription">
-          </mat-form-field>
-        </div>
-      </div>
+            <div class="mat-subheading-2">
+              ADDITIONAL INSURED SHOULD ONLY BE REQUESTED IF IT IS A REQUIREMENT OF THE CERTIFICATE HOLDER
+            </div>
+            <div>
+              <div class="mat-caption long-text">
+                Have you entered into any agreement, contract or permit that contains assumption of liability,
+                indemnification, or hold harmless language?
+              </div>
+              <mat-radio-group [(ngModel)]="insuranceRequest.additionalInsured" name="isAdditionalInsured">
+                <mat-radio-button class="insurance-form-radio-button" [value]="true">Yes</mat-radio-button>&nbsp;&nbsp;
+                <mat-radio-button class="insurance-form-radio-button" [value]="false">No</mat-radio-button>
+              </mat-radio-group>
+              <div class="mat-caption long-text">
+                If "yes" please forward a copy of the document with this certificate request form.
+              </div>
+            </div>
+            <div fxLayout="row">
+              <mat-form-field fxFlex="95%">
+                <mat-label>Additional Insured</mat-label>
+                <input matInput type="text" placeholder="Additional Insured"
+                       [(ngModel)]="insuranceRequest.additionalInsuredName" name="additionalInsuredName">
+              </mat-form-field>
+            </div>
+            <div class="mat-caption long-text">
+              If requesting additional insured status, please indicate the role of the additional insured :
+            </div>
+            <div fxLayout="column">
+              <mat-radio-group [(ngModel)]="insuranceRequest.additionalInsuredRole" name="additionalInsuredRole">
+                <mat-radio-button class="insurance-form-radio-button" value="OwnerOfPremises">Owner Of Premises
+                </mat-radio-button>
+                <mat-radio-button class="insurance-form-radio-button" value="Sponsor">Sponsor
+                </mat-radio-button>
+                <mat-radio-button class="insurance-form-radio-button" value="Other">Other (please specify)
+                </mat-radio-button>
+              </mat-radio-group>
+              <mat-form-field>
+                <mat-label>Other</mat-label>
+                <input matInput type="text" placeholder="Other"
+                       [(ngModel)]="insuranceRequest.otherRoleDescription" name="otherRoleDescription">
+              </mat-form-field>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
     </form>
     <!--<p>Form values: {{f.value | json}}</p>-->
   </div>
-  <div fxFlex class="sidebars"></div>
+  <div fxFlex></div>
 </div>

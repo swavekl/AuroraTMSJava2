@@ -35,7 +35,7 @@ export class InsuranceRequest {
   eventStartDate: Date;
   eventEndDate: Date;
 
-  isAdditionalInsured: boolean;
+  additionalInsured: boolean;
   additionalInsuredName: string;
 
   additionalInsuredRole = AdditionalInsuredRole.None;

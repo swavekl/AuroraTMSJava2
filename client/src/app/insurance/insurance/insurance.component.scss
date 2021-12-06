@@ -1,15 +1,16 @@
 .insurance-form {
-  width: 70%;
-  //border: 1px solid green;
+  padding-left: 10px;
   overflow: auto;
-  height: calc(100vh - 72px);
+  height: calc(100vh - 210px);
 }
 
-.additional-insured-radio {
+div.long-text {
+  margin-top: 16px;
+  margin-bottom: 16px;
+}
+
+.insurance-form-radio-button {
   margin-right: 20px;
 }
 
-.sidebars {
-  //border: 1px solid red;
-}
 
