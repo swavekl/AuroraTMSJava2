@@ -21,6 +21,7 @@ import {InsuranceListComponent} from './insurance-list/insurance-list.component'
 import {InsuranceComponent} from './insurance/insurance.component';
 import {InsuranceContainerComponent} from './insurance/insurance-container.component';
 import {MatTooltipModule} from '@angular/material/tooltip';
+import {SharedModule} from '../shared/shared.module';
 
 
 @NgModule({
@@ -29,26 +30,27 @@ import {MatTooltipModule} from '@angular/material/tooltip';
     InsuranceComponent,
     InsuranceContainerComponent
   ],
-  imports: [
-    CommonModule,
-    MatTableModule,
-    MatPaginatorModule,
-    MatSortModule,
-    MatCardModule,
-    MatIconModule,
-    FlexModule,
-    MatButtonModule,
-    MatListModule,
-    MatDatepickerModule,
-    // MatFormFieldModule,
-    MatRadioModule,
-    MatSelectModule,
-    FormsModule,
-    MatInputModule,
-    MatToolbarModule,
-    InsuranceRoutingModule,
-    MatTooltipModule
-  ]
+    imports: [
+        CommonModule,
+        MatTableModule,
+        MatPaginatorModule,
+        MatSortModule,
+        MatCardModule,
+        MatIconModule,
+        FlexModule,
+        MatButtonModule,
+        MatListModule,
+        MatDatepickerModule,
+        // MatFormFieldModule,
+        MatRadioModule,
+        MatSelectModule,
+        FormsModule,
+        MatInputModule,
+        MatToolbarModule,
+        InsuranceRoutingModule,
+        MatTooltipModule,
+        SharedModule
+    ]
 })
 export class InsuranceModule {
 }

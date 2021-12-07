@@ -7,6 +7,18 @@
         <mat-card-actions>
           <button mat-raised-button (click)="onCancel()">Cancel</button>
           <span fxFlex></span>
+            <a [href]="insuranceRequest?.certificateUrl" download="certificate.pdf"
+               [style.display]="(insuranceRequest?.status === 'Completed' && insuranceRequest?.certificateUrl != null) ? 'inline' : 'none'">
+              <button mat-raised-button>
+                Download Certificate
+              </button>
+            </a>
+          <app-upload-file-component
+                      [disabledBtn]="insuranceRequest?.status !== 'Submitted'"
+                             [uploadButtonLabel]="'Upload certificate'"
+                      (uploadFinished)="onCertificateUploadFinished($event)"
+          [storagePath]="getCertificateStoragePath()">
+          </app-upload-file-component>
           <button mat-raised-button (click)="onSubmitRequest()" [disabled]="!f.valid || (insuranceRequest?.status !== 'New')">Submit</button>
           <button mat-raised-button type="submit" color="primary" [disabled]="!f.valid">Save</button>
         </mat-card-actions>
@@ -208,6 +220,13 @@
               <div class="mat-caption long-text">
                 If "yes" please forward a copy of the document with this certificate request form.
               </div>
+              <app-upload-file-component
+                [disabledBtn]="insuranceRequest?.additionalInsured !== true"
+                [uploadButtonLabel]="'Upload Agreement'"
+                (uploadFinished)="onAgreementUploadFinished($event)"
+                [storagePath]="getAgreementStoragePath()">
+              </app-upload-file-component>
+
             </div>
             <div fxLayout="row">
               <mat-form-field fxFlex="95%">

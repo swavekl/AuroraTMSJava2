@@ -64,4 +64,27 @@ export class InsuranceComponent implements OnInit {
     this.insuranceRequest.status = InsuranceRequestStatus.Submitted;
     this.save();
   }
+
+  getCertificateStoragePath() {
+    return (this.insuranceRequest?.id != null)
+      ? `insurance_request/${this.insuranceRequest.id}/certificate`
+      : null;
+  }
+
+  getAgreementStoragePath() {
+    return (this.insuranceRequest?.id != null)
+      ? `insurance_request/${this.insuranceRequest.id}/additional_insured`
+      : null;
+  }
+
+  onCertificateUploadFinished(downloadUrl: string) {
+    // https%3A%2F%2Fgateway-pc%3A4200%2Fapi%2Ffilerepository%2Fdownload%2Finsurance_request%2F4%2Fcertificate%2F2020-21+USATT+GL+Certificate+-+Fox+Valley+Park+District.pdf
+    this.insuranceRequest.status = InsuranceRequestStatus.Completed;
+    this.insuranceRequest.certificateUrl = downloadUrl;
+    console.log('downlaodUrl', downloadUrl);
+  }
+
+  onAgreementUploadFinished(downloadUrl: string) {
+    this.insuranceRequest.additionalInsuredAgreementUrl = downloadUrl;
+  }
 }

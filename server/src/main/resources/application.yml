@@ -80,3 +80,11 @@ server:
   port: 8443
 
 client.host.url: https://gateway-pc:4200
+deploymentType: local
+local.repository.root.path: C:\myprojects\filerepository
+
+spring.servlet.multipart:
+  max-file-size: 30MB
+  max-request-size: 30MB
+  enabled: true
+  location: ${java.io.tmpdir}

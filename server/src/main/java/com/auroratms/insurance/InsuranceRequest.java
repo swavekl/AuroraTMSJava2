@@ -47,11 +47,19 @@ public class InsuranceRequest {
     private boolean isAdditionalInsured = false;
     private String additionalInsuredName;
 
+    // optional document for this agreement document
+    @Column(length = 500)
+    private String additionalInsuredAgreementUrl;
+
     private AdditionalInsuredRole additionalInsuredRole = AdditionalInsuredRole.None;
     private String otherRoleDescription;
 
     // request status - started, submitted, approved, rejected
     private InsuranceRequestStatus status;
+
+    @Column(length = 500)
+    private String certificateUrl;
+
 
     public InsuranceRequest() {
     }
@@ -262,5 +270,21 @@ public class InsuranceRequest {
 
     public void setStatus(InsuranceRequestStatus status) {
         this.status = status;
+    }
+
+    public String getCertificateUrl() {
+        return certificateUrl;
+    }
+
+    public void setCertificateUrl(String certificateUrl) {
+        this.certificateUrl = certificateUrl;
+    }
+
+    public String getAdditionalInsuredAgreementUrl() {
+        return additionalInsuredAgreementUrl;
+    }
+
+    public void setAdditionalInsuredAgreementUrl(String additionalInsuredAggreementUrl) {
+        this.additionalInsuredAgreementUrl = additionalInsuredAggreementUrl;
     }
 }

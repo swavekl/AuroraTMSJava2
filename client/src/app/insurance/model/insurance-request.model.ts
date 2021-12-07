@@ -38,10 +38,14 @@ export class InsuranceRequest {
   additionalInsured: boolean;
   additionalInsuredName: string;
 
+  additionalInsuredAgreementUrl: string;
+
   additionalInsuredRole = AdditionalInsuredRole.None;
   otherRoleDescription: string;
 
   status: InsuranceRequestStatus = InsuranceRequestStatus.New;
+
+  certificateUrl: string;
 
   constructor() {
 

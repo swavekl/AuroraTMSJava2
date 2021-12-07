@@ -58,36 +58,36 @@ public class InsuranceRequestEventListener {
                 case Submitted:
                     template = "insurance-request/ir-submitted.html";
                     break;
-                case Approved:
-                    template = "insurance-request/ir-approved.html";
-                    break;
-                case Rejected:
-                    template = "insurance-request/ir-rejected.html";
-                    break;
+//                case Approved:
+//                    template = "insurance-request/ir-approved.html";
+//                    break;
+//                case Rejected:
+//                    template = "insurance-request/ir-rejected.html";
+//                    break;
                 case Completed:
                     template = "insurance-request/ir-completed.html";
                     break;
             }
 
-            if (status == InsuranceRequestStatus.Approved ||
-                    status == InsuranceRequestStatus.Rejected) {
-                // send email to TD
-                String clubAdminEmail = insuranceRequest.getContactEmail();
-                String clubAdminName = insuranceRequest.getContactName();
-                // todo - who to send it to
-                String ccAddresses = "";
-//                ccAddresses += (StringUtils.isEmpty(ccAddresses)) ? insuranceRequest.getVicePresidentEmail() : "";
-                // todo
-                String reason = ""; // insuranceRequest.getApprovalRejectionNotes();
-
-                templateModel.put("clubAdminName", clubAdminName);
-                templateModel.put("reason", reason);
-
-                // send email
-                emailService.sendMessageUsingThymeleafTemplate(clubAdminEmail, ccAddresses,
-                        subject, template, templateModel);
-
-            } else if (status == InsuranceRequestStatus.Submitted ||
+//            if (status == InsuranceRequestStatus.Approved ||
+//                    status == InsuranceRequestStatus.Rejected) {
+//                // send email to TD
+//                String clubAdminEmail = insuranceRequest.getContactEmail();
+//                String clubAdminName = insuranceRequest.getContactName();
+//                // todo - who to send it to
+//                String ccAddresses = "";
+////                ccAddresses += (StringUtils.isEmpty(ccAddresses)) ? insuranceRequest.getVicePresidentEmail() : "";
+//                // todo
+//                String reason = ""; // insuranceRequest.getApprovalRejectionNotes();
+//
+//                templateModel.put("clubAdminName", clubAdminName);
+//                templateModel.put("reason", reason);
+//
+//                // send email
+//                emailService.sendMessageUsingThymeleafTemplate(clubAdminEmail, ccAddresses,
+//                        subject, template, templateModel);
+//
+            if (status == InsuranceRequestStatus.Submitted ||
                     status == InsuranceRequestStatus.Completed) {
                 // send email to USATT
                 emailService.sendMessageUsingThymeleafTemplate(associationAdminEmail, null,
