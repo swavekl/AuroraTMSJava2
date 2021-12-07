@@ -11,15 +11,20 @@ import java.util.List;
 @Component
 public class LocalFileRepository implements IFileRepository {
 
-    @Value("${client.host.url}")
-    private String clientHostUrl;
-
     @Value("${local.repository.root.path}")
     private String repositoryRoot;
 
     public LocalFileRepository() {
     }
 
+    /**
+     *
+     * @param inputStream
+     * @param sourceFileName
+     * @param storagePath
+     * @return
+     * @throws FileRepositoryException
+     */
     @Override
     public String save(InputStream inputStream, String sourceFileName, String storagePath) throws FileRepositoryException {
         String destinationPath = String.format("%s/%s/%s", this.repositoryRoot, storagePath, sourceFileName);
@@ -32,7 +37,7 @@ public class LocalFileRepository implements IFileRepository {
             FileOutputStream fileOutputStream = new FileOutputStream(toFile);
             FileCopyUtils.copy(inputStream, fileOutputStream);
             String encodedSourceFilename = URLEncoder.encode(sourceFileName, "UTF-8");
-            return String.format("%s/%s/download/%s/%s", clientHostUrl, IFileRepository.REPOSITORY_URL_ROOT,
+            return String.format("%s/download/%s/%s", IFileRepository.REPOSITORY_URL_ROOT,
                     storagePath, encodedSourceFilename);
         } catch (IOException e) {
             throw new FileRepositoryException("Unable to copy file to destination", e);
@@ -44,9 +49,29 @@ public class LocalFileRepository implements IFileRepository {
         return null;
     }
 
+    /**
+     *
+     * @param path
+     * @return
+     * @throws FileRepositoryException
+     */
     @Override
-    public FileInputStream read(String path) {
-        return null;
+    public FileInfo read(String path) throws FileRepositoryException {
+        try {
+            String repositoryPath = String.format("%s/%s", this.repositoryRoot, path);
+            File file = new File(repositoryPath);
+            if (file.exists() && file.isFile()) {
+                FileInfo fileInfo = new FileInfo();
+                fileInfo.fileInputStream = new FileInputStream(file.getCanonicalPath());
+                fileInfo.fileSize = file.length();
+                fileInfo.filename = file.getName();
+                return fileInfo;
+            } else {
+                throw new FileRepositoryException("File at path " + path + " was not found", null);
+            }
+        } catch (Exception e) {
+            throw new FileRepositoryException("Unable to get file at path " + path, e);
+        }
     }
 
     @Override

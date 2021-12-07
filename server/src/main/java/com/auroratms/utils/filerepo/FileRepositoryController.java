@@ -19,7 +19,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URLEncoder;
 import java.util.List;
 
 @RestController
@@ -50,43 +49,50 @@ public class FileRepositoryController {
     }
 
     /**
-     * Downloads requested file located at path in the
+     * Downloads requested file located at fileName in the
      *
-     * @param path relative path to a file in repository
+     * @param path relative fileName to a file in repository
      * @return
      */
-    @GetMapping("/download/{path}")
-    public ResponseEntity<Resource> download(@PathVariable String path) {
+    @GetMapping("/download")
+    public ResponseEntity<Resource> download(@RequestParam String path) {
         try {
             IFileRepository fileRepository = fileRepositoryFactory.getFileRepository();
-            FileInputStream fileInputStream = fileRepository.read(path);
-            InputStreamResource resource = new InputStreamResource(fileInputStream);
-            File file = resource.getFile();
-            HttpHeaders httpHeaders = new HttpHeaders();
-            httpHeaders.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + file.getName() + "\"");
-            httpHeaders.add("Cache-Control", "no-cache, no-store, must-revalidate");
-            httpHeaders.add("Pragma", "no-cache");
-            httpHeaders.add("Expires", "0");
-            return ResponseEntity.ok()
-                    .headers(httpHeaders)
-                    .contentLength(file.length())
-                    .contentType(MediaType.APPLICATION_OCTET_STREAM)
-                    .body(resource);
-        } catch (IOException e) {
-            logger.error(e.getMessage());
+            FileInfo fileInfo = fileRepository.read(path);
+            FileInputStream fileInputStream = fileInfo.fileInputStream;
+            if (fileInputStream != null) {
+                InputStreamResource resource = new InputStreamResource(fileInputStream);
+                long length = fileInfo.fileSize;
+                String filename = fileInfo.filename;
+                HttpHeaders httpHeaders = new HttpHeaders();
+                httpHeaders.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"");
+                httpHeaders.add("Cache-Control", "no-cache, no-store, must-revalidate");
+                httpHeaders.add("Pragma", "no-cache");
+                httpHeaders.add("Expires", "0");
+                return ResponseEntity.ok()
+                        .headers(httpHeaders)
+                        .contentLength(length)
+                        .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                        .body(resource);
+            } else {
+                logger.error("repository file at path '" + path + "' not found");
+                return ResponseEntity.badRequest().build();
+            }
+        } catch (FileRepositoryException e) {
+            logger.error("Unable to read file from repository", e);
             return ResponseEntity.badRequest().build();
         }
     }
 
-    @GetMapping("/list/{path}")
-    public ResponseEntity<List<String>> listFiles(@PathVariable String path) {
+    @GetMapping("/list")
+    public ResponseEntity<List<String>> listFiles(@RequestParam String path) {
         IFileRepository fileRepository = fileRepositoryFactory.getFileRepository();
         List<String> fileListUrls = fileRepository.list(path);
         return ResponseEntity.ok(fileListUrls);
     }
 
-    @DeleteMapping("{path}")
-    public ResponseEntity<Void> deleteFiles(@PathVariable String path) {
+    @DeleteMapping("")
+    public ResponseEntity<Void> deleteFiles(@RequestParam String path) {
         try {
             IFileRepository fileRepository = fileRepositoryFactory.getFileRepository();
             fileRepository.delete(path);

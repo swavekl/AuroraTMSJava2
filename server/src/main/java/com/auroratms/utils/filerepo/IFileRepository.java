@@ -12,7 +12,7 @@ public interface IFileRepository {
 
     String replace(FileRepositoryItem fileRepositoryItem);
 
-    FileInputStream read (String path);
+    FileInfo read (String path) throws FileRepositoryException;
 
     void delete (String path) throws FileRepositoryException;
 

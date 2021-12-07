@@ -3,6 +3,7 @@ import {InsuranceRequest} from '../model/insurance-request.model';
 import {StatesList} from '../../shared/states/states-list';
 import {DateUtils} from '../../shared/date-utils';
 import {InsuranceRequestStatus} from '../model/insurance-request-status';
+import {FileRepositoryService} from '../../shared/upload-button/file-repository.service';
 
 @Component({
   selector: 'app-insurance',
@@ -28,7 +29,7 @@ export class InsuranceComponent implements OnInit {
 
   endDateEnabled = false;
 
-  constructor() {
+  constructor(private fileRepositoryService: FileRepositoryService) {
     this.statesList = StatesList.getList();
     this.minStartDate.setDate(this.minStartDate.getDate() + 30);
     this.maxStartDate.setDate(this.maxStartDate.getDate() + 365);
@@ -86,5 +87,13 @@ export class InsuranceComponent implements OnInit {
 
   onAgreementUploadFinished(downloadUrl: string) {
     this.insuranceRequest.additionalInsuredAgreementUrl = downloadUrl;
+  }
+
+  onDownloadCertificate() {
+    this.fileRepositoryService.download(this.insuranceRequest.certificateUrl);
+  }
+
+  onDownloadAgreement() {
+    this.fileRepositoryService.download(this.insuranceRequest.additionalInsuredAgreementUrl);
   }
 }
