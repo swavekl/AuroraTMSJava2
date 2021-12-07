@@ -77,6 +77,8 @@ export class InsuranceContainerComponent implements OnInit, OnDestroy {
             insuranceRequestToEdit.id = null;
             insuranceRequestToEdit.status = InsuranceRequestStatus.New;
             insuranceRequestToEdit.requestDate = new Date();
+            insuranceRequestToEdit.certificateUrl = null;
+            insuranceRequestToEdit.additionalInsuredAgreementUrl = null;
           }
           this.insuranceRequest$ = of(insuranceRequestToEdit);
         }

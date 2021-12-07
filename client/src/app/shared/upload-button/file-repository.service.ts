@@ -25,17 +25,9 @@ export class FileRepositoryService {
   }
 
   public download(url: string) {
-    const startUrl = url.substr(0, url.indexOf('/download/') + '/download'.length);
-    // path must be passed in as parameter or else the controller can't extract it from the url
-    const repositoryPath = url.substring(startUrl.length + 1, url.length);
-    // save this file locally under it's own name
-    const downloadAs = repositoryPath.substr(repositoryPath.lastIndexOf('/') + 1, repositoryPath.length);
-    // request without repository path
-    const fullUrl = `https://${environment.baseServer}/${startUrl}`;
+    const downloadAs = url.substr(url.lastIndexOf('/') + 1, url.length);
+    const fullUrl = `https://${environment.baseServer}/${url}`;
     this.httpClient.get(fullUrl, {
-      params: {
-        path: repositoryPath
-      },
       responseType: 'blob'
     }).subscribe((blob: any) => {
         const a = document.createElement('a');

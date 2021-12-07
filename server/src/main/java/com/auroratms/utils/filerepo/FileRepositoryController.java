@@ -3,7 +3,6 @@ package com.auroratms.utils.filerepo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
@@ -13,7 +12,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -31,12 +29,9 @@ public class FileRepositoryController {
     @Autowired
     private FileRepositoryFactory fileRepositoryFactory;
 
-    @Value("${spring.servlet.multipart.location}")
-    private String uploadFileLocation;
-
     @PostMapping("/upload")
     public ResponseEntity<String> upload(@RequestParam("file") MultipartFile multipartFile,
-                                                   @RequestParam("storagePath") String storagePath) {
+                                         @RequestParam("storagePath") String storagePath) {
         try {
             IFileRepository fileRepository = fileRepositoryFactory.getFileRepository();
             InputStream inputStream = multipartFile.getInputStream();
@@ -86,9 +81,14 @@ public class FileRepositoryController {
 
     @GetMapping("/list")
     public ResponseEntity<List<String>> listFiles(@RequestParam String path) {
-        IFileRepository fileRepository = fileRepositoryFactory.getFileRepository();
-        List<String> fileListUrls = fileRepository.list(path);
-        return ResponseEntity.ok(fileListUrls);
+        try {
+            IFileRepository fileRepository = fileRepositoryFactory.getFileRepository();
+            List<String> fileListUrls = fileRepository.list(path);
+            return ResponseEntity.ok(fileListUrls);
+        } catch (FileRepositoryException e) {
+            logger.error(e.getMessage());
+            return ResponseEntity.internalServerError().build();
+        }
     }
 
     @DeleteMapping("")

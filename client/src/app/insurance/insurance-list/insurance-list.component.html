@@ -38,7 +38,7 @@
     <ng-container matColumnDef="actions">
       <mat-header-cell *matHeaderCellDef>Actions</mat-header-cell>
       <mat-cell *matCellDef="let insuranceRequest">
-        <button mat-icon-button (click)="onDeleteInsuranceRequest(insuranceRequest.id, insuranceRequest.orgName)"
+        <button mat-icon-button (click)="onDeleteInsuranceRequest(insuranceRequest.id, insuranceRequest.eventName)"
                 matTooltip="Delete" style="margin-right: 20px">
           <mat-icon matListIcon>delete</mat-icon>
         </button>

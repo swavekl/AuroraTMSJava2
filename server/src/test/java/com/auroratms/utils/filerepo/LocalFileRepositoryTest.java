@@ -9,9 +9,9 @@ import org.springframework.core.io.ResourceLoader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.List;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 import static org.springframework.test.util.AssertionErrors.assertEquals;
 
 public class LocalFileRepositoryTest extends AbstractServiceTest {
@@ -43,10 +43,56 @@ public class LocalFileRepositoryTest extends AbstractServiceTest {
         try {
             String savedFileUrl = fileRepository.save(fileInputStream, sourceFileName, storagePath);
             assertEquals("wrong file url",
-                    "https://gateway-pc:4200/api/filerepository/download/insurance_request/12/certificate/2020-21+USATT+GL+Certificate+-+Fox+Valley+Park+District.pdf",
+                    "api/filerepository/download?path=insurance_request/12/certificate/2020-21+USATT+GL+Certificate+-+Fox+Valley+Park+District.pdf",
                     savedFileUrl);
         } catch (FileRepositoryException e) {
             fail("failed to save");
+        }
+    }
+
+    @Test
+    public void testListing () {
+        IFileRepository fileRepository = this.fileRepositoryFactory.getFileRepository();
+        assertNotNull("file repo factory is null", fileRepository);
+
+        FileInputStream fileInputStream = null;
+        String sourceFileName = null;
+        String storagePath = "tournament/2000/venue_pictures";
+        String [] imageFilesResources = {
+                "filerepofiles/Natalia_Backhand.jpg",
+                "filerepofiles/Polski_Debel.jpg",
+                "filerepofiles/Polski_Debel_2.jpg",
+        };
+        for (String imageFileResource : imageFilesResources) {
+            try {
+                Resource resource = resourceLoader.getResource(imageFileResource);
+                File file = resource.getFile();
+                assertNotNull(file);
+                fileInputStream = new FileInputStream(file);
+                sourceFileName = file.getName();
+            } catch (IOException e) {
+                fail("failed to load the example image file");
+            }
+            try {
+                String savedFileUrl = fileRepository.save(fileInputStream, sourceFileName, storagePath);
+                String filename = imageFileResource.substring("filerepofiles/".length());
+                String expectedFileURL = "api/filerepository/download?path=" + storagePath + "/" + filename;
+                assertEquals("wrong file url", expectedFileURL, savedFileUrl);
+            } catch (FileRepositoryException e) {
+                fail("failed to save");
+            }
+        }
+
+        try {
+            List<String> foundImageFileURLs = fileRepository.list(storagePath);
+            assertEquals("wrong number of files found", imageFilesResources.length, foundImageFileURLs.size());
+            for (String imageFileResource : imageFilesResources) {
+                String filename = imageFileResource.substring("filerepofiles/".length());
+                String expectedFileURL = "api/filerepository/download?path=" + storagePath + "/" + filename;
+                assertTrue("expected image url not found", foundImageFileURLs.contains(expectedFileURL));
+            }
+        } catch (FileRepositoryException e) {
+            fail("failed to list image files");
         }
     }
 }

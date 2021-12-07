@@ -60,10 +60,10 @@ export class InsuranceListComponent implements AfterViewInit {
     return true;
   }
 
-  onDeleteInsuranceRequest(insuranceRequestId: number, clubName: string) {
+  onDeleteInsuranceRequest(insuranceRequestId: number, eventName: string) {
     const config = {
       width: '450px', height: '230px', data: {
-        message: `Are you sure you want to delete insurance request for '${clubName}'?`,
+        message: `Are you sure you want to delete insurance request for '${eventName}'?`,
       }
     };
     const dialogRef = this.dialog.open(ConfirmationPopupComponent, config);

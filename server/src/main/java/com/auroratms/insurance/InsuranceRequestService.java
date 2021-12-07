@@ -5,6 +5,8 @@ import com.auroratms.insurance.notification.InsuranceRequestEventPublisher;
 import com.auroratms.users.UserRoles;
 import com.auroratms.users.UserRolesHelper;
 import com.auroratms.utils.SecurityService;
+import com.auroratms.utils.filerepo.FileRepositoryFactory;
+import com.auroratms.utils.filerepo.IFileRepository;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheConfig;
@@ -27,6 +29,9 @@ public class InsuranceRequestService {
 
     @Autowired
     private InsuranceRequestRepository repository;
+
+    @Autowired
+    private FileRepositoryFactory fileRepositoryFactory;
 
     @Autowired
     private SecurityService securityService;
@@ -89,6 +94,21 @@ public class InsuranceRequestService {
 
     @CacheEvict(key = "#id")
     public void delete(long id) {
+        try {
+            IFileRepository fileRepository = this.fileRepositoryFactory.getFileRepository();
+            InsuranceRequest insuranceRequest = this.repository.findById(id).get();
+            String certificateUrl = insuranceRequest.getCertificateUrl();
+            if (certificateUrl != null) {
+                fileRepository.deleteByURL(certificateUrl);
+            }
+            String additionalInsuredAgreementUrl = insuranceRequest.getAdditionalInsuredAgreementUrl();
+            if (additionalInsuredAgreementUrl != null) {
+                fileRepository.deleteByURL(additionalInsuredAgreementUrl);
+            }
+        } catch (Exception e) {
+            // ignore
+        }
+
         this.repository.deleteById(id);
         this.securityService.deleteAcl(id, ACL_MANAGED_OBJECT_CLASS);
     }
