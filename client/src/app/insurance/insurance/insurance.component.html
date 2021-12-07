@@ -7,9 +7,10 @@
         <mat-card-actions>
           <button mat-raised-button (click)="onCancel()">Cancel</button>
           <span fxFlex></span>
-          <button mat-raised-button type="button" (click)="onDownloadCertificate()">
-            Download Certificate
-          </button>
+          <app-download-file [buttonLabel]="'Download Certificate'"
+                             [fileUrl]="insuranceRequest?.certificateUrl"
+                             [disabledBtn]="insuranceRequest?.certificateUrl === null">
+          </app-download-file>
           <app-upload-file-component
             [disabledBtn]="insuranceRequest?.status !== 'Submitted'"
             [uploadButtonLabel]="'Upload certificate'"
@@ -226,11 +227,10 @@
                   (uploadFinished)="onAgreementUploadFinished($event)"
                   [storagePath]="getAgreementStoragePath()">
                 </app-upload-file-component>
-                <button mat-raised-button type="button"
-                        [disabled]="insuranceRequest?.additionalInsuredAgreementUrl == null"
-                        (click)="onDownloadAgreement()">
-                  Download Agreement
-                </button>
+                <app-download-file [buttonLabel]="'Download Agreement'"
+                                   [fileUrl]="insuranceRequest?.additionalInsuredAgreementUrl"
+                                   [disabledBtn]="insuranceRequest?.additionalInsuredAgreementUrl == null">
+                </app-download-file>
               </div>
             </div>
             <div fxLayout="row">

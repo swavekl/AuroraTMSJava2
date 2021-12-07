@@ -5,22 +5,26 @@ import {HttpEventType} from '@angular/common/http';
 @Component({
   selector: 'app-upload-file-component',
   template: `
-    <div fxLayout="row" fxLayoutAlign="start start" fxLayoutGap="10px">
+    <div fxLayout="row" fxLayoutAlign="start start">
       <input
         style="display: none"
         type="file" (change)="onFileChanged($event)"
         #fileInput>
       <button mat-raised-button type="button" [disabled]="disabledBtn" (click)="fileInput.click()">
         {{selectButtonLabel}}</button>
-      <button mat-raised-button type="button" [disabled]="!selectedFile" (click)="onUpload()">
+      <button mat-raised-button type="button" [disabled]="!selectedFile" (click)="onUpload()" style="margin: 0 10px;">
         {{uploadButtonLabel}}</button>
-      <mat-progress-spinner [style.display]="!inProgress ? 'none' : 'block'"
+      <!--      spacer -->
+      <div style="height: 36px; width: 36px" [style.display]="state === NOT_STARTED ? 'block': 'none'"></div>
+        <!--        spinner -->
+      <mat-progress-spinner [style.display]="state === IN_PROGRESS ? 'block' : 'none'"
                             [value]="percentComplete"
                             [diameter]="36"
                             mode="determinate"
                             strokeWidth="5">
       </mat-progress-spinner>
-      <mat-icon [style.display]="!done ? 'none' : 'block'"
+     <!--      done checkmark -->
+      <mat-icon [style.display]="state === DONE ? 'block' : 'none'"
                 style="font-size: 36px; color: green; font-weight: bold; padding-right: 12px;" >
         done</mat-icon>
     </div>
@@ -46,19 +50,19 @@ export class UploadButtonComponent implements OnInit {
   // file selected by user
   public selectedFile: File;
 
-  public inProgress: boolean;
-
-  public done: boolean;
-
   public percentComplete: number;
+
+  public state: string;
+  public NOT_STARTED = 'NOT_STARTED';
+  public IN_PROGRESS = 'IN_PROGRESS';
+  public DONE = 'DONE';
 
   @Output()
   public uploadFinished: EventEmitter<string>;
 
   constructor(private fileRepository: FileRepositoryService) {
     this.disabledBtn = false;
-    this.inProgress = false;
-    this.done = false;
+    this.state = this.NOT_STARTED;
     this.uploadFinished = new EventEmitter<string>();
   }
 
@@ -70,19 +74,16 @@ export class UploadButtonComponent implements OnInit {
   }
 
   onUpload() {
-    this.inProgress = true;
-    this.done = false;
     this.percentComplete = 0;
+    this.state = this.IN_PROGRESS;
     if (this.selectedFile) {
       this.fileRepository.upload(this.selectedFile, this.storagePath)
         .subscribe((response: any) => {
-          console.log('response', response);
           if (response.type === HttpEventType.UploadProgress) {
             this.percentComplete = Math.round(response.loaded / response.total * 100);
           } else if (response.type === HttpEventType.Response) {
-            this.inProgress = false;
-            this.done = true;
             this.selectedFile = null;
+            this.state = this.DONE;
             if (response.ok) {
               const downloadUrl = response.headers.get('location');
               this.uploadFinished.emit(downloadUrl);

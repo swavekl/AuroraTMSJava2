@@ -3,7 +3,6 @@ import {InsuranceRequest} from '../model/insurance-request.model';
 import {StatesList} from '../../shared/states/states-list';
 import {DateUtils} from '../../shared/date-utils';
 import {InsuranceRequestStatus} from '../model/insurance-request-status';
-import {FileRepositoryService} from '../../shared/upload-button/file-repository.service';
 
 @Component({
   selector: 'app-insurance',
@@ -29,7 +28,7 @@ export class InsuranceComponent implements OnInit {
 
   endDateEnabled = false;
 
-  constructor(private fileRepositoryService: FileRepositoryService) {
+  constructor() {
     this.statesList = StatesList.getList();
     this.minStartDate.setDate(this.minStartDate.getDate() + 30);
     this.maxStartDate.setDate(this.maxStartDate.getDate() + 365);
@@ -53,7 +52,6 @@ export class InsuranceComponent implements OnInit {
     this.insuranceRequest.eventStartDate = dateUtils.convertFromLocalToUTCDate (this.insuranceRequest.eventStartDate);
     this.insuranceRequest.eventEndDate = dateUtils.convertFromLocalToUTCDate(this.insuranceRequest.eventEndDate);
     this.insuranceRequest.requestDate = dateUtils.convertFromLocalToUTCDate (requestDate);
-    // console.log('saving insurance request', this.insuranceRequest);
     this.saved.emit (this.insuranceRequest);
   }
 
@@ -79,7 +77,6 @@ export class InsuranceComponent implements OnInit {
   }
 
   onCertificateUploadFinished(downloadUrl: string) {
-    // https%3A%2F%2Fgateway-pc%3A4200%2Fapi%2Ffilerepository%2Fdownload%2Finsurance_request%2F4%2Fcertificate%2F2020-21+USATT+GL+Certificate+-+Fox+Valley+Park+District.pdf
     this.insuranceRequest.status = InsuranceRequestStatus.Completed;
     this.insuranceRequest.certificateUrl = downloadUrl;
     console.log('downlaodUrl', downloadUrl);
@@ -87,13 +84,5 @@ export class InsuranceComponent implements OnInit {
 
   onAgreementUploadFinished(downloadUrl: string) {
     this.insuranceRequest.additionalInsuredAgreementUrl = downloadUrl;
-  }
-
-  onDownloadCertificate() {
-    this.fileRepositoryService.download(this.insuranceRequest.certificateUrl);
-  }
-
-  onDownloadAgreement() {
-    this.fileRepositoryService.download(this.insuranceRequest.additionalInsuredAgreementUrl);
   }
 }

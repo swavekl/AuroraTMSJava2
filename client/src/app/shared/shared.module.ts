@@ -23,6 +23,7 @@ import {MatListModule} from '@angular/material/list';
 import {RoundNamePipe} from './pipes/round-name.pipe';
 import {UploadButtonComponent} from './upload-button/upload-button.component';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
+import {DownloadButtonComponent} from './download-file/download-button.component';
 
 
 @NgModule({
@@ -40,7 +41,8 @@ import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
     ErrorMessagePopupComponent,
     StarLevelComponent,
     RoundNamePipe,
-    UploadButtonComponent
+    UploadButtonComponent,
+    DownloadButtonComponent
   ],
   exports: [
     LinearProgressBarComponent,
@@ -55,7 +57,8 @@ import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
     TypographyComponent,
     StarLevelComponent,
     RoundNamePipe,
-    UploadButtonComponent
+    UploadButtonComponent,
+    DownloadButtonComponent
   ],
   imports: [
     CommonModule,
