@@ -32,4 +32,6 @@ public class UserProfile {
     private Integer tournamentRating;
     private Long homeClubId;
     private String homeClubName;
+    private String division;
+    private String department;
 }

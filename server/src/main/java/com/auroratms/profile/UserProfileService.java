@@ -3,6 +3,8 @@ package com.auroratms.profile;
 import com.okta.sdk.authc.credentials.TokenClientCredentials;
 import com.okta.sdk.client.Client;
 import com.okta.sdk.client.Clients;
+import com.okta.sdk.resource.group.Group;
+import com.okta.sdk.resource.group.GroupList;
 import com.okta.sdk.resource.user.User;
 import com.okta.sdk.resource.user.UserList;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -180,6 +182,8 @@ public class UserProfileService {
         } catch (ParseException e) {
 
         }
+        userProfile.setDivision(oktaUserProfile.getDivision());
+        userProfile.setDepartment(oktaUserProfile.getDepartment());
         return userProfile;
     }
 
@@ -199,7 +203,9 @@ public class UserProfileService {
                 .setCity(userProfile.getCity())
                 .setState(userProfile.getState())
                 .setZipCode(userProfile.getZipCode())
-                .setCountryCode(userProfile.getCountryCode());
+                .setCountryCode(userProfile.getCountryCode())
+                .setDivision(userProfile.getDivision())
+                .setDepartment((userProfile.getDepartment()));
         // these are custom
         oktaUserProfile.put("gender", userProfile.getGender());
         SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
@@ -232,5 +238,30 @@ public class UserProfileService {
             break;
         }
         return profileId;
+    }
+
+    /**
+     * Lists users in particular group and department
+     * @param groupName group name
+     * @param department optional department
+     * @return
+     */
+    public List<UserProfile> listUserInRole(String groupName, String department) {
+        List<UserProfile> userProfileList = new ArrayList<>();
+        Client client = getClient();
+        GroupList groupList = client.listGroups(groupName, null, null);
+        for (Group group : groupList) {
+//            System.out.println("group name: " + group.getProfile().getName());
+            UserList userList = group.listUsers();
+            for (User user : userList) {
+                com.okta.sdk.resource.user.UserProfile oktaUserProfile = user.getProfile();
+//                System.out.println("okta user: " + oktaUserProfile.getFirstName() + " " + oktaUserProfile.getLastName() + ", department: " + oktaUserProfile.getDepartment() + ", division: " + oktaUserProfile.getDivision());
+                if (department == null || department.equals(oktaUserProfile.getDepartment())) {
+                    UserProfile userProfile = fromOktaUser(user);
+                    userProfileList.add(userProfile);
+                }
+            }
+        }
+        return userProfileList;
     }
 }
