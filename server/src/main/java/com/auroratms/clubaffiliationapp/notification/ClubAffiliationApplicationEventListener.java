@@ -65,6 +65,10 @@ public class ClubAffiliationApplicationEventListener {
         String clubName = clubAffiliationApplication.getName();
         String state = clubAffiliationApplication.getState();
         List<ClubEntity> clubEntityList = clubService.findByNameAndState(clubName, state);
+        // if not found in the state - try by name only
+        if (clubEntityList.isEmpty()) {
+            clubEntityList = clubService.findByNameAndState(clubName, null);
+        }
         if (clubEntityList.isEmpty()) {
             // this is a new club not in a table so create one
             ClubEntity newClub = new ClubEntity();
