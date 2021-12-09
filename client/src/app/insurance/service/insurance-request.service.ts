@@ -13,7 +13,7 @@ export class InsuranceRequestService extends EntityCollectionServiceBase<Insuran
 
 // crude selector for extracting the total entities satisfying query
 export const selectInsuranceRequestsTotal = (entityCache: EntityCache) => {
-  const clubsEntityCollection = entityCache?.entityCache['InsuranceRequest'];
-  return (clubsEntityCollection) ? clubsEntityCollection['total'] as number : 0;
+  const entityCacheElement = entityCache?.entityCache['InsuranceRequest'];
+  return (entityCacheElement) ? entityCacheElement['total'] as number : 0;
 };
 

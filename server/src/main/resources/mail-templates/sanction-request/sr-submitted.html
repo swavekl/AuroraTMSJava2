@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <title></title>
+</head>
+<body>
+Hello <span th:text="${associationAdminFirstName}"></span>,
+
+<p>
+    A new tournament sanction request has been submitted.  It can be viewed <a th:href="${sanctionRequestUrl}">here</a>.
+</p>
+
+Sincerely,
+
+<div th:text="${contactName}"></div>
+<div th:text="${contactEmail}"></div>
+
+</body>
+</html>

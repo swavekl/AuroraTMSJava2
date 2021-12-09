@@ -78,6 +78,11 @@ const routes: Routes = [
     data: {
       roles: [UserRoles.ROLE_ADMINS, UserRoles.ROLE_USATT_INSURANCE_MANAGERS, UserRoles.ROLE_TOURNAMENT_DIRECTORS]
     }
+  },
+  { path: 'sanction', loadChildren: () => import('./sanction/sanction.module').then(m => m.SanctionModule),
+    data: {
+      roles: [UserRoles.ROLE_ADMINS, UserRoles.ROLE_USATT_SANCTION_COORDINATORS, UserRoles.ROLE_TOURNAMENT_DIRECTORS]
+    }
   }
 ];
 

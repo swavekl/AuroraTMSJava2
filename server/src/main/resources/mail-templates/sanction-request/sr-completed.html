@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <title></title>
+</head>
+<body>
+Hello <span th:text="${contactName}"></span>,
+<p>
+    Your tournament sanction request has been completed.  The request can be viewed and downloaded from <a th:href="${sanctionRequestUrl}">here</a>.
+</p>
+
+Sincerely,
+
+<div th:text="${associationAdminName}"></div>
+<div th:text="${associationAdminEmail}"></div>
+
+</body>
+</html>

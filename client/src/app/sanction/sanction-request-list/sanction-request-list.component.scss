@@ -1,0 +1,32 @@
+@import "~src/my-theme.scss";
+
+div.table-container {
+  overflow: auto;
+  height: calc(100vh - 220px);
+  //border: 1px solid greenyellow;
+}
+
+.toolbar-spacer-2 {
+  margin-right: 16px;
+}
+
+.mat-row:hover {
+  background-color: lighten($primary-color, 40%);
+  cursor: pointer;
+}
+
+.mat-column-tournamentName {
+  flex: 3;
+}
+
+.mat-column-startDate {
+  flex: 1;
+}
+
+.mat-column-status {
+  flex: 1;
+}
+
+.mat-column-actions {
+  flex: 1;
+}

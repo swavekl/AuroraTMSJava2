@@ -64,6 +64,11 @@ const entityMetadata: EntityMetadataMap = {
     additionalCollectionState: {
       total: 0
     }
+  },
+  SanctionRequest: {
+    additionalCollectionState: {
+      total: 0
+    }
   }
 };
 

@@ -1,0 +1,35 @@
+.sanction-form {
+  padding-left: 10px;
+  overflow: auto;
+  height: calc(100vh - 210px);
+}
+
+.criteria-radio-group {
+  display: inline-flex;
+  flex-direction: column;
+  /*  width: 300px; */
+  border: 0px solid green;
+}
+
+.criteria-radio-button {
+  margin: 5px;
+}
+
+.criteria-checkbox-row {
+  border: 0px solid green;
+  margin: 10px 0;
+}
+
+.example-headers-align .mat-expansion-panel-header-title,
+.example-headers-align .mat-expansion-panel-header-description {
+  flex-basis: 0;
+}
+
+.example-headers-align .mat-expansion-panel-header-description {
+  justify-content: space-between;
+  align-items: center;
+}
+
+.prizeMoney td {
+  padding: 5px;
+}

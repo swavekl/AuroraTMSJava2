@@ -1,0 +1,279 @@
+<div fxLayout="row">
+  <div fxFlex></div>
+  <div fxFlex="70%" *ngIf="sanctionRequest != null">
+    <form name="form" (ngSubmit)="save(f.value)" #f="ngForm" novalidate>
+      <mat-card>
+        <mat-card-title>Tournament Sanction Request</mat-card-title>
+        <mat-card-actions>
+          <button mat-raised-button type="button" (click)="onCancel()">Cancel</button>
+          <span fxFlex></span>
+          <button mat-raised-button type="button" (click)="onSaveAndSubmit(f.value)" disabled="f.valid">Submit</button>
+          <button mat-raised-button type="submit">Save</button>
+        </mat-card-actions>
+        <mat-card-content class="sanction-form">
+          <mat-horizontal-stepper linear>
+            <mat-step label="Tournament Information">
+              <mat-card-subtitle class="mat-title">Tournament Information</mat-card-subtitle>
+              <div fxLayout="column">
+                <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="10px">
+                  <input type="hidden" name="id" [ngModel]="sanctionRequest.id">
+                  <mat-form-field fxFlex="50%">
+                    <mat-label>Tournament Name</mat-label>
+                    <input matInput type="text" placeholder="Tournament Name" name="tournamentName" [(ngModel)]="sanctionRequest.tournamentName" required>
+                    <mat-error>This field is required</mat-error>
+                  </mat-form-field>
+
+                  <mat-form-field fxFlex="50%">
+                    <mat-label>Tournament website URL</mat-label>
+                    <input matInput type="text" placeholder="Tournament website URL" name="webLinkURL" [(ngModel)]="sanctionRequest.requestContents.webLinkURL">
+                  </mat-form-field>
+                </div>
+
+                <!-- Dates -->
+                <div fxLayout="row" fxLayoutGap="10px">
+                  <mat-form-field fxFlex="24%">
+                    <mat-label>Start Date</mat-label>
+                    <input matInput [matDatepicker]="pickerESD" placeholder="Start Date" name="startDate" [min]="minStartDate" [max]="maxStartDate" [(ngModel)]="sanctionRequest.startDate" required (dateChange)="onEnableEndDate($event.target.value)" (input)="onEnableEndDate($event.target.value)" disabled>
+                    <mat-datepicker-toggle matSuffix [for]="pickerESD"></mat-datepicker-toggle>
+                    <mat-datepicker #pickerESD disabled="false"></mat-datepicker>
+                  </mat-form-field>
+
+                  <mat-form-field fxFlex="24%">
+                    <mat-label>End Date</mat-label>
+                    <input matInput [matDatepicker]="pickerEED" placeholder="End Date" name="endDate" [min]="minEndDate" [max]="maxEndDate" [(ngModel)]="sanctionRequest.endDate" disabled>
+                    <mat-datepicker-toggle matSuffix [for]="pickerEED"></mat-datepicker-toggle>
+                    <mat-datepicker #pickerEED [disabled]="!endDateEnabled"></mat-datepicker>
+                  </mat-form-field>
+
+                  <mat-form-field fxFlex="24%">
+                    <mat-label>Alternate Start Date</mat-label>
+                    <input matInput [matDatepicker]="pickerAltSD" placeholder="Alternate Start Date" name="altStartDate" [min]="minStartDate" [max]="maxStartDate" [(ngModel)]="sanctionRequest.requestContents.alternateStartDate" (dateChange)="onEnableAltEndDate($event.target.value)" (input)="onEnableAltEndDate($event.target.value)" disabled>
+                    <mat-datepicker-toggle matSuffix [for]="pickerAltSD"></mat-datepicker-toggle>
+                    <mat-datepicker #pickerAltSD disabled="false"></mat-datepicker>
+                  </mat-form-field>
+
+                  <mat-form-field fxFlex="24%">
+                    <mat-label>Alternate End Date</mat-label>
+                    <input matInput [matDatepicker]="pickerAltED" placeholder="Alternate End Date" name="altEndDate" [min]="minAltEndDate" [max]="maxAltEndDate" [(ngModel)]="sanctionRequest.requestContents.alternateEndDate" disabled>
+                    <mat-datepicker-toggle matSuffix [for]="pickerAltED"></mat-datepicker-toggle>
+                    <mat-datepicker #pickerAltED [disabled]="!altEndDateEnabled"></mat-datepicker>
+                  </mat-form-field>
+                </div>
+
+                <mat-card-subtitle class="mat-title">Venue Address</mat-card-subtitle>
+                <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="10px">
+                  <mat-form-field fxFlex="50%">
+                    <mat-label>Street Address</mat-label>
+                    <input matInput type="text" placeholder="Street Address" name="venueStreetAddress" [(ngModel)]="sanctionRequest.requestContents.venueStreetAddress" required>
+                  </mat-form-field>
+                  <mat-form-field fxFlex="30%">
+                    <mat-label>City</mat-label>
+                    <input matInput type="text" placeholder="City" name="venueCity" [(ngModel)]="sanctionRequest.requestContents.venueCity" required>
+                    <mat-error>This field is required</mat-error>
+                  </mat-form-field>
+                  <mat-form-field fxFlex="10%">
+                    <mat-label>State</mat-label>
+                    <mat-select matInput type="text" placeholder="State" name="venueState" [(ngModel)]="sanctionRequest.requestContents.venueState" (selectionChange)="onVenueStateChange($event)">
+                      <mat-option *ngFor="let state of statesList" value="{{state.abbreviation}}">{{state.abbreviation}}</mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                  <mat-form-field fxFlex="10%">
+                    <mat-label>Zip Code</mat-label>
+                    <input matInput type="text" placeholder="Zip Code" name="venueZipCode" [(ngModel)]="sanctionRequest.requestContents.venueZipCode" required  pattern="^[1-9][0-9]{4}" maxlength="6">
+                    <mat-error>This field is required</mat-error>
+                  </mat-form-field>
+                </div>
+
+                <!-- Club information -->
+                <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="10px">
+                  <mat-form-field fxFlex="40%">
+                    <mat-label>Club Name</mat-label>
+                    <input matInput type="text" placeholder="Club Name" name="clubName" [(ngModel)]="sanctionRequest.requestContents.clubName" required>
+                    <mat-error>This field is required</mat-error>
+                  </mat-form-field>
+
+                  <mat-form-field fxFlex="30%">
+                    <mat-label>Club's USATT Affiliation Expiration Date</mat-label>
+                    <input matInput type="text" placeholder="Club's USATT Affiliation Expiration Date" name="clubAffiliationExpiration" [(ngModel)]="sanctionRequest.requestContents.clubAffiliationExpiration">
+                  </mat-form-field>
+
+                  <mat-form-field fxFlex="30%">
+                    <mat-label>Total Prize Money</mat-label>
+                    <input matInput type="text" placeholder="Total Prize Money" name="totalPrizeMoney" [(ngModel)]="sanctionRequest.requestContents.totalPrizeMoney">
+                  </mat-form-field>
+                </div>
+
+              </div>
+
+              <mat-card-subtitle class="mat-title">Contact Person</mat-card-subtitle>
+              <!-- Contact person -->
+              <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="10px">
+                <mat-form-field fxFlex="40%">
+                  <mat-label>Name</mat-label>
+                  <input matInput type="text" placeholder="Contact Person Name" name="contactPersonName" [(ngModel)]="sanctionRequest.requestContents.contactPersonName">
+                </mat-form-field>
+                <mat-form-field fxFlex="20%">
+                  <mat-label>Phone</mat-label>
+                  <input matInput type="tel" placeholder="Contact Phone" name="contactPersonPhone" [(ngModel)]="sanctionRequest.requestContents.contactPersonPhone">
+                </mat-form-field>
+                <mat-form-field fxFlex="40%">
+                  <mat-label>Email</mat-label>
+                  <input matInput type="email" placeholder="Contact Email" name="contactPersonEmail" [(ngModel)]="sanctionRequest.requestContents.contactPersonEmail" required>
+                </mat-form-field>
+              </div>
+              <!-- Contact person address -->
+              <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="10px">
+                <mat-form-field fxFlex="50%">
+                  <mat-label>Street Address</mat-label>
+                  <input matInput type="text" placeholder="Street Address" name="contactPersonStreetAddress" [(ngModel)]="sanctionRequest.requestContents.contactPersonStreetAddress" required>
+                </mat-form-field>
+                <mat-form-field fxFlex="30%">
+                  <mat-label>City</mat-label>
+                  <input matInput type="text" placeholder="City" name="contactPersonCity" [(ngModel)]="sanctionRequest.requestContents.contactPersonCity" required>
+                  <mat-error>This field is required</mat-error>
+                </mat-form-field>
+                <mat-form-field fxFlex="10%">
+                  <mat-label>State</mat-label>
+                  <mat-select matInput type="text" placeholder="State" name="contactPersonState" [(ngModel)]="sanctionRequest.requestContents.contactPersonState">
+                    <mat-option *ngFor="let state of statesList" value="{{state.abbreviation}}">{{state.abbreviation}}</mat-option>
+                  </mat-select>
+                </mat-form-field>
+                <mat-form-field fxFlex="10%">
+                  <mat-label>Zip Code</mat-label>
+                  <input matInput type="text" placeholder="Zip Code" name="contactPersonZip" [(ngModel)]="sanctionRequest.requestContents.contactPersonZip" required  pattern="^[1-9][0-9]{4}" maxlength="6">
+                  <mat-error>This field is required</mat-error>
+                </mat-form-field>
+              </div>
+
+              <!-- Tournament Referee and Director -->
+              <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="10px">
+                <mat-form-field fxFlex="30%">
+                  <mat-label>Tournament Referee Name</mat-label>
+                  <input matInput type="text" placeholder="Tournament Referee Name" name="tournamentRefereeName" [(ngModel)]="sanctionRequest.requestContents.tournamentRefereeName">
+                </mat-form-field>
+                <mat-form-field fxFlex="20%">
+                  <mat-label>Referee/Umpire Rank</mat-label>
+                  <input matInput type="tel" placeholder="Referee/Umpire Rank" name="tournamentRefereeRank" [(ngModel)]="sanctionRequest.requestContents.tournamentRefereeRank">
+                </mat-form-field>
+                <mat-form-field fxFlex="20%">
+                  <mat-label>Referee USATT Membership Expires</mat-label>
+                  <input matInput type="email" placeholder="Referee USATT Membership Expires" name="tournamentRefereeMembershipExpires" [(ngModel)]="sanctionRequest.requestContents.tournamentRefereeMembershipExpires" required>
+                </mat-form-field>
+                <mat-form-field fxFlex="30%">
+                  <mat-label>Tournament Director</mat-label>
+                  <input matInput type="text" placeholder="Tournament Director" name="tournamentDirectorName" [(ngModel)]="sanctionRequest.requestContents.tournamentDirectorName">
+                </mat-form-field>
+              </div>
+
+              <div fxLayout="row" fxLayoutAlign="end">
+                <button mat-raised-button matStepperNext type="button">Next</button>
+              </div>
+            </mat-step>
+            <mat-step label="Star Rating Criteria">
+              <mat-accordion class="example-headers-align">
+                <div *ngFor="let category of sanctionRequest.requestContents.categories; index as catIndex">
+                  <mat-expansion-panel [expanded]="isCurrentCategory(catIndex)" (opened)="setCategory(catIndex)" hideToggle="true">
+                    <mat-expansion-panel-header>
+                      <mat-panel-title>
+                        <h4>{{category.title}}</h4>
+                      </mat-panel-title>
+                      <mat-panel-description>
+                        {{ category.getSubTotal() }} points
+                      </mat-panel-description>
+                    </mat-expansion-panel-header>
+
+                    <div *ngIf="category.selectOne; else multiSelection">
+                      <mat-radio-group class="criteria-radio-group" name="{{ category.name }}" [(ngModel)]="category.selectedValue" fxFlex="70%" (change)="onRadioGroupChange($event)">
+                        <div fxLayout="row" *ngFor="let criteria of category.criteria; index as i">
+                          <div fxFlex="80%">
+                            <mat-radio-button class="criteria-radio-button" name="category.name + i"
+                                              [value]="criteria.points" [checked]="criteria.selected">{{ criteria.name }}
+                            </mat-radio-button>
+                          </div>
+                          <div fxFlex="20%">{{ criteria.requiredForStarLevel }}</div>
+                        </div>
+                      </mat-radio-group>
+                    </div>
+                    <ng-template #multiSelection>
+                      <div fxFlex="70%">
+                        <div fxLayout="row" *ngFor="let criteria of category.criteria; index as i" class="criteria-checkbox-row">
+                          <div fxFlex="80%">
+                            <mat-checkbox [(ngModel)]="criteria.selected" name="{{ category.name + i}}"
+                                          value="{{ criteria.points }}" (change)="onCheckBoxChange($event)">{{ criteria.name }}
+                            </mat-checkbox>
+                          </div>
+                          <div fxFlex="20%">{{ criteria.requiredForStarLevel }}</div>
+                        </div>
+                      </div>
+                    </ng-template>
+
+                    <mat-action-row>
+                      <button mat-button type="button" *ngIf="notFirstCategory(catIndex)" color="primary" (click)="prevCategory()">Previous</button>
+                      <button mat-button type="button" *ngIf="notLastCategory(catIndex)" color="primary" (click)="nextCategory()">Next</button>
+                    </mat-action-row>
+                  </mat-expansion-panel>
+                </div>
+              </mat-accordion>
+              <div><h3>Total Rating Points: {{ totalPoints }}</h3></div>
+              <div fxLayout="row" fxLayoutAlign="space-between">
+                <button mat-raised-button matStepperPrevious type="button">Back</button>
+                <button mat-raised-button matStepperNext type="button">Next</button>
+              </div>
+            </mat-step>
+            <mat-step label="Pay and Submit">
+              <div fxLayout="row">
+                <div fxFlex="40%">
+                  <table class="prizeMoney">
+                    <thead>
+                    <td>Total Prize Money</td><td>Sanction Fee</td>
+                    </thead>
+                    <tbody>
+                    <tr><td>$0</td><td>Waived</td></tr>
+                    <tr><td>$0 - $400</td><td>$40</td></tr>
+                    <tr><td>$401 - $1000</td><td>$80</td></tr>
+                    <tr><td>$1001 - $3000</td><td>$150</td></tr>
+                    <tr><td>$3001 - $6000</td><td>$300</td></tr>
+                    <tr><td>$6001 +</td><td>$400</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+                <div fxFlex="60%">
+                  <h4>Total Rating Points: {{ totalPoints }} qualify this tournament for {{ getQualifiedStarLevel() }} star rating </h4>
+                  <mat-form-field>
+                    <label for="starLevel">Downgrade star level</label>
+                    <input matInput type="number" id="starLevel" name="starLevel" [(ngModel)]="sanctionRequest.starLevel"
+                           min="0" [max]="getQualifiedStarLevel()" maxlength="1" (change)="starLevelChanged($event)">
+                    <mat-error>This field is required</mat-error>
+                  </mat-form-field>
+                  <h4>Based on selected star rating this tournament will be submitted for sanctioning to
+                    {{ sanctionRequest.coordinatorFirstName }} {{ sanctionRequest.coordinatorLastName }}.
+                    The coordinator will be notified by email about your submission
+                  </h4>
+                </div>
+              </div>
+              <div fxLayout="row" fxLayoutAlign="space-between">
+                <button mat-raised-button matStepperPrevious type="button">Back</button>
+                <button mat-raised-button matStepperNext type="button" *ngIf="hasNextStep()">Next</button>
+              </div>
+            </mat-step>
+            <mat-step label="Approve/Reject" *ngIf="isApprovingCoordinator()">
+              Approval / Rejection notes
+              <mat-form-field fxFlex="100%">
+                <mat-label>Approval/Rejection Notes</mat-label>
+                <textarea rows="3" matInput type="text" name="approvalRejectionNotes" maxlength="500"
+                          [(ngModel)]="sanctionRequest.requestContents.approvalRejectionNotes"
+                          [disabled]="!isApproveRejectEnabled()">
+                    </textarea>
+              </mat-form-field>
+              <div fxLayout="row" fxLayoutAlign="start">
+                <button mat-raised-button matStepperPrevious type="button">Back</button>
+              </div>
+            </mat-step>
+          </mat-horizontal-stepper>
+        </mat-card-content>
+      </mat-card>
+    </form>
+  </div>
+
+  <div fxFlex></div>
+</div>
