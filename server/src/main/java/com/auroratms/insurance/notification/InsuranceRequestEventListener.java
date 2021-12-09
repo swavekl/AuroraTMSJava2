@@ -3,12 +3,16 @@ package com.auroratms.insurance.notification;
 import com.auroratms.insurance.InsuranceRequest;
 import com.auroratms.insurance.InsuranceRequestStatus;
 import com.auroratms.insurance.notification.event.InsuranceRequestEvent;
+import com.auroratms.profile.UserProfile;
+import com.auroratms.usatt.UsattPersonnelService;
+import com.auroratms.users.UserRoles;
 import com.auroratms.utils.EmailService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
+import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 
@@ -16,12 +20,16 @@ import javax.mail.MessagingException;
 import java.util.HashMap;
 import java.util.Map;
 
+@Component
 public class InsuranceRequestEventListener {
 
     private static final Logger logger = LoggerFactory.getLogger(InsuranceRequestEventListener.class);
 
     @Autowired
     private EmailService emailService;
+
+    @Autowired
+    private UsattPersonnelService usattPersonnelService;
 
     @Value("${client.host.url}")
     private String clientHostUrl;
@@ -40,58 +48,42 @@ public class InsuranceRequestEventListener {
         try {
             InsuranceRequest insuranceRequest = insuranceRequestEvent.getInsuranceRequest();
             InsuranceRequestStatus status = insuranceRequest.getStatus();
-            String associationAdminName = "Tina Ren";
-            String associationAdminFirstName = "Tina";
-            String associationAdminEmail = "swaveklorenc+tina@gmail.com";
-            String applicationUrl = clientHostUrl + "/insurance/edit/" + insuranceRequest.getId();
 
+            UserProfile usattInsuranceManager = this.usattPersonnelService.getPersonInRole(UserRoles.USATTInsuranceManagers);
             Map<String, Object> templateModel = new HashMap<>();
-            templateModel.put("applicationUrl", applicationUrl);
-            templateModel.put("associationAdminName", associationAdminName);
-            templateModel.put("associationAdminFirstName", associationAdminFirstName);
-            templateModel.put("associationAdminEmail", associationAdminEmail);
-            String strStatus = insuranceRequest.getStatus().toString().toLowerCase();
-            String subject = "Club Affiliation Application " + strStatus;
-
-            String template = null;
-            switch (status) {
-                case Submitted:
-                    template = "insurance-request/ir-submitted.html";
-                    break;
-//                case Approved:
-//                    template = "insurance-request/ir-approved.html";
-//                    break;
-//                case Rejected:
-//                    template = "insurance-request/ir-rejected.html";
-//                    break;
-                case Completed:
-                    template = "insurance-request/ir-completed.html";
-                    break;
+            String associationAdminEmail = null;
+            if (usattInsuranceManager != null) {
+                String associationAdminName = usattInsuranceManager.getFirstName() + " " + usattInsuranceManager.getLastName();
+                String associationAdminFirstName = usattInsuranceManager.getFirstName();
+                associationAdminEmail = usattInsuranceManager.getEmail();
+                templateModel.put("associationAdminName", associationAdminName);
+                templateModel.put("associationAdminFirstName", associationAdminFirstName);
+                templateModel.put("associationAdminEmail", associationAdminEmail);
+            } else {
+                logger.error("Unable to find USATT insurance manager profile");
             }
 
-//            if (status == InsuranceRequestStatus.Approved ||
-//                    status == InsuranceRequestStatus.Rejected) {
-//                // send email to TD
-//                String clubAdminEmail = insuranceRequest.getContactEmail();
-//                String clubAdminName = insuranceRequest.getContactName();
-//                // todo - who to send it to
-//                String ccAddresses = "";
-////                ccAddresses += (StringUtils.isEmpty(ccAddresses)) ? insuranceRequest.getVicePresidentEmail() : "";
-//                // todo
-//                String reason = ""; // insuranceRequest.getApprovalRejectionNotes();
-//
-//                templateModel.put("clubAdminName", clubAdminName);
-//                templateModel.put("reason", reason);
-//
-//                // send email
-//                emailService.sendMessageUsingThymeleafTemplate(clubAdminEmail, ccAddresses,
-//                        subject, template, templateModel);
-//
-            if (status == InsuranceRequestStatus.Submitted ||
-                    status == InsuranceRequestStatus.Completed) {
-                // send email to USATT
-                emailService.sendMessageUsingThymeleafTemplate(associationAdminEmail, null,
-                        subject, template, templateModel);
+            String contactName = insuranceRequest.getContactName();
+            String contactEmail = insuranceRequest.getContactEmail();
+            templateModel.put("contactName", contactName);
+            templateModel.put("contactEmail", contactEmail);
+
+            String applicationUrl = clientHostUrl + "/insurance/edit/" + insuranceRequest.getId();
+            templateModel.put("applicationUrl", applicationUrl);
+            String strStatus = insuranceRequest.getStatus().toString().toLowerCase();
+            String subject = "Insurance Certificate Request " + strStatus;
+
+            switch (status) {
+                case Submitted:
+                    if (associationAdminEmail != null) {
+                        emailService.sendMessageUsingThymeleafTemplate(associationAdminEmail, null,
+                                subject, "insurance-request/ir-submitted.html", templateModel);
+                    }
+                    break;
+                case Completed:
+                    emailService.sendMessageUsingThymeleafTemplate(contactEmail, null,
+                            subject, "insurance-request/ir-completed.html", templateModel);
+                    break;
             }
         } catch (MessagingException e) {
             logger.error("Unable to send email ", e);

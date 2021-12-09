@@ -20,7 +20,9 @@
           <button mat-raised-button (click)="onSubmitRequest()"
                   [disabled]="!f.valid || (insuranceRequest?.status !== 'New')">Submit
           </button>
-          <button mat-raised-button type="submit" color="primary" [disabled]="!f.valid">Save</button>
+          <button mat-raised-button type="submit" color="primary"
+                  [disabled]="!f.valid">Save
+          </button>
         </mat-card-actions>
         <mat-card-content>
           <div fxLayout="column" class="insurance-form" *ngIf="insuranceRequest != null">
@@ -95,7 +97,7 @@
               </mat-form-field>
               <mat-form-field fxFlex="20%">
                 <mat-label>Phone</mat-label>
-                <input matInput type="tel" placeholder="xxx-xxx-xxxx" name="contactPhoneNumber"
+                <input matInput type="tel" placeholder="XXX-XXX-XXXX" name="contactPhoneNumber"
                        [(ngModel)]="insuranceRequest.contactPhoneNumber">
               </mat-form-field>
               <mat-form-field fxFlex="35%">

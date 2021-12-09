@@ -5,6 +5,9 @@ import com.auroratms.club.ClubService;
 import com.auroratms.clubaffiliationapp.ClubAffiliationApplication;
 import com.auroratms.clubaffiliationapp.ClubAffiliationApplicationStatus;
 import com.auroratms.clubaffiliationapp.notification.event.ClubAffiliationApplicationEvent;
+import com.auroratms.profile.UserProfile;
+import com.auroratms.usatt.UsattPersonnelService;
+import com.auroratms.users.UserRoles;
 import com.auroratms.utils.EmailService;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -31,6 +34,9 @@ public class ClubAffiliationApplicationEventListener {
 
     @Autowired
     private ClubService clubService;
+
+    @Autowired
+    private UsattPersonnelService usattPersonnelService;
 
     @Value("${client.host.url}")
     private String clientHostUrl;
@@ -107,17 +113,23 @@ public class ClubAffiliationApplicationEventListener {
         try {
             ClubAffiliationApplication clubAffiliationApplication = event.getClubAffiliationApplication();
             ClubAffiliationApplicationStatus status = clubAffiliationApplication.getStatus();
-            String associationAdminName = "Tina Ren";
-            String associationAdminFirstName = "Tina";
-            String associationAdminEmail = "swaveklorenc+tina@gmail.com";
+            UserProfile usattClubManager = this.usattPersonnelService.getPersonInRole(UserRoles.USATTClubManagers);
+            Map<String, Object> templateModel = new HashMap<>();
+            String associationAdminEmail = null;
+            if (usattClubManager != null) {
+                String associationAdminName = usattClubManager.getFirstName() + " " + usattClubManager.getLastName();
+                String associationAdminFirstName = usattClubManager.getFirstName();
+                associationAdminEmail = usattClubManager.getEmail();
+                templateModel.put("associationAdminName", associationAdminName);
+                templateModel.put("associationAdminFirstName", associationAdminFirstName);
+                templateModel.put("associationAdminEmail", associationAdminEmail);
+            } else {
+                logger.error("Unable to find USATT club manager profile");
+            }
             // https://gateway-pc:4200/club/affiliationedit/15
             String applicationUrl = clientHostUrl + "/club/affiliationedit/" + clubAffiliationApplication.getId();
-
-            Map<String, Object> templateModel = new HashMap<>();
             templateModel.put("applicationUrl", applicationUrl);
-            templateModel.put("associationAdminName", associationAdminName);
-            templateModel.put("associationAdminFirstName", associationAdminFirstName);
-            templateModel.put("associationAdminEmail", associationAdminEmail);
+
             String strStatus = clubAffiliationApplication.getStatus().toString().toLowerCase();
             String subject = "Club Affiliation Application " + strStatus;
 
@@ -156,8 +168,10 @@ public class ClubAffiliationApplicationEventListener {
             } else if (status == ClubAffiliationApplicationStatus.Submitted ||
                     status == ClubAffiliationApplicationStatus.Completed) {
                 // send email to USATT
-                emailService.sendMessageUsingThymeleafTemplate(associationAdminEmail, null,
-                        subject, template, templateModel);
+                if (associationAdminEmail != null) {
+                    emailService.sendMessageUsingThymeleafTemplate(associationAdminEmail, null,
+                            subject, template, templateModel);
+                }
             }
         } catch (MessagingException e) {
             logger.error("Unable to send email ", e);

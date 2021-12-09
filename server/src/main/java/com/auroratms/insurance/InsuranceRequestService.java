@@ -78,6 +78,8 @@ public class InsuranceRequestService {
         if (!isCreating) {
             InsuranceRequest oldEntity = this.findById(insuranceRequest.getId());
             oldStatus = oldEntity.getStatus();
+        } else {
+            oldStatus = InsuranceRequestStatus.New;
         }
         InsuranceRequest savedInsuranceRequest = this.repository.save(insuranceRequest);
         if (isCreating) {

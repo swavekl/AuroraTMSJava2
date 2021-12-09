@@ -5,10 +5,15 @@
     <title></title>
 </head>
 <body>
-Hello <span th:text="${associationAdminFirstName}"></span>,
+Hello <span th:text="${contactName}"></span>,
 <p>
-    An insurance certificate request has been completed.  The certificate can be viewed <a th:href="${applicationUrl}">here</a>.
+    Your insurance certificate request has been completed.  The certificate can be viewed and downloaded from <a th:href="${applicationUrl}">here</a>.
 </p>
+
+Sincerely,
+
+<div th:text="${associationAdminName}"></div>
+<div th:text="${associationAdminEmail}"></div>
 
 </body>
 </html>
