@@ -33,12 +33,32 @@ public class UserRolesHelper {
         return UserRolesHelper.hasRole(UserRoles.Umpires);
     }
 
-    public static boolean isUSATTOfficial() {
-        return UserRolesHelper.hasRole(UserRoles.USATTOfficials);
+    public static boolean isUSATTTournamentManager() {
+        return UserRolesHelper.hasRole(UserRoles.USATTTournamentManagers);
+    }
+
+    public static boolean isUSATTClubManager() {
+        return UserRolesHelper.hasRole(UserRoles.USATTClubManagers);
+    }
+
+    public static boolean isUSATTInsuranceManager() {
+        return UserRolesHelper.hasRole(UserRoles.USATTInsuranceManagers);
+    }
+
+    public static boolean isUSATTSanctionCoordinator() {
+        return UserRolesHelper.hasRole(UserRoles.USATTSanctionCoordinators);
+    }
+
+    public static boolean isUSATTPlayerManager() {
+        return UserRolesHelper.hasRole(UserRoles.USATTPlayerManagers);
+    }
+
+    public static boolean isUSATTMatchOfficialsManager() {
+        return UserRolesHelper.hasRole(UserRoles.USATTMatchOfficialsManagers);
     }
 
     /**
-     * Tests if current user is an specified authority (role)
+     * Tests if current user is a specified authority (role)
      *
      * @return
      */

@@ -183,7 +183,6 @@ public class UserProfileService {
 
         }
         userProfile.setDivision(oktaUserProfile.getDivision());
-        userProfile.setDepartment(oktaUserProfile.getDepartment());
         return userProfile;
     }
 
@@ -204,8 +203,7 @@ public class UserProfileService {
                 .setState(userProfile.getState())
                 .setZipCode(userProfile.getZipCode())
                 .setCountryCode(userProfile.getCountryCode())
-                .setDivision(userProfile.getDivision())
-                .setDepartment((userProfile.getDepartment()));
+                .setDivision(userProfile.getDivision());
         // these are custom
         oktaUserProfile.put("gender", userProfile.getGender());
         SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
@@ -241,12 +239,12 @@ public class UserProfileService {
     }
 
     /**
-     * Lists users in particular group and department
+     * Lists users in particular group and division
      * @param groupName group name
-     * @param department optional department
+     * @param division optional division
      * @return
      */
-    public List<UserProfile> listUserInRole(String groupName, String department) {
+    public List<UserProfile> listUserInRole(String groupName, String division) {
         List<UserProfile> userProfileList = new ArrayList<>();
         Client client = getClient();
         GroupList groupList = client.listGroups(groupName, null, null);
@@ -255,8 +253,8 @@ public class UserProfileService {
             UserList userList = group.listUsers();
             for (User user : userList) {
                 com.okta.sdk.resource.user.UserProfile oktaUserProfile = user.getProfile();
-//                System.out.println("okta user: " + oktaUserProfile.getFirstName() + " " + oktaUserProfile.getLastName() + ", department: " + oktaUserProfile.getDepartment() + ", division: " + oktaUserProfile.getDivision());
-                if (department == null || department.equals(oktaUserProfile.getDepartment())) {
+//                System.out.println("okta user: " + oktaUserProfile.getFirstName() + " " + oktaUserProfile.getLastName() + ", division: " + oktaUserProfile.getDepartment() + ", division: " + oktaUserProfile.getDivision());
+                if (division == null || oktaUserProfile.getDivision().contains(division)) {
                     UserProfile userProfile = fromOktaUser(user);
                     userProfileList.add(userProfile);
                 }

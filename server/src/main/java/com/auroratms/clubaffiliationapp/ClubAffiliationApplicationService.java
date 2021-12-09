@@ -27,7 +27,7 @@ import java.util.List;
 @Service
 @CacheConfig(cacheNames = {"clubaffiliationapplication"})
 @Transactional
-@PreAuthorize("hasAuthority('TournamentDirectors') or hasAuthority('Admins') or hasAuthority('USATTOfficials')")
+@PreAuthorize("hasAuthority('TournamentDirectors') or hasAuthority('Admins') or hasAuthority('USATTClubManagers')")
 public class ClubAffiliationApplicationService {
 
     @Autowired
@@ -52,7 +52,7 @@ public class ClubAffiliationApplicationService {
         try {
             String currentUserName = UserRolesHelper.getCurrentUsername();
             String authority = UserRolesHelper.isAdmin() ? UserRoles.Admins :
-                    UserRolesHelper.isUSATTOfficial() ? UserRoles.USATTOfficials :
+                    UserRolesHelper.isUSATTClubManager() ? UserRoles.USATTClubManagers :
                             UserRolesHelper.isTournamentDirector() ? UserRoles.TournamentDirectors :
                                     UserRoles.Everyone;
             String containsName = (StringUtils.isNotEmpty(nameLike)) ? "%" + nameLike + "%" : "%";
@@ -128,7 +128,7 @@ public class ClubAffiliationApplicationService {
      * @param objectId
      */
     private void provideAccessToUSATTOfficials(long objectId) {
-        GrantedAuthoritySid grantedAuthoritySid = new GrantedAuthoritySid(UserRoles.USATTOfficials);
+        GrantedAuthoritySid grantedAuthoritySid = new GrantedAuthoritySid(UserRoles.USATTClubManagers);
         this.securityService.addPermission(objectId, ACL_MANAGED_OBJECT_CLASS, grantedAuthoritySid, BasePermission.READ);
         this.securityService.addPermission(objectId, ACL_MANAGED_OBJECT_CLASS, grantedAuthoritySid, BasePermission.WRITE);
     }

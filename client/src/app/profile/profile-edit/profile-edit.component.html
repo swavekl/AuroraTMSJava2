@@ -95,6 +95,7 @@
               <mat-error>Invalid email address</mat-error>
             </mat-form-field>
             <input type="hidden" [ngModel]="profile?.login" name="login">
+            <input type="hidden" [ngModel]="profile?.division" name="division">
             <mat-form-field fxFlex="30%">
               <mat-label>Cell Phone</mat-label>
               <input matInput type="tel" placeholder="xxx-xxxx-xxxx" name="mobilePhone" [ngModel]="profile?.mobilePhone" required>

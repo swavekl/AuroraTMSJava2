@@ -2,6 +2,7 @@ package com.auroratms.usatt;
 
 import com.auroratms.AbstractServiceTest;
 import com.auroratms.profile.UserProfile;
+import com.auroratms.users.UserRoles;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -15,7 +16,7 @@ public class UsattPersonnelServiceTest extends AbstractServiceTest {
 
     @Test
     public void testGettingTournamentsPerson () {
-        UserProfile personInRole = usattPersonnelService.getPersonInRole(UsattPersonnelService.DEPARTMENT_TOURNAMENTS);
+        UserProfile personInRole = usattPersonnelService.getPersonInRole(UserRoles.USATTTournamentManagers);
         assertNotNull(personInRole);
         String firstName = personInRole.getFirstName();
         String lastName = personInRole.getLastName();

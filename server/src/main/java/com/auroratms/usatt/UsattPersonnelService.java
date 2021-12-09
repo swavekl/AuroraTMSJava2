@@ -26,7 +26,7 @@ public class UsattPersonnelService {
      * @return
      */
     public List<UserProfile> getAll() {
-        return this.userProfileService.listUserInRole(UserRoles.USATTOfficials, null);
+        return this.userProfileService.listUserInRole(UserRoles.USATTTournamentManagers, null);
     }
 
     /**
@@ -35,7 +35,7 @@ public class UsattPersonnelService {
      * @return
      */
     public UserProfile getPersonInRole(String role) {
-        List<UserProfile> userProfileList = this.userProfileService.listUserInRole(UserRoles.USATTOfficials, role);
+        List<UserProfile> userProfileList = this.userProfileService.listUserInRole(role, null);
         if (userProfileList.size() > 0) {
             return userProfileList.get(0);
         } else {
@@ -50,7 +50,7 @@ public class UsattPersonnelService {
      */
     public UserProfile getSanctionCoordinator(String region) {
         UserProfile coordinatorProfile = null;
-        List<UserProfile> userProfileList = userProfileService.listUserInRole(UserRoles.USATTOfficials, DEPARTMENT_COORDINATORS);
+        List<UserProfile> userProfileList = userProfileService.listUserInRole(UserRoles.USATTSanctionCoordinators, region);
         for (UserProfile userProfile : userProfileList) {
             if (userProfile.getDivision().contains(region)) {
                 coordinatorProfile = userProfile;

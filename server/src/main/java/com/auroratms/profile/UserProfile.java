@@ -33,5 +33,4 @@ public class UserProfile {
     private Long homeClubId;
     private String homeClubName;
     private String division;
-    private String department;
 }

@@ -19,6 +19,7 @@ export class Profile {
   tournamentRating: number;
   homeClubId: number;
   homeClubName: string;
+  division: string;
 
   constructor() {
 
@@ -43,6 +44,7 @@ export class Profile {
     this.tournamentRating = formValues.tournamentRating;
     this.homeClubId = formValues.homeClubId;
     this.homeClubName = formValues.homeClubName;
+    this.division = formValues.division;
   }
 
   clone(otherProfile: Profile) {
@@ -64,5 +66,6 @@ export class Profile {
     this.tournamentRating = otherProfile.tournamentRating;
     this.homeClubId = otherProfile.homeClubId;
     this.homeClubName = otherProfile.homeClubName;
+    this.division = otherProfile.division;
   }
 }

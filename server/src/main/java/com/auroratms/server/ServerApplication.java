@@ -1,5 +1,6 @@
 package com.auroratms.server;
 
+import com.auroratms.utils.filerepo.IFileRepository;
 import com.okta.spring.boot.oauth.Okta;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
@@ -55,18 +56,19 @@ public class ServerApplication {
 
     @Bean
     protected WebSecurityConfigurerAdapter webSecurityConfigurerAdapter() {
+        String fileRepoUrlPattern = "/" + IFileRepository.REPOSITORY_URL_ROOT + "/**/images/**";
         return new WebSecurityConfigurerAdapter() {
 
             @Override
             protected void configure(HttpSecurity http) throws Exception {
                 http.authorizeRequests()
-                        .antMatchers("/", "/login", "/images/**", "/api/users/**").permitAll()
+                        .antMatchers("/", "/login", "/images/**", "/api/users/**", fileRepoUrlPattern).permitAll()
                         .anyRequest().authenticated()  // authenticate everything else!;
                         .and()
                         .oauth2ResourceServer().jwt();
                 // all communication except for images over secure https channel
                 http.requiresChannel()
-                        .antMatchers("/images/**").requiresInsecure();
+                        .antMatchers("/images/**", fileRepoUrlPattern).requiresInsecure();
                 http.requiresChannel()
                         .anyRequest().requiresSecure();
 

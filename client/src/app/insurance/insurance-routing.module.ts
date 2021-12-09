@@ -10,21 +10,21 @@ const routes: Routes = [
     path: 'list', component: InsuranceListComponent,
     canActivate: [AuthGuard],
     data: {
-      roles: [UserRoles.ROLE_ADMINS, UserRoles.ROLE_USATT_OFFICIALS, UserRoles.ROLE_TOURNAMENT_DIRECTORS]
+      roles: [UserRoles.ROLE_ADMINS, UserRoles.ROLE_USATT_INSURANCE_MANAGERS, UserRoles.ROLE_TOURNAMENT_DIRECTORS]
     }
   },
   {
     path: 'edit/:id', component: InsuranceContainerComponent,
     canActivate: [AuthGuard],
     data: {
-      roles: [UserRoles.ROLE_ADMINS, UserRoles.ROLE_USATT_OFFICIALS, UserRoles.ROLE_TOURNAMENT_DIRECTORS]
+      roles: [UserRoles.ROLE_ADMINS, UserRoles.ROLE_USATT_INSURANCE_MANAGERS, UserRoles.ROLE_TOURNAMENT_DIRECTORS]
     }
   },
   {
     path: 'create/:id', component: InsuranceContainerComponent,
     canActivate: [AuthGuard],
     data: {
-      roles: [UserRoles.ROLE_ADMINS, UserRoles.ROLE_USATT_OFFICIALS, UserRoles.ROLE_TOURNAMENT_DIRECTORS]
+      roles: [UserRoles.ROLE_ADMINS, UserRoles.ROLE_USATT_INSURANCE_MANAGERS, UserRoles.ROLE_TOURNAMENT_DIRECTORS]
     }
   }
 ];

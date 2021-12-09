@@ -62,21 +62,21 @@ const routes: Routes = [
     path: 'usattdashboard',
     loadChildren: () => import('./usattdashboard/usattdashboard.module').then(m => m.USATTDashboardModule),
     data: {
-      roles: [UserRoles.ROLE_ADMINS, UserRoles.ROLE_USATT_OFFICIALS]
+      roles: [UserRoles.ROLE_ADMINS, UserRoles.ROLE_USATT_CLUB_MANAGERS]
     }
   },
   {
     path: 'club',
     loadChildren: () => import('./club/club.module').then(m => m.ClubModule),
     data: {
-      roles: [UserRoles.ROLE_ADMINS, UserRoles.ROLE_USATT_OFFICIALS, UserRoles.ROLE_TOURNAMENT_DIRECTORS]
+      roles: [UserRoles.ROLE_ADMINS, UserRoles.ROLE_USATT_CLUB_MANAGERS, UserRoles.ROLE_TOURNAMENT_DIRECTORS]
     }
   },
   {
     path: 'insurance',
     loadChildren: () => import('./insurance/insurance.module').then(m => m.InsuranceModule),
     data: {
-      roles: [UserRoles.ROLE_ADMINS, UserRoles.ROLE_USATT_OFFICIALS, UserRoles.ROLE_TOURNAMENT_DIRECTORS]
+      roles: [UserRoles.ROLE_ADMINS, UserRoles.ROLE_USATT_INSURANCE_MANAGERS, UserRoles.ROLE_TOURNAMENT_DIRECTORS]
     }
   }
 ];

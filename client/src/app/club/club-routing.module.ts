@@ -11,14 +11,17 @@ const routes: Routes = [
   {
     path: 'list',
     component: ClubListComponent,
-    canActivate: [AuthGuard]
+    canActivate: [AuthGuard],
+    data: {
+      roles: [UserRoles.ROLE_ADMINS, UserRoles.ROLE_USATT_CLUB_MANAGERS, UserRoles.ROLE_TOURNAMENT_DIRECTORS]
+    }
   },
   {
     path: 'affiliationlist',
     component: ClubAffiliationApplicationListComponent,
     canActivate: [AuthGuard],
     data: {
-      roles: [UserRoles.ROLE_ADMINS, UserRoles.ROLE_USATT_OFFICIALS, UserRoles.ROLE_TOURNAMENT_DIRECTORS]
+      roles: [UserRoles.ROLE_ADMINS, UserRoles.ROLE_USATT_CLUB_MANAGERS, UserRoles.ROLE_TOURNAMENT_DIRECTORS]
     }
   },
   {
@@ -26,7 +29,7 @@ const routes: Routes = [
     component: ClubAffiliationApplicationContainerComponent,
     canActivate: [AuthGuard],
     data: {
-      roles: [UserRoles.ROLE_ADMINS, UserRoles.ROLE_USATT_OFFICIALS, UserRoles.ROLE_TOURNAMENT_DIRECTORS]
+      roles: [UserRoles.ROLE_ADMINS, UserRoles.ROLE_USATT_CLUB_MANAGERS, UserRoles.ROLE_TOURNAMENT_DIRECTORS]
     }
   },
   {

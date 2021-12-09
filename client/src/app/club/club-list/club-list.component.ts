@@ -50,11 +50,11 @@ export class ClubListComponent implements AfterViewInit {
   }
 
   canAddClub() {
-    return this.authenticationService.hasCurrentUserRole([UserRoles.ROLE_ADMINS, UserRoles.ROLE_USATT_OFFICIALS]);
+    return this.authenticationService.hasCurrentUserRole([UserRoles.ROLE_ADMINS, UserRoles.ROLE_USATT_CLUB_MANAGERS]);
   }
 
   canEditClub(clubId: number) {
-    return this.authenticationService.hasCurrentUserRole([UserRoles.ROLE_ADMINS, UserRoles.ROLE_USATT_OFFICIALS]);
+    return this.authenticationService.hasCurrentUserRole([UserRoles.ROLE_ADMINS, UserRoles.ROLE_USATT_CLUB_MANAGERS]);
   }
 
   addClub() {

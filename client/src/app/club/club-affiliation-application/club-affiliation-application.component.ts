@@ -67,7 +67,7 @@ export class ClubAffiliationApplicationComponent implements OnInit {
   isApproveRejectEnabled() {
     const statusOK = this.clubAffiliationApplication.status === ClubAffiliationApplicationStatus.Submitted;
     const isPermitted = this.authenticationService.hasCurrentUserRole(
-      [UserRoles.ROLE_ADMINS, UserRoles.ROLE_USATT_OFFICIALS]);
+      [UserRoles.ROLE_ADMINS, UserRoles.ROLE_USATT_CLUB_MANAGERS]);
     return isPermitted && statusOK;
   }
 
@@ -101,7 +101,7 @@ export class ClubAffiliationApplicationComponent implements OnInit {
       this.clubAffiliationApplication.status === ClubAffiliationApplicationStatus.Approved ||
       this.clubAffiliationApplication.status === ClubAffiliationApplicationStatus.Completed;
     const isPermitted = this.authenticationService.hasCurrentUserRole(
-      [UserRoles.ROLE_ADMINS, UserRoles.ROLE_USATT_OFFICIALS]);
+      [UserRoles.ROLE_ADMINS, UserRoles.ROLE_USATT_CLUB_MANAGERS]);
     return isPermitted && statusOK;
   }
 
