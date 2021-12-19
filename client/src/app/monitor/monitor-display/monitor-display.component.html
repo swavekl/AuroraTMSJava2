@@ -1,19 +1,11 @@
-<table>
-  <!--  <thead>-->
-  <!--  <tr>-->
-  <!--    <th>&nbsp;</th>-->
-  <!--    <th class="name-column">Player Name</th>-->
-  <!--    <th [colSpan]="numberOfGames">Games</th>-->
-  <!--  </tr>-->
-  <!--  <tr>-->
-  <!--    <th>&nbsp;</th>-->
-  <!--    <th>&nbsp;</th>-->
-  <!--    <th *ngFor="let game of games; let idx = index;">{{idx + 1}}</th>-->
-  <!--  </tr>-->
-  <!--  </thead>-->
+<table class="match-display" *ngIf="matchData">
+  <thead>
+  <tr>
+    <th [colSpan]="games.length">{{matchData?.playerAName}}</th>
+  </tr>
+  </thead>
   <tbody>
   <tr>
-    <td>{{matchData?.playerAName}}</td>
     <td *ngFor="let game of games; let idx = index;">
       <ng-container  [ngSwitch]="idx">
         <ng-container *ngSwitchCase="0">{{ matchData?.match?.game1ScoreSideA }}</ng-container>
@@ -38,8 +30,12 @@
         <ng-container *ngSwitchCase="6">{{ matchData?.match?.game7ScoreSideB }}</ng-container>
       </ng-container>
     </td>
-    <td>{{matchData?.playerBName}}</td>
   </tr>
   </tbody>
+  <tfoot>
+  <tr>
+    <th [colSpan]="games.length">{{matchData?.playerBName}}</th>
+  </tr>
+  </tfoot>
 </table>
 

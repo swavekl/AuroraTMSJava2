@@ -61,7 +61,7 @@ public class MatchController {
         try {
             Match updatedMatch = matchService.updateMatch(match);
             MatchCard matchCard = updatedMatch.getMatchCard();
-            this.matchStatusPublisher.publishMatchUpdate(matchCard, updatedMatch, false, null, false);
+            this.matchStatusPublisher.publishMatchUpdate(matchCard.getId(), updatedMatch, false, null, false);
             return new ResponseEntity<>(updatedMatch, HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity(e, HttpStatus.INTERNAL_SERVER_ERROR);

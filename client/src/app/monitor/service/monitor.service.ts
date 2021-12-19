@@ -41,9 +41,10 @@ export class MonitorService {
     this.stompClient = Stomp.over(socket);
     this.stompClient.connect({'Authorization': accessToken}, function (frame) {
       me.setConnected(true);
-      me.stompClient.subscribe(topicName, function (monitorMessage) {
+      me.stompClient.subscribe(topicName, function (message) {
         // console.log ('monitorMessage', monitorMessage);
-        me.messagesSubject$.next(monitorMessage.body);
+        const monitorMessage: MonitorMessage = JSON.parse(message.body);
+        me.messagesSubject$.next(monitorMessage);
       });
     });
   }
