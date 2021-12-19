@@ -39,6 +39,8 @@
     "ng-tournament-tree": "^2.0.2",
     "ngx-stripe": "^13.0.0",
     "rxjs": "~7.4.0",
+    "sockjs-client": "^1.5.2",
+    "stompjs": "^2.3.3",
     "tslib": "^2.0.0",
     "twix": "^1.3.0",
     "zone.js": "~0.11.4"
@@ -63,5 +65,8 @@
     "ts-node": "~10.4.0",
     "tslint": "~6.1.3",
     "typescript": "~4.4.4"
+  },
+  "browser": {
+    "net": false
   }
 }

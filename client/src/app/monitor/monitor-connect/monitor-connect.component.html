@@ -1,0 +1,16 @@
+<form>
+  <h3>Select the table # to connect to</h3>
+  <mat-form-field>
+    <mat-label>Table #</mat-label>
+    <input matInput type="numeric" min="1" [max]=[maxTableNum]
+           placeholder="Table #" [(ngModel)]="tableToMonitor"
+           name="tableToMonitor" required>
+  </mat-form-field>
+  <div>
+    {{ isConnected ? "Connected" : "Disconnected" }}
+  </div>
+</form>
+<mat-toolbar fxLayoutGap="10px">
+  <button mat-raised-button (click)="onConnect($event)" [disabled]="isConnected">Connect</button>
+  <button mat-raised-button (click)="onDisconnect($event)" [disabled]="!isConnected">Disconnect</button>
+</mat-toolbar>

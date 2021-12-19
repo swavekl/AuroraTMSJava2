@@ -38,6 +38,10 @@ spring:
 #          web:
 #            csrf:
 #              CsrfFilter: TRACE
+
+## Websocket debugging
+#logging.level.org.springframework.web.socket.sockjs: TRACE
+
 #org:
 #  springframework:
 #    security:

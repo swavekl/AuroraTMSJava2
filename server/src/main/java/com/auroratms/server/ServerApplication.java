@@ -19,6 +19,7 @@ import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
+import org.springframework.security.oauth2.server.resource.web.DefaultBearerTokenResolver;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -61,11 +62,19 @@ public class ServerApplication {
 
             @Override
             protected void configure(HttpSecurity http) throws Exception {
+                // for websocket handshake request we pass the JWT access token via URL parameter - access_token
+                // enable retrieving access token from query parameter
+                DefaultBearerTokenResolver resolver = new DefaultBearerTokenResolver();
+                resolver.setAllowUriQueryParameter(true);
+
                 http.authorizeRequests()
-                        .antMatchers("/", "/login", "/images/**", "/api/users/**", fileRepoUrlPattern).permitAll()
+                        .antMatchers("/", "/login", "/images/**", "/api/users/**", fileRepoUrlPattern)
+                        .permitAll()
                         .anyRequest().authenticated()  // authenticate everything else!;
                         .and()
-                        .oauth2ResourceServer().jwt();
+                        .oauth2ResourceServer()
+                        .bearerTokenResolver(resolver)
+                        .jwt();
                 // all communication except for images over secure https channel
                 http.requiresChannel()
                         .antMatchers("/images/**", fileRepoUrlPattern).requiresInsecure();
@@ -167,3 +176,62 @@ public class ServerApplication {
 //    }
 
 }
+
+
+/**
+ * @Override
+ * @NonNull
+ * public Mono<Void> filter(
+ *   @NonNull ServerWebExchange serverWebExchange, @NonNull WebFilterChain
+ *      webFilterChain) {
+ *   ServerHttpRequest request = serverWebExchange.getRequest();
+ *   return webFilterChain.filter(
+ *     serverWebExchange.mutate().request(sanitizeRequest(request)).build());
+ * }
+ *
+ * private ServerHttpRequest sanitizeRequest(ServerHttpRequest request) {
+ *   MultiValueMap<String, String> queryParams = request.getQueryParams();
+ *   ServerHttpRequest.Builder newRequest =
+ *     request
+ *         .mutate()
+ *         .headers(
+ *             headers -> {
+ *               if (headerContainsAuthorizationKey(headers)) {
+ *                 String token = getAuthorizationBearer(headers);
+ *                 if (token != null) {
+ *                   // "bearer" breaks WebFlux OAuth :)
+ *                   headers.set(HttpHeaders.AUTHORIZATION, token.replace("bearer", "Bearer"));
+ *                   return;
+ *                 }
+ *               }
+ *               if (pathContainsAccessToken(queryParams)) {
+ *                 headers.set(
+ *                     HttpHeaders.AUTHORIZATION,
+ *                     "Bearer " + queryParams.getFirst("access_token"));
+ *               }
+ *             });
+ *
+ *   if (pathContainsAccessToken(queryParams)) {
+ *     newRequest.uri(buildNewUriWithoutToken(request.getURI(), queryParams));
+ *   }
+ *   return newRequest.build();
+ *  }
+ * }
+ *
+ * @Bean
+ * public SecurityWebFilterChain springSecurityFilterChain(
+ *   ServerHttpSecurity http,
+ *   TokenStore tokenStore,
+ *   AuthorizationHeaderFilter authorizationHeaderFilter) {
+ *     http.csrf()
+ *       .disable()
+ *       .authorizeExchange()
+ *       .anyExchange()
+ *       .authenticated()
+ *       .and()
+ *       .addFilterAt(authorizationHeaderFilter, SecurityWebFiltersOrder.FIRST)
+ *       .oauth2ResourceServer()
+ *       .jwt() // ...  etc
+ *   return http.build();
+ * }
+ */

@@ -5,7 +5,6 @@ import com.auroratms.sanction.notification.SanctionRequestEventPublisher;
 import com.auroratms.users.UserRoles;
 import com.auroratms.users.UserRolesHelper;
 import com.auroratms.utils.SecurityService;
-import com.auroratms.utils.filerepo.IFileRepository;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheConfig;
@@ -43,8 +42,8 @@ public class SanctionRequestService {
      * @param pageable
      * @return
      */
-    Page<SanctionRequest> findByName(String nameLike, Pageable pageable) {
-        Page<SanctionRequest> sanctionRequestPage = null;
+    Page<SanctionRequestEntity> findByName(String nameLike, Pageable pageable) {
+        Page<SanctionRequestEntity> sanctionRequestPage = null;
         try {
             String currentUserName = UserRolesHelper.getCurrentUsername();
             String authority = UserRolesHelper.isAdmin() ? UserRoles.Admins :
@@ -62,29 +61,30 @@ public class SanctionRequestService {
     }
 
     @Cacheable(key = "#id")
-    public SanctionRequest findById(Long id) {
+    public SanctionRequestEntity findById(Long id) {
         return this.repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Sanction request with id " + id + " not found"));
     }
 
     @CachePut(key = "#result.id")
-    public SanctionRequest save(SanctionRequest sanctionRequest) {
+    public SanctionRequestEntity save(SanctionRequestEntity sanctionRequest) {
         boolean isCreating = (sanctionRequest.getId() == null);
         SanctionRequestStatus oldStatus = null;
         if (!isCreating) {
-            SanctionRequest oldEntity = this.findById(sanctionRequest.getId());
+            SanctionRequestEntity oldEntity = this.findById(sanctionRequest.getId());
             oldStatus = oldEntity.getStatus();
         } else {
             oldStatus = SanctionRequestStatus.New;
         }
-        SanctionRequest savedSanctionRequest = this.repository.save(sanctionRequest);
+        SanctionRequestEntity savedSanctionRequest = this.repository.save(sanctionRequest);
         if (isCreating) {
             provideAccessToAdmin(savedSanctionRequest.getId());
             provideAccessToUSATTOfficials(savedSanctionRequest.getId());
         }
 
         // send email about payment completed, approval/rejection etc. if status changed
-        eventPublisher.publishEvent(savedSanctionRequest, oldStatus);
+        SanctionRequest convertedSanctionRequest = new SanctionRequest().convertFromEntity(savedSanctionRequest);
+        eventPublisher.publishEvent(convertedSanctionRequest, oldStatus);
 
         return savedSanctionRequest;
     }
@@ -92,16 +92,7 @@ public class SanctionRequestService {
     @CacheEvict(key = "#id")
     public void delete(long id) {
         try {
-//            IFileRepository fileRepository = this.fileRepositoryFactory.getFileRepository();
-            SanctionRequest sanctionRequest = this.repository.findById(id).get();
-//            String certificateUrl = sanctionRequest.getCertificateUrl();
-//            if (certificateUrl != null) {
-//                fileRepository.deleteByURL(certificateUrl);
-//            }
-//            String additionalInsuredAgreementUrl = sanctionRequest.getAdditionalInsuredAgreementUrl();
-//            if (additionalInsuredAgreementUrl != null) {
-//                fileRepository.deleteByURL(additionalInsuredAgreementUrl);
-//            }
+            SanctionRequestEntity sanctionRequest = this.repository.findById(id).get();
         } catch (Exception e) {
             // ignore
         }
@@ -141,7 +132,7 @@ public class SanctionRequestService {
      * @param status
      */
     public void updateStatus(Long id, SanctionRequestStatus status) {
-        SanctionRequest sanctionRequest = this.findById(id);
+        SanctionRequestEntity sanctionRequest = this.findById(id);
         sanctionRequest.setStatus(status);
         this.save(sanctionRequest);
     }

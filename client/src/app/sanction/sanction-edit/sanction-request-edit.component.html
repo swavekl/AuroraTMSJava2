@@ -1,13 +1,12 @@
 <div fxLayout="row">
   <div fxFlex></div>
   <div fxFlex="70%" *ngIf="sanctionRequest != null">
-    <form name="form" (ngSubmit)="save(f.value)" #f="ngForm" novalidate>
+    <form name="form" (ngSubmit)="save(f.value, false)" #f="ngForm" novalidate>
       <mat-card>
         <mat-card-title>Tournament Sanction Request</mat-card-title>
         <mat-card-actions>
-          <button mat-raised-button type="button" (click)="onCancel()">Cancel</button>
+          <button mat-raised-button type="button" (click)="onCancel()" style="margin-left: 10px">Cancel</button>
           <span fxFlex></span>
-          <button mat-raised-button type="button" (click)="onSaveAndSubmit(f.value)" disabled="f.valid">Submit</button>
           <button mat-raised-button type="submit">Save</button>
         </mat-card-actions>
         <mat-card-content class="sanction-form">
@@ -214,58 +213,98 @@
                   </mat-expansion-panel>
                 </div>
               </mat-accordion>
-              <div><h3>Total Rating Points: {{ totalPoints }}</h3></div>
+              <div>
+                <h3>Total Rating Points: <span style="font-weight: bold">{{ totalPoints }}</span> qualify this tournament for <span style="font-weight: bold">{{ qualifiedStarLevel }}</span> star rating </h3>
+              </div>
               <div fxLayout="row" fxLayoutAlign="space-between">
                 <button mat-raised-button matStepperPrevious type="button">Back</button>
                 <button mat-raised-button matStepperNext type="button">Next</button>
               </div>
             </mat-step>
             <mat-step label="Pay and Submit">
-              <div fxLayout="row">
-                <div fxFlex="40%">
-                  <table class="prizeMoney">
-                    <thead>
-                    <td>Total Prize Money</td><td>Sanction Fee</td>
-                    </thead>
-                    <tbody>
-                    <tr><td>$0</td><td>Waived</td></tr>
-                    <tr><td>$0 - $400</td><td>$40</td></tr>
-                    <tr><td>$401 - $1000</td><td>$80</td></tr>
-                    <tr><td>$1001 - $3000</td><td>$150</td></tr>
-                    <tr><td>$3001 - $6000</td><td>$300</td></tr>
-                    <tr><td>$6001 +</td><td>$400</td></tr>
-                    </tbody>
-                  </table>
+              <div fxLayout="column" fxLayoutGap="10px">
+                <div fxLayout="row" fxFlex="100%">
+                  <div fxFlex="40%">
+                    <table class="prizeMoney">
+                      <thead>
+                      <td>Total Prize Money</td><td>Sanction Fee</td>
+                      </thead>
+                      <tbody>
+                      <tr><td>$0</td><td>Waived</td></tr>
+                      <tr><td>$0 - $400</td><td>$40</td></tr>
+                      <tr><td>$401 - $1000</td><td>$80</td></tr>
+                      <tr><td>$1001 - $3000</td><td>$150</td></tr>
+                      <tr><td>$3001 - $6000</td><td>$300</td></tr>
+                      <tr><td>$6001 +</td><td>$400</td></tr>
+                      </tbody>
+                    </table>
+                  </div>
+                  <div fxFlex="60%">
+                    <h3>Total Rating Points: {{ totalPoints }} qualify this tournament for {{ qualifiedStarLevel }} star rating </h3>
+                    <mat-form-field>
+                      <label for="starLevel">Downgrade star level</label>
+                      <input matInput type="number" id="starLevel" name="starLevel" [(ngModel)]="sanctionRequest.starLevel"
+                             min="0" [max]="qualifiedStarLevel" maxlength="1" (change)="starLevelChanged($event)">
+                      <mat-error>This field is required</mat-error>
+                    </mat-form-field>
+                    <h4>Based on selected star rating this tournament will be submitted for sanctioning to
+                      {{ sanctionRequest.coordinatorFirstName }} {{ sanctionRequest.coordinatorLastName }}.
+                      The coordinator will be notified by email about your submission
+                    </h4>
+                  </div>
                 </div>
-                <div fxFlex="60%">
-                  <h4>Total Rating Points: {{ totalPoints }} qualify this tournament for {{ getQualifiedStarLevel() }} star rating </h4>
-                  <mat-form-field>
-                    <label for="starLevel">Downgrade star level</label>
-                    <input matInput type="number" id="starLevel" name="starLevel" [(ngModel)]="sanctionRequest.starLevel"
-                           min="0" [max]="getQualifiedStarLevel()" maxlength="1" (change)="starLevelChanged($event)">
-                    <mat-error>This field is required</mat-error>
-                  </mat-form-field>
-                  <h4>Based on selected star rating this tournament will be submitted for sanctioning to
-                    {{ sanctionRequest.coordinatorFirstName }} {{ sanctionRequest.coordinatorLastName }}.
-                    The coordinator will be notified by email about your submission
-                  </h4>
-                </div>
-              </div>
-              <div fxLayout="row" fxLayoutAlign="space-between">
-                <button mat-raised-button matStepperPrevious type="button">Back</button>
-                <button mat-raised-button matStepperNext type="button" *ngIf="hasNextStep()">Next</button>
-              </div>
-            </mat-step>
-            <mat-step label="Approve/Reject" *ngIf="isApprovingCoordinator()">
-              Approval / Rejection notes
-              <mat-form-field fxFlex="100%">
-                <mat-label>Approval/Rejection Notes</mat-label>
-                <textarea rows="3" matInput type="text" name="approvalRejectionNotes" maxlength="500"
-                          [(ngModel)]="sanctionRequest.requestContents.approvalRejectionNotes"
-                          [disabled]="!isApproveRejectEnabled()">
+                <table class="summary-table">
+                  <tbody>
+                  <ng-container *ngIf="paymentsRefunds?.length > 0">
+                    <tr>
+                      <th>Payments & Refunds</th>
+                      <th></th>
+                    </tr>
+                    <tr *ngFor="let paymentRefund of paymentsRefunds; last as last">
+                      <td>
+                        <div>{{ isPayment(paymentRefund) ? 'Payment' : 'Refund' }}</div>
+                        <div class="summary-item-second-line">
+                          on {{ paymentRefund.transactionDate | date:'medium'}}</div>
+                      </td>
+                      <td>
+                        <ng-container *ngIf="paymentRefund.paidAmount !== paymentRefund.amount">
+                          {{ isPayment(paymentRefund) ? '' : '-' }}{{ (paymentRefund.paidAmount / 100) | currency: paymentRefund.paidCurrency }}
+                          =
+                        </ng-container>
+                        {{ isPayment(paymentRefund) ? '' : '-' }}{{ (paymentRefund.amount / 100) | currency: associationCurrency }}
+                      </td>
+                    </tr>
+                    <tr>
+                      <td style="border-top: 1px solid black"><h2>Payments & Refunds Total</h2></td>
+                      <td style="border-top: 1px solid black">
+                        <h2>{{getPaymentsRefundsTotal() | currency: associationCurrency}}</h2></td>
+                    </tr>
+                  </ng-container>
+                  </tbody>
+                </table>
+                <mat-form-field fxFlex="100%">
+                  <mat-label>Approval/Rejection Notes</mat-label>
+                  <textarea rows="5" matInput type="text" name="approvalRejectionNotes" maxlength="500"
+                            [(ngModel)]="sanctionRequest.requestContents.approvalRejectionNotes"
+                            [disabled]="!isApproveRejectEnabled()">
                     </textarea>
-              </mat-form-field>
-              <div fxLayout="row" fxLayoutAlign="start">
+                </mat-form-field>
+              </div>
+              <div fxLayout="row" fxLayoutAlign="start start" fxLayoutGap="10px">
+                <button mat-raised-button color="primary" type="button" (click)="onSubmitApplication(f.value)"
+                        [disabled]="!isSubmitEnabled()">Submit
+                </button>
+                <button mat-raised-button color="primary" type="button" (click)="onApproveApplication(f.value)"
+                        [disabled]="!isApproveRejectEnabled()">Approve
+                </button>
+                <button mat-raised-button color="primary" type="button" (click)="onRejectApplication(f.value)"
+                        [disabled]="!isApproveRejectEnabled()">Reject
+                </button>
+                <button mat-raised-button color="primary" type="button" (click)="onPay(f.value)"
+                        [disabled]="!isPaymentEnabled()">Pay {{sanctionFee | currency: associationCurrency}}
+                </button>
+              </div>
+              <div fxLayout="row" fxLayoutAlign="start" style="margin-top: 16px">
                 <button mat-raised-button matStepperPrevious type="button">Back</button>
               </div>
             </mat-step>

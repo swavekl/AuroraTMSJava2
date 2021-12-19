@@ -4,6 +4,11 @@ import {MatDialog} from '@angular/material/dialog';
 import {StatesList} from '../../shared/states/states-list';
 import {CoordinatorInfo, coordinatorList} from '../../shared/coordinator-info';
 import {ConfirmationPopupComponent} from '../../shared/confirmation-popup/confirmation-popup.component';
+import {AuthenticationService} from '../../user/authentication.service';
+import {UserRoles} from '../../user/user-roles.enum';
+import {PaymentRefund} from '../../account/model/payment-refund.model';
+import {PaymentRefundStatus} from '../../account/model/payment-refund-status.enum';
+import {SanctionRequestAndPayment} from './sanction-request-edit-container.component';
 
 @Component({
   selector: 'app-sanction-request-edit',
@@ -16,11 +21,15 @@ export class SanctionRequestEditComponent implements OnInit, OnChanges {
   // this is what we edit
   @Input() sanctionRequest: SanctionRequest;
 
+  @Input()
+  public paymentsRefunds: PaymentRefund[] = [];
+
   // save and cancel
   @Output() saved = new EventEmitter();
   @Output() canceled = new EventEmitter();
 
   statesList: any [];
+  associationCurrency: string;
 
   // current category index (lights, flooring etc)
   currentCategory: number;
@@ -44,10 +53,19 @@ export class SanctionRequestEditComponent implements OnInit, OnChanges {
   endDateEnabled = false;
   altEndDateEnabled = false;
 
-  constructor(private messageDialog: MatDialog) {
+  // sanction fee to pay
+  sanctionFee: number;
+  // level for which tournament qualifies
+  qualifiedStarLevel: number;
+
+  constructor(private messageDialog: MatDialog,
+              private authenticationService: AuthenticationService) {
     this.currentCategory = 0;
     this.totalPoints = 0;
     this.statesList = StatesList.getList();
+    this.associationCurrency = 'USD';
+    this.sanctionFee = 0;
+
     this.minStartDate.setDate(this.minStartDate.getDate() + 30);
     this.maxStartDate.setDate(this.maxStartDate.getDate() + 365);
     this.minAltStartDate.setDate(this.minStartDate.getDate() + 30);
@@ -68,7 +86,9 @@ export class SanctionRequestEditComponent implements OnInit, OnChanges {
         sanctionRequest.clone(sanctionRequestToEdit);
         this.sanctionRequest = sanctionRequest;
 
-        this.totalPoints = this.calculateTotal();
+        this.calculateTotalAndQualifiedStarLevel();
+
+        this.sanctionFee = this.determineSanctionFee(sanctionRequest.starLevel);
       }
     }
   }
@@ -132,11 +152,15 @@ export class SanctionRequestEditComponent implements OnInit, OnChanges {
   /**
    * Save the sanction request
    */
-  save(formValues: any) {
+  save(formValues: any, payFee: boolean) {
 //    console.log ('formValues ', formValues);
     const sanctionRequestToSave: SanctionRequest = this.makeSanctionRequest (formValues);
 //    console.log("Saving sanction request....", sanctionRequestToSave);
-    this.saved.emit (sanctionRequestToSave);
+    const sanctionRequestAndPayment: SanctionRequestAndPayment = {
+      sanctionRequest: sanctionRequestToSave,
+      payFee: payFee
+    };
+    this.saved.emit (sanctionRequestAndPayment);
   }
 
   onCancel () {
@@ -144,7 +168,7 @@ export class SanctionRequestEditComponent implements OnInit, OnChanges {
   }
 
   // save and submit for sanction
-  onSaveAndSubmit (formValues: any) {
+  onSubmitApplication (formValues: any) {
     const sanctionRequestToSave: SanctionRequest = this.makeSanctionRequest (formValues);
 
     // find coordinator who will receive this request and set it in the request.
@@ -169,11 +193,47 @@ export class SanctionRequestEditComponent implements OnInit, OnChanges {
 
     // mark it a submitted
     sanctionRequestToSave.status = SanctionRequestStatus.Submitted;
-
-    this.saved.emit (sanctionRequestToSave);
+    const sanctionRequestAndPayment: SanctionRequestAndPayment = {
+      sanctionRequest: sanctionRequestToSave,
+      payFee: true
+    };
+    this.saved.emit (sanctionRequestAndPayment);
 
     // show who will get it
     this.openDialog (message);
+  }
+
+  onApproveApplication(formValues: any) {
+    this.sanctionRequest.status = SanctionRequestStatus.Approved;
+    this.save(formValues, false);
+  }
+
+  onRejectApplication(formValues: any) {
+    this.sanctionRequest.status = SanctionRequestStatus.Rejected;
+    this.save(formValues, false);
+  }
+
+  isSubmitEnabled() {
+    return this.sanctionRequest.status === SanctionRequestStatus.New;
+  }
+
+  isApproveRejectEnabled() {
+    const statusOK = this.sanctionRequest.status === SanctionRequestStatus.Submitted;
+    const isPermitted = this.authenticationService.hasCurrentUserRole(
+      [UserRoles.ROLE_ADMINS, UserRoles.ROLE_USATT_SANCTION_COORDINATORS]);
+    return isPermitted && statusOK;
+  }
+
+  onPay(formValues: any) {
+    this.save(formValues, true);
+  }
+
+  isPaymentEnabled(): boolean {
+    return this.sanctionRequest.status === SanctionRequestStatus.Approved;
+  }
+
+  isPayment(paymentRefund: PaymentRefund) {
+    return paymentRefund.status === PaymentRefundStatus.PAYMENT_COMPLETED;
   }
 
   /**
@@ -245,12 +305,17 @@ export class SanctionRequestEditComponent implements OnInit, OnChanges {
 
   // event handler for when radio button is clicked
   onRadioGroupChange(event) {
-    this.totalPoints = this.calculateTotal();
+    this.calculateTotalAndQualifiedStarLevel();
   }
 
   // event handler for when checkbox button is clicked
   onCheckBoxChange (event) {
+    this.calculateTotalAndQualifiedStarLevel();
+  }
+
+  private calculateTotalAndQualifiedStarLevel() {
     this.totalPoints = this.calculateTotal();
+    this.qualifiedStarLevel = this.getQualifiedStarLevel();
   }
 
   // recalculates total rating points when selection changes
@@ -291,7 +356,7 @@ export class SanctionRequestEditComponent implements OnInit, OnChanges {
   }
 
   starLevelChanged(event) {
-    // console.log ('in starLevelChanged ', event);
+    console.log ('in starLevelChanged ', event);
     const starLevel = event.srcElement.value;
     const stateName = this.venueState;
 //      console.log ('starLevel ', starLevel);
@@ -300,9 +365,42 @@ export class SanctionRequestEditComponent implements OnInit, OnChanges {
     const longStateName = this.translateStateName(stateName);
     const coordinatorInfo: CoordinatorInfo = this.findCoordinator(longStateName, starLevel);
 //      console.log ('coordinatorInfo ', coordinatorInfo);
+    this.sanctionFee = this.determineSanctionFee(starLevel);
   }
 
-  isApproveRejectEnabled() {
-    return true;
+  getPaymentsRefundsTotal(): number {
+    let paymentsRefundsTotal = 0;
+    if (this.paymentsRefunds != null) {
+      this.paymentsRefunds.forEach((paymentRefund: PaymentRefund) => {
+        const amount: number = paymentRefund.amount / 100;
+        if (paymentRefund.status === PaymentRefundStatus.PAYMENT_COMPLETED) {
+          paymentsRefundsTotal += amount;
+        } else if (paymentRefund.status === PaymentRefundStatus.REFUND_COMPLETED) {
+          paymentsRefundsTotal -= amount;
+        }
+      });
+    }
+    return paymentsRefundsTotal;
+  }
+
+  private determineSanctionFee(strStarLevel: any) {
+    const starLevel = Number(strStarLevel);
+    const sanctionFeeSchedule = [
+      {starLevel: 0, sanctionFee: 0},
+      {starLevel: 1, sanctionFee: 40},
+      {starLevel: 2, sanctionFee: 80},
+      {starLevel: 3, sanctionFee: 150},
+      {starLevel: 4, sanctionFee: 400}
+    ];
+    let sanctionFee = 0;
+    for (let i = 0; i < sanctionFeeSchedule.length; i++) {
+      const sanctionFeeScheduleElement = sanctionFeeSchedule[i];
+      if (sanctionFeeScheduleElement.starLevel === starLevel) {
+        sanctionFee = sanctionFeeScheduleElement.sanctionFee;
+        break;
+      }
+    }
+    console.log('starLevel ' + starLevel + ' => sanctionFee: ' + sanctionFee);
+    return sanctionFee;
   }
 }

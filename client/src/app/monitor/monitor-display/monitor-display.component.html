@@ -1,0 +1,45 @@
+<table>
+  <!--  <thead>-->
+  <!--  <tr>-->
+  <!--    <th>&nbsp;</th>-->
+  <!--    <th class="name-column">Player Name</th>-->
+  <!--    <th [colSpan]="numberOfGames">Games</th>-->
+  <!--  </tr>-->
+  <!--  <tr>-->
+  <!--    <th>&nbsp;</th>-->
+  <!--    <th>&nbsp;</th>-->
+  <!--    <th *ngFor="let game of games; let idx = index;">{{idx + 1}}</th>-->
+  <!--  </tr>-->
+  <!--  </thead>-->
+  <tbody>
+  <tr>
+    <td>{{matchData?.playerAName}}</td>
+    <td *ngFor="let game of games; let idx = index;">
+      <ng-container  [ngSwitch]="idx">
+        <ng-container *ngSwitchCase="0">{{ matchData?.match?.game1ScoreSideA }}</ng-container>
+        <ng-container *ngSwitchCase="1">{{ matchData?.match?.game2ScoreSideA }}</ng-container>
+        <ng-container *ngSwitchCase="2">{{ matchData?.match?.game3ScoreSideA }}</ng-container>
+        <ng-container *ngSwitchCase="3">{{ matchData?.match?.game4ScoreSideA }}</ng-container>
+        <ng-container *ngSwitchCase="4">{{ matchData?.match?.game5ScoreSideA }}</ng-container>
+        <ng-container *ngSwitchCase="5">{{ matchData?.match?.game6ScoreSideA }}</ng-container>
+        <ng-container *ngSwitchCase="6">{{ matchData?.match?.game7ScoreSideA }}</ng-container>
+      </ng-container>
+    </td>
+  </tr>
+  <tr>
+    <td *ngFor="let game of games; let idx = index;">
+      <ng-container  [ngSwitch]="idx">
+        <ng-container *ngSwitchCase="0">{{ matchData?.match?.game1ScoreSideB }}</ng-container>
+        <ng-container *ngSwitchCase="1">{{ matchData?.match?.game2ScoreSideB }}</ng-container>
+        <ng-container *ngSwitchCase="2">{{ matchData?.match?.game3ScoreSideB }}</ng-container>
+        <ng-container *ngSwitchCase="3">{{ matchData?.match?.game4ScoreSideB }}</ng-container>
+        <ng-container *ngSwitchCase="4">{{ matchData?.match?.game5ScoreSideB }}</ng-container>
+        <ng-container *ngSwitchCase="5">{{ matchData?.match?.game6ScoreSideB }}</ng-container>
+        <ng-container *ngSwitchCase="6">{{ matchData?.match?.game7ScoreSideB }}</ng-container>
+      </ng-container>
+    </td>
+    <td>{{matchData?.playerBName}}</td>
+  </tr>
+  </tbody>
+</table>
+

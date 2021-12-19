@@ -1,15 +1,16 @@
 package com.auroratms.sanction;
 
-import javax.persistence.*;
-import java.util.Date;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-@Entity
-@Table()
+import java.util.Date;
+import java.util.List;
+
+@Data
+@NoArgsConstructor
 public class SanctionRequest {
 
     // unique id
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     String tournamentName;
@@ -26,96 +27,78 @@ public class SanctionRequest {
     // email retrieved from frontend table
     String coordinatorEmail;
 
-    // contents of the request in JSON format
-    // this should enable us to modify this request in the future without having to modify the database schema
-    @Column(length = 9000)
-    String requestContentsJSON;
+    private Date alternateStartDate;
+    private Date alternateEndDate;
 
-    public Long getId() {
-        return id;
+    private String webLinkURL;
+
+    private String venueStreetAddress;
+    private String venueCity;
+    private String venueState;
+    private String venueZipCode;
+
+    private String clubName;
+    private Date clubAffiliationExpiration;
+
+    private String contactPersonName;
+    private String contactPersonPhone;
+    private String contactPersonEmail;
+    private String contactPersonStreetAddress;
+    private String contactPersonCity;
+    private String contactPersonState;
+    private String contactPersonZip;
+
+    private String tournamentRefereeName;
+    private String tournamentRefereeRank;
+    private Date tournamentRefereeMembershipExpires;
+
+    private String tournamentDirectorName;
+
+    private int totalPrizeMoney;
+    private int sanctionFee;
+
+    private List<SanctionCategory> categories;
+
+    private String approvalRejectionNotes;
+
+
+    public SanctionRequestEntity convertToEntity() {
+        SanctionRequestEntity sanctionRequestEntity = new SanctionRequestEntity();
+        sanctionRequestEntity.setId(this.getId());
+        sanctionRequestEntity.setTournamentName(this.getTournamentName());
+        sanctionRequestEntity.setStartDate(this.getStartDate());
+        sanctionRequestEntity.setEndDate(this.getEndDate());
+        sanctionRequestEntity.setRequestDate(this.getRequestDate());
+        sanctionRequestEntity.setStatus(this.getStatus());
+        sanctionRequestEntity.setStarLevel(this.getStarLevel());
+        sanctionRequestEntity.setCoordinatorFirstName(this.getCoordinatorFirstName());
+        sanctionRequestEntity.setCoordinatorLastName(this.getCoordinatorLastName());
+        sanctionRequestEntity.setCoordinatorEmail(this.getCoordinatorEmail());
+        SanctionRequestConfiguration configuration = new SanctionRequestConfiguration();
+
+        String content = configuration.convertToContent(this);
+        sanctionRequestEntity.setRequestContentsJSON(content);
+
+        return sanctionRequestEntity;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public SanctionRequest convertFromEntity(SanctionRequestEntity sanctionRequestEntity) {
+        this.id = sanctionRequestEntity.getId();
+        this.tournamentName = sanctionRequestEntity.getTournamentName();
+        this.startDate = sanctionRequestEntity.getStartDate();
+        this.endDate = sanctionRequestEntity.getEndDate();
+        this.requestDate = sanctionRequestEntity.getRequestDate();
+        this.status = sanctionRequestEntity.getStatus();
+        this.starLevel = sanctionRequestEntity.getStarLevel();
+        this.coordinatorFirstName = sanctionRequestEntity.getCoordinatorFirstName();
+        this.coordinatorLastName = sanctionRequestEntity.getCoordinatorLastName();
+        this.coordinatorEmail = sanctionRequestEntity.getCoordinatorEmail();
+
+        String content = sanctionRequestEntity.getRequestContentsJSON();
+        SanctionRequestConfiguration.convertFromContent(content, this);
+
+        return this;
     }
 
-    public String getTournamentName() {
-        return tournamentName;
-    }
 
-    public void setTournamentName(String tournamentName) {
-        this.tournamentName = tournamentName;
-    }
-
-    public Date getStartDate() {
-        return startDate;
-    }
-
-    public void setStartDate(Date startDate) {
-        this.startDate = startDate;
-    }
-
-    public Date getEndDate() {
-        return endDate;
-    }
-
-    public void setEndDate(Date endDate) {
-        this.endDate = endDate;
-    }
-
-    public Date getRequestDate() {
-        return requestDate;
-    }
-
-    public void setRequestDate(Date requestDate) {
-        this.requestDate = requestDate;
-    }
-
-    public SanctionRequestStatus getStatus() {
-        return status;
-    }
-
-    public void setStatus(SanctionRequestStatus status) {
-        this.status = status;
-    }
-
-    public int getStarLevel() {
-        return starLevel;
-    }
-
-    public void setStarLevel(int starLevel) {
-        this.starLevel = starLevel;
-    }
-
-    public String getCoordinatorFirstName() {
-        return coordinatorFirstName;
-    }
-
-    public void setCoordinatorFirstName(String coordinatorFirstName) {
-        this.coordinatorFirstName = coordinatorFirstName;
-    }
-
-    public String getCoordinatorLastName() {
-        return coordinatorLastName;
-    }
-
-    public void setCoordinatorLastName(String coordinatorLastName) {
-        this.coordinatorLastName = coordinatorLastName;
-    }
-
-    public String getCoordinatorEmail() {
-        return coordinatorEmail;
-    }
-
-    public void setCoordinatorEmail(String coordinatorEmail) {
-        this.coordinatorEmail = coordinatorEmail;
-    }
-
-    public String getRequestContentsJSON() {
-        return requestContentsJSON;
-    }
-
-    public void setRequestContentsJSON(String requestContentsJSON) {
-        this.requestContentsJSON = requestContentsJSON;
-    }
 }

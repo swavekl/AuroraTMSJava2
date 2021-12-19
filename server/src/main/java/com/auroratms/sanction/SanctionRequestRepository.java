@@ -6,7 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-public interface SanctionRequestRepository extends JpaRepository<SanctionRequest, Long> {
+public interface SanctionRequestRepository extends JpaRepository<SanctionRequestEntity, Long> {
 
     @Query(nativeQuery = true,
             value = "SELECT *" +
@@ -19,7 +19,7 @@ public interface SanctionRequestRepository extends JpaRepository<SanctionRequest
                     "         acl_sid," +
                     "         acl_entry" +
                     "    WHERE acl_object_identity.object_id_class = acl_class.id" +
-                    "      AND acl_class.class = 'com.auroratms.sanction.SanctionRequest'" +
+                    "      AND acl_class.class = 'com.auroratms.sanction.SanctionRequestEntity'" +
                     "      AND ((acl_sid.id = acl_object_identity.owner_sid" +
                     "        AND acl_sid.sid = :owner)" +
                     "        OR (acl_sid.id = acl_entry.sid" +
@@ -41,7 +41,7 @@ public interface SanctionRequestRepository extends JpaRepository<SanctionRequest
                     "         acl_sid," +
                     "         acl_entry" +
                     "    WHERE acl_object_identity.object_id_class = acl_class.id" +
-                    "      AND acl_class.class = 'com.auroratms.sanction.SanctionRequest'" +
+                    "      AND acl_class.class = 'com.auroratms.sanction.SanctionRequestEntity'" +
                     "      AND ((acl_sid.id = acl_object_identity.owner_sid" +
                     "        AND acl_sid.sid = :owner)" +
                     "        OR (acl_sid.id = acl_entry.sid" +
@@ -54,7 +54,7 @@ public interface SanctionRequestRepository extends JpaRepository<SanctionRequest
                     "            AND acl_entry.granting = 1))" +
                     ")"
     )
-    Page<SanctionRequest> findAllCustom(
+    Page<SanctionRequestEntity> findAllCustom(
             @Param("nameContains") String nameContains,
             @Param("owner") String owner,
             @Param("authority") String authority,

@@ -60,9 +60,8 @@ public class SanctionRequestEventListener {
                 logger.error("Unable to find USATT sanction coordinator profile");
             }
 
-            // todo - get profile of owner of this request
-            String contactName = "Swavek Lorenc"; // sanctionRequest.getContactName();
-            String contactEmail = "swaveklorenc@gmail.com"; // sanctionRequest.getContactEmail();
+            String contactName = sanctionRequest.getContactPersonName();
+            String contactEmail = sanctionRequest.getContactPersonEmail();
             templateModel.put("contactName", contactName);
             templateModel.put("contactEmail", contactEmail);
 

@@ -5,6 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -12,6 +13,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -36,7 +39,9 @@ public class SanctionRequestController {
     ResponseEntity<SanctionRequest> save (@RequestBody SanctionRequest sanctionRequest) {
         try {
             boolean creating = (sanctionRequest.getId() == null);
-            SanctionRequest savedSanctionRequest = service.save(sanctionRequest);
+            SanctionRequestEntity sanctionRequestEntity = sanctionRequest.convertToEntity();
+            SanctionRequestEntity savedSanctionRequestEntity = service.save(sanctionRequestEntity);
+            SanctionRequest savedSanctionRequest = new SanctionRequest().convertFromEntity(savedSanctionRequestEntity);
             URI uri = new URI("/api/sanctionrequest/" + savedSanctionRequest.getId());
             return (creating)
                     ? ResponseEntity.created(uri).body(savedSanctionRequest)
@@ -56,8 +61,9 @@ public class SanctionRequestController {
     @GetMapping("/sanctionrequest/{sanctionRequestId}")
     public ResponseEntity<SanctionRequest> get(@PathVariable Long sanctionRequestId) {
         try {
-            SanctionRequest SanctionRequest = this.service.findById(sanctionRequestId);
-            return ResponseEntity.ok(SanctionRequest);
+            SanctionRequestEntity sanctionRequestEntity = this.service.findById(sanctionRequestId);
+            SanctionRequest sanctionRequest = new SanctionRequest().convertFromEntity(sanctionRequestEntity);
+            return ResponseEntity.ok(sanctionRequest);
         } catch (Exception e) {
             logger.error(e.getMessage());
             return ResponseEntity.notFound().build();
@@ -95,7 +101,15 @@ public class SanctionRequestController {
         try {
             String nameContains = params.get("nameContains");
             nameContains = (StringUtils.isNotEmpty(nameContains)) ? nameContains : "";
-            Page<SanctionRequest> page = this.service.findByName(nameContains, pageable);
+            Page<SanctionRequestEntity> pageOfEntities = this.service.findByName(nameContains, pageable);
+            Iterator<SanctionRequestEntity> iterator = pageOfEntities.iterator();
+            List<SanctionRequest> sanctionRequestList = new ArrayList<>();
+            while (iterator.hasNext()) {
+                SanctionRequestEntity entity = iterator.next();
+                SanctionRequest sanctionRequest = new SanctionRequest().convertFromEntity(entity);
+                sanctionRequestList.add(sanctionRequest);
+            }
+            Page<SanctionRequest> page = new PageImpl<SanctionRequest>(sanctionRequestList);
             return ResponseEntity.ok(page);
         } catch (Exception e) {
             logger.error(e.getMessage());

@@ -6,6 +6,12 @@ export enum SanctionRequestStatus {
   Approved = 'Approved',
   Rejected = 'Rejected',
   Completed = 'Completed'
+
+// Create Tournament - TD creates a tournament entry in the system
+// Pay USATT - TD pays the sanctioning fee online via paypal
+// USATT COVID Approval - USATT approves the COVID forms attached to the Tournament
+// Sanctioning Coordinator Approval - Sanctioning coordinator approves the tournament
+// Tournament GO-Live - Tournament is considered live and can accept online entries from players
 }
 
 /**
@@ -404,6 +410,7 @@ export class SanctionRequest {
   constructor () {
     this.tournamentName = '';
     this.requestContents = new SanctionRequestContents();
+    this.status = SanctionRequestStatus.New;
   }
 
   // apply changes from form and perform various conversions
@@ -446,10 +453,15 @@ export class SanctionRequest {
     this.endDate = dateUtils.convertFromUTCToLocalDate (other.endDate);
     this.requestDate = dateUtils.convertFromUTCToLocalDate (other.requestDate);
 
-    const settings: any = JSON.parse (other.requestContentsJSON);
-    this.requestContents = new SanctionRequestContents();
-    this.requestContents.fillSettings(settings);
-    this.requestContentsJSON = null;
+    if (other.requestContentsJSON != null) {
+      const settings: any = JSON.parse (other.requestContentsJSON);
+      this.requestContents = new SanctionRequestContents();
+      this.requestContents.fillSettings(settings);
+      this.requestContentsJSON = null;
+    } else {
+      this.requestContents = new SanctionRequestContents();
+      this.requestContentsJSON = null;
+    }
   }
 }
 
