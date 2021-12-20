@@ -116,8 +116,7 @@ export class MonitorConnectContainerComponent implements OnInit, OnDestroy {
     if (message?.action === 'connect') {
       this.tournamentId = message.tournamentId;
       this.tableToMonitor = message.tableToMonitor;
-      const topicName = '/topic/monitor';
-      const topicName2 = `/topic/monitor/${message.tournamentId}/${message.tableToMonitor}`;
+      const topicName = `/topic/monitor/${message.tournamentId}/${message.tableToMonitor}`;
       this.monitorService.connect(topicName);
     } else if (message?.action === 'disconnect') {
       this.monitorService.disconnect();
