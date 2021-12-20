@@ -93,6 +93,7 @@ export class Tournament {
     configuration.registrationFee = formValues.registrationFee;
     configuration.lateEntryFee = formValues.lateEntryFee;
     configuration.checkInType = formValues.checkInType;
+    configuration.monitoredTables = formValues.monitoredTables;
 // console.log ('toTournament', tournament);
     return tournament;
   }
@@ -134,6 +135,7 @@ export class Tournament {
     tournament.configuration.lateEntryFee = 0;
     tournament.configuration.personnelList = [];
     tournament.configuration.checkInType = CheckInType.DAILY;
+    tournament.configuration.monitoredTables = null;
     return tournament;
   }
 
@@ -216,4 +218,6 @@ class TournamentConfiguration {
   personnelList: Personnel[];
   // type of check in for the tournament
   checkInType: CheckInType;
+  // comma separated list of tables that will have monitors e.g. show court tables
+  monitoredTables: string;
 }

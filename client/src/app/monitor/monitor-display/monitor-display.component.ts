@@ -11,6 +11,13 @@ export class MonitorDisplayComponent implements OnInit, OnChanges {
   @Input()
   matchData: MonitorMessage;
 
+  @Input()
+  isConnected: boolean;
+
+  // table number this screen is connected to
+  @Input()
+  tableNumber: number;
+
   // array so we can use iteration in the template
   games: number[];
 

@@ -1,16 +1,30 @@
-<form>
-  <h3>Select the table # to connect to</h3>
-  <mat-form-field>
-    <mat-label>Table #</mat-label>
-    <input matInput type="numeric" min="1" [max]=[maxTableNum]
-           placeholder="Table #" [(ngModel)]="tableToMonitor"
-           name="tableToMonitor" required>
-  </mat-form-field>
-  <div>
-    {{ isConnected ? "Connected" : "Disconnected" }}
-  </div>
-</form>
-<mat-toolbar fxLayoutGap="10px">
-  <button mat-raised-button (click)="onConnect($event)" [disabled]="isConnected">Connect</button>
-  <button mat-raised-button (click)="onDisconnect($event)" [disabled]="!isConnected">Disconnect</button>
-</mat-toolbar>
+<app-centered-panel>
+  <form #f="ngForm" name="form" *ngIf="tournaments">
+    <div fxLayout="column" fxLayoutGap="10px">
+      <h3>Select the table to connect to</h3>
+      <mat-form-field>
+        <mat-label>Tournament</mat-label>
+        <mat-select matInput type="text" placeholder="Tournament Name" name="tournamentName"
+                    [(ngModel)]="tournamentId" (valueChange)="onChangeTournament($event)" required>
+          <mat-option *ngFor="let tournament of tournaments" value="{{tournament.id}}">{{tournament.name}}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>Table #</mat-label>
+        <input matInput type="number" placeholder="Table number 1 to {{maxTableNum}}" name="tableToMonitor" required min="1" [max]="maxTableNum"
+               [(ngModel)]="tableToMonitor" #tableToMonitorCtrl="ngModel">
+        <mat-error *ngIf="tableToMonitorCtrl.control?.hasError('max')">Table number must be between 1
+          and {{maxTableNum}}</mat-error>
+      </mat-form-field>
+      <mat-toolbar fxLayoutGap="10px">
+        <button mat-raised-button (click)="onConnect($event)" [disabled]="isConnected || !f.valid">Connect</button>
+        <button mat-raised-button (click)="onDisconnect($event)" [disabled]="!isConnected">Disconnect</button>
+        <span>Status: {{ isConnected ? "Connected" : "Disconnected" }}</span>
+      </mat-toolbar>
+    </div>
+<!--      <p>Form values: {{ f.value | json }} </p>-->
+<!--      <p>Form status: {{ f.status | json }} </p>-->
+<!--      <p>table # errors: {{ tableToMonitorCtrl.control?.errors | json }} </p>-->
+  </form>
+</app-centered-panel>

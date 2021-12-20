@@ -19,11 +19,14 @@ export class ProfileFindPopupComponent implements OnInit {
   foundPlayers$: Observable<any>;
   loading$: Observable<boolean>;
 
+  title: string;
+
   constructor(public dialogRef: MatDialogRef<ProfileFindPopupComponent>,
               @Inject(MAT_DIALOG_DATA) public data: ProfileSearchData,
               private profileService: ProfileService) {
     this.firstName = data?.firstName;
     this.lastName = data?.lastName;
+    this.title = (data?.dialogTitle != null) ? data?.dialogTitle : 'Find Player';
     this.loading$ = this.profileService.loading$;
   }
 
@@ -56,4 +59,5 @@ export class ProfileFindPopupComponent implements OnInit {
 export class ProfileSearchData {
   firstName: string;
   lastName: string;
+  dialogTitle?: string;
 }

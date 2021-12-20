@@ -15,7 +15,7 @@ public class TournamentController {
     private TournamentService tournamentService;
 
     @GetMapping("/tournaments")
-    @PreAuthorize("hasAuthority('TournamentDirectors') or hasAuthority('Admins') or hasAuthority('Referees') or hasAuthority('DataEntryClerks') ")
+    @PreAuthorize("hasAuthority('TournamentDirectors') or hasAuthority('Admins') or hasAuthority('Referees') or hasAuthority('DataEntryClerks') or hasAuthority('Monitors') ")
     public Collection<Tournament> list() {
         return tournamentService.listOwned(0, 100);
     }

@@ -11,15 +11,15 @@ const routes: Routes = [
     component: MonitorConnectContainerComponent,
     canActivate: [AuthGuard],
     data: {
-      roles: [UserRoles.ROLE_ADMINS, UserRoles.ROLE_TOURNAMENT_DIRECTORS]
+      roles: [UserRoles.ROLE_ADMINS, UserRoles.ROLE_MONITORS]
     }
   },
   {
-    path: 'display',
+    path: 'display/:tournamentId/:tableNumber',
     component: MonitorDisplayContainerComponent,
     canActivate: [AuthGuard],
     data: {
-      roles: [UserRoles.ROLE_ADMINS, UserRoles.ROLE_TOURNAMENT_DIRECTORS]
+      roles: [UserRoles.ROLE_ADMINS, UserRoles.ROLE_MONITORS]
     }
   }
 ];

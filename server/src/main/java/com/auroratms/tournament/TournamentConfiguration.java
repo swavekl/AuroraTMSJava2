@@ -37,4 +37,6 @@ public class TournamentConfiguration {
     private List<Personnel> personnelList;
     // type of check in for the tournament
     private CheckInType checkInType;
+    // comma separated list of tables that will have monitors e.g. show court tables
+    private String monitoredTables;
 }

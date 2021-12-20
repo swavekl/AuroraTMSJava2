@@ -10,6 +10,8 @@ import {MonitorDisplayComponent} from './monitor-display/monitor-display.compone
 import {MonitorConnectComponent} from './monitor-connect/monitor-connect.component';
 import {MonitorConnectContainerComponent} from './monitor-connect/monitor-connect-container.component';
 import {MonitorDisplayContainerComponent} from './monitor-display/monitor-display-container.component';
+import {MatSelectModule} from '@angular/material/select';
+import {SharedModule} from '../shared/shared.module';
 
 @NgModule({
   declarations: [
@@ -18,15 +20,17 @@ import {MonitorDisplayContainerComponent} from './monitor-display/monitor-displa
     MonitorConnectContainerComponent,
     MonitorDisplayContainerComponent
   ],
-    imports: [
-        CommonModule,
-        MonitorRoutingModule,
-        MatButtonModule,
-        MatToolbarModule,
-        MatInputModule,
-        FormsModule,
-        FlexModule
-    ],
+  imports: [
+    CommonModule,
+    MonitorRoutingModule,
+    MatButtonModule,
+    MatToolbarModule,
+    MatInputModule,
+    FormsModule,
+    FlexModule,
+    MatSelectModule,
+    SharedModule
+  ],
   providers: [
   ]
 })

@@ -86,7 +86,7 @@ const routes: Routes = [
   },
   { path: 'monitor', loadChildren: () => import('./monitor/monitor.module').then(m => m.MonitorModule),
     data: {
-      roles: [UserRoles.ROLE_ADMINS, UserRoles.ROLE_TOURNAMENT_DIRECTORS]
+      roles: [UserRoles.ROLE_ADMINS, UserRoles.ROLE_MONITORS]
     }
   }
 ];

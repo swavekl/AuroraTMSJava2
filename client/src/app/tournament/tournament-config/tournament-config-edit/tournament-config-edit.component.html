@@ -227,6 +227,21 @@
                 <!--                <input matInput type="text" name="maxTournamentEvents" [ngModel]="tournament?.configuration?.maxTournamentEvents" required>-->
                 <!--              </mat-form-field>-->
               </div>
+              <div fxLayout.lt-sm="column" fxLayout="row" fxLayoutGap="10px" style="margin-top: 8px;">
+                <mat-form-field fxFlex="40%">
+                  <mat-label>Tables with Monitors</mat-label>
+                  <input matInput name="monitoredTables" #monitoredTables="ngModel"
+                         [ngModel]="tournament?.configuration?.monitoredTables" pattern="([1-9](\d{1,2})?)(,[1-9](\d{1,2})?)?">
+                  <mat-error *ngIf="monitoredTables.control?.hasError('pattern')">Enter table numbers separated by comma</mat-error>
+                </mat-form-field>
+                <mat-form-field fxFlex="40%">
+                  <mat-label>User for score monitors</mat-label>
+                  <input matInput name="monitorUser" readonly [ngModel]="getMonitorUser()" (click)="onAddMonitor()">
+                </mat-form-field>
+                <div fxFlex="20%" style="padding-top: 28px;">
+                  <button class="personnel-toolbar-button" mat-raised-button type="button" (click)="onAddMonitor()">Choose User</button>
+                </div>
+              </div>
             </mat-card-content>
           </mat-card>
         </mat-tab>

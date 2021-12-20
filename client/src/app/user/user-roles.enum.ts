@@ -10,6 +10,8 @@ export enum UserRoles {
   ROLE_REFEREES = 'Referees',
   // tournament umpire
   ROLE_UMPIRES = 'Umpires',
+  // monitor for displaying scores on bigger screen and for data entry via tablet
+  ROLE_MONITORS = 'Monitors',
   // clerks entering match scores during tournament
   ROLE_DATA_ENTRY_CLERKS = 'DataEntryClerks',
   // persons dealing with tournament sanction finalization and results processing

@@ -1,5 +1,4 @@
 import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
-import {Observable} from 'rxjs';
 
 @Component({
   selector: 'app-monitor-connect',
@@ -8,14 +7,16 @@ import {Observable} from 'rxjs';
 })
 export class MonitorConnectComponent implements OnInit {
 
+  // tournaments to which this monitor has the ability to connect for monitoring
+  @Input()
+  tournaments: any[];
+
+  // connection status
   @Input()
   isConnected: boolean;
 
   @Output()
-  connect: EventEmitter<any> = new EventEmitter<any>();
-
-  @Output()
-  disconnect: EventEmitter<any> = new EventEmitter<any>();
+  connectDisconnect: EventEmitter<any> = new EventEmitter<any>();
 
   // tournament at which to monitor the table
   tournamentId: number;
@@ -23,7 +24,7 @@ export class MonitorConnectComponent implements OnInit {
   // how many tables at this tournament - in practice only showcourts #1, #2 etc are monitored
   maxTableNum: number;
 
-  // table number to monitor
+  // selected table number to monitor
   tableToMonitor: number;
 
   constructor() {
@@ -33,10 +34,31 @@ export class MonitorConnectComponent implements OnInit {
   }
 
   onConnect($event: MouseEvent) {
-    this.connect.next('connect');
+    this.performAction('connect');
   }
 
   onDisconnect($event: MouseEvent) {
-    this.disconnect.next('disconnect');
+    this.performAction('disconnect');
+  }
+
+  private performAction(action: string) {
+    const message = {
+      action: action,
+      tournamentId: this.tournamentId,
+      tableToMonitor: this.tableToMonitor
+    };
+    this.connectDisconnect.next(message);
+  }
+
+  onChangeTournament(strTournamentId: string) {
+    if (this.tournaments != null && strTournamentId !== '') {
+      const tournamentId = Number(strTournamentId);
+      for (let i = 0; i < this.tournaments.length; i++) {
+        const tournamentInfo = this.tournaments[i];
+        if (tournamentInfo.id === tournamentId) {
+          this.maxTableNum = tournamentInfo.numberOfTables;
+        }
+      }
+    }
   }
 }

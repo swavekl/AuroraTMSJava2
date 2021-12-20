@@ -157,15 +157,21 @@ export class TournamentConfigEditComponent implements OnChanges {
     this.onAddPersonnel(UserRoles.ROLE_DATA_ENTRY_CLERKS);
   }
 
+  onAddMonitor() {
+    this.onAddPersonnel(UserRoles.ROLE_MONITORS, 'Find User');
+  }
+
   /**
    * Adds a new person into the role
    * @param role
+   * @param dialogTitle
    */
-  onAddPersonnel(role: UserRoles) {
+  onAddPersonnel(role: UserRoles, dialogTitle?: string) {
     // show Profile selection dialog
     const profileSearchData: ProfileSearchData = {
       firstName: null,
-      lastName: null
+      lastName: null,
+      dialogTitle: dialogTitle
     };
     const config = {
       width: '400px', height: '550px', data: profileSearchData
@@ -175,7 +181,7 @@ export class TournamentConfigEditComponent implements OnChanges {
     const dialogRef = this.dialog.open(ProfileFindPopupComponent, config);
     const subscription = dialogRef.afterClosed().subscribe(result => {
       if (result?.action === 'ok') {
-        // make sure this person is not alredy in the list
+        // make sure this person is not already in the list
         const profileId = result.selectedPlayerRecord.id;
         const index = personnelList.findIndex((personnel: Personnel) => personnel.profileId === profileId );
         if (index === -1) {
@@ -217,5 +223,21 @@ export class TournamentConfigEditComponent implements OnChanges {
   onCreateUser() {
     // create user profile for new user e.g. data entry clerk
   }
+
+  getMonitorUser() {
+    let monitorUserName = null;
+    const personnelList = this.tournament?.configuration?.personnelList;
+    if (personnelList != null) {
+      for (let i = 0; i < personnelList.length; i++) {
+        const personnel = personnelList[i];
+        if (personnel.role === UserRoles.ROLE_MONITORS) {
+          monitorUserName = personnel.name;
+          break;
+        }
+      }
+    }
+    return monitorUserName;
+  }
+
 }
 
