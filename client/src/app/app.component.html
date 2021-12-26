@@ -17,6 +17,9 @@
       <mat-list-item *ngIf="isLinkVisible('/matches')" (click)="closeAndNavigateToRoute('/matches')" routerLinkActive="active">
         <a matLine>Match Scores</a>
       </mat-list-item>
+      <mat-list-item *ngIf="isLinkVisible('/tableusage')" (click)="closeAndNavigateToRoute('/tableusage')" routerLinkActive="active">
+        <a matLine>Manage Tables</a>
+      </mat-list-item>
       <mat-list-item *ngIf="isLinkVisible('/monitor')" (click)="closeAndNavigateToRoute('/monitor')" routerLinkActive="active">
         <a matLine>Live Scores Display</a>
       </mat-list-item>

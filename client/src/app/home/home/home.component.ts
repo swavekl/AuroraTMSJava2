@@ -156,9 +156,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   private loadTodaysTournamentEntry() {
     // see if player is playing in any tournament today.
     const profileId = this.authenticationService.getCurrentUserProfileId();
-    // const today = new Date();
-    const utcMoment = moment([2022, 0, 14, 0, 0, 0]).utc();
-    const today = utcMoment.toDate();
+    const today = this.todayService.todaysDate;
     const params = `tournamentId=0&profileId=${profileId}&date=${today}`;
     const subscription: Subscription = this.tournamentEntryService.getWithQuery(params)
       .pipe(

@@ -93,6 +93,11 @@ const routes: Routes = [
     data: {
       roles: [UserRoles.ROLE_ADMINS, UserRoles.ROLE_DIGITAL_SCORE_BOARDS]
     }
+  },
+  { path: 'tableusage', loadChildren: () => import('./table-usage/table-usage.module').then(m => m.TableUsageModule),
+    data: {
+      roles: [UserRoles.ROLE_TOURNAMENT_DIRECTORS, UserRoles.ROLE_ADMINS, UserRoles.ROLE_REFEREES]
+    }
   }
 ];
 

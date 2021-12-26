@@ -1,0 +1,60 @@
+@import "~src/my-theme.scss";
+
+.table-usage {
+  //border: 1px solid green;
+  height: calc(100vh - 136px);
+}
+
+.matches-list {
+  width: 150px;
+  //border: 1px solid red;
+  overflow: scroll;
+}
+
+.tables-grid {
+  //border: 1px solid blue;
+  overflow-y: scroll;
+  overflow-x: hidden;
+}
+
+$table-width: 50px;
+$table-height: 45px;
+$table-color: #87CEFAFF;
+$margin-thickness: 5px;
+$border-thickness: 1px;
+$border-color: black;
+
+.table-top {
+  width: $table-width;
+  height: $table-height;
+  margin: $margin-thickness $margin-thickness 0 $margin-thickness;
+  border-width: $border-thickness $border-thickness 0 $border-thickness;
+  border-color: $border-color;
+  border-style: solid;
+  background-color: $table-color;
+}
+
+.table-net {
+  border: 1px solid black;
+  width: 60px;
+  height: 1px;
+}
+
+.table-bottom {
+  width: $table-width;
+  height: $table-height;
+  margin: 0 $margin-thickness $margin-thickness $margin-thickness;
+  border-width: 0 $border-thickness $border-thickness $border-thickness;
+  border-color: $border-color;
+  border-style: solid;
+  background-color: $table-color;
+}
+
+.table-container {
+  padding: 20px;
+  text-align: center;
+}
+
+.toolbar-spacer-2 {
+  margin-right: 16px;
+}

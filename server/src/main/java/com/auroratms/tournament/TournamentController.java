@@ -1,10 +1,11 @@
 package com.auroratms.tournament;
 
+import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Collection;
+import java.util.*;
 
 @RestController
 @RequestMapping("api")
@@ -16,8 +17,23 @@ public class TournamentController {
 
     @GetMapping("/tournaments")
     @PreAuthorize("hasAuthority('TournamentDirectors') or hasAuthority('Admins') or hasAuthority('Referees') or hasAuthority('DataEntryClerks') or hasAuthority('Monitors') or hasAuthority('DigitalScoreBoards')")
-    public Collection<Tournament> list() {
-        return tournamentService.listOwned(0, 100);
+    public Collection<Tournament> list(@RequestParam (required = false) Date today) {
+        Collection<Tournament> tournaments = tournamentService.listOwned(0, 100);
+        if (today != null) {
+            List<Tournament> todaysTournamentList = new ArrayList<>();
+            for (Tournament tournament : tournaments) {
+                boolean sameAsStartDay = DateUtils.isSameDay(today, tournament.getStartDate());
+                boolean sameAsEndDay = DateUtils.isSameDay(today, tournament.getEndDate());
+                if (sameAsStartDay || sameAsEndDay || (today.before(tournament.getEndDate()) &&
+                    today.after(tournament.getStartDate()))) {
+                    todaysTournamentList.add(tournament);
+                    break;
+                }
+            }
+            return todaysTournamentList;
+        } else {
+            return tournaments;
+        }
     }
 
     @GetMapping("/tournament/{id}")

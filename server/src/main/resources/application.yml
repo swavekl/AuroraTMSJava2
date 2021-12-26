@@ -42,6 +42,14 @@ spring:
 ## Websocket debugging
 #logging.level.org.springframework.web.socket.sockjs: TRACE
 
+# debug server responses
+#logging:
+#  level:
+#    org:
+#      springframework:
+#        web:
+#          client: DEBUG
+
 #org:
 #  springframework:
 #    security:

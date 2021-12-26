@@ -1,0 +1,38 @@
+<mat-toolbar>
+  <mat-label>Select Event</mat-label>
+  <span class="toolbar-spacer-2"></span>
+  <mat-select [(ngModel)]="selectedEventId" style="width: 100px;">
+    <mat-option *ngFor="let event of tournamentEvents" [value]="event.id">
+      {{event.name}}
+    </mat-option>
+  </mat-select>
+  <span class="toolbar-spacer-2"></span>
+  <button type="button" mat-raised-button (click)="onStartEventMatches()" [disabled]="selectedEventId === 0">Start RR Matches</button>
+  <span class="toolbar-spacer-2"></span>
+  <button type="button" mat-raised-button (click)="onPrintEventMatchCards()" [disabled]="selectedEventId === 0">Print RR Match Cards</button>
+</mat-toolbar>
+<div fxLayout="row" class="table-usage">
+  <div fxFlex="20%" class="matches-list">
+    <mat-list dense class="match-card-list">
+      <mat-list-item *ngFor="let matchInfo of matchesToPlayInfos" (click)="onSelectMatchCard(matchInfo.matchCard)"
+                     [matTooltip]="getTooltipText(matchInfo)">
+        <ng-container *ngIf="matchInfo.matchCard.drawType === 'ROUND_ROBIN'; else elseblock">
+          {{matchInfo.tournamentEvent.name}} R.R. Group {{matchInfo.matchCard.groupNum}}
+        </ng-container>
+        <ng-template #elseblock>
+          {{matchInfo.tournamentEvent.name}} {{ getRoundShortName(matchInfo.matchCard.round) }} M {{matchInfo.matchCard.groupNum}}
+        </ng-template>
+      </mat-list-item>
+    </mat-list>
+  </div>
+  <div fxFlex="80%" class="tables-grid" fxLayout="row wrap" fxLayoutAlign="start start" *ngIf="tableUsageList">
+    <div *ngFor="let tableUsage of tableUsageList">
+      <div class="table-container">
+        <div class="table-top"></div>
+        <div class="table-net"></div>
+        <div class="table-bottom"></div>
+        {{tableUsage.tableNumber}}
+      </div>
+    </div>
+  </div>
+</div>

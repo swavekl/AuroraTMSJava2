@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import * as moment from 'moment';
 
 /**
  * Service for sharing visibility and url of Today page between home page and application's main menu
@@ -44,5 +45,12 @@ export class TodayService {
 
   set tournamentDay(value: number) {
     this._tournamentDay = value;
+  }
+
+  get todaysDate(): Date {
+    // todo - remove for production
+    const utcMoment = moment([2022, 0, 14, 0, 0, 0]).utc();
+    return utcMoment.toDate();
+    // return new Date();
   }
 }

@@ -2,11 +2,11 @@ package com.auroratms.tournamententry;
 
 import com.auroratms.event.TournamentEventEntity;
 import com.auroratms.event.TournamentEventEntityService;
-import com.auroratms.tournamententry.notification.TournamentEventPublisher;
 import com.auroratms.profile.UserProfileExt;
 import com.auroratms.profile.UserProfileExtService;
 import com.auroratms.tournament.Tournament;
 import com.auroratms.tournament.TournamentService;
+import com.auroratms.tournamententry.notification.TournamentEventPublisher;
 import com.auroratms.tournamentevententry.TournamentEventEntryService;
 import com.auroratms.usatt.UsattDataService;
 import com.auroratms.usatt.UsattPlayerRecord;

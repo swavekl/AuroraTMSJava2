@@ -61,14 +61,16 @@ public class MatchCard implements Serializable {
     @Column(length = 400)
     private String playerRankings;
 
-//    // same but as a map
-//    @Transient
-//    private Map<Integer, String> playerRankings;
+//    // names of umpire and assistant umpire if match is umpired
+//    @Column(length = 50)
+//    private String umpireName;
+//
+//    @Column(length = 50)
+//    private String assistantUmpireName;
 
     // map of player profile ids to their names
     @Transient
     Map<String, String> profileIdToNameMap;
-
 
     @Override
     public String toString() {
@@ -84,6 +86,8 @@ public class MatchCard implements Serializable {
                 ", startTime=" + startTime +
                 ", duration=" + duration +
                 ", playerRankings='" + playerRankings + '\'' +
+//                ", umpireName='" + umpireName + '\'' +
+//                ", assistantUmpireName='" + assistantUmpireName + '\'' +
                 ", profileIdToNameMap=" + profileIdToNameMap +
                 ", matches=" + matches +
                 '}';
