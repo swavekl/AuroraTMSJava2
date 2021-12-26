@@ -8,6 +8,7 @@ import {MonitorDisplayContainerComponent} from './monitor-display/monitor-displa
 const routes: Routes = [
   {
     path: '',
+    pathMatch: 'full',
     component: MonitorConnectContainerComponent,
     canActivate: [AuthGuard],
     data: {

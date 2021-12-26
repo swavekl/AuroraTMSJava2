@@ -2,6 +2,11 @@ mat-tab-group {
   height: calc(100vh - 140px);
 }
 
+mat-card.personnel-card {
+  height: calc(100vh - 290px);
+  /*border: 2px solid green;*/
+}
+
 button.personnel-toolbar-button {
   margin-right: 10px;
 }

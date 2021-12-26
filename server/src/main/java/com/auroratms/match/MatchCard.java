@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
@@ -13,7 +14,7 @@ import java.util.Map;
 @Table(name = "matchcard")
 @Data
 @NoArgsConstructor
-public class MatchCard {
+public class MatchCard implements Serializable {
     // unique id
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

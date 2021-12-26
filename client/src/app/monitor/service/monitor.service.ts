@@ -33,20 +33,27 @@ export class MonitorService {
   constructor(private authenticationService: AuthenticationService) {
   }
 
-  public connect(topicName: string) {
+  public connect(tournamentId: number, tableNumber: number, asSubscriber: boolean) {
     const accessToken = this.authenticationService.getAccessToken();
     const me = this;
-    const url = `https://${environment.baseServer}/gs-guide-websocket?access_token=${accessToken}`;
+    const url = `https://${environment.baseServer}/websocket-hs?access_token=${accessToken}`;
     const socket = new SockJS(url);
     this.stompClient = Stomp.over(socket);
     this.stompClient.connect({'Authorization': accessToken}, function (frame) {
       me.setConnected(true);
-      me.stompClient.subscribe(topicName, function (message) {
-        // console.log ('monitorMessage', monitorMessage);
-        const monitorMessage: MonitorMessage = JSON.parse(message.body);
-        me.messagesSubject$.next(monitorMessage);
-      });
+      if (asSubscriber) {
+        const topicName = me.getTopicName(tournamentId, tableNumber);
+        me.stompClient.subscribe(topicName, function (message) {
+          // console.log ('monitorMessage', monitorMessage);
+          const monitorMessage: MonitorMessage = JSON.parse(message.body);
+          me.messagesSubject$.next(monitorMessage);
+        });
+      }
     });
+  }
+
+  public getTopicName(tournamentId: number, tableNumber: number) {
+    return `/topic/monitor_${tournamentId}_${tableNumber}`;
   }
 
   public disconnect() {
@@ -64,5 +71,10 @@ export class MonitorService {
 
   isConnected(): Observable<boolean> {
     return this.isConnected$.asObservable();
+  }
+
+  public sendMessage(tournamentId: number, tableNum: number, message: MonitorMessage) {
+    const topicName = this.getTopicName(tournamentId, tableNum);
+    this.stompClient.send(topicName, {}, JSON.stringify(message));
   }
 }

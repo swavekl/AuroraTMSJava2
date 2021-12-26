@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -283,5 +284,39 @@ public class MatchSchedulingService {
             existingMatchCard.setAssignedTables(matchCard.getAssignedTables());
             matchCardService.save(existingMatchCard);
         }
+    }
+
+    /**
+     * Gets matches to be played on a given day at the specified tournament
+     * @param tournamentId
+     * @param day
+     * @param tableNumber
+     * @return
+     */
+    public List<MatchCard> getScheduleForTable(long tournamentId, int day, int tableNumber) {
+        // get all match cards for this tournament and day which use a tableNumber
+        List<MatchCard> allForTournamentAndDay = matchCardService.findAllForTournamentAndDayAndAssignedTable(tournamentId, day, tableNumber);
+
+        // since assigned table numbers are stored as a string e.g. '20,21' request for table '2' would also match
+        // because we are using CONTAINS query clause
+        // filter them by matching assigned table exactly
+        List<MatchCard> filteredMatchCards = new ArrayList<>(allForTournamentAndDay.size());
+        for (MatchCard matchCard : allForTournamentAndDay) {
+            String assignedTables = matchCard.getAssignedTables();
+            String[] tableNumbers = assignedTables.split(",");
+            for (int i = 0; i < tableNumbers.length; i++) {
+                try {
+                    int assignedTableNumber = Integer.parseInt(tableNumbers[i]);
+                    if (assignedTableNumber == tableNumber) {
+                        filteredMatchCards.add(matchCard);
+                        break;
+                    }
+                } catch (NumberFormatException e) {
+
+                }
+            }
+        }
+
+        return filteredMatchCards;
     }
 }

@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.NonNull;
 
 import javax.persistence.*;
+import java.io.Serializable;
 
 /**
  * Represents a single match between two players or two doubles teams
@@ -14,7 +15,7 @@ import javax.persistence.*;
 @Table(name = "matches")  // match is a reserved keyword in SQL so we use plural
 @Data
 @NoArgsConstructor
-public class Match {
+public class Match implements Serializable {
 
     // unique id
     @Id

@@ -1,11 +1,15 @@
 package com.auroratms.match.publish.message;
 
 import com.auroratms.match.Match;
+import lombok.ToString;
+
+import java.io.Serializable;
 
 /**
  * A message sent to display monitor to show match progress for spectators
  */
-public class MonitorMessage {
+@ToString
+public class MonitorMessage implements Serializable {
 
     // type of message
     MonitorMessageType messageType = MonitorMessageType.ScoreUpdate;

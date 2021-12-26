@@ -227,21 +227,6 @@
                 <!--                <input matInput type="text" name="maxTournamentEvents" [ngModel]="tournament?.configuration?.maxTournamentEvents" required>-->
                 <!--              </mat-form-field>-->
               </div>
-              <div fxLayout.lt-sm="column" fxLayout="row" fxLayoutGap="10px" style="margin-top: 8px;">
-                <mat-form-field fxFlex="40%">
-                  <mat-label>Tables with Monitors</mat-label>
-                  <input matInput name="monitoredTables" #monitoredTables="ngModel"
-                         [ngModel]="tournament?.configuration?.monitoredTables" pattern="([1-9](\d{1,2})?)(,[1-9](\d{1,2})?)?">
-                  <mat-error *ngIf="monitoredTables.control?.hasError('pattern')">Enter table numbers separated by comma</mat-error>
-                </mat-form-field>
-                <mat-form-field fxFlex="40%">
-                  <mat-label>User for score monitors</mat-label>
-                  <input matInput name="monitorUser" readonly [ngModel]="getMonitorUser()" (click)="onAddMonitor()">
-                </mat-form-field>
-                <div fxFlex="20%" style="padding-top: 28px;">
-                  <button class="personnel-toolbar-button" mat-raised-button type="button" (click)="onAddMonitor()">Choose User</button>
-                </div>
-              </div>
             </mat-card-content>
           </mat-card>
         </mat-tab>
@@ -263,9 +248,9 @@
               <button class="personnel-toolbar-button" mat-raised-button type="button" (click)="onCreateUser()">Create Login</button>
             </mat-toolbar-row>
           </mat-toolbar>
-          <mat-card style="height: calc(100vh - 290px);">
-            <mat-card-content>
-              <div fxFlex="row">
+          <mat-card class="personnel-card">
+            <mat-card-content fxLayout="column" fxLayoutAlign="start stretch" fxFlexFill>
+              <div fxLayout="row" fxFlex>
                 <div fxFlex="33%">
                   <mat-card-subtitle class="mat-title">Referees</mat-card-subtitle>
                   <div style="padding-bottom: 10px;" *ngFor="let referee of refereeList; let idx = index">
@@ -300,7 +285,41 @@
                   </div>
                 </div>
               </div>
-              </mat-card-content>
+              <mat-card-subtitle class="mat-title">Live Scoring</mat-card-subtitle>
+              <div fxLayout="row" fxLayoutGap="10px">
+                <mat-form-field fxFlex="40%">
+                  <mat-label>User for score monitors</mat-label>
+                  <input matInput name="monitorUser" readonly [ngModel]="getMonitorUser()" (click)="onAddMonitor()">
+                </mat-form-field>
+                <div fxFlex="20%" style="padding-top: 28px;">
+                  <button class="personnel-toolbar-button" mat-raised-button type="button" (click)="onAddMonitor()">
+                    Choose User
+                  </button>
+                </div>
+                <mat-form-field fxFlex="40%">
+                  <mat-label>Tables with Monitors</mat-label>
+                  <input matInput name="monitoredTables" #monitoredTables="ngModel"
+                         [ngModel]="tournament?.configuration?.monitoredTables"
+                         pattern="([1-9](\d{1,2})?)(,[1-9](\d{1,2})?)?">
+                  <mat-error *ngIf="monitoredTables.control?.hasError('pattern')">Enter table numbers separated by
+                    comma
+                  </mat-error>
+                </mat-form-field>
+              </div>
+              <div fxLayout="row" fxLayoutGap="10px">
+                <mat-form-field fxFlex="40%">
+                  <mat-label>User for digital score boards</mat-label>
+                  <input matInput name="digitalScoreBoardUser" readonly [ngModel]="getDigitalScoreBoardUser()"
+                         (click)="onAddDigitalScoreBoard()">
+                </mat-form-field>
+                <div fxFlex="20%" style="padding-top: 28px;">
+                  <button class="personnel-toolbar-button" mat-raised-button type="button"
+                          (click)="onAddDigitalScoreBoard()">Choose User
+                  </button>
+                </div>
+                <div fxFlex="40%"></div>
+              </div>
+            </mat-card-content>
           </mat-card>
         </mat-tab>
       </mat-tab-group>

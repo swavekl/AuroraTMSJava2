@@ -41,6 +41,26 @@ export class MatchSchedulingService {
       );
   }
 
+  public getScheduleForTournamentDayAndTable(tournamentId: number, day: number, tableNumber: number): Observable<MatchCard[]> {
+    const url = `/api/schedule/${tournamentId}/${day}/table/${tableNumber}`;
+    this.setLoading(true);
+    return this.http.get<MatchCard[]>(url)
+      .pipe(
+        tap(() => {
+            this.setLoading(false);
+          },
+          () => {
+            this.setLoading(false);
+          }),
+        map((matchCards: MatchCard[]) => {
+            if (matchCards) {
+              return matchCards;
+            }
+          }
+        )
+      );
+  }
+
   public updateMatchCards(matchCards: MatchCard[]): Observable<void> {
     const url = `/api/schedule`;
     this.setLoading(true);

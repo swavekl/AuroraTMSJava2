@@ -90,11 +90,13 @@ export class ScoreEntryPhoneContainerComponent implements OnInit, OnDestroy {
         // get from the server if not cached yet
         this.matchCardService.getByKey(matchCardId);
       } else {
-        // console.log('get match card from cache');
+        console.log('get match card from cache');
         const allMatches = matchCard.matches;
         if (this.matchIndex < allMatches.length) {
           const match = allMatches[matchIndex];
-          this.match$ = of(match);
+          console.log('cloning match');
+          const cloneOfMatch = JSON.parse(JSON.stringify(match));
+          this.match$ = of(cloneOfMatch);
           // console.log('match is', match);
           this.playerAName$ = of(matchCard.profileIdToNameMap[match.playerAProfileId]);
           this.playerBName$ = of(matchCard.profileIdToNameMap[match.playerBProfileId]);

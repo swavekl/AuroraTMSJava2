@@ -1,11 +1,11 @@
-import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
+import {Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChange, SimpleChanges} from '@angular/core';
 
 @Component({
   selector: 'app-monitor-connect',
   templateUrl: './monitor-connect.component.html',
   styleUrls: ['./monitor-connect.component.scss']
 })
-export class MonitorConnectComponent implements OnInit {
+export class MonitorConnectComponent implements OnInit, OnChanges {
 
   // tournaments to which this monitor has the ability to connect for monitoring
   @Input()
@@ -24,8 +24,8 @@ export class MonitorConnectComponent implements OnInit {
   // how many tables at this tournament - in practice only showcourts #1, #2 etc are monitored
   maxTableNum: number;
 
-  // selected table number to monitor
-  tableToMonitor: number;
+  // array of tournament tables to choose from
+  tournamentTables: number[] = [];
 
   constructor() {
   }
@@ -33,21 +33,35 @@ export class MonitorConnectComponent implements OnInit {
   ngOnInit(): void {
   }
 
-  onConnect($event: MouseEvent) {
-    this.performAction('connect');
+  onConnect(tableNumber: number) {
+    this.performAction('connect', tableNumber);
   }
 
-  onDisconnect($event: MouseEvent) {
-    this.performAction('disconnect');
+  onDisconnect(tableNumber: number) {
+    this.performAction('disconnect', tableNumber);
   }
 
-  private performAction(action: string) {
+  private performAction(action: string, tableNumber: number) {
     const message = {
       action: action,
       tournamentId: this.tournamentId,
-      tableToMonitor: this.tableToMonitor
+      tableToMonitor: tableNumber
     };
     this.connectDisconnect.next(message);
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    const tournamentsChanges: SimpleChange = changes.tournaments;
+    if (tournamentsChanges != null) {
+      const tournamentInfos = tournamentsChanges.currentValue;
+      if (tournamentInfos != null) {
+        if (tournamentInfos.length === 1) {
+          const tournamentInfo = tournamentInfos[0];
+          this.tournamentId = tournamentInfo.id;
+          this.tournamentTables = this.makeArrayOfTournamentTables(tournamentInfo);
+        }
+      }
+    }
   }
 
   onChangeTournament(strTournamentId: string) {
@@ -56,9 +70,23 @@ export class MonitorConnectComponent implements OnInit {
       for (let i = 0; i < this.tournaments.length; i++) {
         const tournamentInfo = this.tournaments[i];
         if (tournamentInfo.id === tournamentId) {
+          this.tournamentId = tournamentInfo.id;
           this.maxTableNum = tournamentInfo.numberOfTables;
+          this.tournamentTables = this.makeArrayOfTournamentTables(tournamentInfo);
         }
       }
     }
   }
+
+  private makeArrayOfTournamentTables(tournamentInfo: any): number [] {
+    const monitoredTables: string = tournamentInfo.monitoredTables;
+    const strTableNumbers: string [] = monitoredTables.split(',');
+    const tournamentTables = [];
+    for (let j = 0; j < strTableNumbers.length; j++) {
+      const strTableNumber = strTableNumbers[j];
+      tournamentTables.push(Number(strTableNumber));
+    }
+    return tournamentTables;
+  }
+
 }

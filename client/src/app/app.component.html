@@ -18,7 +18,10 @@
         <a matLine>Match Scores</a>
       </mat-list-item>
       <mat-list-item *ngIf="isLinkVisible('/monitor')" (click)="closeAndNavigateToRoute('/monitor')" routerLinkActive="active">
-        <a matLine>Monitor Match Scores</a>
+        <a matLine>Live Scores Display</a>
+      </mat-list-item>
+      <mat-list-item *ngIf="isLinkVisible('/scoreboard')" (click)="closeAndNavigateToRoute('/scoreboard')" routerLinkActive="active">
+        <a matLine>Live Score Entry</a>
       </mat-list-item>
       <mat-list-item *ngIf="isLinkVisible('/account')" (click)="closeAndNavigateToRoute('/account')" routerLinkActive="active">
         <a matLine>Account</a>

@@ -161,6 +161,10 @@ export class TournamentConfigEditComponent implements OnChanges {
     this.onAddPersonnel(UserRoles.ROLE_MONITORS, 'Find User');
   }
 
+  onAddDigitalScoreBoard() {
+    this.onAddPersonnel(UserRoles.ROLE_DIGITAL_SCORE_BOARDS, 'Find User');
+  }
+
   /**
    * Adds a new person into the role
    * @param role
@@ -225,12 +229,20 @@ export class TournamentConfigEditComponent implements OnChanges {
   }
 
   getMonitorUser() {
+    return this.getLiveScoringUser(UserRoles.ROLE_MONITORS);
+  }
+
+  getDigitalScoreBoardUser(): string {
+    return this.getLiveScoringUser(UserRoles.ROLE_DIGITAL_SCORE_BOARDS);
+  }
+
+  getLiveScoringUser(role: string) {
     let monitorUserName = null;
     const personnelList = this.tournament?.configuration?.personnelList;
     if (personnelList != null) {
       for (let i = 0; i < personnelList.length; i++) {
         const personnel = personnelList[i];
-        if (personnel.role === UserRoles.ROLE_MONITORS) {
+        if (personnel.role === role) {
           monitorUserName = personnel.name;
           break;
         }

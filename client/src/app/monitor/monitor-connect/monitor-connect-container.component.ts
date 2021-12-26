@@ -21,6 +21,7 @@ import {MonitorService} from '../service/monitor.service';
     </app-monitor-connect>
   `,
   styles: []
+  // providers: [MonitorService]
 })
 export class MonitorConnectContainerComponent implements OnInit, OnDestroy {
   isConnected$: Observable<boolean>;
@@ -70,7 +71,7 @@ export class MonitorConnectContainerComponent implements OnInit, OnDestroy {
               // allow setup of up to a few days before the tournament
               const daysBefore = 100;
               const mBeforeTournamentsDate = moment(tournament.startDate).subtract(daysBefore, 'days').toDate();
-              console.log('mBeforeTournamentsDate', mBeforeTournamentsDate);
+              // console.log('mBeforeTournamentsDate', mBeforeTournamentsDate);
               if (dateUtils.isDateInRange(today, mBeforeTournamentsDate, tournament.endDate)) {
                 const personnelList = tournament.configuration.personnelList;
                 for (const personnel of personnelList) {
@@ -99,10 +100,13 @@ export class MonitorConnectContainerComponent implements OnInit, OnDestroy {
     this.isConnected$ = this.monitorService.isConnected();
     const subscription = this.isConnected$
       .subscribe((connected) => {
+        console.log('got connected status', connected);
         if (connected === true) {
-          const url = `/monitor/display/${this.tournamentId}/${this.tableToMonitor}`;
-          console.log('connected navigating to table display', url);
-          this.router.navigateByUrl(url);
+          if (this.tournamentId && this.tableToMonitor) {
+            const url = `/monitor/display/${this.tournamentId}/${this.tableToMonitor}`;
+            console.log('connected navigating to table display', url);
+            this.router.navigateByUrl(url);
+          }
         }
       });
     this.subscriptions.add(subscription);
@@ -116,8 +120,7 @@ export class MonitorConnectContainerComponent implements OnInit, OnDestroy {
     if (message?.action === 'connect') {
       this.tournamentId = message.tournamentId;
       this.tableToMonitor = message.tableToMonitor;
-      const topicName = `/topic/monitor/${message.tournamentId}/${message.tableToMonitor}`;
-      this.monitorService.connect(topicName);
+      this.monitorService.connect(message.tournamentId, message.tableToMonitor, true);
     } else if (message?.action === 'disconnect') {
       this.monitorService.disconnect();
     }

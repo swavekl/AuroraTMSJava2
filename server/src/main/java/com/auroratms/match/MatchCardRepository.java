@@ -51,6 +51,14 @@ public interface MatchCardRepository extends JpaRepository<MatchCard, Long> {
     List<MatchCard> findMatchCardByEventFkInAndDayOrderByEventFkAscStartTimeAsc(List<Long> eventFks, int day);
 
     /**
+     * Finds all match cards for given day for events in the list of event ids which are played on given table
+     * @param eventFks
+     * @param day
+     * @return
+     */
+    List<MatchCard> findMatchCardByEventFkInAndDayAndAssignedTablesContainsOrderByEventFkAscStartTimeAsc(List<Long> eventFks, int day, String assignedTableContains);
+
+    /**
      * Deletes all match cards for this event and draw type
      * @param eventId
      * @param drawType

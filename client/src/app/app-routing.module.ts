@@ -88,6 +88,11 @@ const routes: Routes = [
     data: {
       roles: [UserRoles.ROLE_ADMINS, UserRoles.ROLE_MONITORS]
     }
+  },
+  { path: 'scoreboard', loadChildren: () => import('./score-board/score-board.module').then(m => m.ScoreBoardModule),
+    data: {
+      roles: [UserRoles.ROLE_ADMINS, UserRoles.ROLE_DIGITAL_SCORE_BOARDS]
+    }
   }
 ];
 

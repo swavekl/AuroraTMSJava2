@@ -1,17 +1,18 @@
 package com.auroratms.match.publish;
 
-import com.auroratms.draw.DrawType;
-import com.auroratms.draw.notification.DrawsEventListener;
 import com.auroratms.event.TournamentEventEntity;
 import com.auroratms.event.TournamentEventEntityService;
 import com.auroratms.match.Match;
 import com.auroratms.match.MatchCard;
 import com.auroratms.match.MatchCardService;
-import com.auroratms.match.publish.message.MonitorMessageType;
 import com.auroratms.match.publish.message.MonitorMessage;
+import com.auroratms.match.publish.message.MonitorMessageType;
+import com.auroratms.server.RabbitMQConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
@@ -26,6 +27,16 @@ public class MatchStatusPublisher {
     private static final Logger logger = LoggerFactory.getLogger(MatchStatusPublisher.class);
 
     private final SimpMessagingTemplate template;
+
+    // type of message broker to use
+    @Value("${message.broker.type}")
+    private String messageBroker;
+
+//    @Autowired
+//    private TopicExchange topicExchange;
+
+    @Autowired
+    private RabbitTemplate rabbitTemplate;
 
     @Autowired
     private MatchCardService matchCardService;
@@ -48,8 +59,6 @@ public class MatchStatusPublisher {
                 // get tournament id
                 TournamentEventEntity tournamentEventEntity = this.tournamentEventEntityService.get(matchCard.getEventFk());
                 long tournamentFk = tournamentEventEntity.getTournamentFk();
-                String destination = String.format("/topic/monitor/%d/%d", tournamentFk, tableNumber);
-
                 MonitorMessage monitorMessage = new MonitorMessage();
                 monitorMessage.setMatch(match);
                 monitorMessage.setNumberOfGames(matchCard.getNumberOfGames());
@@ -67,13 +76,24 @@ public class MatchStatusPublisher {
                     monitorMessage.setMessageType(MonitorMessageType.TimeoutStarted);
                     monitorMessage.setTimeoutRequester(timeoutRequester);
                 }
+                this.createTopicAndSend(monitorMessage, tournamentFk, tableNumber);
 
-                if (this.template != null) {
-                    this.template.convertAndSend(destination, monitorMessage);
-                }
-            } catch (NumberFormatException e) {
-                logger.error("Unable to get table number to send to ", e);
+            } catch (Exception e) {
+                logger.error("Error while sending message to topic ", e);
             }
+        }
+    }
+
+    private void createTopicAndSend(MonitorMessage monitorMessage, long tournamentFk, int tableNumber) {
+        if (this.messageBroker.equals("inmemory")) {
+            String destination = String.format("/topic/monitor_%d_%d", tournamentFk, tableNumber);
+            if (this.template != null) {
+                this.template.convertAndSend(destination, monitorMessage);
+            }
+        } else if (messageBroker.equals("rabbitmq")) {
+            String routingKey = String.format("monitor_%d_%d", tournamentFk, tableNumber);
+//            this.rabbitTemplate.convertAndSend(topicExchange.getName(), routingKey, monitorMessage);
+            this.rabbitTemplate.convertAndSend(RabbitMQConfig.DEFAULT_TOPIC_EXCHANGE, routingKey, monitorMessage);
         }
     }
 }

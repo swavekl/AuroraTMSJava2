@@ -9,10 +9,10 @@ import {Match} from '../model/match.model';
 export class ScoreEntryPhoneComponent implements OnInit, OnChanges {
 
   @Input()
-  public match: Match;
+  // public match: Match;
 
   // copy of this match with games saved
-  private matchCopy: Match;
+  public match: Match;
 
   @Input()
   public playerAName: string;
@@ -68,8 +68,8 @@ export class ScoreEntryPhoneComponent implements OnInit, OnChanges {
     if (matchChanges) {
       const match: Match = matchChanges.currentValue;
       if (match) {
-        this.matchCopy = JSON.parse(JSON.stringify(match));
-        this.gameToShowIndex = this.getNextGameIndex(this.matchCopy);
+        // this.match = JSON.parse(JSON.stringify(match));
+        this.gameToShowIndex = this.getNextGameIndex(this.match);
         this.getGameScore();
       }
     }
@@ -93,12 +93,12 @@ export class ScoreEntryPhoneComponent implements OnInit, OnChanges {
 
   hasNextGame() {
     let hasNextGame: boolean;
-    const matchFinished = Match.isMatchFinished(this.matchCopy, this.numberOfGames, this.pointsPerGame);
+    const matchFinished = Match.isMatchFinished(this.match, this.numberOfGames, this.pointsPerGame);
     if (matchFinished) {
       // console.log('matchFinished', matchFinished);
       // don't allow to advance past the last entered match
       // they need to change prior games to do that
-      const nextBlankGameIndex = Match.nextNotEnteredGameIndex(this.matchCopy, this.numberOfGames);
+      const nextBlankGameIndex = Match.nextNotEnteredGameIndex(this.match, this.numberOfGames);
       hasNextGame = this.gameToShowIndex < (nextBlankGameIndex - 1);
     } else {
       // let them enter games until match is fully entered
@@ -166,32 +166,32 @@ export class ScoreEntryPhoneComponent implements OnInit, OnChanges {
   getGameScore() {
     switch (this.gameToShowIndex) {
       case 0:
-        this.gameScoreSideA = this.matchCopy.game1ScoreSideA;
-        this.gameScoreSideB = this.matchCopy.game1ScoreSideB;
+        this.gameScoreSideA = this.match.game1ScoreSideA;
+        this.gameScoreSideB = this.match.game1ScoreSideB;
         break;
       case 1:
-        this.gameScoreSideA = this.matchCopy.game2ScoreSideA;
-        this.gameScoreSideB = this.matchCopy.game2ScoreSideB;
+        this.gameScoreSideA = this.match.game2ScoreSideA;
+        this.gameScoreSideB = this.match.game2ScoreSideB;
         break;
       case 2:
-        this.gameScoreSideA = this.matchCopy.game3ScoreSideA;
-        this.gameScoreSideB = this.matchCopy.game3ScoreSideB;
+        this.gameScoreSideA = this.match.game3ScoreSideA;
+        this.gameScoreSideB = this.match.game3ScoreSideB;
         break;
       case 3:
-        this.gameScoreSideA = this.matchCopy.game4ScoreSideA;
-        this.gameScoreSideB = this.matchCopy.game4ScoreSideB;
+        this.gameScoreSideA = this.match.game4ScoreSideA;
+        this.gameScoreSideB = this.match.game4ScoreSideB;
         break;
       case 4:
-        this.gameScoreSideA = this.matchCopy.game5ScoreSideA;
-        this.gameScoreSideB = this.matchCopy.game5ScoreSideB;
+        this.gameScoreSideA = this.match.game5ScoreSideA;
+        this.gameScoreSideB = this.match.game5ScoreSideB;
         break;
       case 5:
-        this.gameScoreSideA = this.matchCopy.game6ScoreSideA;
-        this.gameScoreSideB = this.matchCopy.game6ScoreSideB;
+        this.gameScoreSideA = this.match.game6ScoreSideA;
+        this.gameScoreSideB = this.match.game6ScoreSideB;
         break;
       case 6:
-        this.gameScoreSideA = this.matchCopy.game7ScoreSideA;
-        this.gameScoreSideB = this.matchCopy.game7ScoreSideB;
+        this.gameScoreSideA = this.match.game7ScoreSideA;
+        this.gameScoreSideB = this.match.game7ScoreSideB;
         break;
       default:
         this.gameScoreSideA = 0;
@@ -206,32 +206,32 @@ export class ScoreEntryPhoneComponent implements OnInit, OnChanges {
   saveGameScore() {
     switch (this.gameToShowIndex) {
       case 0:
-        this.matchCopy.game1ScoreSideA = this.gameScoreSideA;
-        this.matchCopy.game1ScoreSideB = this.gameScoreSideB;
+        this.match.game1ScoreSideA = this.gameScoreSideA;
+        this.match.game1ScoreSideB = this.gameScoreSideB;
         break;
       case 1:
-        this.matchCopy.game2ScoreSideA = this.gameScoreSideA;
-        this.matchCopy.game2ScoreSideB = this.gameScoreSideB;
+        this.match.game2ScoreSideA = this.gameScoreSideA;
+        this.match.game2ScoreSideB = this.gameScoreSideB;
         break;
       case 2:
-        this.matchCopy.game3ScoreSideA = this.gameScoreSideA;
-        this.matchCopy.game3ScoreSideB = this.gameScoreSideB;
+        this.match.game3ScoreSideA = this.gameScoreSideA;
+        this.match.game3ScoreSideB = this.gameScoreSideB;
         break;
       case 3:
-        this.matchCopy.game4ScoreSideA = this.gameScoreSideA;
-        this.matchCopy.game4ScoreSideB = this.gameScoreSideB;
+        this.match.game4ScoreSideA = this.gameScoreSideA;
+        this.match.game4ScoreSideB = this.gameScoreSideB;
         break;
       case 4:
-        this.matchCopy.game5ScoreSideA = this.gameScoreSideA;
-        this.matchCopy.game5ScoreSideB = this.gameScoreSideB;
+        this.match.game5ScoreSideA = this.gameScoreSideA;
+        this.match.game5ScoreSideB = this.gameScoreSideB;
         break;
       case 5:
-        this.matchCopy.game6ScoreSideA = this.gameScoreSideA;
-        this.matchCopy.game6ScoreSideB = this.gameScoreSideB;
+        this.match.game6ScoreSideA = this.gameScoreSideA;
+        this.match.game6ScoreSideB = this.gameScoreSideB;
         break;
       case 6:
-        this.matchCopy.game7ScoreSideA = this.gameScoreSideA;
-        this.matchCopy.game7ScoreSideB = this.gameScoreSideB;
+        this.match.game7ScoreSideA = this.gameScoreSideA;
+        this.match.game7ScoreSideB = this.gameScoreSideB;
         break;
     }
   }
@@ -249,7 +249,7 @@ export class ScoreEntryPhoneComponent implements OnInit, OnChanges {
   save() {
     if (this.isScoreValid()) {
       this.saveGameScore();
-      this.saveMatch.emit(this.matchCopy);
+      this.saveMatch.emit(this.match);
     }
   }
 
@@ -268,7 +268,7 @@ export class ScoreEntryPhoneComponent implements OnInit, OnChanges {
   }
 
   isMatchWinner(profileId: string): boolean {
-    return (this.matchCopy) ? Match.isMatchWinner(profileId, this.matchCopy, this.numberOfGames, this.pointsPerGame) : false;
+    return (this.match) ? Match.isMatchWinner(profileId, this.match, this.numberOfGames, this.pointsPerGame) : false;
   }
 
   getDoublesPlayerName (playerNames: string, index: number): string {

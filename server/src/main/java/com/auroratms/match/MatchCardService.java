@@ -460,6 +460,17 @@ public class MatchCardService {
      * @return
      */
     public List<MatchCard> findAllForTournamentAndDay(long tournamentId, int day) {
+        List<Long> eventIds = getEventIdsForTheDay(tournamentId);
+        return this.matchCardRepository.findMatchCardByEventFkInAndDayOrderByEventFkAscStartTimeAsc(eventIds, day);
+    }
+
+    public List<MatchCard> findAllForTournamentAndDayAndAssignedTable(long tournamentId, int day, int tableNumber) {
+        List<Long> eventIds = getEventIdsForTheDay(tournamentId);
+        String assignedTableContains = "" + tableNumber;
+        return matchCardRepository.findMatchCardByEventFkInAndDayAndAssignedTablesContainsOrderByEventFkAscStartTimeAsc(eventIds, day, assignedTableContains);
+    }
+
+    private List<Long> getEventIdsForTheDay(long tournamentId) {
         // find match cards generated for the events held on this day.
         // In larger tournaments single elimination round matches may be scheduled for later days
         // so grab all of them and let repository filter out those on different day
@@ -468,9 +479,7 @@ public class MatchCardService {
         for (TournamentEventEntity event : allTournamentEvents) {
             eventIds.add(event.getId());
         }
-
-        // now get all of them in one shot
-        return this.matchCardRepository.findMatchCardByEventFkInAndDayOrderByEventFkAscStartTimeAsc(eventIds, day);
+        return eventIds;
     }
 
     /**

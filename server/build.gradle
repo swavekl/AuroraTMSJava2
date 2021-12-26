@@ -107,8 +107,10 @@ dependencies {
     implementation 'org.webjars:webjars-locator-core'
     implementation 'org.webjars:sockjs-client:1.5.1'
     implementation 'org.webjars:stomp-websocket:2.3.4'
-//    implementation 'org.webjars:bootstrap:3.3.7'
-//    implementation 'org.webjars:jquery:3.1.1-1'
+
+    // For external message broker like RabbitMQ
+    implementation 'org.springframework.boot:spring-boot-starter-reactor-netty'
+    implementation 'org.springframework.amqp:spring-rabbit:2.4.1'
 }
 
 //configurations {

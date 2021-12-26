@@ -7,7 +7,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Collections;
 import java.util.List;
 
 @RestController
@@ -24,8 +23,8 @@ public class MatchSchedulingController {
 
     @GetMapping("/schedule/{tournamentId}/{day}")
     @ResponseBody
-    public ResponseEntity<MatchCard> getMatchCard(@PathVariable long tournamentId,
-                                                  @PathVariable int day) {
+    public ResponseEntity<List<MatchCard>> getMatchCard(@PathVariable long tournamentId,
+                                                        @PathVariable int day) {
         try {
             // gets match cards for events for this day with schedule information filled in
             List<MatchCard> daysMatchCards = matchSchedulingService.generateScheduleForDay(tournamentId, day);
@@ -44,4 +43,23 @@ public class MatchSchedulingController {
         matchSchedulingService.updateMatches(matchCards);
     }
 
+    /**
+     * Gets schedule for particular tournament
+     * @param tournamentId
+     * @param day
+     * @param tableNumber
+     * @return
+     */
+    @GetMapping("/schedule/{tournamentId}/{day}/table/{tableNumber}")
+    @ResponseBody
+    public ResponseEntity<MatchCard> listMatchesForTable(@PathVariable long tournamentId,
+                                                         @PathVariable int day,
+                                                         @PathVariable int tableNumber) {
+        try {
+            List<MatchCard> matchCards = matchSchedulingService.getScheduleForTable(tournamentId, day, tableNumber);
+            return new ResponseEntity(matchCards, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity(e, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 }

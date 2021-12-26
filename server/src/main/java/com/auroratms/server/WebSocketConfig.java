@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
+import org.springframework.http.HttpHeaders;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.simp.config.ChannelRegistration;
@@ -19,6 +20,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
+import org.springframework.util.AntPathMatcher;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
@@ -45,23 +47,51 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     @Value("${client.host.url}")
     private String clientHostUrl;
 
+    // type of message broker to use
+    @Value("${message.broker.type}")
+    private String messageBroker;
+
+    // values to use for RabbitMQ message broker
+    @Value("${message.broker.rabbitmq.host}")
+    private String rabbitMQHost;
+
+    @Value("${message.broker.rabbitmq.port}")
+    private Integer rabbitMQPort;
+
+    @Value("${message.broker.rabbitmq.login}")
+    private String rabbitMQLogin;
+
+    @Value("${message.broker.rabbitmq.passcode}")
+    private String rabbitMQPasscode;
+
     @Override
-    public void configureMessageBroker(MessageBrokerRegistry config) {
+    public void configureMessageBroker(MessageBrokerRegistry messageBrokerRegistry) {
 //        ThreadPoolTaskScheduler te = new ThreadPoolTaskScheduler();
 //        te.setPoolSize(1);
 //        te.setThreadNamePrefix("wss-heartbeat-thread-");
 //        te.initialize();
-//        config.enableSimpleBroker("/topic")
+//        messageBrokerRegistry.enableSimpleBroker("/topic")
 //                .setHeartbeatValue(new long[]{10000, 20000})
 //                .setTaskScheduler(te);
-        config.enableSimpleBroker("/topic");
-        config.setApplicationDestinationPrefixes("/app");
+        messageBrokerRegistry.setApplicationDestinationPrefixes("/app");
+        if (messageBroker.equals("inmemory")) {
+            messageBrokerRegistry.enableSimpleBroker("/topic");
+        } else if (messageBroker.equals("rabbitmq")) {
+//            messageBrokerRegistry.setPathMatcher(new AntPathMatcher("."));
+            messageBrokerRegistry.enableStompBrokerRelay("/topic")
+                    .setRelayHost(rabbitMQHost)
+                    .setRelayPort(rabbitMQPort)
+                    .setClientLogin(rabbitMQLogin)
+                    .setClientPasscode(rabbitMQPasscode)
+                    .setSystemLogin(rabbitMQLogin)
+                    .setSystemPasscode(rabbitMQPasscode);
+        }
     }
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         // endpoint for initiating WebSocket handshake via https request
-        registry.addEndpoint("/gs-guide-websocket")
+        registry.addEndpoint("/websocket-hs")
                 .setAllowedOrigins(this.clientHostUrl)
                 .withSockJS();
     }
@@ -79,7 +109,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
                 StompHeaderAccessor accessor =
                         MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
                 if (StompCommand.CONNECT.equals(accessor.getCommand())) {
-                    String accessToken = accessor.getFirstNativeHeader("Authorization");
+                    String accessToken = accessor.getFirstNativeHeader(HttpHeaders.AUTHORIZATION);
                     Jwt jwt = jwtDecoder.decode(accessToken);
                     Authentication authentication = jwtAuthenticationConverter.convert(jwt);
                     accessor.setUser(authentication);
