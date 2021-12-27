@@ -1,6 +1,6 @@
 package com.auroratms.match;
 
-import com.auroratms.match.publish.MatchStatusPublisher;
+import com.auroratms.match.notification.MatchEventPublisher;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,7 +23,7 @@ public class MatchController {
     private MatchService matchService;
 
     @Autowired
-    private MatchStatusPublisher matchStatusPublisher;
+    private MatchEventPublisher matchEventPublisher;
 
     /**
      * Gets match score
@@ -59,9 +59,9 @@ public class MatchController {
     public ResponseEntity<Match> updateMatch(@RequestBody Match match,
                                              @PathVariable String matchId) {
         try {
+            Match matchBeforeUpdate = matchService.getMatch(match.getId());
             Match updatedMatch = matchService.updateMatch(match);
-            MatchCard matchCard = updatedMatch.getMatchCard();
-            this.matchStatusPublisher.publishMatchUpdate(matchCard.getId(), updatedMatch, false, null, false);
+            this.matchEventPublisher.publishMatchEvent(matchBeforeUpdate, updatedMatch);
             return new ResponseEntity<>(updatedMatch, HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity(e, HttpStatus.INTERNAL_SERVER_ERROR);

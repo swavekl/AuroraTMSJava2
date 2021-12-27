@@ -139,4 +139,29 @@ export class DateUtils {
     }
     return startTimes;
   }
+
+  /**
+   * Gets difference between two times in hours and minutes 0:45 or 1:30.
+   * @param startTime
+   * @param endTime
+   */
+  getTimeDifferenceAsString(startTime: Date, endTime: Date): string {
+    const mStartTime = moment(startTime);
+    const mEndTime = moment(endTime);
+    const durationMinutes = mEndTime.diff(mStartTime, 'minutes');
+    const hours = Math.floor(durationMinutes / 60);
+    const minutes = durationMinutes - (hours * 60);
+    return (hours > 0) ? `${hours} h ${minutes} m` : `${minutes} m`;
+  }
+
+  /**
+   * Gets difference between two times in minutes
+   * @param startTime
+   * @param endTime
+   */
+  getTimeDifference(startTime: Date, endTime: Date): number {
+    const mStartTime = moment(startTime);
+    const mEndTime = moment(endTime);
+    return mEndTime.diff(mStartTime, 'minutes');
+  }
 }

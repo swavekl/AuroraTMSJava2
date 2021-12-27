@@ -12,4 +12,11 @@ public interface TableUsageRepository extends JpaRepository<TableUsage, Long> {
      * @return
      */
     List<TableUsage> findAllByTournamentFkOrderByTableNumber(long tournamentFk);
+
+    /**
+     * Finds all table usages associated with given match card
+     * @param matchCardFk
+     * @return
+     */
+    List<TableUsage> findAllByMatchCardFk(long matchCardFk);
 }

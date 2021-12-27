@@ -488,7 +488,7 @@ public class MatchCardService {
      * @param matchCardId
      * @return
      */
-    public MatchCard get(long matchCardId) {
+    public MatchCard getMatchCardWithPlayerProfiles(long matchCardId) {
         MatchCard matchChard = this.matchCardRepository.findById(matchCardId)
                 .orElseThrow(() -> new ResourceNotFoundException("Unable to find match card"));
 

@@ -43,7 +43,7 @@ public class TieBreakingService {
      * @param matchCardId
      */
     public GroupTieBreakingInfo rankAndAdvancePlayers(Long matchCardId) {
-        MatchCard matchCard = matchCardService.get(matchCardId);
+        MatchCard matchCard = matchCardService.getMatchCardWithPlayerProfiles(matchCardId);
 
         // get number of games and points per game
         long eventFk = matchCard.getEventFk();
@@ -66,7 +66,7 @@ public class TieBreakingService {
      * @return
      */
     public GroupTieBreakingInfo rankAndExplain(Long matchCardId) {
-        MatchCard matchCard = matchCardService.get(matchCardId);
+        MatchCard matchCard = matchCardService.getMatchCardWithPlayerProfiles(matchCardId);
 
         // get number of games and points per game
         long eventFk = matchCard.getEventFk();

@@ -36,6 +36,7 @@ $table-color: #87CEFAFF;
 $margin-thickness: 5px;
 $border-thickness: 1px;
 $border-color: black;
+$font-size: 14px;
 
 .table-free {
   background-color: #87CEFAFF;
@@ -53,9 +54,10 @@ $border-color: black;
   border-color: $border-color;
   border-style: solid;
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
-  font-size: 14px;
+  font-size: $font-size;
   text-overflow: clip;
 }
 
@@ -72,6 +74,22 @@ $border-color: black;
   border-width: 0 $border-thickness $border-thickness $border-thickness;
   border-color: $border-color;
   border-style: solid;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  font-size: $font-size;
+  text-overflow: clip;
+}
+
+.table-time-exceeded {
+  color: $warn-color;
+  font-weight: bold;
+}
+
+.match-identifier-tooltip {
+  font-size: 14px;
+  background-color: lighten($primary-color, 40%);
 }
 
 .table-container {

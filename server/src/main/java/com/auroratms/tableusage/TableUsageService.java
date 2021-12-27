@@ -83,6 +83,15 @@ public class TableUsageService {
 
     /**
      *
+     * @param matchCardId
+     * @return
+     */
+    public List<TableUsage> findAllByMatchCardFk (long matchCardId) {
+        return repository.findAllByMatchCardFk(matchCardId);
+    }
+
+    /**
+     *
      * @param tableUsage
      * @return
      */

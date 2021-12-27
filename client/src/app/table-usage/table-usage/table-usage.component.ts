@@ -1,10 +1,11 @@
-import {Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChange, SimpleChanges} from '@angular/core';
+import {Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges} from '@angular/core';
 import {TableUsage} from '../model/table-usage.model';
 import {MatchCard} from '../../matches/model/match-card.model';
 import {TournamentEvent} from '../../tournament/tournament-config/tournament-event.model';
 import {DrawType} from '../../draws/model/draw-type.enum';
 import {Match} from '../../matches/model/match.model';
 import {TableStatus} from '../model/table-status';
+import {DateUtils} from '../../shared/date-utils';
 
 @Component({
   selector: 'app-table-usage',
@@ -183,6 +184,55 @@ export class TableUsageComponent implements OnInit, OnChanges {
       }
     }
     return '';
+  }
+
+  /**
+   * Calculates percentage of match completion
+   * @param tableUsage
+   */
+  getPercentComplete(tableUsage: TableUsage): string {
+    let percentComplete = '';
+    if (tableUsage.tableStatus === TableStatus.InUse) {
+      if (tableUsage.totalMatches !== 0 && tableUsage.completedMatches !== 0) {
+        const percent = Math.floor((tableUsage.completedMatches / tableUsage.totalMatches) * 100);
+        percentComplete = `${percent}%`;
+      } else {
+        percentComplete = '0%';
+      }
+    }
+    return percentComplete;
+  }
+
+  getRunningTime(tableUsage: TableUsage): string {
+    if (tableUsage.tableStatus === TableStatus.InUse) {
+      const startTime = tableUsage.matchStartTime;
+      const now = new Date();
+      return new DateUtils().getTimeDifferenceAsString(startTime, now);
+    } else {
+      return '';
+    }
+  }
+
+  exceededAllottedTime(tableUsage: TableUsage) {
+    let exceeds = false;
+    if (tableUsage.tableStatus === TableStatus.InUse) {
+      if (this.allTodaysMatchCards) {
+        for (let i = 0; i < this.allTodaysMatchCards.length; i++) {
+          const matchCard = this.allTodaysMatchCards[i];
+          if (matchCard.id === tableUsage.matchCardFk) {
+            if (matchCard.duration !== 0) {
+              const timeDifferenceInMinutes = new DateUtils().getTimeDifference(tableUsage.matchStartTime, new Date());
+              const tableNumbersArray = (matchCard.assignedTables == null) ? [''] : (matchCard.assignedTables.split(','));
+              const numTables = tableNumbersArray.length;
+              const scheduledDurationInMinutes = (numTables > 0) ? matchCard.duration / numTables : matchCard.duration;
+              exceeds = timeDifferenceInMinutes > scheduledDurationInMinutes;
+              break;
+            }
+          }
+        }
+      }
+    }
+    return exceeds;
   }
 }
 

@@ -25,12 +25,22 @@
   </div>
   <div fxFlex="80%" class="tables-grid" fxLayout="row wrap" fxLayoutAlign="start start" *ngIf="tableUsageList">
     <div *ngFor="let tableUsage of tableUsageList">
-      <div class="table-container" [matTooltip]="getTableTooltip(tableUsage)">
-        <div class="table-top" [ngClass]="tableUsage.tableStatus === 'Free' ? 'table-free': 'table-in-use'">
+      <div class="table-container" >
+        <div class="table-top" [ngClass]="tableUsage.tableStatus === 'Free' ? 'table-free': 'table-in-use'"
+             [matTooltip]="getTableTooltip(tableUsage)" matTooltipPosition="below"
+             matTooltipClass="match-identifier-tooltip"
+        >
           <div>{{ getTableTooltip(tableUsage) }}</div>
         </div>
         <div class="table-net"></div>
-        <div class="table-bottom" [ngClass]="tableUsage.tableStatus === 'Free' ? 'table-free': 'table-in-use'"></div>
+        <div class="table-bottom" [ngClass]="tableUsage.tableStatus === 'Free' ? 'table-free': 'table-in-use'">
+          <div>
+            {{ getPercentComplete (tableUsage) }}
+          </div>
+          <div [ngClass]="exceededAllottedTime(tableUsage) ? 'table-time-exceeded': ''">
+            {{ getRunningTime( tableUsage )}}
+          </div>
+        </div>
         {{tableUsage.tableNumber}}
       </div>
     </div>

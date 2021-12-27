@@ -60,7 +60,7 @@ public class MatchCardController {
     @Transactional(readOnly = true)
     public ResponseEntity<MatchCard> getMatchCard(@PathVariable Long matchCardId) {
         try {
-            MatchCard matchCard = matchCardService.get(matchCardId);
+            MatchCard matchCard = matchCardService.getMatchCardWithPlayerProfiles(matchCardId);
             return new ResponseEntity<>(matchCard, HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity(e, HttpStatus.INTERNAL_SERVER_ERROR);

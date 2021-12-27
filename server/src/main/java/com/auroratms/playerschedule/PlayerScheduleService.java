@@ -140,7 +140,7 @@ public class PlayerScheduleService {
      * @return
      */
     public PlayerScheduleItem getPlayerSchedule(Long matchCardId) {
-        MatchCard matchCard = this.matchCardService.get(matchCardId);
+        MatchCard matchCard = this.matchCardService.getMatchCardWithPlayerProfiles(matchCardId);
         TournamentEventEntity eventEntity = this.tournamentEventEntityService.get(matchCard.getEventFk());
         return toPlayerScheduleItem(matchCard, eventEntity,
                 true);

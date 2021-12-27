@@ -49,7 +49,7 @@ public class MatchStatusPublisher {
     }
 
     public void publishMatchUpdate(long matchCardId, Match match, boolean timeoutStarted, String timeoutRequester, boolean warmupStarted) {
-        MatchCard matchCard = matchCardService.get(matchCardId);
+        MatchCard matchCard = matchCardService.getMatchCardWithPlayerProfiles(matchCardId);
         String assignedTables = matchCard.getAssignedTables();
         String[] tableNumbers = assignedTables.split(",");
         if (tableNumbers.length == 1) {

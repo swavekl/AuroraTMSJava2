@@ -26,7 +26,6 @@ import com.itextpdf.layout.property.VerticalAlignment;
 import org.apache.commons.lang3.StringUtils;
 //import org.dom4j.DocumentException;
 import org.apache.commons.lang3.time.DateUtils;
-import org.hibernate.engine.spi.ExceptionConverter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -34,7 +33,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -60,7 +58,7 @@ public class MatchCardPrinterService {
     static final int CELL_PADDING = 3;
 
     public String getMatchCardAsPDF(long matchCardId) {
-        MatchCard matchCard = matchCardService.get(matchCardId);
+        MatchCard matchCard = matchCardService.getMatchCardWithPlayerProfiles(matchCardId);
         long eventFk = matchCard.getEventFk();
 
         TournamentEventEntity event = tournamentEventEntityService.get(eventFk);
