@@ -20,7 +20,7 @@
 }
 
 mat-list-item:hover {
-  background-color: #7A73FF;
+  background-color: lighten($primary-color, 40%);
 }
 
 

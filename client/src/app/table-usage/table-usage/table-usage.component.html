@@ -27,7 +27,7 @@
     <div *ngFor="let tableUsage of tableUsageList">
       <div class="table-container" [matTooltip]="getTableTooltip(tableUsage)">
         <div class="table-top" [ngClass]="tableUsage.tableStatus === 'Free' ? 'table-free': 'table-in-use'">
-          <div>{{ getMatchIdentifierText(tableUsage.matchCardFk) }}</div>
+          <div>{{ getTableTooltip(tableUsage) }}</div>
         </div>
         <div class="table-net"></div>
         <div class="table-bottom" [ngClass]="tableUsage.tableStatus === 'Free' ? 'table-free': 'table-in-use'"></div>
