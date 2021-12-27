@@ -25,6 +25,7 @@ import com.itextpdf.layout.property.UnitValue;
 import com.itextpdf.layout.property.VerticalAlignment;
 import org.apache.commons.lang3.StringUtils;
 //import org.dom4j.DocumentException;
+import org.apache.commons.lang3.time.DateUtils;
 import org.hibernate.engine.spi.ExceptionConverter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -32,6 +33,9 @@ import org.springframework.stereotype.Service;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
@@ -108,9 +112,10 @@ public class MatchCardPrinterService {
     private void generateContent(Document document, MatchCard matchCard, Tournament tournament, TournamentEventEntity event) throws IOException {
 //    private void generateContent(Document document, MatchCard matchCard, Tournament tournament, TournamentEventEntity event) throws DocumentException, IOException {
         String tournamentName = tournament.getName();
-        tournamentName = "2021 US National Table Tennis Championships";
+//        tournamentName = "2021 US National Table Tennis Championships";
         String eventName = event.getName();
-        String startTime = "10:30 AM";
+        String startTime = getStartTime(matchCard);
+//        String startTime = "10:30 AM";
 
         List<Match> matches = matchCard.getMatches();
         int matchesPerPage = (!event.isDoubles()) ? MATCHES_PER_PAGE : DOUBLES_MATCHES_PER_PAGE;
@@ -150,6 +155,23 @@ public class MatchCardPrinterService {
     }
 
     /**
+     * Gets start time
+     * @param matchCard
+     * @return
+     */
+    private String getStartTime(MatchCard matchCard) {
+        double dStartTime = matchCard.getStartTime();
+        Date today = new Date();
+        int hours = (int) Math.floor(dStartTime);
+        double dMinutes = dStartTime - hours;
+        int minutes = (int) Math.round(60 * dMinutes);
+        Date todayWithHours = DateUtils.setHours(today, hours);
+        Date todayWithHoursAndMinutes = DateUtils.setMinutes(todayWithHours, minutes);
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("h:mm a");  // 9:30 AM
+        return simpleDateFormat.format(todayWithHoursAndMinutes);
+    }
+
+    /**
      *
      * @param pageNumber
      * @param numPages
@@ -183,7 +205,7 @@ public class MatchCardPrinterService {
     private Table addEventInfoTable(String eventName, MatchCard matchCard, String startTime, PdfFont font) {
         int groupNum = matchCard.getGroupNum();
         String assignedTables = matchCard.getAssignedTables();
-        assignedTables = "120, 121";
+//        assignedTables = "120, 121";
         String [] tableHeadersText = {"Event", "Group", "Table(s)", "Time"};
         String [] cellValues = {eventName, ("" + groupNum), assignedTables, startTime};
         float [] columnWidths = new float[]{5, 1, 2, 2};

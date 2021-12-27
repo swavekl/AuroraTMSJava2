@@ -11,18 +11,39 @@
   overflow: scroll;
 }
 
+.not-selected {
+  background-color: white;
+}
+
+.selected {
+  background-color: $accent-color;
+}
+
+mat-list-item:hover {
+  background-color: #7A73FF;
+}
+
+
 .tables-grid {
   //border: 1px solid blue;
   overflow-y: scroll;
   overflow-x: hidden;
 }
 
-$table-width: 50px;
-$table-height: 45px;
+$table-width: 75px;
+$table-height: 67px;
 $table-color: #87CEFAFF;
 $margin-thickness: 5px;
 $border-thickness: 1px;
 $border-color: black;
+
+.table-free {
+  background-color: #87CEFAFF;
+}
+
+.table-in-use {
+  background-color: $accent-color;
+}
 
 .table-top {
   width: $table-width;
@@ -31,12 +52,16 @@ $border-color: black;
   border-width: $border-thickness $border-thickness 0 $border-thickness;
   border-color: $border-color;
   border-style: solid;
-  background-color: $table-color;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 14px;
+  text-overflow: clip;
 }
 
 .table-net {
   border: 1px solid black;
-  width: 60px;
+  width: $table-width + 10px;
   height: 1px;
 }
 
@@ -47,7 +72,6 @@ $border-color: black;
   border-width: 0 $border-thickness $border-thickness $border-thickness;
   border-color: $border-color;
   border-style: solid;
-  background-color: $table-color;
 }
 
 .table-container {

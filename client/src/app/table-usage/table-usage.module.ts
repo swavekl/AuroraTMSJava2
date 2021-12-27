@@ -1,9 +1,9 @@
-import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import {NgModule} from '@angular/core';
+import {CommonModule} from '@angular/common';
 
-import { TableUsageRoutingModule } from './table-usage-routing.module';
-import { TableUsageComponent } from './table-usage/table-usage.component';
-import { TableUsageContainerComponent } from './table-usage/table-usage-container.component';
+import {TableUsageRoutingModule} from './table-usage-routing.module';
+import {TableUsageComponent} from './table-usage/table-usage.component';
+import {TableUsageContainerComponent} from './table-usage/table-usage-container.component';
 import {FlexModule} from '@angular/flex-layout';
 import {MatListModule} from '@angular/material/list';
 import {MatTooltipModule} from '@angular/material/tooltip';
@@ -11,6 +11,9 @@ import {MatToolbarModule} from '@angular/material/toolbar';
 import {MatSelectModule} from '@angular/material/select';
 import {FormsModule} from '@angular/forms';
 import {MatButtonModule} from '@angular/material/button';
+import {TableUsageDataService} from './service/table-usage-data.service';
+import {EntityDataService, EntityServices} from '@ngrx/data';
+import {TableUsageService} from './service/table-usage.service';
 
 
 @NgModule({
@@ -30,4 +33,14 @@ import {MatButtonModule} from '@angular/material/button';
     MatButtonModule
   ]
 })
-export class TableUsageModule { }
+export class TableUsageModule {
+
+  constructor(entityServices: EntityServices,
+              entityDataService: EntityDataService,
+              tableUsageService: TableUsageService,
+              tableUsageDataService: TableUsageDataService) {
+    // register service for contacting REST API because it doesn't follow the pattern of standard REST call
+    entityDataService.registerService('TableUsage', tableUsageDataService);
+    entityServices.registerEntityCollectionServices([tableUsageService]);
+  }
+}

@@ -50,10 +50,11 @@ public class TableUsageController {
      * @return
      */
     @PutMapping("/tableusage")
-    @ResponseBody ResponseEntity<Void> update (@RequestBody List<TableUsage> tableUsageList) {
+    @PreAuthorize("hasAuthority('TournamentDirectors') or hasAuthority('Admins') or hasAuthority('Referees')")
+    @ResponseBody ResponseEntity<List<TableUsage>> update (@RequestBody List<TableUsage> tableUsageList) {
         try {
-            tableUsageService.updateAll(tableUsageList);
-            return ResponseEntity.ok().build();
+            List<TableUsage> updatedTableUsageList = tableUsageService.updateAll(tableUsageList);
+            return ResponseEntity.ok(updatedTableUsageList);
         } catch (Exception e) {
             log.error("Error while saving table usage", e);
             return ResponseEntity.internalServerError().build();

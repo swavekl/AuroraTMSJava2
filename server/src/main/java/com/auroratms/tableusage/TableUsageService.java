@@ -101,8 +101,8 @@ public class TableUsageService {
      *
      * @param tableUsageList
      */
-    public void updateAll(List<TableUsage> tableUsageList) {
-        repository.saveAll(tableUsageList);
+    public List<TableUsage> updateAll(List<TableUsage> tableUsageList) {
+        return repository.saveAll(tableUsageList);
     }
 
     @CacheEvict(key = "#id")

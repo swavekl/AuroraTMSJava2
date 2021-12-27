@@ -12,13 +12,16 @@ import {MatchCard} from '../../matches/model/match-card.model';
 import {DateUtils} from '../../shared/date-utils';
 import {TournamentEventConfigService} from '../../tournament/tournament-config/tournament-event-config.service';
 import {TournamentEvent} from '../../tournament/tournament-config/tournament-event.model';
+import {MatchCardPrinterService} from '../../matches/service/match-card-printer.service';
 
 @Component({
   selector: 'app-table-usage-container',
   template: `
     <app-table-usage [tableUsageList]="tableUsageList$ | async"
                      [matchCards]="matchCards$ | async"
-                     [tournamentEvents]="tournamentEvents$ | async">
+                     [tournamentEvents]="tournamentEvents$ | async"
+                     (printMatchCards)="onPrintMatchCards($event)"
+                     (startMatches)="onStartMatches($event)">
     </app-table-usage>
   `,
   styles: []
@@ -43,6 +46,7 @@ export class TableUsageContainerComponent implements OnInit, OnDestroy {
               private todayService: TodayService,
               private matchCardService: MatchCardService,
               private tournamentEventConfigService: TournamentEventConfigService,
+              private matchCardPrinterService: MatchCardPrinterService,
               private linearProgressBarService: LinearProgressBarService) {
     this.setupProgressIndicator();
     this.loadTableUsagesForTodaysTournament();
@@ -96,7 +100,12 @@ export class TableUsageContainerComponent implements OnInit, OnDestroy {
 
   private loadTableUsage(tournamentId: number) {
     this.tableUsageList$ = this.tableUsageService.store.select(
-      this.tableUsageService.selectors.selectEntities);
+      this.tableUsageService.selectors.selectEntities)
+      .pipe(
+        map((tableUsages: TableUsage[]) => {
+          console.log('cloning table usages');
+          return JSON.parse(JSON.stringify(tableUsages));
+    }));
     const params = `tournamentId=${tournamentId}`;
     // no need to subscribe since it is subscribed in a template
     this.tableUsageService.getWithQuery(params);
@@ -136,5 +145,20 @@ export class TableUsageContainerComponent implements OnInit, OnDestroy {
           }
         }));
     this.matchCardService.loadAllForTheTournamentDay(this.tournamentId, this.tournamentDay);
+  }
+
+  public onPrintMatchCards(matchCardIds: number []) {
+    for (let i = 0; i < matchCardIds.length; i++) {
+      const matchCardId = matchCardIds[i];
+        this.matchCardPrinterService.download(matchCardId);
+    }
+  }
+
+  onStartMatches(tableUsages: TableUsage[]) {
+     this.tableUsageService.updateMany(tableUsages)
+       .pipe(first())
+       .subscribe((updated: TableUsage[]) => {
+         this.tableUsageService.updateManyInCache(updated);
+       });
   }
 }

@@ -7,30 +7,30 @@
     </mat-option>
   </mat-select>
   <span class="toolbar-spacer-2"></span>
-  <button type="button" mat-raised-button (click)="onStartEventMatches()" [disabled]="selectedEventId === 0">Start RR Matches</button>
+  <button type="button" mat-raised-button (click)="onStartEventMatches()" [disabled]="selectedEventId === 0">Start Event RR Matches</button>
   <span class="toolbar-spacer-2"></span>
-  <button type="button" mat-raised-button (click)="onPrintEventMatchCards()" [disabled]="selectedEventId === 0">Print RR Match Cards</button>
+  <button type="button" mat-raised-button (click)="onStartSelectedMatch()" [disabled]="this.selectedMatchCardIds?.length === 0">Start Selected Match</button>
+  <span class="toolbar-spacer-2"></span>
+  <button type="button" mat-raised-button (click)="onPrintEventMatchCards()" [disabled]="selectedMatchCardIds?.length === 0">Print RR Match Cards</button>
 </mat-toolbar>
 <div fxLayout="row" class="table-usage">
   <div fxFlex="20%" class="matches-list">
     <mat-list dense class="match-card-list">
       <mat-list-item *ngFor="let matchInfo of matchesToPlayInfos" (click)="onSelectMatchCard(matchInfo.matchCard)"
-                     [matTooltip]="getTooltipText(matchInfo)">
-        <ng-container *ngIf="matchInfo.matchCard.drawType === 'ROUND_ROBIN'; else elseblock">
-          {{matchInfo.tournamentEvent.name}} R.R. Group {{matchInfo.matchCard.groupNum}}
-        </ng-container>
-        <ng-template #elseblock>
-          {{matchInfo.tournamentEvent.name}} {{ getRoundShortName(matchInfo.matchCard.round) }} M {{matchInfo.matchCard.groupNum}}
-        </ng-template>
+                     [matTooltip]="getTooltipText(matchInfo)"
+                     [ngClass]="isSelectedMatchCard (matchInfo.matchCard) ? 'selected' : 'not-selected'">
+        {{getMatchIdentifierText(matchInfo.matchCard.id)}}
       </mat-list-item>
     </mat-list>
   </div>
   <div fxFlex="80%" class="tables-grid" fxLayout="row wrap" fxLayoutAlign="start start" *ngIf="tableUsageList">
     <div *ngFor="let tableUsage of tableUsageList">
-      <div class="table-container">
-        <div class="table-top"></div>
+      <div class="table-container" [matTooltip]="getTableTooltip(tableUsage)">
+        <div class="table-top" [ngClass]="tableUsage.tableStatus === 'Free' ? 'table-free': 'table-in-use'">
+          <div>{{ getMatchIdentifierText(tableUsage.matchCardFk) }}</div>
+        </div>
         <div class="table-net"></div>
-        <div class="table-bottom"></div>
+        <div class="table-bottom" [ngClass]="tableUsage.tableStatus === 'Free' ? 'table-free': 'table-in-use'"></div>
         {{tableUsage.tableNumber}}
       </div>
     </div>
