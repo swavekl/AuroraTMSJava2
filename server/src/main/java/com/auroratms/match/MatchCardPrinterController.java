@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.util.List;
 
 /**
  * Service for printing match cards
@@ -27,10 +28,12 @@ public class MatchCardPrinterController {
     @Autowired
     private MatchCardPrinterService matchCardPrinterService;
 
-    @GetMapping("/matchcard/download/{matchCardId}")
-    public ResponseEntity<Resource> download(@PathVariable Long matchCardId) {
+    @GetMapping("/matchcard/download")
+    public ResponseEntity<Resource> download(@RequestParam List<Long> matchCardIds) {
         try {
-            String filename = matchCardPrinterService.getMatchCardAsPDF(matchCardId);
+            String filename = (matchCardIds.size() == 1)
+                    ? matchCardPrinterService.getMatchCardAsPDF(matchCardIds.get(0))
+                    : matchCardPrinterService.getMultipleMatchCardsAsPDF(matchCardIds);
             File file = new File(filename);
             FileInputStream fileInputStream = new FileInputStream(file);
             InputStreamResource resource = new InputStreamResource(fileInputStream);

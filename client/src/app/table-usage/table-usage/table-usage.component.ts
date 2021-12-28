@@ -28,7 +28,7 @@ export class TableUsageComponent implements OnInit, OnChanges {
   tournamentEvents: TournamentEvent[];
 
   @Output()
-  printMatchCards: EventEmitter<number[]> = new EventEmitter<number[]>();
+  printMatchCards: EventEmitter<any> = new EventEmitter<any>();
 
   @Output()
   startMatches: EventEmitter<TableUsage[]> = new EventEmitter<TableUsage[]>();
@@ -92,16 +92,23 @@ export class TableUsageComponent implements OnInit, OnChanges {
   }
 
   onStartEventMatches() {
-    // console.log('onStartEventMatches for event ', this.selectedEventId);
+    const eventRRMatchCardIds = this.getEventRRMatchCards();
+    if (eventRRMatchCardIds.length > 0) {
+      this.startSelectedMatchCards(eventRRMatchCardIds);
+    }
+  }
+
+  private getEventRRMatchCards() {
     const eventMatchCardIds: number [] = [];
     for (let i = 0; i < this.matchesToPlayInfos.length; i++) {
       const matchesToPlayInfo = this.matchesToPlayInfos[i];
       const matchCard = matchesToPlayInfo.matchCard;
+//      console.log('matchCard eventId ' + matchCard.eventFk + ' drawType ' + matchCard.drawType);
       if (matchCard.eventFk === this.selectedEventId && matchCard.drawType === DrawType.ROUND_ROBIN) {
         eventMatchCardIds.push(matchCard.id);
       }
     }
-    this.startSelectedMatchCards(eventMatchCardIds);
+    return eventMatchCardIds;
   }
 
   onStartSelectedMatch() {
@@ -140,8 +147,29 @@ export class TableUsageComponent implements OnInit, OnChanges {
     this.startMatches.emit(updatedTableUsages);
   }
 
+  /**
+   * Print single selected match card
+   */
+  onPrintSelectedMatch() {
+    const printInfo = {
+      eventId: null,
+      matchCardIds: this.selectedMatchCardIds
+    };
+    this.printMatchCards.emit(printInfo);
+  }
+
+  /**
+   * Print all RR round match cards for this event
+   */
   onPrintEventMatchCards() {
-    this.printMatchCards.emit(this.selectedMatchCardIds);
+    const eventRRMatchCardIds = this.getEventRRMatchCards();
+    if (eventRRMatchCardIds.length > 0) {
+      const printInfo = {
+        eventId: this.selectedEventId,
+        matchCardIds: eventRRMatchCardIds
+      };
+      this.printMatchCards.emit(printInfo);
+    }
   }
 
   getTableTooltip(tableUsage: TableUsage): string {
@@ -188,7 +216,7 @@ export class TableUsageComponent implements OnInit, OnChanges {
 
   /**
    * Calculates percentage of match completion
-   * @param tableUsage
+   * @param tableUsage table usage
    */
   getPercentComplete(tableUsage: TableUsage): string {
     let percentComplete = '';

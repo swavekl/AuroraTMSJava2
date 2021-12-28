@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.Assert.assertTrue;
 
@@ -40,6 +42,18 @@ public class MatchCardPrinterServiceTest extends AbstractServiceTest {
         System.out.println("matchCardAsPDF = " + matchCardAsPDF);
         File checkFile = new File(matchCardAsPDF);
         assertTrue("PDF doesn't exist at " + matchCardAsPDF, checkFile.exists());
+    }
+
+    @Test
+    public void testMergingDocuments() {
+        List<Long> matchCardIdsList = new ArrayList<>();
+        matchCardIdsList.add(2925L);
+        matchCardIdsList.add(2926L);
+        matchCardIdsList.add(2927L);
+        String matchCardsAsPDF = matchCardPrinterService.getMultipleMatchCardsAsPDF(matchCardIdsList);
+        System.out.println("matchCardsAsPDF = " + matchCardsAsPDF);
+        File checkFile = new File(matchCardsAsPDF);
+        assertTrue("PDF doesn't exist at " + matchCardsAsPDF, checkFile.exists());
     }
 }
 

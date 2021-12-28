@@ -103,12 +103,12 @@ export class TableUsageContainerComponent implements OnInit, OnDestroy {
 
   private loadTableUsage(tournamentId: number) {
     this.tableUsageList$ = this.tableUsageService.store.select(
-      this.tableUsageService.selectors.selectEntities);
-      // .pipe(
-      //   map((tableUsages: TableUsage[]) => {
-      //     console.log('CONTAINER got table usage list ', tableUsages);
-      //     return JSON.parse(JSON.stringify(tableUsages));
-      //   }));
+      this.tableUsageService.selectors.selectEntities)
+      .pipe(
+        map((tableUsages: TableUsage[]) => {
+          // console.log('CONTAINER got table usage list ', tableUsages);
+          return JSON.parse(JSON.stringify(tableUsages));
+        }));
     const params = `tournamentId=${tournamentId}`;
     // no need to subscribe since it is subscribed in a template
     this.tableUsageService.getWithQuery(params);
@@ -161,15 +161,15 @@ export class TableUsageContainerComponent implements OnInit, OnDestroy {
               const tableUsage = tableUsageList[i];
               if (tableUsage.matchCardFk === matchCard.id) {
                 isPlayedCurrently = true;
-                // console.log('match is currently played ' + tableUsage.matchCardFk);
+                // console.log('match is currently played ' + matchCard.id + ' event ' + matchCard.eventFk + ' drawType ' + matchCard.drawType);
                 break;
               }
             }
             if (!matchCompleted && !isPlayedCurrently) {
               filteredMatchCards.push(matchCard);
-              // console.log('match is available ', matchCard.id);
+              // console.log('match is available id ' + matchCard.id + ' event ' + matchCard.eventFk + ' drawType ' + matchCard.drawType);
             } else if (matchCompleted) {
-              // console.log('match completed', matchCard.id);
+              // console.log('match is completed id ' + matchCard.id + ' event ' + matchCard.eventFk + ' drawType ' + matchCard.drawType);
             }
           }
 
@@ -192,11 +192,11 @@ export class TableUsageContainerComponent implements OnInit, OnDestroy {
       });
   }
 
-  public onPrintMatchCards(matchCardIds: number []) {
-    for (let i = 0; i < matchCardIds.length; i++) {
-      const matchCardId = matchCardIds[i];
-      this.matchCardPrinterService.download(matchCardId);
-    }
+  public onPrintMatchCards(printInfo: any) {
+    const matchCardIds: number [] = printInfo.matchCardIds;
+    const eventId = printInfo.eventId;
+    const tournamentId = this.tournamentId;
+    this.matchCardPrinterService.download(tournamentId, eventId, matchCardIds);
   }
 
   onStartMatches(tableUsages: TableUsage[]) {

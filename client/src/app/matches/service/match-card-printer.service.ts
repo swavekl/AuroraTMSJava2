@@ -20,12 +20,18 @@ export class MatchCardPrinterService {
     this.indicatorSubject$.next(loading);
   }
 
-  public download(matchCardId: number) {
-    // this.setLoading(true);
-    console.log('downloading match card id', matchCardId);
-    const downloadAs = `matchcard_${matchCardId}.pdf`;
-    const fullUrl = `https://${environment.baseServer}/api/matchcard/download/${matchCardId}`;
+  public download(tournamentId: number, eventId: number, matchCardIds: number[]) {
+    console.log('downloading match cards for ', matchCardIds);
+    const firstMatchCardId = (matchCardIds.length === 1) ? matchCardIds[0] : 0;
+    const downloadAs = (eventId != null && matchCardIds.length > 1)
+      ? `matchcard_${tournamentId}_${eventId}.pdf`
+      : `matchcard_${firstMatchCardId}.pdf`;
+    console.log('downloadAs', downloadAs);
+    const fullUrl = `https://${environment.baseServer}/api/matchcard/download`;
     this.httpClient.get(fullUrl, {
+      params: {
+        matchCardIds: matchCardIds
+      },
       responseType: 'blob'
     }).subscribe((blob: any) => {
       const a = document.createElement('a');
@@ -34,7 +40,6 @@ export class MatchCardPrinterService {
       a.download = downloadAs;
       a.click();
       URL.revokeObjectURL(objectUrl);
-      // this.setLoading(false);
     });
   }
 }

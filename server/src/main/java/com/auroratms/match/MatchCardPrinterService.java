@@ -2,6 +2,7 @@ package com.auroratms.match;
 
 import com.auroratms.event.TournamentEventEntity;
 import com.auroratms.event.TournamentEventEntityService;
+import com.auroratms.match.exception.MatchCardPrinterException;
 import com.auroratms.tournament.Tournament;
 import com.auroratms.tournament.TournamentService;
 import com.itextpdf.io.font.constants.StandardFonts;
@@ -12,6 +13,7 @@ import com.itextpdf.kernel.font.PdfFontFactory;
 import com.itextpdf.kernel.geom.Rectangle;
 import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfPage;
+import com.itextpdf.kernel.pdf.PdfReader;
 import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.layout.Document;
 import com.itextpdf.layout.borders.SolidBorder;
@@ -24,15 +26,14 @@ import com.itextpdf.layout.property.TextAlignment;
 import com.itextpdf.layout.property.UnitValue;
 import com.itextpdf.layout.property.VerticalAlignment;
 import org.apache.commons.lang3.StringUtils;
-//import org.dom4j.DocumentException;
 import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -89,13 +90,61 @@ public class MatchCardPrinterService {
             document.close();
 //        } catch (DocumentException e) {
 //            e.printStackTrace();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new MatchCardPrinterException("Error creating match card PDf for match card " + matchCardId, e);
         }
 
         return matchCardFilename;
+    }
+
+    /**
+     * Prints multiple documents into one PDF file
+     * @param matchCardIds
+     * @return
+     */
+    public String getMultipleMatchCardsAsPDF(List<Long> matchCardIds) {
+        try {
+            long firstMatchCard = 0;
+            List<String> matchCardFileNames = new ArrayList<>(matchCardIds.size());
+            for (Long matchCardId : matchCardIds) {
+                String matchCardAsPDF = this.getMatchCardAsPDF(matchCardId);
+                matchCardFileNames.add(matchCardAsPDF);
+                if (firstMatchCard == 0) {
+                    firstMatchCard = matchCardId;
+                }
+            }
+
+            MatchCard matchCard = matchCardService.getMatchCardWithPlayerProfiles(firstMatchCard);
+            long eventFk = matchCard.getEventFk();
+
+            TournamentEventEntity event = tournamentEventEntityService.get(eventFk);
+            long tournamentId = event.getTournamentFk();
+
+            //Initialize PDF writer
+            String tempDir = System.getenv("TEMP");
+            tempDir = (StringUtils.isEmpty(tempDir)) ? System.getenv("TMP") : tempDir;
+            File mergedMatchCardFile = new File(tempDir + File.separator + "event-match-card-" + tournamentId + "-" + eventFk + ".pdf");
+            String mergedFilename = mergedMatchCardFile.getAbsolutePath();
+
+            PdfWriter writer = new PdfWriter(mergedMatchCardFile);
+
+            PdfDocument mergedPdfDocument = new PdfDocument(writer);
+            Document mergedDocument = new Document(mergedPdfDocument);
+            for (String matchCardFileName : matchCardFileNames) {
+                File matchCardFile = new File(matchCardFileName);
+                PdfReader reader = new PdfReader(matchCardFile);
+                PdfDocument pdfDocument = new PdfDocument(reader);
+                int numberOfPages = pdfDocument.getNumberOfPages();
+                pdfDocument.copyPagesTo(1, numberOfPages, mergedPdfDocument);
+                reader.close();
+                pdfDocument.close();
+                matchCardFile.delete();
+            }
+            mergedDocument.close();
+            return mergedFilename;
+        } catch (IOException e) {
+            throw new MatchCardPrinterException("Error merging files", e);
+        }
     }
 
     /**
@@ -104,7 +153,6 @@ public class MatchCardPrinterService {
      * @param matchCard
      * @param tournament
      * @param event
-     * @throws DocumentException
      * @throws IOException
      */
     private void generateContent(Document document, MatchCard matchCard, Tournament tournament, TournamentEventEntity event) throws IOException {
@@ -393,4 +441,6 @@ public class MatchCardPrinterService {
             table.addCell(gameScoreCell);
         }
     }
+
+
 }

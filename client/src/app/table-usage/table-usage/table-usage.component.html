@@ -9,9 +9,11 @@
   <span class="toolbar-spacer-2"></span>
   <button type="button" mat-raised-button (click)="onStartEventMatches()" [disabled]="selectedEventId === 0">Start Event RR Matches</button>
   <span class="toolbar-spacer-2"></span>
-  <button type="button" mat-raised-button (click)="onStartSelectedMatch()" [disabled]="this.selectedMatchCardIds?.length === 0">Start Selected Match</button>
+  <button type="button" mat-raised-button (click)="onPrintEventMatchCards()" [disabled]="selectedEventId === 0">Print RR Match Cards</button>
   <span class="toolbar-spacer-2"></span>
-  <button type="button" mat-raised-button (click)="onPrintEventMatchCards()" [disabled]="selectedMatchCardIds?.length === 0">Print RR Match Cards</button>
+  <button type="button" mat-raised-button (click)="onStartSelectedMatch()" [disabled]="this.selectedMatchCardIds?.length === 0">Start Match</button>
+  <span class="toolbar-spacer-2"></span>
+  <button type="button" mat-raised-button (click)="onPrintSelectedMatch()" [disabled]="this.selectedMatchCardIds?.length === 0">Print Match Card</button>
 </mat-toolbar>
 <div fxLayout="row" class="table-usage">
   <div fxFlex="20%" class="matches-list">
