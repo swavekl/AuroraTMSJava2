@@ -8,7 +8,7 @@ import {Router} from '@angular/router';
 @Injectable()
 export class AuthInterceptor implements HttpInterceptor {
 
-  // quet login is when we try to get new access token using refresh token
+  // quiet login is when we try to get new access token using refresh token
   private quiteLoginInProgress = false;
 
   // signal that we got new access token

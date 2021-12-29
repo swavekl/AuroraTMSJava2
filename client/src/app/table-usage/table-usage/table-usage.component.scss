@@ -1,14 +1,16 @@
 @import "~src/my-theme.scss";
 
 .table-usage {
-  //border: 1px solid green;
   height: calc(100vh - 136px);
 }
 
 .matches-list {
   width: 150px;
-  //border: 1px solid red;
   overflow: scroll;
+}
+
+.match-info-line2 {
+  font-size: 16px !important;
 }
 
 .not-selected {
@@ -23,9 +25,7 @@ mat-list-item:hover {
   background-color: lighten($primary-color, 40%);
 }
 
-
 .tables-grid {
-  //border: 1px solid blue;
   overflow-y: scroll;
   overflow-x: hidden;
 }
@@ -39,17 +39,17 @@ $border-color: black;
 $font-size: 14px;
 
 .table-free {
-  background-color: #87CEFAFF;
+  background-color: $table-color;
 }
 
 .table-in-use {
-  background-color: $accent-color;
+  background-color: lighten($primary-color, 30%);
 }
 
 .table-top {
   width: $table-width;
   height: $table-height;
-  margin: $margin-thickness $margin-thickness 0 $margin-thickness;
+  margin: $margin-thickness 0 0 0;
   border-width: $border-thickness $border-thickness 0 $border-thickness;
   border-color: $border-color;
   border-style: solid;
@@ -65,12 +65,15 @@ $font-size: 14px;
   border: 1px solid black;
   width: $table-width + 10px;
   height: 1px;
+  position: absolute;
+  top: $table-height + $margin-thickness + $border-thickness + 10;
+  left: -$margin-thickness;
 }
 
 .table-bottom {
   width: $table-width;
   height: $table-height;
-  margin: 0 $margin-thickness $margin-thickness $margin-thickness;
+  margin: 0 0 $margin-thickness 0;
   border-width: 0 $border-thickness $border-thickness $border-thickness;
   border-color: $border-color;
   border-style: solid;
@@ -93,8 +96,35 @@ $font-size: 14px;
 }
 
 .table-container {
-  padding: 20px;
+  padding: 10px 0;
   text-align: center;
+  position: relative;
+}
+
+.selected-table-container {
+  padding: 10px 0;
+  text-align: center;
+  position: relative;
+}
+
+.selected-table-number {
+  background-color: $accent-color;
+}
+
+$link-width: 24px;
+$link-height: 30px;
+
+.table-link {
+  height: $link-height;
+  width: $link-width;
+  flex-direction: column;
+  align-self: flex-end;
+  margin-bottom: 30px;
+}
+
+.table-no-link {
+  height: $link-height;
+  width: $link-width;
 }
 
 .toolbar-spacer-2 {

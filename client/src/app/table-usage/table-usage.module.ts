@@ -14,6 +14,8 @@ import {TableUsageComponent} from './table-usage/table-usage.component';
 import {TableUsageContainerComponent} from './table-usage/table-usage-container.component';
 import {TableUsageDataService} from './service/table-usage-data.service';
 import {TableUsageService} from './service/table-usage.service';
+import {MatIconModule} from '@angular/material/icon';
+import {SharedModule} from '../shared/shared.module';
 
 
 @NgModule({
@@ -30,7 +32,9 @@ import {TableUsageService} from './service/table-usage.service';
     MatToolbarModule,
     MatSelectModule,
     FormsModule,
-    MatButtonModule
+    MatButtonModule,
+    MatIconModule,
+    SharedModule
   ]
 })
 export class TableUsageModule {

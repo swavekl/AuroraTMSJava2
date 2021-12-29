@@ -189,6 +189,13 @@ export class TableUsageContainerComponent implements OnInit, OnDestroy {
           // console.log('CONTAINER match filtering completed ---------------');
         }
 
+        // sort them by starting time
+        matchesToPlayInfos.sort((matchInfo1: MatchInfo, matchInfo2: MatchInfo) => {
+          return (matchInfo1.matchCard.startTime === matchInfo2.matchCard.startTime)
+            ? 0
+            : ((matchInfo1.matchCard.startTime > matchInfo2.matchCard.startTime) ? 1 : -1);
+        });
+
         return matchesToPlayInfos;
       });
   }

@@ -14,6 +14,8 @@
   <button type="button" mat-raised-button (click)="onStartSelectedMatch()" [disabled]="this.selectedMatchCardIds?.length === 0">Start Match</button>
   <span class="toolbar-spacer-2"></span>
   <button type="button" mat-raised-button (click)="onPrintSelectedMatch()" [disabled]="this.selectedMatchCardIds?.length === 0">Print Match Card</button>
+  <span class="toolbar-spacer-2"></span>
+  <button type="button" mat-raised-button (click)="onStopMatch()" [disabled]="this.selectedMatchCardIds?.length === 0">Stop Match</button>
 </mat-toolbar>
 <div fxLayout="row" class="table-usage">
   <div fxFlex="20%" class="matches-list">
@@ -21,29 +23,42 @@
       <mat-list-item *ngFor="let matchInfo of matchesToPlayInfos" (click)="onSelectMatchCard(matchInfo.matchCard)"
                      [matTooltip]="getTooltipText(matchInfo)"
                      [ngClass]="isSelectedMatchCard (matchInfo.matchCard) ? 'selected' : 'not-selected'">
-        {{getMatchIdentifierText(matchInfo.matchCard.id)}}
+        <h3 mat-line>{{getMatchIdentifierText(matchInfo.matchCard.id)}}</h3>
+        <h4 mat-line class="match-info-line2">{{getMatchTables(matchInfo.matchCard.assignedTables)}}, Time: {{matchInfo.matchCard.startTime | startTime}} </h4>
+        <mat-icon mat-list-icon>info</mat-icon>
+        <mat-divider></mat-divider>
       </mat-list-item>
     </mat-list>
   </div>
   <div fxFlex="80%" class="tables-grid" fxLayout="row wrap" fxLayoutAlign="start start" *ngIf="tableUsageList">
     <div *ngFor="let tableUsage of tableUsageList">
-      <div class="table-container" >
-        <div class="table-top" [ngClass]="tableUsage.tableStatus === 'Free' ? 'table-free': 'table-in-use'"
-             [matTooltip]="getTableTooltip(tableUsage)" matTooltipPosition="below"
-             matTooltipClass="match-identifier-tooltip"
-        >
-          <div>{{ getTableTooltip(tableUsage) }}</div>
+      <div fxLayout="row" fxLayoutAlign="start center">
+        <div [ngClass]="isLinkedOnLeft(tableUsage) ? 'table-link' : 'table-no-link'">
+          <mat-icon *ngIf="isLinkedOnLeft(tableUsage)">east</mat-icon>
         </div>
-        <div class="table-net"></div>
-        <div class="table-bottom" [ngClass]="tableUsage.tableStatus === 'Free' ? 'table-free': 'table-in-use'">
-          <div>
-            {{ getPercentComplete (tableUsage) }}
+        <div [ngClass]="isTableSelected(tableUsage) ? 'selected-table-container' : 'table-container'" (click)="selectUsedTable(tableUsage)">
+          <div class="table-top" [ngClass]="tableUsage.tableStatus === 'Free' ? 'table-free': 'table-in-use'"
+               [matTooltip]="getTableTooltip(tableUsage)" matTooltipPosition="below"
+               matTooltipClass="match-identifier-tooltip"
+          >
+            <div>{{ getTableTooltip(tableUsage) }}</div>
           </div>
-          <div [ngClass]="exceededAllottedTime(tableUsage) ? 'table-time-exceeded': ''">
-            {{ getRunningTime( tableUsage )}}
+          <div class="table-net"></div>
+          <div class="table-bottom" [ngClass]="tableUsage.tableStatus === 'Free' ? 'table-free': 'table-in-use'">
+            <div>
+              {{ getPercentComplete (tableUsage) }}
+            </div>
+            <div [ngClass]="exceededAllottedTime(tableUsage) ? 'table-time-exceeded': ''">
+              {{ getRunningTime( tableUsage )}}
+            </div>
+          </div>
+          <div [class]="isTableSelected(tableUsage) ? 'selected-table-number': ''">
+            {{tableUsage.tableNumber}}
           </div>
         </div>
-        {{tableUsage.tableNumber}}
+        <div [ngClass]="isLinkedOnRight(tableUsage) ? 'table-link' : 'table-no-link'">
+          <mat-icon *ngIf="isLinkedOnRight(tableUsage)">west</mat-icon>
+        </div>
       </div>
     </div>
   </div>

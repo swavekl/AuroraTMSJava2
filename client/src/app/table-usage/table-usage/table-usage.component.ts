@@ -262,6 +262,100 @@ export class TableUsageComponent implements OnInit, OnChanges {
     }
     return exceeds;
   }
+
+  onStopMatch() {
+    if (this.selectedMatchCardIds?.length === 1) {
+      const matchCardId = this.selectedMatchCardIds[0];
+      const updatedTableUsages = [];
+      for (let t = 0; t < this.tableUsageList.length; t++) {
+        const tableUsage = this.tableUsageList[t];
+        if (tableUsage.matchCardFk === matchCardId) {
+          tableUsage.tableStatus = TableStatus.Free;
+          tableUsage.matchStartTime = null;
+          tableUsage.matchCardFk = 0;
+          updatedTableUsages.push(tableUsage);
+        }
+      }
+      if (updatedTableUsages.length > 0) {
+        this.startMatches.emit(updatedTableUsages);
+      }
+    }
+  }
+
+  selectUsedTable(tableUsage: TableUsage) {
+    const matchCardFk = tableUsage.matchCardFk;
+    if (matchCardFk !== 0) {
+      this.selectedMatchCardIds = [matchCardFk];
+    } else {
+      this.selectedMatchCardIds = [];
+    }
+  }
+
+  isTableSelected(tableUsage: TableUsage) {
+    const matchCardFk = tableUsage.matchCardFk;
+    if (matchCardFk !== 0) {
+      return this.selectedMatchCardIds?.indexOf(matchCardFk) !== -1;
+    } else {
+      return false;
+    }
+  }
+
+  getMatchTables(assignedTables: string) {
+    const oneTable: boolean = (assignedTables.indexOf(',') === -1);
+    return (oneTable) ? `Table: ${assignedTables}` : `Tables: ${assignedTables}`;
+  }
+
+  isLinkedOnLeft(tableUsage: TableUsage): boolean {
+    let isOnLeft = false;
+    const assignedTables = this.getAssignedTables(tableUsage);
+    if (assignedTables != null && assignedTables.length > 1) {
+      for (let i = 0; i < assignedTables.length; i++) {
+        const assignedTable = assignedTables[i];
+        if (tableUsage.tableNumber === assignedTable) {
+          // is it a subsequent table in the list?
+          isOnLeft = (i > 0);
+        }
+      }
+    }
+    return isOnLeft;
+  }
+
+  isLinkedOnRight(tableUsage: TableUsage): boolean {
+    let isOnRight = false;
+    const assignedTables = this.getAssignedTables(tableUsage);
+    if (assignedTables != null && assignedTables.length > 1) {
+      for (let i = 0; i < assignedTables.length; i++) {
+        const assignedTable = assignedTables[i];
+        if (tableUsage.tableNumber === assignedTable) {
+          // is it any but last one in the list
+          isOnRight = (i < (assignedTables.length - 1));
+        }
+      }
+    }
+    return isOnRight;
+  }
+
+  private getAssignedTables(tableUsage: TableUsage): number[] {
+    let assignedTables = null;
+    if (tableUsage.tableStatus === TableStatus.InUse) {
+      if (this.allTodaysMatchCards) {
+        for (let i = 0; i < this.allTodaysMatchCards.length; i++) {
+          const matchCard = this.allTodaysMatchCards[i];
+          if (matchCard.id === tableUsage.matchCardFk) {
+            const strAssignedTables = matchCard.assignedTables;
+            const strAssignedTablesArray = strAssignedTables.split(',');
+            assignedTables = [];
+            for (let j = 0; j < strAssignedTablesArray.length; j++) {
+              const assignedTableNumber = Number(strAssignedTablesArray[j]);
+              assignedTables.push(assignedTableNumber);
+            }
+            break;
+          }
+        }
+      }
+    }
+    return assignedTables;
+  }
 }
 
 export class MatchInfo {
