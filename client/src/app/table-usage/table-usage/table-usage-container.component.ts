@@ -1,5 +1,5 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
-import {combineLatest, Observable, Subscription} from 'rxjs';
+import {combineLatest, Observable, of, Subscription} from 'rxjs';
 import {first, map, tap} from 'rxjs/operators';
 import {TableUsage} from '../model/table-usage.model';
 import {LinearProgressBarService} from '../../shared/linear-progress-bar/linear-progress-bar.service';
@@ -121,14 +121,38 @@ export class TableUsageContainerComponent implements OnInit, OnDestroy {
    * @private
    */
   private loadEvents(tournamentId: number) {
-    this.tournamentEvents$ = this.tournamentEventConfigService.store.select(
+    // this selector will NOT be subscribed by template.
+    // It exists only to first check if the events were loaded already and if they were it will stop,
+    // if not it will initiate a load and then replace above observable with a new one.
+    const localTournamentEvents$ = this.tournamentEventConfigService.store.select(
       this.tournamentEventConfigService.selectors.selectEntities);
-      // .pipe(
-      //   tap((tournamentEvents: TournamentEvent[]) => {
-      //     console.log ('CONTAINER got tournamentEvents', tournamentEvents);
-      //   }));
-    // load them - they will surface via this selector
-    this.tournamentEventConfigService.loadTournamentEvents(this.tournamentId);
+    const subscription = localTournamentEvents$
+      .pipe(first())
+      .subscribe(
+        (events: TournamentEvent[]) => {
+          // check if has events for this tournament
+          let hasEvents = false;
+          if (events != null && events.length > 0) {
+            for (const event of events) {
+              if (event.tournamentFk === this.tournamentId) {
+                hasEvents = true;
+                break;
+              }
+            }
+          }
+          if (hasEvents) {
+            this.tournamentEvents$ = of(events);
+          } else {
+            // don't have event configs cached - load them - again template is subscribed to this
+            this.tournamentEvents$ = this.tournamentEventConfigService.loadTournamentEvents(this.tournamentId);
+          }
+        },
+        (error: any) => {
+          console.log('error loading tournament events ' + JSON.stringify(error));
+        }
+      );
+
+    this.subscriptions.add(subscription);
   }
 
   /**
