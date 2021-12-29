@@ -31,13 +31,17 @@ public class MatchCardPrinterController {
     private MatchCardPrinterService matchCardPrinterService;
 
     @GetMapping("/matchcard/download")
-    public ResponseEntity<Resource> download(@RequestParam List<Long> matchCardIds) {
+    public ResponseEntity<Resource> download(@RequestParam List<Long> matchCardIds,
+                                             @RequestParam Boolean base64) {
         try {
             String filename = (matchCardIds.size() == 1)
                     ? matchCardPrinterService.getMatchCardAsPDF(matchCardIds.get(0))
                     : matchCardPrinterService.getMultipleMatchCardsAsPDF(matchCardIds);
-            // convert to base64 so printJS library can accept it
-            convertToBase64(filename);
+            boolean bConvertToBase64 = Boolean.TRUE.equals(base64);
+            if (bConvertToBase64) {
+                // convert to base64 so printJS library can accept it
+                convertToBase64(filename);
+            }
             File file = new File(filename);
             FileInputStream fileInputStream = new FileInputStream(file);
             InputStreamResource resource = new InputStreamResource(fileInputStream);
@@ -47,10 +51,12 @@ public class MatchCardPrinterController {
             httpHeaders.add("Cache-Control", "no-cache, no-store, must-revalidate");
             httpHeaders.add("Pragma", "no-cache");
             httpHeaders.add("Expires", "0");
+            MediaType mediaType = (bConvertToBase64)
+                    ? MediaType.APPLICATION_OCTET_STREAM : MediaType.APPLICATION_PDF;
             return ResponseEntity.ok()
                     .headers(httpHeaders)
                     .contentLength(length)
-                    .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                    .contentType(mediaType)
                     .body(resource);
         } catch (Exception e) {
             log.error("Unable to read file from repository", e);

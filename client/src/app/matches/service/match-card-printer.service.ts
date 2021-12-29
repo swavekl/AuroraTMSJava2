@@ -44,23 +44,37 @@ export class MatchCardPrinterService implements OnDestroy {
     const downloadAs = (eventId != null && matchCardIds.length > 1)
       ? `matchcard_${tournamentId}_${eventId}.pdf`
       : `matchcard_${firstMatchCardId}.pdf`;
-    const params = '?matchCardIds=' + matchCardIds.join(',');
+    let params = '?matchCardIds=' + matchCardIds.join(',');
+    const downloadAsBase64 = true;
+    params += `&base64=${downloadAsBase64}`;
     const pdfUrl = `https://${environment.baseServer}/api/matchcard/download` + params;
     this.download$ = this.downloadService.download(pdfUrl, downloadAs);
     const subscription = this.download$.subscribe(
       (downloadStatus: Download) => {
         if (downloadStatus.state === 'DONE') {
           this.setLoading(false);
-          downloadStatus.content.text().then(base64 => {
+          subscription.unsubscribe();
+
+          const showBrowserPrintDialog = function (base64: any) {
             printJS({
               type: 'pdf',
               base64: true,
               printable: base64,
               onPrintDialogClose: function () {
-                subscription.unsubscribe();
+                console.log('after print dialog close');
               }
             });
-          });
+          };
+          if (downloadAsBase64) {
+            // convert to base64 on the server
+            downloadStatus.content.text().then(base64 => {
+              // console.log ('base64  is: ', base64);
+              showBrowserPrintDialog(base64);
+            });
+          } else {
+            // convert to base 64 on the client
+            this.convertToBase64AndPrint(downloadStatus, showBrowserPrintDialog);
+          }
         }
       });
     this.subscriptions.add(subscription);
@@ -68,5 +82,30 @@ export class MatchCardPrinterService implements OnDestroy {
 
   ngOnDestroy() {
     this.subscriptions.unsubscribe();
+  }
+
+  /**
+   * Converts the PDF stream to base64 string and starts print dialog
+   *
+   * @param download download result
+   * @param showBrowserPrintDialog
+   * @private
+   */
+  private convertToBase64AndPrint(download: Download,
+                                  showBrowserPrintDialog: (base64: any) => void) {
+    // Define the FileReader which is able to read the contents of Blob
+    const reader = new FileReader();
+
+    // The magic always begins after the Blob is successfully loaded
+    reader.onload = function (fileLoadedEvent) {
+      // Since it contains the Data URI, we should remove the prefix and keep only Base64 string
+      const base64WithHeader = fileLoadedEvent.target.result;
+      const base64Trimmed = base64WithHeader.slice('data:application/pdf;base64,'.length);
+      // console.log ('base64', base64Trimmed);
+      showBrowserPrintDialog(base64Trimmed);
+    };
+
+    // Since everything is set up, let’s read the Blob and store the result as Data URI
+    reader.readAsDataURL(download.content);
   }
 }
