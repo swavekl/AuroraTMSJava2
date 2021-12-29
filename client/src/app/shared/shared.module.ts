@@ -24,6 +24,7 @@ import {RoundNamePipe} from './pipes/round-name.pipe';
 import {UploadButtonComponent} from './upload-button/upload-button.component';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 import {DownloadButtonComponent} from './download-file/download-button.component';
+import {getSaver, SAVER} from './download-service/saver.provider';
 
 
 @NgModule({
@@ -72,7 +73,8 @@ import {DownloadButtonComponent} from './download-file/download-button.component
     MatProgressSpinnerModule
   ],
   providers: [
-    LocalStorageService
+    LocalStorageService,
+    {provide: SAVER, useFactory: getSaver}
   ]
 })
 export class SharedModule {

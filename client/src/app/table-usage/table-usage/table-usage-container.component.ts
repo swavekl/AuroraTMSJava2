@@ -66,8 +66,9 @@ export class TableUsageContainerComponent implements OnInit, OnDestroy {
       this.tableUsageService.store.select(this.tableUsageService.selectors.selectLoading),
       this.tournamentEventConfigService.store.select(this.tournamentEventConfigService.selectors.selectLoading),
       this.matchCardService.store.select(this.matchCardService.selectors.selectLoading),
-      (tournamentsLoading: boolean, tableUsageLoading: boolean, eventConfigsLoading: boolean, matchCardsLoading: boolean) => {
-        return tournamentsLoading || tableUsageLoading || eventConfigsLoading || matchCardsLoading;
+      this.matchCardPrinterService.loading$,
+      (tournamentsLoading: boolean, tableUsageLoading: boolean, eventConfigsLoading: boolean, matchCardsLoading: boolean, matchCardPrinting: boolean) => {
+        return tournamentsLoading || tableUsageLoading || eventConfigsLoading || matchCardsLoading || matchCardPrinting;
       }
     );
 
@@ -192,13 +193,21 @@ export class TableUsageContainerComponent implements OnInit, OnDestroy {
       });
   }
 
+  /**
+   * Print selected match cards
+   * @param printInfo
+   */
   public onPrintMatchCards(printInfo: any) {
     const matchCardIds: number [] = printInfo.matchCardIds;
     const eventId = printInfo.eventId;
     const tournamentId = this.tournamentId;
-    this.matchCardPrinterService.download(tournamentId, eventId, matchCardIds);
+    this.matchCardPrinterService.downloadAndPrint(tournamentId, eventId, matchCardIds);
   }
 
+  /**
+   * Start selected matches on tables
+   * @param tableUsages
+   */
   onStartMatches(tableUsages: TableUsage[]) {
     this.tableUsageService.updateMany(tableUsages)
       .pipe(first())

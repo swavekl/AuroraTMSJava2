@@ -9,10 +9,12 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.io.File;
-import java.io.FileInputStream;
+import java.io.*;
 import java.util.List;
 
 /**
@@ -34,6 +36,8 @@ public class MatchCardPrinterController {
             String filename = (matchCardIds.size() == 1)
                     ? matchCardPrinterService.getMatchCardAsPDF(matchCardIds.get(0))
                     : matchCardPrinterService.getMultipleMatchCardsAsPDF(matchCardIds);
+            // convert to base64 so printJS library can accept it
+            convertToBase64(filename);
             File file = new File(filename);
             FileInputStream fileInputStream = new FileInputStream(file);
             InputStreamResource resource = new InputStreamResource(fileInputStream);
@@ -51,6 +55,28 @@ public class MatchCardPrinterController {
         } catch (Exception e) {
             log.error("Unable to read file from repository", e);
             return ResponseEntity.badRequest().build();
+        }
+    }
+
+    /**
+     * Converts pdf file into base64 encoded file
+     * @param filename
+     * @throws IOException
+     */
+    private void convertToBase64(String filename) throws IOException {
+        // rename the file
+        File original = new File(filename);
+        String renamedFilename = filename + ".b64";
+        File renamedFile = new File(renamedFilename);
+        boolean b = original.renameTo(renamedFile);
+        try (OutputStream os = java.util.Base64.getEncoder().wrap(new FileOutputStream(filename));
+             FileInputStream fis = new FileInputStream(renamedFilename)) {
+            byte[] bytes = new byte[1024];
+            int read;
+            while ((read = fis.read(bytes)) > -1) {
+                os.write(bytes, 0, read);
+            }
+            renamedFile.delete();
         }
     }
 }
