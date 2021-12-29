@@ -8,7 +8,7 @@ import {DownloadService} from '../../shared/download-service/download.service';
 import {Download} from '../../shared/download-service/download';
 
 /**
- * Service for downloading and priting individual match card or group of match cards for one event
+ * Service for downloading and printing individual match card or group of match cards for one event
  */
 @Injectable({
   providedIn: 'root'

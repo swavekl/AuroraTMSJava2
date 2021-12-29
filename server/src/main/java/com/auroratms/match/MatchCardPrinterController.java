@@ -46,8 +46,9 @@ public class MatchCardPrinterController {
             FileInputStream fileInputStream = new FileInputStream(file);
             InputStreamResource resource = new InputStreamResource(fileInputStream);
             long length = file.length();
+            String shortFilename = file.getName();
             HttpHeaders httpHeaders = new HttpHeaders();
-            httpHeaders.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"");
+            httpHeaders.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + shortFilename + "\"; filename*=\""+ shortFilename + "\"");
             httpHeaders.add("Cache-Control", "no-cache, no-store, must-revalidate");
             httpHeaders.add("Pragma", "no-cache");
             httpHeaders.add("Expires", "0");
