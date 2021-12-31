@@ -29,6 +29,9 @@ public class MatchCardService {
     private MatchCardRepository matchCardRepository;
 
     @Autowired
+    private MatchService matchService;
+
+    @Autowired
     private TournamentEventEntityService tournamentEventEntityService;
 
     @Autowired
@@ -120,6 +123,8 @@ public class MatchCardService {
                 MatchCard matchCard = new MatchCard();
                 matchCard.setEventFk(tournamentEventEntity.getId());
                 matchCard.setGroupNum(groupNumber);
+                matchCard.setPlayerAGroupNum(0);
+                matchCard.setPlayerBGroupNum(0);
                 matchCard.setDrawType(DrawType.ROUND_ROBIN);
                 matchCard.setRound(0);
                 matchCard.setDay(tournamentEventEntity.getDay());
@@ -189,6 +194,8 @@ public class MatchCardService {
             String playerBProfileId = playerBDrawItem.getPlayerId();
             int playerARating = playerADrawItem.getRating();
             int playerBRating = playerBDrawItem.getRating();
+            int playerAGroup = playerADrawItem.getGroupNum();
+            int playerBGroup = playerBDrawItem.getGroupNum();
 
             if (!StringUtils.isEmpty(playerAProfileId) && !StringUtils.isEmpty(playerBProfileId)) {
 
@@ -196,6 +203,8 @@ public class MatchCardService {
                 MatchCard matchCard = new MatchCard();
                 matchCard.setEventFk(tournamentEventEntity.getId());
                 matchCard.setGroupNum(matchNum + 1);
+                matchCard.setPlayerAGroupNum(playerAGroup);
+                matchCard.setPlayerBGroupNum(playerBGroup);
                 matchCard.setNumberOfGames(numberOfGames);
                 matchCard.setDrawType(DrawType.SINGLE_ELIMINATION);
                 matchCard.setRound(roundOf);
@@ -292,10 +301,14 @@ public class MatchCardService {
         String playerBProfileId = (advancedPlayerBDrawItem != null) ? advancedPlayerBDrawItem.getPlayerId() : DrawItem.TBD_PROFILE_ID;
         int playerARating = (advancedPlayerADrawItem != null) ? advancedPlayerADrawItem.getRating() : 0;
         int playerBRating = (advancedPlayerBDrawItem != null) ? advancedPlayerBDrawItem.getRating() : 0;
+        int playerAGroup = (advancedPlayerADrawItem != null) ? advancedPlayerADrawItem.getGroupNum() : 0;
+        int playerBGroup = (advancedPlayerBDrawItem != null) ? advancedPlayerBDrawItem.getGroupNum() : 0;
 
         MatchCard matchCard = new MatchCard();
         matchCard.setEventFk(tournamentEventEntity.getId());
         matchCard.setGroupNum(matchNum + 1);
+        matchCard.setPlayerAGroupNum(playerAGroup);
+        matchCard.setPlayerBGroupNum(playerBGroup);
         matchCard.setNumberOfGames(numberOfGames);
         matchCard.setDrawType(DrawType.SINGLE_ELIMINATION);
         matchCard.setRound(roundOf);
@@ -462,6 +475,65 @@ public class MatchCardService {
     public List<MatchCard> findAllForTournamentAndDay(long tournamentId, int day) {
         List<Long> eventIds = getEventIdsForTheDay(tournamentId);
         return this.matchCardRepository.findMatchCardByEventFkInAndDayOrderByEventFkAscStartTimeAsc(eventIds, day);
+    }
+
+    public void fillPlayerIdToNameMapForAllMatches (List<MatchCard> matchCards) {
+        Set<Long> eventsForMatchCards = new HashSet<>();
+        for (MatchCard matchCard : matchCards) {
+            eventsForMatchCards.add(matchCard.getEventFk());
+        }
+
+        // get all matches in one query for all match cards passed in
+        // otherwise Hibernate would execute a query to get matches for each match card separately
+        List<Match> allMatches = this.matchService.findAllByMatchCardIn(matchCards);
+//        long start2 = System.currentTimeMillis();
+        // optimize retrieval of profile id to player full names map by grouping match cards for each event together
+        for (Long eventFk : eventsForMatchCards) {
+            List<Match> matchesForThisEvent = new ArrayList<>();
+            // collect matches from all match cards for this event
+            for (MatchCard matchCard : matchCards) {
+                if (matchCard.getEventFk() == eventFk) {
+                    long matchCardId = matchCard.getId();
+                    for (Match match : allMatches) {
+                        if (match.getMatchCard().getId() == matchCardId) {
+                            matchesForThisEvent.add(match);
+                        }
+                    }
+                }
+            }
+            // produce the map for all matches from these matches
+            Map<String, String> profileIdToNameMapForEvent = buildProfileIdToNameMap(matchesForThisEvent);
+            // split the map by match card
+            for (MatchCard matchCard : matchCards) {
+                if (matchCard.getEventFk() == eventFk) {
+                    long matchCardId = matchCard.getId();
+                    // build profile to name map for all matches for this match card
+                    Map<String, String> profileIdNameMap = new HashMap<>();
+                    for (Match match : allMatches) {
+                        if (match.getMatchCard().getId() == matchCardId) {
+                            String playerAProfileId = match.getPlayerAProfileId();
+                            String playerBProfileId = match.getPlayerBProfileId();
+                            if (playerAProfileId != null && !playerAProfileId.equals(DrawItem.TBD_PROFILE_ID)) {
+                                String playerAFullName = profileIdToNameMapForEvent.get(playerAProfileId);
+                                if (playerAFullName != null) {
+                                    profileIdNameMap.put(playerAProfileId, playerAFullName);
+                                }
+                            }
+                            if (playerBProfileId != null && !playerBProfileId.equals(DrawItem.TBD_PROFILE_ID)) {
+                                String playerBFullName = profileIdToNameMapForEvent.get(playerBProfileId);
+                                if (playerBFullName != null) {
+                                    profileIdNameMap.put(playerBProfileId, playerBFullName);
+                                }
+                            }
+                        }
+                    }
+                    // save to match card
+                    matchCard.setProfileIdToNameMap(profileIdNameMap);
+                }
+            }
+        }
+//        long duration2 = System.currentTimeMillis() - start2;
+//        System.out.println("optimized duration2 = " + duration2);
     }
 
     public List<MatchCard> findAllForTournamentAndDayAndAssignedTable(long tournamentId, int day, int tableNumber) {

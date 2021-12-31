@@ -32,13 +32,17 @@ public class MatchCardController {
     @Transactional(readOnly = true)
     public ResponseEntity<List<MatchCard>> listMatchCards(@RequestParam(required = false) Long eventId,
                                                           @RequestParam(required = false) Long tournamentId,
-                                                          @RequestParam(required = false) Integer day) {
+                                                          @RequestParam(required = false) Integer day,
+                                                          @RequestParam(required = false) Boolean includePlayerNames) {
         try {
             List<MatchCard> matchCards = null;
             if (eventId != null) {
                 matchCards = matchCardService.findAllForEvent(eventId);
             } else if (tournamentId != null && day != null) {
                 matchCards = matchCardService.findAllForTournamentAndDay(tournamentId, day);
+                if (Boolean.TRUE.equals(includePlayerNames)) {
+                    matchCardService.fillPlayerIdToNameMapForAllMatches(matchCards);
+                }
             }
 //            for (MatchCard matchCard : matchCards) {
 //                matchCard.setMatches(null);

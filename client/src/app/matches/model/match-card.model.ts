@@ -11,6 +11,10 @@ export class MatchCard {
   // for single elimination phase it will be 0
   groupNum: number;
 
+  // for single elimination match cards this is the prior round (i.e. round robin) group number from which this player came
+  playerAGroupNum: number;
+  playerBGroupNum: number;
+
   // table numbers assigned to this match card could be one e.g. table number 4
   // or multiple if this is round robin phase 13,14
   assignedTables: string;

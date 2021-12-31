@@ -1,6 +1,6 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {combineLatest, Observable, of, Subscription} from 'rxjs';
-import {first, map, tap} from 'rxjs/operators';
+import {first, map} from 'rxjs/operators';
 import {TableUsage} from '../model/table-usage.model';
 import {LinearProgressBarService} from '../../shared/linear-progress-bar/linear-progress-bar.service';
 import {TableUsageService} from '../service/table-usage.service';
@@ -13,7 +13,8 @@ import {DateUtils} from '../../shared/date-utils';
 import {TournamentEventConfigService} from '../../tournament/tournament-config/tournament-event-config.service';
 import {TournamentEvent} from '../../tournament/tournament-config/tournament-event.model';
 import {MatchCardPrinterService} from '../../matches/service/match-card-printer.service';
-import {MatchInfo} from './table-usage.component';
+import {MatchCardPlayabilityStatus, MatchInfo} from '../model/match-info.model';
+import {MatchCardStatusUtil} from '../util/match-card-status-util';
 
 @Component({
   selector: 'app-table-usage-container',
@@ -165,7 +166,7 @@ export class TableUsageContainerComponent implements OnInit, OnDestroy {
     //   tap((matchCards) => {
     //     console.log('CONTAINER got match cards', matchCards);
     //   }));
-    this.matchCardService.loadAllForTheTournamentDay(this.tournamentId, this.tournamentDay);
+    this.matchCardService.loadAllForTheTournamentDay(this.tournamentId, this.tournamentDay, true);
   }
 
   /**
@@ -175,52 +176,7 @@ export class TableUsageContainerComponent implements OnInit, OnDestroy {
   private filterMatchCardsToPlay() {
     this.matchesToPlayInfos$ = combineLatest(this.tableUsageList$, this.matchCards$, this.tournamentEvents$,
       (tableUsageList: TableUsage[], matchCards: MatchCard[], tournamentEvents: TournamentEvent[]) => {
-        const matchesToPlayInfos: MatchInfo[] = [];
-        if (tableUsageList?.length > 0 && matchCards?.length > 0 && tournamentEvents?.length > 0) {
-          // console.log('CONTAINER got all 3 lists');
-          const filteredMatchCards: MatchCard [] = [];
-          for (const matchCard of matchCards) {
-            const matchCompleted = (matchCard.playerRankings != null);
-            let isPlayedCurrently = false;
-            for (let i = 0; i < tableUsageList.length; i++) {
-              const tableUsage = tableUsageList[i];
-              if (tableUsage.matchCardFk === matchCard.id) {
-                isPlayedCurrently = true;
-                // console.log('match is currently played ' + matchCard.id + ' event ' + matchCard.eventFk + ' drawType ' + matchCard.drawType);
-                break;
-              }
-            }
-            if (!matchCompleted && !isPlayedCurrently) {
-              filteredMatchCards.push(matchCard);
-              // console.log('match is available id ' + matchCard.id + ' event ' + matchCard.eventFk + ' drawType ' + matchCard.drawType);
-            } else if (matchCompleted) {
-              // console.log('match is completed id ' + matchCard.id + ' event ' + matchCard.eventFk + ' drawType ' + matchCard.drawType);
-            }
-          }
-
-          // now get the tournament events combined with match cards
-          for (const matchCard of filteredMatchCards) {
-            for (const event of tournamentEvents) {
-              if (matchCard.eventFk === event.id) {
-                const matchInfo: MatchInfo = {
-                  matchCard: matchCard,
-                  tournamentEvent: event
-                };
-                matchesToPlayInfos.push(matchInfo);
-              }
-            }
-          }
-          // console.log('CONTAINER match filtering completed ---------------');
-        }
-
-        // sort them by starting time
-        matchesToPlayInfos.sort((matchInfo1: MatchInfo, matchInfo2: MatchInfo) => {
-          return (matchInfo1.matchCard.startTime === matchInfo2.matchCard.startTime)
-            ? 0
-            : ((matchInfo1.matchCard.startTime > matchInfo2.matchCard.startTime) ? 1 : -1);
-        });
-
-        return matchesToPlayInfos;
+        return new MatchCardStatusUtil().generateMatchInfos(tableUsageList, matchCards, tournamentEvents);
       });
   }
 

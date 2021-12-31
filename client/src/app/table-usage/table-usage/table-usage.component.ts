@@ -6,6 +6,7 @@ import {DrawType} from '../../draws/model/draw-type.enum';
 import {Match} from '../../matches/model/match.model';
 import {TableStatus} from '../model/table-status';
 import {DateUtils} from '../../shared/date-utils';
+import {MatchInfo} from '../model/match-info.model';
 
 @Component({
   selector: 'app-table-usage',
@@ -301,8 +302,12 @@ export class TableUsageComponent implements OnInit, OnChanges {
   }
 
   getMatchTables(assignedTables: string) {
-    const oneTable: boolean = (assignedTables.indexOf(',') === -1);
-    return (oneTable) ? `Table: ${assignedTables}` : `Tables: ${assignedTables}`;
+    if (assignedTables != null) {
+      const oneTable: boolean = (assignedTables.indexOf(',') === -1);
+      return (oneTable) ? `Table: ${assignedTables}` : `Tables: ${assignedTables}`;
+    } else {
+      return 'Table: Not assigned';
+    }
   }
 
   isLinkedOnLeft(tableUsage: TableUsage): boolean {
@@ -358,7 +363,4 @@ export class TableUsageComponent implements OnInit, OnChanges {
   }
 }
 
-export class MatchInfo {
-  matchCard: MatchCard;
-  tournamentEvent: TournamentEvent;
-}
+

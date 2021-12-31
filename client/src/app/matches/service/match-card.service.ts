@@ -17,8 +17,9 @@ export class MatchCardService extends EntityCollectionServiceBase<MatchCard> {
     return super.getWithQuery(queryParams);
   }
 
-  public loadAllForTheTournamentDay(tournamentId: number, day: number) {
-    const queryParams = `tournamentId=${tournamentId}&day=${day}`;
+  public loadAllForTheTournamentDay(tournamentId: number, day: number, includePlayerNames?: boolean) {
+    let queryParams = `tournamentId=${tournamentId}&day=${day}`;
+    queryParams += (includePlayerNames) ? '&includePlayerNames=true' : '';
     super.clearCache();
     return super.getWithQuery(queryParams);
   }

@@ -10,4 +10,6 @@ import java.util.List;
 public interface MatchRepository extends JpaRepository<Match, Long> {
 
     List<Match> findAllByMatchCardOrderByMatchNum(MatchCard matchCard);
+
+    List<Match> findAllByMatchCardIn(List<MatchCard> matchCards);
 }

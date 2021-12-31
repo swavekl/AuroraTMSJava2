@@ -73,4 +73,8 @@ public class MatchService {
         example.setEventFk(eventId);
         return this.matchRepository.findAllByMatchCardOrderByMatchNum(example);
     }
+
+    public List<Match> findAllByMatchCardIn(List<MatchCard> matchCardList) {
+        return this.matchRepository.findAllByMatchCardIn(matchCardList);
+    }
 }

@@ -25,6 +25,7 @@
                      [ngClass]="isSelectedMatchCard (matchInfo.matchCard) ? 'selected' : 'not-selected'">
         <h3 mat-line>{{getMatchIdentifierText(matchInfo.matchCard.id)}}</h3>
         <h4 mat-line class="match-info-line2">{{getMatchTables(matchInfo.matchCard.assignedTables)}}, Time: {{matchInfo.matchCard.startTime | startTime}} </h4>
+        <h4 mat-line class="match-info-line2">Playability: {{matchInfo.matchCardPlayability}}</h4>
         <mat-icon mat-list-icon>info</mat-icon>
         <mat-divider></mat-divider>
       </mat-list-item>

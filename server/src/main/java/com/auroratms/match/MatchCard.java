@@ -26,6 +26,10 @@ public class MatchCard implements Serializable {
     // group number e.g. 1, 2, 3 etc.
     private int groupNum;
 
+    // for single elimination match cards this is the prior round (i.e. round robin) group number from which this player came
+    private int playerAGroupNum;
+    private int playerBGroupNum;
+
     // table numbers assigned to this match card could be one e.g. table number 4
     // or multiple if this is round robin phase 13,14
     @Column(length = 30)
