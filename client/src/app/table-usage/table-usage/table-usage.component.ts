@@ -38,6 +38,8 @@ export class TableUsageComponent implements OnInit, OnChanges {
 
   public selectedMatchCardIds: number [];
 
+  private TBD_PROFILE_ID = 'TBD';
+
   constructor() {
     this.selectedEventId = 0;
     this.selectedMatchCardIds = [];
@@ -84,8 +86,8 @@ export class TableUsageComponent implements OnInit, OnChanges {
       const matches: Match [] = matchCard.matches;
       if (matches && matchCard.profileIdToNameMap) {
         const theMatch = matches[0];
-        const playerAName = matchCard.profileIdToNameMap[theMatch.playerAProfileId];
-        const playerBName = matchCard.profileIdToNameMap[theMatch.playerBProfileId];
+        const playerAName = (theMatch.playerAProfileId !== this.TBD_PROFILE_ID) ? matchCard.profileIdToNameMap[theMatch.playerAProfileId] : this.TBD_PROFILE_ID;
+        const playerBName = (theMatch.playerBProfileId !== this.TBD_PROFILE_ID) ? matchCard.profileIdToNameMap[theMatch.playerBProfileId] : this.TBD_PROFILE_ID;
         tooltipText = `${playerAName} vs. ${playerBName}`;
       }
     }
