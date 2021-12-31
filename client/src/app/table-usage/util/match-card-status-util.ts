@@ -264,50 +264,19 @@ export class MatchCardStatusUtil {
         if (!matchCardPlayed) {
           // get 1 or 2 match cards feeding players into this match card
           const feedingMatchCards: MatchCard [] = this.findFeedingMatchCards(matchCards, matchInfo.matchCard);
+          const matchCard1CompletedOrBye = this.isMatchCompletedOrBye(feedingMatchCards, 0);
+          const matchCard2CompletedOrBye = this.isMatchCompletedOrBye(feedingMatchCards, 1);
+          const matchCard1PlayingPlayersProfileIds: string [] = this.findNumberOfPlayingPlayers(feedingMatchCards, 0);
+          const matchCard2PlayingPlayersProfileIds: string [] = this.findNumberOfPlayingPlayers(feedingMatchCards, 1);
+          const numMatchCard1PlayingPlayers = matchCard1PlayingPlayersProfileIds.length;
+          const numMatchCard2PlayingPlayers = matchCard2PlayingPlayersProfileIds.length;
 
-          const matchCard1Completed = (feedingMatchCards.length > 0) ? (feedingMatchCards[0].playerRankings != null) : false;
-          const matchCard2Completed = (feedingMatchCards.length > 1) ? (feedingMatchCards[1].playerRankings != null) : false;
-
-          let numPlayingPlayers1 = 0;
-          if (feedingMatchCards.length > 0) {
-            const profileIdToNameMap = feedingMatchCards[0].profileIdToNameMap;
-            if (profileIdToNameMap != null) {
-              const playerProfileIds = Object.keys(profileIdToNameMap);
-              if (playerProfileIds.length > 0) {
-                for (const playerProfileId of playerProfileIds) {
-                  const playerStatusInfo = this.findPlayerStatus(playerProfileId);
-                  if (playerStatusInfo != null && playerStatusInfo.status === PlayerStatus.Playing) {
-                    numPlayingPlayers1++;
-                    break;
-                  }
-                }
-              }
-            }
-          }
-
-          let numPlayingPlayers2 = 0;
-          if (feedingMatchCards.length > 1) {
-            const profileIdToNameMap = feedingMatchCards[1].profileIdToNameMap;
-            if (profileIdToNameMap != null) {
-              const playerProfileIds = Object.keys(profileIdToNameMap);
-              if (playerProfileIds.length > 0) {
-                for (const playerProfileId of playerProfileIds) {
-                  const playerStatusInfo = this.findPlayerStatus(playerProfileId);
-                  if (playerStatusInfo != null && playerStatusInfo.status === PlayerStatus.Playing) {
-                    numPlayingPlayers2++;
-                    break;
-                  }
-                }
-              }
-            }
-          }
-
-          if (matchCard1Completed && matchCard2Completed) {
-            if (numPlayingPlayers1 === 0 && numPlayingPlayers2 === 0) {
+          if (matchCard1CompletedOrBye && matchCard2CompletedOrBye) {
+            if (numMatchCard1PlayingPlayers === 0 && numMatchCard2PlayingPlayers === 0) {
               matchInfo.matchCardPlayability = MatchCardPlayabilityStatus.ReadyToPlay;
-            } else if (numPlayingPlayers1 > 0 && numPlayingPlayers2 > 0) {
+            } else if (numMatchCard1PlayingPlayers > 0 && numMatchCard2PlayingPlayers > 0) {
               matchInfo.matchCardPlayability = MatchCardPlayabilityStatus.WaitingForBothWinners;
-            } else if (numPlayingPlayers1 > 0) {
+            } else if (numMatchCard1PlayingPlayers > 0) {
               // determine name of player
               matchInfo.matchCardPlayability = MatchCardPlayabilityStatus.WaitingForPlayer;
             } else {
@@ -324,12 +293,38 @@ export class MatchCardStatusUtil {
   }
 
   /**
+   * Finds players who are in this feeding match card who are playing somewhere
+   * @param feedingMatchCards
+   * @param index
+   * @private
+   */
+  private findNumberOfPlayingPlayers(feedingMatchCards: MatchCard[], index: number): string [] {
+    const playingPlayersProfileIds: string [] = [];
+    if (feedingMatchCards.length > index) {
+      const profileIdToNameMap = feedingMatchCards[index].profileIdToNameMap;
+      if (profileIdToNameMap != null) {
+        const playerProfileIds = Object.keys(profileIdToNameMap);
+        if (playerProfileIds.length > 0) {
+          for (const playerProfileId of playerProfileIds) {
+            const playerStatusInfo = this.findPlayerStatus(playerProfileId);
+            if (playerStatusInfo != null && playerStatusInfo.status === PlayerStatus.Playing) {
+              playingPlayersProfileIds.push(playerProfileId);
+              break;
+            }
+          }
+        }
+      }
+    }
+    return playingPlayersProfileIds;
+  }
+
+  /**
    *
    * @param matchCards
    * @param targetMatchCard
    * @private
    */
-  private findFeedingMatchCards(matchCards: MatchCard[], targetMatchCard: MatchCard) {
+  private findFeedingMatchCards(matchCards: MatchCard[], targetMatchCard: MatchCard): MatchCard[] {
     // get this event match cards
     const thisEventMatchCards = matchCards.filter((matchCard) => matchCard.eventFk === targetMatchCard.eventFk);
     // find first round number after RR
@@ -337,21 +332,78 @@ export class MatchCardStatusUtil {
     thisEventMatchCards.forEach(matchCard => firstRoundNum = Math.max(firstRoundNum, matchCard.round));
     const feedingDrawType: DrawType = (targetMatchCard.round === firstRoundNum) ? DrawType.ROUND_ROBIN : DrawType.SINGLE_ELIMINATION;
 
+    let feedingMatchCards: MatchCard[] = [];
     if (feedingDrawType === DrawType.SINGLE_ELIMINATION) {
+      // find match cards in the prior round to this round
+      const roundToFind = targetMatchCard.round * 2;
+      // group numbers are in this range
       const maxSourceGroupNum = Math.pow(2, targetMatchCard.groupNum);
-      const minSourceGroupNum = maxSourceGroupNum - 2;
-      return thisEventMatchCards.filter(matchCard => {
-        return matchCard.drawType === feedingDrawType &&
-          matchCard.groupNum > minSourceGroupNum && matchCard.groupNum <= maxSourceGroupNum;
+      const minSourceGroupNum = maxSourceGroupNum - 1;
+      // console.log('roundToFind', roundToFind);
+      // console.log(`groupNum range ${minSourceGroupNum} - ${maxSourceGroupNum} for targetGroupNum ${targetMatchCard.groupNum}`);
+      feedingMatchCards = thisEventMatchCards.filter(matchCard => {
+        return matchCard.drawType === feedingDrawType && matchCard.round === roundToFind &&
+          (matchCard.groupNum === minSourceGroupNum || matchCard.groupNum === maxSourceGroupNum);
       });
     } else {
       const playerAGroupNum: number = targetMatchCard.playerAGroupNum;
       const playerBGroupNum: number = targetMatchCard.playerBGroupNum;
-      return thisEventMatchCards.filter(matchCard => {
+      feedingMatchCards = thisEventMatchCards.filter(matchCard => {
         return matchCard.drawType === feedingDrawType &&
           (matchCard.groupNum === playerAGroupNum || matchCard.groupNum === playerBGroupNum);
       });
     }
+    // console.log(`feedingMatchCards for ev, rd, tbl: s ${targetMatchCard.eventFk}, ${targetMatchCard.round}, ${targetMatchCard.assignedTables}`, feedingMatchCards);
+    return feedingMatchCards;
+  }
+
+  /**
+   *
+   * @param feedingMatchCards
+   * @param matchIndex
+   * @private
+   */
+  private isMatchCompletedOrBye(feedingMatchCards: MatchCard[], matchIndex: number): boolean {
+    let isCompletedMatch = false;
+    let isBye = false;
+    if (feedingMatchCards.length === 1) {
+      const matchCard = feedingMatchCards[0];
+      if (matchIndex === 0) {
+        // group num must be odd if this is a match feeding player A, without a bye
+        isBye = !(matchCard.groupNum % 2 > 0);
+      } else {
+        // group num must be even if this is match feeding player B, without a bye
+        isBye = !(matchCard.groupNum % 2 === 0);
+      }
+    }
+
+    if (isBye) {
+      isCompletedMatch = true;
+    } else {
+      let playerRankings = null;
+      if (feedingMatchCards.length === 2) {
+        const matchCard = feedingMatchCards[matchIndex];
+        playerRankings = matchCard.playerRankings;
+      } else if (feedingMatchCards.length === 1) {
+        const matchCard = feedingMatchCards[0];
+        const groupNumIsOdd = matchCard.groupNum % 2 > 0;
+        // is match for requested group
+        if (matchIndex === 0) {
+          // get player rankings for odd group number
+          if (groupNumIsOdd) {
+            playerRankings = matchCard.playerRankings;
+          }
+        } else {
+          // get player rankings for even group number
+          if (!groupNumIsOdd) {
+            playerRankings = matchCard.playerRankings;
+          }
+        }
+      }
+      isCompletedMatch = (playerRankings != null);
+    }
+
+    return isCompletedMatch;
   }
 }
 

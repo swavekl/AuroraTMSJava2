@@ -6,7 +6,8 @@ import {DrawType} from '../../draws/model/draw-type.enum';
 import {Match} from '../../matches/model/match.model';
 import {TableStatus} from '../model/table-status';
 import {DateUtils} from '../../shared/date-utils';
-import {MatchInfo} from '../model/match-info.model';
+import {MatchCardPlayabilityStatus, MatchInfo} from '../model/match-info.model';
+import {MatchCardStatusPipe} from '../pipes/match-card-status.pipe';
 
 @Component({
   selector: 'app-table-usage',
@@ -39,6 +40,8 @@ export class TableUsageComponent implements OnInit, OnChanges {
   public selectedMatchCardIds: number [];
 
   private TBD_PROFILE_ID = 'TBD';
+
+  private matchCardStatusPipe: MatchCardStatusPipe = new MatchCardStatusPipe();
 
   constructor() {
     this.selectedEventId = 0;
@@ -86,9 +89,12 @@ export class TableUsageComponent implements OnInit, OnChanges {
       const matches: Match [] = matchCard.matches;
       if (matches && matchCard.profileIdToNameMap) {
         const theMatch = matches[0];
-        const playerAName = (theMatch.playerAProfileId !== this.TBD_PROFILE_ID) ? matchCard.profileIdToNameMap[theMatch.playerAProfileId] : this.TBD_PROFILE_ID;
-        const playerBName = (theMatch.playerBProfileId !== this.TBD_PROFILE_ID) ? matchCard.profileIdToNameMap[theMatch.playerBProfileId] : this.TBD_PROFILE_ID;
-        tooltipText = `${playerAName} vs. ${playerBName}`;
+        const playerAName = (theMatch.playerAProfileId !== this.TBD_PROFILE_ID)
+          ? matchCard.profileIdToNameMap[theMatch.playerAProfileId] : this.TBD_PROFILE_ID;
+        const playerBName = (theMatch.playerBProfileId !== this.TBD_PROFILE_ID)
+          ? matchCard.profileIdToNameMap[theMatch.playerBProfileId] : this.TBD_PROFILE_ID;
+        const strMatchStatus = this.matchCardStatusPipe.transform(matchInfo.matchCardPlayability);
+        tooltipText = `${playerAName} vs. ${playerBName}\n${strMatchStatus}`;
       }
     }
     return tooltipText;
@@ -362,6 +368,14 @@ export class TableUsageComponent implements OnInit, OnChanges {
       }
     }
     return assignedTables;
+  }
+
+  getStatusClass(matchCardPlayability: MatchCardPlayabilityStatus) {
+    if (matchCardPlayability === MatchCardPlayabilityStatus.ReadyToPlay) {
+      return 'green';
+    } else {
+      return 'white';
+    }
   }
 }
 

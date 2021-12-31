@@ -32,7 +32,7 @@ public class DrawsEventListener {
     }
 
     private void processEvent(DrawsEvent drawsEvent) {
-        logger.info("Begin processing DrawsEvent" + drawsEvent);
+        logger.info("Begin processing" + drawsEvent);
         switch (drawsEvent.getAction()) {
             case GENERATED:
                 this.matchCardService.generateMatchCardsForEvent(drawsEvent.getEventId(), drawsEvent.getDrawType());
@@ -46,6 +46,6 @@ public class DrawsEventListener {
                 this.matchCardService.deleteAllForEventAndDrawType(drawsEvent.getEventId(), drawsEvent.getDrawType());
                 break;
         }
-        logger.info("Finished processing DrawsEvent" + drawsEvent);
+        logger.info("Finished processing " + drawsEvent);
     }
 }

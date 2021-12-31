@@ -16,12 +16,14 @@ import {TableUsageDataService} from './service/table-usage-data.service';
 import {TableUsageService} from './service/table-usage.service';
 import {MatIconModule} from '@angular/material/icon';
 import {SharedModule} from '../shared/shared.module';
+import { MatchCardStatusPipe } from './pipes/match-card-status.pipe';
 
 
 @NgModule({
   declarations: [
     TableUsageComponent,
-    TableUsageContainerComponent
+    TableUsageContainerComponent,
+    MatchCardStatusPipe
   ],
   imports: [
     CommonModule,

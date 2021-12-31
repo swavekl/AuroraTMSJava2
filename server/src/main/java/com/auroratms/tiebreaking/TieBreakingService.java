@@ -635,7 +635,7 @@ public class TieBreakingService {
         }
 
         // record player ranking but only for round robin round
-        if (matchCard.getDrawType() == DrawType.ROUND_ROBIN) {
+//        if (matchCard.getDrawType() == DrawType.ROUND_ROBIN) {
             // convert to a string for saving in match card
             try {
                 StringWriter stringWriter = new StringWriter();
@@ -648,7 +648,7 @@ public class TieBreakingService {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        }
+//        }
 
         // round robin match card rounds are 0, single elimination rounds cards are 2, 4, 8 etc,
         // so if this is the last round i.e. 2 there is nowhere to advance to
