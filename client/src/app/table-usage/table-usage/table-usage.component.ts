@@ -1,4 +1,4 @@
-import {Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges} from '@angular/core';
+import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {TableUsage} from '../model/table-usage.model';
 import {MatchCard} from '../../matches/model/match-card.model';
 import {TournamentEvent} from '../../tournament/tournament-config/tournament-event.model';
@@ -14,7 +14,7 @@ import {MatchCardStatusPipe} from '../pipes/match-card-status.pipe';
   templateUrl: './table-usage.component.html',
   styleUrls: ['./table-usage.component.scss']
 })
-export class TableUsageComponent implements OnInit, OnChanges {
+export class TableUsageComponent implements OnInit {
 
   @Input()
   tableUsageList: TableUsage [] = [];
@@ -35,6 +35,9 @@ export class TableUsageComponent implements OnInit, OnChanges {
   @Output()
   startMatches: EventEmitter<TableUsage[]> = new EventEmitter<TableUsage[]>();
 
+  @Output()
+  refreshUsage: EventEmitter<any> = new EventEmitter<any>();
+
   public selectedEventId: number;
 
   public selectedMatchCardIds: number [];
@@ -52,26 +55,6 @@ export class TableUsageComponent implements OnInit, OnChanges {
   }
 
   ngOnInit(): void {
-  }
-
-  ngOnChanges(changes: SimpleChanges): void {
-    // const tableUsageListChange: SimpleChange = changes.tableUsageList;
-    // if (tableUsageListChange?.currentValue != null) {
-    //   console.log('COMP got tableUsageList', tableUsageListChange.currentValue);
-    //   const tableUsageList: TableUsage[] = tableUsageListChange.currentValue;
-    // }
-    //
-    // const tournamentEventsChange: SimpleChange = changes.tournamentEvents;
-    // if (tournamentEventsChange?.currentValue != null) {
-    //   const tournamentEvents = tournamentEventsChange.currentValue;
-    //   console.log('COMP got tournamentEvents', tournamentEvents);
-    // }
-    //
-    // const matchesToPlayInfosChange: SimpleChange = changes.matchesToPlayInfos;
-    // if (matchesToPlayInfosChange?.currentValue != null) {
-    //   const matchesToPlayInfos = matchesToPlayInfosChange.currentValue;
-    //   console.log('COMP got matchesToPlayInfos', matchesToPlayInfos);
-    // }
   }
 
   onSelectMatchCard(matchCard: MatchCard) {
@@ -370,6 +353,13 @@ export class TableUsageComponent implements OnInit, OnChanges {
     } else {
       return 'white';
     }
+  }
+
+  /**
+   * Manually triggered refresh
+   */
+  onRefresh() {
+    this.refreshUsage.emit('');
   }
 }
 

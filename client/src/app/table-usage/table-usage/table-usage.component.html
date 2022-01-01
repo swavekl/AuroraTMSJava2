@@ -16,6 +16,8 @@
   <button type="button" mat-raised-button (click)="onPrintSelectedMatch()" [disabled]="this.selectedMatchCardIds?.length === 0">Print Match Card</button>
   <span class="toolbar-spacer-2"></span>
   <button type="button" mat-raised-button (click)="onStopMatch()" [disabled]="this.selectedMatchCardIds?.length === 0">Stop Match</button>
+  <span class="toolbar-spacer-2"></span>
+  <button type="button" mat-raised-button (click)="onRefresh()">Refresh</button>
 </mat-toolbar>
 <div fxLayout="row" class="table-usage">
   <div fxFlex="20%" class="matches-list">

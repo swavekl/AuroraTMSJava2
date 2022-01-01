@@ -1,5 +1,5 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
-import {combineLatest, Observable, of, Subscription} from 'rxjs';
+import {combineLatest, interval, Observable, of, Subscription} from 'rxjs';
 import {first, map} from 'rxjs/operators';
 import {TableUsage} from '../model/table-usage.model';
 import {LinearProgressBarService} from '../../shared/linear-progress-bar/linear-progress-bar.service';
@@ -24,7 +24,8 @@ import {MatchCardStatusUtil} from '../util/match-card-status-util';
                      [matchesToPlayInfos]="matchesToPlayInfos$ | async"
                      [tournamentEvents]="tournamentEvents$ | async"
                      (printMatchCards)="onPrintMatchCards($event)"
-                     (startMatches)="onStartMatches($event)">
+                     (startMatches)="onStartMatches($event)"
+                     (refreshUsage)="onRefresh($event)">
     </app-table-usage>
   `,
   styles: []
@@ -55,6 +56,7 @@ export class TableUsageContainerComponent implements OnInit, OnDestroy {
               private linearProgressBarService: LinearProgressBarService) {
     this.setupProgressIndicator();
     this.loadTableUsagesForTodaysTournament();
+    this.setupAutoRefresh();
   }
 
   ngOnDestroy(): void {
@@ -202,4 +204,29 @@ export class TableUsageContainerComponent implements OnInit, OnDestroy {
         this.tableUsageService.updateManyInCache(updated);
       });
   }
+
+  /**
+   * Manual refresh was requested
+   * @param $event
+   */
+  onRefresh($event: any) {
+    this.matchCardService.clearCache();
+    this.tableUsageService.clearCache();
+    this.matchCardService.loadAllForTheTournamentDay(this.tournamentId, this.tournamentDay, true);
+    const params = `tournamentId=${this.tournamentId}`;
+    this.tableUsageService.getWithQuery(params);
+  }
+
+  /**
+   * setup automatic refresh every minute so screen has up to date data on usage and match completion
+   * @private
+   */
+  private setupAutoRefresh() {
+    // setup automatic refresh every minute
+    const subscription = interval(60 * 1000).subscribe(n => {
+      this.onRefresh('');
+    });
+    this.subscriptions.add(subscription);
+  }
+
 }

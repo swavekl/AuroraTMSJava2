@@ -286,9 +286,10 @@ export class MatchCardStatusUtil {
               // determine name of player
               matchInfo.matchCardPlayability = MatchCardPlayabilityStatus.WaitingForPlayer;
             }
-          } else {
-            // RR or SE
+          } else if (!matchCard1CompletedOrBye && !matchCard2CompletedOrBye) {
             matchInfo.matchCardPlayability = MatchCardPlayabilityStatus.WaitingForPlayersToAdvance;
+          } else {
+            matchInfo.matchCardPlayability = MatchCardPlayabilityStatus.WaitingForPlayer;
           }
         }
       }

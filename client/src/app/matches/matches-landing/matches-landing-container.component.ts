@@ -8,6 +8,7 @@ import {LinearProgressBarService} from '../../shared/linear-progress-bar/linear-
 import {Tournament} from '../../tournament/tournament-config/tournament.model';
 import {AuthenticationService} from '../../user/authentication.service';
 import {DateUtils} from '../../shared/date-utils';
+import {TodayService} from '../../shared/today.service';
 
 @Component({
   selector: 'app-matches-landing-container',
@@ -29,7 +30,8 @@ export class MatchesLandingContainerComponent implements OnInit, OnDestroy {
   constructor(private tournamentConfigService: TournamentConfigService,
               private authenticationService: AuthenticationService,
               private router: Router,
-              private linearProgressBarService: LinearProgressBarService) {
+              private linearProgressBarService: LinearProgressBarService,
+              private todayService: TodayService) {
     this.setupProgressIndicator();
     this.loadTournaments();
   }
@@ -59,29 +61,33 @@ export class MatchesLandingContainerComponent implements OnInit, OnDestroy {
     this.tournaments$ = this.tournamentConfigService.store.select(this.tournamentConfigService.selectors.selectEntities)
       .pipe(map(
         (tournaments: Tournament[]) => {
-          console.log('got tournaments for data entry ', tournaments);
           const filteredTournaments: Tournament [] = [];
-          const today: Date = new Date();
+          const today: Date = this.todayService.todaysDate;
           for (const tournament of tournaments) {
-              // if (new DateUtils().isDateInRange (today, tournament.startDate, tournament.endDate)) {
-              //   filteredTournaments.push(tournament);
-              // }
-              filteredTournaments.push(tournament);
+              if (new DateUtils().isDateInRange (today, tournament.startDate, tournament.endDate)) {
+                filteredTournaments.push(tournament);
+              }
           }
 
+          // if there is one tournament today then navigate to this tournament
+          // otherwise let user choose which one - should not be happening
           if (filteredTournaments.length === 1) {
-            // navigate directly to today's tournament
             const tournamentId = filteredTournaments[0].id;
-            console.log('navigating to tournament score entry ' + tournamentId);
+            // navigate directly to today's tournament, pass name so we don't have to retrieve it on the other page
             const extras = {
               state: {
                 tournamentName: filteredTournaments[0].name
               }
             };
             this.router.navigateByUrl(`matches/scoreentry/${tournamentId}`, extras);
+          } else {
+            // sort them so the earlier tournmament is listed first
+            const dateUtils = new DateUtils();
+            filteredTournaments.sort((tournament1, tournament2) => {
+              return dateUtils.isDateBefore(tournament1.startDate, tournament2.startDate) ? -1 : 1;
+            });
           }
 
-          // return of(filteredTournaments);
           return filteredTournaments;
         }
         )
