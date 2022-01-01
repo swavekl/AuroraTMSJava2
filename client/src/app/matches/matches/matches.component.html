@@ -17,7 +17,7 @@
           R.R. Group {{matchCard.groupNum}}
         </ng-container>
         <ng-template #elseblock>
-          {{ getRoundShortName(matchCard.round) }} M {{matchCard.groupNum}}
+          {{ getMatchIdentifier(matchCard.round, matchCard.groupNum) }}
         </ng-template>
       </mat-list-item>
     </mat-list>
@@ -62,7 +62,7 @@
                   {{selectedMatchCard?.groupNum}}
                 </ng-container>
                 <ng-template #elseblock>
-                  {{ getRoundShortName(selectedMatchCard?.round) }}
+                  {{ getMatchIdentifier(selectedMatchCard?.round, selectedMatchCard?.groupNum) }}
                 </ng-template>
               </td>
               <td class="mat-display-1">

@@ -11,6 +11,8 @@ export class MatchCardStatusUtil {
 
   private playerStatusInfos: Map<string, PlayerStatusInfo> = new Map<string, PlayerStatusInfo>();
 
+  private tournamentEvents: TournamentEvent[] = [];
+
   /**
    * Computes the status of each match card and packages into MatchInfo
    * @param tableUsages
@@ -20,6 +22,7 @@ export class MatchCardStatusUtil {
   public generateMatchInfos(tableUsages: TableUsage[], matchCards: MatchCard[], tournamentEvents: TournamentEvent[]): MatchInfo[] {
     let matchesToPlayInfos: MatchInfo[] = [];
     if (tableUsages?.length > 0 && matchCards?.length > 0 && tournamentEvents?.length > 0) {
+      this.tournamentEvents = tournamentEvents;
       matchesToPlayInfos = this.makeMatchInfos(tableUsages, matchCards, tournamentEvents);
 
       // compute the playability status of all matches
@@ -36,7 +39,7 @@ export class MatchCardStatusUtil {
           : ((matchInfo1.matchCard.startTime > matchInfo2.matchCard.startTime) ? 1 : -1);
       });
     }
-    console.log('matchesToPlayInfos', matchesToPlayInfos);
+    // console.log('matchesToPlayInfos', matchesToPlayInfos);
     return matchesToPlayInfos;
   }
 
@@ -336,9 +339,13 @@ export class MatchCardStatusUtil {
     if (feedingDrawType === DrawType.SINGLE_ELIMINATION) {
       // find match cards in the prior round to this round
       const roundToFind = targetMatchCard.round * 2;
-      // group numbers are in this range
-      const maxSourceGroupNum = Math.pow(2, targetMatchCard.groupNum);
+      // the match for 3rd and 4th place (groupNum = 2)
+      // if played uses players from groups 1 & 2 as well just like the final match
+      const groupNumToUse = (targetMatchCard.round === 2 && targetMatchCard.groupNum === 2) ? 1 : targetMatchCard.groupNum;
+      // feeding matches group numbers are like this
+      const maxSourceGroupNum = Math.pow(2, groupNumToUse);
       const minSourceGroupNum = maxSourceGroupNum - 1;
+
       // console.log('roundToFind', roundToFind);
       // console.log(`groupNum range ${minSourceGroupNum} - ${maxSourceGroupNum} for targetGroupNum ${targetMatchCard.groupNum}`);
       feedingMatchCards = thisEventMatchCards.filter(matchCard => {

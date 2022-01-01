@@ -78,8 +78,8 @@ export class TableUsageComponent implements OnInit, OnChanges {
     this.selectedMatchCardIds = [matchCard.id];
   }
 
-  getRoundShortName(round: number): string {
-    return MatchCard.getRoundShortName(round);
+  getRoundShortName(round: number, groupNum): string {
+    return MatchCard.getMatchName(round, groupNum);
   }
 
   getTooltipText(matchInfo: MatchInfo): string {
@@ -194,13 +194,7 @@ export class TableUsageComponent implements OnInit, OnChanges {
         const matchCard = this.allTodaysMatchCards[i];
         if (matchCard.id === matchCardId) {
           const eventName = this.getEventName(matchCard.eventFk);
-          const groupNumber = matchCard.groupNum;
-          if (matchCard.drawType === 'ROUND_ROBIN') {
-            matchIdentifierText = `${eventName} R.R. Group ${groupNumber}`;
-          } else {
-            const roundName = this.getRoundShortName(matchCard.round);
-            matchIdentifierText = `${eventName} ${roundName} M ${groupNumber}`;
-          }
+          matchIdentifierText = MatchCard.getFullMatchName(eventName, matchCard.drawType, matchCard.round, matchCard.groupNum);
           break;
         }
       }

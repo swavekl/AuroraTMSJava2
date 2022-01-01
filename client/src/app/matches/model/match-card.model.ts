@@ -49,11 +49,35 @@ export class MatchCard {
   // map of player profile ids to their names
   profileIdToNameMap: any;
 
-  public static getRoundShortName(round: number): string {
+  /**
+   * gets full match name so we name them consistently throughout the project
+   * @param eventName
+   * @param drawType
+   * @param round
+   * @param groupNum
+   */
+  public static getFullMatchName (eventName: string, drawType: DrawType, round: number, groupNum: number): string {
+    let matchIdentifierText = '';
+    if (drawType === 'ROUND_ROBIN') {
+      matchIdentifierText = `${eventName} R.R. Group ${groupNum}`;
+    } else {
+      const roundName = this.getMatchName(round, groupNum);
+      matchIdentifierText = `${eventName} ${roundName}`;
+    }
+    return matchIdentifierText;
+  }
+
+  public static getMatchName (round: number, groupNum: number): string {
+    const roundName = this.getRoundName(round, groupNum);
+    const matchNumber = (round === 2) ? '' : ` M ${groupNum}`;
+    return roundName + matchNumber;
+  }
+
+  public static getRoundName(round: number, groupNum: number): string {
     let strRound = '';
     switch (round) {
       case 2:
-        strRound = 'Final';
+        strRound = (groupNum === 1) ? 'Final' : '3rd & 4th Place';
         break;
       case 4:
         strRound = 'Semi-Final';

@@ -231,8 +231,8 @@ export class MatchesComponent implements OnInit, OnChanges, OnDestroy {
     return Match.isMatchWinner(profileId, match, this.selectedMatchCard?.numberOfGames, this.selectedEvent?.pointsPerGame);
   }
 
-  public getRoundShortName(round: number): string {
-    return MatchCard.getRoundShortName(round);
+  public getMatchIdentifier(round: number, groupNum: number): string {
+    return MatchCard.getMatchName(round, groupNum);
   }
 
   public rankAndAdvance() {
