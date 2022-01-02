@@ -61,10 +61,6 @@ export class TableUsageComponent implements OnInit {
     this.selectedMatchCardIds = [matchCard.id];
   }
 
-  getRoundShortName(round: number, groupNum): string {
-    return MatchCard.getMatchName(round, groupNum);
-  }
-
   getTooltipText(matchInfo: MatchInfo): string {
     let tooltipText = '';
     const matchCard = matchInfo.matchCard;
@@ -76,8 +72,8 @@ export class TableUsageComponent implements OnInit {
           ? matchCard.profileIdToNameMap[theMatch.playerAProfileId] : this.TBD_PROFILE_ID;
         const playerBName = (theMatch.playerBProfileId !== this.TBD_PROFILE_ID)
           ? matchCard.profileIdToNameMap[theMatch.playerBProfileId] : this.TBD_PROFILE_ID;
-        const strMatchStatus = this.matchCardStatusPipe.transform(matchInfo.matchCardPlayability);
-        tooltipText = `${playerAName} vs. ${playerBName}\n${strMatchStatus}`;
+        const strMatchStatus = this.matchCardStatusPipe.transform(matchInfo.matchCardPlayability, matchInfo.playabilityDetail);
+        tooltipText = `${playerAName} vs. ${playerBName} ${strMatchStatus}`;
       }
     }
     return tooltipText;
@@ -349,9 +345,9 @@ export class TableUsageComponent implements OnInit {
 
   getStatusClass(matchCardPlayability: MatchCardPlayabilityStatus) {
     if (matchCardPlayability === MatchCardPlayabilityStatus.ReadyToPlay) {
-      return 'green';
+      return 'match-status-ready';
     } else {
-      return 'white';
+      return 'match-status-waiting';
     }
   }
 

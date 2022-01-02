@@ -95,6 +95,24 @@ export class ScoreEntryDialogComponent implements OnInit {
     this.dialogRef.close(retValue);
   }
 
+
+  onReset() {
+    this.match.game1ScoreSideA = 0;
+    this.match.game1ScoreSideB = 0;
+    this.match.game2ScoreSideA = 0;
+    this.match.game2ScoreSideB = 0;
+    this.match.game3ScoreSideA = 0;
+    this.match.game3ScoreSideB = 0;
+    this.match.game4ScoreSideA = 0;
+    this.match.game4ScoreSideB = 0;
+    this.match.game5ScoreSideA = 0;
+    this.match.game5ScoreSideB = 0;
+    this.match.game6ScoreSideA = 0;
+    this.match.game6ScoreSideB = 0;
+    this.match.game7ScoreSideA = 0;
+    this.match.game7ScoreSideB = 0;
+  }
+
   onSave(formValues: any) {
     const updatedMatch = {
       ...this.match,

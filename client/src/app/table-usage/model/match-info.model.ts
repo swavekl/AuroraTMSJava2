@@ -11,6 +11,7 @@ export enum MatchCardPlayabilityStatus {
 
   // c. Waiting for the winner of round <x> match <y> – Waiting for a player to advance from a previous round.
   WaitingForWinner,
+
   // d. Waiting for winners from previous rounds – Waiting for both players to advance from previous rounds.
   WaitingForBothWinners,
 
@@ -24,6 +25,10 @@ export enum MatchCardPlayabilityStatus {
  */
 export class MatchInfo {
   matchCard: MatchCard;
+  // tournament event info
   tournamentEvent: TournamentEvent;
+  // status of entire match
   matchCardPlayability: MatchCardPlayabilityStatus = MatchCardPlayabilityStatus.ReadyToPlay;
+  // additional detail about the player being watied on
+  playabilityDetail: string = null;
 }

@@ -1,5 +1,6 @@
 import {Match} from './match.model';
 import {DrawType} from '../../draws/model/draw-type.enum';
+import {TournamentEvent} from '../../tournament/tournament-config/tournament-event.model';
 
 export class MatchCard {
   id: number;
@@ -69,13 +70,16 @@ export class MatchCard {
 
   public static getMatchName (round: number, groupNum: number): string {
     const roundName = this.getRoundName(round, groupNum);
-    const matchNumber = (round === 2) ? '' : ` M ${groupNum}`;
+    const matchNumber = (round === 0) ? ` Group ${groupNum}` : ((round === 2) ? '' : ` M ${groupNum}`);
     return roundName + matchNumber;
   }
 
   public static getRoundName(round: number, groupNum: number): string {
     let strRound = '';
     switch (round) {
+      case 0:
+        strRound = 'Round Robin';
+        break;
       case 2:
         strRound = (groupNum === 1) ? 'Final' : '3rd & 4th Place';
         break;
@@ -95,6 +99,9 @@ export class MatchCard {
   public static getRoundAbbreviatedName(round: number): string {
     let strRound = '';
     switch (round) {
+      case 0:
+        strRound = 'RR';
+          break;
       case 2:
         strRound = 'Final';
         break;
@@ -109,5 +116,18 @@ export class MatchCard {
         break;
     }
     return strRound;
+  }
+
+  public static isMatchCardCompleted(matchCard: MatchCard, event: TournamentEvent): boolean {
+    let isCompleted = true;
+    if (matchCard && event) {
+      const pointsPerGame = event.pointsPerGame;
+      const numberOfGames = matchCard.numberOfGames;
+      const matches: Match[] = matchCard.matches;
+      matches.forEach((match: Match) => {
+        isCompleted = isCompleted && Match.isMatchFinished(match, numberOfGames, pointsPerGame);
+      });
+    }
+    return isCompleted;
   }
 }

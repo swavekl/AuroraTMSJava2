@@ -35,11 +35,10 @@ export class MatchCardStatusUtil {
       // sort them by starting time
       matchesToPlayInfos.sort((matchInfo1: MatchInfo, matchInfo2: MatchInfo) => {
         return (matchInfo1.matchCard.startTime === matchInfo2.matchCard.startTime)
-          ? 0
+          ? ((matchInfo1.matchCard.groupNum > matchInfo2.matchCard.groupNum) ? 1 : -1)
           : ((matchInfo1.matchCard.startTime > matchInfo2.matchCard.startTime) ? 1 : -1);
       });
     }
-    // console.log('matchesToPlayInfos', matchesToPlayInfos);
     return matchesToPlayInfos;
   }
 
@@ -64,7 +63,8 @@ export class MatchCardStatusUtil {
           const matchInfo: MatchInfo = {
             matchCard: matchCard,
             tournamentEvent: event,
-            matchCardPlayability: MatchCardPlayabilityStatus.ReadyToPlay
+            matchCardPlayability: MatchCardPlayabilityStatus.ReadyToPlay,
+            playabilityDetail: null
           };
           matchesToPlayInfos.push(matchInfo);
         }
@@ -82,7 +82,8 @@ export class MatchCardStatusUtil {
   private getMatchCardsToBePlayed(tableUsageList: TableUsage[], matchCards: MatchCard[]) {
     const filteredMatchCards: MatchCard [] = [];
     for (const matchCard of matchCards) {
-      const matchCompleted = (matchCard.playerRankings != null);
+      const tournamentEvent = this.tournamentEvents.find(event => event.id === matchCard.eventFk);
+      const isMatchCompleted = MatchCard.isMatchCardCompleted(matchCard, tournamentEvent);
       let isPlayedCurrently = false;
       for (let i = 0; i < tableUsageList.length; i++) {
         const tableUsage = tableUsageList[i];
@@ -92,10 +93,10 @@ export class MatchCardStatusUtil {
           break;
         }
       }
-      if (!matchCompleted && !isPlayedCurrently) {
+      if (!isMatchCompleted && !isPlayedCurrently) {
         filteredMatchCards.push(matchCard);
         // console.log('match is available id ' + matchCard.id + ' event ' + matchCard.eventFk + ' drawType ' + matchCard.drawType);
-      } else if (matchCompleted) {
+      } else if (isMatchCompleted) {
         // console.log('match is completed id ' + matchCard.id + ' event ' + matchCard.eventFk + ' drawType ' + matchCard.drawType);
       }
     }
@@ -109,29 +110,13 @@ export class MatchCardStatusUtil {
    * @private
    */
   private markPlayerStatuses(tableUsages: TableUsage[], matchCards: MatchCard[]) {
-    // get all currently playing players
+    // mark all currently playing players
     for (let i = 0; i < tableUsages.length; i++) {
       const tableUsage = tableUsages[i];
       // match currently played
       if (tableUsage.matchCardFk !== 0) {
         // mark all players who are currently playing as 'playing'
-        this.findPlayingPlayers(matchCards, tableUsage);
-      }
-    }
-
-    // find all match cards which are not assigned to tables (not played)
-    // mark these players as available
-    for (let i = 0; i < matchCards.length; i++) {
-      const matchCard = matchCards[i];
-      if (matchCard != null && matchCard.profileIdToNameMap != null) {
-        const playerProfileIds = Object.keys(matchCard.profileIdToNameMap);
-        if (playerProfileIds.length > 0) {
-          for (const playerProfileId of playerProfileIds) {
-            if (!this.isMatchPlayed(matchCard, tableUsages)) {
-              this.findAvailablePlayers(matchCard);
-            }
-          }
-        }
+        this.markPlayingPlayers(matchCards, tableUsage);
       }
     }
   }
@@ -142,60 +127,14 @@ export class MatchCardStatusUtil {
    * @param tableUsage
    * @private
    */
-  private findPlayingPlayers(matchCards: MatchCard[], tableUsage: TableUsage) {
+  private markPlayingPlayers(matchCards: MatchCard[], tableUsage: TableUsage) {
     const matchCard: MatchCard = this.findMatchCard(matchCards, tableUsage.matchCardFk);
-    // console.log('matchCard ' + matchCard.id + ' ' + JSON.stringify(matchCard?.profileIdToNameMap));
     if (matchCard?.profileIdToNameMap != null) {
       const playerProfileIds = Object.keys(matchCard.profileIdToNameMap);
       if (playerProfileIds.length > 0) {
         for (const playerProfileId of playerProfileIds) {
-          // if match card is used on more than one table in RR round then we shouldn't add player status twice
-          let playerStatusInfo = this.findPlayerStatus(playerProfileId);
-          if (!playerStatusInfo) {
             const playerName = matchCard.profileIdToNameMap[playerProfileId];
-            playerStatusInfo = {
-              profileId: playerProfileId,
-              playerName: playerName,
-              status: PlayerStatus.Available,
-              tableNumbers: matchCard.assignedTables,
-              eventFk: matchCard.eventFk,
-              round: matchCard.round,
-              groupNum: matchCard.groupNum
-            };
-            this.playerStatusInfos.set(playerProfileId, playerStatusInfo);
-          }
-        }
-      }
-    }
-  }
-
-  private findPlayerStatus(playerProfileId: string): PlayerStatusInfo {
-    return this.playerStatusInfos[playerProfileId];
-  }
-
-  private findMatchCard(matchCards: MatchCard[], matchCardFk: number): MatchCard {
-    return matchCards.find((matchCard) => matchCard.id === matchCardFk);
-  }
-
-  private isMatchPlayed(matchCard: MatchCard, tableUsages: TableUsage[]): boolean {
-    return (tableUsages.find(tableUsage => tableUsage.matchCardFk === matchCard.id) != null);
-  }
-
-  /**
-   *
-   * @param matchCard
-   * @private
-   */
-  private findAvailablePlayers(matchCard: MatchCard) {
-    if (matchCard.profileIdToNameMap != null) {
-      const playerProfileIds = Object.keys(matchCard.profileIdToNameMap);
-      if (playerProfileIds.length > 0) {
-        for (const playerProfileId of playerProfileIds) {
-          // see if this player is already playing, if not mark him as available
-          let playerStatusInfo = this.findPlayerStatus(playerProfileId);
-          if (!playerStatusInfo) {
-            const playerName = matchCard.profileIdToNameMap[playerProfileId];
-            playerStatusInfo = {
+            const playerStatusInfo = {
               profileId: playerProfileId,
               playerName: playerName,
               status: PlayerStatus.Playing,
@@ -205,10 +144,21 @@ export class MatchCardStatusUtil {
               groupNum: matchCard.groupNum
             };
             this.playerStatusInfos.set(playerProfileId, playerStatusInfo);
-          }
         }
       }
     }
+  }
+
+  private findPlayerStatus(playerProfileId: string): PlayerStatusInfo {
+    return this.playerStatusInfos.get(playerProfileId);
+  }
+
+  private findMatchCard(matchCards: MatchCard[], matchCardFk: number): MatchCard {
+    return matchCards.find((matchCard) => matchCard.id === matchCardFk);
+  }
+
+  private isMatchPlayed(matchCard: MatchCard, tableUsages: TableUsage[]): boolean {
+    return (tableUsages.find(tableUsage => tableUsage.matchCardFk === matchCard.id) != null);
   }
 
   /**
@@ -275,25 +225,66 @@ export class MatchCardStatusUtil {
           const numMatchCard2PlayingPlayers = matchCard2PlayingPlayersProfileIds.length;
 
           if (matchCard1CompletedOrBye && matchCard2CompletedOrBye) {
-            if (numMatchCard1PlayingPlayers === 0 && numMatchCard2PlayingPlayers === 0) {
-              matchInfo.matchCardPlayability = MatchCardPlayabilityStatus.ReadyToPlay;
-            } else if (numMatchCard1PlayingPlayers > 0 && numMatchCard2PlayingPlayers > 0) {
-              matchInfo.matchCardPlayability = MatchCardPlayabilityStatus.WaitingForBothWinners;
-            } else if (numMatchCard1PlayingPlayers > 0) {
-              // determine name of player
-              matchInfo.matchCardPlayability = MatchCardPlayabilityStatus.WaitingForPlayer;
-            } else {
-              // determine name of player
-              matchInfo.matchCardPlayability = MatchCardPlayabilityStatus.WaitingForPlayer;
-            }
-          } else if (!matchCard1CompletedOrBye && !matchCard2CompletedOrBye) {
-            matchInfo.matchCardPlayability = MatchCardPlayabilityStatus.WaitingForPlayersToAdvance;
+            matchInfo.matchCardPlayability = MatchCardPlayabilityStatus.ReadyToPlay;
           } else {
-            matchInfo.matchCardPlayability = MatchCardPlayabilityStatus.WaitingForPlayer;
+            const isLaterRound = this.isLaterSERound(matchInfo.matchCard);
+            // if both match cards are bing played or neither is being played (not started yet)
+            if ((numMatchCard1PlayingPlayers > 0 && numMatchCard2PlayingPlayers > 0) ||
+                (numMatchCard1PlayingPlayers === 0 && numMatchCard2PlayingPlayers === 0) ||
+                 isLaterRound) {
+              const feedingMatchDrawType1 = this.getMatchDrawType (feedingMatchCards, 0);
+              const feedingMatchDrawType2 = this.getMatchDrawType (feedingMatchCards, 1);
+              // both feeding matches are RR then
+              if (feedingMatchDrawType1 === DrawType.ROUND_ROBIN && feedingMatchDrawType2 === DrawType.ROUND_ROBIN) {
+                matchInfo.matchCardPlayability = MatchCardPlayabilityStatus.WaitingForPlayersToAdvance;
+              } else {
+                matchInfo.matchCardPlayability = MatchCardPlayabilityStatus.WaitingForBothWinners;
+              }
+            } else {
+              const thisMatchCardEvent = matchInfo.matchCard.eventFk;
+              // waiting for one player
+              // same event or different event
+              if (numMatchCard1PlayingPlayers > 0) {
+                const playerStatusInfo = this.findPlayerStatus(matchCard1PlayingPlayersProfileIds[0]);
+                const eventFk = (playerStatusInfo) ? playerStatusInfo.eventFk : 0;
+                if (thisMatchCardEvent === eventFk) {
+                  // same event
+                  matchInfo.matchCardPlayability = MatchCardPlayabilityStatus.WaitingForPlayer;
+                  matchInfo.playabilityDetail = this.makeSameEventDetail(playerStatusInfo);
+                } else {
+                  // different event
+                  matchInfo.matchCardPlayability = MatchCardPlayabilityStatus.WaitingForWinner;
+                  matchInfo.playabilityDetail = this.makeOtherEventDetail(playerStatusInfo);
+                }
+              } else if (numMatchCard2PlayingPlayers > 0) {
+                const playerStatusInfo = this.findPlayerStatus(matchCard2PlayingPlayersProfileIds[0]);
+                const eventFk = (playerStatusInfo) ? playerStatusInfo.eventFk : 0;
+                if (thisMatchCardEvent === eventFk) {
+                  // same event
+                  matchInfo.matchCardPlayability = MatchCardPlayabilityStatus.WaitingForPlayer;
+                  matchInfo.playabilityDetail = this.makeSameEventDetail(playerStatusInfo);
+                } else {
+                  // different event
+                  matchInfo.matchCardPlayability = MatchCardPlayabilityStatus.WaitingForWinner;
+                  matchInfo.playabilityDetail = this.makeOtherEventDetail(playerStatusInfo);
+                }
+              }
+            }
           }
         }
       }
     }
+  }
+
+  private makeSameEventDetail(playerStatusInfo: PlayerStatusInfo) {
+    const matchName = MatchCard.getMatchName(playerStatusInfo.round, playerStatusInfo.groupNum);
+    return `Waiting for winner of ${matchName}`;
+  }
+
+  private makeOtherEventDetail (playerStatusInfo: PlayerStatusInfo): string {
+    const event: TournamentEvent = this.tournamentEvents.find(tournamentEvent => tournamentEvent.id === playerStatusInfo.eventFk);
+    const eventName = (event != null) ? event.name : '';
+    return `Waiting for player ${playerStatusInfo.playerName} playing on table ${playerStatusInfo.tableNumbers} in '${eventName}' event`;
   }
 
   /**
@@ -388,30 +379,37 @@ export class MatchCardStatusUtil {
     if (isBye) {
       isCompletedMatch = true;
     } else {
-      let playerRankings = null;
+      let matchCard = null;
       if (feedingMatchCards.length === 2) {
-        const matchCard = feedingMatchCards[matchIndex];
-        playerRankings = matchCard.playerRankings;
+        matchCard = feedingMatchCards[matchIndex];
       } else if (feedingMatchCards.length === 1) {
-        const matchCard = feedingMatchCards[0];
-        const groupNumIsOdd = matchCard.groupNum % 2 > 0;
-        // is match for requested group
-        if (matchIndex === 0) {
-          // get player rankings for odd group number
-          if (groupNumIsOdd) {
-            playerRankings = matchCard.playerRankings;
-          }
-        } else {
-          // get player rankings for even group number
-          if (!groupNumIsOdd) {
-            playerRankings = matchCard.playerRankings;
-          }
-        }
+        matchCard = feedingMatchCards[0];
       }
-      isCompletedMatch = (playerRankings != null);
+      const tournamentEvent = this.tournamentEvents.find(event => event.id === matchCard.eventFk);
+      isCompletedMatch = MatchCard.isMatchCardCompleted(matchCard, tournamentEvent);
     }
+      return isCompletedMatch;
+  }
 
-    return isCompletedMatch;
+  private getMatchDrawType(feedingMatchCards: MatchCard[], matchIndex: number) {
+    if (feedingMatchCards.length === 2) {
+      return feedingMatchCards[matchIndex].drawType;
+    } else if (feedingMatchCards.length === 1) {
+        return feedingMatchCards[0].drawType;
+    } else {
+      return DrawType.SINGLE_ELIMINATION;
+    }
+  }
+
+  private isLaterSERound(matchCard: MatchCard): boolean {
+    let isLaterRound = false;
+    if (matchCard.drawType === DrawType.SINGLE_ELIMINATION) {
+      const theMatch = (matchCard.matches.length === 1) ? matchCard.matches[0] : null;
+      if (theMatch) {
+        isLaterRound = (theMatch.playerAProfileId === 'TBD' && theMatch.playerBProfileId === 'TBD');
+      }
+    }
+    return isLaterRound;
   }
 }
 

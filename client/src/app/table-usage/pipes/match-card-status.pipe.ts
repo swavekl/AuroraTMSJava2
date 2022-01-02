@@ -6,23 +6,23 @@ import {MatchCardPlayabilityStatus} from '../model/match-info.model';
 })
 export class MatchCardStatusPipe implements PipeTransform {
 
-  transform(status: MatchCardPlayabilityStatus, ...args: unknown[]): unknown {
+  transform(status: MatchCardPlayabilityStatus, playabilityDetail: string, ...args: unknown[]): string {
     let strStatus  = '';
     switch (status) {
       case MatchCardPlayabilityStatus.ReadyToPlay:
         strStatus = 'Ready';
         break;
       case MatchCardPlayabilityStatus.WaitingForPlayer:
-        strStatus = 'Waiting for player';
+        strStatus = playabilityDetail;
         break;
       case MatchCardPlayabilityStatus.WaitingForWinner:
-        strStatus = 'Waiting for winner';
+        strStatus = playabilityDetail;
         break;
       case MatchCardPlayabilityStatus.WaitingForBothWinners:
         strStatus = 'Waiting for both prior round winners';
         break;
       case MatchCardPlayabilityStatus.WaitingForPlayersToAdvance:
-        strStatus = 'Waiting for players to advance';
+        strStatus = 'Waiting for both players to advance from RR';
         break;
 
     }

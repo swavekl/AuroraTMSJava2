@@ -95,7 +95,7 @@ export class MatchesComponent implements OnInit, OnChanges, OnDestroy {
         this.rankedPlayerInfos = this.makeRankedPlayerInfos(selectedMatchCard);
         if (this.performRankAndAdvance) {
           this.performRankAndAdvance = false;
-          if (this.isMatchCardCompleted()) {
+          if (this.isSelectedMatchCardCompleted()) {
             this.rankAndAdvance();
           }
         }
@@ -310,7 +310,7 @@ export class MatchesComponent implements OnInit, OnChanges, OnDestroy {
    * Checks if Rank and Advance button should be disabled i.e. when not all matches are entered
    */
   isRankAndAdvanceDisabled(): boolean {
-    return !(this.isMatchCardCompleted() &&
+    return !(this.isSelectedMatchCardCompleted() &&
       (this.selectedMatchCard.drawType === DrawType.ROUND_ROBIN));
   }
 
@@ -318,16 +318,11 @@ export class MatchesComponent implements OnInit, OnChanges, OnDestroy {
    *
    * @private
    */
-  private isMatchCardCompleted(): boolean {
-    let isCompleted = true;
-    if (this.selectedMatchCard && this.selectedEvent) {
-      const pointsPerGame = this.selectedEvent.pointsPerGame;
-      const numberOfGames = this.selectedMatchCard.numberOfGames;
-      const matches: Match[] = this.selectedMatchCard.matches;
-      matches.forEach((match: Match) => {
-        isCompleted = isCompleted && Match.isMatchFinished(match, numberOfGames, pointsPerGame);
-      });
-    }
-    return isCompleted;
+  private isSelectedMatchCardCompleted(): boolean {
+    return MatchCard.isMatchCardCompleted(this.selectedMatchCard, this.selectedEvent);
+  }
+
+  public isMatchCardCompleted(matchCard: MatchCard, event: TournamentEvent): boolean {
+    return MatchCard.isMatchCardCompleted(matchCard, event);
   }
 }

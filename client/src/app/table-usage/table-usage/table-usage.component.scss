@@ -25,6 +25,18 @@ mat-list-item:hover {
   background-color: lighten($primary-color, 40%);
 }
 
+.match-status-ready {
+  color: green;
+}
+
+.match-status-waiting {
+  color: $accent-color;
+}
+
+.match-status-late {
+  color: $warn-color;
+}
+
 .tables-grid {
   overflow-y: scroll;
   overflow-x: hidden;

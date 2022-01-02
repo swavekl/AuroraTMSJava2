@@ -14,10 +14,10 @@
       <mat-list-item *ngFor="let matchCard of matchCards" (click)="onSelectMatchCard(matchCard)"
                      [ngClass]="isSelectedMatchCard (matchCard) ? 'selected' : 'not-selected'">
         <ng-container *ngIf="matchCard.drawType === 'ROUND_ROBIN'; else elseblock">
-          R.R. Group {{matchCard.groupNum}}
+          R.R. Group {{matchCard.groupNum}} {{isMatchCardCompleted(matchCard, selectedEvent) ? '(c)' : ''}}
         </ng-container>
         <ng-template #elseblock>
-          {{ getMatchIdentifier(matchCard.round, matchCard.groupNum) }}
+          {{ getMatchIdentifier(matchCard.round, matchCard.groupNum) }} {{isMatchCardCompleted(matchCard, selectedEvent) ? '(c)' : ''}}
         </ng-template>
       </mat-list-item>
     </mat-list>
