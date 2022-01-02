@@ -49,6 +49,7 @@ $margin-thickness: 5px;
 $border-thickness: 1px;
 $border-color: black;
 $font-size: 14px;
+$line-height: 97%;
 
 .table-free {
   background-color: $table-color;
@@ -70,6 +71,7 @@ $font-size: 14px;
   justify-content: center;
   align-items: center;
   font-size: $font-size;
+  line-height: $line-height;
   text-overflow: clip;
 }
 
@@ -94,6 +96,7 @@ $font-size: 14px;
   justify-content: center;
   align-items: center;
   font-size: $font-size;
+  //line-height: $line-height;
   text-overflow: clip;
 }
 
