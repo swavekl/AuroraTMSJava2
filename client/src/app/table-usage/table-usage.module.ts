@@ -17,6 +17,7 @@ import {TableUsageService} from './service/table-usage.service';
 import {MatIconModule} from '@angular/material/icon';
 import {SharedModule} from '../shared/shared.module';
 import { MatchCardStatusPipe } from './pipes/match-card-status.pipe';
+import {MatSlideToggleModule} from '@angular/material/slide-toggle';
 
 
 @NgModule({
@@ -25,19 +26,20 @@ import { MatchCardStatusPipe } from './pipes/match-card-status.pipe';
     TableUsageContainerComponent,
     MatchCardStatusPipe
   ],
-  imports: [
-    CommonModule,
-    TableUsageRoutingModule,
-    FlexModule,
-    MatListModule,
-    MatTooltipModule,
-    MatToolbarModule,
-    MatSelectModule,
-    FormsModule,
-    MatButtonModule,
-    MatIconModule,
-    SharedModule
-  ]
+    imports: [
+        CommonModule,
+        TableUsageRoutingModule,
+        FlexModule,
+        MatListModule,
+        MatTooltipModule,
+        MatToolbarModule,
+        MatSelectModule,
+        FormsModule,
+        MatButtonModule,
+        MatIconModule,
+        SharedModule,
+        MatSlideToggleModule
+    ]
 })
 export class TableUsageModule {
 

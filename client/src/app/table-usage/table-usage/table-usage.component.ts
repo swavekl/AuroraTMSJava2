@@ -8,6 +8,8 @@ import {TableStatus} from '../model/table-status';
 import {DateUtils} from '../../shared/date-utils';
 import {MatchCardPlayabilityStatus, MatchInfo} from '../model/match-info.model';
 import {MatchCardStatusPipe} from '../pipes/match-card-status.pipe';
+import {MatSlideToggleChange} from '@angular/material/slide-toggle';
+import {MatSelectChange} from '@angular/material/select/select';
 
 @Component({
   selector: 'app-table-usage',
@@ -51,12 +53,17 @@ export class TableUsageComponent implements OnInit, OnChanges {
   // list of events which take place today
   todaysTournamentEvents: TournamentEvent[] = [];
 
+  hideOtherEventsMatches: boolean;
+
+  filteredMatchInfos: MatchInfo [] = [];
+
   constructor() {
     this.selectedEventId = 0;
     this.selectedMatchCardIds = [];
     this.matchesToPlayInfos = [];
     this.tableUsageList = [];
     this.tournamentEvents = [];
+    this.hideOtherEventsMatches = false;
   }
 
   ngOnInit(): void {
@@ -68,6 +75,14 @@ export class TableUsageComponent implements OnInit, OnChanges {
       const tournamentEvents = tournamentEventChanges.currentValue;
       if (tournamentEvents) {
         this.todaysTournamentEvents = tournamentEvents.filter(tournamentEvent => tournamentEvent.day === this.tournamentDay);
+      }
+    }
+
+    const matchInfosChanges: SimpleChange = changes.matchesToPlayInfos;
+    if (matchInfosChanges != null) {
+      const matchesToPlayInfos = matchInfosChanges.currentValue;
+      if (matchesToPlayInfos != null) {
+        this.filterMatchInfos(this.hideOtherEventsMatches, this.selectedEventId);
       }
     }
   }
@@ -119,7 +134,6 @@ export class TableUsageComponent implements OnInit, OnChanges {
   }
 
   private startSelectedMatchCards(matchCardIds: number[]) {
-    console.log('startSelectedMatchCards', matchCardIds);
     // find table numbers to update
     const startTime: Date = new Date();
     const updatedTableUsages: TableUsage [] = [];
@@ -300,16 +314,16 @@ export class TableUsageComponent implements OnInit, OnChanges {
   getMatchTables(assignedTables: string) {
     if (assignedTables != null) {
       const oneTable: boolean = (assignedTables.indexOf(',') === -1);
-      return (oneTable) ? `Table: ${assignedTables}` : `Tables: ${assignedTables}`;
+      return (oneTable) ? `table: ${assignedTables}` : `tables: ${assignedTables}`;
     } else {
-      return 'Table: Not assigned';
+      return '(table is not assigned)';
     }
   }
 
   isLinkedOnLeft(tableUsage: TableUsage): boolean {
     let isOnLeft = false;
     const assignedTables = this.getAssignedTables(tableUsage);
-    if (assignedTables != null && assignedTables.length > 1) {
+    if (assignedTables.length > 1) {
       for (let i = 0; i < assignedTables.length; i++) {
         const assignedTable = assignedTables[i];
         if (tableUsage.tableNumber === assignedTable) {
@@ -324,7 +338,7 @@ export class TableUsageComponent implements OnInit, OnChanges {
   isLinkedOnRight(tableUsage: TableUsage): boolean {
     let isOnRight = false;
     const assignedTables = this.getAssignedTables(tableUsage);
-    if (assignedTables != null && assignedTables.length > 1) {
+    if (assignedTables.length > 1) {
       for (let i = 0; i < assignedTables.length; i++) {
         const assignedTable = assignedTables[i];
         if (tableUsage.tableNumber === assignedTable) {
@@ -337,7 +351,7 @@ export class TableUsageComponent implements OnInit, OnChanges {
   }
 
   private getAssignedTables(tableUsage: TableUsage): number[] {
-    let assignedTables = null;
+    let assignedTables: number[] = [];
     if (tableUsage.tableStatus === TableStatus.InUse) {
       if (this.allTodaysMatchCards) {
         for (let i = 0; i < this.allTodaysMatchCards.length; i++) {
@@ -345,11 +359,7 @@ export class TableUsageComponent implements OnInit, OnChanges {
           if (matchCard.id === tableUsage.matchCardFk) {
             const strAssignedTables = matchCard.assignedTables;
             const strAssignedTablesArray = strAssignedTables.split(',');
-            assignedTables = [];
-            for (let j = 0; j < strAssignedTablesArray.length; j++) {
-              const assignedTableNumber = Number(strAssignedTablesArray[j]);
-              assignedTables.push(assignedTableNumber);
-            }
+            assignedTables = strAssignedTablesArray.map((strAssignedTable => Number(strAssignedTable)));
             break;
           }
         }
@@ -371,6 +381,62 @@ export class TableUsageComponent implements OnInit, OnChanges {
    */
   onRefresh() {
     this.refreshUsage.emit('');
+  }
+
+  onHideOtherEvents($event: MatSlideToggleChange) {
+    const hide = $event.checked;
+    this.filterMatchInfos(hide, this.selectedEventId);
+  }
+
+  private filterMatchInfos(hide: boolean, eventId: number) {
+    // console.log(`filterMatchInfos ${eventId} hide ${hide}`);
+    if (hide === true && eventId !== 0) {
+      this.filteredMatchInfos = this.matchesToPlayInfos.filter((matchInfo) => matchInfo.matchCard.eventFk === eventId);
+    } else {
+      this.filteredMatchInfos = this.matchesToPlayInfos;
+    }
+  }
+
+  eventSelectionChange($event: MatSelectChange) {
+    // console.log('event changed', $event);
+    const eventId = $event.value;
+    this.filterMatchInfos(this.hideOtherEventsMatches, eventId);
+  }
+
+  isSelectedMatchReady() {
+    let finalResult = false;
+    if (this.selectedMatchCardIds?.length === 1) {
+      let selectedMatchReady = false;
+      const selectedMatchCardId = this.selectedMatchCardIds[0];
+      this.matchesToPlayInfos.forEach(matchInfo => {
+        if (matchInfo.matchCard.id === selectedMatchCardId) {
+          selectedMatchReady = (matchInfo.matchCardPlayability === MatchCardPlayabilityStatus.ReadyToPlay);
+        }
+      });
+      finalResult = selectedMatchReady;
+    }
+    return finalResult;
+  }
+
+  /**
+   * Finds if given table is free
+   * @param assignedTables
+   */
+  isTableFree(assignedTables: string) {
+    let isTableFree = true;
+    if (assignedTables != null) {
+      const strTableNumbers: string [] = assignedTables.split(',');
+      const tableNumbers: number [] = strTableNumbers.map((strTableNumber: string) => Number(strTableNumber));
+      console.log(`${tableNumbers}`);
+      this.tableUsageList.forEach(tableUsage => {
+        const usedTableNum = tableUsage.tableNumber;
+        if (tableNumbers.includes(usedTableNum) && tableUsage.tableStatus === TableStatus.InUse) {
+          isTableFree = false;
+        }
+      });
+    }
+
+    return isTableFree;
   }
 }
 
