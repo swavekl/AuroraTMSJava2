@@ -41,7 +41,10 @@ public class MatchCardController {
             } else if (tournamentId != null && day != null) {
                 matchCards = matchCardService.findAllForTournamentAndDay(tournamentId, day);
                 if (Boolean.TRUE.equals(includePlayerNames)) {
+//                    long start = System.currentTimeMillis();
                     matchCardService.fillPlayerIdToNameMapForAllMatches(matchCards);
+//                    long duration = System.currentTimeMillis() - start;
+//                    System.out.println("optimized duration = " + duration);
                 }
             }
 //            for (MatchCard matchCard : matchCards) {

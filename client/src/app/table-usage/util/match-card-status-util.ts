@@ -3,6 +3,7 @@ import {TableUsage} from '../model/table-usage.model';
 import {MatchCard} from '../../matches/model/match-card.model';
 import {DrawType} from '../../draws/model/draw-type.enum';
 import {TournamentEvent} from '../../tournament/tournament-config/tournament-event.model';
+import {Match} from '../../matches/model/match.model';
 
 /**
  * Calculates match status - if it is available for scheduling on a table
@@ -32,10 +33,14 @@ export class MatchCardStatusUtil {
 
       this.computeSingleEliminationMatchStatus(matchCards, matchesToPlayInfos, tableUsages);
 
-      // sort them by starting time
+      // sort them by starting time, then by ordinal number of event and finally by group number within event
       matchesToPlayInfos.sort((matchInfo1: MatchInfo, matchInfo2: MatchInfo) => {
         return (matchInfo1.matchCard.startTime === matchInfo2.matchCard.startTime)
-          ? ((matchInfo1.matchCard.groupNum > matchInfo2.matchCard.groupNum) ? 1 : -1)
+          ? (
+            (matchInfo1.tournamentEvent.ordinalNumber === matchInfo2.tournamentEvent.ordinalNumber)
+              ? (matchInfo1.matchCard.groupNum > matchInfo2.matchCard.groupNum) ? 1 : -1
+              : (matchInfo1.tournamentEvent.ordinalNumber > matchInfo2.tournamentEvent.ordinalNumber ? 1 : -1)
+          )
           : ((matchInfo1.matchCard.startTime > matchInfo2.matchCard.startTime) ? 1 : -1);
       });
     }
@@ -385,10 +390,12 @@ export class MatchCardStatusUtil {
       } else if (feedingMatchCards.length === 1) {
         matchCard = feedingMatchCards[0];
       }
-      const tournamentEvent = this.tournamentEvents.find(event => event.id === matchCard.eventFk);
-      isCompletedMatch = MatchCard.isMatchCardCompleted(matchCard, tournamentEvent);
+      if (matchCard) {
+        const tournamentEvent = this.tournamentEvents.find(event => event.id === matchCard.eventFk);
+        isCompletedMatch = MatchCard.isMatchCardCompleted(matchCard, tournamentEvent);
+      }
     }
-      return isCompletedMatch;
+    return isCompletedMatch;
   }
 
   private getMatchDrawType(feedingMatchCards: MatchCard[], matchIndex: number) {
@@ -406,7 +413,7 @@ export class MatchCardStatusUtil {
     if (matchCard.drawType === DrawType.SINGLE_ELIMINATION) {
       const theMatch = (matchCard.matches.length === 1) ? matchCard.matches[0] : null;
       if (theMatch) {
-        isLaterRound = (theMatch.playerAProfileId === 'TBD' && theMatch.playerBProfileId === 'TBD');
+        isLaterRound = (theMatch.playerAProfileId === Match.TBD_PROFILE_ID && theMatch.playerBProfileId === Match.TBD_PROFILE_ID);
       }
     }
     return isLaterRound;

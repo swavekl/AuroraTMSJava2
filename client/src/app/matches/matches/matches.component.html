@@ -115,7 +115,7 @@
                   </ng-container>
                 </td>
                 <td [rowSpan]="2" class="enter-score-button">
-                  <button mat-raised-button (click)="onMatchScoreEntry(match, matchIndex)">Enter</button>
+                  <button mat-raised-button (click)="onMatchScoreEntry(match, matchIndex)" [disabled]="!isMatchReady(match)">Enter</button>
                 </td>
               </tr>
               <tr style="border-bottom: 8px solid lightgray">

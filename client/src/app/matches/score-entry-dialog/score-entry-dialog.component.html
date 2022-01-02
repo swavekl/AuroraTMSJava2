@@ -1,17 +1,17 @@
-<div mat-dialog-title>Enter Match #: {{match.matchNum}} Score</div>
+<div mat-dialog-title>Enter Score for {{matchIdentifier}} {{getMatchNumberIdentifier()}}</div>
 <mat-dialog-content>
-    <form name="form" #f="ngForm" novalidate>
+    <form name="form" #f="ngForm" novalidate style="padding-top: 8px">
       <table class="match-display">
         <thead>
         <tr>
-<!--          <th>Match</th>-->
           <th>&nbsp;</th>
+          <th>Rating</th>
           <th class="name-column">Player Name</th>
           <th>Default</th>
           <th [colSpan]="numberOfGames">Games</th>
         </tr>
         <tr>
-<!--          <th>#</th>-->
+          <th>&nbsp;</th>
           <th>&nbsp;</th>
           <th>&nbsp;</th>
           <th>&nbsp;</th>
@@ -20,8 +20,8 @@
         </thead>
         <tbody>
         <tr>
-<!--          <td [rowSpan]="2" class="match-number">{{ match.matchNum }}</td>-->
           <td>{{match.playerALetter}}</td>
+          <td class="player-rating">{{match.playerARating}}</td>
           <td [ngClass]="isMatchWinner(match.playerAProfileId) ? 'match-winner' : 'not-match-winner'">{{playerAName}}</td>
           <td><mat-checkbox name="sideADefaulted" [(ngModel)]="match.sideADefaulted" (change)="onDefaultValueChange($event)">&nbsp;</mat-checkbox></td>
           <td *ngFor="let game of games; let idx = index;">
@@ -38,6 +38,7 @@
         </tr>
         <tr>
           <td>{{match.playerBLetter}}</td>
+          <td class="player-rating">{{match.playerBRating}}</td>
           <td [ngClass]="isMatchWinner(match.playerBProfileId) ? 'match-winner' : 'not-match-winner'">{{playerBName}}</td>
           <td><mat-checkbox name="sideBDefaulted" [(ngModel)]="match.sideBDefaulted" (change)="onDefaultValueChange($event)">&nbsp;</mat-checkbox></td>
           <td *ngFor="let game of games; let idx = index;">
@@ -55,15 +56,15 @@
         </tbody>
       </table>
       <div fxLayout="column" fxLayoutGap="16px" fxFlexAlign="start stretch" style="padding-top: 16px; padding-bottom: 16px;">
-        <div fxLayout="row" fxLayoutGap="8px">
+        <div fxLayout="row" fxLayoutGap="10px">
           <ng-container *ngFor="let firstRowButton of firstRowButtons">
             <button mat-raised-button (click)="setGameScore(firstRowButton)">{{firstRowButton}}</button>
           </ng-container>
         </div>
         <div fxLayout="row">
-          <button mat-raised-button (click)="setGameScore(11)" style="min-width: 784px">11</button>
+          <button mat-raised-button (click)="setGameScore(11)" style="min-width: 805px">11</button>
         </div>
-        <div fxLayout="row" fxLayoutGap="8px">
+        <div fxLayout="row" fxLayoutGap="10px">
           <ng-container *ngFor="let secondRowButton of secondRowButtons">
             <button mat-raised-button (click)="setGameScore(secondRowButton)">{{secondRowButton}}</button>
           </ng-container>
@@ -73,6 +74,7 @@
 </mat-dialog-content>
 <mat-dialog-actions fxLayout="row">
     <button mat-raised-button [mat-dialog-close]="false" (click)="onClose()" [tabindex]="(numberOfGames * 2) + 1">Close</button>
+    <span fxFlex></span>
     <button mat-raised-button (click)="onReset()" [tabindex]="(numberOfGames * 2) + 2">Clear</button>
     <span fxFlex></span>
     <button mat-raised-button (click)="onPrevious(f.value)" [disabled]="disablePreviousButton" [tabindex]="(numberOfGames * 2) + 3">Save & Previous</button>

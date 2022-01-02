@@ -4,6 +4,7 @@ import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
 import {Match} from '../model/match.model';
 import {ScoreEntryDialogData, ScoreEntryDialogResult} from './score-entry-dialog-data';
 import {MatCheckboxChange} from '@angular/material/checkbox';
+import {DrawType} from '../../draws/model/draw-type.enum';
 
 /**
  * Dialog for entering match score
@@ -30,6 +31,16 @@ export class ScoreEntryDialogComponent implements OnInit {
   // player names
   playerAName: string;
   playerBName: string;
+
+  // individual or combined player rating for side A and B
+  playerARating: number;
+  playerBRating: number;
+
+  // name of the match including event
+  matchIdentifier: string;
+
+  // draw type
+  drawType: DrawType;
 
   // callback function to save ane move to previous or next match without closing dialog
   callbackFn: (scope: any, result: ScoreEntryDialogResult) => void;
@@ -76,12 +87,16 @@ export class ScoreEntryDialogComponent implements OnInit {
     this.match = this.deepCloneMatch(data.match);
     this.playerAName = data.playerAName;
     this.playerBName = data.playerBName;
+    this.playerARating = data.playerARating;
+    this.playerBRating = data.playerBRating;
     this.callbackFn = data.callbackFn;
     this.callbackFnScope = data.callbackFnScope;
     this.disablePreviousButton = (data.editedMatchIndex === 0);
     this.disableNextButton = !(data.editedMatchIndex < (data.numberOfMatchesInCard - 1));
     this.pointsPerGame = data.pointsPerGame ?? 11;
     this.currentScoreInputName = 'game1ScoreSideA';
+    this.matchIdentifier = data.matchIdentifier;
+    this.drawType = data.drawType;
   }
 
   ngOnInit(): void {
@@ -219,6 +234,10 @@ export class ScoreEntryDialogComponent implements OnInit {
 
   private deepCloneMatch (match: Match): Match {
     return JSON.parse(JSON.stringify(match));
+  }
+
+  getMatchNumberIdentifier (): string {
+    return (this.drawType === DrawType.ROUND_ROBIN) ? `Match ${this.match.matchNum}` : '';
   }
 }
 

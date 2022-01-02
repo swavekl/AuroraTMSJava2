@@ -1,4 +1,4 @@
-import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
+import {Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChange, SimpleChanges} from '@angular/core';
 import {TableUsage} from '../model/table-usage.model';
 import {MatchCard} from '../../matches/model/match-card.model';
 import {TournamentEvent} from '../../tournament/tournament-config/tournament-event.model';
@@ -14,7 +14,7 @@ import {MatchCardStatusPipe} from '../pipes/match-card-status.pipe';
   templateUrl: './table-usage.component.html',
   styleUrls: ['./table-usage.component.scss']
 })
-export class TableUsageComponent implements OnInit {
+export class TableUsageComponent implements OnInit, OnChanges {
 
   @Input()
   tableUsageList: TableUsage [] = [];
@@ -25,6 +25,10 @@ export class TableUsageComponent implements OnInit {
 
   @Input()
   allTodaysMatchCards: MatchCard[];
+
+  // day of tournament 1, 2 etc.
+  @Input()
+  tournamentDay: number;
 
   @Input()
   tournamentEvents: TournamentEvent[];
@@ -42,9 +46,10 @@ export class TableUsageComponent implements OnInit {
 
   public selectedMatchCardIds: number [];
 
-  private TBD_PROFILE_ID = 'TBD';
-
   private matchCardStatusPipe: MatchCardStatusPipe = new MatchCardStatusPipe();
+
+  // list of events which take place today
+  todaysTournamentEvents: TournamentEvent[] = [];
 
   constructor() {
     this.selectedEventId = 0;
@@ -55,6 +60,16 @@ export class TableUsageComponent implements OnInit {
   }
 
   ngOnInit(): void {
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    const tournamentEventChanges: SimpleChange = changes.tournamentEvents;
+    if (tournamentEventChanges != null) {
+      const tournamentEvents = tournamentEventChanges.currentValue;
+      if (tournamentEvents) {
+        this.todaysTournamentEvents = tournamentEvents.filter(tournamentEvent => tournamentEvent.day === this.tournamentDay);
+      }
+    }
   }
 
   onSelectMatchCard(matchCard: MatchCard) {
@@ -68,10 +83,10 @@ export class TableUsageComponent implements OnInit {
       const matches: Match [] = matchCard.matches;
       if (matches && matchCard.profileIdToNameMap) {
         const theMatch = matches[0];
-        const playerAName = (theMatch.playerAProfileId !== this.TBD_PROFILE_ID)
-          ? matchCard.profileIdToNameMap[theMatch.playerAProfileId] : this.TBD_PROFILE_ID;
-        const playerBName = (theMatch.playerBProfileId !== this.TBD_PROFILE_ID)
-          ? matchCard.profileIdToNameMap[theMatch.playerBProfileId] : this.TBD_PROFILE_ID;
+        const playerAName = (theMatch.playerAProfileId !== Match.TBD_PROFILE_ID)
+          ? matchCard.profileIdToNameMap[theMatch.playerAProfileId] : Match.TBD_PROFILE_ID;
+        const playerBName = (theMatch.playerBProfileId !== Match.TBD_PROFILE_ID)
+          ? matchCard.profileIdToNameMap[theMatch.playerBProfileId] : Match.TBD_PROFILE_ID;
         const strMatchStatus = this.matchCardStatusPipe.transform(matchInfo.matchCardPlayability, matchInfo.playabilityDetail);
         tooltipText = `${playerAName} vs. ${playerBName} ${strMatchStatus}`;
       }

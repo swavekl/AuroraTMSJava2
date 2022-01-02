@@ -23,6 +23,7 @@ import {MatchCardStatusUtil} from '../util/match-card-status-util';
                      [allTodaysMatchCards]="matchCards$ | async"
                      [matchesToPlayInfos]="matchesToPlayInfos$ | async"
                      [tournamentEvents]="tournamentEvents$ | async"
+                     [tournamentDay]="tournamentDay"
                      (printMatchCards)="onPrintMatchCards($event)"
                      (startMatches)="onStartMatches($event)"
                      (refreshUsage)="onRefresh($event)">
@@ -42,7 +43,7 @@ export class TableUsageContainerComponent implements OnInit, OnDestroy {
 
   private tournamentId: number;
 
-  private tournamentDay: number;
+  tournamentDay: number;
 
   private subscriptions: Subscription = new Subscription();
   private loading$: Observable<boolean>;

@@ -486,7 +486,6 @@ public class MatchCardService {
         // get all matches in one query for all match cards passed in
         // otherwise Hibernate would execute a query to get matches for each match card separately
         List<Match> allMatches = this.matchService.findAllByMatchCardIn(matchCards);
-//        long start2 = System.currentTimeMillis();
         // optimize retrieval of profile id to player full names map by grouping match cards for each event together
         for (Long eventFk : eventsForMatchCards) {
             List<Match> matchesForThisEvent = new ArrayList<>();
@@ -532,8 +531,6 @@ public class MatchCardService {
                 }
             }
         }
-//        long duration2 = System.currentTimeMillis() - start2;
-//        System.out.println("optimized duration2 = " + duration2);
     }
 
     public List<MatchCard> findAllForTournamentAndDayAndAssignedTable(long tournamentId, int day, int tableNumber) {

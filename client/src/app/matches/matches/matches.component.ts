@@ -148,7 +148,7 @@ export class MatchesComponent implements OnInit, OnChanges, OnDestroy {
   onMatchScoreEntry(match: Match, matchIndex: number) {
     const data: ScoreEntryDialogData = this.makeMatchDialogData(match, matchIndex);
     const config = {
-      width: '835px', height: '450px', data: data
+      width: '860px', height: '450px', data: data
     };
 
     this.scoreEntryDialogRef = this.dialog.open(ScoreEntryDialogComponent, config);
@@ -214,15 +214,21 @@ export class MatchesComponent implements OnInit, OnChanges, OnDestroy {
    * @private
    */
   private makeMatchDialogData(match: Match, nextMatchIndex: number): ScoreEntryDialogData {
+    const matchIdentifier = MatchCard.getFullMatchName(this.selectedEvent.name,
+      this.selectedMatchCard.drawType, this.selectedMatchCard.round, this.selectedMatchCard.groupNum);
     return {
       match: match,
       numberOfGames: this.selectedMatchCard.numberOfGames,
       playerAName: this.selectedMatchCard.profileIdToNameMap[match.playerAProfileId],
       playerBName: this.selectedMatchCard.profileIdToNameMap[match.playerBProfileId],
+      playerARating: match.playerARating,
+      playerBRating: match.playerBRating,
       numberOfMatchesInCard: this.selectedMatchCard?.matches?.length || 0,
       editedMatchIndex: nextMatchIndex,
       callbackFn: this.onPreviousNextCallback,
       callbackFnScope: this,
+      matchIdentifier: matchIdentifier,
+      drawType: this.selectedMatchCard.drawType,
       pointsPerGame: this.selectedEvent.pointsPerGame
     };
   }
@@ -324,5 +330,9 @@ export class MatchesComponent implements OnInit, OnChanges, OnDestroy {
 
   public isMatchCardCompleted(matchCard: MatchCard, event: TournamentEvent): boolean {
     return MatchCard.isMatchCardCompleted(matchCard, event);
+  }
+
+  isMatchReady(match: Match) {
+    return match.playerBProfileId !== Match.TBD_PROFILE_ID && match.playerAProfileId !== Match.TBD_PROFILE_ID;
   }
 }

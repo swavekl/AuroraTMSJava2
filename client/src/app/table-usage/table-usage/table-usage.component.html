@@ -2,7 +2,7 @@
   <mat-label>Select Event</mat-label>
   <span class="toolbar-spacer-2"></span>
   <mat-select [(ngModel)]="selectedEventId" style="width: 100px;">
-    <mat-option *ngFor="let event of tournamentEvents" [value]="event.id">
+    <mat-option *ngFor="let event of todaysTournamentEvents" [value]="event.id">
       {{event.name}}
     </mat-option>
   </mat-select>
@@ -27,8 +27,8 @@
                      [ngClass]="isSelectedMatchCard (matchInfo.matchCard) ? 'selected' : 'not-selected'">
         <h3 mat-line>{{getMatchIdentifierText(matchInfo.matchCard.id)}}</h3>
         <h4 mat-line class="match-info-line2">{{getMatchTables(matchInfo.matchCard.assignedTables)}}, Time: {{matchInfo.matchCard.startTime | startTime}} </h4>
-<!--        <h4 mat-line class="match-info-line2">Status: {{matchInfo.matchCardPlayability | matchCardStatus: matchInfo.playabilityDetail }}</h4>-->
-        <mat-icon mat-list-icon [ngClass]="getStatusClass(matchInfo.matchCardPlayability)">info</mat-icon>
+        <h4 mat-line class="match-info-line2" [ngClass]="getStatusClass(matchInfo.matchCardPlayability)">Status: {{matchInfo.matchCardPlayability | matchCardStatus: matchInfo.playabilityDetail }}</h4>
+<!--        <mat-icon mat-list-icon [ngClass]="getStatusClass(matchInfo.matchCardPlayability)">info</mat-icon>-->
         <mat-divider></mat-divider>
       </mat-list-item>
     </mat-list>

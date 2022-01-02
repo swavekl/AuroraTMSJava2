@@ -1,4 +1,7 @@
 export class Match {
+  // to be determined player profile id
+  static readonly TBD_PROFILE_ID = 'TBD';
+
   // unique id
   id: number;
 
