@@ -19,8 +19,8 @@ export class ConfirmationPopupComponent implements OnInit {
               @Inject(MAT_DIALOG_DATA) public data: ConfirmationPopupData) {
     this.title = (data?.title) ? data.title : 'Warning';
     this.message = data?.message;
-    this.showOK = (data?.showOK) ? data?.showOK : true;
-    this.showCancel = (data?.showCancel) ? data?.showCancel : true;
+    this.showOK = (data.showOK !== undefined) ? data.showOK : true;
+    this.showCancel = (data.showCancel !== undefined) ? data.showCancel : true;
   }
 
   ngOnInit(): void {

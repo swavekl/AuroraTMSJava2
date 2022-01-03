@@ -13,6 +13,7 @@ import {MatSlideToggleChange} from '@angular/material/slide-toggle';
 import {MatSelectChange} from '@angular/material/select/select';
 import {MatchAssignmentDialogComponent, MatchAssignmentDialogData} from '../util/match-assignment-dialog.component';
 import {MatDialog, MatDialogConfig} from '@angular/material/dialog';
+import {ConfirmationPopupComponent} from '../../shared/confirmation-popup/confirmation-popup.component';
 
 @Component({
   selector: 'app-table-usage',
@@ -119,23 +120,26 @@ export class TableUsageComponent implements OnInit, OnChanges {
   }
 
   onStartEventMatches() {
-    const eventRRMatchCardIds = this.getEventRRMatchCards();
+    // find matches that are for this event
+    const selectedEventRRMatchCards: MatchInfo [] = this.matchesToPlayInfos.filter(matchInfo => {
+      return (matchInfo.matchCard.eventFk === this.selectedEventId &&
+        matchInfo.matchCard.drawType === DrawType.ROUND_ROBIN &&
+        matchInfo.matchCardPlayability === MatchCardPlayabilityStatus.ReadyToPlay);
+    });
+    const eventRRMatchCardIds = selectedEventRRMatchCards.map(matchInfo => matchInfo.matchCard.id);
     if (eventRRMatchCardIds.length > 0) {
       this.startSelectedMatchCards(eventRRMatchCardIds);
+    } else {
+      // no matches are left for this event - warn
+      const config = {
+        width: '450px', height: '230px', data: {
+          showCancel: false, message: `There are no matches left that are ready to play for this event.`
+        }
+      };
+      const dialogRef = this.dialog.open(ConfirmationPopupComponent, config);
+      dialogRef.afterClosed().subscribe(result => {
+      });
     }
-  }
-
-  private getEventRRMatchCards() {
-    const eventMatchCardIds: number [] = [];
-    for (let i = 0; i < this.matchesToPlayInfos.length; i++) {
-      const matchesToPlayInfo = this.matchesToPlayInfos[i];
-      const matchCard = matchesToPlayInfo.matchCard;
-//      console.log('matchCard eventId ' + matchCard.eventFk + ' drawType ' + matchCard.drawType);
-      if (matchCard.eventFk === this.selectedEventId && matchCard.drawType === DrawType.ROUND_ROBIN) {
-        eventMatchCardIds.push(matchCard.id);
-      }
-    }
-    return eventMatchCardIds;
   }
 
   onStartSelectedMatch() {
@@ -248,7 +252,11 @@ export class TableUsageComponent implements OnInit, OnChanges {
    * Print all RR round match cards for this event
    */
   onPrintEventMatchCards() {
-    const eventRRMatchCardIds = this.getEventRRMatchCards();
+    // they may want to print match cards that are already started so find them among all match cards
+    const selectedEventRRMatchCards: MatchCard [] = this.allTodaysMatchCards.filter(matchCard => {
+      return (matchCard.eventFk === this.selectedEventId && matchCard.drawType === DrawType.ROUND_ROBIN);
+    });
+    const eventRRMatchCardIds = selectedEventRRMatchCards.map(matchCard => matchCard.id);
     if (eventRRMatchCardIds.length > 0) {
       const printInfo = {
         eventId: this.selectedEventId,
