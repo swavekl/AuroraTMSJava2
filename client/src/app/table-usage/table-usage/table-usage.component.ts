@@ -1,4 +1,5 @@
 import {Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChange, SimpleChanges} from '@angular/core';
+import {CdkDrag, CdkDragDrop, CdkDropList} from '@angular/cdk/drag-drop';
 import {TableUsage} from '../model/table-usage.model';
 import {MatchCard} from '../../matches/model/match-card.model';
 import {TournamentEvent} from '../../tournament/tournament-config/tournament-event.model';
@@ -10,6 +11,8 @@ import {MatchCardPlayabilityStatus, MatchInfo} from '../model/match-info.model';
 import {MatchCardStatusPipe} from '../pipes/match-card-status.pipe';
 import {MatSlideToggleChange} from '@angular/material/slide-toggle';
 import {MatSelectChange} from '@angular/material/select/select';
+import {MatchAssignmentDialogComponent, MatchAssignmentDialogData} from '../util/match-assignment-dialog.component';
+import {MatDialog, MatDialogConfig} from '@angular/material/dialog';
 
 @Component({
   selector: 'app-table-usage',
@@ -57,7 +60,7 @@ export class TableUsageComponent implements OnInit, OnChanges {
 
   filteredMatchInfos: MatchInfo [];
 
-  constructor() {
+  constructor(private dialog: MatDialog) {
     this.selectedEventId = 0;
     this.selectedMatchCardIds = [];
     this.matchesToPlayInfos = [];
@@ -140,6 +143,7 @@ export class TableUsageComponent implements OnInit, OnChanges {
   }
 
   private startSelectedMatchCards(matchCardIds: number[]) {
+    const unavailableTables: number [] = [];
     // find table numbers to update
     const startTime: Date = new Date();
     const updatedTableUsages: TableUsage [] = [];
@@ -155,10 +159,16 @@ export class TableUsageComponent implements OnInit, OnChanges {
               for (let t = 0; t < this.tableUsageList.length; t++) {
                 const tableUsage = this.tableUsageList[t];
                 if (tableUsage.tableNumber === tableNumber) {
-                  tableUsage.tableStatus = TableStatus.InUse;
-                  tableUsage.matchStartTime = startTime;
-                  tableUsage.matchCardFk = matchCardId;
-                  updatedTableUsages.push(tableUsage);
+                  if (tableUsage.tableStatus !== TableStatus.Free) {
+                    unavailableTables.push(tableNumber);
+                  }
+                  const updatedTableUsage: TableUsage = {
+                    ...tableUsage,
+                    tableStatus:  TableStatus.InUse,
+                    matchStartTime: startTime,
+                    matchCardFk: matchCardId
+                  };
+                  updatedTableUsages.push(updatedTableUsage);
                 }
               }
             }
@@ -167,10 +177,63 @@ export class TableUsageComponent implements OnInit, OnChanges {
       }
     }
 
-    this.startMatches.emit(updatedTableUsages);
+    if (unavailableTables.length > 0) {
+      // show dialog to allow reassignment
+      if (matchCardIds.length === 1) {
+        const matchAssignmentDialogData = this.makeTableAssignmentDialogData(matchCardIds, unavailableTables);
+        if (matchAssignmentDialogData) {
+          const config: MatDialogConfig = {
+            width: '380px', height: '300px', data: matchAssignmentDialogData
+          };
+          // show pairing dialog
+          const dialogRef = this.dialog.open(MatchAssignmentDialogComponent, config);
+          dialogRef.afterClosed().subscribe(result => {
+            if (result.action === 'force') {
+              this.startMatches.emit(updatedTableUsages);
+            } else if (result.action === 'move') {
+              const newTableNumbers = result.useTables;
+              const matchCardId = matchCardIds[0];
+              const forcedTableUsages: TableUsage [] = [];
+              for (let i = 0; i < newTableNumbers.length; i++) {
+                const tableNumber = newTableNumbers[i];
+                const tableUsage = this.tableUsageList.find(tableUsage1 => tableUsage1.tableNumber === tableNumber);
+                if (tableUsage) {
+                  tableUsage.tableStatus = TableStatus.InUse;
+                  tableUsage.matchStartTime = new Date();
+                  tableUsage.matchCardFk = matchCardId;
+                  tableUsage.completedMatches = 0;
+                  tableUsage.totalMatches = 0;
+                  forcedTableUsages.push(tableUsage);
+                }
+              }
+              this.startMatches.emit(forcedTableUsages);
+            }
+          });
+        }
+      } else {
+        // show warning if multiple match cards are started
+      }
+    } else {
+      this.startMatches.emit(updatedTableUsages);
+    }
   }
 
-  /**
+  private makeTableAssignmentDialogData(matchCardIds: number[], conflictTables: number[]): MatchAssignmentDialogData {
+      const selectedMatchInfo = this.matchesToPlayInfos.find(matchInfo => matchInfo.matchCard.id === matchCardIds[0]);
+      const availableTables: number [] = [];
+      this.tableUsageList.forEach(tableUsage => {
+        if (tableUsage.tableStatus === TableStatus.Free) {
+          availableTables.push(tableUsage.tableNumber);
+        }
+      });
+      return {
+        availableTables: availableTables,
+        conflictTables: conflictTables,
+        matchCard: selectedMatchInfo.matchCard
+      };
+    }
+
+    /**
    * Print single selected match card
    */
   onPrintSelectedMatch() {
@@ -442,6 +505,32 @@ export class TableUsageComponent implements OnInit, OnChanges {
     }
 
     return isTableFree;
+  }
+
+  /**
+   * Drag and drop support for table reassignment
+   */
+    canMoveMatchInfo(item: CdkDrag<MatchInfo>) {
+      return (item.data?.matchCardPlayability === MatchCardPlayabilityStatus.ReadyToPlay);
+    }
+
+  /**
+   *
+   * @param index index of item being dropped
+   * @param item item being dropped
+   * @param drop drop target
+   */
+    canDropPredicate(index: number, item: CdkDrag<TableUsage>, drop: CdkDropList) {
+    console.log('canDropPredicate', drop);
+    return item.data.tableStatus === TableStatus.Free;
+  }
+
+  /**
+   * Callback when match info is being dropped
+   * @param $event
+   */
+  onMatchInfoDrop($event: CdkDragDrop<TableUsage>) {
+    console.log('in onMatchInfoDrop', $event);
   }
 }
 

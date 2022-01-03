@@ -63,28 +63,32 @@ public class PaymentRefundController {
     public ResponseEntity getStripeKey(@PathVariable PaymentRefundFor paymentRefundFor,
                                        @PathVariable long accountItemId) {
         Map<String, String> map = new HashMap<>();
-        AccountEntity accountEntity = getAccountForItem(paymentRefundFor, accountItemId);
-        if (accountEntity != null) {
-            if (stripePublicKey != null && stripePublicKey.length() > 0) {
-                map.put("stripePublicKey", this.stripePublicKey);
+        try {
+            AccountEntity accountEntity = getAccountForItem(paymentRefundFor, accountItemId);
+            if (accountEntity != null) {
+                if (stripePublicKey != null && stripePublicKey.length() > 0) {
+                    map.put("stripePublicKey", this.stripePublicKey);
 
-                Stripe.apiKey = this.stripeApiKey;
-                map.put("stripeAccountId", accountEntity.getAccountId());
-                String defaultAccountCurrency = "usd";
-                try {
-                    Account stripeAccount = Account.retrieve(accountEntity.getAccountId());
-                    defaultAccountCurrency = stripeAccount.getDefaultCurrency();
-                } catch (StripeException e) {
+                    Stripe.apiKey = this.stripeApiKey;
+                    map.put("stripeAccountId", accountEntity.getAccountId());
+                    String defaultAccountCurrency = "usd";
+                    try {
+                        Account stripeAccount = Account.retrieve(accountEntity.getAccountId());
+                        defaultAccountCurrency = stripeAccount.getDefaultCurrency();
+                    } catch (StripeException e) {
 
+                    }
+                    map.put("defaultAccountCurrency", defaultAccountCurrency);
+                    return new ResponseEntity(map, HttpStatus.OK);
+                } else {
+                    return new ResponseEntity("Stripe public key is empty", HttpStatus.NOT_FOUND);
                 }
-                map.put("defaultAccountCurrency", defaultAccountCurrency);
-                return new ResponseEntity(map, HttpStatus.OK);
             } else {
-                return new ResponseEntity("Stripe public key is empty", HttpStatus.NOT_FOUND);
+                String errorMessage = String.format("Stripe account for account item id %d not found", accountItemId);
+                return new ResponseEntity(errorMessage, HttpStatus.NOT_FOUND);
             }
-        } else {
-            String errorMessage = String.format("Stripe account for account item id %d not found", accountItemId);
-            return new ResponseEntity(errorMessage, HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            return new ResponseEntity(e.getMessage(), HttpStatus.NOT_FOUND);
         }
     }
 

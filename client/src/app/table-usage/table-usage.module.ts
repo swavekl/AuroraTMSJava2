@@ -16,30 +16,36 @@ import {TableUsageDataService} from './service/table-usage-data.service';
 import {TableUsageService} from './service/table-usage.service';
 import {MatIconModule} from '@angular/material/icon';
 import {SharedModule} from '../shared/shared.module';
-import { MatchCardStatusPipe } from './pipes/match-card-status.pipe';
+import {MatchCardStatusPipe} from './pipes/match-card-status.pipe';
 import {MatSlideToggleModule} from '@angular/material/slide-toggle';
+import {DragDropModule} from '@angular/cdk/drag-drop';
+import {MatchAssignmentDialogComponent} from './util/match-assignment-dialog.component';
+import {MatDialogModule} from '@angular/material/dialog';
 
 
 @NgModule({
   declarations: [
     TableUsageComponent,
     TableUsageContainerComponent,
-    MatchCardStatusPipe
+    MatchCardStatusPipe,
+    MatchAssignmentDialogComponent
   ],
-    imports: [
-        CommonModule,
-        TableUsageRoutingModule,
-        FlexModule,
-        MatListModule,
-        MatTooltipModule,
-        MatToolbarModule,
-        MatSelectModule,
-        FormsModule,
-        MatButtonModule,
-        MatIconModule,
-        SharedModule,
-        MatSlideToggleModule
-    ]
+  imports: [
+    CommonModule,
+    TableUsageRoutingModule,
+    FlexModule,
+    MatListModule,
+    MatTooltipModule,
+    MatToolbarModule,
+    MatSelectModule,
+    FormsModule,
+    MatButtonModule,
+    MatIconModule,
+    SharedModule,
+    MatSlideToggleModule,
+    DragDropModule,
+    MatDialogModule
+  ]
 })
 export class TableUsageModule {
 

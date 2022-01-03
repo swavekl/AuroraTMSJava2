@@ -31,7 +31,7 @@ public class AccountService {
     @Cacheable(key = "#userProfileId")
     public AccountEntity findById(String userProfileId) {
         return this.accountRepository.findById(userProfileId)
-                .orElseThrow(() -> new ResourceNotFoundException("Account " + userProfileId + " not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Account for user with profile id '" + userProfileId + "' not found. Make sure that the account is configured for this user."));
     }
 
     @CacheEvict(key = "#userProfileId")

@@ -23,7 +23,6 @@ import {ProfileModule} from '../../profile/profile.module';
 import { DoublesPairDialogComponent } from './doubles-pair-dialog/doubles-pair-dialog.component';
 import {MatDialogModule} from '@angular/material/dialog';
 import {MatSelectModule} from '@angular/material/select';
-import { SelectionsDifferentDirective } from './doubles-pair-dialog/selections-different.directive';
 import { MaxRatingDirective } from './doubles-pair-dialog/max-rating.directive';
 
 @NgModule({
@@ -33,7 +32,6 @@ import { MaxRatingDirective } from './doubles-pair-dialog/max-rating.directive';
     EventEntryStatusPipe,
     AvailabilityStatusPipe,
     DoublesPairDialogComponent,
-    SelectionsDifferentDirective,
     MaxRatingDirective
   ],
   imports: [
