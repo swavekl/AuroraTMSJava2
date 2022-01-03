@@ -133,7 +133,7 @@ export class TableUsageComponent implements OnInit, OnChanges {
       // no matches are left for this event - warn
       const config = {
         width: '450px', height: '230px', data: {
-          showCancel: false, message: `There are no matches left that are ready to play for this event.`
+          showCancel: false, message: `There are no round robin round matches left in this event which are ready to play.`
         }
       };
       const dialogRef = this.dialog.open(ConfirmationPopupComponent, config);
