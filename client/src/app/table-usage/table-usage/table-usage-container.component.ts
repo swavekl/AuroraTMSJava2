@@ -1,6 +1,6 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
-import {combineLatest, interval, Observable, of, Subscription} from 'rxjs';
-import {first, map} from 'rxjs/operators';
+import {combineLatest, interval, Observable, of, startWith, Subscription} from 'rxjs';
+import {debounceTime, distinctUntilChanged, first, map, tap} from 'rxjs/operators';
 import {TableUsage} from '../model/table-usage.model';
 import {LinearProgressBarService} from '../../shared/linear-progress-bar/linear-progress-bar.service';
 import {TableUsageService} from '../service/table-usage.service';
@@ -13,7 +13,7 @@ import {DateUtils} from '../../shared/date-utils';
 import {TournamentEventConfigService} from '../../tournament/tournament-config/tournament-event-config.service';
 import {TournamentEvent} from '../../tournament/tournament-config/tournament-event.model';
 import {MatchCardPrinterService} from '../../matches/service/match-card-printer.service';
-import {MatchCardPlayabilityStatus, MatchInfo} from '../model/match-info.model';
+import {MatchInfo} from '../model/match-info.model';
 import {MatchCardStatusUtil} from '../util/match-card-status-util';
 
 @Component({
@@ -71,7 +71,9 @@ export class TableUsageContainerComponent implements OnInit, OnDestroy {
       this.tournamentEventConfigService.store.select(this.tournamentEventConfigService.selectors.selectLoading),
       this.matchCardService.store.select(this.matchCardService.selectors.selectLoading),
       this.matchCardPrinterService.loading$,
-      (tournamentsLoading: boolean, tableUsageLoading: boolean, eventConfigsLoading: boolean, matchCardsLoading: boolean, matchCardPrinting: boolean) => {
+      (tournamentsLoading: boolean, tableUsageLoading: boolean,
+       eventConfigsLoading: boolean, matchCardsLoading: boolean,
+       matchCardPrinting: boolean) => {
         return tournamentsLoading || tableUsageLoading || eventConfigsLoading || matchCardsLoading || matchCardPrinting;
       }
     );
@@ -91,6 +93,7 @@ export class TableUsageContainerComponent implements OnInit, OnDestroy {
       .pipe(
         first(),
         map((todaysTournaments: Tournament[]) => {
+          // console.log('CONTAINER got todays tournaments', todaysTournaments?.length);
           if (todaysTournaments?.length > 0) {
             const tournament: Tournament = todaysTournaments[0];
             const difference = new DateUtils().daysBetweenDates(tournament.startDate, todaysDate);
@@ -110,8 +113,9 @@ export class TableUsageContainerComponent implements OnInit, OnDestroy {
     this.tableUsageList$ = this.tableUsageService.store.select(
       this.tableUsageService.selectors.selectEntities)
       .pipe(
+        distinctUntilChanged((previous, current): boolean => JSON.stringify(previous) === JSON.stringify(current)),
         map((tableUsages: TableUsage[]) => {
-          // console.log('CONTAINER got table usage list ', tableUsages);
+          // console.log('CONTAINER got table usage list ', tableUsages?.length);
           return JSON.parse(JSON.stringify(tableUsages));
         }));
     const params = `tournamentId=${tournamentId}`;
@@ -164,11 +168,13 @@ export class TableUsageContainerComponent implements OnInit, OnDestroy {
    * @private
    */
   private loadMatchCards() {
-    this.matchCards$ = this.matchCardService.store.select(this.matchCardService.selectors.selectEntities);
-    // .pipe(
-    //   tap((matchCards) => {
-    //     console.log('CONTAINER got match cards', matchCards);
-    //   }));
+    this.matchCards$ = this.matchCardService.store.select(this.matchCardService.selectors.selectEntities)
+    .pipe(
+      distinctUntilChanged((previous, current): boolean => JSON.stringify(previous) === JSON.stringify(current))
+      // tap((matchCards) => {
+      //   // console.log('CONTAINER passing match cards to observable');
+      // })
+      );
     this.matchCardService.loadAllForTheTournamentDay(this.tournamentId, this.tournamentDay, true);
   }
 

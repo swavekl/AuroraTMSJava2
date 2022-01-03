@@ -19,7 +19,7 @@ import {MatSelectChange} from '@angular/material/select/select';
 export class TableUsageComponent implements OnInit, OnChanges {
 
   @Input()
-  tableUsageList: TableUsage [] = [];
+  tableUsageList: TableUsage [];
 
   // match cards and event information for match cards available to be played
   @Input()
@@ -51,11 +51,11 @@ export class TableUsageComponent implements OnInit, OnChanges {
   private matchCardStatusPipe: MatchCardStatusPipe = new MatchCardStatusPipe();
 
   // list of events which take place today
-  todaysTournamentEvents: TournamentEvent[] = [];
+  todaysTournamentEvents: TournamentEvent[];
 
   hideOtherEventsMatches: boolean;
 
-  filteredMatchInfos: MatchInfo [] = [];
+  filteredMatchInfos: MatchInfo [];
 
   constructor() {
     this.selectedEventId = 0;
@@ -63,6 +63,8 @@ export class TableUsageComponent implements OnInit, OnChanges {
     this.matchesToPlayInfos = [];
     this.tableUsageList = [];
     this.tournamentEvents = [];
+    this.todaysTournamentEvents = [];
+    this.filteredMatchInfos = [];
     this.hideOtherEventsMatches = false;
   }
 
@@ -85,6 +87,10 @@ export class TableUsageComponent implements OnInit, OnChanges {
         this.filterMatchInfos(this.hideOtherEventsMatches, this.selectedEventId);
       }
     }
+    // const tableUsageChange: SimpleChange = changes.tableUsageList;
+    // if (tableUsageChange != null) {
+    //   console.log('in presenter got table usage', tableUsageChange);
+    // }
   }
 
   onSelectMatchCard(matchCard: MatchCard) {
@@ -427,7 +433,6 @@ export class TableUsageComponent implements OnInit, OnChanges {
     if (assignedTables != null) {
       const strTableNumbers: string [] = assignedTables.split(',');
       const tableNumbers: number [] = strTableNumbers.map((strTableNumber: string) => Number(strTableNumber));
-      console.log(`${tableNumbers}`);
       this.tableUsageList.forEach(tableUsage => {
         const usedTableNum = tableUsage.tableNumber;
         if (tableNumbers.includes(usedTableNum) && tableUsage.tableStatus === TableStatus.InUse) {
