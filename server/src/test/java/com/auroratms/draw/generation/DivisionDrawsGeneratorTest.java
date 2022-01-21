@@ -3,7 +3,7 @@ package com.auroratms.draw.generation;
 import com.auroratms.draw.DrawItem;
 import com.auroratms.draw.DrawType;
 import com.auroratms.event.DrawMethod;
-import com.auroratms.event.TournamentEventEntity;
+import com.auroratms.event.TournamentEvent;
 import com.auroratms.tournamentevententry.TournamentEventEntry;
 import org.junit.Test;
 
@@ -16,12 +16,12 @@ public class DivisionDrawsGeneratorTest extends AbstractDrawsGeneratorTest {
 
     @Test
     public void testDivisionDraw() {
-        TournamentEventEntity tournamentEventEntity = new TournamentEventEntity();
-        tournamentEventEntity.setId(55L);
-        tournamentEventEntity.setPlayersPerGroup(8);
-        tournamentEventEntity.setPlayersToSeed(0);
-        tournamentEventEntity.setPlayersToAdvance(0);
-        tournamentEventEntity.setDrawMethod(DrawMethod.DIVISION); // division
+        TournamentEvent tournamentEvent = new TournamentEvent();
+        tournamentEvent.setId(55L);
+        tournamentEvent.setPlayersPerGroup(8);
+        tournamentEvent.setPlayersToSeed(0);
+        tournamentEvent.setPlayersToAdvance(0);
+        tournamentEvent.setDrawMethod(DrawMethod.DIVISION); // division
 
         List<TournamentEventEntry> eventEntries = this.makeTournamentEntriesList();
 
@@ -29,7 +29,7 @@ public class DivisionDrawsGeneratorTest extends AbstractDrawsGeneratorTest {
 
         // usually there is only one 1 event in giant round robin tournament
         List<DrawItem> existingDraws = Collections.emptyList();
-        IDrawsGenerator generator = DrawGeneratorFactory.makeGenerator(tournamentEventEntity, DrawType.ROUND_ROBIN);
+        IDrawsGenerator generator = DrawGeneratorFactory.makeGenerator(tournamentEvent, DrawType.ROUND_ROBIN);
         List<DrawItem> drawItemsList = generator.generateDraws(eventEntries, entryIdToPlayerDrawInfo, existingDraws);
         assertEquals ("wrong size of drawItemsList", eventEntries.size(), drawItemsList.size());
 

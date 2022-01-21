@@ -1,6 +1,6 @@
 package com.auroratms.tournamentevententry.policy;
 
-import com.auroratms.event.TournamentEventEntity;
+import com.auroratms.event.TournamentEvent;
 import com.auroratms.tournamentevententry.AvailabilityStatus;
 
 /**
@@ -14,7 +14,7 @@ public class FullEventPolicy implements IEventPolicy {
     }
 
     @Override
-    public boolean isEntryDenied(TournamentEventEntity event) {
+    public boolean isEntryDenied(TournamentEvent event) {
         // no limit don't deny
         if (event.getMaxEntries() == 0) {
             isDenied = false;

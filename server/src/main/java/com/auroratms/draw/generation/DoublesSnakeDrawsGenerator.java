@@ -2,7 +2,7 @@ package com.auroratms.draw.generation;
 
 import com.auroratms.draw.DrawItem;
 import com.auroratms.draw.DrawType;
-import com.auroratms.event.TournamentEventEntity;
+import com.auroratms.event.TournamentEvent;
 import com.auroratms.tournamentevententry.TournamentEventEntry;
 import com.auroratms.tournamentevententry.doubles.DoublesPair;
 
@@ -13,8 +13,8 @@ import java.util.*;
  */
 public class DoublesSnakeDrawsGenerator extends AbstractDoublesDrawsGenerator implements IDrawsGenerator {
 
-    public DoublesSnakeDrawsGenerator(TournamentEventEntity tournamentEventEntity) {
-        super(tournamentEventEntity);
+    public DoublesSnakeDrawsGenerator(TournamentEvent tournamentEvent) {
+        super(tournamentEvent);
     }
 
     @Override
@@ -35,8 +35,8 @@ public class DoublesSnakeDrawsGenerator extends AbstractDoublesDrawsGenerator im
      */
     private List<DrawItem> placeTeamsInGroups(List<TournamentEventEntry> eventEntries, Map<Long, PlayerDrawInfo> entryIdToPlayerDrawInfo, List<DoublesPair> doublesPairsForEvent) {
         int numEnteredTeams = doublesPairsForEvent.size();
-        int teamsPerGroup = this.tournamentEventEntity.getPlayersPerGroup();
-        int teamsToSeed = this.tournamentEventEntity.getPlayersToSeed();
+        int teamsPerGroup = this.tournamentEvent.getPlayersPerGroup();
+        int teamsToSeed = this.tournamentEvent.getPlayersToSeed();
 
         // players to seed are like a group with only one player
         double dNumGroups = ((double) (numEnteredTeams - teamsToSeed) / (double) teamsPerGroup);
@@ -45,7 +45,7 @@ public class DoublesSnakeDrawsGenerator extends AbstractDoublesDrawsGenerator im
 
         // make the draw
         List<DrawItem> drawItemList = new ArrayList<>(doublesPairsForEvent.size());
-        long eventFk = this.tournamentEventEntity.getId();
+        long eventFk = this.tournamentEvent.getId();
         int rowNum = 1;
         int groupNum = 1;
         // direction of placing players into groups - snaking left to right then R to L, then L to R and so on

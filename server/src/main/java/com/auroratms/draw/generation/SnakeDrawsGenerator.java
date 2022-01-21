@@ -2,7 +2,7 @@ package com.auroratms.draw.generation;
 
 import com.auroratms.draw.DrawItem;
 import com.auroratms.draw.DrawType;
-import com.auroratms.event.TournamentEventEntity;
+import com.auroratms.event.TournamentEvent;
 import com.auroratms.tournamentevententry.TournamentEventEntry;
 
 import java.util.*;
@@ -12,8 +12,8 @@ import java.util.*;
  */
 public class SnakeDrawsGenerator extends AbstractDrawsGenerator implements IDrawsGenerator {
 
-    public SnakeDrawsGenerator(TournamentEventEntity tournamentEventEntity) {
-        super(tournamentEventEntity);
+    public SnakeDrawsGenerator(TournamentEvent tournamentEvent) {
+        super(tournamentEvent);
     }
 
     /**
@@ -49,8 +49,8 @@ public class SnakeDrawsGenerator extends AbstractDrawsGenerator implements IDraw
      */
     private List<DrawItem> placePlayersInGroups(List<TournamentEventEntry> eventEntries, Map<Long, PlayerDrawInfo> entryIdToPlayerDrawInfo) {
         int numEnteredPlayers = eventEntries.size();
-        int playersPerGroup = this.tournamentEventEntity.getPlayersPerGroup();
-        int playersToSeed = this.tournamentEventEntity.getPlayersToSeed();
+        int playersPerGroup = this.tournamentEvent.getPlayersPerGroup();
+        int playersToSeed = this.tournamentEvent.getPlayersToSeed();
 
         // players to seed are like a group with only one player
         double dNumGroups = ((double) (numEnteredPlayers - playersToSeed) / (double) playersPerGroup);
@@ -59,7 +59,7 @@ public class SnakeDrawsGenerator extends AbstractDrawsGenerator implements IDraw
 
         // make the draw
         List<DrawItem> drawItemList = new ArrayList<>(eventEntries.size());
-        long eventFk = this.tournamentEventEntity.getId();
+        long eventFk = this.tournamentEvent.getId();
         int rowNum = 1;
         int groupNum = 1;
         // direction of placing players into groups - snaking left to right then R to L, then L to R and so on

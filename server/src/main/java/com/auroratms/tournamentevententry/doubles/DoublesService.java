@@ -1,11 +1,10 @@
 package com.auroratms.tournamentevententry.doubles;
 
-import com.auroratms.event.TournamentEventEntity;
+import com.auroratms.event.TournamentEvent;
 import com.auroratms.event.TournamentEventEntityService;
 import com.auroratms.profile.UserProfile;
 import com.auroratms.profile.UserProfileService;
 import com.auroratms.tournamententry.TournamentEntry;
-import com.auroratms.tournamententry.TournamentEntryInfo;
 import com.auroratms.tournamententry.TournamentEntryInfoService;
 import com.auroratms.tournamententry.TournamentEntryService;
 import com.auroratms.tournamentevententry.TournamentEventEntry;
@@ -102,8 +101,8 @@ public class DoublesService {
         TournamentEntry tournamentEntry = tournamentEntryService.get(tournamentEntryId);
         long tournamentFk = tournamentEntry.getTournamentFk();
         List<Long> doublesEventIds = new ArrayList<>();
-        List<TournamentEventEntity> doublesEvents = tournamentEventEntityService.listDoublesEvents(tournamentFk);
-        for (TournamentEventEntity event : doublesEvents) {
+        List<TournamentEvent> doublesEvents = tournamentEventEntityService.listDoublesEvents(tournamentFk);
+        for (TournamentEvent event : doublesEvents) {
             doublesEventIds.add(event.getId());
         }
         // get this players entries into doubles events

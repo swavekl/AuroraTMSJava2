@@ -3,7 +3,7 @@ package com.auroratms.playerschedule;
 import com.auroratms.draw.DrawItem;
 import com.auroratms.draw.DrawService;
 import com.auroratms.draw.DrawType;
-import com.auroratms.event.TournamentEventEntity;
+import com.auroratms.event.TournamentEvent;
 import com.auroratms.event.TournamentEventEntityService;
 import com.auroratms.match.Match;
 import com.auroratms.match.MatchCard;
@@ -66,7 +66,7 @@ public class PlayerScheduleService {
         }
 
         // get entered events so we can get their names
-        List<TournamentEventEntity> enteredEventEntities = tournamentEventEntityService.findAllById(enteredEventIds);
+        List<TournamentEvent> enteredEventEntities = tournamentEventEntityService.findAllById(enteredEventIds);
 
         // get all draws for this player so we know which groups he/she is in each event
         // in round robin and single elimination rounds
@@ -79,7 +79,7 @@ public class PlayerScheduleService {
                 // player who gets a bye in the single elimination round doesn't have a match card
                 if (this.matchCardService.existsMatchCard(drawItem.getEventFk(), drawItem.getRound(), drawItem.getGroupNum())) {
                     MatchCard matchCard = this.matchCardService.getMatchCard(drawItem.getEventFk(), drawItem.getRound(), drawItem.getGroupNum());
-                    for (TournamentEventEntity eventEntity : enteredEventEntities) {
+                    for (TournamentEvent eventEntity : enteredEventEntities) {
                         if (eventEntity.getId().equals(matchCard.getEventFk())) {
                             PlayerScheduleItem playerScheduleItem = toPlayerScheduleItem(matchCard, eventEntity,
                                     false);
@@ -97,7 +97,7 @@ public class PlayerScheduleService {
                     for (Match match : matches) {
                         if (match.getPlayerAProfileId().contains(playerProfileId) ||
                                 match.getPlayerBProfileId().contains(playerProfileId)) {
-                            for (TournamentEventEntity eventEntity : enteredEventEntities) {
+                            for (TournamentEvent eventEntity : enteredEventEntities) {
                                 if (eventEntity.getId().equals(matchCard.getEventFk())) {
                                     PlayerScheduleItem playerScheduleItem = toPlayerScheduleItem(matchCard, eventEntity,
                                             false);
@@ -141,7 +141,7 @@ public class PlayerScheduleService {
      */
     public PlayerScheduleItem getPlayerSchedule(Long matchCardId) {
         MatchCard matchCard = this.matchCardService.getMatchCardWithPlayerProfiles(matchCardId);
-        TournamentEventEntity eventEntity = this.tournamentEventEntityService.get(matchCard.getEventFk());
+        TournamentEvent eventEntity = this.tournamentEventEntityService.get(matchCard.getEventFk());
         return toPlayerScheduleItem(matchCard, eventEntity,
                 true);
     }
@@ -155,7 +155,7 @@ public class PlayerScheduleService {
      * @return
      */
     private PlayerScheduleItem toPlayerScheduleItem(MatchCard matchCard,
-                                                    TournamentEventEntity eventEntity,
+                                                    TournamentEvent eventEntity,
                                                     boolean fetchDetails) {
         PlayerScheduleItem playerScheduleItem = new PlayerScheduleItem();
 
@@ -182,7 +182,7 @@ public class PlayerScheduleService {
      * @param eventEntity
      * @return player details
      */
-    private List<PlayerDetail> makePlayerDetails(MatchCard matchCard, TournamentEventEntity eventEntity) {
+    private List<PlayerDetail> makePlayerDetails(MatchCard matchCard, TournamentEvent eventEntity) {
         long tournamentId = eventEntity.getTournamentFk();
         int tournamentDay = eventEntity.getDay();
         List<PlayerDetail> playerDetailsList = new ArrayList<>();

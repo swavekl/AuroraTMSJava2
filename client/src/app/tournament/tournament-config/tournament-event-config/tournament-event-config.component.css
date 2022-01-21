@@ -1,0 +1,9 @@
+div.prizes-list {
+  height: calc(100vh - 250px);
+  overflow-y: scroll;
+  /*border: 1px solid red;*/
+}
+
+div.mat-checkbox-container {
+  padding-top: 35px;
+}

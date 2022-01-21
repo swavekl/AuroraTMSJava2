@@ -3,7 +3,7 @@ package com.auroratms.draw.generation;
 import com.auroratms.draw.DrawItem;
 import com.auroratms.draw.DrawType;
 import com.auroratms.draw.generation.singleelim.BracketLine;
-import com.auroratms.event.TournamentEventEntity;
+import com.auroratms.event.TournamentEvent;
 import com.auroratms.tournamentevententry.TournamentEventEntry;
 
 import java.util.Collections;
@@ -16,10 +16,10 @@ import java.util.Map;
  */
 public abstract class AbstractDrawsGenerator {
 
-    protected TournamentEventEntity tournamentEventEntity;
+    protected TournamentEvent tournamentEvent;
 
-    public AbstractDrawsGenerator(TournamentEventEntity tournamentEventEntity) {
-        this.tournamentEventEntity = tournamentEventEntity;
+    public AbstractDrawsGenerator(TournamentEvent tournamentEvent) {
+        this.tournamentEvent = tournamentEvent;
     }
 
     /**
@@ -111,7 +111,7 @@ public abstract class AbstractDrawsGenerator {
      */
     protected DrawItem makeByeLine(BracketLine bracketLine) {
         DrawItem drawItem = new DrawItem();
-        long eventFk = this.tournamentEventEntity.getId();
+        long eventFk = this.tournamentEvent.getId();
         drawItem.setEventFk(eventFk);
         drawItem.setDrawType(DrawType.SINGLE_ELIMINATION);
         drawItem.setGroupNum(bracketLine.getSeedNumber());

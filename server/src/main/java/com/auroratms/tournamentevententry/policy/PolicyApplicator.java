@@ -1,6 +1,6 @@
 package com.auroratms.tournamentevententry.policy;
 
-import com.auroratms.event.TournamentEventEntity;
+import com.auroratms.event.TournamentEvent;
 import com.auroratms.profile.UserProfile;
 import com.auroratms.tournamentevententry.AvailabilityStatus;
 import com.auroratms.tournamentevententry.TournamentEventEntry;
@@ -16,7 +16,7 @@ public class PolicyApplicator {
     private List<IEventPolicy> individualPolicies = new ArrayList<>();
 
     public void configurePolicies(List<TournamentEventEntry> eventEntries,
-                                  List<TournamentEventEntity> events,
+                                  List<TournamentEvent> events,
                                   UserProfile userProfile, int eligibilityRating,
                                   Date tournamentStartDate) {
         addPolicy(new GenderRestrictedEventPolicy(userProfile.getGender()));
@@ -36,11 +36,11 @@ public class PolicyApplicator {
      * @param eventEntryInfos
      * @return
      */
-    public List<TournamentEventEntryInfo> evaluateRestrictions(List<TournamentEventEntity> eventList,
+    public List<TournamentEventEntryInfo> evaluateRestrictions(List<TournamentEvent> eventList,
                                                                List<TournamentEventEntryInfo> eventEntryInfos) {
         for (TournamentEventEntryInfo info : eventEntryInfos) {
             // find event
-            for (TournamentEventEntity event : eventList) {
+            for (TournamentEvent event : eventList) {
                 if (event.getId().equals(info.getEventFk())) {
                     // todo: set the price based on age
                     info.setPrice(event.getFeeAdult());

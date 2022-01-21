@@ -2,7 +2,7 @@ package com.auroratms.draw.generation.singleelim;
 
 import com.auroratms.draw.DrawItem;
 import com.auroratms.draw.generation.PlayerDrawInfo;
-import com.auroratms.event.TournamentEventEntity;
+import com.auroratms.event.TournamentEvent;
 import com.auroratms.tournamentevententry.TournamentEventEntry;
 
 import java.util.ArrayList;
@@ -19,17 +19,17 @@ public class SingleEliminationEntriesConverter {
     /**
      * @param rrDrawItems
      * @param rrEventEntries
-     * @param tournamentEventEntity
+     * @param tournamentEvent
      * @param entryIdToPlayerDrawInfo
      * @return
      */
     public static List<TournamentEventEntry> generateSEEventEntriesFromDraws(List<DrawItem> rrDrawItems,
                                                                              List<TournamentEventEntry> rrEventEntries,
-                                                                             TournamentEventEntity tournamentEventEntity,
+                                                                             TournamentEvent tournamentEvent,
                                                                              Map<Long, PlayerDrawInfo> entryIdToPlayerDrawInfo) {
         List<TournamentEventEntry> seEventEntries = new ArrayList<>();
-        int playersToAdvance = tournamentEventEntity.getPlayersToAdvance();
-        boolean doubles = tournamentEventEntity.isDoubles();
+        int playersToAdvance = tournamentEvent.getPlayersToAdvance();
+        boolean doubles = tournamentEvent.isDoubles();
         for (DrawItem rrDrawItem : rrDrawItems) {
             if (rrDrawItem.getPlaceInGroup() <= playersToAdvance) {
                 String playerId = rrDrawItem.getPlayerId();
@@ -113,13 +113,13 @@ public class SingleEliminationEntriesConverter {
      *
      * @param rrDrawItems
      * @param entryIdToPlayerDrawInfo
-     * @param tournamentEventEntity
+     * @param tournamentEvent
      */
     public static void fillRRGroupNumberForSEPlayers(List<DrawItem> rrDrawItems,
                                                      Map<Long, PlayerDrawInfo> entryIdToPlayerDrawInfo,
-                                                     TournamentEventEntity tournamentEventEntity) {
-        int playersToAdvance = tournamentEventEntity.getPlayersToAdvance();
-        boolean doubles = tournamentEventEntity.isDoubles();
+                                                     TournamentEvent tournamentEvent) {
+        int playersToAdvance = tournamentEvent.getPlayersToAdvance();
+        boolean doubles = tournamentEvent.isDoubles();
         for (DrawItem rrDrawItem : rrDrawItems) {
             if (rrDrawItem.getPlaceInGroup() <= playersToAdvance) {
                 String playerId = rrDrawItem.getPlayerId();

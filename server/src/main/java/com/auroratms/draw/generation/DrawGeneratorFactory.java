@@ -2,27 +2,27 @@ package com.auroratms.draw.generation;
 
 import com.auroratms.draw.DrawType;
 import com.auroratms.event.DrawMethod;
-import com.auroratms.event.TournamentEventEntity;
+import com.auroratms.event.TournamentEvent;
 
 /**
  * Makes the generator for event and round
  */
 public class DrawGeneratorFactory {
 
-    public static IDrawsGenerator makeGenerator(TournamentEventEntity tournamentEventEntity, DrawType drawType) {
+    public static IDrawsGenerator makeGenerator(TournamentEvent tournamentEvent, DrawType drawType) {
         IDrawsGenerator generator = null;
         if (drawType == DrawType.ROUND_ROBIN) {
-            DrawMethod drawMethod = tournamentEventEntity.getDrawMethod();
+            DrawMethod drawMethod = tournamentEvent.getDrawMethod();
             switch (drawMethod) {
                 case SNAKE:
-                    if (!tournamentEventEntity.isDoubles()) {
-                        generator = new SnakeDrawsGenerator(tournamentEventEntity);
+                    if (!tournamentEvent.isDoubles()) {
+                        generator = new SnakeDrawsGenerator(tournamentEvent);
                     } else {
-                        generator = new DoublesSnakeDrawsGenerator(tournamentEventEntity);
+                        generator = new DoublesSnakeDrawsGenerator(tournamentEvent);
                     }
                     break;
                 case DIVISION:
-                    generator = new DivisionDrawsGenerator(tournamentEventEntity);
+                    generator = new DivisionDrawsGenerator(tournamentEvent);
                     break;
                 case BY_RECORD:
                 default:
@@ -30,10 +30,10 @@ public class DrawGeneratorFactory {
             }
         } else {
             // single elimination
-            if (!tournamentEventEntity.isDoubles()) {
-                generator = new SingleEliminationDrawsGenerator(tournamentEventEntity);
+            if (!tournamentEvent.isDoubles()) {
+                generator = new SingleEliminationDrawsGenerator(tournamentEvent);
             } else {
-                generator = new DoublesSingleEliminationDrawsGenerator(tournamentEventEntity);
+                generator = new DoublesSingleEliminationDrawsGenerator(tournamentEvent);
             }
         }
         return generator;

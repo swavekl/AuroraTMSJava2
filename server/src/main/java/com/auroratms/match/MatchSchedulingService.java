@@ -1,7 +1,7 @@
 package com.auroratms.match;
 
 import com.auroratms.draw.DrawType;
-import com.auroratms.event.TournamentEventEntity;
+import com.auroratms.event.TournamentEvent;
 import com.auroratms.event.TournamentEventEntityService;
 import com.auroratms.tournament.Tournament;
 import com.auroratms.tournament.TournamentService;
@@ -41,10 +41,10 @@ public class MatchSchedulingService {
         TableAvailabilityMatrix matrix = new TableAvailabilityMatrix(totalAvailableTables);
 
         // generate them
-        List<TournamentEventEntity> daysEvents = this.tournamentEventEntityService.listDaysEvents(tournamentId, day);
+        List<TournamentEvent> daysEvents = this.tournamentEventEntityService.listDaysEvents(tournamentId, day);
         int startingTableNumber = 1;
         double previousEventStartTime = 8.0d;
-        for (TournamentEventEntity event : daysEvents) {
+        for (TournamentEvent event : daysEvents) {
             // start scheduling this event's matches from the 1st table if it is starting later
             if (event.getStartTime() != previousEventStartTime) {
                 startingTableNumber = 1;
@@ -58,7 +58,7 @@ public class MatchSchedulingService {
         }
 
         // schedule single elimination round matches after round robin is scheduled and tables are assigned
-        for (TournamentEventEntity event : daysEvents) {
+        for (TournamentEvent event : daysEvents) {
             if (!event.isSingleElimination()) {
                 // if there is a single elimination following round robin
                 if (event.getPlayersToAdvance() > 0) {
@@ -78,7 +78,7 @@ public class MatchSchedulingService {
      * @param matrix
      * @return
      */
-    private int scheduleRoundRobinMatches(int startingTableNumber, int totalAvailableTables, TournamentEventEntity event, TableAvailabilityMatrix matrix) {
+    private int scheduleRoundRobinMatches(int startingTableNumber, int totalAvailableTables, TournamentEvent event, TableAvailabilityMatrix matrix) {
         // calculate number of required tables to play this event if it were completely full
         int numTablesPerGroup = event.getNumTablesPerGroup();
         int maxEntries = event.getMaxEntries();
@@ -191,7 +191,7 @@ public class MatchSchedulingService {
      * @param event
      * @param matrix
      */
-    private void scheduleSingleEliminationMatches(int totalAvailableTables, TournamentEventEntity event, TableAvailabilityMatrix matrix) {
+    private void scheduleSingleEliminationMatches(int totalAvailableTables, TournamentEvent event, TableAvailabilityMatrix matrix) {
         // schedule the single elimination round matches on the same tables where the round robin round matches were played
         int maxDuration = 0;
         double eventStart = event.getStartTime();

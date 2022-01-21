@@ -2,7 +2,7 @@ package com.auroratms.draw.generation;
 
 import com.auroratms.draw.DrawItem;
 import com.auroratms.draw.DrawType;
-import com.auroratms.event.TournamentEventEntity;
+import com.auroratms.event.TournamentEvent;
 import com.auroratms.tournamentevententry.TournamentEventEntry;
 
 import java.util.*;
@@ -13,8 +13,8 @@ import java.util.*;
  */
 public class DivisionDrawsGenerator extends AbstractDrawsGenerator implements IDrawsGenerator {
 
-    public DivisionDrawsGenerator(TournamentEventEntity tournamentEventEntity) {
-        super(tournamentEventEntity);
+    public DivisionDrawsGenerator(TournamentEvent tournamentEvent) {
+        super(tournamentEvent);
     }
 
     /**
@@ -42,12 +42,12 @@ public class DivisionDrawsGenerator extends AbstractDrawsGenerator implements ID
      */
     private List<DrawItem> placePlayersInGroups(List<TournamentEventEntry> eventEntries, Map<Long, PlayerDrawInfo> entryIdToPlayerDrawInfo) {
         int numEnteredPlayers = eventEntries.size();
-        int playersPerGroup = this.tournamentEventEntity.getPlayersPerGroup();
-        int playersToSeed = this.tournamentEventEntity.getPlayersToSeed();
+        int playersPerGroup = this.tournamentEvent.getPlayersPerGroup();
+        int playersToSeed = this.tournamentEvent.getPlayersToSeed();
 
         // make the draw
         List<DrawItem> drawItemList = new ArrayList<>(eventEntries.size());
-        long eventFk = this.tournamentEventEntity.getId();
+        long eventFk = this.tournamentEvent.getId();
 
         // place players into groups
         int groupNum = 1;

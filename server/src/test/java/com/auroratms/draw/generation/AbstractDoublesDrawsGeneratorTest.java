@@ -1,7 +1,7 @@
 package com.auroratms.draw.generation;
 
 import com.auroratms.event.DrawMethod;
-import com.auroratms.event.TournamentEventEntity;
+import com.auroratms.event.TournamentEvent;
 import com.auroratms.tournamentevententry.TournamentEventEntry;
 import com.auroratms.tournamentevententry.doubles.DoublesPair;
 
@@ -12,16 +12,16 @@ import java.util.Map;
 
 public class AbstractDoublesDrawsGeneratorTest extends AbstractDrawsGeneratorTest {
 
-    protected TournamentEventEntity makeTournamentEventEntity(int numTeamsToSeed) {
-        TournamentEventEntity tournamentEventEntity = new TournamentEventEntity();
-        tournamentEventEntity.setId(56L);
-        tournamentEventEntity.setName("Open Doubles");
-        tournamentEventEntity.setDoubles(true);
-        tournamentEventEntity.setPlayersPerGroup(4);
-        tournamentEventEntity.setPlayersToSeed(numTeamsToSeed);
-        tournamentEventEntity.setPlayersToAdvance(1);
-        tournamentEventEntity.setDrawMethod(DrawMethod.SNAKE);
-        return tournamentEventEntity;
+    protected TournamentEvent makeTournamentEventEntity(int numTeamsToSeed) {
+        TournamentEvent tournamentEvent = new TournamentEvent();
+        tournamentEvent.setId(56L);
+        tournamentEvent.setName("Open Doubles");
+        tournamentEvent.setDoubles(true);
+        tournamentEvent.setPlayersPerGroup(4);
+        tournamentEvent.setPlayersToSeed(numTeamsToSeed);
+        tournamentEvent.setPlayersToAdvance(1);
+        tournamentEvent.setDrawMethod(DrawMethod.SNAKE);
+        return tournamentEvent;
     }
 
     protected Map<Long, PlayerDrawInfo> makeDoublesPlayerDrawInfos() {
@@ -98,23 +98,23 @@ public class AbstractDoublesDrawsGeneratorTest extends AbstractDrawsGeneratorTes
         return eventEntries;
     }
 
-    protected List<DoublesPair> makeDoublesPairs(TournamentEventEntity tournamentEventEntity) {
+    protected List<DoublesPair> makeDoublesPairs(TournamentEvent tournamentEvent) {
         List<DoublesPair> doublesPairList = new ArrayList<>();
-        doublesPairList.add(makeDoublesPair (51, 1876, 2181, 5289, 5303, tournamentEventEntity.getId()));
-        doublesPairList.add(makeDoublesPair (52, 1413, 1415, 5273, 5288, tournamentEventEntity.getId()));
-        doublesPairList.add(makeDoublesPair (53, 2250, 2207, 5208, 5226, tournamentEventEntity.getId()));
-        doublesPairList.add(makeDoublesPair (54, 2264, 1793, 5187, 5182, tournamentEventEntity.getId()));
+        doublesPairList.add(makeDoublesPair (51, 1876, 2181, 5289, 5303, tournamentEvent.getId()));
+        doublesPairList.add(makeDoublesPair (52, 1413, 1415, 5273, 5288, tournamentEvent.getId()));
+        doublesPairList.add(makeDoublesPair (53, 2250, 2207, 5208, 5226, tournamentEvent.getId()));
+        doublesPairList.add(makeDoublesPair (54, 2264, 1793, 5187, 5182, tournamentEvent.getId()));
 //        doublesPairList.add(makeDoublesPair (55, 1411, 1928, 5112, 5129, tournamentEventEntity.getId()));
-        doublesPairList.add(makeDoublesPair (56, 1908, 2266, 5124, 5124, tournamentEventEntity.getId()));
-        doublesPairList.add(makeDoublesPair (57, 2268, 2153, 5134, 5097, tournamentEventEntity.getId()));
-        doublesPairList.add(makeDoublesPair (58, 1603, 2187, 4939, 4943, tournamentEventEntity.getId()));
-        doublesPairList.add(makeDoublesPair (59, 2270, 1507, 4829, 4821, tournamentEventEntity.getId()));
-        doublesPairList.add(makeDoublesPair (60, 1698, 1904, 4750, 4750, tournamentEventEntity.getId()));
-        doublesPairList.add(makeDoublesPair (61, 2091, 2276, 4570, 4570, tournamentEventEntity.getId()));
-        doublesPairList.add(makeDoublesPair (62, 1492, 1735, 4270, 4302, tournamentEventEntity.getId()));
-        doublesPairList.add(makeDoublesPair (63, 2219, 1817, 4138, 4138, tournamentEventEntity.getId()));
-        doublesPairList.add(makeDoublesPair (64, 2061, 1612, 3764, 3782, tournamentEventEntity.getId()));
-        doublesPairList.add(makeDoublesPair (91, 1668, 1984, 3627, 3627, tournamentEventEntity.getId()));
+        doublesPairList.add(makeDoublesPair (56, 1908, 2266, 5124, 5124, tournamentEvent.getId()));
+        doublesPairList.add(makeDoublesPair (57, 2268, 2153, 5134, 5097, tournamentEvent.getId()));
+        doublesPairList.add(makeDoublesPair (58, 1603, 2187, 4939, 4943, tournamentEvent.getId()));
+        doublesPairList.add(makeDoublesPair (59, 2270, 1507, 4829, 4821, tournamentEvent.getId()));
+        doublesPairList.add(makeDoublesPair (60, 1698, 1904, 4750, 4750, tournamentEvent.getId()));
+        doublesPairList.add(makeDoublesPair (61, 2091, 2276, 4570, 4570, tournamentEvent.getId()));
+        doublesPairList.add(makeDoublesPair (62, 1492, 1735, 4270, 4302, tournamentEvent.getId()));
+        doublesPairList.add(makeDoublesPair (63, 2219, 1817, 4138, 4138, tournamentEvent.getId()));
+        doublesPairList.add(makeDoublesPair (64, 2061, 1612, 3764, 3782, tournamentEvent.getId()));
+        doublesPairList.add(makeDoublesPair (91, 1668, 1984, 3627, 3627, tournamentEvent.getId()));
 //        doublesPairList.add(makeDoublesPair (92, 1761, 2378, 2387, 1761, tournamentEventEntity.getId()));
         return doublesPairList;
     }

@@ -1,6 +1,7 @@
 import {GenderRestriction} from './model/gender-restriction.enum';
 import {AgeRestrictionType} from './model/age-restriction-type.enum';
 import {DrawMethod} from './model/draw-method.enum';
+import {TournamentEventConfiguration} from './model/tournament-event-configuration.model';
 
 /**
  * Tournament event e.g. U-2200, Giant Round Robin etc.
@@ -87,6 +88,8 @@ export class TournamentEvent {
   feeAdult: number;
   feeJunior: number;
 
+  configuration: TournamentEventConfiguration;
+
   static convert(tournamentEvent: TournamentEvent): TournamentEvent {
     return tournamentEvent;
   }
@@ -103,7 +106,8 @@ export class TournamentEvent {
       numberOfGamesSEFinals: tournamentEvent.numberOfGamesSEFinals || 5,
       advanceUnratedWinner: tournamentEvent.advanceUnratedWinner || false,
       pointsPerGame: tournamentEvent.pointsPerGame || 11,
-      play3rd4thPlace: tournamentEvent.play3rd4thPlace || false
+      play3rd4thPlace: tournamentEvent.play3rd4thPlace || false,
+      configuration: tournamentEvent.configuration || new TournamentEventConfiguration()
     };
     return eventWithDefaults;
   }
@@ -139,6 +143,8 @@ export class TournamentEvent {
       tournamentEvent.ageRestrictionType = AgeRestrictionType.NONE;
     }
     // tournamentEvent.genderRestriction = GenderRestriction[selectedEvent.genderRestriction];
+    tournamentEvent.configuration = new TournamentEventConfiguration();
+    tournamentEvent.configuration.prizeInfoList = [];
     return tournamentEvent;
   }
 }

@@ -1,6 +1,6 @@
 package com.auroratms.tournamentevententry.policy;
 
-import com.auroratms.event.TournamentEventEntity;
+import com.auroratms.event.TournamentEvent;
 import com.auroratms.tournamentevententry.AvailabilityStatus;
 import org.junit.Test;
 
@@ -11,7 +11,7 @@ public class FullEventPolicyTest {
     @Test
     public void testNotFull() {
         FullEventPolicy policy = new FullEventPolicy();
-        TournamentEventEntity event = new TournamentEventEntity();
+        TournamentEvent event = new TournamentEvent();
         event.setNumEntries(30);
         event.setMaxEntries(32);
         boolean entryDenied = policy.isEntryDenied(event);
@@ -23,7 +23,7 @@ public class FullEventPolicyTest {
     @Test
     public void testFull() {
         FullEventPolicy policy = new FullEventPolicy();
-        TournamentEventEntity event = new TournamentEventEntity();
+        TournamentEvent event = new TournamentEvent();
         event.setNumEntries(32);
         event.setMaxEntries(32);
         boolean entryDenied = policy.isEntryDenied(event);

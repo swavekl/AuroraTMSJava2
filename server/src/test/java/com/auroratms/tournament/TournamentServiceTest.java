@@ -1,6 +1,6 @@
 package com.auroratms.tournament;
 
-import com.auroratms.event.TournamentEventEntity;
+import com.auroratms.event.TournamentEvent;
 import com.auroratms.server.ServerApplication;
 import com.auroratms.users.UserRoles;
 import org.junit.Ignore;
@@ -260,18 +260,18 @@ public class TournamentServiceTest extends AbstractJUnit4SpringContextTests {
     @WithMockUser(username="mario", authorities = {UserRoles.TournamentDirectors})
     public void testEvents () {
         Tournament tournament = makeTournament("2020 Aurora Summer Open with events");
-        Set<TournamentEventEntity> events = new HashSet<>();
+        Set<TournamentEvent> events = new HashSet<>();
         String [] eventNames = { "Open", "U2400", "U2200", "U2000", "U1900", "U1800", "U1600"
         };
         for (String eventName : eventNames) {
-            TournamentEventEntity event = makeEvent (eventName);
+            TournamentEvent event = makeEvent (eventName);
             events.add(event);
         }
         tournament.setEvents(events);
 
         Tournament savedTournament = tournamentService.saveTournament(tournament);
         Tournament returnedTournament = tournamentService.getByKey(savedTournament.getId());
-        Set<TournamentEventEntity> savedEvents = returnedTournament.getEvents();
+        Set<TournamentEvent> savedEvents = returnedTournament.getEvents();
         assertEquals("wrong number of events", eventNames.length, savedEvents.size());
 
         savedEvents.add(makeEvent("U1400"));
@@ -280,12 +280,12 @@ public class TournamentServiceTest extends AbstractJUnit4SpringContextTests {
         savedEvents.add(makeEvent("U800"));
         tournamentService.saveTournament(returnedTournament);
         Tournament anotherTournament = tournamentService.getByKey(savedTournament.getId());
-        Set<TournamentEventEntity> events1 = anotherTournament.getEvents();
+        Set<TournamentEvent> events1 = anotherTournament.getEvents();
         assertEquals("wrong events after addition", (eventNames.length + 4), events1.size());
     }
 
-    private TournamentEventEntity makeEvent(String eventName) {
-        TournamentEventEntity eventEntity = new TournamentEventEntity ();
+    private TournamentEvent makeEvent(String eventName) {
+        TournamentEvent eventEntity = new TournamentEvent();
         eventEntity.setName(eventName);
         return eventEntity;
     }

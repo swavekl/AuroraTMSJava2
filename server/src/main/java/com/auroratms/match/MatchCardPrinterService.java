@@ -1,6 +1,6 @@
 package com.auroratms.match;
 
-import com.auroratms.event.TournamentEventEntity;
+import com.auroratms.event.TournamentEvent;
 import com.auroratms.event.TournamentEventEntityService;
 import com.auroratms.match.exception.MatchCardPrinterException;
 import com.auroratms.tournament.Tournament;
@@ -62,7 +62,7 @@ public class MatchCardPrinterService {
         MatchCard matchCard = matchCardService.getMatchCardWithPlayerProfiles(matchCardId);
         long eventFk = matchCard.getEventFk();
 
-        TournamentEventEntity event = tournamentEventEntityService.get(eventFk);
+        TournamentEvent event = tournamentEventEntityService.get(eventFk);
 
         Tournament tournament = tournamentService.getByKey(event.getTournamentFk());
 
@@ -117,7 +117,7 @@ public class MatchCardPrinterService {
             MatchCard matchCard = matchCardService.getMatchCardWithPlayerProfiles(firstMatchCard);
             long eventFk = matchCard.getEventFk();
 
-            TournamentEventEntity event = tournamentEventEntityService.get(eventFk);
+            TournamentEvent event = tournamentEventEntityService.get(eventFk);
             long tournamentId = event.getTournamentFk();
 
             //Initialize PDF writer
@@ -155,7 +155,7 @@ public class MatchCardPrinterService {
      * @param event
      * @throws IOException
      */
-    private void generateContent(Document document, MatchCard matchCard, Tournament tournament, TournamentEventEntity event) throws IOException {
+    private void generateContent(Document document, MatchCard matchCard, Tournament tournament, TournamentEvent event) throws IOException {
 //    private void generateContent(Document document, MatchCard matchCard, Tournament tournament, TournamentEventEntity event) throws DocumentException, IOException {
         String tournamentName = tournament.getName();
 //        tournamentName = "2021 US National Table Tennis Championships";

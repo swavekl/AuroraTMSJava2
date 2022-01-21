@@ -67,7 +67,7 @@ export class ScoreBoardConfigureContainerComponent implements OnInit, OnDestroy 
             const today: Date = new Date();
             for (const tournament of tournaments) {
               // allow setup of up to a few days before the tournament
-              const daysBefore = 100;
+              const daysBefore = 370;
               const mBeforeTournamentsDate = moment(tournament.startDate).subtract(daysBefore, 'days').toDate();
               if (dateUtils.isDateInRange(today, mBeforeTournamentsDate, tournament.endDate)) {
                 const personnelList = tournament.configuration.personnelList;

@@ -2,7 +2,7 @@ package com.auroratms.draw.generation;
 
 import com.auroratms.draw.DrawItem;
 import com.auroratms.event.DrawMethod;
-import com.auroratms.event.TournamentEventEntity;
+import com.auroratms.event.TournamentEvent;
 import com.auroratms.tournamentevententry.TournamentEventEntry;
 import org.junit.Test;
 
@@ -23,12 +23,12 @@ public class SnakeDrawsGeneratorTest extends AbstractDrawsGeneratorTest {
     }
 
     private void testDrawGeneration (int numPlayersToSeed, int expectedGroups) {
-        TournamentEventEntity tournamentEventEntity = new TournamentEventEntity();
-        tournamentEventEntity.setId(55L);
-        tournamentEventEntity.setPlayersPerGroup(4);
-        tournamentEventEntity.setPlayersToSeed(numPlayersToSeed);
-        tournamentEventEntity.setPlayersToAdvance(1);
-        tournamentEventEntity.setDrawMethod(DrawMethod.SNAKE);
+        TournamentEvent tournamentEvent = new TournamentEvent();
+        tournamentEvent.setId(55L);
+        tournamentEvent.setPlayersPerGroup(4);
+        tournamentEvent.setPlayersToSeed(numPlayersToSeed);
+        tournamentEvent.setPlayersToAdvance(1);
+        tournamentEvent.setDrawMethod(DrawMethod.SNAKE);
 
         List<TournamentEventEntry> eventEntries = makeTournamentEntriesList();
 
@@ -37,7 +37,7 @@ public class SnakeDrawsGeneratorTest extends AbstractDrawsGeneratorTest {
         // first event draw
         List<DrawItem> existingDrawItems = new ArrayList<>();
 
-        SnakeDrawsGenerator generator = new SnakeDrawsGenerator(tournamentEventEntity);
+        SnakeDrawsGenerator generator = new SnakeDrawsGenerator(tournamentEvent);
         List<DrawItem> drawItems = generator.generateDraws(eventEntries, entryIdToPlayerDrawInfo, existingDrawItems);
         assertEquals("wrong number of draws", 23, drawItems.size());
 

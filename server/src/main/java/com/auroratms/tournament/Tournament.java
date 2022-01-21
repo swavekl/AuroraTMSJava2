@@ -1,6 +1,6 @@
 package com.auroratms.tournament;
 
-import com.auroratms.event.TournamentEventEntity;
+import com.auroratms.event.TournamentEvent;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import lombok.Data;
@@ -47,7 +47,7 @@ public class Tournament {
     // information that is not queryable
     private TournamentConfiguration configuration;
 
-    private Set<TournamentEventEntity> events;
+    private Set<TournamentEvent> events;
 
     /**
      * converts configuration to its JSON representation

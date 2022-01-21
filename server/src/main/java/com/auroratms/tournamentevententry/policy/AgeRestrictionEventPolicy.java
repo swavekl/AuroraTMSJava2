@@ -1,7 +1,7 @@
 package com.auroratms.tournamentevententry.policy;
 
 import com.auroratms.event.AgeRestrictionType;
-import com.auroratms.event.TournamentEventEntity;
+import com.auroratms.event.TournamentEvent;
 import com.auroratms.tournamentevententry.AvailabilityStatus;
 
 import java.time.Instant;
@@ -33,7 +33,7 @@ public class AgeRestrictionEventPolicy implements IEventPolicy {
     }
 
     @Override
-    public boolean isEntryDenied(TournamentEventEntity event) {
+    public boolean isEntryDenied(TournamentEvent event) {
         boolean isDenied = false;
         if (AgeRestrictionType.AGE_UNDER_OR_EQUAL_ON_DAY_EVENT.equals(event.getAgeRestrictionType()) &&
                 event.getMaxPlayerAge() > 0) {

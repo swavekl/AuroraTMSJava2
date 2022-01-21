@@ -4,7 +4,7 @@ import com.auroratms.club.ClubEntity;
 import com.auroratms.club.ClubService;
 import com.auroratms.draw.generation.PlayerDrawInfo;
 import com.auroratms.draw.generation.singleelim.SingleEliminationEntriesConverter;
-import com.auroratms.event.TournamentEventEntity;
+import com.auroratms.event.TournamentEvent;
 import com.auroratms.event.TournamentEventEntityService;
 import com.auroratms.profile.UserProfile;
 import com.auroratms.profile.UserProfileExt;
@@ -83,7 +83,7 @@ public class DrawController {
                                                   @RequestParam(required = false) DrawType drawType) {
         List<DrawItem> drawItems = this.drawService.list(eventId, drawType);
 
-        TournamentEventEntity thisEvent = this.eventService.get(eventId);
+        TournamentEvent thisEvent = this.eventService.get(eventId);
 
         // now enhance this information with player name, club name and state
         // get profiles of players in this event
@@ -250,7 +250,7 @@ public class DrawController {
     public ResponseEntity<List<DrawItem>> generateAll(@RequestParam long eventId,
                                                       @RequestParam DrawType drawType) {
         try {
-            TournamentEventEntity thisEvent = this.eventService.get(eventId);
+            TournamentEvent thisEvent = this.eventService.get(eventId);
 
             // remove existing draw if any
             this.drawService.deleteDraws(eventId, drawType);
@@ -327,8 +327,8 @@ public class DrawController {
 
             // get list of other event entries
             List<Long> otherEventIds = new ArrayList<>();
-            Collection<TournamentEventEntity> tournamentEventEntities = this.eventService.list(tournamentFk, Pageable.unpaged());
-            for (TournamentEventEntity event : tournamentEventEntities) {
+            Collection<TournamentEvent> tournamentEventEntities = this.eventService.list(tournamentFk, Pageable.unpaged());
+            for (TournamentEvent event : tournamentEventEntities) {
                 if (!event.getId().equals(thisEvent.getId())) {
                     otherEventIds.add(event.getId());
                 }
@@ -415,7 +415,7 @@ public class DrawController {
     @DeleteMapping("")
     @PreAuthorize("hasAuthority('TournamentDirectors') or hasAuthority('Admins') or hasAuthority('Referees')")
     public void deleteAll(@RequestParam long eventId) {
-        TournamentEventEntity thisEvent = this.eventService.get(eventId);
+        TournamentEvent thisEvent = this.eventService.get(eventId);
         boolean singleElimination = thisEvent.isSingleElimination();
         if (singleElimination) {
             this.drawService.deleteDraws(eventId, DrawType.SINGLE_ELIMINATION);

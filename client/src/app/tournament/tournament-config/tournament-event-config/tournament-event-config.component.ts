@@ -21,6 +21,9 @@ import {Tournament} from '../tournament.model';
 import {AgeRestrictionType} from '../model/age-restriction-type.enum';
 import {MatSelectChange} from '@angular/material/select/select';
 import {DrawMethod} from '../model/draw-method.enum';
+import {PrizeInfo} from '../model/prize-info.model';
+import {CommonRegexPatterns} from '../../../shared/common-regex-patterns';
+import {TournamentEventConfiguration} from '../model/tournament-event-configuration.model';
 
 @Component({
   selector: 'app-tournament-event-config',
@@ -42,6 +45,12 @@ export class TournamentEventConfigComponent implements OnInit, OnChanges, OnDest
   days: any [] = [];
 
   startTimes: any [];
+
+  readonly PRICE_REGEX = CommonRegexPatterns.PRICE_REGEX;
+
+  readonly NUMERIC_WITH_ZERO_REGEX = CommonRegexPatterns.NUMERIC_WITH_ZERO_REGEX;
+  readonly NUMERIC_REGEX = CommonRegexPatterns.NUMERIC_REGEX;
+  readonly TWO_DIGIT_NUMERIC_REGEX = CommonRegexPatterns.TWO_DIGIT_NUMERIC_REGEX;
 
   // gender restrictions
   genderRestrictions: any [] =  [
@@ -87,8 +96,9 @@ export class TournamentEventConfigComponent implements OnInit, OnChanges, OnDest
   ngOnChanges(changes: SimpleChanges): void {
     const tournamentEventChange: SimpleChange = changes.tournamentEvent;
     if (tournamentEventChange != null) {
-      this.tournamentEvent = tournamentEventChange.currentValue;
-      if (this.tournamentEvent != null) {
+      const tournamentEvent = tournamentEventChange.currentValue;
+      if (tournamentEvent != null) {
+        this.tournamentEvent = JSON.parse(JSON.stringify(tournamentEvent));
         this.ageRestrictionDateEnabled = (this.tournamentEvent.ageRestrictionType === AgeRestrictionType.BORN_ON_OR_AFTER_DATE);
       }
       const tournamentId = this.tournamentEvent?.tournamentFk;
@@ -139,9 +149,7 @@ export class TournamentEventConfigComponent implements OnInit, OnChanges, OnDest
   }
 
   onSave(formValues: TournamentEvent) {
-    // convert form values to event object
-    const tournamentEvent: TournamentEvent = TournamentEvent.toTournamentEvent(formValues);
-    this.saved.emit(tournamentEvent);
+    this.saved.emit(this.tournamentEvent);
   }
 
   isAgeRestrictionRequired(tournamentEvent: TournamentEvent) {
@@ -150,5 +158,23 @@ export class TournamentEventConfigComponent implements OnInit, OnChanges, OnDest
 
   onAgeRestrictionChange($event: MatSelectChange) {
     this.ageRestrictionDateEnabled = ($event?.value === AgeRestrictionType.BORN_ON_OR_AFTER_DATE);
+  }
+
+  onAddPrizesRow() {
+    const cloneTE: TournamentEvent = JSON.parse(JSON.stringify(this.tournamentEvent));
+    const configuration = cloneTE.configuration || new TournamentEventConfiguration();
+    const prizeInfoList = configuration.prizeInfoList || [];
+    prizeInfoList.push(new PrizeInfo());
+    configuration.prizeInfoList = prizeInfoList;
+    cloneTE.configuration = configuration;
+    this.tournamentEvent = cloneTE;
+  }
+
+  onRemovePrizesRow(prizeIndex: number) {
+    const cloneTE: TournamentEvent = JSON.parse(JSON.stringify(this.tournamentEvent));
+    const prizeInfos = cloneTE.configuration.prizeInfoList;
+    prizeInfos.splice(prizeIndex, 1);
+    cloneTE.configuration.prizeInfoList = prizeInfos;
+    this.tournamentEvent = cloneTE;
   }
 }

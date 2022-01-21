@@ -1,8 +1,7 @@
 package com.auroratms.tournamentevententry.policy;
 
 import com.auroratms.event.AgeRestrictionType;
-import com.auroratms.event.TournamentEventEntity;
-import com.auroratms.tournamentevententry.policy.AgeRestrictionEventPolicy;
+import com.auroratms.event.TournamentEvent;
 import org.junit.Test;
 
 import java.util.Calendar;
@@ -19,7 +18,7 @@ public class AgeRestrictionEventPolicyTest {
 
     @Test
     public void testJuniorEvent() {
-        TournamentEventEntity ageRestrictedEvent = new TournamentEventEntity();
+        TournamentEvent ageRestrictedEvent = new TournamentEvent();
         ageRestrictedEvent.setAgeRestrictionType(AgeRestrictionType.AGE_UNDER_OR_EQUAL_ON_DAY_EVENT);
         ageRestrictedEvent.setMaxPlayerAge(12);
 
@@ -34,7 +33,7 @@ public class AgeRestrictionEventPolicyTest {
 
     @Test
     public void testJuniorEventOnBirthday() {
-        TournamentEventEntity ageRestrictedEvent = new TournamentEventEntity();
+        TournamentEvent ageRestrictedEvent = new TournamentEvent();
         ageRestrictedEvent.setAgeRestrictionType(AgeRestrictionType.AGE_UNDER_OR_EQUAL_ON_DAY_EVENT);
         ageRestrictedEvent.setMaxPlayerAge(12);
 
@@ -49,7 +48,7 @@ public class AgeRestrictionEventPolicyTest {
 
     @Test
     public void testJuniorEventBeforeBirthday() {
-        TournamentEventEntity ageRestrictedEvent = new TournamentEventEntity();
+        TournamentEvent ageRestrictedEvent = new TournamentEvent();
         ageRestrictedEvent.setAgeRestrictionType(AgeRestrictionType.AGE_UNDER_OR_EQUAL_ON_DAY_EVENT);
         ageRestrictedEvent.setMaxPlayerAge(12);
 
@@ -64,7 +63,7 @@ public class AgeRestrictionEventPolicyTest {
 
     @Test
     public void testJuniorEventTooOld() {
-        TournamentEventEntity ageRestrictedEvent = new TournamentEventEntity();
+        TournamentEvent ageRestrictedEvent = new TournamentEvent();
         ageRestrictedEvent.setAgeRestrictionType(AgeRestrictionType.AGE_UNDER_OR_EQUAL_ON_DAY_EVENT);
         ageRestrictedEvent.setMaxPlayerAge(12);
 
@@ -83,7 +82,7 @@ public class AgeRestrictionEventPolicyTest {
     //====================================================================
     @Test
     public void testBirthDateBeforeSpecificDateAfter() {
-        TournamentEventEntity ageRestrictedEvent = new TournamentEventEntity();
+        TournamentEvent ageRestrictedEvent = new TournamentEvent();
         ageRestrictedEvent.setAgeRestrictionType(AgeRestrictionType.BORN_ON_OR_AFTER_DATE);
         // "9 and Under" event  must be born on or after January 1, 2007
         Date ageRestrictionDate = getDate(2007, Calendar.JANUARY, 1);
@@ -101,7 +100,7 @@ public class AgeRestrictionEventPolicyTest {
 
     @Test
     public void testBirthDateBeforeSpecificDateBefore() {
-        TournamentEventEntity ageRestrictedEvent = new TournamentEventEntity();
+        TournamentEvent ageRestrictedEvent = new TournamentEvent();
         ageRestrictedEvent.setAgeRestrictionType(AgeRestrictionType.BORN_ON_OR_AFTER_DATE);
         // "9 and Under" event  must be born on or after January 1, 2007
         Date ageRestrictionDate = getDate(2007, Calendar.JANUARY, 1);
@@ -119,7 +118,7 @@ public class AgeRestrictionEventPolicyTest {
 
     @Test
     public void testBirthDateBeforeSpecificDateOnBirthday() {
-        TournamentEventEntity ageRestrictedEvent = new TournamentEventEntity();
+        TournamentEvent ageRestrictedEvent = new TournamentEvent();
         ageRestrictedEvent.setAgeRestrictionType(AgeRestrictionType.BORN_ON_OR_AFTER_DATE);
         // "9 and Under" event  must be born on or after January 1, 2007
         Date ageRestrictionDate = getDate(2007, Calendar.JANUARY, 1);
@@ -140,7 +139,7 @@ public class AgeRestrictionEventPolicyTest {
     //====================================================================
     @Test
     public void testSeniorEvent() {
-        TournamentEventEntity ageRestrictedEvent = new TournamentEventEntity();
+        TournamentEvent ageRestrictedEvent = new TournamentEvent();
         ageRestrictedEvent.setAgeRestrictionType(AgeRestrictionType.AGE_OVER_AT_THE_END_OF_YEAR);
         ageRestrictedEvent.setMinPlayerAge(40);
 
@@ -155,7 +154,7 @@ public class AgeRestrictionEventPolicyTest {
 
     @Test
     public void testSeniorEventTooYoung() {
-        TournamentEventEntity ageRestrictedEvent = new TournamentEventEntity();
+        TournamentEvent ageRestrictedEvent = new TournamentEvent();
         ageRestrictedEvent.setAgeRestrictionType(AgeRestrictionType.AGE_OVER_AT_THE_END_OF_YEAR);
         ageRestrictedEvent.setMinPlayerAge(40);
 
@@ -170,7 +169,7 @@ public class AgeRestrictionEventPolicyTest {
 
     @Test
     public void testSeniorEventTooYoungBornEndOfYear() {
-        TournamentEventEntity ageRestrictedEvent = new TournamentEventEntity();
+        TournamentEvent ageRestrictedEvent = new TournamentEvent();
         ageRestrictedEvent.setAgeRestrictionType(AgeRestrictionType.AGE_OVER_AT_THE_END_OF_YEAR);
         ageRestrictedEvent.setMinPlayerAge(40);
 

@@ -1,7 +1,7 @@
 package com.auroratms.tournamentevententry.doubles;
 
 import com.auroratms.AbstractServiceTest;
-import com.auroratms.event.TournamentEventEntity;
+import com.auroratms.event.TournamentEvent;
 import com.auroratms.event.TournamentEventEntityService;
 import com.auroratms.profile.UserProfile;
 import com.auroratms.profile.UserProfileService;
@@ -15,7 +15,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -46,8 +45,8 @@ public class DoublesServiceTest extends AbstractServiceTest {
         // find doubles event
         long tournamentFk = 153L;
         long doublesEventId = 0L;
-        Collection<TournamentEventEntity> events = tournamentEventEntityService.list(tournamentFk, Pageable.unpaged());
-        for (TournamentEventEntity event : events) {
+        Collection<TournamentEvent> events = tournamentEventEntityService.list(tournamentFk, Pageable.unpaged());
+        for (TournamentEvent event : events) {
             if (event.isDoubles() && event.getName().equals("Open Doubles")) {
                 doublesEventId = event.getId();
                 break;

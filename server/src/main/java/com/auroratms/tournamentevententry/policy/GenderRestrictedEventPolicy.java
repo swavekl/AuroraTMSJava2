@@ -1,7 +1,7 @@
 package com.auroratms.tournamentevententry.policy;
 
 import com.auroratms.event.GenderRestriction;
-import com.auroratms.event.TournamentEventEntity;
+import com.auroratms.event.TournamentEvent;
 import com.auroratms.tournamentevententry.AvailabilityStatus;
 
 public class GenderRestrictedEventPolicy implements IEventPolicy {
@@ -17,7 +17,7 @@ public class GenderRestrictedEventPolicy implements IEventPolicy {
     }
 
     @Override
-    public boolean isEntryDenied(TournamentEventEntity event) {
+    public boolean isEntryDenied(TournamentEvent event) {
         GenderRestriction eventGenderRestriction = event.getGenderRestriction();
         if (!eventGenderRestriction.equals(GenderRestriction.NONE)) {
             return !playerGender.equals(eventGenderRestriction);

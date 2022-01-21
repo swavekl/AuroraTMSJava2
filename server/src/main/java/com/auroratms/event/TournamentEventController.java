@@ -17,9 +17,9 @@ public class TournamentEventController {
 
     @GetMapping("/tournament/{tournamentId}/tournamentevents")
 //    @PreAuthorize("hasAuthority('TournamentDirectors') or hasAuthority('Admins')")
-    public Collection<TournamentEventEntity> list(@PathVariable Long tournamentId,
-                                                  Pageable pageable,
-                                                  @RequestParam(required = false) Boolean doublesOnly) {
+    public Collection<TournamentEvent> list(@PathVariable Long tournamentId,
+                                            Pageable pageable,
+                                            @RequestParam(required = false) Boolean doublesOnly) {
         if (Boolean.TRUE.equals(doublesOnly)) {
             return tournamentEventEntityService.listDoublesEvents(tournamentId);
         } else {
@@ -29,24 +29,24 @@ public class TournamentEventController {
 
     @GetMapping("/tournament/{tournamentId}/tournamentevent/{eventId}")
     @PreAuthorize("hasAuthority('TournamentDirectors') or hasAuthority('Admins')")
-    public TournamentEventEntity list(@PathVariable Long tournamentId,
-                                      @PathVariable Long eventId) {
+    public TournamentEvent list(@PathVariable Long tournamentId,
+                                @PathVariable Long eventId) {
         return tournamentEventEntityService.get(eventId);
     }
 
     @PostMapping("/tournament/{tournamentId}/tournamentevent")
     @PreAuthorize("hasAuthority('TournamentDirectors') or hasAuthority('Admins')")
-    public TournamentEventEntity create(@PathVariable Long tournamentId,
-                                        @RequestBody TournamentEventEntity tournamentEventEntity) {
-        return tournamentEventEntityService.create(tournamentEventEntity);
+    public TournamentEvent create(@PathVariable Long tournamentId,
+                                  @RequestBody TournamentEvent tournamentEvent) {
+        return tournamentEventEntityService.create(tournamentEvent);
     }
 
     @PutMapping("/tournament/{tournamentId}/tournamentevent/{eventId}")
     @PreAuthorize("hasAuthority('TournamentDirectors') or hasAuthority('Admins')")
-    public TournamentEventEntity update(@PathVariable Long tournamentId,
-                                        @PathVariable Long eventId,
-                                        @RequestBody TournamentEventEntity tournamentEventEntity) {
-        return tournamentEventEntityService.update(tournamentEventEntity);
+    public TournamentEvent update(@PathVariable Long tournamentId,
+                                  @PathVariable Long eventId,
+                                  @RequestBody TournamentEvent tournamentEvent) {
+        return tournamentEventEntityService.update(tournamentEvent);
     }
 
     @DeleteMapping("/tournament/{tournamentId}/tournamentevent/{tournamentEventId}")

@@ -25,9 +25,24 @@ public class TournamentEventEntityService {
     @Autowired
     TournamentEventEntityRepository repository;
 
-    public Collection<TournamentEventEntity> list(long tournamentId, Pageable pageable) {
+    public Collection<TournamentEvent> list(long tournamentId, Pageable pageable) {
         Page<TournamentEventEntity> result = repository.findByTournamentFk(tournamentId, pageable);
-        return result.get().collect(Collectors.toList());
+        List<TournamentEventEntity> tournamentEventEntities = result.get().collect(Collectors.toList());
+        return convertFromEntities(tournamentEventEntities);
+    }
+
+    /**
+     * Converts a collection of tournament event entities into collection of tournament events
+     * @param tournamentEventEntities
+     * @return
+     */
+    private Collection<TournamentEvent> convertFromEntities(List<TournamentEventEntity> tournamentEventEntities) {
+        List<TournamentEvent> tournamentEvents = new ArrayList<>(tournamentEventEntities.size());
+        for (TournamentEventEntity tournamentEventEntity : tournamentEventEntities) {
+            TournamentEvent tournamentEvent = TournamentEvent.fromEntity(tournamentEventEntity);
+            tournamentEvents.add(tournamentEvent);
+        }
+        return tournamentEvents;
     }
 
     /**
@@ -36,11 +51,11 @@ public class TournamentEventEntityService {
      * @param day day 1, 2, 3 etc.
      * @return
      */
-    public List<TournamentEventEntity> listDaysEvents(long tournamentId, int day) {
+    public List<TournamentEvent> listDaysEvents(long tournamentId, int day) {
         // get all events and find those that will have match on this day
-        List<TournamentEventEntity> daysEvents = new ArrayList<>();
-        Collection<TournamentEventEntity> tournamentEvents = list(tournamentId, Pageable.unpaged());
-        for (TournamentEventEntity tournamentEvent : tournamentEvents) {
+        List<TournamentEvent> daysEvents = new ArrayList<>();
+        Collection<TournamentEvent> tournamentEvents = list(tournamentId, Pageable.unpaged());
+        for (TournamentEvent tournamentEvent : tournamentEvents) {
             if (tournamentEvent.getDay() == day) {
                 daysEvents.add(tournamentEvent);
             }
@@ -49,9 +64,9 @@ public class TournamentEventEntityService {
         }
 
         // sort events by starting time - earliest starting first
-        daysEvents.sort(new Comparator<TournamentEventEntity>() {
+        daysEvents.sort(new Comparator<TournamentEvent>() {
             @Override
-            public int compare(TournamentEventEntity tee1, TournamentEventEntity tee2) {
+            public int compare(TournamentEvent tee1, TournamentEvent tee2) {
                 int result = Double.compare(tee1.getStartTime(), tee2.getStartTime());
                 if (result == 0) {
                     // if they start at the same time on this day schedule higher rated event first
@@ -70,8 +85,8 @@ public class TournamentEventEntityService {
      * @param eventIds
      * @return
      */
-    public List<TournamentEventEntity> findAllById(List<Long> eventIds) {
-        return repository.findAllById(eventIds);
+    public List<TournamentEvent> findAllById(List<Long> eventIds) {
+        return (List<TournamentEvent>) convertFromEntities(repository.findAllById(eventIds));
     }
 
     /**
@@ -79,27 +94,31 @@ public class TournamentEventEntityService {
      * @param tournamentId
      * @return
      */
-    public List<TournamentEventEntity> listDoublesEvents(long tournamentId) {
-        return repository.findByTournamentFkAndDoublesIsTrue(tournamentId);
+    public List<TournamentEvent> listDoublesEvents(long tournamentId) {
+        return (List<TournamentEvent>) convertFromEntities(repository.findByTournamentFkAndDoublesIsTrue(tournamentId));
     }
 
     @CachePut(key = "#result.id")
-    public TournamentEventEntity create(TournamentEventEntity tournamentEventEntity) {
-        return repository.save(tournamentEventEntity);
+    public TournamentEvent create(TournamentEvent tournamentEvent) {
+        TournamentEventEntity savedEntity = repository.save(tournamentEvent.toEntity());
+        return TournamentEvent.fromEntity(savedEntity);
     }
 
     @Cacheable(key = "#eventId")
-    public TournamentEventEntity get(Long eventId) {
-        return repository.findById(eventId)
+    public TournamentEvent get(Long eventId) {
+        TournamentEventEntity tournamentEventEntity = repository.findById(eventId)
                 .orElseThrow(() -> new ResourceNotFoundException("TournamentEventEntity " + eventId + " not found"));
+        return TournamentEvent.fromEntity(tournamentEventEntity);
     }
 
     @CachePut(key = "#result.id")
-    public TournamentEventEntity update(TournamentEventEntity tournamentEventEntity) {
-        if (repository.existsById(tournamentEventEntity.getId())) {
-            return repository.save(tournamentEventEntity);
+    public TournamentEvent update(TournamentEvent tournamentEvent) {
+        if (repository.existsById(tournamentEvent.getId())) {
+            TournamentEventEntity toSave = tournamentEvent.toEntity();
+            TournamentEventEntity saved = repository.save(toSave);
+            return TournamentEvent.fromEntity(saved);
         } else {
-            throw new ResourceNotFoundException("TournamentEventEntity " + tournamentEventEntity.getId() + " not found");
+            throw new ResourceNotFoundException("TournamentEventEntity " + tournamentEvent.getId() + " not found");
         }
     }
 

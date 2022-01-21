@@ -4,7 +4,7 @@ import com.auroratms.draw.DrawItem;
 import com.auroratms.draw.DrawType;
 import com.auroratms.draw.generation.singleelim.BracketGenerator;
 import com.auroratms.draw.generation.singleelim.BracketLine;
-import com.auroratms.event.TournamentEventEntity;
+import com.auroratms.event.TournamentEvent;
 import com.auroratms.tournamentevententry.TournamentEventEntry;
 import com.auroratms.tournamentevententry.doubles.DoublesPair;
 
@@ -14,8 +14,8 @@ import java.util.Map;
 
 public class DoublesSingleEliminationDrawsGenerator extends AbstractDoublesDrawsGenerator implements IDrawsGenerator {
 
-    public DoublesSingleEliminationDrawsGenerator(TournamentEventEntity tournamentEventEntity) {
-        super(tournamentEventEntity);
+    public DoublesSingleEliminationDrawsGenerator(TournamentEvent tournamentEvent) {
+        super(tournamentEvent);
     }
 
     @Override
@@ -172,7 +172,7 @@ public class DoublesSingleEliminationDrawsGenerator extends AbstractDoublesDraws
                     teamPlayerDrawInfo.setProfileId(DrawItem.TBD_PROFILE_ID);
                     teamPlayerDrawInfo.setRating(0);
                 }
-                DrawItem drawItem = makeDrawItem(tournamentEventEntity.getId(), groupNum, placeInGroup,
+                DrawItem drawItem = makeDrawItem(tournamentEvent.getId(), groupNum, placeInGroup,
                         teamPlayerDrawInfo, DrawType.SINGLE_ELIMINATION, 0L);
                 drawItem.setSingleElimLineNum(thisPlayerSingleElimLineNumber);
                 drawItem.setRound(roundOf);
@@ -181,18 +181,18 @@ public class DoublesSingleEliminationDrawsGenerator extends AbstractDoublesDraws
             }
         }
 
-        if (tournamentEventEntity.isPlay3rd4thPlace()) {
+        if (tournamentEvent.isPlay3rd4thPlace()) {
             PlayerDrawInfo tbdPlayerDrawInfo = new PlayerDrawInfo();
             tbdPlayerDrawInfo.setPlayerName(DrawItem.TBD_PROFILE_ID);
             tbdPlayerDrawInfo.setProfileId(DrawItem.TBD_PROFILE_ID);
 
-            DrawItem drawItem3 = makeDrawItem(tournamentEventEntity.getId(), 2, 1,
+            DrawItem drawItem3 = makeDrawItem(tournamentEvent.getId(), 2, 1,
                     tbdPlayerDrawInfo, DrawType.SINGLE_ELIMINATION, 0L);
             drawItem3.setSingleElimLineNum(3);
             drawItem3.setRound(2);
             laterRoundsDrawItems.add(drawItem3);
 
-            DrawItem drawItem4 = makeDrawItem(tournamentEventEntity.getId(), 2, 2,
+            DrawItem drawItem4 = makeDrawItem(tournamentEvent.getId(), 2, 2,
                     tbdPlayerDrawInfo, DrawType.SINGLE_ELIMINATION, 0L);
             drawItem4.setSingleElimLineNum(4);
             drawItem4.setRound(2);
@@ -215,7 +215,7 @@ public class DoublesSingleEliminationDrawsGenerator extends AbstractDoublesDraws
                                       Map<Long, PlayerDrawInfo> entryIdToPlayerDrawInfo,
                                       BracketLine[] bracketLines,
                                       DrawItem[] drawItemsArray) {
-        long eventFk = this.tournamentEventEntity.getId();
+        long eventFk = this.tournamentEvent.getId();
         int currentPlayerSeedNum = playerSeedNum;
         boolean firstPlayer = true;
         for (TournamentEventEntry eventEntry : entriesSubList) {

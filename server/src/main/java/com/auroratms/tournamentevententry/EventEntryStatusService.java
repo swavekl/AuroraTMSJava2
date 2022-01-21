@@ -1,6 +1,6 @@
 package com.auroratms.tournamentevententry;
 
-import com.auroratms.event.TournamentEventEntity;
+import com.auroratms.event.TournamentEvent;
 import com.auroratms.event.TournamentEventEntityService;
 import com.auroratms.profile.UserProfile;
 import com.auroratms.profile.UserProfileService;
@@ -57,7 +57,7 @@ public class EventEntryStatusService {
             long tournamentId = tournamentEntry.getTournamentFk();
             // get all events
             PageRequest pageRequest = PageRequest.of(0, 200);
-            Collection<TournamentEventEntity> eventEntityCollection = tournamentEventService.list(tournamentId, pageRequest);
+            Collection<TournamentEvent> eventEntityCollection = tournamentEventService.list(tournamentId, pageRequest);
 
             List<TournamentEventEntry> eventEntries = tournamentEventEntryService.getEntries(tournamentEntryId);
             eventEntryInfos = new ArrayList<>(eventEntityCollection.size());
@@ -92,7 +92,7 @@ public class EventEntryStatusService {
 
             // now create event entry infos for events that were not entered
             // find entry into this even if it exists
-            for (TournamentEventEntity event : eventEntityCollection) {
+            for (TournamentEvent event : eventEntityCollection) {
                 // if there is no entry for this event, make info
                 if (!eventsToEventEntriesMap.containsKey(event.getId())) {
                     TournamentEventEntryInfo notEnteredEventEntryInfo = new TournamentEventEntryInfo();
@@ -111,7 +111,7 @@ public class EventEntryStatusService {
             if (userProfile != null) {
                 // now determine availability status of the events that are not entered yet
                 PolicyApplicator policyApplicator = new PolicyApplicator();
-                List<TournamentEventEntity> eventEntityList = new ArrayList<>(eventEntityCollection);
+                List<TournamentEvent> eventEntityList = new ArrayList<>(eventEntityCollection);
                 policyApplicator.configurePolicies(eventEntries, eventEntityList, userProfile, eligibilityRating, tournamentStartDate);
                 eventEntryInfos = policyApplicator.evaluateRestrictions(eventEntityList, eventEntryInfos);
             }
@@ -286,10 +286,10 @@ public class EventEntryStatusService {
      * @param eventId
      */
     private long updateNumEntriesInEvent(long eventId) {
-        TournamentEventEntity tournamentEventEntity = tournamentEventService.get(eventId);
+        TournamentEvent tournamentEvent = tournamentEventService.get(eventId);
         long count = tournamentEventEntryService.getCountValidEntriesInEvent(eventId);
-        tournamentEventEntity.setNumEntries((int) count);
-        tournamentEventService.update(tournamentEventEntity);
+        tournamentEvent.setNumEntries((int) count);
+        tournamentEventService.update(tournamentEvent);
 //        System.out.println("eventId = " + eventId + ", count = " + count);
         return count;
     }
@@ -309,7 +309,7 @@ public class EventEntryStatusService {
         switch (eventEntryCommand) {
             case ENTER:
             case ENTER_WAITING_LIST:
-                TournamentEventEntity event = tournamentEventService.get(eventEntryInfo.getEventFk());
+                TournamentEvent event = tournamentEventService.get(eventEntryInfo.getEventFk());
                 eventEntry = new TournamentEventEntry();
                 eventEntry.setDateEntered(new Date());
                 eventEntry.setTournamentFk(event.getTournamentFk());
@@ -389,8 +389,8 @@ public class EventEntryStatusService {
         List<Long> doublesEventIds = new ArrayList<>();
         if (allEntries.size() > 0) {
             TournamentEventEntry eventEntry = allEntries.get(0);
-            List<TournamentEventEntity> doublesEvents = tournamentEventService.listDoublesEvents(eventEntry.getTournamentFk());
-            for (TournamentEventEntity doublesEvent : doublesEvents) {
+            List<TournamentEvent> doublesEvents = tournamentEventService.listDoublesEvents(eventEntry.getTournamentFk());
+            for (TournamentEvent doublesEvent : doublesEvents) {
                 doublesEventIds.add(doublesEvent.getId());
             }
         }

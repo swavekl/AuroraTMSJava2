@@ -1,6 +1,6 @@
 package com.auroratms.tournamententry.notification;
 
-import com.auroratms.event.TournamentEventEntity;
+import com.auroratms.event.TournamentEvent;
 import com.auroratms.event.TournamentEventEntityService;
 import com.auroratms.notification.SystemPrincipalExecutor;
 import com.auroratms.profile.UserProfile;
@@ -205,7 +205,7 @@ public class TournamentEventListener {
      */
     private int addEventsInformation(Map<String, Object> templateModel, Tournament tournament, long tournamentEntryId) {
         PageRequest pageRequest = PageRequest.of(0, 200);
-        Collection<TournamentEventEntity> eventEntityCollection = tournamentEventService.list(tournament.getId(), pageRequest);
+        Collection<TournamentEvent> eventEntityCollection = tournamentEventService.list(tournament.getId(), pageRequest);
         Date tournamentStartDate = tournament.getStartDate();
 
         // get this player's entries in this tournament
@@ -217,16 +217,16 @@ public class TournamentEventListener {
             switch (eventEntry.getStatus()) {
                 case ENTERED:
                 case PENDING_CONFIRMATION:
-                    TournamentEventEntity tournamentEventEntity = getEvent(eventEntry.getTournamentEventFk(), eventEntityCollection);
-                    if (tournamentEventEntity != null) {
-                        enteredEvents.add(new EventEntryInfo(tournamentStartDate, tournamentEventEntity));
+                    TournamentEvent tournamentEvent = getEvent(eventEntry.getTournamentEventFk(), eventEntityCollection);
+                    if (tournamentEvent != null) {
+                        enteredEvents.add(new EventEntryInfo(tournamentStartDate, tournamentEvent));
                     }
                     break;
                 case PENDING_WAITING_LIST:
                 case ENTERED_WAITING_LIST:
-                    TournamentEventEntity tournamentEventEntity2 = getEvent(eventEntry.getTournamentEventFk(), eventEntityCollection);
-                    if (tournamentEventEntity2 != null) {
-                        waitListEvents.add(new EventEntryInfo(tournamentStartDate, tournamentEventEntity2));
+                    TournamentEvent tournamentEvent2 = getEvent(eventEntry.getTournamentEventFk(), eventEntityCollection);
+                    if (tournamentEvent2 != null) {
+                        waitListEvents.add(new EventEntryInfo(tournamentStartDate, tournamentEvent2));
                     }
                     break;
                 default:
@@ -239,10 +239,10 @@ public class TournamentEventListener {
         return enteredEvents.size() + waitListEvents.size();
     }
 
-    private TournamentEventEntity getEvent(long tournamentEventFk, Collection<TournamentEventEntity> eventEntityCollection) {
-        for (TournamentEventEntity tournamentEventEntity : eventEntityCollection) {
-            if (tournamentEventEntity.getId().equals(tournamentEventFk)) {
-                return tournamentEventEntity;
+    private TournamentEvent getEvent(long tournamentEventFk, Collection<TournamentEvent> eventEntityCollection) {
+        for (TournamentEvent tournamentEvent : eventEntityCollection) {
+            if (tournamentEvent.getId().equals(tournamentEventFk)) {
+                return tournamentEvent;
             }
         }
         return null;
@@ -255,9 +255,9 @@ public class TournamentEventListener {
         private String eventName;
         private String eventDayAndTime;
 
-        public EventEntryInfo(Date tournamentStartDate, TournamentEventEntity tournamentEventEntity) {
-            this.eventName = tournamentEventEntity.getName();
-            this.eventDayAndTime = formatDayAndTime(tournamentStartDate, tournamentEventEntity.getDay(), tournamentEventEntity.getStartTime());
+        public EventEntryInfo(Date tournamentStartDate, TournamentEvent tournamentEvent) {
+            this.eventName = tournamentEvent.getName();
+            this.eventDayAndTime = formatDayAndTime(tournamentStartDate, tournamentEvent.getDay(), tournamentEvent.getStartTime());
         }
 
         public String getEventName() {

@@ -3,7 +3,7 @@ package com.auroratms.draw.generation;
 import com.auroratms.draw.DrawItem;
 import com.auroratms.draw.DrawType;
 import com.auroratms.draw.generation.singleelim.SingleEliminationEntriesConverter;
-import com.auroratms.event.TournamentEventEntity;
+import com.auroratms.event.TournamentEvent;
 import com.auroratms.tournamentevententry.TournamentEventEntry;
 import com.auroratms.tournamentevententry.doubles.DoublesPair;
 import org.junit.Test;
@@ -23,18 +23,18 @@ public class DoublesSingleEliminationDrawsGeneratorTest extends AbstractDoublesD
     }
 
     private void testDrawGeneration(int numTeamsToSeed, int expectedGroups) {
-        TournamentEventEntity tournamentEventEntity = makeTournamentEventEntity(numTeamsToSeed);
+        TournamentEvent tournamentEvent = makeTournamentEventEntity(numTeamsToSeed);
 
-        List<TournamentEventEntry> eventEntries = makeDoublesTournamentEntriesList(153L, tournamentEventEntity.getId());
+        List<TournamentEventEntry> eventEntries = makeDoublesTournamentEntriesList(153L, tournamentEvent.getId());
 
         Map<Long, PlayerDrawInfo> entryIdToPlayerDrawInfo = makeDoublesPlayerDrawInfos();
 
-        List<DoublesPair> doublesPairList = makeDoublesPairs(tournamentEventEntity);
+        List<DoublesPair> doublesPairList = makeDoublesPairs(tournamentEvent);
 
         // first event draw
         List<DrawItem> existingDrawItems = new ArrayList<>();
 
-        IDrawsGenerator rrRoundGenerator = DrawGeneratorFactory.makeGenerator(tournamentEventEntity, DrawType.ROUND_ROBIN);
+        IDrawsGenerator rrRoundGenerator = DrawGeneratorFactory.makeGenerator(tournamentEvent, DrawType.ROUND_ROBIN);
         ((DoublesSnakeDrawsGenerator)rrRoundGenerator).setDoublesPairs(doublesPairList);
 
         List<DrawItem> rrDrawItems = rrRoundGenerator.generateDraws(eventEntries, entryIdToPlayerDrawInfo, existingDrawItems);
@@ -43,11 +43,11 @@ public class DoublesSingleEliminationDrawsGeneratorTest extends AbstractDoublesD
         // now test the single elimination draws generation
         // pick top n teams to advance and get their entries
         List<TournamentEventEntry> seEventEntries = SingleEliminationEntriesConverter.generateSEEventEntriesFromDraws(
-                rrDrawItems, eventEntries, tournamentEventEntity, entryIdToPlayerDrawInfo);
+                rrDrawItems, eventEntries, tournamentEvent, entryIdToPlayerDrawInfo);
         assertEquals("wrong number of advancing player entries", 8, seEventEntries.size());
 
         // make SE draws
-        IDrawsGenerator seRoundGenerator = DrawGeneratorFactory.makeGenerator(tournamentEventEntity, DrawType.SINGLE_ELIMINATION);
+        IDrawsGenerator seRoundGenerator = DrawGeneratorFactory.makeGenerator(tournamentEvent, DrawType.SINGLE_ELIMINATION);
         assertNotNull("SE round generator is null", seRoundGenerator);
         ((DoublesSingleEliminationDrawsGenerator)seRoundGenerator).setDoublesPairs(doublesPairList);
 

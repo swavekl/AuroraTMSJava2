@@ -19,11 +19,6 @@ public class TournamentEventEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-//    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-//    @JoinColumn(name = "tournament_fk", nullable = false)
-//    @OnDelete(action = OnDeleteAction.CASCADE)
-//    @JsonIgnore
-//    private TournamentEntity tournamentEntity;
     @Column(nullable = false)
     private long tournamentFk;
 
@@ -103,6 +98,12 @@ public class TournamentEventEntity {
     // fees
     private double feeAdult;
     private double feeJunior;
+
+    // prize money and other non-queryable information
+    // to avoid having to change database schema each time we add new field to configuration
+    // we will persist configuration as JSON in this field.
+    @Column(length = 6000)
+    private String content;
 
     @Override
     public boolean equals(Object o) {

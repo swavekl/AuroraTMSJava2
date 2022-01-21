@@ -1,8 +1,7 @@
 package com.auroratms.tiebreaking;
 
 import com.auroratms.draw.DrawService;
-import com.auroratms.draw.DrawType;
-import com.auroratms.event.TournamentEventEntity;
+import com.auroratms.event.TournamentEvent;
 import com.auroratms.event.TournamentEventEntityService;
 import com.auroratms.match.Match;
 import com.auroratms.match.MatchCard;
@@ -47,14 +46,14 @@ public class TieBreakingService {
 
         // get number of games and points per game
         long eventFk = matchCard.getEventFk();
-        TournamentEventEntity tournamentEventEntity = tournamentEventEntityService.get(eventFk);
-        int pointsPerGame = tournamentEventEntity.getPointsPerGame();
+        TournamentEvent tournamentEvent = tournamentEventEntityService.get(eventFk);
+        int pointsPerGame = tournamentEvent.getPointsPerGame();
         int numberOfGames = matchCard.getNumberOfGames();
 
         GroupTieBreakingInfo groupTieBreakingInfo = rankPlayers(matchCard, pointsPerGame, numberOfGames);
 
         // advance players
-        advancePlayers(matchCard, tournamentEventEntity, groupTieBreakingInfo);
+        advancePlayers(matchCard, tournamentEvent, groupTieBreakingInfo);
 
         return groupTieBreakingInfo;
     }
@@ -70,8 +69,8 @@ public class TieBreakingService {
 
         // get number of games and points per game
         long eventFk = matchCard.getEventFk();
-        TournamentEventEntity tournamentEventEntity = tournamentEventEntityService.get(eventFk);
-        int pointsPerGame = tournamentEventEntity.getPointsPerGame();
+        TournamentEvent tournamentEvent = tournamentEventEntityService.get(eventFk);
+        int pointsPerGame = tournamentEvent.getPointsPerGame();
         int numberOfGames = matchCard.getNumberOfGames();
 
         return rankPlayers(matchCard, pointsPerGame, numberOfGames);
@@ -620,11 +619,11 @@ public class TieBreakingService {
 
     /**
      * @param matchCard             Match card which was just entered
-     * @param tournamentEventEntity event information for this match
+     * @param tournamentEvent event information for this match
      * @param groupTieBreakingInfo  tie breaking information
      */
     private void advancePlayers(MatchCard matchCard,
-                                TournamentEventEntity tournamentEventEntity,
+                                TournamentEvent tournamentEvent,
                                 GroupTieBreakingInfo groupTieBreakingInfo) {
         // create a JSON representation of the ranking
         // extract player ranking
@@ -666,7 +665,7 @@ public class TieBreakingService {
 //                System.out.println(entry.getKey()+ " => " + entry.getValue());
 //            }
             drawService.advancePlayers(matchCard.getDrawType(), matchCard.getGroupNum(), matchCard.getRound(),
-                    tournamentEventEntity, rankToProfileIdMap, playerProfileToRatingMap);
+                    tournamentEvent, rankToProfileIdMap, playerProfileToRatingMap);
         }
     }
 }

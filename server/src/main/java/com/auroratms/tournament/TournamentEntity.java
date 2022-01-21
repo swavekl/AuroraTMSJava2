@@ -1,15 +1,10 @@
 package com.auroratms.tournament;
 
-import com.auroratms.event.TournamentEventEntity;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 import lombok.NonNull;
 
 import javax.persistence.*;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.Objects;
-import java.util.Set;
 
 /**
  * This tournament object IS persisted.

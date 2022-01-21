@@ -1,6 +1,6 @@
 package com.auroratms.tournamentevententry.policy;
 
-import com.auroratms.event.TournamentEventEntity;
+import com.auroratms.event.TournamentEvent;
 import com.auroratms.tournamentevententry.AvailabilityStatus;
 
 public class RatingRestrictionEventPolicy implements IEventPolicy {
@@ -14,7 +14,7 @@ public class RatingRestrictionEventPolicy implements IEventPolicy {
     }
 
     @Override
-    public boolean isEntryDenied(TournamentEventEntity event) {
+    public boolean isEntryDenied(TournamentEvent event) {
         boolean isDenied = false;
         if (event.getMinPlayerRating() > 0 && event.getMaxPlayerRating() > 0) {
             if (playerRating < event.getMinPlayerRating() || playerRating > event.getMaxPlayerRating()) {

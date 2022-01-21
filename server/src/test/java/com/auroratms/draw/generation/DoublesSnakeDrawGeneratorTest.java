@@ -2,7 +2,7 @@ package com.auroratms.draw.generation;
 
 import com.auroratms.draw.DrawItem;
 import com.auroratms.draw.DrawType;
-import com.auroratms.event.TournamentEventEntity;
+import com.auroratms.event.TournamentEvent;
 import com.auroratms.tournamentevententry.TournamentEventEntry;
 import com.auroratms.tournamentevententry.doubles.DoublesPair;
 import org.junit.Test;
@@ -24,18 +24,18 @@ public class DoublesSnakeDrawGeneratorTest extends AbstractDoublesDrawsGenerator
     }
 
     private void testDrawGeneration(int numTeamsToSeed, int expectedGroups) {
-        TournamentEventEntity tournamentEventEntity = makeTournamentEventEntity(numTeamsToSeed);
+        TournamentEvent tournamentEvent = makeTournamentEventEntity(numTeamsToSeed);
 
-        List<TournamentEventEntry> eventEntries = makeDoublesTournamentEntriesList(153L, tournamentEventEntity.getId());
+        List<TournamentEventEntry> eventEntries = makeDoublesTournamentEntriesList(153L, tournamentEvent.getId());
 
         Map<Long, PlayerDrawInfo> entryIdToPlayerDrawInfo = makeDoublesPlayerDrawInfos();
 
-        List<DoublesPair> doublesPairList = makeDoublesPairs(tournamentEventEntity);
+        List<DoublesPair> doublesPairList = makeDoublesPairs(tournamentEvent);
 
         // first event draw
         List<DrawItem> existingDrawItems = new ArrayList<>();
 
-        IDrawsGenerator rrRoundGenerator = DrawGeneratorFactory.makeGenerator(tournamentEventEntity, DrawType.ROUND_ROBIN);
+        IDrawsGenerator rrRoundGenerator = DrawGeneratorFactory.makeGenerator(tournamentEvent, DrawType.ROUND_ROBIN);
         ((DoublesSnakeDrawsGenerator)rrRoundGenerator).setDoublesPairs(doublesPairList);
 
         List<DrawItem> drawItems = rrRoundGenerator.generateDraws(eventEntries, entryIdToPlayerDrawInfo, existingDrawItems);

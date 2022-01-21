@@ -4,7 +4,7 @@ import com.auroratms.draw.generation.*;
 import com.auroratms.draw.notification.DrawsEventPublisher;
 import com.auroratms.draw.notification.event.DrawAction;
 import com.auroratms.error.ResourceNotFoundException;
-import com.auroratms.event.TournamentEventEntity;
+import com.auroratms.event.TournamentEvent;
 import com.auroratms.tournamentevententry.TournamentEventEntry;
 import com.auroratms.tournamentevententry.doubles.DoublesPair;
 import com.auroratms.tournamentevententry.doubles.DoublesService;
@@ -46,7 +46,7 @@ public class DrawService {
      * @param entryIdToPlayerDrawInfo
      * @return
      */
-    public List<DrawItem> generateDraws(TournamentEventEntity tournamentEvent,
+    public List<DrawItem> generateDraws(TournamentEvent tournamentEvent,
                                         DrawType drawType,
                                         List<TournamentEventEntry> eventEntries,
                                         List<DrawItem> existingDrawItems,
@@ -160,17 +160,17 @@ public class DrawService {
      * @param matchDrawType
      * @param matchGroupNum
      * @param matchRound
-     * @param tournamentEventEntity
+     * @param tournamentEvent
      * @param rankToProfileIdMap
      * @param playerProfileToRatingMap
      */
     public void advancePlayers(DrawType matchDrawType,
                                int matchGroupNum,
                                int matchRound,
-                               TournamentEventEntity tournamentEventEntity,
+                               TournamentEvent tournamentEvent,
                                Map<Integer, String> rankToProfileIdMap,
                                Map<String, Integer> playerProfileToRatingMap) {
-        List<DrawItem> seDrawItems = this.list(tournamentEventEntity.getId(), DrawType.SINGLE_ELIMINATION);
+        List<DrawItem> seDrawItems = this.list(tournamentEvent.getId(), DrawType.SINGLE_ELIMINATION);
 
         if (matchDrawType == DrawType.ROUND_ROBIN) {
             // find the first round of the single elimination round
@@ -207,7 +207,7 @@ public class DrawService {
 
                     // todo - where do we place the second and nth player who advances
                     placeRankNum++;
-                    if (placeRankNum > tournamentEventEntity.getPlayersToAdvance()) {
+                    if (placeRankNum > tournamentEvent.getPlayersToAdvance()) {
                         break;
                     }
                 }
@@ -225,12 +225,12 @@ public class DrawService {
                 // there are only two places in this group - 1 or 2
                 int placeInGroup = (matchGroupNum % 2 == 1) ? 1 : 2;
                 int singleElimLineNumber = ((groupNum - 1) * 2) + placeInGroup;
-                updateDrawItem(tournamentEventEntity.getId(), roundOf, playerProfileId, rating, groupNum, placeInGroup, singleElimLineNumber);
+                updateDrawItem(tournamentEvent.getId(), roundOf, playerProfileId, rating, groupNum, placeInGroup, singleElimLineNumber);
             }
 
             // last round but if we play for 3rd and 4th place update draw item for that as well
             // with the player who lost
-            if (tournamentEventEntity.isPlay3rd4thPlace() && roundOf == 2) {
+            if (tournamentEvent.isPlay3rd4thPlace() && roundOf == 2) {
                 String losingPlayerProfileId = rankToProfileIdMap.get(2);
                 // make sure this player can play
                 int rating = (losingPlayerProfileId != null) ? playerProfileToRatingMap.get(losingPlayerProfileId) : 0;
@@ -239,7 +239,7 @@ public class DrawService {
                 // there are only two places in this group
                 int placeInGroup = (matchGroupNum % 2 == 1) ? 1 : 2;
                 int singleElimLineNumber = ((groupNum - 1) * 2) + placeInGroup; // i.e. 3 or 4
-                updateDrawItem(tournamentEventEntity.getId(), roundOf, losingPlayerProfileId, rating, groupNum, placeInGroup, singleElimLineNumber);
+                updateDrawItem(tournamentEvent.getId(), roundOf, losingPlayerProfileId, rating, groupNum, placeInGroup, singleElimLineNumber);
             }
         }
     }

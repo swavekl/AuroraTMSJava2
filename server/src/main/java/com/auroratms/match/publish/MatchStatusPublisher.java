@@ -1,6 +1,6 @@
 package com.auroratms.match.publish;
 
-import com.auroratms.event.TournamentEventEntity;
+import com.auroratms.event.TournamentEvent;
 import com.auroratms.event.TournamentEventEntityService;
 import com.auroratms.match.Match;
 import com.auroratms.match.MatchCard;
@@ -57,8 +57,8 @@ public class MatchStatusPublisher {
                 int tableNumber = Integer.parseInt(tableNumbers[0]);
 
                 // get tournament id
-                TournamentEventEntity tournamentEventEntity = this.tournamentEventEntityService.get(matchCard.getEventFk());
-                long tournamentFk = tournamentEventEntity.getTournamentFk();
+                TournamentEvent tournamentEvent = this.tournamentEventEntityService.get(matchCard.getEventFk());
+                long tournamentFk = tournamentEvent.getTournamentFk();
                 MonitorMessage monitorMessage = new MonitorMessage();
                 monitorMessage.setMatch(match);
                 monitorMessage.setNumberOfGames(matchCard.getNumberOfGames());

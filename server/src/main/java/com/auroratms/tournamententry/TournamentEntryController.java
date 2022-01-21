@@ -1,6 +1,6 @@
 package com.auroratms.tournamententry;
 
-import com.auroratms.event.TournamentEventEntity;
+import com.auroratms.event.TournamentEvent;
 import com.auroratms.event.TournamentEventEntityService;
 import com.auroratms.profile.UserProfileExt;
 import com.auroratms.profile.UserProfileExtService;
@@ -157,9 +157,9 @@ public class TournamentEntryController {
 
         // get all events for tournament
         int maxNumEventEntries = 0;
-        Collection<TournamentEventEntity> eventList = tournamentEventEntityService.list(tournamentFk, Pageable.unpaged());
-        for (TournamentEventEntity tournamentEventEntity : eventList) {
-            maxNumEventEntries += tournamentEventEntity.getMaxEntries();
+        Collection<TournamentEvent> eventList = tournamentEventEntityService.list(tournamentFk, Pageable.unpaged());
+        for (TournamentEvent tournamentEvent : eventList) {
+            maxNumEventEntries += tournamentEvent.getMaxEntries();
         }
         int numEventEntries = tournamentEventEntryService.getCountOfValidEntriesInAllEvents(tournamentFk);
         tournament.setNumEntries(countOfEntries);

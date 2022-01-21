@@ -6,7 +6,7 @@ import com.auroratms.draw.generation.singleelim.BracketGenerator;
 import com.auroratms.draw.generation.singleelim.BracketLine;
 import com.auroratms.draw.generation.singleelim.EntrySorter;
 import com.auroratms.draw.generation.singleelim.GeographicalDistanceCalculator;
-import com.auroratms.event.TournamentEventEntity;
+import com.auroratms.event.TournamentEvent;
 import com.auroratms.tournamentevententry.TournamentEventEntry;
 
 import java.util.*;
@@ -16,8 +16,8 @@ import java.util.*;
  */
 public class SingleEliminationDrawsGenerator extends AbstractDrawsGenerator implements IDrawsGenerator {
 
-    public SingleEliminationDrawsGenerator(TournamentEventEntity tournamentEventEntity) {
-        super(tournamentEventEntity);
+    public SingleEliminationDrawsGenerator(TournamentEvent tournamentEvent) {
+        super(tournamentEvent);
     }
 
     @Override
@@ -135,7 +135,7 @@ public class SingleEliminationDrawsGenerator extends AbstractDrawsGenerator impl
                                          Map<Long, PlayerDrawInfo> entryIdToPlayerDrawInfo,
                                          BracketLine[] bracketLines,
                                          DrawItem[] drawItemsArray) {
-        long eventFk = this.tournamentEventEntity.getId();
+        long eventFk = this.tournamentEvent.getId();
         int currentPlayerSeedNum = playerSeedNum;
         for (TournamentEventEntry eventEntry : entriesSubList) {
             long entryId = eventEntry.getTournamentEntryFk();
@@ -179,7 +179,7 @@ public class SingleEliminationDrawsGenerator extends AbstractDrawsGenerator impl
                                                                BracketLine[] bracketLines,
                                                                DrawItem[] drawItemsArray,
                                                                int numSections) {
-        long eventFk = this.tournamentEventEntity.getId();
+        long eventFk = this.tournamentEvent.getId();
         int currentPlayerSeedNum = playerSeedNum;
 //        System.out.println("================================");
 //        System.out.println("entriesSubList.size = " + entriesSubList.size());
@@ -533,7 +533,7 @@ public class SingleEliminationDrawsGenerator extends AbstractDrawsGenerator impl
                     tbdPlayerDrawInfo.setProfileId(DrawItem.TBD_PROFILE_ID);
                     tbdPlayerDrawInfo.setRating(0);
                 }
-                DrawItem drawItem = makeDrawItem(tournamentEventEntity.getId(), groupNum, placeInGroup,
+                DrawItem drawItem = makeDrawItem(tournamentEvent.getId(), groupNum, placeInGroup,
                         tbdPlayerDrawInfo, DrawType.SINGLE_ELIMINATION, 0L);
                 drawItem.setSingleElimLineNum(thisPlayerSingleElimLineNumber);
                 drawItem.setRound(roundOf);
@@ -542,18 +542,18 @@ public class SingleEliminationDrawsGenerator extends AbstractDrawsGenerator impl
             }
         }
 
-        if (tournamentEventEntity.isPlay3rd4thPlace()) {
+        if (tournamentEvent.isPlay3rd4thPlace()) {
             PlayerDrawInfo tbdPlayerDrawInfo = new PlayerDrawInfo();
             tbdPlayerDrawInfo.setPlayerName(DrawItem.TBD_PROFILE_ID);
             tbdPlayerDrawInfo.setProfileId(DrawItem.TBD_PROFILE_ID);
 
-            DrawItem drawItem3 = makeDrawItem(tournamentEventEntity.getId(), 2, 1,
+            DrawItem drawItem3 = makeDrawItem(tournamentEvent.getId(), 2, 1,
                     tbdPlayerDrawInfo, DrawType.SINGLE_ELIMINATION, 0L);
             drawItem3.setSingleElimLineNum(3);
             drawItem3.setRound(2);
             laterRoundsDrawItems.add(drawItem3);
 
-            DrawItem drawItem4 = makeDrawItem(tournamentEventEntity.getId(), 2, 2,
+            DrawItem drawItem4 = makeDrawItem(tournamentEvent.getId(), 2, 2,
                     tbdPlayerDrawInfo, DrawType.SINGLE_ELIMINATION, 0L);
             drawItem4.setSingleElimLineNum(4);
             drawItem4.setRound(2);

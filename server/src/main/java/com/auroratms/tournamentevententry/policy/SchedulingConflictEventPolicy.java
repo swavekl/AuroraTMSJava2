@@ -1,6 +1,6 @@
 package com.auroratms.tournamentevententry.policy;
 
-import com.auroratms.event.TournamentEventEntity;
+import com.auroratms.event.TournamentEvent;
 import com.auroratms.tournamentevententry.AvailabilityStatus;
 import com.auroratms.tournamentevententry.EventEntryStatus;
 import com.auroratms.tournamentevententry.TournamentEventEntry;
@@ -16,19 +16,19 @@ public class SchedulingConflictEventPolicy implements IEventPolicy {
     private final List<TournamentEventEntry> eventEntries;
 
     // all events
-    private final List<TournamentEventEntity> allEvents;
+    private final List<TournamentEvent> allEvents;
 
     // minimum time difference in hours to avoid conflict i.e. 1 hour 30 minutes between starting times
     private final static double MIN_TIME_DIFFERENCE = 1.5;
 
     public SchedulingConflictEventPolicy(List<TournamentEventEntry> eventEntries,
-                                         List<TournamentEventEntity> events) {
+                                         List<TournamentEvent> events) {
         this.eventEntries = eventEntries;
         this.allEvents = events;
     }
 
     @Override
-    public boolean isEntryDenied(TournamentEventEntity event) {
+    public boolean isEntryDenied(TournamentEvent event) {
         boolean isDenied = false;
         // get this event's starting day and time
         double eventStartTime = event.getStartTime();
@@ -65,7 +65,7 @@ public class SchedulingConflictEventPolicy implements IEventPolicy {
      */
     private boolean checkForConflict(long enteredEventId, int dayToCheck, double startTimeToCheck) {
         boolean conflictFound = false;
-        for (TournamentEventEntity event : allEvents) {
+        for (TournamentEvent event : allEvents) {
             // find entered event definition
             if (event.getId() == enteredEventId) {
                 if (event.getDay() == dayToCheck) {

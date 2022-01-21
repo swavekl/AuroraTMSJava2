@@ -2,7 +2,7 @@ package com.auroratms.draw.generation;
 
 import com.auroratms.draw.DrawItem;
 import com.auroratms.draw.DrawType;
-import com.auroratms.event.TournamentEventEntity;
+import com.auroratms.event.TournamentEvent;
 import com.auroratms.tournamentevententry.TournamentEventEntry;
 import com.auroratms.tournamentevententry.doubles.DoublesPair;
 
@@ -14,8 +14,8 @@ public abstract class AbstractDoublesDrawsGenerator extends AbstractDrawsGenerat
     // teamed up players
     protected List<DoublesPair> doublesPairsForEvent;
 
-    public AbstractDoublesDrawsGenerator(TournamentEventEntity tournamentEventEntity) {
-        super(tournamentEventEntity);
+    public AbstractDoublesDrawsGenerator(TournamentEvent tournamentEvent) {
+        super(tournamentEvent);
     }
 
     public void setDoublesPairs(List<DoublesPair> doublesPairsForEvent) {
