@@ -11,7 +11,6 @@ import {
   SimpleChanges
 } from '@angular/core';
 import {TournamentEvent} from '../tournament-event.model';
-import {StartTimePipe} from '../../../shared/pipes/start-time.pipe';
 import {EventDayPipePipe} from '../../../shared/pipes/event-day-pipe.pipe';
 import {createSelector} from '@ngrx/store';
 import {Observable, Subscription} from 'rxjs';
@@ -24,12 +23,14 @@ import {DrawMethod} from '../model/draw-method.enum';
 import {PrizeInfo} from '../model/prize-info.model';
 import {CommonRegexPatterns} from '../../../shared/common-regex-patterns';
 import {TournamentEventConfiguration} from '../model/tournament-event-configuration.model';
+import {PrizeInfoDialogComponent, PrizeInfoDialogData} from './prize-info-dialog/prize-info-dialog.component';
+import {MatDialog, MatDialogConfig} from '@angular/material/dialog';
 
 @Component({
   selector: 'app-tournament-event-config',
   templateUrl: './tournament-event-config.component.html',
-  styleUrls: ['./tournament-event-config.component.css'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  styleUrls: ['./tournament-event-config.component.css']
+  // changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class TournamentEventConfigComponent implements OnInit, OnChanges, OnDestroy {
   @Input()
@@ -52,8 +53,10 @@ export class TournamentEventConfigComponent implements OnInit, OnChanges, OnDest
   readonly NUMERIC_REGEX = CommonRegexPatterns.NUMERIC_REGEX;
   readonly TWO_DIGIT_NUMERIC_REGEX = CommonRegexPatterns.TWO_DIGIT_NUMERIC_REGEX;
 
+  columnsToDisplay: string[] = [];
+
   // gender restrictions
-  genderRestrictions: any [] =  [
+  genderRestrictions: any [] = [
     {value: 'NONE', label: 'None'},
     {value: 'MALE', label: 'Male'},
     {value: 'FEMALE', label: 'Female'}
@@ -85,8 +88,8 @@ export class TournamentEventConfigComponent implements OnInit, OnChanges, OnDest
 
   private subscriptions: Subscription = new Subscription();
 
-  constructor(private tournamentConfigService: TournamentConfigService) {
-
+  constructor(private tournamentConfigService: TournamentConfigService,
+              private dialog: MatDialog) {
   }
 
   ngOnInit(): void {
@@ -96,10 +99,27 @@ export class TournamentEventConfigComponent implements OnInit, OnChanges, OnDest
   ngOnChanges(changes: SimpleChanges): void {
     const tournamentEventChange: SimpleChange = changes.tournamentEvent;
     if (tournamentEventChange != null) {
-      const tournamentEvent = tournamentEventChange.currentValue;
+      let tournamentEvent = tournamentEventChange.currentValue;
       if (tournamentEvent != null) {
-        this.tournamentEvent = JSON.parse(JSON.stringify(tournamentEvent));
+        tournamentEvent = JSON.parse(JSON.stringify(tournamentEvent));
+        // sort prize information
+        const prizeInfoList = tournamentEvent?.configuration?.prizeInfoList ?? [];
+        prizeInfoList.sort((left: PrizeInfo, right: PrizeInfo) => {
+          if (tournamentEvent.drawMethod === DrawMethod.DIVISION) {
+            return (left.division === right.division)
+              ? (left.awardedForPlace > right.awardedForPlace ? 1 : -1)
+              : (left.division > right.division ? 1 : -1) ;
+          } else {
+            return (left.awardedForPlace === right.awardedForPlace) ? 0
+              : (left.awardedForPlace > right.awardedForPlace ? 1 : -1);
+          }
+        });
+        this.tournamentEvent = tournamentEvent;
+
         this.ageRestrictionDateEnabled = (this.tournamentEvent.ageRestrictionType === AgeRestrictionType.BORN_ON_OR_AFTER_DATE);
+        this.columnsToDisplay = (this.tournamentEvent.drawMethod === 'DIVISION')
+          ? ['division', 'awardedForPlace', 'prizeMoneyAmount', 'awardTrophy', 'actions']
+          : [            'awardedForPlace', 'prizeMoneyAmount', 'awardTrophy', 'actions'];
       }
       const tournamentId = this.tournamentEvent?.tournamentFk;
       if (tournamentId != null) {
@@ -133,11 +153,11 @@ export class TournamentEventConfigComponent implements OnInit, OnChanges, OnDest
 
         this.maxAgeRestrictionDate = dateUtils.getMaxAgeRestrictionDate(startDate);
         this.minAgeRestrictionDate = dateUtils.getMinAgeRestrictionDate(startDate);
-        console.log ('maxAgeRestrictionDate', this.maxAgeRestrictionDate);
-        console.log ('minAgeRestrictionDate', this.minAgeRestrictionDate);
+        console.log('maxAgeRestrictionDate', this.maxAgeRestrictionDate);
+        console.log('minAgeRestrictionDate', this.minAgeRestrictionDate);
       }
     });
-    this.subscriptions.add (subscription);
+    this.subscriptions.add(subscription);
   }
 
   ngOnDestroy(): void {
@@ -161,20 +181,53 @@ export class TournamentEventConfigComponent implements OnInit, OnChanges, OnDest
   }
 
   onAddPrizesRow() {
+    this.onEdit(-1);
+  }
+
+  onRemovePrizesRow(indexToRemove: number) {
+    console.log('indexToRemove', indexToRemove);
     const cloneTE: TournamentEvent = JSON.parse(JSON.stringify(this.tournamentEvent));
-    const configuration = cloneTE.configuration || new TournamentEventConfiguration();
-    const prizeInfoList = configuration.prizeInfoList || [];
-    prizeInfoList.push(new PrizeInfo());
-    configuration.prizeInfoList = prizeInfoList;
-    cloneTE.configuration = configuration;
+    const prizeInfos = cloneTE.configuration.prizeInfoList;
+    prizeInfos.splice(indexToRemove, 1);
+    cloneTE.configuration.prizeInfoList = prizeInfos;
     this.tournamentEvent = cloneTE;
   }
 
-  onRemovePrizesRow(prizeIndex: number) {
-    const cloneTE: TournamentEvent = JSON.parse(JSON.stringify(this.tournamentEvent));
-    const prizeInfos = cloneTE.configuration.prizeInfoList;
-    prizeInfos.splice(prizeIndex, 1);
-    cloneTE.configuration.prizeInfoList = prizeInfos;
-    this.tournamentEvent = cloneTE;
+  onEdit(indexToEdit: number) {
+    const prizeInfos = this.tournamentEvent.configuration.prizeInfoList;
+    const prizeInfo: PrizeInfo = (indexToEdit >= 0) ? prizeInfos[indexToEdit] : new PrizeInfo();
+    console.log('editing prize info at index ' + indexToEdit + ' => ' + prizeInfo);
+    const prizeInfoDialogData: PrizeInfoDialogData = {
+      drawMethod: this.tournamentEvent.drawMethod,
+      prizeInfo: prizeInfo
+    };
+    const config: MatDialogConfig = {
+      height: '320px', width: '470px', data: prizeInfoDialogData
+    };
+    const me = this;
+    const dialogRef = this.dialog.open(PrizeInfoDialogComponent, config);
+    dialogRef.afterClosed().subscribe(result => {
+      if (result.action === 'ok') {
+          const cloneTE: TournamentEvent = JSON.parse(JSON.stringify(me.tournamentEvent));
+          const configuration = cloneTE.configuration || new TournamentEventConfiguration();
+          const prizeInfoList = configuration.prizeInfoList || [];
+          if (indexToEdit >= 0) {
+            prizeInfoList.splice(indexToEdit, 1, result.prizeInfo);
+          } else {
+            prizeInfoList.push(result.prizeInfo);
+          }
+          configuration.prizeInfoList = prizeInfoList;
+          cloneTE.configuration = configuration;
+          me.tournamentEvent = cloneTE;
+      }
+    });
+  }
+
+  formatPlace(prizeInfo: PrizeInfo) {
+    if (prizeInfo.awardedForPlaceRangeEnd != null && prizeInfo.awardedForPlaceRangeEnd > 0) {
+      return `${prizeInfo.awardedForPlace} - ${prizeInfo.awardedForPlaceRangeEnd}`;
+    } else {
+      return `${prizeInfo.awardedForPlace}`;
+    }
   }
 }
