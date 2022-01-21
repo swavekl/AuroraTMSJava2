@@ -13,7 +13,7 @@ import {CheckInType} from '../../model/check-in-type.enum';
 @Component({
   selector: 'app-tournament-config-edit',
   templateUrl: './tournament-config-edit.component.html',
-  styleUrls: ['./tournament-config-edit.component.css']
+  styleUrls: ['./tournament-config-edit.component.scss']
 })
 export class TournamentConfigEditComponent implements OnChanges {
 

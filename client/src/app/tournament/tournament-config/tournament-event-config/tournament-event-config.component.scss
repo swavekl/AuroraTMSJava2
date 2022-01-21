@@ -1,3 +1,5 @@
+@import "~src/my-theme.scss";
+
 div.prizes-list {
   height: calc(100vh - 250px);
   overflow-y: scroll;
@@ -6,4 +8,9 @@ div.prizes-list {
 
 div.mat-checkbox-container {
   padding-top: 35px;
+}
+
+.mat-row:hover {
+  background-color: lighten($primary-color, 40%);
+  cursor: pointer;
 }

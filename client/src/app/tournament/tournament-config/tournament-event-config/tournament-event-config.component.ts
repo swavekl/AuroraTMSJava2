@@ -30,7 +30,7 @@ import {Configuration} from 'jasmine-spec-reporter/built/configuration';
 @Component({
   selector: 'app-tournament-event-config',
   templateUrl: './tournament-event-config.component.html',
-  styleUrls: ['./tournament-event-config.component.css']
+  styleUrls: ['./tournament-event-config.component.scss']
   // changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class TournamentEventConfigComponent implements OnInit, OnChanges, OnDestroy {
