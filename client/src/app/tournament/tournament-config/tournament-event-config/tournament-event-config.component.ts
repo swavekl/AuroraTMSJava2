@@ -25,6 +25,7 @@ import {CommonRegexPatterns} from '../../../shared/common-regex-patterns';
 import {TournamentEventConfiguration} from '../model/tournament-event-configuration.model';
 import {PrizeInfoDialogComponent, PrizeInfoDialogData} from './prize-info-dialog/prize-info-dialog.component';
 import {MatDialog, MatDialogConfig} from '@angular/material/dialog';
+import {Configuration} from 'jasmine-spec-reporter/built/configuration';
 
 @Component({
   selector: 'app-tournament-event-config',
@@ -114,6 +115,9 @@ export class TournamentEventConfigComponent implements OnInit, OnChanges, OnDest
               : (left.awardedForPlace > right.awardedForPlace ? 1 : -1);
           }
         });
+        const configuration = tournamentEvent.configuration ?? new TournamentEventConfiguration();
+        configuration.prizeInfoList = prizeInfoList;
+        tournamentEvent.configuration = configuration;
         this.tournamentEvent = tournamentEvent;
 
         this.ageRestrictionDateEnabled = (this.tournamentEvent.ageRestrictionType === AgeRestrictionType.BORN_ON_OR_AFTER_DATE);

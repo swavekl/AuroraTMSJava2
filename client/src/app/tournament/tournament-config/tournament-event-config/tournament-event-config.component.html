@@ -255,7 +255,7 @@
               <ng-container matColumnDef="awardTrophy">
                 <mat-header-cell *matHeaderCellDef>Trophy</mat-header-cell>
                 <mat-cell *matCellDef="let prizeInfo; let rowIndex = index;" (click)="onEdit(rowIndex)">
-                  {{prizeInfo.awardTrophy}}
+                  {{ prizeInfo.awardTrophy ? 'Yes' : ''}}
                 </mat-cell>
               </ng-container>
 
