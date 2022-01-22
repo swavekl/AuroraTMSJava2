@@ -248,7 +248,7 @@
               <ng-container matColumnDef="prizeMoneyAmount">
                 <mat-header-cell *matHeaderCellDef>Prize Money</mat-header-cell>
                 <mat-cell *matCellDef="let prizeInfo; let rowIndex = index;" (click)="onEdit(rowIndex)">
-                  {{prizeInfo.prizeMoneyAmount}}
+                  {{prizeInfo.prizeMoneyAmount | currency : tournamentCurrency : 'symbol' : '1.0-0'}}
                 </mat-cell>
               </ng-container>
 

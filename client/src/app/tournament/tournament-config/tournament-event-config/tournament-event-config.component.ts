@@ -56,6 +56,8 @@ export class TournamentEventConfigComponent implements OnInit, OnChanges, OnDest
 
   columnsToDisplay: string[] = [];
 
+  tournamentCurrency: 'USD';
+
   // gender restrictions
   genderRestrictions: any [] = [
     {value: 'NONE', label: 'None'},
@@ -228,10 +230,25 @@ export class TournamentEventConfigComponent implements OnInit, OnChanges, OnDest
   }
 
   formatPlace(prizeInfo: PrizeInfo) {
+    const placeOrdinal = this.formatOrdinal(prizeInfo.awardedForPlace);
     if (prizeInfo.awardedForPlaceRangeEnd != null && prizeInfo.awardedForPlaceRangeEnd > 0) {
-      return `${prizeInfo.awardedForPlace} - ${prizeInfo.awardedForPlaceRangeEnd}`;
+      const placeLastOrdinal = this.formatOrdinal(prizeInfo.awardedForPlaceRangeEnd);
+      return `${placeOrdinal} - ${placeLastOrdinal}`;
     } else {
-      return `${prizeInfo.awardedForPlace}`;
+      return placeOrdinal;
+    }
+  }
+
+  private formatOrdinal(place: number): string {
+    switch (place) {
+      case 1:
+        return '1st';
+      case 2:
+        return '2nd';
+      case 3:
+        return '3rd';
+      default:
+        return `${place}th`;
     }
   }
 }
