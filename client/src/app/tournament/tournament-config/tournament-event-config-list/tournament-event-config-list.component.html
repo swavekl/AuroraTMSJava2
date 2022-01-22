@@ -1,10 +1,12 @@
 <mat-toolbar>
   <mat-toolbar-row>
-    <button type="button" mat-button (click)="addEvent()">
-      <mat-icon matListIcon>add</mat-icon>Add Event
+    <button type="button" mat-raised-button (click)="addEvent()">
+<!--      <mat-icon matListIcon>add</mat-icon>-->
+      Add
     </button>
-    <button type="button" mat-button (click)="renumberEvents()">
-      <mat-icon matListIcon>reorder</mat-icon>Renumber Events
+    <button type="button" mat-raised-button (click)="renumberEvents()">
+<!--      <mat-icon matListIcon>reorder</mat-icon>-->
+      Renumber Events
     </button>
     <span fxFlex></span>
     <span>Taken/Maximum Event Entries: {{ numEventEntries }} / {{ maxNumEvenEntries }}</span>

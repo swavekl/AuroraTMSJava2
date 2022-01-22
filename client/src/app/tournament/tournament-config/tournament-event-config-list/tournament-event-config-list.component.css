@@ -1,19 +1,44 @@
+mat-toolbar-row button {
+  margin-right: 10px;
+}
+
 .mat-column-num {
   flex: 1;
+  justify-content: right;
+  align-content: center;
+  padding: 0 8px;
 }
 
 .mat-column-name {
-  flex: 4;
+  flex: 6;
+  padding: 0 8px;
 }
 
 .mat-column-day {
   flex: 2;
+  padding: 0 8px;
 }
 
 .mat-column-startTime {
   flex: 2;
+  justify-content: right;
+  padding: 0 8px;
+}
+
+.mat-column-numEntries {
+  flex: 2;
+  justify-content: right;
+  padding: 0 8px;
+}
+
+.mat-column-maxEntries {
+  flex: 3;
+  justify-content: right;
+  /*padding: 0 8px;*/
 }
 
 .mat-column-actions {
   flex: 1;
+  justify-content: right;
+  padding: 0 8px;
 }

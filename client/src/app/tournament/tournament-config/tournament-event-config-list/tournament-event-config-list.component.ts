@@ -1,4 +1,4 @@
-import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
+import {Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChange, SimpleChanges} from '@angular/core';
 import {TournamentEvent} from '../tournament-event.model';
 import {Router} from '@angular/router';
 import {MatDialog} from '@angular/material/dialog';
@@ -10,7 +10,7 @@ import {DateUtils} from '../../../shared/date-utils';
   templateUrl: './tournament-event-config-list.component.html',
   styleUrls: ['./tournament-event-config-list.component.css']
 })
-export class TournamentEventConfigListComponent implements OnInit {
+export class TournamentEventConfigListComponent implements OnInit, OnChanges {
 
   // tournament events
   @Input()
@@ -42,6 +42,20 @@ export class TournamentEventConfigListComponent implements OnInit {
   }
 
   ngOnInit(): void {
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    const eventChanges: SimpleChange = changes.events;
+    if (eventChanges) {
+      const events = eventChanges.currentValue;
+      if (events && events.length > 0) {
+        events.sort((left: TournamentEvent, right: TournamentEvent) => {
+          return (left.ordinalNumber === right.ordinalNumber ? 0 : (
+            left.ordinalNumber > right.ordinalNumber ? 1 : -1
+          ));
+        });
+      }
+    }
   }
 
   addEvent() {
@@ -100,6 +114,9 @@ export class TournamentEventConfigListComponent implements OnInit {
     this.renumber.emit(renumberedEvents);
   }
 
+  /**
+   * Calculates total prize money for all events in this tournament
+   */
   getTotalPrizeMoney(): number {
     let totalPrizeMoney = 0;
     if (this.events && this.events.length > 0) {
@@ -107,13 +124,15 @@ export class TournamentEventConfigListComponent implements OnInit {
         const eventPrizeInfoList = event?.configuration?.prizeInfoList ?? [];
         let eventTotalPrizeMoney = 0;
         eventPrizeInfoList.forEach(prizeInfo => {
-          eventTotalPrizeMoney += isNaN(prizeInfo.prizeMoneyAmount) ? 0 : prizeInfo.prizeMoneyAmount;
+          // for a range of places we need to multiply by number of places
+          const numAwardedPlaces = (isNaN(prizeInfo.awardedForPlaceRangeEnd) || (prizeInfo.awardedForPlaceRangeEnd === 0)) ?
+            1 : (prizeInfo.awardedForPlaceRangeEnd - prizeInfo.awardedForPlace + 1);
+          const prizeMoneyAmount = isNaN(prizeInfo.prizeMoneyAmount) ? 0 : prizeInfo.prizeMoneyAmount;
+          eventTotalPrizeMoney += numAwardedPlaces * prizeMoneyAmount;
         });
-        // console.log('event ' + event.name + ' total prize money ' + eventTotalPrizeMoney);
         totalPrizeMoney += eventTotalPrizeMoney;
       });
     }
-    // console.log('got totalPrizeMoney', totalPrizeMoney);
     return totalPrizeMoney;
   }
 }

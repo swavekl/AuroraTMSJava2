@@ -6,7 +6,7 @@
       <div fxLayout="row" fxLayoutGap="10px">
         <mat-form-field *ngIf="drawMethod === 'DIVISION'; else elseblock" fxFlex="30%">
           <mat-label>Division</mat-label>
-          <input matInput type="text" name="division" [(ngModel)]="prizeInfo.division" required>
+          <input matInput type="text" cdkFocusInitial name="division" [(ngModel)]="prizeInfo.division" required>
         </mat-form-field>
         <ng-template #elseblock>
           <input type="hidden" name="division" [(ngModel)]="prizeInfo.division">
