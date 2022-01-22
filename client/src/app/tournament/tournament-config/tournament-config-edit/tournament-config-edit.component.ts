@@ -9,6 +9,8 @@ import {MatDialog} from '@angular/material/dialog';
 import {Subscription} from 'rxjs';
 import {Personnel} from '../model/personnel.model';
 import {CheckInType} from '../../model/check-in-type.enum';
+// tslint:disable-next-line:max-line-length
+import {TournamentEventConfigListContainerComponent} from '../tournament-event-config-list/tournament-event-config-list-container.component';
 
 @Component({
   selector: 'app-tournament-config-edit',
@@ -26,6 +28,9 @@ export class TournamentConfigEditComponent implements OnChanges {
 
   @ViewChild(MatTabGroup)
   tabGroup: MatTabGroup;
+
+  @ViewChild(TournamentEventConfigListContainerComponent)
+  tournamentEventConfigListContainerComponent: TournamentEventConfigListContainerComponent;
 
   // list of US states
   statesList: any [];
@@ -56,11 +61,13 @@ export class TournamentConfigEditComponent implements OnChanges {
   ngOnChanges(changes: SimpleChanges): void {
     const changeTournament: SimpleChange = changes.tournament;
     if (changeTournament) {
-      const tournament: Tournament = changeTournament.currentValue;
+      let tournament: Tournament = changeTournament.currentValue;
       if (tournament) {
-        const personnelList = tournament?.configuration?.personnelList ?? [];
-        this.splitPersonnelList(personnelList);
+        // clone the tournament so we can use two way binding in the template
+        tournament = Tournament.cloneTournament(tournament);
+        this.splitPersonnelList(tournament.configuration.personnelList);
       }
+      this.tournament = tournament;
     }
   }
 
@@ -76,11 +83,11 @@ export class TournamentConfigEditComponent implements OnChanges {
     }
   }
 
-  onSave(formValues: any) {
+  onSave() {
     // preserve the list which is maintained during add/remove
     const personnelList = this.tournament.configuration.personnelList ?? [];
 
-    const tournament = Tournament.toTournament(formValues);
+    const tournament = Tournament.prepareForSaving(this.tournament);
     // preserve this from previous run
     tournament.numEntries = this.tournament?.numEntries || 0;
     tournament.numEventEntries = this.tournament?.numEventEntries || 0;
@@ -251,5 +258,16 @@ export class TournamentConfigEditComponent implements OnChanges {
     return monitorUserName;
   }
 
+  updateTotalPrizeMoney() {
+    if (this.tournamentEventConfigListContainerComponent) {
+      const totalPrizeMoney = this.tournamentEventConfigListContainerComponent.getTotalPrizeMoney();
+      const currentTotalPrizeMoney = this.tournament.totalPrizeMoney;
+      if (currentTotalPrizeMoney !== totalPrizeMoney) {
+        const clonedTournament = Tournament.cloneTournament(this.tournament);
+        clonedTournament.totalPrizeMoney = totalPrizeMoney;
+        this.tournament = clonedTournament;
+      }
+    }
+  }
 }
 

@@ -1,7 +1,7 @@
 <div fxLayout="row" style="height: calc(100vh - 72px); overflow: hidden;">
   <div fxFlex></div>
-  <div fxFlex.lt-md="100%" fxFlex="60%">
-    <form name="form" (ngSubmit)="onSave(f.value)" #f="ngForm" novalidate>
+  <div fxFlex.lt-md="100%" fxFlex="70%" *ngIf="tournament">
+    <form name="form" (ngSubmit)="onSave()" #f="ngForm" novalidate>
       <mat-toolbar>
         <mat-toolbar-row fxLayout="row">
           <button mat-raised-button type="button" (click)="onCancel()">Cancel</button>
@@ -13,15 +13,19 @@
         <mat-tab label="General Information">
           <mat-card>
             <mat-card-content>
-              <input type="hidden" name="id" [ngModel]="tournament?.id">
+              <input type="hidden" name="id" [(ngModel)]="tournament.id">
               <div fxLayout.lt-sm="column" fxLayout="row" fxLayoutGap="10px">
-                <mat-form-field fxFlex="80%">
+                <mat-form-field fxFlex="75%">
                   <mat-label>Name</mat-label>
-                  <input matInput type="text" name="name" [ngModel]="tournament?.name" required>
+                  <input matInput type="text" name="name" [(ngModel)]="tournament.name" required>
                 </mat-form-field>
-                <mat-form-field fxFlex="20%">
+                <mat-form-field fxFlex="15%">
+                  <mat-label>Total Prize Money</mat-label>
+                  <input matInput type="text" name="totalPrizeMoney" [(ngModel)]="tournament.totalPrizeMoney" readonly>
+                </mat-form-field>
+                <mat-form-field fxFlex="10%">
                   <mat-label>Star Level</mat-label>
-                  <input matInput name="starLevel" [ngModel]="tournament?.starLevel"
+                  <input matInput name="starLevel" [(ngModel)]="tournament.starLevel"
                          required pattern="[0-5]" #starLevel="ngModel">
                   <mat-error *ngIf="starLevel.control?.hasError('pattern')">Star level must be between 0 - 5</mat-error>
                 </mat-form-field>
@@ -29,14 +33,14 @@
               <div fxLayout="row" fxLayoutGap="10px">
                 <mat-form-field fxFlex="50%">
                   <mat-label>Start date</mat-label>
-                  <input matInput [matDatepicker]="startDate" [ngModel]="tournament?.startDate" name="startDate"
+                  <input matInput [matDatepicker]="startDate" [(ngModel)]="tournament.startDate" name="startDate"
                          required>
                   <mat-datepicker-toggle matSuffix [for]="startDate"></mat-datepicker-toggle>
                   <mat-datepicker #startDate></mat-datepicker>
                 </mat-form-field>
                 <mat-form-field fxFlex="50%">
                   <mat-label>End date</mat-label>
-                  <input matInput [matDatepicker]="endDate" [ngModel]="tournament?.endDate" name="endDate" required>
+                  <input matInput [matDatepicker]="endDate" [(ngModel)]="tournament.endDate" name="endDate" required>
                   <mat-datepicker-toggle matSuffix [for]="endDate"></mat-datepicker-toggle>
                   <mat-datepicker #endDate disabled="false"></mat-datepicker>
                 </mat-form-field>
@@ -45,7 +49,7 @@
                 <mat-form-field fxFlex="50%">
                   <mat-label>Eligibility Date</mat-label>
                   <input matInput [matDatepicker]="eligibilityDate"
-                         [ngModel]="tournament?.configuration?.eligibilityDate"
+                         [(ngModel)]="tournament.configuration.eligibilityDate"
                          name="eligibilityDate" #egCtrl="ngModel"
                          required appDateBefore="startDate">
                   <mat-datepicker-toggle matSuffix [for]="eligibilityDate"></mat-datepicker-toggle>
@@ -57,7 +61,7 @@
                 <mat-form-field fxFlex="50%">
                   <mat-label>Late entry date</mat-label>
                   <input matInput [matDatepicker]="lateEntryDate" #ledCtrl="ngModel"
-                         [ngModel]="tournament?.configuration?.lateEntryDate" name="lateEntryDate"
+                         [(ngModel)]="tournament.configuration.lateEntryDate" name="lateEntryDate"
                          required appDateBefore="startDate">
                   <mat-datepicker-toggle matSuffix [for]="lateEntryDate"></mat-datepicker-toggle>
                   <mat-datepicker #lateEntryDate></mat-datepicker>
@@ -70,7 +74,7 @@
                 <mat-form-field fxFlex="50%">
                   <mat-label>Full Refund Date</mat-label>
                   <input matInput [matDatepicker]="refundDate"
-                         [ngModel]="tournament?.configuration?.refundDate"
+                         [(ngModel)]="tournament.configuration.refundDate"
                          name="refundDate" #refCtrl="ngModel"
                          required appDateBefore="startDate">
                   <mat-datepicker-toggle matSuffix [for]="refundDate"></mat-datepicker-toggle>
@@ -83,7 +87,7 @@
                 <mat-form-field fxFlex="50%">
                   <mat-label>Entry Cutoff Date</mat-label>
                   <input matInput [matDatepicker]="entryCutoffDate"
-                         [ngModel]="tournament?.configuration?.entryCutoffDate"
+                         [(ngModel)]="tournament.configuration.entryCutoffDate"
                          name="entryCutoffDate" #ecdCtrl="ngModel"
                          required appDateBefore="startDate">
                   <mat-datepicker-toggle matSuffix [for]="entryCutoffDate"></mat-datepicker-toggle>
@@ -100,24 +104,24 @@
                 <mat-form-field fxFlex="100%">
                   <mat-label>Venue Name</mat-label>
                   <input matInput type="text" name="venueName"
-                         [ngModel]="tournament?.venueName" required>
+                         [(ngModel)]="tournament.venueName" required>
                 </mat-form-field>
               </div>
               <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="10px">
                 <mat-form-field fxFlex="100%">
                   <mat-label>Street Address</mat-label>
                   <input matInput type="text" name="streetAddress"
-                         [ngModel]="tournament?.streetAddress" required>
+                         [(ngModel)]="tournament.streetAddress" required>
                 </mat-form-field>
               </div>
               <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="10px">
                 <mat-form-field fxFlex="55%">
                   <mat-label>City</mat-label>
-                  <input matInput type="text" name="city" [ngModel]="tournament?.city" required>
+                  <input matInput type="text" name="city" [(ngModel)]="tournament.city" required>
                 </mat-form-field>
                 <mat-form-field fxFlex="20%">
                   <mat-label>State</mat-label>
-                  <mat-select matInput type="text" name="state" [ngModel]="tournament?.state" required>
+                  <mat-select matInput type="text" name="state" [(ngModel)]="tournament.state" required>
                     <mat-option *ngFor="let state of statesList" value="{{state.abbreviation}}">{{state.abbreviation}}
                     </mat-option>
                   </mat-select>
@@ -125,7 +129,7 @@
                 <mat-form-field fxFlex="25%">
                   <mat-label>Zip Code</mat-label>
                   <input matInput type="text" name="zipCode"
-                         [ngModel]="tournament?.zipCode"
+                         [(ngModel)]="tournament.zipCode"
                          pattern="[0-9]{5}" maxlength="5" #zipCode="ngModel">
                   <mat-error *ngIf="zipCode.control?.hasError('pattern')">Zip code must be 5 digit number</mat-error>
                 </mat-form-field>
@@ -134,25 +138,25 @@
           </mat-card>
         </mat-tab>
         <mat-tab label="Other Information">
-          <mat-card style="height: calc(100vh - 250px);">
+          <mat-card>
             <mat-card-content>
               <mat-card-subtitle class="mat-title">Contact Information</mat-card-subtitle>
               <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="10px">
                 <mat-form-field fxFlex="70%">
                   <mat-label>Contact Name</mat-label>
-                  <input matInput type="text" name="contactName" [ngModel]="tournament?.contactName" required>
+                  <input matInput type="text" name="contactName" [(ngModel)]="tournament.contactName" required>
                 </mat-form-field>
               </div>
               <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="10px">
                 <mat-form-field fxFlex="70%">
                   <mat-label>Email</mat-label>
-                  <input matInput type="email" name="email" [ngModel]="tournament?.email"
+                  <input matInput type="email" name="email" [(ngModel)]="tournament.email"
                          email>
                   <mat-error>Invalid email address</mat-error>
                 </mat-form-field>
                 <mat-form-field fxFlex="30%">
                   <mat-label>Phone</mat-label>
-                  <input matInput type="tel" name="phone" [ngModel]="tournament?.phone"
+                  <input matInput type="tel" name="phone" [(ngModel)]="tournament.phone"
                          required>
                   <mat-error>Invalid phone</mat-error>
                 </mat-form-field>
@@ -186,45 +190,45 @@
                 </mat-form-field>
                 <mat-form-field fxFlex="25%">
                   <mat-label>Registration Fee</mat-label>
-                  <input matInput name="registrationFee" [ngModel]="tournament?.configuration.registrationFee"
+                  <input matInput name="registrationFee" [(ngModel)]="tournament.configuration.registrationFee"
                          required pattern="[1-9](\d{1,2})?">
                 </mat-form-field>
                 <mat-form-field fxFlex="25%">
                   <mat-label>Late Entry Fee</mat-label>
-                  <input matInput name="lateEntryFee" [ngModel]="tournament?.configuration.lateEntryFee"
+                  <input matInput name="lateEntryFee" [(ngModel)]="tournament.configuration.lateEntryFee"
                          required pattern="[1-9](\d{1,2})?">
                 </mat-form-field>
               </div>
               <div fxLayout.lt-sm="column" fxLayout="row" fxLayoutGap="10px">
                 <mat-form-field fxFlex="100%">
                   <mat-label>Blank entry form URL</mat-label>
-                  <input matInput type="text" name="blankEntryUrl" [ngModel]="tournament?.configuration?.blankEntryUrl">
+                  <input matInput type="text" name="blankEntryUrl" [(ngModel)]="tournament.configuration.blankEntryUrl">
                 </mat-form-field>
               </div>
               <div fxLayout.lt-sm="column" fxLayout="row" fxLayoutGap="10px">
                 <mat-form-field fxFlex="40%">
                   <mat-label>Maximum daily events</mat-label>
                   <input matInput name="maxDailyEvents" placeholder="Enter 0 for unlimited" #maxDailyEvents="ngModel"
-                         [ngModel]="tournament?.configuration?.maxDailyEvents" required pattern="\d{1}">
+                         [(ngModel)]="tournament.configuration.maxDailyEvents" required pattern="\d{1}">
                   <mat-error *ngIf="maxDailyEvents.control?.hasError('pattern')">Enter number between 0 - 9</mat-error>
                   <mat-hint>Maximum number of events a player can play per day</mat-hint>
                 </mat-form-field>
                 <mat-form-field fxFlex="40%">
                   <mat-label>Maximum tournament events</mat-label>
                   <input matInput name="maxTournamentEvents" placeholder="Enter 0 for unlimited" #maxTournamentEvents="ngModel"
-                         [ngModel]="tournament?.configuration?.maxTournamentEvents" required pattern="\d{1,2}">
+                         [(ngModel)]="tournament.configuration.maxTournamentEvents" required pattern="\d{1,2}">
                   <mat-error *ngIf="maxTournamentEvents.control?.hasError('pattern')">Enter number between 0 and 100</mat-error>
                   <mat-hint>Maximum number of events a player can play in the entire tournament</mat-hint>
                 </mat-form-field>
                 <mat-form-field fxFlex="20%">
                   <mat-label>Number of Tables</mat-label>
                   <input matInput name="numberOfTables" #numberOfTables="ngModel"
-                         [ngModel]="tournament?.configuration?.numberOfTables" required pattern="[1-9](\d{1,2})?">
+                         [(ngModel)]="tournament.configuration.numberOfTables" required pattern="[1-9](\d{1,2})?">
                   <mat-error *ngIf="numberOfTables.control?.hasError('pattern')">Enter number between 1 and 999</mat-error>
                 </mat-form-field>
                 <!--              <mat-form-field fxFlex="25%">-->
                 <!--                <mat-label>Color of Tables</mat-label>-->
-                <!--                <input matInput type="text" name="maxTournamentEvents" [ngModel]="tournament?.configuration?.maxTournamentEvents" required>-->
+                <!--                <input matInput type="text" name="maxTournamentEvents" [(ngModel)]="tournament.configuration.maxTournamentEvents" required>-->
                 <!--              </mat-form-field>-->
               </div>
             </mat-card-content>
@@ -299,7 +303,7 @@
                 <mat-form-field fxFlex="40%">
                   <mat-label>Tables with Monitors</mat-label>
                   <input matInput name="monitoredTables" #monitoredTables="ngModel"
-                         [ngModel]="tournament?.configuration?.monitoredTables"
+                         [(ngModel)]="tournament.configuration.monitoredTables"
                          pattern="([1-9](\d{1,2})?)(,[1-9](\d{1,2})?)?">
                   <mat-error *ngIf="monitoredTables.control?.hasError('pattern')">Enter table numbers separated by
                     comma

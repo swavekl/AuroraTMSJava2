@@ -59,7 +59,7 @@ export class TournamentConfigEditContainerComponent implements OnInit, OnDestroy
       let tournamentToEdit = next;
       if (creating) {
         if (fromId) {
-          tournamentToEdit = Tournament.cloneTournament(tournamentToEdit);
+          tournamentToEdit = Tournament.makeTournamentCopy(tournamentToEdit);
         } else {
           tournamentToEdit = Tournament.makeDefault();
         }
@@ -90,6 +90,7 @@ export class TournamentConfigEditContainerComponent implements OnInit, OnDestroy
     const activateTab = this.activatedRoute.snapshot.queryParams['activateTab'];
     if (this.tournamentConfigEditComponent && activateTab) {
       this.tournamentConfigEditComponent.setActiveTab(activateTab);
+      this.tournamentConfigEditComponent.updateTotalPrizeMoney();
     }
   }
 

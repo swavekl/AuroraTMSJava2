@@ -1,9 +1,10 @@
-import {Component, Input, OnChanges, OnInit, SimpleChanges} from '@angular/core';
+import {Component, Input, OnChanges, OnInit, SimpleChanges, ViewChild} from '@angular/core';
 import {Observable} from 'rxjs';
 import {TournamentEvent} from '../tournament-event.model';
 import {TournamentEventConfigService} from '../tournament-event-config.service';
 import {ConfirmationPopupComponent, ConfirmationPopupData} from '../../../shared/confirmation-popup/confirmation-popup.component';
 import {MatDialog} from '@angular/material/dialog';
+import {TournamentEventConfigListComponent} from './tournament-event-config-list.component';
 
 @Component({
   selector: 'app-tournament-event-config-list-container',
@@ -39,6 +40,9 @@ export class TournamentEventConfigListContainerComponent implements OnInit, OnCh
   endDate: Date;
 
   events$: Observable<TournamentEvent []>;
+
+  @ViewChild(TournamentEventConfigListComponent)
+  tournamentEventConfigListComponent: TournamentEventConfigListComponent;
 
   constructor(private tournamentEventConfigService: TournamentEventConfigService,
               private dialog: MatDialog) {
@@ -76,5 +80,9 @@ export class TournamentEventConfigListContainerComponent implements OnInit, OnCh
       // console.log('saved ' + next.name + ' ordinal Number ' + next.ordinalNumber)
       // );
     }
+  }
+
+  getTotalPrizeMoney(): number {
+    return (this.tournamentEventConfigListComponent) ? this.tournamentEventConfigListComponent.getTotalPrizeMoney() : 0;
   }
 }

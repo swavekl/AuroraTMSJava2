@@ -12,7 +12,7 @@ import java.util.Date;
 import java.util.Set;
 
 /**
- * This tournament object is not persisted. It configuration part which is stored by TournamentEntity
+ * This tournament object is not persisted. It has a configuration part which is stored by TournamentEntity
  * as JSON string in the content column.  This forces us to add fields in two places but allows
  * us to potentially not have to change database schema when we add new piece of information.
  */
@@ -49,6 +49,9 @@ public class Tournament {
 
     private Set<TournamentEvent> events;
 
+    // total prize money
+    private int totalPrizeMoney;
+
     /**
      * converts configuration to its JSON representation
      *
@@ -72,6 +75,7 @@ public class Tournament {
         entity.setNumEntries(numEntries);
         entity.setNumEventEntries(numEventEntries);
         entity.setMaxNumEventEntries(maxNumEventEntries);
+        entity.setTotalPrizeMoney(totalPrizeMoney);
 //        entity.setEvents(events);
         // convert from configuration to JSON
         if (configuration != null) {
@@ -109,6 +113,7 @@ public class Tournament {
         this.numEntries = entity.getNumEntries();
         this.numEventEntries = entity.getNumEventEntries();
         this.maxNumEventEntries = entity.getMaxNumEventEntries();
+        this.totalPrizeMoney = entity.getTotalPrizeMoney();
 //        this.events = entity.getEvents();
 
         configuration = null;

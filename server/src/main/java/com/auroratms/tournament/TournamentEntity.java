@@ -58,6 +58,9 @@ public class TournamentEntity {
 //    @OneToMany(mappedBy="tournamentEntity")
 //    private Set<TournamentEventEntity> events = new HashSet<>();
 
+    // total prize money
+    private int totalPrizeMoney;
+
     public Long getId() {
         return id;
     }
@@ -202,6 +205,15 @@ public class TournamentEntity {
 //        this.events = events;
 //    }
 
+
+    public int getTotalPrizeMoney() {
+        return totalPrizeMoney;
+    }
+
+    public void setTotalPrizeMoney(int totalPrizeMoney) {
+        this.totalPrizeMoney = totalPrizeMoney;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -223,11 +235,12 @@ public class TournamentEntity {
                 Objects.equals(numEntries, entity.numEntries) &&
                 Objects.equals(numEventEntries, entity.numEventEntries) &&
                 Objects.equals(maxNumEventEntries, entity.maxNumEventEntries) &&
+                Objects.equals(totalPrizeMoney, entity.totalPrizeMoney) &&
                 Objects.equals(content, entity.content);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, venueName, streetAddress, city, state, zipCode, startDate, endDate, starLevel, contactName, email, phone, content);
+        return Objects.hash(id, name, venueName, streetAddress, city, state, zipCode, startDate, endDate, starLevel, contactName, email, phone, totalPrizeMoney, content);
     }
 }

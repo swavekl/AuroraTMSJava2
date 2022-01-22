@@ -30,6 +30,9 @@ export class Tournament {
 
   configuration: TournamentConfiguration;
 
+  // total of all prize money
+  totalPrizeMoney: number;
+
   // events in the tournament
   events: TournamentEvent [];
 
@@ -77,6 +80,7 @@ export class Tournament {
     tournament.contactName = formValues.contactName;
     tournament.email = formValues.email;
     tournament.phone = formValues.phone;
+    tournament.totalPrizeMoney = formValues.totalPrizeMoney;
     // load configuration object separately
     const configuration = new TournamentConfiguration();
     tournament.configuration = configuration;
@@ -96,6 +100,27 @@ export class Tournament {
     configuration.monitoredTables = formValues.monitoredTables;
 // console.log ('toTournament', tournament);
     return tournament;
+  }
+
+  /**
+   * Adjust dates to be in UTC zone
+   */
+  static prepareForSaving (tournament: Tournament): Tournament {
+    const dateUtils = new DateUtils();
+    const convertedConfiguration: TournamentConfiguration = {
+      ...tournament.configuration,
+      eligibilityDate : dateUtils.convertFromLocalToUTCDate(tournament.configuration.eligibilityDate),
+      entryCutoffDate : dateUtils.convertFromLocalToUTCDate(tournament.configuration.entryCutoffDate),
+      lateEntryDate : dateUtils.convertFromLocalToUTCDate(tournament.configuration.lateEntryDate),
+      refundDate : dateUtils.convertFromLocalToUTCDate(tournament.configuration.refundDate)
+    };
+
+    return {
+      ...tournament,
+      startDate: dateUtils.convertFromLocalToUTCDate(tournament.startDate),
+      endDate: dateUtils.convertFromLocalToUTCDate(tournament.endDate),
+      configuration: convertedConfiguration
+    };
   }
 
   /**
@@ -140,10 +165,10 @@ export class Tournament {
   }
 
   /**
-   * Makes a sensible clone of this tournament
+   * Makes a sensible copy of this tournament
    * @param tournament
    */
-  static cloneTournament(tournament: Tournament) {
+  static makeTournamentCopy(tournament: Tournament) {
     const startDate = moment(tournament.startDate);
     const endDate = moment(tournament.endDate);
     const diffDays = endDate.diff(startDate, 'days');
@@ -186,10 +211,27 @@ export class Tournament {
     return clonedTournament;
   }
 
+  static cloneTournament (tournament: Tournament): Tournament {
+    // const clonedTournament: Tournament = JSON.parse(JSON.stringify(tournament));
+    // in case the tournament configuration has some new properties get their default values and override with
+    // what we received,
+    // also preserve the dates
+    const clonedConfiguration: TournamentConfiguration = {
+      ...new TournamentConfiguration(),
+      ...tournament?.configuration,
+      personnelList: tournament?.configuration?.personnelList ?? []
+    };
+    const clonedTournament: Tournament = {
+      ...tournament,
+      configuration: clonedConfiguration
+    };
+    return clonedTournament;
+  }
+
 }
 
 // this part of configuration is not queryable so we keept it in separate object
-class TournamentConfiguration {
+export class TournamentConfiguration {
   // Late entry date Date to start charging late fees
   lateEntryDate: Date;
   // Entry cutoff date Date to stop accepting on-line entries
@@ -215,7 +257,7 @@ class TournamentConfiguration {
   // determines how to calculate total due
   pricingMethod: PricingMethod;
   // list of personnel showing their role at the tournament
-  personnelList: Personnel[];
+  personnelList: Personnel[] = [];
   // type of check in for the tournament
   checkInType: CheckInType;
   // comma separated list of tables that will have monitors e.g. show court tables

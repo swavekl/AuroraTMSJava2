@@ -99,4 +99,21 @@ export class TournamentEventConfigListComponent implements OnInit {
     }
     this.renumber.emit(renumberedEvents);
   }
+
+  getTotalPrizeMoney(): number {
+    let totalPrizeMoney = 0;
+    if (this.events && this.events.length > 0) {
+      this.events.forEach((event: TournamentEvent) => {
+        const eventPrizeInfoList = event?.configuration?.prizeInfoList ?? [];
+        let eventTotalPrizeMoney = 0;
+        eventPrizeInfoList.forEach(prizeInfo => {
+          eventTotalPrizeMoney += isNaN(prizeInfo.prizeMoneyAmount) ? 0 : prizeInfo.prizeMoneyAmount;
+        });
+        // console.log('event ' + event.name + ' total prize money ' + eventTotalPrizeMoney);
+        totalPrizeMoney += eventTotalPrizeMoney;
+      });
+    }
+    // console.log('got totalPrizeMoney', totalPrizeMoney);
+    return totalPrizeMoney;
+  }
 }
