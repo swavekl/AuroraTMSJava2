@@ -26,6 +26,9 @@ export class TournamentInfo {
   // daily or for each event
   checkInType: CheckInType;
 
+  // total of all prize money
+  totalPrizeMoney: number;
+
   // convert dates from string to date objects
   static convert(tournamentInfo: TournamentInfo): TournamentInfo {
     const dateUtils = new DateUtils();

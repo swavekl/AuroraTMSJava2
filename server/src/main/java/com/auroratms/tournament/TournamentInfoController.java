@@ -66,6 +66,7 @@ public class TournamentInfoController {
         } else {
             tournamentInfo.setLogo("../assets/images/MissingLogoSmall.png");
         }
+        tournamentInfo.setTotalPrizeMoney(tournament.getTotalPrizeMoney());
 
         return tournamentInfo;
     }

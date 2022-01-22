@@ -44,7 +44,7 @@
           <div fxShow.gt-md="true" fxShow.md="true" fxHide.lt-md="true">
               <div mat-line fxLayout="row" style="margin-left: 72px; margin-right: 16px; margin-bottom: 8px;">
                 <div fxFlex="30%">Tournament Name</div>
-                <div fxFlex="10%">Star Level</div>
+                <div fxFlex="10%">Star Level/Prize Money</div>
                 <div fxFlex="15%">Dates</div>
                 <div fxFlex="15%">Location</div>
                 <div fxFlex="20%">Contact</div>
@@ -54,7 +54,10 @@
                 <img matListAvatar [src]="tournament.logo" alt=""/>
                 <div mat-line fxLayout="row">
                   <div fxFlex="30%">{{tournament.name}}</div>
-                  <div fxFlex="10%"><app-star-level [numStars]="tournament.starLevel" [compact]="true"></app-star-level></div>
+                  <div fxFlex="10%" fxLayout="column">
+                    <app-star-level [numStars]="tournament.starLevel" [compact]="true"></app-star-level>
+                    <div>{{ tournament.totalPrizeMoney | currency : 'USD' : 'symbol' : '1.0-0'}}</div>
+                  </div>
                   <div fxFlex="15%">{{ [tournament.startDate, tournament.endDate] | dateRange }}</div>
                   <div fxFlex="15%">{{ tournament.city }}, {{tournament.state}}</div>
                   <div fxFlex="20%" fxLayout="column">

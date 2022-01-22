@@ -45,4 +45,6 @@ public class TournamentInfo {
 
     // daily or for each event
     private CheckInType checkInType;
+
+    private int totalPrizeMoney;
 }
