@@ -13,11 +13,9 @@ export class PrizeInfoDialogComponent implements OnInit {
   prizeInfo: PrizeInfo;
   drawMethod: DrawMethod;
 
-  readonly PRICE_REGEX = CommonRegexPatterns.PRICE_REGEX;
+  readonly PRICE_REGEX = CommonRegexPatterns.FIVE_DIGIT_NUMERIC_REGEX;
 
-  readonly NUMERIC_WITH_ZERO_REGEX = CommonRegexPatterns.NUMERIC_WITH_ZERO_REGEX;
   readonly NUMERIC_REGEX = CommonRegexPatterns.NUMERIC_REGEX;
-  readonly TWO_DIGIT_NUMERIC_REGEX = CommonRegexPatterns.TWO_DIGIT_NUMERIC_REGEX;
 
   constructor(public dialogRef: MatDialogRef<PrizeInfoDialogComponent>,
               @Inject(MAT_DIALOG_DATA) public data: PrizeInfoDialogData) {

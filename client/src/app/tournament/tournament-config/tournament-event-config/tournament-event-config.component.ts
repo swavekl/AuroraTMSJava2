@@ -191,40 +191,50 @@ export class TournamentEventConfigComponent implements OnInit, OnChanges, OnDest
   }
 
   onRemovePrizesRow(indexToRemove: number) {
-    console.log('indexToRemove', indexToRemove);
-    const cloneTE: TournamentEvent = JSON.parse(JSON.stringify(this.tournamentEvent));
-    const prizeInfos = cloneTE.configuration.prizeInfoList;
-    prizeInfos.splice(indexToRemove, 1);
-    cloneTE.configuration.prizeInfoList = prizeInfos;
+    // remove it
+    const updatedPrizeInfos = [...this.tournamentEvent.configuration.prizeInfoList];
+    updatedPrizeInfos.splice(indexToRemove, 1);
+    // clone and assign
+    const updatedConfiguration: TournamentEventConfiguration = {
+      ...this.tournamentEvent.configuration,
+      prizeInfoList: updatedPrizeInfos
+    };
+    const cloneTE: TournamentEvent = {
+      ...this.tournamentEvent, configuration: updatedConfiguration
+    };
     this.tournamentEvent = cloneTE;
   }
 
   onEdit(indexToEdit: number) {
     const prizeInfos = this.tournamentEvent.configuration.prizeInfoList;
     const prizeInfo: PrizeInfo = (indexToEdit >= 0) ? prizeInfos[indexToEdit] : new PrizeInfo();
-    console.log('editing prize info at index ' + indexToEdit + ' => ' + prizeInfo);
     const prizeInfoDialogData: PrizeInfoDialogData = {
       drawMethod: this.tournamentEvent.drawMethod,
       prizeInfo: prizeInfo
     };
     const config: MatDialogConfig = {
-      height: '320px', width: '470px', data: prizeInfoDialogData
+      height: '300px', width: '470px', data: prizeInfoDialogData
     };
     const me = this;
     const dialogRef = this.dialog.open(PrizeInfoDialogComponent, config);
     dialogRef.afterClosed().subscribe(result => {
       if (result.action === 'ok') {
-          const cloneTE: TournamentEvent = JSON.parse(JSON.stringify(me.tournamentEvent));
-          const configuration = cloneTE.configuration || new TournamentEventConfiguration();
-          const prizeInfoList = configuration.prizeInfoList || [];
-          if (indexToEdit >= 0) {
-            prizeInfoList.splice(indexToEdit, 1, result.prizeInfo);
-          } else {
-            prizeInfoList.push(result.prizeInfo);
-          }
-          configuration.prizeInfoList = prizeInfoList;
-          cloneTE.configuration = configuration;
-          me.tournamentEvent = cloneTE;
+        // replace or insert
+        const updatedPrizeInfos = [...me.tournamentEvent.configuration.prizeInfoList];
+        if (indexToEdit >= 0) {
+          updatedPrizeInfos.splice(indexToEdit, 1, result.prizeInfo);
+        } else {
+          updatedPrizeInfos.push(result.prizeInfo);
+        }
+        // clone and assign
+        const updatedConfiguration: TournamentEventConfiguration = {
+          ...me.tournamentEvent.configuration,
+          prizeInfoList: updatedPrizeInfos
+        };
+        const cloneTE: TournamentEvent = {
+          ...me.tournamentEvent, configuration: updatedConfiguration
+        };
+        me.tournamentEvent = cloneTE;
       }
     });
   }

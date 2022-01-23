@@ -40,6 +40,7 @@ import {MatDialogModule} from '@angular/material/dialog';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {TournamentEventEntryDataService} from './tournament-event-entry-data.service';
 import { PrizeInfoDialogComponent } from './tournament-event-config/prize-info-dialog/prize-info-dialog.component';
+import { PrizeInfoValidatorDirective } from './tournament-event-config/prize-info-dialog/prize-info-validator.directive';
 
 @NgModule({
   declarations: [
@@ -52,7 +53,8 @@ import { PrizeInfoDialogComponent } from './tournament-event-config/prize-info-d
     TournamentEventConfigComponent,
     TournamentEventConfigContainerComponent,
     SelectEventDialogComponent,
-    PrizeInfoDialogComponent
+    PrizeInfoDialogComponent,
+    PrizeInfoValidatorDirective
   ],
     imports: [
         CommonModule,

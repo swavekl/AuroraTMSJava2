@@ -1,22 +1,21 @@
 <div mat-dialog-title>Edit Prize Info</div>
 <div mat-dialog-content>
-  <form name="form" #f="ngForm" novalidate>
-
-    <div fxLayout="column">
-      <div fxLayout="row" fxLayoutGap="10px">
+  <form name="form" #f="ngForm" novalidate appPrizeInfoValidator>
+    <div fxLayout="column" fxLayoutAlign="start stretch">
+      <div fxLayout="row" fxLayoutGap="20px">
         <mat-form-field *ngIf="drawMethod === 'DIVISION'; else elseblock" fxFlex="30%">
           <mat-label>Division</mat-label>
-          <input matInput type="text" cdkFocusInitial name="division" [(ngModel)]="prizeInfo.division" required>
+          <input matInput type="text" name="division" [(ngModel)]="prizeInfo.division" required>
         </mat-form-field>
         <ng-template #elseblock>
           <input type="hidden" name="division" [(ngModel)]="prizeInfo.division">
         </ng-template>
-        <mat-form-field [fxFlex]="drawMethod === 'DIVISION' ? '35%' : '50%'">
+        <mat-form-field [fxFlex]="drawMethod === 'DIVISION' ? '30%' : '50%'">
           <mat-label>Place</mat-label>
           <input matInput type="text" name="awardedForPlace"
                  [(ngModel)]="prizeInfo.awardedForPlace" required [pattern]="NUMERIC_REGEX">
         </mat-form-field>
-        <mat-form-field [fxFlex]="drawMethod === 'DIVISION' ? '35%' : '50%'">
+        <mat-form-field [fxFlex]="drawMethod === 'DIVISION' ? '30%' : '50%'">
           <mat-label>Through Place</mat-label>
           <input matInput type="text" name="awardedForPlaceRangeEnd"
                  [(ngModel)]="prizeInfo.awardedForPlaceRangeEnd">
@@ -26,7 +25,8 @@
         <mat-form-field fxFlex="50%">
           <mat-label>Prize Money Amount</mat-label>
           <input matInput type="text" name="prizeMoneyAmount"
-                 [(ngModel)]="prizeInfo.prizeMoneyAmount" [pattern]="PRICE_REGEX">
+                 [(ngModel)]="prizeInfo.prizeMoneyAmount" [pattern]="PRICE_REGEX" #prizeMoneyAmount="ngModel">
+          <mat-error *ngIf="prizeMoneyAmount.control?.hasError('pattern')">Prize Money must be <= 99999</mat-error>
         </mat-form-field>
         <div class="mat-checkbox-container" fxFlex="50%">
           <mat-checkbox name="awardTrophy" [(ngModel)]="prizeInfo.awardTrophy">
@@ -38,7 +38,7 @@
   </form>
 </div>
 
-<div fxLayout="row" fxLayoutAlign="space-between start" mat-dialog-actions>
+<div fxLayout="row" fxLayoutAlign="space-between start">
   <button mat-raised-button cdkFocusInitial type="button" (click)="onCancel()">Cancel</button>
     <button mat-raised-button type="button" color="primary" [disabled]="!f.valid" (click)="onSave()">Save</button>
 </div>
