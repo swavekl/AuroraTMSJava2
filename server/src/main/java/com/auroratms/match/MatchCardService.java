@@ -6,10 +6,13 @@ import com.auroratms.draw.DrawType;
 import com.auroratms.error.ResourceNotFoundException;
 import com.auroratms.event.TournamentEvent;
 import com.auroratms.event.TournamentEventEntityService;
+import com.auroratms.profile.UserProfile;
 import com.auroratms.profile.UserProfileExt;
 import com.auroratms.profile.UserProfileExtService;
+import com.auroratms.profile.UserProfileService;
 import com.auroratms.usatt.UsattDataService;
 import com.auroratms.usatt.UsattPlayerRecord;
+import org.apache.commons.collections.list.TreeList;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
@@ -42,6 +45,9 @@ public class MatchCardService {
 
     @Autowired
     private UsattDataService usattDataService;
+
+    @Autowired
+    private UserProfileService userProfileService;
 
     public MatchCardService() {
     }
@@ -637,6 +643,47 @@ public class MatchCardService {
     }
 
     /**
+     *
+     * @param playerRankingsMap
+     * @return
+     */
+    public Map<String, String> convertPlayerRankingsToPlayerNamesMap(Map<Integer, String> playerRankingsMap) {
+        boolean doublesEvent = false;
+        // collect all unique player profile ids
+        Set<String> uniquePlayerProfiles = new HashSet<>();
+        for (String playerProfileId : playerRankingsMap.values()) {
+            if (playerProfileId.indexOf(";") > 0) {
+                doublesEvent = true;
+                String[] teamProfiles = playerProfileId.split(";");
+                uniquePlayerProfiles.addAll(Arrays.asList(teamProfiles));
+            } else {
+                uniquePlayerProfiles.add(playerProfileId);
+            }
+        }
+        // convert the set into a list and get them all at once
+        List<String> uniquePlayerProfilesList = new ArrayList<>(uniquePlayerProfiles);
+        Collection<UserProfile> userProfiles = this.userProfileService.listByProfileIds(uniquePlayerProfilesList);
+        // now build the map of profile id to full name
+        Map<String, String> profileIdToNameMap = new TreeMap<>();
+        for (UserProfile userProfile : userProfiles) {
+            String fullName = userProfile.getLastName() + ", " + userProfile.getFirstName();
+            profileIdToNameMap.put(userProfile.getUserId(), fullName);
+        }
+        if (!doublesEvent) {
+            return profileIdToNameMap;
+        } else {
+            // build doubles team member names like so team player 1 / team player 2
+            Map<String, String> doublesTeamsProfileIdToNameMap = new HashMap<>();
+            for (String playerProfileId : playerRankingsMap.values()) {
+                String teamPlayersNames = getDoublesTeamPlayerNames(profileIdToNameMap, playerProfileId);
+                doublesTeamsProfileIdToNameMap.put(playerProfileId, teamPlayersNames);
+            }
+            return doublesTeamsProfileIdToNameMap;
+        }
+    }
+
+
+    /**
      * Splits doubles team player profiles separated by ; and combines their full names
      *
      * @param profileIdToNameMap
@@ -646,8 +693,8 @@ public class MatchCardService {
     private String getDoublesTeamPlayerNames(Map<String, String> profileIdToNameMap, String teamPlayerProfileIds) {
         String[] teamProfilesIds = teamPlayerProfileIds.split(";");
         String teamPlayersNames = null;
-        for (String teamAPlayerProfile : teamProfilesIds) {
-            String playerFullName = profileIdToNameMap.get(teamAPlayerProfile);
+        for (String playerProfileId : teamProfilesIds) {
+            String playerFullName = profileIdToNameMap.get(playerProfileId);
             teamPlayersNames = (teamPlayersNames == null) ? playerFullName : (teamPlayersNames + " / " + playerFullName);
         }
         return teamPlayersNames;
@@ -668,6 +715,16 @@ public class MatchCardService {
 
     public List<MatchCard> findAllForEventAndDrawType(long eventId, DrawType drawType) {
         return this.matchCardRepository.findMatchCardByEventFkAndDrawTypeOrderByRoundDescGroupNumAsc(eventId, drawType);
+    }
+
+    public List<MatchCard> findAllForEventAndDrawTypeWithPlayerMap(long eventId, DrawType drawType) {
+        List<MatchCard> matchCards = this.matchCardRepository.findMatchCardByEventFkAndDrawTypeOrderByRoundDescGroupNumAsc(eventId, drawType);
+        for (MatchCard matchCard : matchCards) {
+            Map<String, String> profileIdToNameMap = buildProfileIdToNameMap(matchCard.getMatches());
+            matchCard.setProfileIdToNameMap(profileIdToNameMap);
+        }
+
+        return matchCards;
     }
 
     public List<MatchCard> findAllForEventAndDrawTypeAndRound(long eventId, DrawType drawType, int round) {

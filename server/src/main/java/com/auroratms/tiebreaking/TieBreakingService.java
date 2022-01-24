@@ -36,6 +36,9 @@ public class TieBreakingService {
     @Autowired
     private DrawService drawService;
 
+    @Autowired
+    private PrizeAwardingService prizeAwardingService;
+
     /**
      * Computes ranking and causes players to advance to next round
      *
@@ -667,5 +670,8 @@ public class TieBreakingService {
             drawService.advancePlayers(matchCard.getDrawType(), matchCard.getGroupNum(), matchCard.getRound(),
                     tournamentEvent, rankToProfileIdMap, playerProfileToRatingMap);
         }
+
+        // store the final player rankings and names so we can distribute prize money and trophies
+        prizeAwardingService.processCompletedMatchCard(matchCard, tournamentEvent);
     }
 }

@@ -89,7 +89,7 @@ export class TableUsageContainerComponent implements OnInit, OnDestroy {
 
   private loadTableUsagesForTodaysTournament() {
     const todaysDate: Date = this.todayService.todaysDate;
-    const subscription = this.tournamentService.getWithQuery(`today=${todaysDate}`)
+    const subscription = this.tournamentService.getTodaysTournaments(todaysDate)
       .pipe(
         first(),
         map((todaysTournaments: Tournament[]) => {

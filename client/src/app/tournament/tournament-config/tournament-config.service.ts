@@ -16,6 +16,10 @@ export class TournamentConfigService extends EntityCollectionServiceBase<Tournam
       .pipe(map(tournaments => tournaments.map(tournament => Tournament.convert(tournament))));
   }
 
+  getTodaysTournaments(today: Date): Observable<Tournament[]> {
+    return super.getWithQuery(`today=${today}`);
+  }
+
   getByKey(key: any, options?: EntityActionOptions): Observable<Tournament> {
     return super.getByKey(key, options)
       .pipe(map(tournament => Tournament.convert(tournament)));

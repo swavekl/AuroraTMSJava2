@@ -1,0 +1,33 @@
+<div fxLayout="row" class="prize-list-container">
+  <div>
+    <div class="event-list-title mat-title">Events</div>
+    <mat-list dense class="event-list">
+      <mat-list-item *ngFor="let tournamentEvent of events" (click)="onSelectEvent(tournamentEvent)"
+                     [ngClass]="isSelected (tournamentEvent) ? 'selected' : 'not-selected'">
+        {{tournamentEvent.name}}
+      </mat-list-item>
+    </mat-list>
+  </div>
+  <div *ngIf="selectedEvent">
+    <div>Prizes for event {{selectedEvent?.name}}</div>
+    <table>
+      <thead>
+        <tr>
+          <th>Place</th>
+          <th>Player Name</th>
+          <th>Prize money</th>
+          <th>Trophy</th>
+        </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let prizeData of prizeDataList">
+        <td>{{prizeData.place | ordinal }}</td>
+        <td>{{prizeData.playerFullName }}</td>
+        <td>{{prizeData.prizeMoneyAmount | currency : tournamentCurrency : 'symbol' : '1.0-0' }}</td>
+        <td>{{prizeData.awardTrophy ? 'Yes' : '' }}</td>
+        <td></td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

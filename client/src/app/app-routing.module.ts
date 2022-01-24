@@ -58,13 +58,13 @@ const routes: Routes = [
     path: 'today',
     loadChildren: () => import('./today/today.module').then(m => m.TodayModule)
   },
-  {
-    path: 'usattdashboard',
-    loadChildren: () => import('./usattdashboard/usattdashboard.module').then(m => m.USATTDashboardModule),
-    data: {
-      roles: [UserRoles.ROLE_ADMINS, UserRoles.ROLE_USATT_CLUB_MANAGERS]
-    }
-  },
+  // {
+  //   path: 'usattdashboard',
+  //   loadChildren: () => import('./usattdashboard/usattdashboard.module').then(m => m.USATTDashboardModule),
+  //   data: {
+  //     roles: [UserRoles.ROLE_ADMINS, UserRoles.ROLE_USATT_OFFICIALS]
+  //   }
+  // },
   {
     path: 'club',
     loadChildren: () => import('./club/club.module').then(m => m.ClubModule),
@@ -97,6 +97,11 @@ const routes: Routes = [
   { path: 'tableusage', loadChildren: () => import('./table-usage/table-usage.module').then(m => m.TableUsageModule),
     data: {
       roles: [UserRoles.ROLE_TOURNAMENT_DIRECTORS, UserRoles.ROLE_ADMINS, UserRoles.ROLE_REFEREES]
+    }
+  },
+  { path: 'prizes', loadChildren: () => import('./prizes/prizes.module').then(m => m.PrizesModule),
+    data: {
+      roles: [UserRoles.ROLE_TOURNAMENT_DIRECTORS, UserRoles.ROLE_ADMINS]
     }
   }
 ];

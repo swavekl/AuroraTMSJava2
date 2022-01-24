@@ -35,6 +35,7 @@ import {DrawsModule} from './draws/draws.module';
 import {DoublesTeamsContainerComponent} from './tournament/tournament-entry/doubles-teams/doubles-teams-container.component';
 import {DoublesTeamsComponent} from './tournament/tournament-entry/doubles-teams/doubles-teams.component';
 import {MonitorModule} from './monitor/monitor.module';
+import { PrizesModule } from './prizes/prizes.module';
 
 const appearance: MatFormFieldDefaultOptions = {
   // appearance: 'fill'
@@ -81,7 +82,8 @@ const appearance: MatFormFieldDefaultOptions = {
         MatTableModule,
         MatTooltipModule,
         MatSortModule,
-        MonitorModule
+        MonitorModule,
+        PrizesModule
     ],
   providers: [
     {provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true},
