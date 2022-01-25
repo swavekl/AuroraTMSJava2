@@ -1,12 +1,14 @@
-import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
-
-import { PrizesRoutingModule } from './prizes-routing.module';
-import { PrizeListComponent } from './prize-list/prize-list.component';
-import { PrizeListContainerComponent } from './prize-list/prize-list-container.component';
-import {MatListModule} from '@angular/material/list';
+import {NgModule} from '@angular/core';
+import {CommonModule} from '@angular/common';
 import {FlexModule} from '@angular/flex-layout';
-import { OrdinalPipe } from './pipes/ordinal.pipe';
+import {MatListModule} from '@angular/material/list';
+import {MatExpansionModule} from '@angular/material/expansion';
+import {MatTableModule} from '@angular/material/table';
+
+import {PrizesRoutingModule} from './prizes-routing.module';
+import {PrizeListComponent} from './prize-list/prize-list.component';
+import {PrizeListContainerComponent} from './prize-list/prize-list-container.component';
+import {OrdinalPipe} from './pipes/ordinal.pipe';
 
 
 @NgModule({
@@ -19,7 +21,9 @@ import { OrdinalPipe } from './pipes/ordinal.pipe';
     CommonModule,
     PrizesRoutingModule,
     MatListModule,
-    FlexModule
+    FlexModule,
+    MatExpansionModule,
+    MatTableModule
   ]
 })
 export class PrizesModule { }

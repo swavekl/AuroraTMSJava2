@@ -85,7 +85,6 @@ public class PrizeAwardingService {
             for (MatchCard matchCard : matchCardsForRound) {
                 Map<Integer, String> playerRankingsMap = this.getPlayerRankingsMap(matchCard.getPlayerRankings());
                 if (playerRankingsMap != null) {
-                    System.out.println("playerRankingsMap = " + playerRankingsMap);
                     // higher rounds we only need one player - the looser
                     if (roundToAssignPrizes > 4) {
                         // places 5 - 8 are taking looser

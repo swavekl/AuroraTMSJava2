@@ -28,3 +28,26 @@
 mat-list-item:hover {
   background-color: #7A73FF;
 }
+
+.mat-column-place {
+  flex: 1;
+}
+
+.mat-column-playerFullName {
+  flex: 6;
+}
+
+//.mat-column-prizeMoneyAmount {
+//  flex: 1;
+//  text-align: right;
+//}
+//
+//.mat-column-awardTrophy {
+//  flex: 1;
+//  text-align: right;
+//}
+
+.mat-column-awards {
+  flex: 3;
+  justify-content: right;
+}
