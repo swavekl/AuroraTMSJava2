@@ -1,5 +1,5 @@
 <h2 mat-dialog-title>{{title}}</h2>
-<mat-dialog-content style="max-height: 80px; height: 80px;">
+<mat-dialog-content [style.max-height]="contentAreaHeight" [style.height]="contentAreaHeight">
   {{message}}
 </mat-dialog-content>
 <mat-dialog-actions>

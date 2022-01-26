@@ -11,6 +11,7 @@ export class ConfirmationPopupComponent implements OnInit {
   message: string;
   showOK: boolean;
   showCancel: boolean;
+  contentAreaHeight: string;
 
   public OK = 'ok';
   public CANCEL = 'cancel';
@@ -21,6 +22,7 @@ export class ConfirmationPopupComponent implements OnInit {
     this.message = data?.message;
     this.showOK = (data.showOK !== undefined) ? data.showOK : true;
     this.showCancel = (data.showCancel !== undefined) ? data.showCancel : true;
+    this.contentAreaHeight = (data.contentAreaHeight !== undefined) ? data.contentAreaHeight : '80px';
   }
 
   ngOnInit(): void {
@@ -44,4 +46,5 @@ export interface ConfirmationPopupData {
   message: string;
   showOK: true;
   showCancel: true;
+  contentAreaHeight: string; // e.g. 80px
 }

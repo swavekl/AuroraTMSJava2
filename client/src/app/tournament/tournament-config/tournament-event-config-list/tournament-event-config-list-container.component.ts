@@ -2,7 +2,7 @@ import {Component, Input, OnChanges, OnInit, SimpleChanges, ViewChild} from '@an
 import {Observable} from 'rxjs';
 import {TournamentEvent} from '../tournament-event.model';
 import {TournamentEventConfigService} from '../tournament-event-config.service';
-import {ConfirmationPopupComponent, ConfirmationPopupData} from '../../../shared/confirmation-popup/confirmation-popup.component';
+import {ConfirmationPopupComponent} from '../../../shared/confirmation-popup/confirmation-popup.component';
 import {MatDialog} from '@angular/material/dialog';
 import {TournamentEventConfigListComponent} from './tournament-event-config-list.component';
 

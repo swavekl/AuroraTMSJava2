@@ -3,13 +3,15 @@ import {Routes, RouterModule} from '@angular/router';
 import {EntryWizardContainerComponent} from './entry-wizard/entry-wizard-container.component';
 import {AuthGuard} from '../../guards/auth.guard';
 import {DoublesTeamsContainerComponent} from './doubles-teams/doubles-teams-container.component';
+import {EntryWizardCanDeactivateGuard} from './entry-wizard/entry-wizard-can-deactivate.guard';
 
 
 const routes: Routes = [
   {
     path: 'entrywizard/:tournamentId/edit/:entryId',
     component: EntryWizardContainerComponent,
-    canActivate: [AuthGuard]
+    canActivate: [AuthGuard],
+    canDeactivate: [EntryWizardCanDeactivateGuard]
   },
   {
     path: 'doublesteams/:tournamentId',

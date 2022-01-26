@@ -746,4 +746,8 @@ export class EntryWizardComponent implements OnInit, OnChanges, OnDestroy {
     });
     this.subscriptions.add(subscription);
   }
+
+  public isDirty (): boolean {
+    return this.dirty;
+  }
 }

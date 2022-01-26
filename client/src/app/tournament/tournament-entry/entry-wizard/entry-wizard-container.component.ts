@@ -1,4 +1,4 @@
-import {Component, OnDestroy, OnInit} from '@angular/core';
+import {Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {combineLatest, Observable, of, Subscription} from 'rxjs';
 import {first} from 'rxjs/operators';
@@ -18,6 +18,7 @@ import {PaymentRefundService} from '../../../account/service/payment-refund.serv
 import {TournamentConfigService} from '../../tournament-config/tournament-config.service';
 import {Tournament} from '../../tournament-config/tournament.model';
 import {PaymentRefundFor} from '../../../account/model/payment-refund-for.enum';
+import {EntryWizardComponent} from './entry-wizard.component';
 
 @Component({
   selector: 'app-entry-wizard-container',
@@ -52,6 +53,9 @@ export class EntryWizardContainerComponent implements OnInit, OnDestroy {
   paymentsRefunds$: Observable<PaymentRefund[]>;
 
   private subscriptions: Subscription = new Subscription();
+
+  @ViewChild(EntryWizardComponent)
+  private entryWizardComponent: EntryWizardComponent;
 
   constructor(private tournamentEntryService: TournamentEntryService,
               private tournamentConfigService: TournamentConfigService,
@@ -266,5 +270,9 @@ export class EntryWizardContainerComponent implements OnInit, OnDestroy {
           console.log('error getting payment refunds' + JSON.stringify(error));
         }
       );
+  }
+
+  public isDirty(): boolean {
+    return this.entryWizardComponent.isDirty();
   }
 }

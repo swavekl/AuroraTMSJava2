@@ -24,6 +24,7 @@ import { DoublesPairDialogComponent } from './doubles-pair-dialog/doubles-pair-d
 import {MatDialogModule} from '@angular/material/dialog';
 import {MatSelectModule} from '@angular/material/select';
 import { MaxRatingDirective } from './doubles-pair-dialog/max-rating.directive';
+import {EntryWizardCanDeactivateGuard} from './entry-wizard/entry-wizard-can-deactivate.guard';
 
 @NgModule({
   declarations: [
@@ -54,7 +55,8 @@ import { MaxRatingDirective } from './doubles-pair-dialog/max-rating.directive';
     MatDialogModule,
     MatSelectModule
   ],
-  exports: []
+  exports: [],
+  providers: [EntryWizardCanDeactivateGuard]
 })
 export class TournamentEntryModule {
 }
