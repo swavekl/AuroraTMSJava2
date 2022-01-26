@@ -34,10 +34,14 @@ public class PrizeAwardingService {
      */
     public void processCompletedMatchCard(MatchCard matchCard, TournamentEvent tournamentEvent) {
         List<PrizeInfo> prizeInfoList = tournamentEvent.getConfiguration().getPrizeInfoList();
-        if (prizeInfoList == null) {
-            log.error("Prizes are not configured for event " + tournamentEvent.getName());
-            return;
+        if (prizeInfoList == null || prizeInfoList.size() == 0) {
+            // if they did not configure prizes make some default ones for trophies only
+            prizeInfoList = new ArrayList<>(3);
+            prizeInfoList.add(new PrizeInfo("A", 1, 0, 0, true));
+            prizeInfoList.add(new PrizeInfo("A", 2, 0, 0, true));
+            prizeInfoList.add(new PrizeInfo("A", 3, 4, 0, true));
         }
+
         // check if completed round is for the round where we award money or trophies
         if (tournamentEvent.getDrawMethod() == DrawMethod.SNAKE) {
             if (matchCard.getDrawType() == DrawType.SINGLE_ELIMINATION) {

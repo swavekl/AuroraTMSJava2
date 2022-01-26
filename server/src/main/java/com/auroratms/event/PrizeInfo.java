@@ -7,7 +7,6 @@ import lombok.NoArgsConstructor;
  * Class holding information about the prize money and/or trophies awarded for each place
  */
 @Data
-@NoArgsConstructor
 public class PrizeInfo {
 
     // if draw type is division (e.e. it is a giant round robin event)
@@ -28,4 +27,15 @@ public class PrizeInfo {
 
     // if true trophy is awarded
     private boolean awardTrophy;
+
+    public PrizeInfo() {
+    }
+
+    public PrizeInfo(String division, int awardedForPlace, int awardedForPlaceRangeEnd, Integer prizeMoneyAmount, boolean awardTrophy) {
+        this.division = division;
+        this.awardedForPlace = awardedForPlace;
+        this.awardedForPlaceRangeEnd = awardedForPlaceRangeEnd;
+        this.prizeMoneyAmount = prizeMoneyAmount;
+        this.awardTrophy = awardTrophy;
+    }
 }

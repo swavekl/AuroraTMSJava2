@@ -103,9 +103,9 @@ export class PrizeListComponent implements OnInit, OnChanges {
    */
   private prepareDefaultPrizeInfos() {
     const defaultPrizeInfoList = [];
-    defaultPrizeInfoList.push({division: 0, awardedForPlace: 1, awardedForPlaceRangeEnd: 0, prizeMoneyAmount: 0, awardTrophy: true});
-    defaultPrizeInfoList.push({division: 0, awardedForPlace: 2, awardedForPlaceRangeEnd: 0, prizeMoneyAmount: 0, awardTrophy: true});
-    defaultPrizeInfoList.push({division: 0, awardedForPlace: 3, awardedForPlaceRangeEnd: 4, prizeMoneyAmount: 0, awardTrophy: true});
+    defaultPrizeInfoList.push({division: 'A', awardedForPlace: 1, awardedForPlaceRangeEnd: 0, prizeMoneyAmount: 0, awardTrophy: true});
+    defaultPrizeInfoList.push({division: 'A', awardedForPlace: 2, awardedForPlaceRangeEnd: 0, prizeMoneyAmount: 0, awardTrophy: true});
+    defaultPrizeInfoList.push({division: 'A', awardedForPlace: 3, awardedForPlaceRangeEnd: 4, prizeMoneyAmount: 0, awardTrophy: true});
     return defaultPrizeInfoList;
   }
 
