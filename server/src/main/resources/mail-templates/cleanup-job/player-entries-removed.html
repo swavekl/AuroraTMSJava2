@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <title></title>
+</head>
+<body>
+Hello <span th:text="${playerFirstName}"></span>,
+<p>
+We wanted to let you know that your entry into "<span th:text="${tournamentName}"></span>" tournament was not finalized
+and the following event entries were removed by the system:
+<ul>
+    <li th:each="event: ${removedEvents}">
+        <span th:text="${event.name}">*</span>
+    </li>
+</ul>
+Entries must be finalized by payment, refund or confirmation of changes if the changes don't result in balance.
+The entry must be finalized within 30 minutes of starting entry modification.
+If you intended to make these changes please go back to your entry, make the changes again and finalize as described above.
+</p>
+<p>
+We apologize for any inconvenience this may caused you.
+</p>
+Sincerely,
+
+Aurora TMS Admin
+</body>
+</html>

@@ -14,9 +14,17 @@ spring:
         smtp:
           auth: true
           starttls.enable: true
+  quartz:
+    jdbc:
+      initialize-schema: never
+    job-store-type: jdbc
 #  jpa:
 #    show-sql: true
 #    properties.hibernate.format_sql: true
+
+
+spring.quartz.properties.org.quartz.threadPool.threadCount : 5
+spring.quartz.properties.org.quartz.jobStore.isClustered: true
 
 #logging.level.org.hibernate.SQL: TRACE
 # # trace how many results were returned
@@ -112,3 +120,4 @@ message.broker.rabbitmq:
 
 # RabbitMQ log file location: c:\Users\Swavek\AppData\Roaming\RabbitMQ\log
 #logging.level.com.rabbitmq.client: TRACE
+

@@ -35,7 +35,8 @@ public class TournamentEventEntry {
     private EventEntryStatus status;
 
     // session id for deleting
-    private String entrySessionId;
+    @Column(length = 36)
+    private String cartSessionId;
 
     // price player needs to pay for the event - seniors vs juniors may be different
     private double price;

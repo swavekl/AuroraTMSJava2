@@ -1,7 +1,7 @@
 import {Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {combineLatest, Observable, of, Subscription} from 'rxjs';
-import {first} from 'rxjs/operators';
+import {first, map} from 'rxjs/operators';
 import {createSelector} from '@ngrx/store';
 import {TournamentEntry} from '../model/tournament-entry.model';
 import {TournamentEntryService} from '../service/tournament-entry.service';
@@ -19,6 +19,7 @@ import {TournamentConfigService} from '../../tournament-config/tournament-config
 import {Tournament} from '../../tournament-config/tournament.model';
 import {PaymentRefundFor} from '../../../account/model/payment-refund-for.enum';
 import {EntryWizardComponent} from './entry-wizard.component';
+import {CartSessionService} from '../../../account/service/cart-session.service';
 
 @Component({
   selector: 'app-entry-wizard-container',
@@ -52,6 +53,9 @@ export class EntryWizardContainerComponent implements OnInit, OnDestroy {
 
   paymentsRefunds$: Observable<PaymentRefund[]>;
 
+  // session id used for detecting abandonded cart
+  cartSessionId: string;
+
   private subscriptions: Subscription = new Subscription();
 
   @ViewChild(EntryWizardComponent)
@@ -66,7 +70,8 @@ export class EntryWizardContainerComponent implements OnInit, OnDestroy {
               private linearProgressBarService: LinearProgressBarService,
               private authenticationService: AuthenticationService,
               private profileService: ProfileService,
-              private paymentRefundService: PaymentRefundService) {
+              private paymentRefundService: PaymentRefundService,
+              private cartSessionService: CartSessionService) {
 
     // if any of the service are loading show the loading progress
     this.loading$ = combineLatest(
@@ -93,6 +98,7 @@ export class EntryWizardContainerComponent implements OnInit, OnDestroy {
     this.loadEventEntriesInfos(this.entryId);
     this.loadPlayerProfile();
     this.loadPaymentRefunds(this.entryId);
+    this.startCartSession();
   }
 
   /**
@@ -192,6 +198,7 @@ export class EntryWizardContainerComponent implements OnInit, OnDestroy {
    * @param tournamentEventEntryInfo
    */
   onEventEntryChanged(tournamentEventEntryInfo: TournamentEventEntryInfo) {
+    tournamentEventEntryInfo.cartSessionId = this.cartSessionId;
     // console.log('onEventEntryChanged tournamentEventEntryInfo', tournamentEventEntryInfo);
     this.eventEntryInfoService.changeEntryStatus(this.entryId, tournamentEventEntryInfo)
       .subscribe((success: boolean) => {
@@ -206,7 +213,7 @@ export class EntryWizardContainerComponent implements OnInit, OnDestroy {
    */
   onConfirmEntries(tournamentEntry: TournamentEntry): void {
     if (tournamentEntry) {
-      this.eventEntryInfoService.confirmEntries(this.entryId)
+      this.eventEntryInfoService.confirmEntries(this.entryId, this.cartSessionId)
         .pipe(first())
         .subscribe((success: boolean) => {
           console.log('confirmed all - success', success);
@@ -274,5 +281,18 @@ export class EntryWizardContainerComponent implements OnInit, OnDestroy {
 
   public isDirty(): boolean {
     return this.entryWizardComponent.isDirty();
+  }
+
+  private startCartSession() {
+    const subscription = this.cartSessionService.startSession(PaymentRefundFor.TOURNAMENT_ENTRY)
+      .pipe(
+        first(),
+        map((cartSessionId: string) => {
+          const now = new Date();
+          console.log(`Started cartSessionId ${cartSessionId} at ${now}`);
+          this.cartSessionId = cartSessionId;
+        })
+      ).subscribe();
+    this.subscriptions.add(subscription);
   }
 }

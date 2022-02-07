@@ -30,4 +30,7 @@ public class TournamentEventEntryInfo {
     private String doublesPartnerProfileId;
 
     private String doublesPartnerName;
+
+    // id of the shopping cart session for this change so we can update last time cart was changed
+    private String cartSessionId;
 }

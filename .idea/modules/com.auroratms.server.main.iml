@@ -48,6 +48,7 @@
     <orderEntry type="library" name="Gradle: org.springframework.security:spring-security-acl:5.6.0" level="project" />
     <orderEntry type="library" name="Gradle: org.springframework.security.oauth.boot:spring-security-oauth2-autoconfigure:2.4.0" level="project" />
     <orderEntry type="library" name="Gradle: org.springframework.security:spring-security-config:5.6.0" level="project" />
+    <orderEntry type="library" name="Gradle: org.springframework.boot:spring-boot-starter-quartz:2.6.0" level="project" />
     <orderEntry type="library" name="Gradle: org.springframework:spring-context-support:5.3.13" level="project" />
     <orderEntry type="library" name="Gradle: org.springframework.boot:spring-boot-configuration-processor:2.6.0" level="project" />
     <orderEntry type="library" name="Gradle: org.springframework.vault:spring-vault-core:2.3.2" level="project" />
@@ -107,6 +108,7 @@
     <orderEntry type="library" name="Gradle: javax.xml.bind:jaxb-api:2.3.1" level="project" />
     <orderEntry type="library" name="Gradle: org.springframework.security:spring-security-jwt:1.1.1.RELEASE" level="project" />
     <orderEntry type="library" name="Gradle: org.springframework:spring-beans:5.3.13" level="project" />
+    <orderEntry type="library" name="Gradle: org.quartz-scheduler:quartz:2.3.2" level="project" />
     <orderEntry type="library" name="Gradle: org.springframework.data:spring-data-commons:2.6.0" level="project" />
     <orderEntry type="library" name="Gradle: org.slf4j:slf4j-api:1.7.32" level="project" />
     <orderEntry type="library" name="Gradle: org.junit.platform:junit-platform-engine:1.8.1" level="project" />
@@ -167,6 +169,7 @@
     <orderEntry type="library" name="Gradle: commons-codec:commons-codec:1.15" level="project" />
     <orderEntry type="library" name="Gradle: javax.activation:javax.activation-api:1.2.0" level="project" />
     <orderEntry type="library" name="Gradle: org.bouncycastle:bcpkix-jdk15on:1.68" level="project" />
+    <orderEntry type="library" name="Gradle: com.mchange:mchange-commons-java:0.2.15" level="project" />
     <orderEntry type="library" name="Gradle: org.junit.platform:junit-platform-commons:1.8.1" level="project" />
     <orderEntry type="library" name="Gradle: org.opentest4j:opentest4j:1.2.0" level="project" />
     <orderEntry type="library" name="Gradle: org.hamcrest:hamcrest-core:2.2" level="project" />

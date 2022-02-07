@@ -63,7 +63,7 @@ export class CurrencyService {
       .pipe(
         switchMap(
           (response: any) => {
-            console.log ('got echange rate response ' + JSON.stringify(response));
+            console.log ('got exchange rate response ' + JSON.stringify(response));
             let exchangeRate = 1; // i.e. no exchange rate
             if (response && response[key] != null) {
               exchangeRate = response[key];

@@ -2,6 +2,7 @@ package com.auroratms.tournamentevententry;
 
 import com.auroratms.event.TournamentEvent;
 import com.auroratms.event.TournamentEventEntityService;
+import com.auroratms.paymentrefund.CartSessionService;
 import com.auroratms.profile.UserProfile;
 import com.auroratms.profile.UserProfileService;
 import com.auroratms.tournament.Tournament;
@@ -42,6 +43,9 @@ public class EventEntryStatusService {
 
     @Autowired
     private DoublesEventPublisher doublesEventPublisher;
+
+    @Autowired
+    private CartSessionService cartSessionService;
 
     /**
      * Gets information about event entries with current status, availability and next command
@@ -316,6 +320,7 @@ public class EventEntryStatusService {
                 eventEntry.setTournamentEventFk(eventEntryInfo.getEventFk());
                 eventEntry.setTournamentEntryFk(tournamentEntryId);
                 eventEntry.setStatus(nextEventEntryStatus);
+                eventEntry.setCartSessionId(eventEntryInfo.getCartSessionId());
                 tournamentEventEntryService.create(eventEntry);
                 break;
 
@@ -328,6 +333,7 @@ public class EventEntryStatusService {
                     eventEntry = tournamentEventEntryService.get(eventEntryInfo.getEventEntryFk());
                     if (eventEntry != null) {
                         eventEntry.setStatus(nextEventEntryStatus);
+                        eventEntry.setCartSessionId(eventEntryInfo.getCartSessionId());
                         tournamentEventEntryService.update(eventEntry);
                     }
                 }
@@ -338,6 +344,7 @@ public class EventEntryStatusService {
                 eventEntry = tournamentEventEntryService.get(eventEntryInfo.getEventEntryFk());
                 if (eventEntry != null) {
                     eventEntry.setStatus(nextEventEntryStatus);
+                    eventEntry.setCartSessionId(eventEntryInfo.getCartSessionId());
                     tournamentEventEntryService.update(eventEntry);
                 }
                 break;
@@ -346,6 +353,7 @@ public class EventEntryStatusService {
                 eventEntry = tournamentEventEntryService.get(eventEntryInfo.getEventEntryFk());
                 if (eventEntry != null) {
                     eventEntry.setStatus(nextEventEntryStatus);
+                    eventEntry.setCartSessionId(eventEntryInfo.getCartSessionId());
                     eventEntry.setDoublesPartnerProfileId(eventEntryInfo.getDoublesPartnerProfileId());
                     tournamentEventEntryService.update(eventEntry);
                 }
@@ -357,14 +365,19 @@ public class EventEntryStatusService {
 
         // update count of entries in this event now that status has changed
         updateNumEntriesInEvent(eventEntryInfo.getEventFk());
+
+        // each time event is entered or dropped update last time cart session was active
+        // so we can determine which sessions were abandoned
+        cartSessionService.updateSession(eventEntryInfo.getCartSessionId());
     }
 
     /**
      *
      * @param tournamentEntryId
+     * @param cartSessionId
      */
     @Transactional
-    public void confirmAll(Long tournamentEntryId) {
+    public void confirmAll(Long tournamentEntryId, String cartSessionId) {
         // confirm entries
         MakeBreakDoublesPairsEvent makeBreakDoublesPairsEvent = confirmAllInternal(tournamentEntryId);
 
@@ -375,6 +388,10 @@ public class EventEntryStatusService {
 
         // send email to TD and player confirming entry
         eventPublisher.publishRegistrationCompleteEvent(tournamentEntryId);
+
+        // each time event is entered or dropped update last time cart session was active
+        // so we can determine which sessions were abandoned
+        cartSessionService.finishSession(cartSessionId);
     }
 
     /**
@@ -410,6 +427,8 @@ public class EventEntryStatusService {
                 tournamentEventEntryService.delete(eventEntry.getId());
             } else {
                 eventEntry.setStatus(nextStatus);
+                // session is finished
+                eventEntry.setCartSessionId(null);
                 tournamentEventEntryService.update(eventEntry);
                 // if this is doubles event record that we are in this event
                 if (doublesEventIds.contains(eventEntry.getTournamentEventFk())) {

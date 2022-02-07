@@ -10,6 +10,9 @@ public interface TournamentEventEntryRepository extends JpaRepository<Tournament
     // gets all event entries for one tournament entry
     List<TournamentEventEntry> findByTournamentEntryFk(Long tournamentEntryFk);
 
+    // gets all entries which were not finalized
+    List<TournamentEventEntry> findAllByCartSessionId(String cartSessionUUID);
+
     // gets all event entries in all events of a tournament with one of specified statuses
     List<TournamentEventEntry> findAllByTournamentFkAndStatusInOrderByTournamentEntryFkAscTournamentEventFkAsc(Long tournamentFk, List<EventEntryStatus> statusList);
 

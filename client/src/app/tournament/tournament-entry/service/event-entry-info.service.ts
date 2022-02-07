@@ -80,9 +80,9 @@ export class EventEntryInfoService {
    * Confirms all entries for this entry
    * @param tournamentEntryId
    */
-  public confirmEntries (tournamentEntryId: number): Observable<boolean> {
+  public confirmEntries(tournamentEntryId: number, cartSessionId: string): Observable<boolean> {
     this.setLoading(true);
-    const url = `/api/tournamententry/${tournamentEntryId}/eventstatus/confirmall`;
+    const url = `/api/tournamententry/${tournamentEntryId}/eventstatus/confirmall/${cartSessionId}`;
     return this.http.put(url, {})
       .pipe(
         tap(() => {

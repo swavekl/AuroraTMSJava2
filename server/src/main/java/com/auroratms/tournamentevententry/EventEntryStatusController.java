@@ -28,8 +28,9 @@ public class EventEntryStatusController {
         eventEntryStatusService.changeStatus(tournamentEntryId, entryInfo);
     }
 
-    @PutMapping("/tournamententry/{tournamentEntryId}/eventstatus/confirmall")
-    public void confirmAll(@PathVariable Long tournamentEntryId) {
-        eventEntryStatusService.confirmAll(tournamentEntryId);
+    @PutMapping("/tournamententry/{tournamentEntryId}/eventstatus/confirmall/{cartSessionId}")
+    public void confirmAll(@PathVariable Long tournamentEntryId,
+                           @PathVariable String cartSessionId) {
+        eventEntryStatusService.confirmAll(tournamentEntryId, cartSessionId);
     }
 }

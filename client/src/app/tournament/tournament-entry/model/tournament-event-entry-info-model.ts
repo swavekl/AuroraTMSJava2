@@ -37,4 +37,6 @@ export class TournamentEventEntryInfo {
   // full name of doubles partner if selected
   doublesPartnerName: string;
 
+  // id of the shopping cart session for this change so we can update last time cart was changed
+  cartSessionId: string;
 }

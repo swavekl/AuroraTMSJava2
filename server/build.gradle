@@ -111,6 +111,9 @@ dependencies {
     // For external message broker like RabbitMQ
     implementation 'org.springframework.boot:spring-boot-starter-reactor-netty'
     implementation 'org.springframework.amqp:spring-rabbit:2.4.1'
+
+    // quartz scheduler for cleanup job
+    implementation 'org.springframework.boot:spring-boot-starter-quartz'
 }
 
 //configurations {
