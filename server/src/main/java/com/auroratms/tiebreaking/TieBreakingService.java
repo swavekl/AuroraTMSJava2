@@ -183,6 +183,7 @@ public class TieBreakingService {
                     hasTies = determineRankBasedOnPointsRatio(playerTieBreakingInfoList, pointsPerGame);
                     if (hasTies) {
                         // determine by lot
+                        determineByLot(playerTieBreakingInfoList);
                     }
                 }
             }
@@ -673,5 +674,28 @@ public class TieBreakingService {
 
         // store the final player rankings and names so we can distribute prize money and trophies
         prizeAwardingService.processCompletedMatchCard(matchCard, tournamentEvent);
+    }
+
+    /**
+     * Determines places by a lot
+     * @param playerTieBreakingInfoList
+     */
+    private void determineByLot(List<PlayerTieBreakingInfo> playerTieBreakingInfoList) {
+        int someInt = new Random().nextInt();
+        System.out.println("someInt = " + someInt);
+        boolean isHead = (someInt % 2 == 0);
+        System.out.println("isHead = " + isHead);
+        // heads - 1st player wins, tails 2nd player wins
+        int playerIndex = 0;
+        for (PlayerTieBreakingInfo playerTieBreakingInfo : playerTieBreakingInfoList) {
+            if (playerIndex == 0) {
+                int rank = (isHead) ? 1 : 2;
+                playerTieBreakingInfo.setRank(rank);
+            } else {
+                int rank = (isHead) ? 2 : 1;
+                playerTieBreakingInfo.setRank(rank);
+            }
+            playerIndex++;
+        }
     }
 }

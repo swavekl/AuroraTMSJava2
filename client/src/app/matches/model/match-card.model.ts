@@ -125,7 +125,8 @@ export class MatchCard {
       const numberOfGames = matchCard.numberOfGames;
       const matches: Match[] = matchCard.matches;
       matches.forEach((match: Match) => {
-        isCompleted = isCompleted && Match.isMatchFinished(match, numberOfGames, pointsPerGame);
+        const isMatchDefaulted = match.sideADefaulted === true || match.sideBDefaulted === true;
+        isCompleted = isCompleted && (Match.isMatchFinished(match, numberOfGames, pointsPerGame) || isMatchDefaulted);
       });
     }
     return isCompleted;
