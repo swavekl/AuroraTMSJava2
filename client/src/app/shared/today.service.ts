@@ -49,7 +49,7 @@ export class TodayService {
 
   get todaysDate(): Date {
     // todo - remove for production
-    const utcMoment = moment([2022, 0, 15, 0, 0, 0]).utc();
+    const utcMoment = moment([2023, 0, 15, 0, 0, 0]).utc();
     return utcMoment.toDate();
     // return new Date();
   }

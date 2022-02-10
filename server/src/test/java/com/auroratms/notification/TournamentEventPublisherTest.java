@@ -2,6 +2,7 @@ package com.auroratms.notification;
 
 import com.auroratms.AbstractServiceTest;
 import com.auroratms.tournamententry.EntryType;
+import com.auroratms.tournamententry.MembershipType;
 import com.auroratms.tournamententry.TournamentEntry;
 import com.auroratms.tournamententry.TournamentEntryService;
 import com.auroratms.tournamententry.notification.TournamentEventPublisher;
@@ -30,7 +31,7 @@ public class TournamentEventPublisherTest extends AbstractServiceTest {
         tournamentEntry.setEntryType(EntryType.INDIVIDUAL);
         tournamentEntry.setEligibilityRating(1234);
         tournamentEntry.setSeedRating(1255);
-        tournamentEntry.setMembershipOption(0);
+        tournamentEntry.setMembershipOption(MembershipType.NO_MEMBERSHIP_REQUIRED);
         TournamentEntry entry = tournamentEntryService.create(tournamentEntry);
 
         publisher.publishTournamentEnteredEvent(entry.getId());

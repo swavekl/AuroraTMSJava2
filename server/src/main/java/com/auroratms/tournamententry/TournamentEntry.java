@@ -32,7 +32,7 @@ public class TournamentEntry {
     int seedRating;
 
     // selected USATT membership option (from 1 through 8)
-    int membershipOption;
+    MembershipType membershipOption;
 
     // profile id of the player who owns this entry
     String profileId;

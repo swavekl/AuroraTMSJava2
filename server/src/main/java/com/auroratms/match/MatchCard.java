@@ -87,4 +87,27 @@ public class MatchCard implements Serializable {
                 ", matches=" + matches +
                 '}';
     }
+
+    public String getRoundName() {
+        String strRound = "";
+        switch (round) {
+            case 0:
+                strRound = "Round Robin";
+                break;
+            case 2:
+                strRound = (groupNum == 1) ? "Final" : "3rd & 4th Place";
+                break;
+            case 4:
+                strRound = "Semi-Final";
+                break;
+            case 8:
+                strRound = "Quarter-Final";
+                break;
+            default:
+                strRound = "Round of " + round;
+                break;
+        }
+        return strRound;
+    }
+
 }
