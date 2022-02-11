@@ -51,35 +51,37 @@ public class MatchStatusPublisher {
     public void publishMatchUpdate(long matchCardId, Match match, boolean timeoutStarted, String timeoutRequester, boolean warmupStarted) {
         MatchCard matchCard = matchCardService.getMatchCardWithPlayerProfiles(matchCardId);
         String assignedTables = matchCard.getAssignedTables();
-        String[] tableNumbers = assignedTables.split(",");
-        if (tableNumbers.length == 1) {
-            try {
-                int tableNumber = Integer.parseInt(tableNumbers[0]);
+        if (assignedTables != null) {
+            String[] tableNumbers = assignedTables.split(",");
+            if (tableNumbers.length == 1) {
+                try {
+                    int tableNumber = Integer.parseInt(tableNumbers[0]);
 
-                // get tournament id
-                TournamentEvent tournamentEvent = this.tournamentEventEntityService.get(matchCard.getEventFk());
-                long tournamentFk = tournamentEvent.getTournamentFk();
-                MonitorMessage monitorMessage = new MonitorMessage();
-                monitorMessage.setMatch(match);
-                monitorMessage.setNumberOfGames(matchCard.getNumberOfGames());
-                Map<String, String> profileIdToNameMap = matchCard.getProfileIdToNameMap();
-                if (profileIdToNameMap != null) {
-                    String playerAName = profileIdToNameMap.get(match.getPlayerAProfileId());
-                    monitorMessage.setPlayerAName(playerAName);
-                    String playerBName = profileIdToNameMap.get(match.getPlayerBProfileId());
-                    monitorMessage.setPlayerBName(playerBName);
+                    // get tournament id
+                    TournamentEvent tournamentEvent = this.tournamentEventEntityService.get(matchCard.getEventFk());
+                    long tournamentFk = tournamentEvent.getTournamentFk();
+                    MonitorMessage monitorMessage = new MonitorMessage();
+                    monitorMessage.setMatch(match);
+                    monitorMessage.setNumberOfGames(matchCard.getNumberOfGames());
+                    Map<String, String> profileIdToNameMap = matchCard.getProfileIdToNameMap();
+                    if (profileIdToNameMap != null) {
+                        String playerAName = profileIdToNameMap.get(match.getPlayerAProfileId());
+                        monitorMessage.setPlayerAName(playerAName);
+                        String playerBName = profileIdToNameMap.get(match.getPlayerBProfileId());
+                        monitorMessage.setPlayerBName(playerBName);
+                    }
+
+                    if (warmupStarted) {
+                        monitorMessage.setMessageType(MonitorMessageType.WarmupStarted);
+                    } else if (timeoutStarted) {
+                        monitorMessage.setMessageType(MonitorMessageType.TimeoutStarted);
+                        monitorMessage.setTimeoutRequester(timeoutRequester);
+                    }
+                    this.createTopicAndSend(monitorMessage, tournamentFk, tableNumber);
+
+                } catch (Exception e) {
+                    logger.error("Error while sending message to topic ", e);
                 }
-
-                if (warmupStarted) {
-                    monitorMessage.setMessageType(MonitorMessageType.WarmupStarted);
-                } else if (timeoutStarted) {
-                    monitorMessage.setMessageType(MonitorMessageType.TimeoutStarted);
-                    monitorMessage.setTimeoutRequester(timeoutRequester);
-                }
-                this.createTopicAndSend(monitorMessage, tournamentFk, tableNumber);
-
-            } catch (Exception e) {
-                logger.error("Error while sending message to topic ", e);
             }
         }
     }

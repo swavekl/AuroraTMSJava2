@@ -7,6 +7,8 @@ import {DrawGroup} from '../model/draw-group.model';
 import {DrawAction, DrawActionType} from './draw-action';
 import {UndoMemento} from '../model/undo-memento';
 import {DrawRound} from '../model/draw-round.model';
+import {MatDialog} from '@angular/material/dialog';
+import {ConfirmationPopupComponent} from '../../shared/confirmation-popup/confirmation-popup.component';
 
 @Component({
   selector: 'app-draws',
@@ -44,10 +46,14 @@ export class DrawsComponent implements OnInit, OnChanges {
 
   showPlayoffDraw: boolean;
 
-  constructor() {
+  // checks if there are any scores entered for the event to prevent any changes to the draw after results are entered
+  allowDrawChanges: boolean;
+
+  constructor(private dialog: MatDialog) {
     this.groups = [];
     this.expandedView = false;
     this.showPlayoffDraw = false;
+    this.allowDrawChanges = true;
   }
 
   ngOnInit(): void {
@@ -102,6 +108,7 @@ export class DrawsComponent implements OnInit, OnChanges {
     this.undoStack = [];
     this.selectedEvent = tournamentEvent;
     this.showPlayoffDraw = false;
+    this.allowDrawChanges = !tournamentEvent.matchScoresEntered;
     const action: DrawAction = {
       actionType: DrawActionType.DRAW_ACTION_LOAD,
       eventId: this.selectedEvent.id,
@@ -115,22 +122,38 @@ export class DrawsComponent implements OnInit, OnChanges {
    */
   generateDraw() {
     if (this.selectedEvent != null) {
-      this.undoStack = [];
-      this.showPlayoffDraw = false;
-      const drawType: DrawType = this.selectedEvent.singleElimination ? DrawType.SINGLE_ELIMINATION : DrawType.ROUND_ROBIN;
-      const action: DrawAction = {
-        actionType: DrawActionType.DRAW_ACTION_GENERATE,
-        eventId: this.selectedEvent.id,
-        payload: {drawType: drawType}
-      };
-      this.drawsAction.emit(action);
+      this.confirmDrawChanges(() => {
+        this.generateDrawInternal();
+        this.updateFlag();
+      });
     }
+  }
+
+  private generateDrawInternal(): void {
+    this.undoStack = [];
+    this.showPlayoffDraw = false;
+    const drawType: DrawType = this.selectedEvent.singleElimination ? DrawType.SINGLE_ELIMINATION : DrawType.ROUND_ROBIN;
+    const action: DrawAction = {
+      actionType: DrawActionType.DRAW_ACTION_GENERATE,
+      eventId: this.selectedEvent.id,
+      payload: {drawType: drawType}
+    };
+    this.drawsAction.emit(action);
   }
 
   /**
    * Clears draw for selected event
    */
   clearDraw() {
+    if (this.selectedEvent != null) {
+      this.confirmDrawChanges(() => {
+        this.clearDrawInternal();
+        this.updateFlag();
+      });
+    }
+  }
+
+  clearDrawInternal() {
     if (this.selectedEvent != null) {
       this.undoStack = [];
       this.showPlayoffDraw = false;
@@ -426,6 +449,42 @@ export class DrawsComponent implements OnInit, OnChanges {
       }
     }
     return null;
+  }
+
+  private confirmDrawChanges (callbackMethod: () => void) {
+    const config = {
+      width: '450px', height: '230px', data: {
+        message: `This event already has entered scores. Are you sure you want to modify this event draws and lose all entered scores?`,
+      }
+    };
+    if (!this.allowDrawChanges) {
+      const dialogRef = this.dialog.open(ConfirmationPopupComponent, config);
+      dialogRef.afterClosed().subscribe(result => {
+        if (result === 'ok') {
+          callbackMethod();
+        }
+      });
+    } else {
+      callbackMethod();
+    }
+  }
+
+  /**
+   * Clears the scores entered flag to allow regenerating or clearing draws again
+   * @private
+   */
+  private updateFlag() {
+    if (this.selectedEvent && !this.allowDrawChanges) {
+      this.allowDrawChanges = true;
+      const eventToUpdateId = this.selectedEvent.id;
+      const updatedEvents = JSON.parse(JSON.stringify(this.tournamentEvents));
+      updatedEvents.forEach((event: TournamentEvent) => {
+        if (event.id === eventToUpdateId) {
+          event.matchScoresEntered = false;
+        }
+      });
+      this.tournamentEvents = updatedEvents;
+    }
   }
 
 }

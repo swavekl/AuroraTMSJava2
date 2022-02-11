@@ -129,11 +129,11 @@ export class DrawsContainerComponent implements OnInit, OnDestroy {
       .subscribe(
         (draws: DrawItem[]) => {
           console.log('generated draw for event ' + eventId + ' got draws of length ' + draws?.length);
+          this.updateEventFlag(eventId);
         },
         (error: any) => {
           console.log('error generating draws ' + error);
         });
-
   }
 
   /**
@@ -146,6 +146,7 @@ export class DrawsContainerComponent implements OnInit, OnDestroy {
       .pipe(first())
       .subscribe((next: number) => {
         console.log('deleted draw ' + next);
+        this.updateEventFlag(eventId);
       });
   }
 
@@ -162,5 +163,14 @@ export class DrawsContainerComponent implements OnInit, OnDestroy {
         .subscribe(() => {
         });
     }
+  }
+
+  /**
+   * Clears the flag in cached tournament event so we don't have to go to server to fetch it
+   * @param eventId
+   * @private
+   */
+  private updateEventFlag (eventId: number) {
+    this.tournamentEventConfigService.updateOneInCache({id: eventId, matchScoresEntered: false});
   }
 }

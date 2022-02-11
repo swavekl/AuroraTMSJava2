@@ -88,6 +88,9 @@ export class TournamentEvent {
   feeAdult: number;
   feeJunior: number;
 
+  // if true match scores were entered for this event so redoing draws should be prohibited
+  matchScoresEntered: boolean;
+
   configuration: TournamentEventConfiguration;
 
   static convert(tournamentEvent: TournamentEvent): TournamentEvent {
@@ -135,6 +138,7 @@ export class TournamentEvent {
     tournamentEvent.feeAdult = 30;
     tournamentEvent.feeJunior = 30;
     tournamentEvent.maxEntries = 32;
+    tournamentEvent.matchScoresEntered = false;
     if (selectedEvent.maxPlayerAge > 0) {
       tournamentEvent.ageRestrictionType = AgeRestrictionType.AGE_UNDER_OR_EQUAL_ON_DAY_EVENT;
     } else if (selectedEvent.minPlayerAge > 0) {

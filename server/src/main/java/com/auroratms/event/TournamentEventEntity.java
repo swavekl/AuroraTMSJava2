@@ -99,6 +99,9 @@ public class TournamentEventEntity {
     private double feeAdult;
     private double feeJunior;
 
+    // if true match scores were entered for this event so redoing draws should be prohibited
+    private boolean matchScoresEntered;
+
     // prize money and other non-queryable information
     // to avoid having to change database schema each time we add new field to configuration
     // we will persist configuration as JSON in this field.
@@ -110,11 +113,11 @@ public class TournamentEventEntity {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         TournamentEventEntity that = (TournamentEventEntity) o;
-        return tournamentFk == that.tournamentFk && ordinalNumber == that.ordinalNumber && day == that.day && Double.compare(that.startTime, startTime) == 0 && singleElimination == that.singleElimination && doubles == that.doubles && maxEntries == that.maxEntries && numEntries == that.numEntries && minPlayerRating == that.minPlayerRating && maxPlayerRating == that.maxPlayerRating && minPlayerAge == that.minPlayerAge && maxPlayerAge == that.maxPlayerAge && playersPerGroup == that.playersPerGroup && numTablesPerGroup == that.numTablesPerGroup && pointsPerGame == that.pointsPerGame && numberOfGames == that.numberOfGames && numberOfGamesSEPlayoffs == that.numberOfGamesSEPlayoffs && numberOfGamesSEQuarterFinals == that.numberOfGamesSEQuarterFinals && numberOfGamesSESemiFinals == that.numberOfGamesSESemiFinals && numberOfGamesSEFinals == that.numberOfGamesSEFinals && play3rd4thPlace == that.play3rd4thPlace && playersToAdvance == that.playersToAdvance && advanceUnratedWinner == that.advanceUnratedWinner && playersToSeed == that.playersToSeed && Double.compare(that.feeAdult, feeAdult) == 0 && Double.compare(that.feeJunior, feeJunior) == 0 && id.equals(that.id) && name.equals(that.name) && ageRestrictionType == that.ageRestrictionType && Objects.equals(ageRestrictionDate, that.ageRestrictionDate) && genderRestriction == that.genderRestriction && drawMethod == that.drawMethod;
+        return tournamentFk == that.tournamentFk && ordinalNumber == that.ordinalNumber && day == that.day && Double.compare(that.startTime, startTime) == 0 && singleElimination == that.singleElimination && doubles == that.doubles && maxEntries == that.maxEntries && numEntries == that.numEntries && minPlayerRating == that.minPlayerRating && maxPlayerRating == that.maxPlayerRating && minPlayerAge == that.minPlayerAge && maxPlayerAge == that.maxPlayerAge && playersPerGroup == that.playersPerGroup && numTablesPerGroup == that.numTablesPerGroup && pointsPerGame == that.pointsPerGame && numberOfGames == that.numberOfGames && numberOfGamesSEPlayoffs == that.numberOfGamesSEPlayoffs && numberOfGamesSEQuarterFinals == that.numberOfGamesSEQuarterFinals && numberOfGamesSESemiFinals == that.numberOfGamesSESemiFinals && numberOfGamesSEFinals == that.numberOfGamesSEFinals && play3rd4thPlace == that.play3rd4thPlace && playersToAdvance == that.playersToAdvance && advanceUnratedWinner == that.advanceUnratedWinner && playersToSeed == that.playersToSeed && Double.compare(that.feeAdult, feeAdult) == 0 && Double.compare(that.feeJunior, feeJunior) == 0 && id.equals(that.id) && name.equals(that.name) && ageRestrictionType == that.ageRestrictionType && Objects.equals(ageRestrictionDate, that.ageRestrictionDate) && genderRestriction == that.genderRestriction && drawMethod == that.drawMethod && matchScoresEntered == that.matchScoresEntered;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, tournamentFk, name, ordinalNumber, day, startTime, singleElimination, doubles, maxEntries, numEntries, minPlayerRating, maxPlayerRating, minPlayerAge, maxPlayerAge, ageRestrictionType, ageRestrictionDate, genderRestriction, playersPerGroup, drawMethod, numTablesPerGroup, pointsPerGame, numberOfGames, numberOfGamesSEPlayoffs, numberOfGamesSEQuarterFinals, numberOfGamesSESemiFinals, numberOfGamesSEFinals, play3rd4thPlace, playersToAdvance, advanceUnratedWinner, playersToSeed, feeAdult, feeJunior);
+        return Objects.hash(id, tournamentFk, name, ordinalNumber, day, startTime, singleElimination, doubles, maxEntries, numEntries, minPlayerRating, maxPlayerRating, minPlayerAge, maxPlayerAge, ageRestrictionType, ageRestrictionDate, genderRestriction, playersPerGroup, drawMethod, numTablesPerGroup, pointsPerGame, numberOfGames, numberOfGamesSEPlayoffs, numberOfGamesSEQuarterFinals, numberOfGamesSESemiFinals, numberOfGamesSEFinals, play3rd4thPlace, playersToAdvance, advanceUnratedWinner, playersToSeed, feeAdult, feeJunior, matchScoresEntered);
     }
 }

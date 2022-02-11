@@ -77,6 +77,9 @@ public class MatchCardService {
 //            for (MatchCard matchCard : matchCardList) {
 //                System.out.println("matchCard.id " + matchCard.getId());
 //            }
+            // update flag indicating if changing draws is allowed
+            tournamentEvent.setMatchScoresEntered(false);
+            tournamentEventEntityService.update(tournamentEvent);
         }
     }
 
