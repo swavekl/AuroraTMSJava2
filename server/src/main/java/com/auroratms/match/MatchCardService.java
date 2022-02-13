@@ -420,11 +420,18 @@ public class MatchCardService {
                     for (Match match : newMatches) {
                         match.setMatchCard(existingMatchCard);
                     }
+                    // clear player rankings since the matches will be changed
+                    existingMatchCard.setPlayerRankings(null);
+
                     matchCardRepository.save(existingMatchCard);
 //                    System.out.println("match card saved");
                 }
             }
         }
+
+        // update flag indicating if changing draws is allowed
+        tournamentEvent.setMatchScoresEntered(false);
+        tournamentEventEntityService.update(tournamentEvent);
     }
 
     /**
@@ -740,6 +747,11 @@ public class MatchCardService {
         List<MatchCard> allForEventAndDrawType = findAllForEventAndDrawType(eventId, drawType);
         this.matchCardRepository.deleteAll(allForEventAndDrawType);
 //        this.matchCardRepository.deleteAllByEventFkAndDrawType(eventId, drawType);
+
+        // update flag indicating if changing draws is allowed
+        TournamentEvent tournamentEvent = tournamentEventEntityService.get(eventId);
+        tournamentEvent.setMatchScoresEntered(false);
+        tournamentEventEntityService.update(tournamentEvent);
     }
 
     public void delete(long eventId, DrawType drawType, int groupNum) {

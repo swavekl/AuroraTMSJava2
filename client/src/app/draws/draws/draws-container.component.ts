@@ -161,6 +161,7 @@ export class DrawsContainerComponent implements OnInit, OnDestroy {
       this.drawService.updateDrawItems(drawItems)
         .pipe(first())
         .subscribe(() => {
+          this.updateEventFlag(eventId);
         });
     }
   }

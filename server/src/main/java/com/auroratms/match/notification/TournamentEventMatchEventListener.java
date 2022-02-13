@@ -68,9 +68,10 @@ public class TournamentEventMatchEventListener {
 
             Match matchAfter = matchUpdateEvent.getMatchAfter();
             boolean matchFinished = matchAfter.isMatchFinished(tournamentEvent.getNumberOfGames(), tournamentEvent.getPointsPerGame());
-            log.info("Match finished = " + matchFinished);
             if (!matchFinished) {
-                List<Match> allMatchesForEvent = matchService.getMatchesForEvent(eventFk);
+                List<MatchCard> allMatchCards = matchCardService.findAllForEvent(eventFk);
+                List<Match> allMatchesForEvent = matchService.findAllByMatchCardIn(allMatchCards);
+                log.info("Got " + allMatchesForEvent.size() + " matches for " + allMatchCards.size() + " match cards");
                 boolean anyMatchEntered = false;
                 for (Match match : allMatchesForEvent) {
                     anyMatchEntered = anyMatchEntered || match.isMatchFinished(tournamentEvent.getNumberOfGames(),tournamentEvent.getPointsPerGame());
@@ -78,14 +79,13 @@ public class TournamentEventMatchEventListener {
                         break;
                     }
                 }
-                if (anyMatchEntered) {
-                    matchScoresEntered = true;
-                }
+                matchScoresEntered = anyMatchEntered;
             } else {
                 // match finished - so at least one match was entered so we can't redo the draws without asking
                 matchScoresEntered = true;
             }
 
+            log.info("oldMatchScoresEntered = " + oldMatchScoresEntered + ", matchScoresEntered = " + matchScoresEntered);
             if (oldMatchScoresEntered != matchScoresEntered) {
                 log.info ("Updating matchScores entered for event to " + matchScoresEntered);
                 tournamentEvent.setMatchScoresEntered(matchScoresEntered);

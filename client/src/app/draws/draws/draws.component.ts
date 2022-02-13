@@ -223,32 +223,44 @@ export class DrawsComponent implements OnInit, OnChanges {
     // only allow movement between different groups and in the same row
     if (event.previousContainer !== event.container &&
       event.previousIndex === event.currentIndex) {
-      const changedGroupNum1 = event.previousContainer.data[0].groupNum;
-      const changedGroupNum2 = event.container.data[0].groupNum;
-      // save this move on the undo stack so
-      const undoMemento: UndoMemento = {
-        toGroupItems: event.previousContainer.data,
-        fromGroupItems: event.container.data,
-        rowIndex: event.previousIndex,
-        changedGroupNum1: changedGroupNum1,
-        changedGroupNum2: changedGroupNum2
-      };
-      this.undoStack.push(undoMemento);
-
-      // exchange items
-      // move into new group
-      transferArrayItem(event.previousContainer.data,
-        event.container.data,
-        event.previousIndex,
-        event.currentIndex);
-      // move the other item out of new group - since item previously was pushed down + 1
-      transferArrayItem(event.container.data,
-        event.previousContainer.data,
-        event.currentIndex + 1,
-        event.previousIndex);
-
-      this.updateDrawItems(event.currentIndex, changedGroupNum1, changedGroupNum2);
+      // make sure they know if scores are entered that they will be wiped out
+      this.confirmDrawChanges(() => {
+        this.onDrawItemDropInternal(event);
+        this.updateFlag();
+      });
     }
+  }
+
+  /**
+   * Internal method
+   * @param event
+   */
+  onDrawItemDropInternal(event: CdkDragDrop<DrawItem[]>) {
+    const changedGroupNum1 = event.previousContainer.data[0].groupNum;
+    const changedGroupNum2 = event.container.data[0].groupNum;
+    // save this move on the undo stack so
+    const undoMemento: UndoMemento = {
+      toGroupItems: event.previousContainer.data,
+      fromGroupItems: event.container.data,
+      rowIndex: event.previousIndex,
+      changedGroupNum1: changedGroupNum1,
+      changedGroupNum2: changedGroupNum2
+    };
+    this.undoStack.push(undoMemento);
+
+    // exchange items
+    // move into new group
+    transferArrayItem(event.previousContainer.data,
+      event.container.data,
+      event.previousIndex,
+      event.currentIndex);
+    // move the other item out of new group - since item previously was pushed down + 1
+    transferArrayItem(event.container.data,
+      event.previousContainer.data,
+      event.currentIndex + 1,
+      event.previousIndex);
+
+    this.updateDrawItems(event.currentIndex, changedGroupNum1, changedGroupNum2);
   }
 
   /**
