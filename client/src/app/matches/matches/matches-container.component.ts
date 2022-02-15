@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnDestroy, OnInit} from '@angular/core';
 import {combineLatest, Observable, Subscription} from 'rxjs';
 import {TournamentEvent} from '../../tournament/tournament-config/tournament-event.model';
 import {TournamentEventConfigService} from '../../tournament/tournament-config/tournament-event-config.service';
@@ -20,7 +20,7 @@ import {MatchCard} from '../model/match-card.model';
   `,
   styles: []
 })
-export class MatchesContainerComponent implements OnInit {
+export class MatchesContainerComponent implements OnInit, OnDestroy {
 
   // name of the tournament
   tournamentName: string;
@@ -53,6 +53,10 @@ export class MatchesContainerComponent implements OnInit {
   ngOnInit(): void {
   }
 
+  ngOnDestroy(): void {
+      // remove all events from cache in case they entered any scores and go to edit draws
+      this.tournamentEventConfigService.clearCache();
+  }
   /**
    *
    * @private
