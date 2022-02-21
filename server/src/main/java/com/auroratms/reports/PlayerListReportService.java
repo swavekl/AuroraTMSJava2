@@ -10,8 +10,28 @@ import com.auroratms.profile.UserProfile;
 import com.auroratms.profile.UserProfileExt;
 import com.auroratms.profile.UserProfileExtService;
 import com.auroratms.profile.UserProfileService;
+import com.auroratms.tournament.Tournament;
+import com.auroratms.tournament.TournamentService;
 import com.auroratms.tournamententry.TournamentEntry;
 import com.auroratms.tournamententry.TournamentEntryService;
+import com.itextpdf.io.font.constants.StandardFonts;
+import com.itextpdf.kernel.colors.Color;
+import com.itextpdf.kernel.colors.DeviceRgb;
+import com.itextpdf.kernel.font.PdfFont;
+import com.itextpdf.kernel.font.PdfFontFactory;
+import com.itextpdf.kernel.geom.Rectangle;
+import com.itextpdf.kernel.pdf.PdfDocument;
+import com.itextpdf.kernel.pdf.PdfPage;
+import com.itextpdf.kernel.pdf.PdfWriter;
+import com.itextpdf.layout.Document;
+import com.itextpdf.layout.borders.SolidBorder;
+import com.itextpdf.layout.element.AreaBreak;
+import com.itextpdf.layout.element.Cell;
+import com.itextpdf.layout.element.Paragraph;
+import com.itextpdf.layout.element.Table;
+import com.itextpdf.layout.property.TextAlignment;
+import com.itextpdf.layout.property.UnitValue;
+import com.itextpdf.layout.property.VerticalAlignment;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,41 +65,128 @@ public class PlayerListReportService {
     private TournamentEventEntityService tournamentEventEntityService;
 
     @Autowired
+    private TournamentService tournamentService;
+
+    @Autowired
     private MatchCardService matchCardService;
 
     @Autowired
     private MatchService matchService;
 
     // 11/08/2003 - mm/dd/yyyy
-    private DateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
+    private DateFormat dateFormat = new SimpleDateFormat("M/d/yyyy");
+
+    private static final int MAIN_FONT_SIZE = 9;
+    private static final int CELL_PADDING = 5;
+    private static final int PLAYERS_PER_PAGE = 40;
+
+    static final Color DARK_GRAY = new DeviceRgb(0xA0, 0xA0, 0xA0); // darker gray
+    static final Color LIGHT_GRAY = new DeviceRgb(0xF5, 0xF5, 0xF5); // white smoke
+    static final Color WHITE = new DeviceRgb(0xFF, 0xFF, 0xFF); // white smoke
 
     public String generateReport(long tournamentId) {
         String reportFilename = null;
         FileWriter fileWriter = null;
         try {
+            Tournament tournament = tournamentService.getByKey(tournamentId);
+            String tournamentName = tournament.getName();
+
             // get data and write it out
             List<PlayerReportInfo> playerReportInfos = prepareReportData(tournamentId);
 
             String tempDir = System.getenv("TEMP");
             tempDir = (StringUtils.isEmpty(tempDir)) ? System.getenv("TMP") : tempDir;
-            File reportFile = new File(tempDir + File.separator + "player-list-" + tournamentId + ".csv");
+            File reportFile = new File(tempDir + File.separator + "player-list-" + tournamentId + ".pdf");
             reportFilename = reportFile.getCanonicalPath();
             log.info("Writing player list report for tournament " + tournamentId);
             log.info("to " + reportFilename);
 
-            // write header
-            fileWriter = new FileWriter(reportFile);
-            fileWriter.write("Count,USATT#,Name,Rating,State,Zip,Sex,Birthdate,Expires\n");
+            // report generation date and time
+            DateFormat timestampFormat = new SimpleDateFormat("hh:mm:ss aaa MM/dd/yyyy");
+            String generatedOnDate = timestampFormat.format(new Date());
+
+            //Initialize PDF writer
+            PdfWriter writer = new PdfWriter(reportFilename);
+
+            //Initialize PDF document
+            PdfDocument pdf = new PdfDocument(writer);
+
+            // Initialize document
+            Document document = new Document(pdf);
+            document.setMargins(30, 30, 10, 30);
+
+            PdfFont font = PdfFontFactory.createFont(StandardFonts.HELVETICA);
+            PdfFont boldFont = PdfFontFactory.createFont(StandardFonts.HELVETICA_BOLD);
+
+            int numPages = playerReportInfos.size() / PLAYERS_PER_PAGE;
+            numPages += (playerReportInfos.size() % PLAYERS_PER_PAGE > 0) ? 1 : 0;
+
+            int pageNum = 1;
+            Table table = null;
+            boolean addTable = true;
+
+            SolidBorder whiteBorder = new SolidBorder(0);
+            whiteBorder.setColor(WHITE);
+
+            SolidBorder grayBorder = new SolidBorder(0);
+            grayBorder.setColor(LIGHT_GRAY);
+            TextAlignment[] cellAlignment = {
+                    TextAlignment.RIGHT, TextAlignment.RIGHT, TextAlignment.LEFT, TextAlignment.RIGHT,
+                    TextAlignment.CENTER, TextAlignment.CENTER, TextAlignment.CENTER,
+                    TextAlignment.RIGHT, TextAlignment.RIGHT
+            };
+
+            int pageRowNumber = 1;
 
             for (PlayerReportInfo info : playerReportInfos) {
-                String fullName = info.lastName + ", " + info.firstName;
-                String reportLine = String.format("%d,%d,\"%s\",%d,%s,%s,%s,%s,%s\n", info.playerNumber, info.membershipId, fullName,
-                        info.rating, info.state, info.zipCode, info.gender, info.dateOfBirth, info.membershipExpirationDate);
-                fileWriter.write(reportLine);
+                if (addTable) {
+                    addTable = false;
+                    table = startTable(tournamentName, document, font, cellAlignment);
+                    pageRowNumber = 1;
+                }
+
+                Color backgroundColor = (pageRowNumber % 2 == 1) ? WHITE : LIGHT_GRAY;
+                SolidBorder borderColor = (pageRowNumber % 2 == 1) ? whiteBorder : grayBorder;
+                pageRowNumber++;
+
+                String[] cellValues = info.toStringArray();
+                for (int i = 0; i < cellValues.length; i++) {
+                    String cellText = cellValues[i];
+                    Cell playerInfoCell = new Cell().add(new Paragraph(cellText)
+                            .setFont(font).setFontSize(MAIN_FONT_SIZE).setTextAlignment(cellAlignment[i]));
+                    playerInfoCell.setBorder(borderColor);
+                    playerInfoCell.setBackgroundColor(backgroundColor);
+                    int padding = (i == 0) ? 0 : CELL_PADDING;
+                    playerInfoCell.setPaddingLeft(padding);
+                    table.addHeaderCell(playerInfoCell);
+                }
+
+                if (info.playerNumber % PLAYERS_PER_PAGE == 0) {
+                    // add current table to document
+                    document.add(table);
+
+                    addPageNumber(document, pageNum, numPages, font, generatedOnDate);
+                    pageNum++;
+
+                    // add page break except for after last player
+                    if (info.playerNumber < playerReportInfos.size()) {
+                        document.add(new AreaBreak());
+                    }
+                    // start new table
+                    addTable = true;
+                    table = null;
+
+                }
             }
 
-            log.info("Finished player list report for " + playerReportInfos.size() + " players");
+            if (table != null) {
+                document.add(table);
+                addPageNumber(document, pageNum, numPages, font, generatedOnDate);
+            }
 
+            document.close();
+
+            log.info("Finished player list report for " + playerReportInfos.size() + " players");
         } catch (IOException e) {
             log.error("Unable to create player list report ", e);
         } finally {
@@ -92,7 +199,76 @@ public class PlayerListReportService {
             }
         }
         return reportFilename;
+    }
 
+    /**
+     *
+     * @param tournamentName
+     * @param document
+     * @param font
+     * @param cellAlignment
+     * @return
+     */
+    private Table startTable(String tournamentName, Document document, PdfFont font, TextAlignment[] cellAlignment) {
+        Paragraph paragraph = new Paragraph(tournamentName);
+        paragraph.setFont(font);
+        paragraph.setFontSize(14);
+        paragraph.setBold();
+        paragraph.setTextAlignment(TextAlignment.CENTER);
+        document.add(paragraph);
+
+        Paragraph paragraph2 = new Paragraph("USATT Player Listing");
+        paragraph2.setFont(font);
+        paragraph2.setFontSize(12);
+        paragraph2.setBold();
+        paragraph2.setTextAlignment(TextAlignment.CENTER);
+        document.add(paragraph2);
+
+        String[] tableHeadersText = {"Count", "USATT#", "Name", "Rating", "State", "Zip", "Sex", "Birthdate", "Expires"};
+        float[] columnWidths = new float[]{1, 1, 4, 1, 1, 2, 1, 1, 1};
+
+        Table table = new Table(UnitValue.createPercentArray(columnWidths))
+                .useAllAvailableWidth().setBorder(new SolidBorder(0));
+
+        SolidBorder grayBorder = new SolidBorder(0);
+        grayBorder.setColor(DARK_GRAY);
+
+        for (int i = 0; i < tableHeadersText.length; i++) {
+            String columnTitle = tableHeadersText[i];
+            Cell headerCell = new Cell().add(new Paragraph(columnTitle)
+                    .setFont(font).setFontSize(MAIN_FONT_SIZE).setBold().setTextAlignment(cellAlignment[i]));
+            headerCell.setBorder(grayBorder);
+            headerCell.setBackgroundColor(DARK_GRAY);
+            int padding = (i == 0) ? 0 : CELL_PADDING;
+            headerCell.setPaddingLeft(padding);
+            table.addHeaderCell(headerCell);
+        }
+
+        return table;
+    }
+
+    /**
+     * @param document
+     * @param pageNumber
+     * @param numPages
+     * @param font
+     * @param generatedOnDate
+     */
+    private void addPageNumber(Document document, int pageNumber, int numPages, PdfFont font, String generatedOnDate) {
+        try {
+            String footerText = String.format(
+            "Powered by Aurora TMS                                                Page %d of %d                                          %s",
+                    pageNumber, numPages, generatedOnDate);
+            Paragraph footerPara = new Paragraph(footerText).setFont(font).setFontSize(10);
+            PdfDocument pdfDocument = document.getPdfDocument();
+            PdfPage page = pdfDocument.getPage(pageNumber);
+            Rectangle pageSize = page.getPageSize();
+            float x = document.getLeftMargin();
+            float y = pageSize.getBottom() + 30;
+            document.showTextAligned(footerPara, x, y, pageNumber, TextAlignment.LEFT, VerticalAlignment.TOP, 0);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -165,7 +341,7 @@ public class PlayerListReportService {
             playerReportInfo.zipCode = (userProfile.getZipCode() != null) ? userProfile.getZipCode() : "";
 
             Date membershipExpirationDate = userProfile.getMembershipExpirationDate();
-            playerReportInfo.membershipExpirationDate = (membershipExpirationDate != null) ? dateFormat.format(membershipExpirationDate) : "";
+            playerReportInfo.membershipExpirationDate = (membershipExpirationDate != null) ? dateFormat.format(membershipExpirationDate) : "T.B.D.";
 
             UserProfileExt userProfileExt = profileIdToUserExtProfileMap.get(playerProfileId);
             playerReportInfo.membershipId = userProfileExt.getMembershipId();
@@ -211,6 +387,25 @@ public class PlayerListReportService {
 
         public String getLastName() {
             return lastName;
+        }
+
+        /**
+         * Needed by PDF table writer
+         * @return
+         */
+        public String[] toStringArray() {
+            // "Count", "USATT#", "Name", "Rating", "State", "Zip", "Sex", "Birthdate", "Expires"
+            String [] strArray = new String[9];
+            strArray[0] = Integer.toString(playerNumber);
+            strArray[1] = Long.toString(membershipId);
+            strArray[2] = lastName + ", " + firstName;
+            strArray[3] = Integer.toString(rating);
+            strArray[4] = state;
+            strArray[5] = zipCode;
+            strArray[6] = gender;
+            strArray[7] = dateOfBirth;
+            strArray[8] = membershipExpirationDate;
+            return strArray;
         }
     }
 }
