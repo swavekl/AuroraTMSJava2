@@ -14,6 +14,8 @@ import com.auroratms.tournament.Tournament;
 import com.auroratms.tournament.TournamentService;
 import com.auroratms.tournamententry.TournamentEntry;
 import com.auroratms.tournamententry.TournamentEntryService;
+import com.auroratms.usatt.UsattDataService;
+import com.auroratms.usatt.UsattPlayerRecord;
 import com.itextpdf.io.font.constants.StandardFonts;
 import com.itextpdf.kernel.colors.Color;
 import com.itextpdf.kernel.colors.DeviceRgb;
@@ -72,6 +74,9 @@ public class PlayerListReportService {
 
     @Autowired
     private MatchService matchService;
+
+    @Autowired
+    private UsattDataService usattDataService;
 
     // 11/08/2003 - mm/dd/yyyy
     private DateFormat dateFormat = new SimpleDateFormat("M/d/yyyy");
@@ -158,6 +163,8 @@ public class PlayerListReportService {
                     playerInfoCell.setBackgroundColor(backgroundColor);
                     int padding = (i == 0) ? 0 : CELL_PADDING;
                     playerInfoCell.setPaddingLeft(padding);
+//                    playerInfoCell.setPaddingTop(2);
+//                    playerInfoCell.setPaddingBottom(2);
                     table.addHeaderCell(playerInfoCell);
                 }
 
@@ -165,7 +172,7 @@ public class PlayerListReportService {
                     // add current table to document
                     document.add(table);
 
-                    addPageNumber(document, pageNum, numPages, font, generatedOnDate);
+                    addFooter(document, pageNum, numPages, font, generatedOnDate);
                     pageNum++;
 
                     // add page break except for after last player
@@ -181,7 +188,7 @@ public class PlayerListReportService {
 
             if (table != null) {
                 document.add(table);
-                addPageNumber(document, pageNum, numPages, font, generatedOnDate);
+                addFooter(document, pageNum, numPages, font, generatedOnDate);
             }
 
             document.close();
@@ -225,7 +232,7 @@ public class PlayerListReportService {
         document.add(paragraph2);
 
         String[] tableHeadersText = {"Count", "USATT#", "Name", "Rating", "State", "Zip", "Sex", "Birthdate", "Expires"};
-        float[] columnWidths = new float[]{1, 1, 4, 1, 1, 2, 1, 1, 1};
+        float[] columnWidths = new float[]{2, 2, 8, 2, 1, 2, 1, 2, 2};
 
         Table table = new Table(UnitValue.createPercentArray(columnWidths))
                 .useAllAvailableWidth().setBorder(new SolidBorder(0));
@@ -254,20 +261,24 @@ public class PlayerListReportService {
      * @param font
      * @param generatedOnDate
      */
-    private void addPageNumber(Document document, int pageNumber, int numPages, PdfFont font, String generatedOnDate) {
+    private void addFooter(Document document, int pageNumber, int numPages, PdfFont font, String generatedOnDate) {
         try {
-            String footerText = String.format(
-            "Powered by Aurora TMS                                                Page %d of %d                                          %s",
-                    pageNumber, numPages, generatedOnDate);
-            Paragraph footerPara = new Paragraph(footerText).setFont(font).setFontSize(10);
             PdfDocument pdfDocument = document.getPdfDocument();
-            PdfPage page = pdfDocument.getPage(pageNumber);
-            Rectangle pageSize = page.getPageSize();
-            float x = document.getLeftMargin();
-            float y = pageSize.getBottom() + 30;
-            document.showTextAligned(footerPara, x, y, pageNumber, TextAlignment.LEFT, VerticalAlignment.TOP, 0);
+            if (pdfDocument != null) {
+                PdfPage page = pdfDocument.getPage(pageNumber);
+                if (page != null) {
+                    Rectangle pageSize = page.getPageSize();
+                    float x = document.getLeftMargin();
+                    float y = pageSize.getBottom() + 30;
+                    String footerText = String.format(
+                    "Powered by Aurora TMS                                                Page %d of %d                                          %s",
+                            pageNumber, numPages, generatedOnDate);
+                    Paragraph footerPara = new Paragraph(footerText).setFont(font).setFontSize(10);
+                    document.showTextAligned(footerPara, x, y, pageNumber, TextAlignment.LEFT, VerticalAlignment.TOP, 0);
+                }
+            }
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("Unable to add footer for page " + pageNumber, e);
         }
     }
 
@@ -285,7 +296,7 @@ public class PlayerListReportService {
             if (!tournamentEvent.isDoubles()) {
                 Long eventId = tournamentEvent.getId();
                 // get all match cards for this event
-                log.info("Writing results for event " + tournamentEvent.getName());
+                log.info("Getting all match cards for event " + tournamentEvent.getName());
                 List<MatchCard> allMatchCardsForEvent = matchCardService.findAllForEvent(eventId);
 
                 // sort them so RR is followed by SE
@@ -307,6 +318,7 @@ public class PlayerListReportService {
                 }
             }
         }
+        log.info("Found " + uniqueProfileIdsSet.size() + " unique player ids who played matches");
 
         // get profile information for those players who played at least one match
         List<String> profileIds = new ArrayList<>(uniqueProfileIdsSet);
@@ -321,6 +333,22 @@ public class PlayerListReportService {
         Comparator<UserProfile> comparator = Comparator.comparing(UserProfile::getLastName)
                 .thenComparing(UserProfile::getFirstName);
         Collections.sort(userProfileList, comparator);
+
+        // get membership expiration dates from the USATT record service
+        List<Long> membershipIds = new ArrayList<>(profileIds.size());
+        for (UserProfile userProfile : userProfileList) {
+            UserProfileExt userProfileExt = profileIdToUserExtProfileMap.get(userProfile.getUserId());
+            if (userProfileExt != null) {
+                membershipIds.add(userProfileExt.getMembershipId());
+            }
+        }
+
+        // put the expiration dates in the map by membership id
+        Map<Long, Date> membershipIdToExpirationDateMap = new HashMap<>();
+        List<UsattPlayerRecord> usattPlayerRecordList = usattDataService.findAllByMembershipIdIn(membershipIds);
+        for (UsattPlayerRecord usattPlayerRecord : usattPlayerRecordList) {
+            membershipIdToExpirationDateMap.put(usattPlayerRecord.getMembershipId(), usattPlayerRecord.getMembershipExpirationDate());
+        }
 
         int playerNumber = 0;
 
@@ -340,11 +368,11 @@ public class PlayerListReportService {
 
             playerReportInfo.zipCode = (userProfile.getZipCode() != null) ? userProfile.getZipCode() : "";
 
-            Date membershipExpirationDate = userProfile.getMembershipExpirationDate();
-            playerReportInfo.membershipExpirationDate = (membershipExpirationDate != null) ? dateFormat.format(membershipExpirationDate) : "T.B.D.";
-
             UserProfileExt userProfileExt = profileIdToUserExtProfileMap.get(playerProfileId);
             playerReportInfo.membershipId = userProfileExt.getMembershipId();
+
+            Date membershipExpirationDate = membershipIdToExpirationDateMap.get(playerReportInfo.membershipId);
+            playerReportInfo.membershipExpirationDate = (membershipExpirationDate != null) ? dateFormat.format(membershipExpirationDate) : "T.B.D.";
 
             profileIdToReportInfoMap.put(playerProfileId, playerReportInfo);
         }
@@ -364,6 +392,8 @@ public class PlayerListReportService {
         Comparator<PlayerReportInfo> comparator2 = Comparator.comparing(PlayerReportInfo::getLastName)
                 .thenComparing(PlayerReportInfo::getFirstName);
         Collections.sort(sortedPlayerReportInfos, comparator2);
+
+        log.info("Finished collecting player list data");
 
         return sortedPlayerReportInfos;
     }
