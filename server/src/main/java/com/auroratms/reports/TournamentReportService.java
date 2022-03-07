@@ -15,6 +15,7 @@ import com.itextpdf.kernel.geom.Rectangle;
 import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfPage;
 import com.itextpdf.kernel.pdf.PdfWriter;
+import com.itextpdf.kernel.pdf.canvas.PdfCanvas;
 import com.itextpdf.layout.Document;
 import com.itextpdf.layout.borders.SolidBorder;
 import com.itextpdf.layout.element.Cell;
@@ -53,11 +54,9 @@ public class TournamentReportService {
 
     static final int FONT_SIZE = 10;
     static final int NOTES_FONT_SIZE = 8;
+    static final float INNER_TABLE_BORDER = 2;
 
     static final Color WHITE = new DeviceRgb(0xFF, 0xFF, 0xFF);
-
-    static final float underlineThickness = 0.1f;
-    static final float underlineYPosition = -2f;
 
     // 11/08/2003 - mm/dd/yyyy
     private DateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
@@ -91,7 +90,6 @@ public class TournamentReportService {
             // Initialize document
             Document document = new Document(pdf);
             document.setMargins(30, 30, 10, 30);
-            document.setBorder(new SolidBorder(1));
 
             PdfFont font = PdfFontFactory.createFont(StandardFonts.TIMES_ROMAN);
             PdfFont fontBold = PdfFontFactory.createFont(StandardFonts.TIMES_BOLD);
@@ -101,11 +99,9 @@ public class TournamentReportService {
             usattLogo.scaleToFit(73f, 32f);
             document.add(usattLogo);
 
-            Paragraph paragraph = new Paragraph("USATT Tournament Report");
-            paragraph.setFont(font);
-            paragraph.setFontSize(12);
-            paragraph.setBold();
-            paragraph.setTextAlignment(TextAlignment.CENTER);
+            Paragraph paragraph = new Paragraph("USATT Tournament Report")
+                    .setFont(font).setFontSize(12).setBold().setTextAlignment(TextAlignment.CENTER)
+                    .setMarginBottom(15);
             document.add(paragraph);
 
             Table tournamentTable = makeTournamentTable(tournament, font, fontBold);
@@ -119,18 +115,17 @@ public class TournamentReportService {
             String remarksText = "Remarks: " + remarks;
             Paragraph remarksParagraph = new Paragraph(remarksText)
                     .setFont(font).setFontSize(FONT_SIZE).setBold()
-                    .setBorder(new SolidBorder(1))
+                    .setBorder(new SolidBorder(INNER_TABLE_BORDER))
                     .setPaddingLeft(10).setPaddingRight(10).setHeight(100f);
             document.add(remarksParagraph);
 
             addFooterSection(document, font);
 
-            log.info("Finished tournament report");
-
-            addDocumentRevision(document, font);
+            addDocumentRevisionAndBorder(document, font);
 
             document.close();
 
+            log.info("Finished tournament report");
         } catch (IOException e) {
             log.error("Unable to create tournament report ", e);
         } finally {
@@ -221,7 +216,8 @@ public class TournamentReportService {
         float[] columnWidths = new float[]{3, 1, 1, 1, 1, 1};
 
         Table table = new Table(UnitValue.createPercentArray(columnWidths))
-                .useAllAvailableWidth().setBorder(new SolidBorder(1)).setMarginTop(5);
+                .useAllAvailableWidth().setBorder(new SolidBorder(INNER_TABLE_BORDER))
+                .setMarginTop(5).setMarginBottom(5);
 
         String currencySymbol = "$";
 
@@ -380,7 +376,7 @@ public class TournamentReportService {
         SolidBorder whiteBorder = new SolidBorder(0);
         whiteBorder.setColor(WHITE);
         Table table = new Table(UnitValue.createPercentArray(columnWidths))
-                .useAllAvailableWidth().setBorder(new SolidBorder(1));
+                .useAllAvailableWidth().setBorder(new SolidBorder(INNER_TABLE_BORDER));
         addTournamentInfoRow(table, font, fontBold, whiteBorder, "Tournament Name", tournamentName, 3);
         addTournamentInfoRow(table, font, fontBold, whiteBorder, "Date of Tournament", strTournamentDate, 3);
         addTournamentInfoRow(table, font, fontBold, whiteBorder, "Club/Organization", organization, 3);
@@ -410,9 +406,10 @@ public class TournamentReportService {
                 .setBorder(whiteBorder).setPaddingLeft(10);
 
         table.addCell(cell1);
+
         Cell cell2 = new Cell(1, columnSpan).add(new Paragraph(value)
                         .setFont(font).setFontSize(FONT_SIZE).setTextAlignment(TextAlignment.LEFT))
-                .setBorder(whiteBorder).setUnderline(underlineThickness, underlineYPosition);
+                .setBorder(whiteBorder).setUnderline( 0.1f, -2f);
         table.addCell(cell2);
     }
 
@@ -495,15 +492,31 @@ public class TournamentReportService {
         int total;
     }
 
-    private void addDocumentRevision(Document document, PdfFont font) {
+    private void addDocumentRevisionAndBorder(Document document, PdfFont font) {
         try {
             PdfDocument pdfDocument = document.getPdfDocument();
             if (pdfDocument != null) {
                 PdfPage page = pdfDocument.getPage(1);
                 if (page != null) {
                     Rectangle pageSize = page.getPageSize();
-                    float x = pageSize.getRight() - 30;
-                    float y = pageSize.getBottom() + 30;
+
+                    // add border
+                    float width = pageSize.getWidth();
+                    float height = pageSize.getHeight();
+
+                    // Define a PdfCanvas instance
+                    PdfCanvas canvas = new PdfCanvas(page);
+                    document.getLeftMargin();
+                    // Add a rectangle 0, 0 is in bottom left corner
+                    canvas.rectangle(document.getLeftMargin() - 5,
+                            document.getBottomMargin() + 15,
+                            width - document.getRightMargin() - document.getLeftMargin() + 10,
+                            height - document.getTopMargin() - document.getBottomMargin() - 75);
+                    canvas.stroke();
+
+                    // add form revision
+                    float x = pageSize.getRight() - document.getRightMargin();
+                    float y = pageSize.getBottom() + document.getBottomMargin() + 10;
                     String footerText = "Form T-109 (revised 02/21/2018)";
                     Paragraph footerPara = new Paragraph(footerText).setFont(font).setFontSize(10);
                     document.showTextAligned(footerPara, x, y, 1, TextAlignment.RIGHT, VerticalAlignment.TOP, 0);
