@@ -6,6 +6,7 @@ import com.auroratms.tournamententry.MembershipType;
 import com.auroratms.tournamententry.TournamentEntry;
 import com.auroratms.tournamententry.TournamentEntryService;
 import com.itextpdf.io.font.constants.StandardFonts;
+import com.itextpdf.io.image.ImageData;
 import com.itextpdf.io.image.ImageDataFactory;
 import com.itextpdf.kernel.colors.Color;
 import com.itextpdf.kernel.colors.DeviceRgb;
@@ -94,14 +95,9 @@ public class TournamentReportService {
             PdfFont font = PdfFontFactory.createFont(StandardFonts.TIMES_ROMAN);
             PdfFont fontBold = PdfFontFactory.createFont(StandardFonts.TIMES_BOLD);
 
-            File usattLogoFile = ResourceUtils.getFile("classpath:images/usatt-logo-horizontal.jpg");
-            Image usattLogo = new Image(ImageDataFactory.create(usattLogoFile.getAbsolutePath()));
-            usattLogo.scaleToFit(73f, 32f);
-            document.add(usattLogo);
-
             Paragraph paragraph = new Paragraph("USATT Tournament Report")
-                    .setFont(font).setFontSize(12).setBold().setTextAlignment(TextAlignment.CENTER)
-                    .setMarginBottom(15);
+                    .setFont(font).setFontSize(14).setBold().setTextAlignment(TextAlignment.CENTER)
+                    .setMarginBottom(15).setMarginTop(5);
             document.add(paragraph);
 
             Table tournamentTable = makeTournamentTable(tournament, font, fontBold);
@@ -511,8 +507,16 @@ public class TournamentReportService {
                     canvas.rectangle(document.getLeftMargin() - 5,
                             document.getBottomMargin() + 15,
                             width - document.getRightMargin() - document.getLeftMargin() + 10,
-                            height - document.getTopMargin() - document.getBottomMargin() - 75);
+                            height - document.getTopMargin() - document.getBottomMargin() - 50);
                     canvas.stroke();
+
+                    File usattLogoFile = ResourceUtils.getFile("classpath:images/usatt-logo-horizontal.jpg");
+                    ImageData usattLogoData = ImageDataFactory.create(usattLogoFile.getAbsolutePath());
+                    Image usattLogo = new Image(usattLogoData);
+                    usattLogo.scaleToFit(73f, 32f);
+                    float imageX = document.getLeftMargin() + 10;
+                    float imageY = height - document.getTopMargin() - document.getBottomMargin() - 20;
+                    canvas.addImageAt(usattLogoData, imageX, imageY, true);
 
                     // add form revision
                     float x = pageSize.getRight() - document.getRightMargin();
