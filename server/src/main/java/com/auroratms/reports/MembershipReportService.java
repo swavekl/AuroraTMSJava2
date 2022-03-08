@@ -124,9 +124,9 @@ public class MembershipReportService {
         String citizenship = countryCode.equals("US") ? "" : "FN";
         String representingCountry = countryCode.equals("US") ? "" : countryCode;
         int productId = getProductId(membershipType);
-        int yearCount = 1;
+        String yearCount = getYearCount(membershipType);
 
-        return String.format("%d,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%d,%d\n", membershipId,
+        return String.format("%d,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%d,%s\n", membershipId,
                 userProfile.getLastName(), userProfile.getFirstName(), formattedDOB, userProfile.getEmail(), gender,
                 userProfile.getStreetAddress(), userProfile.getCity(), userProfile.getState(), userProfile.getZipCode(), userProfile.getMobilePhone(),
                 citizenship, representingCountry, productId, yearCount);
@@ -141,21 +141,48 @@ public class MembershipReportService {
         int productId = 0;
         switch(membershipType) {
             case TOURNAMENT_PASS_ADULT:
-                productId = 25;
+                productId = 61;
                 break;
             case TOURNAMENT_PASS_JUNIOR:
-                productId = 26;
+                productId = 72;
                 break;
             case BASIC_PLAN:
-                productId = 27;
+                productId = 70;
                 break;
             case PRO_PLAN:
-                productId = 28;
+                productId = 53;
                 break;
             case LIFETIME:
-                productId = 29;
+                productId = 59;
                 break;
         }
         return productId;
+    }
+
+    /**
+     * Gets USATT product id
+     * @param membershipType
+     * @return
+     */
+    private String getYearCount(MembershipType membershipType) {
+        String yearCount = "";
+        switch(membershipType) {
+            case TOURNAMENT_PASS_ADULT:
+                yearCount = "Adult Tournament Pass";
+                break;
+            case TOURNAMENT_PASS_JUNIOR:
+                yearCount = "Junior Tournament Pass";
+                break;
+            case BASIC_PLAN:
+                yearCount = "Basic Membership";
+                break;
+            case PRO_PLAN:
+                yearCount = "Pro Membership";
+                break;
+            case LIFETIME:
+                yearCount = "Lifetime Membership";
+                break;
+        }
+        return yearCount;
     }
 }
