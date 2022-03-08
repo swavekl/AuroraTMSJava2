@@ -62,6 +62,8 @@ public class TournamentReportService {
     // 11/08/2003 - mm/dd/yyyy
     private DateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
 
+    final String CURRENCY_FORMAT = "%s%,.2f";
+
     public String generateReport(long tournamentId, String card4Digits, String remarks) {
         String reportFilename = null;
         try {
@@ -103,10 +105,8 @@ public class TournamentReportService {
             Table tournamentTable = makeTournamentTable(tournament, font, fontBold);
             document.add(tournamentTable);
 
-            Table commissionedMembershipsTable = makeMembershipsTable(membershipTableData, totalDonations, font, card4Digits);
+            Table commissionedMembershipsTable = makeMembershipsTable(membershipTableData, totalDonations, font, fontBold, card4Digits);
             document.add(commissionedMembershipsTable);
-
-            addFootnotesParagraphs(document, font);
 
             String remarksText = "Remarks: " + remarks;
             Paragraph remarksParagraph = new Paragraph(remarksText)
@@ -154,30 +154,10 @@ public class TournamentReportService {
                 "Please refer to \"Tournament Report Instructions\" for further instructions. Thank you."
         };
         for (String finalNote : finalNotes) {
+            TextAlignment textAlignment = (finalNote.contains("Colorado")) ? TextAlignment.CENTER : TextAlignment.LEFT;
             Paragraph paragraph = new Paragraph(finalNote)
-                    .setFont(font).setFontSize(NOTES_FONT_SIZE).setTextAlignment(TextAlignment.LEFT).
-                    setPaddingLeft(10).setPaddingRight(10)
-                    .setMarginBottom(0).setMarginTop(0);
-            document.add(paragraph);
-        }
-    }
-
-    /**
-     * @param document
-     * @param font
-     */
-    private void addFootnotesParagraphs(Document document, PdfFont font) {
-        String[] footnotes = {
-                "1-Junior must be 17 years old or younger.",
-                "2-Junior 3 year must be 14 or younger",
-                "3-College student must have a photo copy of either a valid registration card or student ID. Must be full time college or graduate student",
-                "4-Household is defined as not more than two adults and any number of minor childres living at the same address.",
-                "Membership must include birthdays of all family members."
-        };
-
-        for (String footnote : footnotes) {
-            Paragraph paragraph = new Paragraph(footnote)
-                    .setFont(font).setFontSize(NOTES_FONT_SIZE)
+                    .setFont(font).setFontSize(NOTES_FONT_SIZE).setTextAlignment(textAlignment)
+                    .setPaddingLeft(10).setPaddingRight(10)
                     .setMarginBottom(0).setMarginTop(0);
             document.add(paragraph);
         }
@@ -199,10 +179,11 @@ public class TournamentReportService {
      * @param membershipTableData
      * @param donationsTotal
      * @param font
+     * @param fontBold
      * @param card4Digits
      * @return
      */
-    private Table makeMembershipsTable(List<MembershipTableData> membershipTableData, double donationsTotal, PdfFont font, String card4Digits) throws IOException {
+    private Table makeMembershipsTable(List<MembershipTableData> membershipTableData, double donationsTotal, PdfFont font, PdfFont fontBold, String card4Digits) throws IOException {
 
         TextAlignment[] cellAlignment = {
                 TextAlignment.LEFT, TextAlignment.LEFT, TextAlignment.RIGHT, TextAlignment.CENTER,
@@ -249,8 +230,6 @@ public class TournamentReportService {
         double discount = 0.1 * totalMembershipFees;
         double netMembershipFees = totalMembershipFees - discount;
 
-        final String CURRENCY_FORMAT = "%s%,.2f";
-
         String strTotalMembershipFees = String.format(CURRENCY_FORMAT, currencySymbol, totalMembershipFees);
         String strDiscount = String.format(CURRENCY_FORMAT, currencySymbol, discount);
         String strNetMembershipFees = String.format(CURRENCY_FORMAT, currencySymbol, netMembershipFees);
@@ -280,11 +259,11 @@ public class TournamentReportService {
 
         // Total Optional Donations to TT Team USA National Program
         String strDonationsTotal = String.format(CURRENCY_FORMAT, currencySymbol, donationsTotal);
-        makeTotalsRow(italicFont, table, whiteBorder, "Total Optional Donations to TT Team USA National Program", strDonationsTotal, 5);
+        makeTotalsRow(font, table, whiteBorder, "Total Optional Donations to TT Team USA National Program", strDonationsTotal, 5);
 
         double grandTotalDue = totalMembershipFeesDue + donationsTotal;
         String strGrandTotalDue = String.format(CURRENCY_FORMAT, currencySymbol, grandTotalDue);
-        makeTotalsRow(font, table, whiteBorder, "Total Amount", strGrandTotalDue, 5);
+        makeTotalsRow(fontBold, table, whiteBorder, "Total Amount", strGrandTotalDue, 5);
 
         // make footer row with credit card information if used to pay for tournament report
         if (card4Digits != null) {
@@ -335,7 +314,8 @@ public class TournamentReportService {
         Cell cell2 = new Cell().add(new Paragraph(data.membershipTerm)
                 .setFont(font).setFontSize(FONT_SIZE).setTextAlignment(TextAlignment.LEFT)).setBorder(whiteBorder);
         table.addCell(cell2);
-        Cell cell3 = new Cell().add(new Paragraph(currencySymbol + Integer.toString(data.cost))
+        String strCost = String.format("%s%,d", currencySymbol, data.cost);
+        Cell cell3 = new Cell().add(new Paragraph(strCost)
                 .setFont(font).setFontSize(FONT_SIZE).setTextAlignment(TextAlignment.RIGHT)).setBorder(whiteBorder);
         table.addCell(cell3);
         Cell cell4 = new Cell().add(new Paragraph("x")
@@ -373,15 +353,15 @@ public class TournamentReportService {
         whiteBorder.setColor(WHITE);
         Table table = new Table(UnitValue.createPercentArray(columnWidths))
                 .useAllAvailableWidth().setBorder(new SolidBorder(INNER_TABLE_BORDER));
-        addTournamentInfoRow(table, font, fontBold, whiteBorder, "Tournament Name", tournamentName, 3);
-        addTournamentInfoRow(table, font, fontBold, whiteBorder, "Date of Tournament", strTournamentDate, 3);
-        addTournamentInfoRow(table, font, fontBold, whiteBorder, "Club/Organization", organization, 3);
-        addTournamentInfoRow(table, font, fontBold, whiteBorder, "City/State/Zip", cityStateZip, 3);
+        addTournamentInfoRow(table, font, fontBold, whiteBorder, "Tournament Name:", tournamentName, 3);
+        addTournamentInfoRow(table, font, fontBold, whiteBorder, "Date of Tournament:", strTournamentDate, 3);
+        addTournamentInfoRow(table, font, fontBold, whiteBorder, "Club/Organization:", organization, 3);
+        addTournamentInfoRow(table, font, fontBold, whiteBorder, "City/State/ZIP:", cityStateZip, 3);
         // place on the same line
-        addTournamentInfoRow(table, font, fontBold, whiteBorder, "Submitted by name", submittedByName, 1);
-        addTournamentInfoRow(table, font, fontBold, whiteBorder, "Phone", submittedByPhoneNumber, 1);
+        addTournamentInfoRow(table, font, fontBold, whiteBorder, "Submitted by (Name):", submittedByName, 1);
+        addTournamentInfoRow(table, font, fontBold, whiteBorder, "Phone:", submittedByPhoneNumber, 1);
 
-        addTournamentInfoRow(table, font, fontBold, whiteBorder, "City/State/Zip", submittedByCityStateZip, 3);
+        addTournamentInfoRow(table, font, fontBold, whiteBorder, "City/State/ZIP:", submittedByCityStateZip, 3);
 
         return table;
     }
@@ -419,35 +399,35 @@ public class TournamentReportService {
         MembershipTableData data = new MembershipTableData();
         data.membershipType = BASIC_PLAN;
         data.membershipTerm = "1 Year";
-        data.strMembershipType = "Basic Plan";
+        data.strMembershipType = "Basic";
         data.cost = 25;
         membershipTableData.add(data);
 
         data = new MembershipTableData();
         data.membershipType = PRO_PLAN;
         data.membershipTerm = "1 Year";
-        data.strMembershipType = "Pro Plan";
+        data.strMembershipType = "Pro";
         data.cost = 75;
         membershipTableData.add(data);
 
         data = new MembershipTableData();
         data.membershipType = TOURNAMENT_PASS_JUNIOR;
         data.membershipTerm = "";
-        data.strMembershipType = "Tournament Pass Junior (17 and under)";
+        data.strMembershipType = "Junior Tournament Pass";
         data.cost = 20;
         membershipTableData.add(data);
 
         data = new MembershipTableData();
         data.membershipType = TOURNAMENT_PASS_ADULT;
         data.membershipTerm = "";
-        data.strMembershipType = "Tournament Pass Adult";
+        data.strMembershipType = "Adult Tournament Pass";
         data.cost = 50;
         membershipTableData.add(data);
 
         data = new MembershipTableData();
         data.membershipType = LIFETIME;
         data.membershipTerm = "Life";
-        data.strMembershipType = "Lifetime";
+        data.strMembershipType = "Millennium Life";
         data.cost = 1300;
         membershipTableData.add(data);
 
@@ -521,7 +501,7 @@ public class TournamentReportService {
                     // add form revision
                     float x = pageSize.getRight() - document.getRightMargin();
                     float y = pageSize.getBottom() + document.getBottomMargin() + 10;
-                    String footerText = "Form T-109 (revised 02/21/2018)";
+                    String footerText = "Form T-109 (revised 11/11/2020)";
                     Paragraph footerPara = new Paragraph(footerText).setFont(font).setFontSize(10);
                     document.showTextAligned(footerPara, x, y, 1, TextAlignment.RIGHT, VerticalAlignment.TOP, 0);
                 }
