@@ -112,7 +112,7 @@ public class TournamentReportService {
             Paragraph remarksParagraph = new Paragraph(remarksText)
                     .setFont(font).setFontSize(FONT_SIZE).setBold()
                     .setBorder(new SolidBorder(INNER_TABLE_BORDER))
-                    .setPaddingLeft(10).setPaddingRight(10).setHeight(100f);
+                    .setPaddingLeft(10).setPaddingRight(10).setMarginTop(20).setHeight(100f);
             document.add(remarksParagraph);
 
             addFooterSection(document, font);
@@ -148,7 +148,7 @@ public class TournamentReportService {
 
         String[] finalNotes = {
                 "Send the following items along with this report to:",
-                "USA Table Tennis, 4065 Sinton Rd #120, Colorado Springs, CO 80907",
+                "USA Table Tennis, 4065 Sinton Road, Suite 120, Colorado Springs, CO 80907",
                 "1) White copy of all membership applications; 2) Player entry list; 3) Blank tournament entry form; 4) Waiver of liability forms",
                 "5) Check for membership and processing fees.",
                 "Please refer to \"Tournament Report Instructions\" for further instructions. Thank you."
@@ -348,7 +348,7 @@ public class TournamentReportService {
         String submittedByCityStateZip = tournament.getCity() + ", " + tournament.getState() + " " + tournament.getZipCode();
 
 
-        float[] columnWidths = new float[]{1, 2, 1, 1};
+        float[] columnWidths = new float[]{2, 3, 1, 1};
         SolidBorder whiteBorder = new SolidBorder(0);
         whiteBorder.setColor(WHITE);
         Table table = new Table(UnitValue.createPercentArray(columnWidths))
