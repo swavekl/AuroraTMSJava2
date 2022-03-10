@@ -1,5 +1,6 @@
 package com.auroratms.reports;
 
+import com.auroratms.profile.UserProfile;
 import com.auroratms.tournament.Tournament;
 import com.auroratms.tournament.TournamentService;
 import com.auroratms.tournamententry.MembershipType;
@@ -64,7 +65,16 @@ public class TournamentReportService {
 
     final String CURRENCY_FORMAT = "%s%,.2f";
 
-    public String generateReport(long tournamentId, String card4Digits, String remarks) {
+    /**
+     *
+     * @param tournamentId
+     * @param card4Digits
+     * @param remarks
+     * @param preparerUserProfile
+     * @param clubName
+     * @return
+     */
+    public String generateReport(long tournamentId, String card4Digits, String remarks, UserProfile preparerUserProfile, String clubName) {
         String reportFilename = null;
         try {
             // get tournament information
@@ -102,7 +112,7 @@ public class TournamentReportService {
                     .setMarginBottom(15).setMarginTop(5);
             document.add(paragraph);
 
-            Table tournamentTable = makeTournamentTable(tournament, font, fontBold);
+            Table tournamentTable = makeTournamentTable(tournament, preparerUserProfile, clubName, font, fontBold);
             document.add(tournamentTable);
 
             Table commissionedMembershipsTable = makeMembershipsTable(membershipTableData, totalDonations, font, fontBold, card4Digits);
@@ -331,21 +341,20 @@ public class TournamentReportService {
 
     /**
      * @param tournament
+     * @param preparerUserProfile
+     * @param organization
      * @param font
      * @param fontBold
      * @return
      */
-    private Table makeTournamentTable(Tournament tournament, PdfFont font, PdfFont fontBold) {
+    private Table makeTournamentTable(Tournament tournament, UserProfile preparerUserProfile, String organization, PdfFont font, PdfFont fontBold) {
         // prepare data
         String tournamentName = tournament.getName();
         String strTournamentDate = dateFormat.format(tournament.getStartDate());
-        // from sanction form ?
-        String organization = "Fox Valley Table Tennis Club";
         String cityStateZip = tournament.getCity() + ", " + tournament.getState() + " " + tournament.getZipCode();
-        // TODO - need to get current user
-        String submittedByName = tournament.getContactName();
-        String submittedByPhoneNumber = tournament.getPhone();
-        String submittedByCityStateZip = tournament.getCity() + ", " + tournament.getState() + " " + tournament.getZipCode();
+        String submittedByName = preparerUserProfile.getFirstName() + " " + preparerUserProfile.getLastName();
+        String submittedByPhoneNumber = preparerUserProfile.getMobilePhone();
+        String submittedByCityStateZip = preparerUserProfile.getCity() + ", " + preparerUserProfile.getState() + " " + preparerUserProfile.getZipCode();
 
 
         float[] columnWidths = new float[]{2, 3, 1, 1};
