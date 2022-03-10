@@ -124,9 +124,9 @@ public class MembershipReportService {
         String citizenship = countryCode.equals("US") ? "" : "FN";
         String representingCountry = countryCode.equals("US") ? "" : countryCode;
         int productId = getProductId(membershipType);
-        String yearCount = getYearCount(membershipType);
+        int yearCount = getYearCount(membershipType);
 
-        return String.format("%d,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%d,%s\n", membershipId,
+        return String.format("%d,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%d,%d\n", membershipId,
                 userProfile.getLastName(), userProfile.getFirstName(), formattedDOB, userProfile.getEmail(), gender,
                 userProfile.getStreetAddress(), userProfile.getCity(), userProfile.getState(), userProfile.getZipCode(), userProfile.getMobilePhone(),
                 citizenship, representingCountry, productId, yearCount);
@@ -164,23 +164,19 @@ public class MembershipReportService {
      * @param membershipType
      * @return
      */
-    private String getYearCount(MembershipType membershipType) {
-        String yearCount = "";
+    private int getYearCount(MembershipType membershipType) {
+        int yearCount = 0;
         switch(membershipType) {
             case TOURNAMENT_PASS_ADULT:
-                yearCount = "Adult Tournament Pass";
-                break;
             case TOURNAMENT_PASS_JUNIOR:
-                yearCount = "Junior Tournament Pass";
+                yearCount = 0;
                 break;
             case BASIC_PLAN:
-                yearCount = "Basic Membership";
-                break;
             case PRO_PLAN:
-                yearCount = "Pro Membership";
+                yearCount = 1;
                 break;
             case LIFETIME:
-                yearCount = "Lifetime Membership";
+                yearCount = 100;
                 break;
         }
         return yearCount;
