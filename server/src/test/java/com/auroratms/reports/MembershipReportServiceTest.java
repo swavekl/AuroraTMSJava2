@@ -17,7 +17,17 @@ public class MembershipReportServiceTest extends AbstractServiceTest {
 
     @Test
     public void testReportGeneration() {
-        String reportFilename = membershipReportService.generateReport(153);
+        String reportFilename = membershipReportService.generateMembershipReport(153);
+        File reportFile = new File(reportFilename);
+        assertTrue("report file not created",reportFile.exists());
+
+        long length = reportFile.length();
+        assertTrue("wrong length of report file", length > 100);
+    }
+
+    @Test
+    public void testApplicationsGeneration() {
+        String reportFilename = membershipReportService.generateMembershipApplications(153);
         File reportFile = new File(reportFilename);
         assertTrue("report file not created",reportFile.exists());
 
