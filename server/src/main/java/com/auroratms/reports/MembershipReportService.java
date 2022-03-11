@@ -1,9 +1,13 @@
 package com.auroratms.reports;
 
+import com.auroratms.club.ClubEntity;
+import com.auroratms.club.ClubService;
 import com.auroratms.profile.UserProfile;
 import com.auroratms.profile.UserProfileExt;
 import com.auroratms.profile.UserProfileExtService;
 import com.auroratms.profile.UserProfileService;
+import com.auroratms.tournament.Tournament;
+import com.auroratms.tournament.TournamentService;
 import com.auroratms.tournamententry.MembershipType;
 import com.auroratms.tournamententry.TournamentEntry;
 import com.auroratms.tournamententry.TournamentEntryService;
@@ -18,8 +22,6 @@ import com.itextpdf.kernel.pdf.PdfPage;
 import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.kernel.pdf.canvas.PdfCanvas;
 import com.itextpdf.layout.Document;
-import com.itextpdf.layout.element.AreaBreak;
-import com.itextpdf.layout.element.Image;
 import com.itextpdf.layout.element.Paragraph;
 import com.itextpdf.layout.property.TextAlignment;
 import lombok.extern.slf4j.Slf4j;
@@ -56,8 +58,17 @@ public class MembershipReportService {
     @Autowired
     private TournamentEntryService tournamentEntryService;
 
+    @Autowired
+    private TournamentService tournamentService;
+
+    @Autowired
+    private ClubService clubService;
+
     // 11/08/2003 - mm/dd/yyyy
     private DateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
+
+    // list of clubs that players are from
+    private List<ClubEntity> allMemberClubs;
 
     public String generateMembershipReport(long tournamentId) {
         String reportFilename = null;
@@ -111,6 +122,11 @@ public class MembershipReportService {
             // prepare data for report
             List<ReportData> reportDataList = prepareReportData(tournamentId);
 
+            // get tournament information
+            Tournament tournament = tournamentService.getByKey(tournamentId);
+            String contactName = tournament.getContactName();
+            String strTournamentDate = dateFormat.format(tournament.getStartDate());
+
             // create report file path
             String tempDir = System.getenv("TEMP");
             tempDir = (StringUtils.isEmpty(tempDir)) ? System.getenv("TMP") : tempDir;
@@ -144,7 +160,8 @@ public class MembershipReportService {
             PdfCanvas canvas = new PdfCanvas(page);
             for (ReportData reportData : reportDataList) {
                 int appOnPage = (count % 3) + 1;
-                renderApplication (reportData, canvas, document, pageSize, appOnPage, usattLogoFile);
+                renderMemberInformation (reportData, document, font, contactName, strTournamentDate);
+                renderFrame(canvas, document, pageSize, appOnPage, usattLogoFile);
 
                 count++;
                 if (count % 3 == 0) {
@@ -165,7 +182,100 @@ public class MembershipReportService {
         return reportFilename;
     }
 
-    private void renderApplication(ReportData reportData, PdfCanvas canvas, Document document, Rectangle pageSize, int appOnPage, File usattLogoFile) throws FileNotFoundException, MalformedURLException {
+    /**
+     * @param reportData
+     * @param document
+     * @param font
+     * @param contactName
+     * @param strTournamentDate
+     */
+    private void renderMemberInformation(ReportData reportData, Document document, PdfFont font, String contactName, String strTournamentDate) {
+        int fontSize = 14;
+        Paragraph headerParagraph = new Paragraph(
+                "Membership Application                                     USATT Copy")
+                .setFont(font).setFontSize(fontSize).setBold()
+                .setTextAlignment(TextAlignment.RIGHT).setPaddingRight(10)
+                .setMarginTop(15).setMarginBottom(20);
+        document.add(headerParagraph);
+
+        // ( ) New (X) Renewal Membership Number (if renewal) 224026
+        boolean isNew = false;
+        String strNew = (isNew) ? "X" : " ";
+        String strRenewal = (!isNew) ? "X" : " ";
+        String strMembershipId = isNew ? "" : Long.toString(reportData.userProfileExt.getMembershipId());
+        String line1 = String.format("New (%s)\tRenewal (%s)\t\t\t\t\t\t\t\t\t\tMembership Number (if renewal) %s",
+                strNew, strRenewal, strMembershipId);
+
+        // Date of Birth: Sex: (X) Male ( ) Female
+        String strDateOfBirth = (reportData.userProfile.getDateOfBirth() != null) ? dateFormat.format(reportData.userProfile.getDateOfBirth()) : "          ";
+        String strMale = (reportData.userProfile.getGender().equals("Male")) ? "X" : " ";
+        String strFemale = (reportData.userProfile.getGender().equals("Female")) ? "X" : " ";
+        String line2 = String.format("Date of Birth:\t\t%s\t\t\t\t\t\t\t\t\t\t\t\t\tSex: (%s) Male\t(%s) Female", strDateOfBirth, strMale, strFemale);
+
+        String line3 = String.format("Name:\t\t\t\t\t%s %s", reportData.userProfile.getFirstName(), reportData.userProfile.getLastName());
+        String line4 = String.format("Address:\t\t\t\t%s", reportData.userProfile.getStreetAddress());
+        String paddedCity = StringUtils.rightPad(reportData.userProfile.getCity(), 60);
+        String line5 = String.format("City:\t\t\t\t\t%sState: %s\tZip: %s", paddedCity, reportData.userProfile.getState(), reportData.userProfile.getZipCode());
+
+        String strExpirationDate = (reportData.userProfile.getMembershipExpirationDate() != null) ? dateFormat.format(reportData.userProfile.getMembershipExpirationDate()) : "          ";
+        String paddedPhone = StringUtils.rightPad(reportData.userProfile.getMobilePhone(), 60);
+        String line6 = String.format("Home phone:\t\t%sExpired: %s", paddedPhone, strExpirationDate);
+
+        String line7 = String.format("E-mail:\t\t\t\t%s", reportData.userProfile.getEmail());
+
+        String clubName = getClubName(reportData.userProfileExt.getClubFk());
+        String line8 = String.format("Affiliated Club:\t%s", clubName);
+
+        // Membership: Junior Tournament Pass
+        String strMembershipType = getMembershipName (reportData.membershipType);
+        String line9 = String.format("Membership:\t\t%s", strMembershipType);
+
+        // Sold By:
+        String paddedContactName = StringUtils.rightPad(contactName, 50);
+        String line10 = String.format("Sold By:\t\t\t\t%s\t\t\t\t\tDate: %s", paddedContactName, strTournamentDate);
+
+        String [] lines = { line1, line2, line3, line4, line5, line6, line7, line8, line9, line10};
+        for (int i = 0; i < lines.length; i++) {
+            String line = lines[i];
+            Paragraph paragraph = new Paragraph(line)
+                    .setFont(font).setFontSize(fontSize)
+                    .setPaddingLeft(10).setMarginBottom(0).setMarginTop(0);
+            if (i == lines.length - 1) {
+                paragraph.setMarginBottom(15);
+            }
+            document.add(paragraph);
+        }
+    }
+
+    /**
+     *
+     * @param clubFk
+     * @return
+     */
+    private String getClubName(Long clubFk) {
+        String clubName = "";
+        if (clubFk != null) {
+            for (ClubEntity clubEntity : allMemberClubs) {
+                if (clubEntity.getId() == clubFk) {
+                    clubName = clubEntity.getClubName();
+                    break;
+                }
+            }
+        }
+        return clubName;
+    }
+
+    /**
+     *
+     * @param canvas
+     * @param document
+     * @param pageSize
+     * @param appOnPage
+     * @param usattLogoFile
+     * @throws FileNotFoundException
+     * @throws MalformedURLException
+     */
+    private void renderFrame(PdfCanvas canvas, Document document, Rectangle pageSize, int appOnPage, File usattLogoFile) throws FileNotFoundException, MalformedURLException {
         // add border
         int spaceBetweenApps = 20;
         float width = pageSize.getWidth();
@@ -223,6 +333,8 @@ public class MembershipReportService {
         Map<String, UserProfileExt> profileIdToUserExtProfileMap = userProfileExtService.findByProfileIds(profileIds);
 
         List<ReportData> reportDataList = new ArrayList<>(userProfileList.size());
+
+        Set<Long> uniqueClubIds = new HashSet<>();
         for (UserProfile userProfile : userProfileList) {
             String playerProfileId = userProfile.getUserId();
             ReportData reportData = new ReportData();
@@ -230,7 +342,14 @@ public class MembershipReportService {
             reportData.membershipType = profileIdToPurchasedMembershipTypesMap.get(playerProfileId);
             reportData.userProfileExt = profileIdToUserExtProfileMap.get(playerProfileId);
             reportDataList.add(reportData);
+
+            if (reportData.userProfileExt.getClubFk() != null) {
+                uniqueClubIds.add(reportData.userProfileExt.getClubFk());
+            }
         }
+
+        List<Long> clubIds = new ArrayList<>(uniqueClubIds);
+        allMemberClubs = clubService.findAllByIdIn(clubIds);
         return reportDataList;
     }
 
@@ -318,4 +437,27 @@ public class MembershipReportService {
         }
         return yearCount;
     }
+
+    private String getMembershipName(MembershipType membershipType) {
+        String strMembershipType = "";
+        switch(membershipType) {
+            case TOURNAMENT_PASS_ADULT:
+                strMembershipType = "Adult Tournament Pass";
+                break;
+            case TOURNAMENT_PASS_JUNIOR:
+                strMembershipType = "Junior Tournament Pass";
+                break;
+            case BASIC_PLAN:
+                strMembershipType = "Basic Membership";
+                break;
+            case PRO_PLAN:
+                strMembershipType = "Pro Membership";
+                break;
+            case LIFETIME:
+                strMembershipType = "Lifetime Membership";
+                break;
+        }
+        return strMembershipType;
+    }
+
 }
