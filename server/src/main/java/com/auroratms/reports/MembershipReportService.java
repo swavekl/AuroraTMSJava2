@@ -24,6 +24,7 @@ import com.itextpdf.kernel.pdf.PdfPage;
 import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.kernel.pdf.canvas.PdfCanvas;
 import com.itextpdf.layout.Document;
+import com.itextpdf.layout.element.Image;
 import com.itextpdf.layout.element.Paragraph;
 import com.itextpdf.layout.property.TextAlignment;
 import lombok.extern.slf4j.Slf4j;
@@ -291,21 +292,20 @@ public class MembershipReportService {
         float frameHeight = totalAvailableHeight / 3;
         float frameLLX = document.getLeftMargin();
         float frameLLY = (document.getBottomMargin()) + ((3 - appOnPage) * frameHeight) + (spaceBetweenApps / 2);
-
-        canvas.rectangle(frameLLX, frameLLY, frameWidth, frameHeight - spaceBetweenApps);
+        Rectangle frameRectangle = new Rectangle(frameLLX, frameLLY, frameWidth, frameHeight - spaceBetweenApps);
+        canvas.rectangle(frameRectangle);
         canvas.stroke();
 
-        float imageX = document.getLeftMargin() + 10;
-        float imageY = height - document.getTopMargin() - document.getBottomMargin() - 20;
-        imageY = imageY + ((appOnPage - 1) * frameHeight);
-        System.out.println("appOnPage = " + appOnPage);
-        System.out.println("imageY = " + imageY);
-
         ImageData usattLogoData = ImageDataFactory.create(usattLogoFile.getAbsolutePath());
-//        Image usattLogo = new Image(usattLogoData);
-//        usattLogo.scaleToFit(73f, 32f);
+        float imageWidth = usattLogoData.getWidth() / 2;
+        float imageHeight = usattLogoData.getHeight() / 2;
+        float imageX = frameRectangle.getLeft() + 5;
+        float imageY = frameRectangle.getTop() - imageHeight - 5;
 
-//        canvas.addImageAt(usattLogoData, imageX, imageY, false);
+        Image usattLogoImage = new Image(usattLogoData);
+        usattLogoImage.scaleToFit(imageWidth, imageHeight);
+        usattLogoImage.setFixedPosition(imageX, imageY);
+        document.add(usattLogoImage);
     }
 
     /**
