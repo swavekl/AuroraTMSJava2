@@ -499,13 +499,17 @@ public class TournamentReportService {
                             height - document.getTopMargin() - document.getBottomMargin() - 50);
                     canvas.stroke();
 
+                    // add scaled USATT logo image to the top left corner
                     File usattLogoFile = ResourceUtils.getFile("classpath:images/usatt-logo-horizontal.jpg");
                     ImageData usattLogoData = ImageDataFactory.create(usattLogoFile.getAbsolutePath());
-                    Image usattLogo = new Image(usattLogoData);
-                    usattLogo.scaleToFit(73f, 32f);
+                    float imageWidth = usattLogoData.getWidth() / 2;
+                    float imageHeight = usattLogoData.getHeight() / 2;
                     float imageX = document.getLeftMargin() + 10;
                     float imageY = height - document.getTopMargin() - document.getBottomMargin() - 20;
-                    canvas.addImageAt(usattLogoData, imageX, imageY, true);
+                    Image usattLogo = new Image(usattLogoData);
+                    usattLogo.scaleToFit(imageWidth, imageHeight);
+                    usattLogo.setFixedPosition(imageX, imageY);
+                    document.add(usattLogo);
 
                     // add form revision
                     float x = pageSize.getRight() - document.getRightMargin();
@@ -519,6 +523,4 @@ public class TournamentReportService {
             log.error("Unable to add footer for page 1", e);
         }
     }
-
-
 }
