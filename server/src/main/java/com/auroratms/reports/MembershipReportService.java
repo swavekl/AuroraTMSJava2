@@ -11,6 +11,8 @@ import com.auroratms.tournament.TournamentService;
 import com.auroratms.tournamententry.MembershipType;
 import com.auroratms.tournamententry.TournamentEntry;
 import com.auroratms.tournamententry.TournamentEntryService;
+import com.auroratms.usatt.UsattDataService;
+import com.auroratms.usatt.UsattPlayerRecord;
 import com.itextpdf.io.font.constants.StandardFonts;
 import com.itextpdf.io.image.ImageData;
 import com.itextpdf.io.image.ImageDataFactory;
@@ -54,6 +56,9 @@ public class MembershipReportService {
 
     @Autowired
     private UserProfileExtService userProfileExtService;
+
+    @Autowired
+    private UsattDataService usattDataService;
 
     @Autowired
     private TournamentEntryService tournamentEntryService;
@@ -199,7 +204,8 @@ public class MembershipReportService {
         document.add(headerParagraph);
 
         // ( ) New (X) Renewal Membership Number (if renewal) 224026
-        boolean isNew = false;
+        Date membershipExpirationDate = reportData.usattPlayerRecord.getMembershipExpirationDate();
+        boolean isNew = UsattDataService.isNewMembership(membershipExpirationDate);
         String strNew = (isNew) ? "X" : " ";
         String strRenewal = (!isNew) ? "X" : " ";
         String strMembershipId = isNew ? "" : Long.toString(reportData.userProfileExt.getMembershipId());
@@ -217,7 +223,7 @@ public class MembershipReportService {
         String paddedCity = StringUtils.rightPad(reportData.userProfile.getCity(), 60);
         String line5 = String.format("City:\t\t\t\t\t%sState: %s\tZip: %s", paddedCity, reportData.userProfile.getState(), reportData.userProfile.getZipCode());
 
-        String strExpirationDate = (reportData.userProfile.getMembershipExpirationDate() != null) ? dateFormat.format(reportData.userProfile.getMembershipExpirationDate()) : "          ";
+        String strExpirationDate = (membershipExpirationDate != null && !isNew) ? dateFormat.format(membershipExpirationDate) : "          ";
         String paddedPhone = StringUtils.rightPad(reportData.userProfile.getMobilePhone(), 60);
         String line6 = String.format("Home phone:\t\t%sExpired: %s", paddedPhone, strExpirationDate);
 
@@ -332,6 +338,14 @@ public class MembershipReportService {
         // get profile id to membership id map
         Map<String, UserProfileExt> profileIdToUserExtProfileMap = userProfileExtService.findByProfileIds(profileIds);
 
+        List<Long> membershipIds = new ArrayList<>(userProfileList.size());
+        for (UserProfileExt userProfileExt : profileIdToUserExtProfileMap.values()) {
+            membershipIds.add(userProfileExt.getMembershipId());
+        }
+
+        // get expiration dates
+        List<UsattPlayerRecord> usattPlayerRecordList = usattDataService.findAllByMembershipIdIn(membershipIds);
+
         List<ReportData> reportDataList = new ArrayList<>(userProfileList.size());
 
         Set<Long> uniqueClubIds = new HashSet<>();
@@ -341,6 +355,14 @@ public class MembershipReportService {
             reportData.userProfile = userProfile;
             reportData.membershipType = profileIdToPurchasedMembershipTypesMap.get(playerProfileId);
             reportData.userProfileExt = profileIdToUserExtProfileMap.get(playerProfileId);
+            Long membershipId = reportData.userProfileExt.getMembershipId();
+            for (UsattPlayerRecord usattPlayerRecord : usattPlayerRecordList) {
+                if (membershipId.equals(usattPlayerRecord.getMembershipId())) {
+                    reportData.usattPlayerRecord = usattPlayerRecord;
+                    break;
+                }
+            }
+
             reportDataList.add(reportData);
 
             if (reportData.userProfileExt.getClubFk() != null) {
@@ -357,6 +379,7 @@ public class MembershipReportService {
         MembershipType membershipType;
         UserProfile userProfile;
         UserProfileExt userProfileExt;
+        UsattPlayerRecord usattPlayerRecord;
     }
 
     /**

@@ -64,10 +64,7 @@ public class UsattDataService {
         if (membershipId == null) {
             // create new player
             // set membership expiration date to a known value indicating newly created user by this application
-            Calendar calendar = Calendar.getInstance();
-            calendar.set(2000, Calendar.JANUARY, 1, 0, 0, 0);
-            calendar.set(Calendar.MILLISECOND, 0);
-            Date expired = calendar.getTime();
+            Date expired = getNewMembershipExpirationDate();
             // find the next membership id
             membershipId = this.playerRecordRepository.assignNext();
             usattPlayerRecord.setMembershipId(membershipId);
@@ -94,6 +91,27 @@ public class UsattDataService {
         userProfileExtService.save(userProfileExt);
 
         return recordToReturn;
+    }
+
+    /**
+     * Establish this date as the expiration date for new membership so we can tell it easily
+     * @return
+     */
+    private static Date getNewMembershipExpirationDate() {
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(2000, Calendar.JANUARY, 1, 0, 0, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
+        return calendar.getTime();
+    }
+
+    /**
+     *
+     * @param membershipExpirationDate
+     * @return
+     */
+    public static boolean isNewMembership(Date membershipExpirationDate) {
+        Date newMembershipExpirationDate = getNewMembershipExpirationDate();
+        return newMembershipExpirationDate.equals(membershipExpirationDate);
     }
 
     /**
