@@ -50,6 +50,9 @@
       <mat-list-item *ngIf="isLinkVisible('/sanction')" (click)="closeAndNavigateToRoute('/sanction/list')" routerLinkActive="active">
         <a matLine>Tournament Sanction</a>
       </mat-list-item>
+      <mat-list-item *ngIf="isLinkVisible('/processing')" (click)="closeAndNavigateToRoute('/processing')" routerLinkActive="active">
+        <a matLine>Tournament Processing</a>
+      </mat-list-item>
       <mat-list-item *ngIf="!(isAuthenticated$ | async)" (click)="closeAndNavigateToRoute('/login/signin')" routerLinkActive="active">
         <a matLine>Login</a>
       </mat-list-item>

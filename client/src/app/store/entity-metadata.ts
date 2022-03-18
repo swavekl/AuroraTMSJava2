@@ -70,7 +70,12 @@ const entityMetadata: EntityMetadataMap = {
       total: 0
     }
   },
-  TableUsage: {}
+  TableUsage: {},
+  TournamentProcessingRequest: {
+    additionalCollectionState: {
+      total: 0
+    }
+  }
 };
 
 // because the plural of "hero" is not "heros"

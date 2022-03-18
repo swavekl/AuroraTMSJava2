@@ -1,0 +1,38 @@
+<div class="mat-title" style="padding-left: 8px; width: 100%;">Tournament Processing</div>
+<mat-toolbar fxLayout="row" fxLayoutGap="10">
+  <form>
+<!--    <span class="toolbar-spacer-2"></span>-->
+    <mat-form-field>
+      <mat-label>Filter by Name</mat-label>
+      <input matInput name="filterTournamentName" type="text" [ngModel]="filterTournamentName" #filterTournamentNameCtrl="ngModel">
+    </mat-form-field>
+  </form>
+</mat-toolbar>
+<div class="table-container">
+  <mat-table matSort aria-label="Tournament Processing">
+    <ng-container matColumnDef="eventName">
+      <mat-header-cell *matHeaderCellDef>Event Name</mat-header-cell>
+      <mat-cell *matCellDef="let tournamentProcessingData" [routerLink]="['/processing/detail/', tournamentProcessingData.id]">{{ tournamentProcessingData.tournamentName }}</mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="eventStartDate">
+      <mat-header-cell *matHeaderCellDef>Event Start Date</mat-header-cell>
+      <mat-cell *matCellDef="let tournamentProcessingData" [routerLink]="['/processing/detail/', tournamentProcessingData.id]">{{ tournamentProcessingData.eventStartDate | date }}</mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="status">
+      <mat-header-cell *matHeaderCellDef>Status</mat-header-cell>
+      <mat-cell *matCellDef="let tournamentProcessingData" [routerLink]="['/processing/detail/', tournamentProcessingData.id]">{{ tournamentProcessingData.status }}</mat-cell>
+    </ng-container>
+
+    <mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></mat-header-row>
+    <mat-row *matRowDef="let row; columns: displayedColumns"></mat-row>
+  </mat-table>
+  <mat-paginator #paginator
+                 [length]="dataSource.totalTournamentProcessingData$ | async"
+                 [pageIndex]="0"
+                 [pageSize]="10"
+                 [pageSizeOptions]="[5, 10, 20]"
+                 aria-label="Select page">
+  </mat-paginator>
+</div>

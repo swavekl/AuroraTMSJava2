@@ -3,6 +3,7 @@ import {RouterModule, Routes} from '@angular/router';
 import {HomeComponent} from './home/home/home.component';
 import {LogoutComponent} from './user/logout/logout.component';
 import {UserRoles} from './user/user-roles.enum';
+import {TournamentProcessingModule} from './tournament-processing/tournament-processing.module';
 
 
 const routes: Routes = [
@@ -102,6 +103,13 @@ const routes: Routes = [
   { path: 'prizes', loadChildren: () => import('./prizes/prizes.module').then(m => m.PrizesModule),
     data: {
       roles: [UserRoles.ROLE_TOURNAMENT_DIRECTORS, UserRoles.ROLE_ADMINS]
+    }
+  },
+  {
+    path: 'processing',
+    loadChildren: () => import('./tournament-processing/tournament-processing.module').then(m => m.TournamentProcessingModule),
+    data: {
+      roles: [UserRoles.ROLE_USATT_TOURNAMENT_MANAGERS, UserRoles.ROLE_ADMINS]
     }
   }
 ];
