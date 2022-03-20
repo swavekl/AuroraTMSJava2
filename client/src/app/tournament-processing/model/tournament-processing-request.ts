@@ -17,4 +17,10 @@ export class TournamentProcessingRequest {
 
   // list of details with each report, in case reports are resubmitted
   details: TournamentProcessingRequestDetail[] = [];
+
+  // remarks to be placed on the tournament report
+  remarks: string;
+
+  // last 4 digits of a credit card to be placed on tournament report
+  ccLast4Digits: string;
 }

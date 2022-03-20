@@ -30,6 +30,14 @@ public class TournamentProcessingRequest {
     @JsonManagedReference
     private List<TournamentProcessingRequestDetail> details;
 
+    // remarks to be placed on the tournament report
+    @Transient
+    private String remarks;
+
+    // last 4 digits of a credit card to be placed on tournament report
+    @Transient
+    private String ccLast4Digits;
+
     public Long getId() {
         return id;
     }
@@ -68,5 +76,21 @@ public class TournamentProcessingRequest {
 
     public void setDetails(List<TournamentProcessingRequestDetail> details) {
         this.details = details;
+    }
+
+    public String getRemarks() {
+        return remarks;
+    }
+
+    public void setRemarks(String remarks) {
+        this.remarks = remarks;
+    }
+
+    public String getCcLast4Digits() {
+        return ccLast4Digits;
+    }
+
+    public void setCcLast4Digits(String ccLast4Digits) {
+        this.ccLast4Digits = ccLast4Digits;
     }
 }

@@ -31,6 +31,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ResourceUtils;
 
 import java.io.File;
@@ -46,6 +47,7 @@ import static com.auroratms.tournamententry.MembershipType.*;
 
 @Service
 @Slf4j
+@Transactional
 public class TournamentReportService {
 
     @Autowired
@@ -118,7 +120,7 @@ public class TournamentReportService {
             Table commissionedMembershipsTable = makeMembershipsTable(membershipTableData, totalDonations, font, fontBold, card4Digits);
             document.add(commissionedMembershipsTable);
 
-            String remarksText = "Remarks: " + remarks;
+            String remarksText = "Remarks: " + ((remarks != null) ? remarks : "") ;
             Paragraph remarksParagraph = new Paragraph(remarksText)
                     .setFont(font).setFontSize(FONT_SIZE).setBold()
                     .setBorder(new SolidBorder(INNER_TABLE_BORDER))
@@ -276,13 +278,11 @@ public class TournamentReportService {
         makeTotalsRow(fontBold, table, whiteBorder, "Total Amount", strGrandTotalDue, 5);
 
         // make footer row with credit card information if used to pay for tournament report
-        if (card4Digits != null) {
-            String ccInfo = "PLEASE PROVIDE LAST FOUR DIGITS OF CARD ON FILE: " + card4Digits;
-            Cell footerCell = new Cell(1, 6).add(new Paragraph(ccInfo)
-                    .setFont(font).setFontSize(FONT_SIZE).setBold()
-                    .setTextAlignment(TextAlignment.CENTER)).setBorder(whiteBorder);
-            table.addFooterCell(footerCell);
-        }
+        String ccInfo = "PLEASE PROVIDE LAST FOUR DIGITS OF CARD ON FILE: " + (card4Digits != null ? card4Digits : "");
+        Cell footerCell = new Cell(1, 6).add(new Paragraph(ccInfo)
+                .setFont(font).setFontSize(FONT_SIZE).setBold()
+                .setTextAlignment(TextAlignment.CENTER)).setBorder(whiteBorder);
+        table.addFooterCell(footerCell);
 
         return table;
     }

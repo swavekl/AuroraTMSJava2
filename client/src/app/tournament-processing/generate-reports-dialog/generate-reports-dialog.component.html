@@ -1,0 +1,23 @@
+<div mat-dialog-title>Generate Reports</div>
+<mat-dialog-content>
+  <form name="form" #f="ngForm" novalidate fxLayout="column" fxLayoutAlign="start start">
+    <mat-form-field fxFlexFill>
+      <mat-label>Tournament Report Remarks</mat-label>
+      <textarea matInput type="text" placeholder="Remarks"
+                name="remarks" [(ngModel)]="remarks" rows="6">
+        </textarea>
+    </mat-form-field>
+    <mat-form-field fxFlexFill>
+      <mat-label>Last 4 Digits of Credit Card on File</mat-label>
+      <input matInput type="text" name="ccLast4Digits" placeholder="1234"
+             [(ngModel)]="ccLast4Digits" maxlength="4" pattern="\d{0,4}">
+      <mat-error *ngIf="f.form.controls['ccLast4Digits']?.errors?.pattern">Invalid cc number</mat-error>    </mat-form-field>
+  </form>
+</mat-dialog-content>
+<mat-dialog-actions>
+  <div fxLayout="row" fxLayoutAlign="space-between start" style="width: 100%;">
+    <button mat-button cdkFocusInitial type="button" (click)="onCancel()">Cancel</button>
+    <div fxFlex="1"></div>
+    <button mat-raised-button color="primary" [disabled]="!f.valid" (click)="onOk(f.value)">OK</button>
+  </div>
+</mat-dialog-actions>

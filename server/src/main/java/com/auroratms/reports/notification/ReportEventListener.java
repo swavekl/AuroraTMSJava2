@@ -1,20 +1,27 @@
-package com.auroratms.reports;
+package com.auroratms.reports.notification;
 
 import com.auroratms.club.ClubEntity;
 import com.auroratms.club.ClubService;
+import com.auroratms.notification.SystemPrincipalExecutor;
 import com.auroratms.profile.UserProfile;
 import com.auroratms.profile.UserProfileExt;
 import com.auroratms.profile.UserProfileExtService;
 import com.auroratms.profile.UserProfileService;
+import com.auroratms.reports.*;
+import com.auroratms.reports.notification.event.TournamentReportsGenerateEvent;
 import com.auroratms.tournamentprocessing.TournamentProcessingRequest;
 import com.auroratms.tournamentprocessing.TournamentProcessingRequestDetail;
-import com.auroratms.users.UserRolesHelper;
+import com.auroratms.tournamentprocessing.TournamentProcessingRequestService;
 import com.auroratms.utils.filerepo.FileRepositoryException;
 import com.auroratms.utils.filerepo.FileRepositoryFactory;
 import com.auroratms.utils.filerepo.IFileRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.event.TransactionPhase;
+import org.springframework.transaction.event.TransactionalEventListener;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -27,11 +34,15 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Service for generating all reports
+ * Listener for requests to generate reports
  */
-@Service
+@Component
 @Slf4j
-public class TournamentProcessingReportService {
+@Transactional  // place @Transactional here to avoid Lazy loading exception
+public class ReportEventListener {
+
+    @Autowired
+    private TournamentProcessingRequestService tournamentProcessingRequestService;
 
     @Autowired
     private MembershipReportService membershipReportService;
@@ -57,9 +68,50 @@ public class TournamentProcessingReportService {
     @Autowired
     private ClubService clubService;
 
-    public void generateReports(TournamentProcessingRequest tournamentProcessingRequest) throws ReportGenerationException {
-        String currentUserName = UserRolesHelper.getCurrentUsername();
+    @Async
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    public void handleEvent(TournamentReportsGenerateEvent event) {
+        log.info("Generating reports for request id " + event.getTournamentProcessingRequestId());
+        // run this task as system principal so we have access to various services
+        SystemPrincipalExecutor task = new SystemPrincipalExecutor() {
+            @Override
+            @Transactional
+            protected void taskBody() {
+                handleEventInternal(event);
+            }
+        };
+        task.execute();
+    }
 
+    /**
+     *  @param event
+     *
+     */
+    private void handleEventInternal(TournamentReportsGenerateEvent event) {
+        try {
+            log.info("Starting reports generation for user " + event.getCurrentUserName());
+            long start = System.currentTimeMillis();
+            TournamentProcessingRequest tournamentProcessingRequest =
+                    tournamentProcessingRequestService.findById(event.getTournamentProcessingRequestId());
+            generateReports(tournamentProcessingRequest, event.getCurrentUserName());
+
+            // save request with paths to reports
+            tournamentProcessingRequestService.save(tournamentProcessingRequest);
+
+            long duration = System.currentTimeMillis() - start;
+            log.info("Reports generation completed in " + duration + " ms");
+        } catch (ReportGenerationException e) {
+            log.error("Error generating request", e);
+        }
+    }
+
+    /**
+     *
+     * @param tournamentProcessingRequest
+     * @param currentUserName
+     * @throws ReportGenerationException
+     */
+    private void generateReports(TournamentProcessingRequest tournamentProcessingRequest, String currentUserName) throws ReportGenerationException {
         String profileByLoginId = userProfileService.getProfileByLoginId(currentUserName);
         UserProfile preparerUserProfile = userProfileService.getProfile(profileByLoginId);
 
@@ -75,9 +127,11 @@ public class TournamentProcessingReportService {
         String applicationsReportPath  = this.membershipReportService.generateMembershipApplications(tournamentId);
         String playerListReportPath = this.playerListReportService.generateReport(tournamentId);
         String resultsReportPath = this.resultsReportService.generateReport(tournamentId);
-        String remarks = "my remarks";
-        String card4Digits = "1234";
-        String tournamentReportPath = this.tournamentReportService.generateReport(tournamentProcessingRequest.getTournamentId(), card4Digits, remarks, preparerUserProfile, clubName);
+        String tournamentReportPath = this.tournamentReportService.generateReport(
+                tournamentProcessingRequest.getTournamentId(),
+                tournamentProcessingRequest.getCcLast4Digits(),
+                tournamentProcessingRequest.getRemarks(),
+                preparerUserProfile, clubName);
 
         // save them to repository
         Date createdOn = new Date();
@@ -89,7 +143,7 @@ public class TournamentProcessingReportService {
         // find the detail that needs filling and save repository URLs in it
         List<TournamentProcessingRequestDetail> details = tournamentProcessingRequest.getDetails();
         for (TournamentProcessingRequestDetail detail : details) {
-            if (detail.getId() == null) {
+            if (detail.getCreatedOn() == null) {
                 detail.setCreatedOn(createdOn);
                 detail.setPathMembershipList(fileToRepoURLMap.get(membershipReportPath));
                 detail.setPathApplications(fileToRepoURLMap.get(applicationsReportPath));

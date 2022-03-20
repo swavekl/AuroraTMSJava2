@@ -2,9 +2,11 @@ package com.auroratms.tournamentprocessing;
 
 import com.auroratms.error.ResourceNotFoundException;
 import com.auroratms.reports.*;
+import com.auroratms.reports.notification.ReportEventPublisher;
 import com.auroratms.users.UserRoles;
 import com.auroratms.users.UserRolesHelper;
 import com.auroratms.utils.SecurityService;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheConfig;
@@ -24,6 +26,7 @@ import java.util.List;
 @CacheConfig(cacheNames = {"tournamentprocessingrequest"})
 @Transactional
 @PreAuthorize("hasAuthority('TournamentDirectors') or hasAuthority('Admins') or hasAuthority('USATTTournamentManagers')")
+@Slf4j
 public class TournamentProcessingRequestService {
 
     @Autowired
@@ -32,11 +35,8 @@ public class TournamentProcessingRequestService {
     @Autowired
     private SecurityService securityService;
 
-//    @Autowired
-//    TournamentProcessingDataEventPublisher eventPublisher;
-
     @Autowired
-    private TournamentProcessingReportService tournamentProcessingReportService;
+    private ReportEventPublisher eventPublisher;
 
     private static final Class ACL_MANAGED_OBJECT_CLASS = TournamentProcessingRequest.class;
 
@@ -73,58 +73,40 @@ public class TournamentProcessingRequestService {
     @CachePut(key = "#result.id")
     public TournamentProcessingRequest save(TournamentProcessingRequest tournamentProcessingRequest) throws ReportGenerationException {
         boolean isCreating = (tournamentProcessingRequest.getId() == null);
-        TournamentProcessingRequestStatus oldStatus = null;
-        if (!isCreating) {
-            TournamentProcessingRequest oldEntity = this.findById(tournamentProcessingRequest.getId());
-            oldStatus = oldEntity.getStatus();
-        } else {
-            oldStatus = TournamentProcessingRequestStatus.New;
-        }
-
-        // generate reports if needed
-        tournamentProcessingRequest = generateReports (tournamentProcessingRequest);
-
-        TournamentProcessingRequest savedTournamentProcessingRequest = this.repository.save(tournamentProcessingRequest);
+        TournamentProcessingRequest savedTPR = this.repository.save(tournamentProcessingRequest);
         if (isCreating) {
-            provideAccessToAdmin(savedTournamentProcessingRequest.getId());
-            provideAccessToUSATTOfficials(savedTournamentProcessingRequest.getId());
+            provideAccessToAdmin(savedTPR.getId());
+            provideAccessToUSATTOfficials(savedTPR.getId());
         }
 
-        // send email about payment completed, approval/rejection etc. if status changed
-        // create/update club information in club table.
-//        eventPublisher.publishEvent(savedTournamentProcessingData, oldStatus);
-
-        return savedTournamentProcessingRequest;
+        if (needsToGenerateReports(savedTPR)) {
+            // generate reports asynchronously since it takes time and we need to return quickly
+            eventPublisher.publishEvent(savedTPR);
+        } else if (needsToSendEmail(savedTPR)) {
+            // TODO: send email
+        }
+        return savedTPR;
     }
 
-    private TournamentProcessingRequest generateReports(TournamentProcessingRequest tournamentProcessingRequest) throws ReportGenerationException {
-        if (needsToGenerateReports(tournamentProcessingRequest)) {
-            this.tournamentProcessingReportService.generateReports(tournamentProcessingRequest);
-        }
-        return tournamentProcessingRequest;
+    private boolean needsToSendEmail(TournamentProcessingRequest saved) {
+        return false;
     }
 
     /**
-     *
      * @param tournamentProcessingRequest
      * @return
      */
     private boolean needsToGenerateReports(TournamentProcessingRequest tournamentProcessingRequest) {
         boolean createReports = false;
-        if (tournamentProcessingRequest.getId() == null) {
-            createReports = true;
-        } else {
-            List<TournamentProcessingRequestDetail> details = tournamentProcessingRequest.getDetails();
-            for (TournamentProcessingRequestDetail detail : details) {
-                if (detail.getId() == null) {
-                    createReports = true;
-                    break;
-                }
+        List<TournamentProcessingRequestDetail> details = tournamentProcessingRequest.getDetails();
+        for (TournamentProcessingRequestDetail detail : details) {
+            if (detail.getCreatedOn() == null) {
+                createReports = true;
+                break;
             }
         }
         return createReports;
     }
-
 
     /**
      * Grand all permissions to Admin role

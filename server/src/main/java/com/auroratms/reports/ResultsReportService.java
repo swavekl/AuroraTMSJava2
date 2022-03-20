@@ -14,6 +14,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -31,6 +32,7 @@ import java.util.*;
  */
 @Service
 @Slf4j
+@Transactional
 public class ResultsReportService {
 
     @Autowired

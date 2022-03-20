@@ -1,35 +1,43 @@
-<div class="mat-title" style="padding-left: 8px; width: 100%;">Tournament Publishing</div>
+<div class="mat-title" style="padding-left: 8px; width: 100%;">Tournament Publishing: {{ tournamentProcessingRequest?.tournamentName }}</div>
 <mat-toolbar fxLayout="row" fxLayoutGap="10">
-  <button type="button" mat-raised-button (click)="generateAllReports()">
-    <mat-icon matListIcon>note_add</mat-icon>Generate Reports
+  <button type="button" mat-raised-button (click)="generateAllReports()" [disabled]="generatingReports">
+    <mat-icon matListIcon>note_add</mat-icon>
+    Generate Reports
   </button>
 </mat-toolbar>
 <div *ngIf="tournamentProcessingRequest != null">
-  <div class="mat-subtitle">Tournament: {{tournamentProcessingRequest.tournamentName}}&nbsp;&nbsp;&nbsp;Status: {{tournamentProcessingRequest.status}}</div>
-  <ng-container *ngIf="tournamentProcessingRequest.details != null && tournamentProcessingRequest.details.length > 0"></ng-container>
+  <div class="mat-subtitle">
+    Status: {{tournamentProcessingRequest.status}}</div>
+  <ng-container
+    *ngIf="tournamentProcessingRequest.details != null && tournamentProcessingRequest.details.length > 0"></ng-container>
   <mat-card class="detail" *ngFor="let detail of tournamentProcessingRequest.details">
-    <mat-card-subtitle>Generated On: {{detail.createdOn | date: 'MMM-dd-yyyy hh:mm aaa' }}</mat-card-subtitle>
+    <mat-card-subtitle *ngIf="detail.createdOn != null">Generated on: {{detail.createdOn | date: 'MMM-dd-yyyy hh:mm:ss aaa' }}</mat-card-subtitle>
+    <mat-card-subtitle *ngIf="detail.createdOn == null">Generating...</mat-card-subtitle>
     <mat-card-content>
       <table>
         <tr>
           <td>Tournament Report</td>
-          <td><a [href]="detail.pathTournamentReport">Download</a></td>
+          <td>
+            <a *ngIf="detail.pathTournamentReport" [href]="detail.pathTournamentReport">Download</a>
+          </td>
         </tr>
         <tr>
           <td>USATT Applications</td>
-          <td><a [href]="detail.pathApplications">Download</a></td>
+          <td>
+            <a *ngIf="detail.pathApplications" [href]="detail.pathApplications">Download</a>
+          </td>
         </tr>
         <tr>
           <td>Player List</td>
-          <td><a [href]="detail.pathPlayerList">Download</a></td>
+          <td><a *ngIf="detail.pathPlayerList" [href]="detail.pathPlayerList">Download</a></td>
         </tr>
         <tr>
           <td>Match Results Report</td>
-          <td><a [href]="detail.pathMatchResults">Download</a></td>
+          <td><a *ngIf="detail.pathMatchResults" [href]="detail.pathMatchResults">Download</a></td>
         </tr>
         <tr>
           <td>Membership Report</td>
-          <td><a [href]="detail.pathMembershipList">Download</a></td>
+          <td><a *ngIf="detail.pathMembershipList" [href]="detail.pathMembershipList">Download</a></td>
         </tr>
       </table>
     </mat-card-content>
