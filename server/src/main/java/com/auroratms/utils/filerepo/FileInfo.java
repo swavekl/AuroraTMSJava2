@@ -9,4 +9,16 @@ public class FileInfo {
     long fileSize;
 
     FileInputStream fileInputStream;
+
+    public String getFilename() {
+        return filename;
+    }
+
+    public long getFileSize() {
+        return fileSize;
+    }
+
+    public FileInputStream getFileInputStream() {
+        return fileInputStream;
+    }
 }

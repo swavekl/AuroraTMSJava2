@@ -1,6 +1,7 @@
 package com.auroratms.reports.notification;
 
-import com.auroratms.reports.notification.event.TournamentReportsGenerateEvent;
+import com.auroratms.reports.notification.event.EventType;
+import com.auroratms.reports.notification.event.TournamentReportsProcessingEvent;
 import com.auroratms.tournamentprocessing.TournamentProcessingRequest;
 import com.auroratms.users.UserRolesHelper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,9 +18,15 @@ public class ReportEventPublisher {
     @Autowired
     private ApplicationEventPublisher applicationEventPublisher;
 
-    public void publishEvent(TournamentProcessingRequest request) {
+    public void publishGenerateReportsEvent(TournamentProcessingRequest request) {
         String currentUserName = UserRolesHelper.getCurrentUsername();
-        TournamentReportsGenerateEvent event = new TournamentReportsGenerateEvent(request.getId(), currentUserName);
+        TournamentReportsProcessingEvent event = new TournamentReportsProcessingEvent(request.getId(), currentUserName, EventType.GenerateReports);
+        this.applicationEventPublisher.publishEvent(event);
+    }
+
+    public void publishSubmitReportsEvent(TournamentProcessingRequest request) {
+        String currentUserName = UserRolesHelper.getCurrentUsername();
+        TournamentReportsProcessingEvent event = new TournamentReportsProcessingEvent(request.getId(), currentUserName, EventType.Submit);
         this.applicationEventPublisher.publishEvent(event);
     }
 }

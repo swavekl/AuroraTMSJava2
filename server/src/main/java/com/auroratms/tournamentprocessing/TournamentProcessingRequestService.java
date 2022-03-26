@@ -1,8 +1,7 @@
 package com.auroratms.tournamentprocessing;
 
 import com.auroratms.error.ResourceNotFoundException;
-import com.auroratms.reports.*;
-import com.auroratms.reports.notification.ReportEventPublisher;
+import com.auroratms.reports.ReportGenerationException;
 import com.auroratms.users.UserRoles;
 import com.auroratms.users.UserRolesHelper;
 import com.auroratms.utils.SecurityService;
@@ -20,8 +19,6 @@ import org.springframework.security.acls.domain.GrantedAuthoritySid;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-
 @Service
 @CacheConfig(cacheNames = {"tournamentprocessingrequest"})
 @Transactional
@@ -34,9 +31,6 @@ public class TournamentProcessingRequestService {
 
     @Autowired
     private SecurityService securityService;
-
-    @Autowired
-    private ReportEventPublisher eventPublisher;
 
     private static final Class ACL_MANAGED_OBJECT_CLASS = TournamentProcessingRequest.class;
 
@@ -78,34 +72,7 @@ public class TournamentProcessingRequestService {
             provideAccessToAdmin(savedTPR.getId());
             provideAccessToUSATTOfficials(savedTPR.getId());
         }
-
-        if (needsToGenerateReports(savedTPR)) {
-            // generate reports asynchronously since it takes time and we need to return quickly
-            eventPublisher.publishEvent(savedTPR);
-        } else if (needsToSendEmail(savedTPR)) {
-            // TODO: send email
-        }
         return savedTPR;
-    }
-
-    private boolean needsToSendEmail(TournamentProcessingRequest saved) {
-        return false;
-    }
-
-    /**
-     * @param tournamentProcessingRequest
-     * @return
-     */
-    private boolean needsToGenerateReports(TournamentProcessingRequest tournamentProcessingRequest) {
-        boolean createReports = false;
-        List<TournamentProcessingRequestDetail> details = tournamentProcessingRequest.getDetails();
-        for (TournamentProcessingRequestDetail detail : details) {
-            if (detail.getCreatedOn() == null) {
-                createReports = true;
-                break;
-            }
-        }
-        return createReports;
     }
 
     /**

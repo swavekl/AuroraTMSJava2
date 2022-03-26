@@ -1,3 +1,5 @@
+import {TournamentProcessingRequestStatus} from './tournament-processing-request-status';
+
 /**
  * Each time tournament director generates and submits reports this will be created
  * If report needs to be updated and resubmitted we create another detail like this.
@@ -9,6 +11,9 @@ export class TournamentProcessingRequestDetail {
 
   // date of creation
   createdOn: Date;
+
+  // status of this processing request
+  status: TournamentProcessingRequestStatus = TournamentProcessingRequestStatus.New;
 
   // paths in repository where reports are stored
   pathTournamentReport: string;

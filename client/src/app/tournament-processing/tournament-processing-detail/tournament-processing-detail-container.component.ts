@@ -10,9 +10,10 @@ import {LinearProgressBarService} from '../../shared/linear-progress-bar/linear-
 @Component({
   selector: 'app-tournament-processing-detail-container',
   template: `
-    <app-tournament-processing-detail [tournamentProcessingRequest]="tournamentProcessingData$ | async"
+    <app-tournament-processing-detail [tournamentProcessingRequest]="tournamentProcessingRequest$ | async"
                                       [generatingReports]="reportsGenerating$ | async"
-                                      (generateReports)="onGenerateReports($event)">
+                                      (generateReports)="onGenerateReports($event)"
+                                      (submitReports)="onSubmitReports($event)">
     </app-tournament-processing-detail>
   `,
   styles: []
@@ -23,7 +24,7 @@ export class TournamentProcessingDetailContainerComponent implements OnInit, OnD
   private tournamentId: number;
   private tournamentName: string;
 
-  public tournamentProcessingData$: Observable<TournamentProcessingRequest>;
+  public tournamentProcessingRequest$: Observable<TournamentProcessingRequest>;
 
   // loading request data and its supporting detail
   private loading$: Observable<boolean>;
@@ -79,8 +80,8 @@ export class TournamentProcessingDetailContainerComponent implements OnInit, OnD
       (entityMap) => {
         return entityMap[this.id];
       });
-    this.tournamentProcessingData$ = this.tournamentProcessingService.store.select(selector);
-    const subscription = this.tournamentProcessingData$
+    this.tournamentProcessingRequest$ = this.tournamentProcessingService.store.select(selector);
+    const subscription = this.tournamentProcessingRequest$
       .subscribe(
         (tournamentProcessingData: TournamentProcessingRequest) => {
           if (!tournamentProcessingData) {
@@ -103,13 +104,13 @@ export class TournamentProcessingDetailContainerComponent implements OnInit, OnD
                     return of(tournamentProcessingDataToEdit);
                   })
                 ).subscribe((value: TournamentProcessingRequest) => {
-                this.tournamentProcessingData$ = of(value);
+                this.tournamentProcessingRequest$ = of(value);
               });
             }
           } else {
             // clone it so that Angular template driven form can modify the values
             const tournamentProcessingDataToEdit: TournamentProcessingRequest = JSON.parse(JSON.stringify(tournamentProcessingData));
-            this.tournamentProcessingData$ = of(tournamentProcessingDataToEdit);
+            this.tournamentProcessingRequest$ = of(tournamentProcessingDataToEdit);
           }
         },
         (error: any) => {
@@ -164,5 +165,13 @@ export class TournamentProcessingDetailContainerComponent implements OnInit, OnD
       }
     }
     return ready;
+  }
+
+  onSubmitReports(tournamentProcessingRequest: TournamentProcessingRequest) {
+    this.tournamentProcessingService.upsert(tournamentProcessingRequest)
+      .pipe(first())
+      .subscribe((saved: TournamentProcessingRequest) => {
+        this.waitForReportsCompletion(saved.id);
+      });
   }
 }

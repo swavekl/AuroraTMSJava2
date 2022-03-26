@@ -4,6 +4,7 @@ import {TournamentProcessingRequestDetail} from '../model/tournament-processing-
 import {MatDialog} from '@angular/material/dialog';
 import {GenerateReportsDialogComponent} from '../generate-reports-dialog/generate-reports-dialog.component';
 import {DateUtils} from '../../shared/date-utils';
+import {TournamentProcessingRequestStatus} from '../model/tournament-processing-request-status';
 
 @Component({
   selector: 'app-tournament-processing-detail',
@@ -20,6 +21,9 @@ export class TournamentProcessingDetailComponent implements OnInit, OnChanges {
 
   @Output('generateReports')
   public generateReportsEventEmitter: EventEmitter<any> = new EventEmitter<any>();
+
+  @Output('submitReports')
+  public submitReportsEventEmitter: EventEmitter<any> = new EventEmitter<any>();
 
   constructor(private dialog: MatDialog) { }
 
@@ -66,12 +70,31 @@ export class TournamentProcessingDetailComponent implements OnInit, OnChanges {
         this.generateReportsEventEmitter.emit(request);
       }
     });
-
-
   }
 
-  onSubmitRequest() {
-
+  onSubmitRequest(detailId: number) {
+    const request = JSON.parse(JSON.stringify(this.tournamentProcessingRequest));
+    const details = request.details || [];
+    for (let i = 0; i < details.length; i++) {
+      const detail = details[i];
+      if (detail.id === detailId) {
+        detail.status = TournamentProcessingRequestStatus.Submitting;
+        this.submitReportsEventEmitter.emit(request);
+        break;
+      }
+    }
   }
 
+  onPay(detailId: number) {
+    const request = JSON.parse(JSON.stringify(this.tournamentProcessingRequest));
+    const details = request.details || [];
+    for (let i = 0; i < details.length; i++) {
+      const detail = details[i];
+      if (detail.id === detailId) {
+        detail.status = TournamentProcessingRequestStatus.Paid;
+        this.submitReportsEventEmitter.emit(request);
+        break;
+      }
+    }
+  }
 }

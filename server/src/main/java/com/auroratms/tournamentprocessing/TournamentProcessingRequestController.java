@@ -1,5 +1,6 @@
 package com.auroratms.tournamentprocessing;
 
+import com.auroratms.reports.notification.ReportEventPublisher;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +27,9 @@ public class TournamentProcessingRequestController {
     @Autowired
     private TournamentProcessingRequestService service;
 
+    @Autowired
+    private ReportEventPublisher eventPublisher;
+
     /**
      * Creates or updates tournament processing data
      * @param tournamentProcessingRequest
@@ -37,6 +41,14 @@ public class TournamentProcessingRequestController {
         try {
             boolean creating = (tournamentProcessingRequest.getId() == null);
             TournamentProcessingRequest savedTournamentProcessingRequest = service.save(tournamentProcessingRequest);
+
+            if (needsToGenerateReports(savedTournamentProcessingRequest)) {
+                // generate reports asynchronously since it takes time and we need to return quickly
+                eventPublisher.publishGenerateReportsEvent(savedTournamentProcessingRequest);
+            } else if (needsToSendEmail(savedTournamentProcessingRequest)) {
+                eventPublisher.publishSubmitReportsEvent(savedTournamentProcessingRequest);
+            }
+
             URI uri = new URI("/api/tournamentprocessingrequest/" + savedTournamentProcessingRequest.getId());
             return (creating)
                     ? ResponseEntity.created(uri).body(savedTournamentProcessingRequest)
@@ -45,6 +57,33 @@ public class TournamentProcessingRequestController {
             log.error(e.getMessage());
             return ResponseEntity.badRequest().build();
         }
+    }
+
+    private boolean needsToSendEmail(TournamentProcessingRequest tournamentProcessingRequest) {
+        List<TournamentProcessingRequestDetail> details = tournamentProcessingRequest.getDetails();
+        for (TournamentProcessingRequestDetail detail : details) {
+            if (detail.getStatus() == TournamentProcessingRequestStatus.Submitting) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * @param tournamentProcessingRequest
+     * @return
+     */
+    private boolean needsToGenerateReports(TournamentProcessingRequest tournamentProcessingRequest) {
+        boolean createReports = false;
+        List<TournamentProcessingRequestDetail> details = tournamentProcessingRequest.getDetails();
+        for (TournamentProcessingRequestDetail detail : details) {
+            if (detail.getCreatedOn() == null) {
+                createReports = true;
+                break;
+            }
+        }
+        return createReports;
     }
 
     /**

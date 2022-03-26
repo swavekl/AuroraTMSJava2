@@ -12,9 +12,6 @@ export class TournamentProcessingRequest {
   // name of tournament - to avoid having to go into db to get the names
   tournamentName: string;
 
-  // status of this processing request
-  status: TournamentProcessingRequestStatus = TournamentProcessingRequestStatus.New;
-
   // list of details with each report, in case reports are resubmitted
   details: TournamentProcessingRequestDetail[] = [];
 
@@ -23,4 +20,13 @@ export class TournamentProcessingRequest {
 
   // last 4 digits of a credit card to be placed on tournament report
   ccLast4Digits: string;
+
+  public getLatestStatus(): TournamentProcessingRequestStatus {
+    let latestStatus: TournamentProcessingRequestStatus = TournamentProcessingRequestStatus.New;
+    for (let i = 0; i < this.details.length; i++) {
+      const detail = this.details[i];
+      latestStatus = (detail.status < latestStatus) ? detail.status : latestStatus;
+    }
+    return latestStatus;
+  }
 }

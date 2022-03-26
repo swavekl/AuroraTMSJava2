@@ -1,9 +1,9 @@
 package com.auroratms.reports.notification.event;
 
 /**
- * Event for initiating report generation
+ * Event for initiating report generation, submition or payment
  */
-public class TournamentReportsGenerateEvent {
+public class TournamentReportsProcessingEvent {
 
     // request id in database
     private long tournamentProcessingRequestId;
@@ -11,9 +11,12 @@ public class TournamentReportsGenerateEvent {
     // name of the user who requested report generation
     private String currentUserName;
 
-    public TournamentReportsGenerateEvent(long tournamentProcessingRequestId, String currentUserName) {
+    private EventType eventType;
+
+    public TournamentReportsProcessingEvent(long tournamentProcessingRequestId, String currentUserName, EventType eventType) {
         this.tournamentProcessingRequestId = tournamentProcessingRequestId;
         this.currentUserName = currentUserName;
+        this.eventType = eventType;
     }
 
     public long getTournamentProcessingRequestId() {
@@ -22,5 +25,9 @@ public class TournamentReportsGenerateEvent {
 
     public String getCurrentUserName() {
         return currentUserName;
+    }
+
+    public EventType getEventType() {
+        return eventType;
     }
 }

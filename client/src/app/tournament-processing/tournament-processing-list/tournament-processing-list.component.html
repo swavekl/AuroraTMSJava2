@@ -22,7 +22,7 @@
 
     <ng-container matColumnDef="status">
       <mat-header-cell *matHeaderCellDef>Status</mat-header-cell>
-      <mat-cell *matCellDef="let tournamentProcessingData" [routerLink]="['/processing/detail/', tournamentProcessingData.id]">{{ tournamentProcessingData.status }}</mat-cell>
+      <mat-cell *matCellDef="let tournamentProcessingData" [routerLink]="['/processing/detail/', tournamentProcessingData.id]">{{ tournamentProcessingData.tournamentName }}</mat-cell>
     </ng-container>
 
     <mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></mat-header-row>

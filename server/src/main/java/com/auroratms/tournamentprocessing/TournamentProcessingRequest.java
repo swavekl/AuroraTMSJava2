@@ -22,9 +22,6 @@ public class TournamentProcessingRequest {
     // name of tournament - to avoid having to go into db to get the names
     String tournamentName;
 
-    // status of this processing request
-    TournamentProcessingRequestStatus status;
-
     // list of details with each report
     @OneToMany(mappedBy = "tournamentProcessingRequest", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
@@ -60,14 +57,6 @@ public class TournamentProcessingRequest {
 
     public void setTournamentName(String tournamentName) {
         this.tournamentName = tournamentName;
-    }
-
-    public TournamentProcessingRequestStatus getStatus() {
-        return status;
-    }
-
-    public void setStatus(TournamentProcessingRequestStatus status) {
-        this.status = status;
     }
 
     public List<TournamentProcessingRequestDetail> getDetails() {

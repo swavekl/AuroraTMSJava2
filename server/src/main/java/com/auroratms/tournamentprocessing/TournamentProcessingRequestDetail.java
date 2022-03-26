@@ -19,6 +19,9 @@ public class TournamentProcessingRequestDetail {
     // date of creation
     private Date createdOn;
 
+    // status of this processing request
+    private TournamentProcessingRequestStatus status;
+
     // paths in repository where reports are stored
     private String pathTournamentReport;
     private String pathPlayerList;
@@ -48,6 +51,14 @@ public class TournamentProcessingRequestDetail {
 
     public void setCreatedOn(Date createdOn) {
         this.createdOn = createdOn;
+    }
+
+    public TournamentProcessingRequestStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(TournamentProcessingRequestStatus status) {
+        this.status = status;
     }
 
     public String getPathTournamentReport() {
