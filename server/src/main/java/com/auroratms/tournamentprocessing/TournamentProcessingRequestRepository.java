@@ -65,4 +65,15 @@ public interface TournamentProcessingRequestRepository extends JpaRepository<Tou
     boolean existsByTournamentId(long tournamentId);
 
     TournamentProcessingRequest findByTournamentId(long tournamentId);
+
+    @Query(nativeQuery = true,
+            value = "SELECT *" +
+                    " FROM tournament_processing_request" +
+                    " WHERE tournament_processing_request.id in (" +
+                    "    SELECT tournament_processing_request_fk " +
+                    "    FROM tournament_processing_request_detail " +
+                    "    WHERE id = :detailId " +
+                    ")"
+    )
+    TournamentProcessingRequest findByDetailId(@Param("detailId") long detailId);
 }

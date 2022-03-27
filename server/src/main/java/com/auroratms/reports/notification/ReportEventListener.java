@@ -143,11 +143,14 @@ public class ReportEventListener {
         String applicationsReportPath  = this.membershipReportService.generateMembershipApplications(tournamentId);
         String playerListReportPath = this.playerListReportService.generateReport(tournamentId);
         String resultsReportPath = this.resultsReportService.generateReport(tournamentId);
-        String tournamentReportPath = this.tournamentReportService.generateReport(
+        TournamentReportGenerationResult result = this.tournamentReportService.generateReport(
                 tournamentProcessingRequest.getTournamentId(),
                 tournamentProcessingRequest.getCcLast4Digits(),
                 tournamentProcessingRequest.getRemarks(),
                 preparerUserProfile, clubName);
+
+        String tournamentReportPath = result.getReportFilename();
+        int amountToPay = (int) (result.getGrandTotalDue() * 100);
 
         // save them to repository
         Date createdOn = new Date();
@@ -161,11 +164,13 @@ public class ReportEventListener {
         for (TournamentProcessingRequestDetail detail : details) {
             if (detail.getCreatedOn() == null) {
                 detail.setCreatedOn(createdOn);
+                detail.setCreatedByProfileId(preparerUserProfile.getUserId());
                 detail.setPathMembershipList(fileToRepoURLMap.get(membershipReportPath));
                 detail.setPathApplications(fileToRepoURLMap.get(applicationsReportPath));
                 detail.setPathPlayerList(fileToRepoURLMap.get(playerListReportPath));
                 detail.setPathMatchResults(fileToRepoURLMap.get(resultsReportPath));
                 detail.setPathTournamentReport(fileToRepoURLMap.get(tournamentReportPath));
+                detail.setAmountToPay(amountToPay);
             }
         }
     }

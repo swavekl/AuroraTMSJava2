@@ -138,6 +138,9 @@ public class PaymentRefundController {
             case MEMBERSHIP_FEE:
                 paymentType = "membership";
                 break;
+            case TOURNAMENT_REPORT_FEE:
+                paymentType = "tournament report";
+                break;
         }
         try {
             AccountEntity accountEntity = this.getAccountForItem(paymentRefundFor, accountItemId);
@@ -177,6 +180,7 @@ public class PaymentRefundController {
             case CLUB_AFFILIATION_FEE:
             case TOURNAMENT_SANCTION_FEE:
             case MEMBERSHIP_FEE:
+            case TOURNAMENT_REPORT_FEE:
                 accountEntity = this.accountService.findById(associationProfileId);
                 break;
             case TOURNAMENT_ENTRY:

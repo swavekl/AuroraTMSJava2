@@ -29,7 +29,7 @@ spring.quartz.properties.org.quartz.jobStore.isClustered: true
 #logging.level.org.hibernate.SQL: TRACE
 # # trace how many results were returned
 #logging.level.org.hibernate.loader: TRACE
-# show parameter values
+ # show parameter values
 #logging.level.org.hibernate.type: TRACE
 #logging.level.org.hibernate.engine.transaction.internal: DEBUG
 # transaction debugging

@@ -12,6 +12,9 @@ export class TournamentProcessingRequestDetail {
   // date of creation
   createdOn: Date;
 
+  // profile id of the person who created this request
+  createdByProfileId: string;
+
   // status of this processing request
   status: TournamentProcessingRequestStatus = TournamentProcessingRequestStatus.New;
 
@@ -22,9 +25,14 @@ export class TournamentProcessingRequestDetail {
   pathMembershipList: string;
   pathMatchResults: string;
 
-  // id of the payment to pay for this request (i.e. tournament report)
+  // id of the payment used to pay for this request (i.e. tournament report)
   paymentId: number;
 
+  // amount to be paid if any
+  amountToPay: number;
+
   constructor() {
+    this.paymentId = 0;
+    this.amountToPay = 0;
   }
 }

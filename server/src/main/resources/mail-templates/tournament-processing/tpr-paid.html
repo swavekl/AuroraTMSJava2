@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+<body>
+<p>Hello <span th:text="${payeeFirstName}"></span>,</p>
+This is to confirm that we have received a payment in the amount <span th:text="${#numbers.formatDecimal(amount, 1, 2)}">10.00</span> <span th:text="${currency}"></span>
+for the Tournament Report for '<span th:text="${tournamentName}"></span>'.</p>
+
+<p>Thank you,<br><span th:text="${processorFullName}"></span></p>
+</body>
+</html>

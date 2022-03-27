@@ -19,6 +19,10 @@ public class TournamentProcessingRequestDetail {
     // date of creation
     private Date createdOn;
 
+    // profile id of the person who created this request
+    @Column(length = 50)
+    private String createdByProfileId;
+
     // status of this processing request
     private TournamentProcessingRequestStatus status;
 
@@ -31,6 +35,9 @@ public class TournamentProcessingRequestDetail {
 
     // id of the payment to pay for this request (i.e. tournament report)
     private Long paymentId;
+
+    // amount to be paid if any
+    private int amountToPay = 0;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "tournament_processing_request_fk", nullable = false)
@@ -47,6 +54,14 @@ public class TournamentProcessingRequestDetail {
 
     public Date getCreatedOn() {
         return createdOn;
+    }
+
+    public String getCreatedByProfileId() {
+        return createdByProfileId;
+    }
+
+    public void setCreatedByProfileId(String createdByProfileId) {
+        this.createdByProfileId = createdByProfileId;
     }
 
     public void setCreatedOn(Date createdOn) {
@@ -115,5 +130,13 @@ public class TournamentProcessingRequestDetail {
 
     public void setTournamentProcessingRequest(TournamentProcessingRequest tournamentProcessingRequest) {
         this.tournamentProcessingRequest = tournamentProcessingRequest;
+    }
+
+    public int getAmountToPay() {
+        return amountToPay;
+    }
+
+    public void setAmountToPay(int amountToPay) {
+        this.amountToPay = amountToPay;
     }
 }

@@ -9,5 +9,6 @@ public enum PaymentRefundFor {
     CLINIC,             // a clinic
     CLUB_AFFILIATION_FEE,    // payment to USATT
     TOURNAMENT_SANCTION_FEE,    // payment to USATT
-    MEMBERSHIP_FEE    // payment to USATT
+    MEMBERSHIP_FEE,    // payment to USATT,
+    TOURNAMENT_REPORT_FEE  // tournament report to USATT
 }

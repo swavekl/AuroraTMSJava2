@@ -45,7 +45,7 @@
               [disabled]="(detail?.status !== 'New')">Submit
       </button>
       <button mat-raised-button (click)="onPay(detail.id)"
-              [disabled]="(detail?.status !== 'Submitted')">Pay
+              [disabled]="isPaymentButtonEnabled(detail)">Pay {{(detail.amountToPay / 100) | currency : associationCurrency}}
       </button>
     </mat-card-actions>
   </mat-card>

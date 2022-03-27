@@ -101,4 +101,8 @@ public class TournamentProcessingRequestService {
         }
         return null;
     }
+
+    public TournamentProcessingRequest findByDetailId(long detailId) {
+        return repository.findByDetailId(detailId);
+    }
 }

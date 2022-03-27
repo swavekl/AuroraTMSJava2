@@ -1,11 +1,20 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {createSelector} from '@ngrx/store';
-import {BehaviorSubject, combineLatest, expand, flatMap, Observable, of, Subscription, takeUntil, takeWhile} from 'rxjs';
+import {BehaviorSubject, combineLatest, expand, Observable, of, Subscription, takeWhile} from 'rxjs';
 import {delay, first, switchMap} from 'rxjs/operators';
 import {TournamentProcessingRequest} from '../model/tournament-processing-request';
 import {TournamentProcessingService} from '../service/tournament-processing.service';
 import {LinearProgressBarService} from '../../shared/linear-progress-bar/linear-progress-bar.service';
+import {PaymentDialogService} from '../../account/service/payment-dialog.service';
+import {Profile} from '../../profile/profile';
+import {PaymentRequest} from '../../account/model/payment-request.model';
+import {PaymentRefundFor} from '../../account/model/payment-refund-for.enum';
+import {PaymentDialogData} from '../../account/payment-dialog/payment-dialog-data';
+import {CallbackData} from '../../account/model/callback-data';
+import {AuthenticationService} from '../../user/authentication.service';
+import {ProfileService} from '../../profile/profile.service';
+import {TournamentProcessingRequestStatus} from '../model/tournament-processing-request-status';
 
 @Component({
   selector: 'app-tournament-processing-detail-container',
@@ -13,7 +22,8 @@ import {LinearProgressBarService} from '../../shared/linear-progress-bar/linear-
     <app-tournament-processing-detail [tournamentProcessingRequest]="tournamentProcessingRequest$ | async"
                                       [generatingReports]="reportsGenerating$ | async"
                                       (generateReports)="onGenerateReports($event)"
-                                      (submitReports)="onSubmitReports($event)">
+                                      (submitReports)="onSubmitReports($event)"
+                                      (payFee)="onPayTournamentReportFee($event)">
     </app-tournament-processing-detail>
   `,
   styles: []
@@ -37,9 +47,19 @@ export class TournamentProcessingDetailContainerComponent implements OnInit, OnD
   // if false USATT employee is looking at submitted reports
   private submitting: boolean;
 
+  // indicates if we are showing payment dialog
+  private showingPaymentDialog: boolean;
+  // request being paid for
+  private paidForTournamentProcessingRequest: TournamentProcessingRequest;
+
+  private paidForDetailId: number;
+
   constructor(private tournamentProcessingService: TournamentProcessingService,
               private activatedRoute: ActivatedRoute,
               private router: Router,
+              private paymentDialogService: PaymentDialogService,
+              private authenticationService: AuthenticationService,
+              private profileService: ProfileService,
               private linearProgressBarService: LinearProgressBarService) {
     const routePath = this.activatedRoute.snapshot.routeConfig.path;
     this.submitting = (routePath.indexOf('submit') !== -1);
@@ -53,6 +73,7 @@ export class TournamentProcessingDetailContainerComponent implements OnInit, OnD
   }
 
   private setupProgressIndicator() {
+    this.showingPaymentDialog = false;
     this.loading$ = combineLatest(
       this.tournamentProcessingService.store.select(this.tournamentProcessingService.selectors.selectLoading),
       this.reportsGenerating$,
@@ -148,7 +169,8 @@ export class TournamentProcessingDetailContainerComponent implements OnInit, OnD
         }
         return !reportsReady;
       })
-    ).subscribe((result: TournamentProcessingRequest) => {});
+    ).subscribe((result: TournamentProcessingRequest) => {
+    });
 
     this.subscriptions.add(subscription);
   }
@@ -174,4 +196,100 @@ export class TournamentProcessingDetailContainerComponent implements OnInit, OnD
         this.waitForReportsCompletion(saved.id);
       });
   }
+
+  /**
+   * Initiate payment sequence
+   * @param event
+   */
+  onPayTournamentReportFee(event: any) {
+    let amount: number;
+    let userProfileId: string;
+    const details = event.request.details || [];
+    for (let i = 0; i < details.length; i++) {
+      const detail = details[i];
+      if (detail.id === event.detailId) {
+        amount = detail.amountToPay;
+        userProfileId = detail.createdByProfileId;
+        break;
+      }
+    }
+    if (amount > 0) {
+      const subscription = this.profileService.getProfile(userProfileId)
+        .subscribe((createdByProfile: Profile) => {
+          this.showPaymentDialogForUser(createdByProfile, amount, event.currency, event.detailId, event.request);
+        });
+      this.subscriptions.add(subscription);
+    }
+  }
+
+  private showPaymentDialogForUser(createdByProfile: Profile,
+                                   amount: number,
+                                   currencyOfPayment: string,
+                                   detailId: number,
+                                   tournamentProcessingRequest: TournamentProcessingRequest) {
+    const fullName = createdByProfile.firstName + ' ' + createdByProfile.lastName;
+    const postalCode = createdByProfile.zipCode;
+    const email = createdByProfile.email;
+    const amountInAccountCurrency: number = amount;
+    const statementDescriptor = 'Tournament Report Fee for ' + tournamentProcessingRequest.tournamentName + ' for detail ' + detailId;
+    const paymentRequest: PaymentRequest = {
+      paymentRefundFor: PaymentRefundFor.TOURNAMENT_REPORT_FEE,
+      accountItemId: 0, // USATT account id
+      transactionItemId: detailId,
+      amount: amount,
+      currencyCode: currencyOfPayment,
+      amountInAccountCurrency: amountInAccountCurrency,
+      statementDescriptor: statementDescriptor,
+      fullName: fullName,
+      postalCode: postalCode,
+      receiptEmail: email
+    };
+
+    const paymentDialogData: PaymentDialogData = {
+      paymentRequest: paymentRequest,
+      stripeInstance: null
+    };
+
+    const callbackData: CallbackData = {
+      successCallbackFn: this.onPaymentSuccessful,
+      cancelCallbackFn: this.onPaymentCanceled,
+      callbackScope: this
+    };
+    this.showingPaymentDialog = true;
+    this.paidForTournamentProcessingRequest = tournamentProcessingRequest;
+    this.paidForDetailId = detailId;
+    this.paymentDialogService.showPaymentDialog(paymentDialogData, callbackData);
+  }
+
+
+  /**
+   * Callback from payment dialog when payment is successful
+   */
+  onPaymentSuccessful(scope: any) {
+    this.showingPaymentDialog = false;
+    if (scope != null) {
+      const tournamentProcessingRequest = scope.paidForTournamentProcessingRequest;
+      const detailId = scope.paidForDetailId;
+      const details = tournamentProcessingRequest.details || [];
+      for (let i = 0; i < details.length; i++) {
+        const detail = details[i];
+        if (detail.id === detailId) {
+          detail.status = TournamentProcessingRequestStatus.Paid;
+          scope.tournamentProcessingService.upsert(tournamentProcessingRequest)
+            .pipe(first())
+            .subscribe((saved: TournamentProcessingRequest) => {
+              console.log('after save paid ', saved);
+            });
+          break;
+        }
+      }
+    }
+  }
+
+  onPaymentCanceled(scope: any) {
+    this.showingPaymentDialog = false;
+    this.paidForTournamentProcessingRequest = null;
+    this.paidForDetailId = null;
+  }
+
 }

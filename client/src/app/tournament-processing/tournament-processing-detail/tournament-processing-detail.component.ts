@@ -25,7 +25,15 @@ export class TournamentProcessingDetailComponent implements OnInit, OnChanges {
   @Output('submitReports')
   public submitReportsEventEmitter: EventEmitter<any> = new EventEmitter<any>();
 
-  constructor(private dialog: MatDialog) { }
+  @Output('payFee')
+  public payFeeEventEmitter: EventEmitter<any> = new EventEmitter<any>();
+
+  // currency in which to pay the association e.g. USATT
+  associationCurrency: string;
+
+  constructor(private dialog: MatDialog) {
+    this.associationCurrency = 'USD';
+  }
 
   ngOnInit(): void {
   }
@@ -85,16 +93,14 @@ export class TournamentProcessingDetailComponent implements OnInit, OnChanges {
     }
   }
 
+  isPaymentButtonEnabled(detail: TournamentProcessingRequestDetail): boolean {
+    return (detail.status === TournamentProcessingRequestStatus.Submitted &&
+      detail.paymentId == null && detail.amountToPay > 0);
+  }
+
   onPay(detailId: number) {
     const request = JSON.parse(JSON.stringify(this.tournamentProcessingRequest));
-    const details = request.details || [];
-    for (let i = 0; i < details.length; i++) {
-      const detail = details[i];
-      if (detail.id === detailId) {
-        detail.status = TournamentProcessingRequestStatus.Paid;
-        this.submitReportsEventEmitter.emit(request);
-        break;
-      }
-    }
+    const event = {request: request, detailId: detailId, currency: this.associationCurrency};
+    this.payFeeEventEmitter.emit(event);
   }
 }

@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.File;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 public class TournamentReportServiceTest extends AbstractServiceTest {
@@ -41,12 +42,16 @@ public class TournamentReportServiceTest extends AbstractServiceTest {
 
         String remarks = "Please use the card on file";
 
-        String reportFilename = tournamentReportService.generateReport(153L, "3217", remarks, preparerUserProfile, clubName);
+        TournamentReportGenerationResult result = tournamentReportService.generateReport(153L, "3217", remarks, preparerUserProfile, clubName);
+        String reportFilename = result.getReportFilename();
 
         File reportFile = new File(reportFilename);
         assertTrue("report file not created",reportFile.exists());
 
         long length = reportFile.length();
         assertTrue("wrong length of report file", length > 100);
+
+        double grandTotalDue = result.getGrandTotalDue();
+        assertEquals("wrong amount due", 217.5d, grandTotalDue, 0.0d);
     }
 }

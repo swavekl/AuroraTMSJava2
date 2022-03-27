@@ -76,8 +76,9 @@ public class TournamentReportService {
      * @param clubName
      * @return
      */
-    public String generateReport(long tournamentId, String card4Digits, String remarks, UserProfile preparerUserProfile, String clubName) {
+    public TournamentReportGenerationResult generateReport(long tournamentId, String card4Digits, String remarks, UserProfile preparerUserProfile, String clubName) {
         String reportFilename = null;
+        TournamentReportGenerationResult result = null;
         try {
             // get tournament information
             Tournament tournament = tournamentService.getByKey(tournamentId);
@@ -117,8 +118,11 @@ public class TournamentReportService {
             Table tournamentTable = makeTournamentTable(tournament, preparerUserProfile, clubName, font, fontBold);
             document.add(tournamentTable);
 
-            Table commissionedMembershipsTable = makeMembershipsTable(membershipTableData, totalDonations, font, fontBold, card4Digits);
+            MembershipTableResult membershipTableResult = makeMembershipsTable(membershipTableData, totalDonations, font, fontBold, card4Digits);
+            Table commissionedMembershipsTable = membershipTableResult.table;
             document.add(commissionedMembershipsTable);
+
+            result = new TournamentReportGenerationResult(reportFilename, membershipTableResult.grandTotalDue);
 
             String remarksText = "Remarks: " + ((remarks != null) ? remarks : "") ;
             Paragraph remarksParagraph = new Paragraph(remarksText)
@@ -138,7 +142,7 @@ public class TournamentReportService {
             log.error("Unable to create tournament report ", e);
         } finally {
         }
-        return reportFilename;
+        return result;
     }
 
     /**
@@ -195,7 +199,7 @@ public class TournamentReportService {
      * @param card4Digits
      * @return
      */
-    private Table makeMembershipsTable(List<MembershipTableData> membershipTableData, double donationsTotal, PdfFont font, PdfFont fontBold, String card4Digits) throws IOException {
+    private MembershipTableResult makeMembershipsTable(List<MembershipTableData> membershipTableData, double donationsTotal, PdfFont font, PdfFont fontBold, String card4Digits) throws IOException {
 
         TextAlignment[] cellAlignment = {
                 TextAlignment.LEFT, TextAlignment.LEFT, TextAlignment.RIGHT, TextAlignment.CENTER,
@@ -284,7 +288,18 @@ public class TournamentReportService {
                 .setTextAlignment(TextAlignment.CENTER)).setBorder(whiteBorder);
         table.addFooterCell(footerCell);
 
-        return table;
+        MembershipTableResult result = new MembershipTableResult();
+        result.table = table;
+        result.grandTotalDue = grandTotalDue;
+
+        return result;
+    }
+
+    private class MembershipTableResult {
+        // amount to pay from tournament report
+        double grandTotalDue;
+
+        Table table;
     }
 
     private boolean isCommissionedMembership(MembershipType membershipType) {
