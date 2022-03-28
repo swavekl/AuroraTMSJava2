@@ -39,6 +39,9 @@ public class TournamentProcessingRequestDetail {
     // amount to be paid if any
     private int amountToPay = 0;
 
+    // date of payment
+    private Date paidOn;
+
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "tournament_processing_request_fk", nullable = false)
     @JsonBackReference
@@ -138,5 +141,13 @@ public class TournamentProcessingRequestDetail {
 
     public void setAmountToPay(int amountToPay) {
         this.amountToPay = amountToPay;
+    }
+
+    public Date getPaidOn() {
+        return paidOn;
+    }
+
+    public void setPaidOn(Date paidOn) {
+        this.paidOn = paidOn;
     }
 }

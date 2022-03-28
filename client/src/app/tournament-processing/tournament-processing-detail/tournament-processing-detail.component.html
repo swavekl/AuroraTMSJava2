@@ -12,6 +12,7 @@
     <mat-card-subtitle>Status: {{detail.status }}</mat-card-subtitle>
     <mat-card-subtitle *ngIf="detail.createdOn != null">Generated on: {{detail.createdOn | date: 'MMM-dd-yyyy hh:mm:ss aaa' }}</mat-card-subtitle>
     <mat-card-subtitle *ngIf="detail.createdOn == null">Generating...</mat-card-subtitle>
+    <mat-card-subtitle *ngIf="detail.paidOn != null">Paid on: {{detail.paidOn | date : 'MMM-dd-yyyy hh:mm:ss aaa'}}</mat-card-subtitle>
     <mat-card-content>
       <table>
         <tr>
@@ -45,7 +46,7 @@
               [disabled]="(detail?.status !== 'New')">Submit
       </button>
       <button mat-raised-button (click)="onPay(detail.id)"
-              [disabled]="isPaymentButtonEnabled(detail)">Pay {{(detail.amountToPay / 100) | currency : associationCurrency}}
+              [disabled]="!isPaymentButtonEnabled(detail)">Pay {{ !isPaymentButtonEnabled(detail) ? '' : ((detail.amountToPay / 100) | currency : currencyCode) }}
       </button>
     </mat-card-actions>
   </mat-card>

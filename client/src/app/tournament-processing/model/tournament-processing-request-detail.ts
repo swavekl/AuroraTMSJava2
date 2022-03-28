@@ -31,6 +31,9 @@ export class TournamentProcessingRequestDetail {
   // amount to be paid if any
   amountToPay: number;
 
+  // date of payment
+  paidOn: Date;
+
   constructor() {
     this.paymentId = 0;
     this.amountToPay = 0;

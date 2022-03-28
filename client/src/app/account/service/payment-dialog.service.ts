@@ -3,8 +3,8 @@ import {StripeFactoryService, StripeInstance} from 'ngx-stripe';
 import {KeyAccountInfo, PaymentRefundService} from './payment-refund.service';
 import {MatDialog, MatDialogConfig} from '@angular/material/dialog';
 import {PaymentDialogData} from '../payment-dialog/payment-dialog-data';
-import {Observable} from 'rxjs';
-import {first, map} from 'rxjs/operators';
+import {BehaviorSubject, Observable, Subject} from 'rxjs';
+import {distinctUntilChanged, first, map, tap} from 'rxjs/operators';
 import {PaymentDialogComponent} from '../payment-dialog/payment-dialog.component';
 import {CallbackData} from '../model/callback-data';
 import {PaymentRefundFor} from '../model/payment-refund-for.enum';
@@ -16,9 +16,7 @@ import {PaymentRefundFor} from '../model/payment-refund-for.enum';
  * Also this service ensures consistent size of dialog from anywhere it is used and calls back the callbacks
  * after successful charge or cancellation.
  */
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable()
 export class PaymentDialogService {
 
   // Stripe service instance for specific account, we need this created before payment dialog shows because
@@ -28,11 +26,20 @@ export class PaymentDialogService {
   // code of account currency
   private defaultAccountCurrency: string;
 
+  // loading indicator for fetching account information
+  public loading$: Observable<boolean>;
+  private indicatorSubject$: BehaviorSubject<boolean> = new BehaviorSubject(false);
+
   constructor(private paymentRefundService: PaymentRefundService,
               private stripeFactoryService: StripeFactoryService,
               private dialog: MatDialog) {
     this.stripeInstance = null;
     this.defaultAccountCurrency = 'USD';
+    this.loading$ = this.indicatorSubject$.asObservable().pipe(distinctUntilChanged());
+  }
+
+  private setLoading(loading: boolean) {
+    this.indicatorSubject$.next(loading);
   }
 
   /**
@@ -41,6 +48,7 @@ export class PaymentDialogService {
    * @param accountItemId id of tournament or clinic or whatever
    */
   public prepareForPayment(paymentFor: PaymentRefundFor, accountItemId: number): Observable<string> {
+    this.setLoading(true);
     // get stripe public key
     return this.paymentRefundService.getKeyAccountInfo(paymentFor, accountItemId)
       .pipe(
@@ -52,6 +60,13 @@ export class PaymentDialogService {
             });
             this.defaultAccountCurrency = keyAccountInfo?.defaultAccountCurrency.toUpperCase();
             return this.defaultAccountCurrency;
+          }
+        ),
+        tap(() => {
+            this.setLoading(false);
+          },
+          (error: any) => {
+            this.setLoading(false);
           }
         )
       );
@@ -65,23 +80,28 @@ export class PaymentDialogService {
   public showPaymentDialog(paymentDialogData: PaymentDialogData, callbackData: CallbackData) {
 
     if (this.stripeInstance != null) {
-      // console.log('already got stripe instance - showing dialog');
+      // console.log('already got stripe instance - showing dialog', this.stripeInstance);
       paymentDialogData.stripeInstance = this.stripeInstance;
       this.doShowDialog(paymentDialogData, callbackData);
     } else {
+      this.setLoading(true);
       // get stripe public key
       this.paymentRefundService.getKeyAccountInfo(paymentDialogData.paymentRequest.paymentRefundFor,
         paymentDialogData.paymentRequest.accountItemId)
         .pipe(first())
         .subscribe(
           (keyAccountInfo: KeyAccountInfo) => {
-            // console.log('got public key ' + publicKey);
-            paymentDialogData.stripeInstance = this.stripeFactoryService.create(keyAccountInfo.stripePublicKey, {
+            // console.log('got public key ' + keyAccountInfo.stripePublicKey);
+            this.stripeInstance = this.stripeFactoryService.create(keyAccountInfo.stripePublicKey, {
               stripeAccount: keyAccountInfo.stripeAccountId  // connected account id
             });
+            // console.log('got stripe instance', this.stripeInstance);
+            paymentDialogData.stripeInstance = this.stripeInstance;
+            this.setLoading(false);
             this.doShowDialog(paymentDialogData, callbackData);
           },
           (error) => {
+            this.setLoading(false);
             console.log('Couldn\'t obtain stripe public key ' + JSON.stringify(error));
           }
         );

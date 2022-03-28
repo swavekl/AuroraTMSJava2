@@ -20,13 +20,17 @@ import {TournamentProcessingRequestStatus} from '../model/tournament-processing-
   selector: 'app-tournament-processing-detail-container',
   template: `
     <app-tournament-processing-detail [tournamentProcessingRequest]="tournamentProcessingRequest$ | async"
+                                      [currencyCode]="currencyCode"
                                       [generatingReports]="reportsGenerating$ | async"
                                       (generateReports)="onGenerateReports($event)"
                                       (submitReports)="onSubmitReports($event)"
                                       (payFee)="onPayTournamentReportFee($event)">
     </app-tournament-processing-detail>
   `,
-  styles: []
+  styles: [],
+  providers: [
+    PaymentDialogService
+  ]
 })
 export class TournamentProcessingDetailContainerComponent implements OnInit, OnDestroy {
 
@@ -47,12 +51,13 @@ export class TournamentProcessingDetailContainerComponent implements OnInit, OnD
   // if false USATT employee is looking at submitted reports
   private submitting: boolean;
 
-  // indicates if we are showing payment dialog
-  private showingPaymentDialog: boolean;
   // request being paid for
   private paidForTournamentProcessingRequest: TournamentProcessingRequest;
 
   private paidForDetailId: number;
+
+  // currency to use for payment for tournament report
+  public currencyCode: string;
 
   constructor(private tournamentProcessingService: TournamentProcessingService,
               private activatedRoute: ActivatedRoute,
@@ -70,15 +75,16 @@ export class TournamentProcessingDetailContainerComponent implements OnInit, OnD
     this.tournamentId = Number(strTournamentId);
     this.setupProgressIndicator();
     this.loadTournamentProcessingData();
+    this.prepareForPayment();
   }
 
   private setupProgressIndicator() {
-    this.showingPaymentDialog = false;
     this.loading$ = combineLatest(
       this.tournamentProcessingService.store.select(this.tournamentProcessingService.selectors.selectLoading),
       this.reportsGenerating$,
-      (requestLoading: boolean, reportsGenerating: boolean) => {
-        return requestLoading || reportsGenerating;
+      this.paymentDialogService.loading$,
+      (requestLoading: boolean, reportsGenerating: boolean, paymentDialogPreparing: boolean) => {
+        return requestLoading || reportsGenerating  || paymentDialogPreparing;
       }
     );
 
@@ -138,6 +144,15 @@ export class TournamentProcessingDetailContainerComponent implements OnInit, OnD
           console.log('tournament processing data not found', error);
         });
     this.subscriptions.add(subscription);
+  }
+
+  private prepareForPayment() {
+    this.currencyCode = 'USD';
+    this.paymentDialogService.prepareForPayment(PaymentRefundFor.TOURNAMENT_REPORT_FEE, 0)
+      .pipe(first())
+      .subscribe((accountCurrency: string) => {
+        this.currencyCode = accountCurrency;
+      });
   }
 
   onGenerateReports(tournamentProcessingRequest: TournamentProcessingRequest) {
@@ -216,7 +231,7 @@ export class TournamentProcessingDetailContainerComponent implements OnInit, OnD
     if (amount > 0) {
       const subscription = this.profileService.getProfile(userProfileId)
         .subscribe((createdByProfile: Profile) => {
-          this.showPaymentDialogForUser(createdByProfile, amount, event.currency, event.detailId, event.request);
+          this.showPaymentDialogForUser(createdByProfile, amount, event.detailId, event.request);
         });
       this.subscriptions.add(subscription);
     }
@@ -224,7 +239,6 @@ export class TournamentProcessingDetailContainerComponent implements OnInit, OnD
 
   private showPaymentDialogForUser(createdByProfile: Profile,
                                    amount: number,
-                                   currencyOfPayment: string,
                                    detailId: number,
                                    tournamentProcessingRequest: TournamentProcessingRequest) {
     const fullName = createdByProfile.firstName + ' ' + createdByProfile.lastName;
@@ -237,7 +251,7 @@ export class TournamentProcessingDetailContainerComponent implements OnInit, OnD
       accountItemId: 0, // USATT account id
       transactionItemId: detailId,
       amount: amount,
-      currencyCode: currencyOfPayment,
+      currencyCode: this.currencyCode,
       amountInAccountCurrency: amountInAccountCurrency,
       statementDescriptor: statementDescriptor,
       fullName: fullName,
@@ -255,7 +269,6 @@ export class TournamentProcessingDetailContainerComponent implements OnInit, OnD
       cancelCallbackFn: this.onPaymentCanceled,
       callbackScope: this
     };
-    this.showingPaymentDialog = true;
     this.paidForTournamentProcessingRequest = tournamentProcessingRequest;
     this.paidForDetailId = detailId;
     this.paymentDialogService.showPaymentDialog(paymentDialogData, callbackData);
@@ -266,7 +279,6 @@ export class TournamentProcessingDetailContainerComponent implements OnInit, OnD
    * Callback from payment dialog when payment is successful
    */
   onPaymentSuccessful(scope: any) {
-    this.showingPaymentDialog = false;
     if (scope != null) {
       const tournamentProcessingRequest = scope.paidForTournamentProcessingRequest;
       const detailId = scope.paidForDetailId;
@@ -275,10 +287,11 @@ export class TournamentProcessingDetailContainerComponent implements OnInit, OnD
         const detail = details[i];
         if (detail.id === detailId) {
           detail.status = TournamentProcessingRequestStatus.Paid;
+          detail.paidOn = new Date();
           scope.tournamentProcessingService.upsert(tournamentProcessingRequest)
             .pipe(first())
             .subscribe((saved: TournamentProcessingRequest) => {
-              console.log('after save paid ', saved);
+              // console.log('after save paid ', saved);
             });
           break;
         }
@@ -287,7 +300,6 @@ export class TournamentProcessingDetailContainerComponent implements OnInit, OnD
   }
 
   onPaymentCanceled(scope: any) {
-    this.showingPaymentDialog = false;
     this.paidForTournamentProcessingRequest = null;
     this.paidForDetailId = null;
   }

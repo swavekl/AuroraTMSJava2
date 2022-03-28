@@ -27,7 +27,10 @@ import {PaymentRefund} from '../../account/model/payment-refund.model';
       (saved)="onSaved($event)">
     </app-club-affiliation-application>
   `,
-  styles: []
+  styles: [],
+  providers: [
+    PaymentDialogService
+  ]
 })
 export class ClubAffiliationApplicationContainerComponent implements OnInit, OnDestroy {
 

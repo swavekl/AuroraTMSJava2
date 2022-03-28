@@ -25,6 +25,9 @@ import {PaymentRefundService} from '../../account/service/payment-refund.service
     </app-sanction-request-edit>
   `,
   styles: [
+  ],
+  providers: [
+    PaymentDialogService
   ]
 })
 export class SanctionRequestEditContainerComponent implements OnInit, OnDestroy {

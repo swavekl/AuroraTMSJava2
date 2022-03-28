@@ -42,7 +42,10 @@ import {Subscription} from 'rxjs';
 @Component({
   selector: 'app-entry-wizard',
   templateUrl: './entry-wizard.component.html',
-  styleUrls: ['./entry-wizard.component.scss']
+  styleUrls: ['./entry-wizard.component.scss'],
+  providers: [
+    PaymentDialogService
+  ]
 })
 export class EntryWizardComponent implements OnInit, OnChanges, OnDestroy {
 
