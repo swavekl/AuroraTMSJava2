@@ -296,7 +296,6 @@ export class TournamentProcessingDetailContainerComponent implements OnInit, OnD
         this.tournamentProcessingService.upsert(tournamentProcessingRequest)
           .pipe(first())
           .subscribe((saved: TournamentProcessingRequest) => {
-            console.log('after save paid ', saved);
             const tournamentProcessingDataToEdit: TournamentProcessingRequest = JSON.parse(JSON.stringify(saved));
             this.tournamentProcessingRequest$ = of(tournamentProcessingDataToEdit);
           });

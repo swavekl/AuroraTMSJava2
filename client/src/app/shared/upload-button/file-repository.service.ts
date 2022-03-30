@@ -26,7 +26,9 @@ export class FileRepositoryService {
 
   public download(url: string) {
     const downloadAs = url.substr(url.lastIndexOf('/') + 1, url.length);
-    const fullUrl = `https://${environment.baseServer}/${url}`;
+    // const fullUrl = `https://${environment.baseServer}/${url}`;
+    const fullUrl = `${url}`;
+    console.log('fullUrl', fullUrl);
     this.httpClient.get(fullUrl, {
       responseType: 'blob'
     }).subscribe((blob: any) => {
