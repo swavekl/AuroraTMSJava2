@@ -5,6 +5,8 @@ import {MatDialog} from '@angular/material/dialog';
 import {GenerateReportsDialogComponent} from '../generate-reports-dialog/generate-reports-dialog.component';
 import {DateUtils} from '../../shared/date-utils';
 import {TournamentProcessingRequestStatus} from '../model/tournament-processing-request-status';
+import {AuthenticationService} from '../../user/authentication.service';
+import {UserRoles} from '../../user/user-roles.enum';
 
 @Component({
   selector: 'app-tournament-processing-detail',
@@ -32,10 +34,23 @@ export class TournamentProcessingDetailComponent implements OnInit, OnChanges {
   @Input()
   currencyCode: string;
 
-  constructor(private dialog: MatDialog) {
+  canGenerateReports: boolean;
+
+  constructor(private dialog: MatDialog,
+              private authenticationService: AuthenticationService) {
   }
 
   ngOnInit(): void {
+    const roles: string [] = [UserRoles.ROLE_TOURNAMENT_DIRECTORS.valueOf()];
+    this.canGenerateReports = this.authenticationService.hasCurrentUserRole(roles);
+  }
+
+  isGenerateReportsEnabled(): boolean {
+    return this.canGenerateReports && !this.generatingReports;
+  }
+
+  isSubmitReportsEnabled(detail: TournamentProcessingRequestDetail): boolean {
+    return this.canGenerateReports && (detail?.status === TournamentProcessingRequestStatus.New && detail?.createdOn != null);
   }
 
   ngOnChanges(changes: SimpleChanges): void {

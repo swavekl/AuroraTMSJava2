@@ -6,14 +6,32 @@ div.mat-subtitle {
 mat-card.detail {
   margin-top: 10px;
   margin-bottom: 20px;
-  margin-left: 20px;
-  width: 400px;
+  margin-left: 10px;
+  width: 750px;
 }
 
-table {
+table.reports-table {
   tr {
     td {
-      padding: 5px 40px 5px 0;
+      &.reports-column {
+        padding: 5px 40px 5px 0;
+      }
+      &.links-column {
+        padding: 5px 0 5px 0;
+      }
+    }
+  }
+}
+
+table.header-table {
+  tr {
+    td {
+      &.label-column {
+        padding: 5px 40px 5px 0;
+      }
+      &.value-column {
+        padding: 5px 0 5px 0;
+      }
     }
   }
 }

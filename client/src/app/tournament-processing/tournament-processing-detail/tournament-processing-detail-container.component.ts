@@ -12,7 +12,6 @@ import {PaymentRequest} from '../../account/model/payment-request.model';
 import {PaymentRefundFor} from '../../account/model/payment-refund-for.enum';
 import {PaymentDialogData} from '../../account/payment-dialog/payment-dialog-data';
 import {CallbackData} from '../../account/model/callback-data';
-import {AuthenticationService} from '../../user/authentication.service';
 import {ProfileService} from '../../profile/profile.service';
 import {TournamentProcessingRequestStatus} from '../model/tournament-processing-request-status';
 
@@ -63,7 +62,6 @@ export class TournamentProcessingDetailContainerComponent implements OnInit, OnD
               private activatedRoute: ActivatedRoute,
               private router: Router,
               private paymentDialogService: PaymentDialogService,
-              private authenticationService: AuthenticationService,
               private profileService: ProfileService,
               private linearProgressBarService: LinearProgressBarService) {
     const routePath = this.activatedRoute.snapshot.routeConfig.path;
@@ -180,6 +178,8 @@ export class TournamentProcessingDetailContainerComponent implements OnInit, OnD
       takeWhile((tpRequest1: TournamentProcessingRequest) => {
         const reportsReady = this.areReportsReady(tpRequest1);
         if (reportsReady) {
+          const tournamentProcessingDataToEdit: TournamentProcessingRequest = JSON.parse(JSON.stringify(tpRequest1));
+          this.tournamentProcessingRequest$ = of(tournamentProcessingDataToEdit);
           this.reportsGenerating$.next(false);
         }
         return !reportsReady;
@@ -269,8 +269,10 @@ export class TournamentProcessingDetailContainerComponent implements OnInit, OnD
       cancelCallbackFn: this.onPaymentCanceled,
       callbackScope: this
     };
+    // save the whole request and detail id so we know what we are paying for
     this.paidForTournamentProcessingRequest = tournamentProcessingRequest;
     this.paidForDetailId = detailId;
+
     this.paymentDialogService.showPaymentDialog(paymentDialogData, callbackData);
   }
 
@@ -280,21 +282,25 @@ export class TournamentProcessingDetailContainerComponent implements OnInit, OnD
    */
   onPaymentSuccessful(scope: any) {
     if (scope != null) {
-      const tournamentProcessingRequest = scope.paidForTournamentProcessingRequest;
-      const detailId = scope.paidForDetailId;
-      const details = tournamentProcessingRequest.details || [];
-      for (let i = 0; i < details.length; i++) {
-        const detail = details[i];
-        if (detail.id === detailId) {
-          detail.status = TournamentProcessingRequestStatus.Paid;
-          detail.paidOn = new Date();
-          scope.tournamentProcessingService.upsert(tournamentProcessingRequest)
-            .pipe(first())
-            .subscribe((saved: TournamentProcessingRequest) => {
-              // console.log('after save paid ', saved);
-            });
-          break;
-        }
+      scope.onPaymentSuccessfulInternal(scope.paidForTournamentProcessingRequest, scope.paidForDetailId);
+    }
+  }
+
+  onPaymentSuccessfulInternal(tournamentProcessingRequest: TournamentProcessingRequest, detailId: number) {
+    const details = tournamentProcessingRequest.details || [];
+    for (let i = 0; i < details.length; i++) {
+      const detail = details[i];
+      if (detail.id === detailId) {
+        detail.status = TournamentProcessingRequestStatus.Paid;
+        detail.paidOn = new Date();
+        this.tournamentProcessingService.upsert(tournamentProcessingRequest)
+          .pipe(first())
+          .subscribe((saved: TournamentProcessingRequest) => {
+            console.log('after save paid ', saved);
+            const tournamentProcessingDataToEdit: TournamentProcessingRequest = JSON.parse(JSON.stringify(saved));
+            this.tournamentProcessingRequest$ = of(tournamentProcessingDataToEdit);
+          });
+        break;
       }
     }
   }

@@ -1,6 +1,6 @@
 <div class="mat-title" style="padding-left: 8px; width: 100%;">Tournament Publishing: {{ tournamentProcessingRequest?.tournamentName }}</div>
 <mat-toolbar fxLayout="row" fxLayoutGap="10">
-  <button type="button" mat-raised-button (click)="generateAllReports()" [disabled]="generatingReports">
+  <button type="button" mat-raised-button (click)="generateAllReports()" [disabled]="!isGenerateReportsEnabled()">
     <mat-icon matListIcon>note_add</mat-icon>
     Generate Reports
   </button>
@@ -9,44 +9,65 @@
   <ng-container
     *ngIf="tournamentProcessingRequest.details != null && tournamentProcessingRequest.details.length > 0"></ng-container>
   <mat-card class="detail" *ngFor="let detail of tournamentProcessingRequest.details">
-    <mat-card-subtitle>Status: {{detail.status }}</mat-card-subtitle>
-    <mat-card-subtitle *ngIf="detail.createdOn != null">Generated on: {{detail.createdOn | date: 'MMM-dd-yyyy hh:mm:ss aaa' }}</mat-card-subtitle>
-    <mat-card-subtitle *ngIf="detail.createdOn == null">Generating...</mat-card-subtitle>
-    <mat-card-subtitle *ngIf="detail.paidOn != null">Paid on: {{detail.paidOn | date : 'MMM-dd-yyyy hh:mm:ss aaa'}}</mat-card-subtitle>
     <mat-card-content>
-      <table>
-        <tr>
-          <td>Tournament Report</td>
-          <td>
-            <a *ngIf="detail.pathTournamentReport" [href]="detail.pathTournamentReport">Download</a>
-          </td>
-        </tr>
-        <tr>
-          <td>USATT Applications</td>
-          <td>
-            <a *ngIf="detail.pathApplications" [href]="detail.pathApplications">Download</a>
-          </td>
-        </tr>
-        <tr>
-          <td>Player List</td>
-          <td><a *ngIf="detail.pathPlayerList" [href]="detail.pathPlayerList">Download</a></td>
-        </tr>
-        <tr>
-          <td>Match Results Report</td>
-          <td><a *ngIf="detail.pathMatchResults" [href]="detail.pathMatchResults">Download</a></td>
-        </tr>
-        <tr>
-          <td>Membership Report</td>
-          <td><a *ngIf="detail.pathMembershipList" [href]="detail.pathMembershipList">Download</a></td>
-        </tr>
-      </table>
+      <mat-card-subtitle>Status: {{detail.status }}</mat-card-subtitle>
+      <div fxLayout="row" fxLayoutGap="70px">
+        <div>
+          <table class="reports-table">
+            <tr>
+              <td class="reports-column">Tournament Report</td>
+              <td class="links-column">
+                <a *ngIf="detail.pathTournamentReport" [href]="detail.pathTournamentReport">Download</a>
+              </td>
+            </tr>
+            <tr>
+              <td class="reports-column">USATT Applications</td>
+              <td class="links-column">
+                <a *ngIf="detail.pathApplications" [href]="detail.pathApplications">Download</a>
+              </td>
+            </tr>
+            <tr>
+              <td class="reports-column">Player List</td>
+              <td class="links-column"><a *ngIf="detail.pathPlayerList" [href]="detail.pathPlayerList">Download</a></td>
+            </tr>
+            <tr>
+              <td class="reports-column">Match Results Report</td>
+              <td class="links-column"><a *ngIf="detail.pathMatchResults" [href]="detail.pathMatchResults">Download</a></td>
+            </tr>
+            <tr>
+              <td class="reports-column">Membership Report</td>
+              <td class="links-column"><a *ngIf="detail.pathMembershipList" [href]="detail.pathMembershipList">Download</a></td>
+            </tr>
+          </table>
+        </div>
+        <div>
+          <table class="header-table">
+            <tr *ngIf="detail.createdOn != null">
+              <td class="label-column">Generated on:</td>
+              <td class="value-column">{{detail.createdOn | date: 'MMM-dd-yyyy hh:mm:ss aaa' }}</td>
+            </tr>
+            <tr *ngIf="detail.createdOn == null">
+              <td class="label-column">Generating...</td>
+              <td class="value-column"></td>
+            </tr>
+            <tr *ngIf="detail.paidOn != null">
+                <td class="label-column">Paid on:</td>
+              <td class="value-column">{{detail.paidOn | date : 'MMM-dd-yyyy hh:mm:ss aaa'}}</td>
+            </tr>
+            <tr *ngIf="detail.paidOn != null && detail.amountToPay > 0">
+              <td class="label-column">Paid Amount:</td>
+              <td class="value-column">{{ (detail.amountToPay / 100) | currency: currencyCode}}</td>
+            </tr>
+          </table>
+        </div>
+      </div>
     </mat-card-content>
     <mat-card-actions style="padding: 10px" fxLayout="row" fxLayoutGap="10px">
       <button mat-raised-button (click)="onSubmitRequest(detail.id)"
-              [disabled]="(detail?.status !== 'New')">Submit
+              [disabled]="!isSubmitReportsEnabled(detail)">Submit
       </button>
-      <button mat-raised-button (click)="onPay(detail.id)"
-              [disabled]="!isPaymentButtonEnabled(detail)">Pay {{ !isPaymentButtonEnabled(detail) ? '' : ((detail.amountToPay / 100) | currency : currencyCode) }}
+      <button mat-raised-button (click)="onPay(detail.id)" [disabled]="!isPaymentButtonEnabled(detail)">
+        Pay {{ !isPaymentButtonEnabled(detail) ? '' : ((detail.amountToPay / 100) | currency : currencyCode) }}
       </button>
     </mat-card-actions>
   </mat-card>
