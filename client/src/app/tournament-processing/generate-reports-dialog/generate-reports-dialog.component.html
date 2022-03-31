@@ -38,6 +38,6 @@
   <div fxLayout="row" fxLayoutAlign="space-between start" style="width: 100%;">
     <button mat-button cdkFocusInitial type="button" (click)="onCancel()">Cancel</button>
     <div fxFlex="1"></div>
-    <button mat-raised-button color="primary" [disabled]="!isOkEnabled(f.value)" (click)="onOk(f.value)">OK</button>
+    <button mat-raised-button color="primary" [disabled]="!(isOkEnabled(f.value) && f.valid)" (click)="onOk(f.value)">OK</button>
   </div>
 </mat-dialog-actions>
