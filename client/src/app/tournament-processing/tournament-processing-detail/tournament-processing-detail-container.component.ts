@@ -14,6 +14,7 @@ import {PaymentDialogData} from '../../account/payment-dialog/payment-dialog-dat
 import {CallbackData} from '../../account/model/callback-data';
 import {ProfileService} from '../../profile/profile.service';
 import {TournamentProcessingRequestStatus} from '../model/tournament-processing-request-status';
+import {TournamentProcessingRequestDetail} from '../model/tournament-processing-request-detail';
 
 @Component({
   selector: 'app-tournament-processing-detail-container',
@@ -153,24 +154,44 @@ export class TournamentProcessingDetailContainerComponent implements OnInit, OnD
       });
   }
 
-  onGenerateReports(tournamentProcessingRequest: TournamentProcessingRequest) {
+  onGenerateReports(event: any) {
+    const tournamentProcessingRequest: TournamentProcessingRequest = event.request;
+    const detailId = event.detailId;
+    const initialDelay = 1000 * this.getNumReportsToGenerate(tournamentProcessingRequest, detailId);
     this.tournamentProcessingService.upsert(tournamentProcessingRequest)
       .pipe(first())
       .subscribe((saved: TournamentProcessingRequest) => {
         this.id = saved.id;
-        this.waitForReportsCompletion(saved.id);
+        this.waitForReportsCompletion(saved.id, initialDelay);
       });
+  }
+
+  private getNumReportsToGenerate(tournamentProcessingRequest: TournamentProcessingRequest, detailId: number): number {
+    let count = 0;
+    const details: TournamentProcessingRequestDetail [] = tournamentProcessingRequest.details || [];
+    for (let i = 0; i < details.length; i++) {
+      const detail = details[i];
+      if (detailId === detail.id) {
+        count += detail.generatePlayerList ? 1 : 0;
+        count += detail.generateTournamentReport ? 1 : 0;
+        count += detail.generateApplications ? 1 : 0;
+        count += detail.generateMembershipList ? 1 : 0;
+        count += detail.generateMatchResults ? 1 : 0;
+      }
+    }
+    return count;
   }
 
   /**
    * Issue requests for the report request until the files are generated
    * @param requestId
+   * @param initialDelay
    * @private
    */
-  private waitForReportsCompletion(requestId: number) {
+  private waitForReportsCompletion(requestId: number, initialDelay: number) {
     this.reportsGenerating$.next(true);
     const subscription = this.tournamentProcessingService.getByKey(requestId).pipe(
-      delay(6000),  // initial delay
+      delay(initialDelay),  // initial delay
       expand((tpRequest: TournamentProcessingRequest) => {
         // expand is effectively recursive - it merges current request with new request
         return this.tournamentProcessingService.getByKey(requestId).pipe(delay(1000));  // subsequent delays
@@ -204,11 +225,14 @@ export class TournamentProcessingDetailContainerComponent implements OnInit, OnD
     return ready;
   }
 
-  onSubmitReports(tournamentProcessingRequest: TournamentProcessingRequest) {
+  onSubmitReports(event: any) {
+    const tournamentProcessingRequest: TournamentProcessingRequest = event.request;
+    const detailId = event.detailId;
+    const initialDelay = 1000 * this.getNumReportsToGenerate(tournamentProcessingRequest, detailId);
     this.tournamentProcessingService.upsert(tournamentProcessingRequest)
       .pipe(first())
       .subscribe((saved: TournamentProcessingRequest) => {
-        this.waitForReportsCompletion(saved.id);
+        this.waitForReportsCompletion(saved.id, initialDelay);
       });
   }
 

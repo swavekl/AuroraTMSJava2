@@ -20,6 +20,7 @@ import {
   TournamentProcessingDetailContainerComponent
 } from './tournament-processing-detail/tournament-processing-detail-container.component';
 import {GenerateReportsDialogComponent} from './generate-reports-dialog/generate-reports-dialog.component';
+import {MatCheckboxModule} from '@angular/material/checkbox';
 
 
 @NgModule({
@@ -29,22 +30,23 @@ import {GenerateReportsDialogComponent} from './generate-reports-dialog/generate
     TournamentProcessingDetailContainerComponent,
     GenerateReportsDialogComponent
   ],
-  imports: [
-    CommonModule,
-    MatListModule,
-    MatTableModule,
-    MatPaginatorModule,
-    MatSortModule,
-    MatToolbarModule,
-    MatInputModule,
-    FormsModule,
-    MatIconModule,
-    FlexModule,
-    MatButtonModule,
-    MatCardModule,
-    MatDialogModule,
-    TournamentProcessingRoutingModule
-  ]
+    imports: [
+        CommonModule,
+        MatListModule,
+        MatTableModule,
+        MatPaginatorModule,
+        MatSortModule,
+        MatToolbarModule,
+        MatInputModule,
+        FormsModule,
+        MatIconModule,
+        FlexModule,
+        MatButtonModule,
+        MatCardModule,
+        MatDialogModule,
+        TournamentProcessingRoutingModule,
+        MatCheckboxModule
+    ]
 })
 export class TournamentProcessingModule {
 }

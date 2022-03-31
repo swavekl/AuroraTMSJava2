@@ -122,7 +122,6 @@ public class ReportEventListener {
     }
 
     /**
-     *
      * @param tournamentProcessingRequest
      * @param currentUserName
      * @throws ReportGenerationException
@@ -137,69 +136,85 @@ public class ReportEventListener {
         ClubEntity clubEntity = clubService.findById(clubFk);
         String clubName = clubEntity.getClubName();
 
-        // generate reports
-        long tournamentId = tournamentProcessingRequest.getTournamentId();
-        String membershipReportPath = this.membershipReportService.generateMembershipReport(tournamentId);
-        String applicationsReportPath  = this.membershipReportService.generateMembershipApplications(tournamentId);
-        String playerListReportPath = this.playerListReportService.generateReport(tournamentId);
-        String resultsReportPath = this.resultsReportService.generateReport(tournamentId);
-        TournamentReportGenerationResult result = this.tournamentReportService.generateReport(
-                tournamentProcessingRequest.getTournamentId(),
-                tournamentProcessingRequest.getCcLast4Digits(),
-                tournamentProcessingRequest.getRemarks(),
-                preparerUserProfile, clubName);
-
-        String tournamentReportPath = result.getReportFilename();
-        int amountToPay = (int) (result.getGrandTotalDue() * 100);
-
-        // save them to repository
-        Date createdOn = new Date();
-        String timestamp = new SimpleDateFormat("yyyy-MM-dd-hh-mm-ss").format(createdOn);
-        String repositoryFolder = "tournament-processing-" + timestamp;
-        String [] reportFilePaths = {membershipReportPath, applicationsReportPath, playerListReportPath, resultsReportPath, tournamentReportPath};
-        Map<String, String> fileToRepoURLMap = copyReportsToRepository(reportFilePaths, repositoryFolder);
-
         // find the detail that needs filling and save repository URLs in it
         List<TournamentProcessingRequestDetail> details = tournamentProcessingRequest.getDetails();
         for (TournamentProcessingRequestDetail detail : details) {
             if (detail.getCreatedOn() == null) {
+                Date createdOn = new Date();
+
+                // get the common folder name where reports are generated
+                String timestamp = new SimpleDateFormat("yyyy-MM-dd-hh-mm-ss").format(createdOn);
+                String repositoryFolder = "tournament-processing-" + timestamp;
+
+                // generate reports
+                long tournamentId = tournamentProcessingRequest.getTournamentId();
+                if (detail.isGenerateTournamentReport()) {
+                    TournamentReportGenerationResult result = this.tournamentReportService.generateReport(
+                            tournamentProcessingRequest.getTournamentId(),
+                            tournamentProcessingRequest.getCcLast4Digits(),
+                            tournamentProcessingRequest.getRemarks(),
+                            preparerUserProfile, clubName);
+
+                    String tournamentReportPath = result.getReportFilename();
+                    String repositoryPath = copyReportsToRepository(tournamentReportPath, repositoryFolder);
+                    detail.setPathTournamentReport(repositoryPath);
+
+                    int amountToPay = (int) (result.getGrandTotalDue() * 100);
+                    detail.setAmountToPay(amountToPay);
+                }
+
+                if (detail.isGenerateMembershipList()) {
+                    String membershipReportPath = this.membershipReportService.generateMembershipReport(tournamentId);
+                    String repositoryUrl = copyReportsToRepository(membershipReportPath, repositoryFolder);
+                    detail.setPathMembershipList(repositoryUrl);
+                }
+
+                if (detail.isGenerateApplications()) {
+                    String applicationsReportPath = this.membershipReportService.generateMembershipApplications(tournamentId);
+                    String repositoryUrl = copyReportsToRepository(applicationsReportPath, repositoryFolder);
+                    detail.setPathApplications(repositoryUrl);
+                }
+
+                if (detail.isGenerateMatchResults()) {
+                    String resultsReportPath = this.resultsReportService.generateReport(tournamentId);
+                    String repositoryUrl = copyReportsToRepository(resultsReportPath, repositoryFolder);
+                    detail.setPathMatchResults(repositoryUrl);
+                }
+
+                if (detail.isGeneratePlayerList()) {
+                    String playerListReportPath = this.playerListReportService.generateReport(tournamentId);
+                    String repositoryUrl = copyReportsToRepository(playerListReportPath, repositoryFolder);
+                    detail.setPathPlayerList(repositoryUrl);
+                }
+
                 detail.setCreatedOn(createdOn);
                 detail.setCreatedByProfileId(preparerUserProfile.getUserId());
-                detail.setPathMembershipList(fileToRepoURLMap.get(membershipReportPath));
-                detail.setPathApplications(fileToRepoURLMap.get(applicationsReportPath));
-                detail.setPathPlayerList(fileToRepoURLMap.get(playerListReportPath));
-                detail.setPathMatchResults(fileToRepoURLMap.get(resultsReportPath));
-                detail.setPathTournamentReport(fileToRepoURLMap.get(tournamentReportPath));
-                detail.setAmountToPay(amountToPay);
+                break;
             }
         }
     }
 
     /**
-     * Copies the files into repository
-     * @param reportFilePaths
+     * Copies the file into repository
+     *
+     * @param reportFilePath
      * @param repositoryFolder
-     * @return
+     * @return repository URL
      * @throws ReportGenerationException
      */
-    private Map<String, String> copyReportsToRepository(String[] reportFilePaths, String repositoryFolder) throws ReportGenerationException {
-        Map<String, String> fileToRepoURL = new HashMap<>();
-
+    private String copyReportsToRepository(String reportFilePath, String repositoryFolder) throws ReportGenerationException {
         IFileRepository fileRepository = this.fileRepositoryFactory.getFileRepository();
-        for (String reportFilePath : reportFilePaths) {
-            try {
-                File reportFile = new File(reportFilePath);
-                String filename = reportFile.getName();
-                InputStream repInputStream = new FileInputStream(reportFile);
-                String repositoryURL = fileRepository.save(repInputStream, filename, repositoryFolder);
-                fileToRepoURL.put(reportFilePath, repositoryURL);
-                reportFile.delete();
-            } catch (FileNotFoundException | FileRepositoryException e) {
-                log.error("Error copying report to repository", e);
-                throw new ReportGenerationException("Error generating reports", e);
-            }
+        try {
+            File reportFile = new File(reportFilePath);
+            String filename = reportFile.getName();
+            InputStream repInputStream = new FileInputStream(reportFile);
+            String repositoryURL = fileRepository.save(repInputStream, filename, repositoryFolder);
+            reportFile.delete();
+            return repositoryURL;
+        } catch (FileNotFoundException | FileRepositoryException e) {
+            log.error("Error copying report to repository", e);
+            throw new ReportGenerationException("Error generating reports", e);
         }
-        return fileToRepoURL;
     }
 
     ///////////////////////////////////////////////////////////////////
@@ -218,6 +233,7 @@ public class ReportEventListener {
 
     /**
      * Sends email to the proper recipient about the status change
+     *
      * @param tournamentProcessingRequest
      * @param currentUserName
      */

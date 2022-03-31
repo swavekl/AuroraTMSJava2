@@ -79,18 +79,24 @@ export class TournamentProcessingDetailComponent implements OnInit, OnChanges {
 
   generateAllReports() {
     const config = {
-      width: '500px', height: '450px'
+      width: '650px', height: '430px'
     };
     const dialogRef = this.dialog.open(GenerateReportsDialogComponent, config);
     dialogRef.afterClosed().subscribe(result => {
       if (result.action === 'ok') {
         const request = JSON.parse(JSON.stringify(this.tournamentProcessingRequest));
         const details = request.details || [];
-        details.push(new TournamentProcessingRequestDetail());
+        const detail = new TournamentProcessingRequestDetail();
+        detail.generateTournamentReport = result.generateTournamentReport ;
+        detail.generateApplications = result.generateApplications;
+        detail.generatePlayerList = result.generatePlayerList ;
+        detail.generateMatchResults = result.generateMatchResults ;
+        detail.generateMembershipList = result.generateMembershipList;
+        details.push(detail);
         request.details = details;
         request.remarks = result.remarks;
         request.ccLast4Digits = result.ccLast4Digits;
-        this.generateReportsEventEmitter.emit(request);
+        this.generateReportsEventEmitter.emit({request: request, detailId: detail.id});
       }
     });
   }
@@ -102,7 +108,7 @@ export class TournamentProcessingDetailComponent implements OnInit, OnChanges {
       const detail = details[i];
       if (detail.id === detailId) {
         detail.status = TournamentProcessingRequestStatus.Submitting;
-        this.submitReportsEventEmitter.emit(request);
+        this.submitReportsEventEmitter.emit({request: request, detailId: detailId});
         break;
       }
     }

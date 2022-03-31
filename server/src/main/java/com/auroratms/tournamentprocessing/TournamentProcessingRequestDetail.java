@@ -33,6 +33,13 @@ public class TournamentProcessingRequestDetail {
     private String pathMembershipList;
     private String pathMatchResults;
 
+    // flags to indicate which reports to generate
+    private boolean generateTournamentReport;
+    private boolean generateApplications;
+    private boolean generatePlayerList;
+    private boolean generateMatchResults;
+    private boolean generateMembershipList;
+
     // id of the payment to pay for this request (i.e. tournament report)
     private Long paymentId;
 
@@ -149,5 +156,45 @@ public class TournamentProcessingRequestDetail {
 
     public void setPaidOn(Date paidOn) {
         this.paidOn = paidOn;
+    }
+
+    public boolean isGenerateTournamentReport() {
+        return generateTournamentReport;
+    }
+
+    public void setGenerateTournamentReport(boolean generateTournamentReport) {
+        this.generateTournamentReport = generateTournamentReport;
+    }
+
+    public boolean isGenerateApplications() {
+        return generateApplications;
+    }
+
+    public void setGenerateApplications(boolean generateApplications) {
+        this.generateApplications = generateApplications;
+    }
+
+    public boolean isGeneratePlayerList() {
+        return generatePlayerList;
+    }
+
+    public void setGeneratePlayerList(boolean generatePlayerList) {
+        this.generatePlayerList = generatePlayerList;
+    }
+
+    public boolean isGenerateMatchResults() {
+        return generateMatchResults;
+    }
+
+    public void setGenerateMatchResults(boolean generateMatchResults) {
+        this.generateMatchResults = generateMatchResults;
+    }
+
+    public boolean isGenerateMembershipList() {
+        return generateMembershipList;
+    }
+
+    public void setGenerateMembershipList(boolean generateMembershipList) {
+        this.generateMembershipList = generateMembershipList;
     }
 }

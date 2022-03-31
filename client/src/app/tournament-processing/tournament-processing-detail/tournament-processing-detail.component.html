@@ -14,27 +14,27 @@
       <div fxLayout="row" fxLayoutGap="70px">
         <div>
           <table class="reports-table">
-            <tr>
+            <tr *ngIf="detail.generateTournamentReport == true">
               <td class="reports-column">Tournament Report</td>
               <td class="links-column">
                 <a *ngIf="detail.pathTournamentReport" [href]="detail.pathTournamentReport">Download</a>
               </td>
             </tr>
-            <tr>
+            <tr *ngIf="detail.generateApplications">
               <td class="reports-column">USATT Applications</td>
               <td class="links-column">
                 <a *ngIf="detail.pathApplications" [href]="detail.pathApplications">Download</a>
               </td>
             </tr>
-            <tr>
+            <tr *ngIf="detail.generatePlayerList">
               <td class="reports-column">Player List</td>
               <td class="links-column"><a *ngIf="detail.pathPlayerList" [href]="detail.pathPlayerList">Download</a></td>
             </tr>
-            <tr>
+            <tr *ngIf="detail.generateMatchResults">
               <td class="reports-column">Match Results Report</td>
               <td class="links-column"><a *ngIf="detail.pathMatchResults" [href]="detail.pathMatchResults">Download</a></td>
             </tr>
-            <tr>
+            <tr *ngIf="detail.generateMembershipList">
               <td class="reports-column">Membership Report</td>
               <td class="links-column"><a *ngIf="detail.pathMembershipList" [href]="detail.pathMembershipList">Download</a></td>
             </tr>

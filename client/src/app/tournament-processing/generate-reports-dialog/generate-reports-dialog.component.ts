@@ -17,14 +17,36 @@ export class GenerateReportsDialogComponent implements OnInit {
   public remarks: string;
   public ccLast4Digits: string;
 
+  // flags to indicate which reports to generate
+  public generateTournamentReport: boolean;
+  public generateApplications: boolean;
+  public generatePlayerList: boolean;
+  public generateMatchResults: boolean;
+  public generateMembershipList: boolean;
+
   constructor(public dialogRef: MatDialogRef<GenerateReportsDialogComponent>) { }
 
   ngOnInit(): void {
   }
 
+  isOkEnabled(formValues: any) {
+    return formValues.generateTournamentReport ||
+      formValues.generateApplications ||
+      formValues.generatePlayerList ||
+      formValues.generateMatchResults ||
+      formValues.generateMembershipList;
+  }
+
   onOk(formValues): void {
     this.dialogRef.close({
-      action: this.OK, remarks: formValues.remarks, ccLast4Digits: formValues.ccLast4Digits
+      action: this.OK,
+      remarks: formValues.remarks,
+      ccLast4Digits: formValues.ccLast4Digits,
+      generateTournamentReport: formValues.generateTournamentReport,
+      generateApplications: formValues.generateApplications,
+      generatePlayerList: formValues.generatePlayerList,
+      generateMatchResults: formValues.generateMatchResults,
+      generateMembershipList: formValues.generateMembershipList
     });
   }
 

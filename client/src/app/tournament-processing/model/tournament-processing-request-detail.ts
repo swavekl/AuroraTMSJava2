@@ -25,6 +25,13 @@ export class TournamentProcessingRequestDetail {
   pathMembershipList: string;
   pathMatchResults: string;
 
+  // flags to indicate which reports to generate
+  generateTournamentReport: boolean;
+  generateApplications: boolean;
+  generatePlayerList: boolean;
+  generateMatchResults: boolean;
+  generateMembershipList: boolean;
+
   // id of the payment used to pay for this request (i.e. tournament report)
   paymentId: number;
 
