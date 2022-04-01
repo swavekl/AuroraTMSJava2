@@ -21,20 +21,16 @@ export class TournamentProcessingDetailComponent implements OnInit, OnChanges {
   @Input()
   public generatingReports: boolean;
 
-  @Output('generateReports')
-  public generateReportsEventEmitter: EventEmitter<any> = new EventEmitter<any>();
-
-  @Output('submitReports')
-  public submitReportsEventEmitter: EventEmitter<any> = new EventEmitter<any>();
-
-  @Output('payFee')
-  public payFeeEventEmitter: EventEmitter<any> = new EventEmitter<any>();
+  @Output('requestEvent')
+  public requestEventEmitter: EventEmitter<any> = new EventEmitter<any>();
 
   // currency in which to pay the association e.g. USATT
   @Input()
   currencyCode: string;
 
   canGenerateReports: boolean;
+
+  canProcessReports: boolean;
 
   constructor(private dialog: MatDialog,
               private authenticationService: AuthenticationService) {
@@ -43,6 +39,8 @@ export class TournamentProcessingDetailComponent implements OnInit, OnChanges {
   ngOnInit(): void {
     const roles: string [] = [UserRoles.ROLE_TOURNAMENT_DIRECTORS.valueOf()];
     this.canGenerateReports = this.authenticationService.hasCurrentUserRole(roles);
+    const processorRoles: string [] = [UserRoles.ROLE_USATT_TOURNAMENT_MANAGERS.valueOf()];
+    this.canProcessReports = this.authenticationService.hasCurrentUserRole(processorRoles);
   }
 
   isGenerateReportsEnabled(): boolean {
@@ -51,6 +49,17 @@ export class TournamentProcessingDetailComponent implements OnInit, OnChanges {
 
   isSubmitReportsEnabled(detail: TournamentProcessingRequestDetail): boolean {
     return this.canGenerateReports && (detail?.status === TournamentProcessingRequestStatus.New && detail?.createdOn != null);
+  }
+
+  isPaymentButtonEnabled(detail: TournamentProcessingRequestDetail): boolean {
+    return (detail.status === TournamentProcessingRequestStatus.Submitted &&
+      detail.amountToPay > 0 && this.canProcessReports);
+  }
+
+  isMarkProcessedEnabled(detail: TournamentProcessingRequestDetail) {
+    return this.canProcessReports &&
+      (detail.status === TournamentProcessingRequestStatus.Paid ||
+        detail.status === TournamentProcessingRequestStatus.Submitted);
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -96,7 +105,7 @@ export class TournamentProcessingDetailComponent implements OnInit, OnChanges {
         request.details = details;
         request.remarks = result.remarks;
         request.ccLast4Digits = result.ccLast4Digits;
-        this.generateReportsEventEmitter.emit({request: request, detailId: detail.id});
+        this.requestEventEmitter.emit({action: 'generate', request: request, detailId: detail.id});
       }
     });
   }
@@ -108,20 +117,28 @@ export class TournamentProcessingDetailComponent implements OnInit, OnChanges {
       const detail = details[i];
       if (detail.id === detailId) {
         detail.status = TournamentProcessingRequestStatus.Submitting;
-        this.submitReportsEventEmitter.emit({request: request, detailId: detailId});
+        this.requestEventEmitter.emit({action: 'submit', request: request, detailId: detailId});
         break;
       }
     }
   }
 
-  isPaymentButtonEnabled(detail: TournamentProcessingRequestDetail): boolean {
-    return (detail.status === TournamentProcessingRequestStatus.Submitted &&
-      detail.amountToPay > 0);
-  }
-
   onPay(detailId: number) {
     const request = JSON.parse(JSON.stringify(this.tournamentProcessingRequest));
-    const event = {request: request, detailId: detailId};
-    this.payFeeEventEmitter.emit(event);
+    const event = {action: 'pay', request: request, detailId: detailId};
+    this.requestEventEmitter.emit(event);
+  }
+
+  onProcess(detailId: number) {
+    const request = JSON.parse(JSON.stringify(this.tournamentProcessingRequest));
+    const details = request.details || [];
+    for (let i = 0; i < details.length; i++) {
+      const detail = details[i];
+      if (detail.id === detailId) {
+        detail.status = TournamentProcessingRequestStatus.Processed;
+        this.requestEventEmitter.emit({action: 'process', request: request, detailId: detailId});
+        break;
+      }
+    }
   }
 }

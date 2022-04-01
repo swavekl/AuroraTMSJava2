@@ -19,6 +19,9 @@ import org.springframework.security.acls.domain.GrantedAuthoritySid;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Date;
+import java.util.List;
+
 @Service
 @CacheConfig(cacheNames = {"tournamentprocessingrequest"})
 @Transactional
@@ -67,6 +70,27 @@ public class TournamentProcessingRequestService {
     @CachePut(key = "#result.id")
     public TournamentProcessingRequest save(TournamentProcessingRequest tournamentProcessingRequest) throws ReportGenerationException {
         boolean isCreating = (tournamentProcessingRequest.getId() == null);
+
+        // update request status on subsequent saves
+        if (!isCreating) {
+            TournamentProcessingRequestStatus latestStatus = TournamentProcessingRequestStatus.New;
+            Date latestCreatedOn = null;
+            // find the detail with the latest generation date - this is the one that needs to promote status to request
+            List<TournamentProcessingRequestDetail> details = tournamentProcessingRequest.getDetails();
+            for (TournamentProcessingRequestDetail detail : details) {
+                if (latestCreatedOn == null) {
+                    latestCreatedOn = detail.getCreatedOn();
+                    latestStatus = detail.getStatus();
+                    System.out.println("first detail status = " + latestStatus);
+                } else if (detail.getCreatedOn() == null || latestCreatedOn.before(detail.getCreatedOn())) {
+                    latestCreatedOn = (detail.getCreatedOn() == null) ? new Date() : detail.getCreatedOn();
+                    latestStatus = detail.getStatus();
+                    System.out.println("next detail status = " + latestStatus);
+                }
+            }
+            tournamentProcessingRequest.setRequestStatus(latestStatus);
+        }
+
         TournamentProcessingRequest savedTPR = this.repository.save(tournamentProcessingRequest);
         if (isCreating) {
             provideAccessToAdmin(savedTPR.getId());

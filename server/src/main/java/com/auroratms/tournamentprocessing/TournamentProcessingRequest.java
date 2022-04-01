@@ -22,6 +22,9 @@ public class TournamentProcessingRequest {
     // name of tournament - to avoid having to go into db to get the names
     String tournamentName;
 
+    // status of this processing request - derived from the status of last detail
+    private TournamentProcessingRequestStatus requestStatus = TournamentProcessingRequestStatus.New;
+
     // list of details with each report
     @OneToMany(mappedBy = "tournamentProcessingRequest", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
@@ -81,5 +84,13 @@ public class TournamentProcessingRequest {
 
     public void setCcLast4Digits(String ccLast4Digits) {
         this.ccLast4Digits = ccLast4Digits;
+    }
+
+    public TournamentProcessingRequestStatus getRequestStatus() {
+        return requestStatus;
+    }
+
+    public void setRequestStatus(TournamentProcessingRequestStatus requestStatus) {
+        this.requestStatus = requestStatus;
     }
 }

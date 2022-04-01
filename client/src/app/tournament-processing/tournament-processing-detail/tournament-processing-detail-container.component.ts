@@ -22,9 +22,7 @@ import {TournamentProcessingRequestDetail} from '../model/tournament-processing-
     <app-tournament-processing-detail [tournamentProcessingRequest]="tournamentProcessingRequest$ | async"
                                       [currencyCode]="currencyCode"
                                       [generatingReports]="reportsGenerating$ | async"
-                                      (generateReports)="onGenerateReports($event)"
-                                      (submitReports)="onSubmitReports($event)"
-                                      (payFee)="onPayTournamentReportFee($event)">
+                                      (requestEvent)="onRequestEvent($event)">
     </app-tournament-processing-detail>
   `,
   styles: [],
@@ -154,7 +152,24 @@ export class TournamentProcessingDetailContainerComponent implements OnInit, OnD
       });
   }
 
-  onGenerateReports(event: any) {
+  onRequestEvent(event: any) {
+    switch (event.action) {
+      case 'generate':
+        this.onGenerateReports(event);
+        break;
+      case 'submit':
+        this.onSubmitReports(event);
+        break;
+      case 'pay':
+        this.onPayTournamentReportFee(event);
+        break;
+      case 'process':
+        this.processRequest(event);
+        break;
+    }
+  }
+
+  private onGenerateReports(event: any) {
     const tournamentProcessingRequest: TournamentProcessingRequest = event.request;
     const detailId = event.detailId;
     const initialDelay = 1000 * this.getNumReportsToGenerate(tournamentProcessingRequest, detailId);
@@ -164,6 +179,18 @@ export class TournamentProcessingDetailContainerComponent implements OnInit, OnD
         this.id = saved.id;
         this.waitForReportsCompletion(saved.id, initialDelay);
       });
+  }
+
+
+  private processRequest(event: any) {
+    const tournamentProcessingRequest: TournamentProcessingRequest = event.request;
+    this.tournamentProcessingService.upsert(tournamentProcessingRequest)
+      .pipe(first())
+      .subscribe((saved: TournamentProcessingRequest) => {
+        this.id = saved.id;
+        this.waitForReportsCompletion(saved.id, 2000);
+      });
+
   }
 
   private getNumReportsToGenerate(tournamentProcessingRequest: TournamentProcessingRequest, detailId: number): number {
@@ -225,7 +252,7 @@ export class TournamentProcessingDetailContainerComponent implements OnInit, OnD
     return ready;
   }
 
-  onSubmitReports(event: any) {
+  private onSubmitReports(event: any) {
     const tournamentProcessingRequest: TournamentProcessingRequest = event.request;
     const detailId = event.detailId;
     const initialDelay = 1000 * this.getNumReportsToGenerate(tournamentProcessingRequest, detailId);
@@ -240,7 +267,7 @@ export class TournamentProcessingDetailContainerComponent implements OnInit, OnD
    * Initiate payment sequence
    * @param event
    */
-  onPayTournamentReportFee(event: any) {
+  private onPayTournamentReportFee(event: any) {
     let amount: number;
     let userProfileId: string;
     const details = event.request.details || [];
@@ -332,5 +359,4 @@ export class TournamentProcessingDetailContainerComponent implements OnInit, OnD
     this.paidForTournamentProcessingRequest = null;
     this.paidForDetailId = null;
   }
-
 }

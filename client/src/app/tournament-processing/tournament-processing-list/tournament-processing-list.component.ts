@@ -21,7 +21,7 @@ export class TournamentProcessingListComponent implements AfterViewInit {
   dataSource: TournamentProcessingListDataSource;
 
   /** Columns displayed in the table. Columns IDs can be added, removed, or reordered. */
-  displayedColumns = ['eventName', 'eventStartDate', 'status'];
+  displayedColumns = ['eventName', 'status'];
 
   filterTournamentName: string;
 

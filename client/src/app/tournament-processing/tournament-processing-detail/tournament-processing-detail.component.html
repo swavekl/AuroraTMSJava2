@@ -69,6 +69,9 @@
       <button mat-raised-button (click)="onPay(detail.id)" [disabled]="!isPaymentButtonEnabled(detail)">
         Pay {{ !isPaymentButtonEnabled(detail) ? '' : ((detail.amountToPay / 100) | currency : currencyCode) }}
       </button>
+      <button mat-raised-button (click)="onProcess(detail.id)" [disabled]="!isMarkProcessedEnabled(detail)">
+        Mark Processed
+      </button>
     </mat-card-actions>
   </mat-card>
 </div>

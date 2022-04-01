@@ -12,6 +12,9 @@ export class TournamentProcessingRequest {
   // name of tournament - to avoid having to go into db to get the names
   tournamentName: string;
 
+  // status of this processing request - derived from the status of last detail
+  requestStatus: TournamentProcessingRequestStatus = TournamentProcessingRequestStatus.New;
+
   // list of details with each report, in case reports are resubmitted
   details: TournamentProcessingRequestDetail[] = [];
 
