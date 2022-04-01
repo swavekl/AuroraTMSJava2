@@ -357,17 +357,19 @@ public class MembershipReportService {
             reportData.userProfile = userProfile;
             reportData.membershipType = profileIdToPurchasedMembershipTypesMap.get(playerProfileId);
             reportData.userProfileExt = profileIdToUserExtProfileMap.get(playerProfileId);
-            Long membershipId = reportData.userProfileExt.getMembershipId();
-            for (UsattPlayerRecord usattPlayerRecord : usattPlayerRecordList) {
-                if (membershipId.equals(usattPlayerRecord.getMembershipId())) {
-                    reportData.usattPlayerRecord = usattPlayerRecord;
-                    break;
+            if (reportData.userProfileExt != null) {
+                Long membershipId = reportData.userProfileExt.getMembershipId();
+                for (UsattPlayerRecord usattPlayerRecord : usattPlayerRecordList) {
+                    if (membershipId.equals(usattPlayerRecord.getMembershipId())) {
+                        reportData.usattPlayerRecord = usattPlayerRecord;
+                        break;
+                    }
                 }
             }
 
             reportDataList.add(reportData);
 
-            if (reportData.userProfileExt.getClubFk() != null) {
+            if (reportData.userProfileExt != null && reportData.userProfileExt.getClubFk() != null) {
                 uniqueClubIds.add(reportData.userProfileExt.getClubFk());
             }
         }

@@ -91,27 +91,29 @@ public class UserProfileService {
     public Collection<UserProfile> listByProfileIds (List<String> profileIds) {
         Client client = getClient();
         List<UserProfile> profileList = new ArrayList<>(profileIds.size());
-        int batchSize = 20;
-        int fromIndex = 0;
-        int toIndex = fromIndex + batchSize;
-        toIndex = Math.min(toIndex, profileIds.size());
-        while(toIndex <= profileIds.size()) {
-            List<String> profileIdsBatch = profileIds.subList(fromIndex, toIndex);
-            String filter = "";
-            for (String profileId : profileIdsBatch) {
-                filter += (filter.length() > 0) ? " or " : "";
-                filter += String.format("(id eq \"%s\")", profileId);
-            }
-            UserList users = client.listUsers(null, filter, null, null, null);
-            Collection<UserProfile> userProfilesBatch = toUserProfileList(users);
-            profileList.addAll(userProfilesBatch);
-
-            fromIndex = toIndex;
-            if (toIndex == profileIds.size()) {
-                break;
-            }
-            toIndex = fromIndex + batchSize;
+        if (profileIds.size() > 0) {
+            int batchSize = 20;
+            int fromIndex = 0;
+            int toIndex = fromIndex + batchSize;
             toIndex = Math.min(toIndex, profileIds.size());
+            while(toIndex <= profileIds.size()) {
+                List<String> profileIdsBatch = profileIds.subList(fromIndex, toIndex);
+                String filter = "";
+                for (String profileId : profileIdsBatch) {
+                    filter += (filter.length() > 0) ? " or " : "";
+                    filter += String.format("(id eq \"%s\")", profileId);
+                }
+                UserList users = client.listUsers(null, filter, null, null, null);
+                Collection<UserProfile> userProfilesBatch = toUserProfileList(users);
+                profileList.addAll(userProfilesBatch);
+
+                fromIndex = toIndex;
+                if (toIndex == profileIds.size()) {
+                    break;
+                }
+                toIndex = fromIndex + batchSize;
+                toIndex = Math.min(toIndex, profileIds.size());
+            }
         }
 
         return profileList;

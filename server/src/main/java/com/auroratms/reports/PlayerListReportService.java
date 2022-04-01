@@ -192,6 +192,14 @@ public class PlayerListReportService {
                 document.add(table);
                 addFooter(document, pageNum, numPages, font, generatedOnDate);
             }
+            if (playerReportInfos.size() == 0) {
+                Paragraph emptyReportParagraph = new Paragraph("No players participated in tournament");
+                emptyReportParagraph.setFont(font);
+                emptyReportParagraph.setFontSize(12);
+                emptyReportParagraph.setBold();
+                emptyReportParagraph.setTextAlignment(TextAlignment.CENTER);
+                document.add(emptyReportParagraph);
+            }
 
             document.close();
 
