@@ -81,11 +81,9 @@ public class TournamentProcessingRequestService {
                 if (latestCreatedOn == null) {
                     latestCreatedOn = detail.getCreatedOn();
                     latestStatus = detail.getStatus();
-                    System.out.println("first detail status = " + latestStatus);
                 } else if (detail.getCreatedOn() == null || latestCreatedOn.before(detail.getCreatedOn())) {
                     latestCreatedOn = (detail.getCreatedOn() == null) ? new Date() : detail.getCreatedOn();
                     latestStatus = detail.getStatus();
-                    System.out.println("next detail status = " + latestStatus);
                 }
             }
             tournamentProcessingRequest.setRequestStatus(latestStatus);

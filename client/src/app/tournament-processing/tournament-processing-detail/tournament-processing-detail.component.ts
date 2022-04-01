@@ -73,11 +73,11 @@ export class TournamentProcessingDetailComponent implements OnInit, OnChanges {
           const dateUtils = new DateUtils();
           details.sort((detail1: TournamentProcessingRequestDetail, detail2: TournamentProcessingRequestDetail) => {
             if (detail1.createdOn == null) {
-              return -1;
-            } else if (detail2.createdOn == null) {
               return 1;
+            } else if (detail2.createdOn == null) {
+              return -1;
             } else {
-              return dateUtils.isDateBefore(detail1.createdOn, detail1.createdOn) ? 1 : -1;
+              return dateUtils.isTimestampBefore(detail1.createdOn, detail2.createdOn) ? -1 : 1;
             }
           });
           tpr.details = JSON.parse(JSON.stringify(details));
