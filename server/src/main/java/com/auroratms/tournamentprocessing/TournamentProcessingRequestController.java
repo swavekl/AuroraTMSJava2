@@ -134,7 +134,6 @@ public class TournamentProcessingRequestController {
         try {
             String tournamentId = params.get("tournamentId");
             String nameContains = params.get("nameContains");
-            System.out.println("nameContains = " + nameContains);
             if (tournamentId == null) {
                 nameContains = (StringUtils.isNotEmpty(nameContains)) ? nameContains : "";
                 Page<TournamentProcessingRequest> page = this.service.findByName(nameContains, pageable);

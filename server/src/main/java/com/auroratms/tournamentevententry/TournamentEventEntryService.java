@@ -1,6 +1,7 @@
 package com.auroratms.tournamentevententry;
 
 import com.auroratms.error.ResourceNotFoundException;
+import com.auroratms.tournamentevententry.notification.EventEntryChangePublisher;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CacheEvict;
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 
 @Service
@@ -19,6 +21,9 @@ public class TournamentEventEntryService {
 
     @Autowired
     private TournamentEventEntryRepository repository;
+
+    @Autowired
+    private EventEntryChangePublisher eventPublisher;
 
     // list of event entry statuses considered to be 'taken'
     private static List<EventEntryStatus> TAKEN_EVENTS_STATUS = Arrays.asList(
@@ -50,7 +55,13 @@ public class TournamentEventEntryService {
 
     @CacheEvict(key = "#id")
     public void delete(long id) {
+        TournamentEventEntry tournamentEventEntry = this.get(id);
+        long tournamentId = tournamentEventEntry.getTournamentFk();
+        long tournamentEventId = tournamentEventEntry.getTournamentEventFk();
+
         repository.deleteById(id);
+
+        this.eventPublisher.publishTournamentEventDeletedEvent(tournamentId, tournamentEventId);
     }
 
     /**
@@ -115,5 +126,12 @@ public class TournamentEventEntryService {
 
     public List<TournamentEventEntry> listAllForCartSession(String cartSessionUUID) {
         return repository.findAllByCartSessionId(cartSessionUUID);
+    }
+
+    public List<TournamentEventEntry> listWaitingListEntriesForEvent(long eventId) {
+        List<TournamentEventEntry> waitingListEntries = repository.findAllByTournamentEventFkEqualsAndStatusEquals(eventId, EventEntryStatus.ENTERED_WAITING_LIST);
+        // sort them so earliest entries are first
+        waitingListEntries.sort(Comparator.comparing(TournamentEventEntry::getDateEntered));
+        return waitingListEntries;
     }
 }

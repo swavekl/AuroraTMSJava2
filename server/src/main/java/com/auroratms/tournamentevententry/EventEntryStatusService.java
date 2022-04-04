@@ -314,6 +314,8 @@ public class EventEntryStatusService {
             case ENTER:
             case ENTER_WAITING_LIST:
                 TournamentEvent event = tournamentEventService.get(eventEntryInfo.getEventFk());
+                // if event filled up while user was waiting on the screen then put him on the waiting list
+                nextEventEntryStatus = (event.getNumEntries() < event.getMaxEntries()) ? nextEventEntryStatus : (EventEntryStatus.PENDING_WAITING_LIST);
                 eventEntry = new TournamentEventEntry();
                 eventEntry.setDateEntered(new Date());
                 eventEntry.setTournamentFk(event.getTournamentFk());

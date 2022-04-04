@@ -2,14 +2,12 @@ package com.auroratms.paymentrefund;
 
 import com.stripe.Stripe;
 import com.stripe.exception.StripeException;
-import com.stripe.model.Charge;
-import com.stripe.model.ChargeCollection;
-import com.stripe.model.PaymentIntent;
-import com.stripe.model.Refund;
+import com.stripe.model.*;
 import com.stripe.net.RequestOptions;
 import com.stripe.param.PaymentIntentCreateParams;
 import com.stripe.param.RefundCreateParams;
 import com.stripe.param.checkout.SessionCreateParams;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -20,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 
 @Service
+@Slf4j
 public class PaymentRefundService {
     @Value("${stripe.secret.key}")
     private String stripeApiKey;
@@ -145,5 +144,21 @@ public class PaymentRefundService {
     @Transactional(readOnly = true)
     public List<PaymentRefund> getPaymentRefunds(long itemId, PaymentRefundFor paymentRefundFor) {
         return this.paymentRefundRepository.findPaymentRefundsByItemIdAndPaymentRefundFor(itemId, paymentRefundFor);
+    }
+
+    /**
+     * Gets Stripe account currency
+     * @param accountId
+     * @return
+     */
+    public String getAccountCurrency(String accountId) {
+        String defaultAccountCurrency = "usd";
+        try {
+            Account stripeAccount = Account.retrieve(accountId);
+            defaultAccountCurrency = stripeAccount.getDefaultCurrency();
+        } catch (StripeException e) {
+            log.error ("Unable to get account currency for account " + accountId);
+        }
+        return defaultAccountCurrency;
     }
 }

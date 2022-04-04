@@ -13,7 +13,7 @@ import {TodayService} from './shared/today.service';
   styleUrls: ['./app.component.css']
 })
 export class AppComponent implements OnInit {
-  isAuthenticated$: Observable<boolean>;
+  public isAuthenticated$: Observable<boolean>;
 
   isMobile = false;
 
@@ -37,6 +37,10 @@ export class AppComponent implements OnInit {
 
   ngOnInit() {
     this.isAuthenticated$ = this.authenticationService.getIsAuthenticated();
+  }
+
+  getUserFirstName() {
+    return this.authenticationService.getCurrentUserFirstName();
   }
 
   logout() {

@@ -21,21 +21,32 @@ public class CartSessionService {
     private static final int EXPIRED_SESSION_TIMEOUT = 30;
 
     /**
-     * start a session
+     * start a session with a start timestamp of now
      *
      * @return
      */
     public CartSession startSession(PaymentRefundFor paymentRefundFor) {
+        return this.startSession(paymentRefundFor, new Date());
+    }
+
+    /**
+     * Starts a session with a given start date & time
+     * @param paymentRefundFor
+     * @param startDate
+     * @return
+     */
+    public CartSession startSession(PaymentRefundFor paymentRefundFor, Date startDate) {
         CartSession cartSession = new CartSession();
         cartSession.setPaymentRefundFor(paymentRefundFor);
         ObjectIdGenerators.UUIDGenerator uuidGenerator = new ObjectIdGenerators.UUIDGenerator();
         UUID uuid = uuidGenerator.generateId(cartSession);
         cartSession.setSessionUUID(uuid.toString());
-        cartSession.setSessionLastUpdate(new Date());
+        cartSession.setSessionLastUpdate(startDate);
 
         CartSession savedCartSession = cartSessionRepository.saveAndFlush(cartSession);
         return savedCartSession;
     }
+
 
     /**
      * updates a session

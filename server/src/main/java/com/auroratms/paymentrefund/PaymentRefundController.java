@@ -71,13 +71,7 @@ public class PaymentRefundController {
 
                     Stripe.apiKey = this.stripeApiKey;
                     map.put("stripeAccountId", accountEntity.getAccountId());
-                    String defaultAccountCurrency = "usd";
-                    try {
-                        Account stripeAccount = Account.retrieve(accountEntity.getAccountId());
-                        defaultAccountCurrency = stripeAccount.getDefaultCurrency();
-                    } catch (StripeException e) {
-
-                    }
+                    String defaultAccountCurrency = paymentRefundService.getAccountCurrency(accountEntity.getAccountId());
                     map.put("defaultAccountCurrency", defaultAccountCurrency);
                     return new ResponseEntity(map, HttpStatus.OK);
                 } else {

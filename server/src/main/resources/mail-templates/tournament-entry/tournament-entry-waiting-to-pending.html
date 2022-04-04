@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns="http://www.w3.org/1999/html">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <title></title>
+</head>
+<body>
+Hello <span th:text="${playerFirstName}"></span>,
+<p>
+A spot opened up in the <span th:text="${eventName}"></span> event of the <span th:text="${tournamentName}"></span>
+and since you were on the waiting list, you were automatically placed in this event.
+</p>
+<p>
+However, your event entry is not confirmed until we receive a payment, which for this event is
+    <span th:text="${#numbers.formatDecimal(eventPrice, 1, 2)}">10.00</span> <span th:text="${currency}">USD</span>.
+We understand that you might be busy at the moment, so you have about 2 hours,
+until <span th:text="${#dates.format(cartSessionExpiration,'dd MMMM yyyy hh:mm aaa')}"></span> to complete the payment.
+If you are no longer interested in playing in this event, please remove yourself so other players can enter.
+</p>
+<p>
+To complete it or to withdraw from this event please visit this <a th:href="${eventEntryUrl}">link</a>.
+</p>
+Sincerely,<br>
+Aurora TMS Admin
+</body>
+</html>
