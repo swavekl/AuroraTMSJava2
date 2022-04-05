@@ -1,6 +1,6 @@
 <div fxLayout="row">
   <div fxFlex></div>
-  <div fxFlex="70%" *ngIf="sanctionRequest != null">
+  <div fxFlex="70%" fxFlex.lt-md="100%" *ngIf="sanctionRequest != null">
     <form name="form" (ngSubmit)="save(f.value, false)" #f="ngForm" novalidate>
       <mat-card>
         <mat-card-title>Tournament Sanction Request</mat-card-title>
