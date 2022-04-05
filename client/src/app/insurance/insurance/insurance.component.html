@@ -1,28 +1,33 @@
 <div fxLayout="row">
   <div fxFlex></div>
-  <div fxFlex="60%" fxFlex.lt-md="100%">
+  <div fxFlex="60%" fxFlex.lt-lg="100%">
     <form name="form" (ngSubmit)="save()" #f="ngForm" novalidate>
       <mat-card>
         <mat-card-title>Certificate of Insurance Request</mat-card-title>
-        <mat-card-actions>
-          <button mat-raised-button (click)="onCancel()">Cancel</button>
-          <span fxFlex></span>
-          <app-download-file [buttonLabel]="'Download Certificate'"
-                             [fileUrl]="insuranceRequest?.certificateUrl"
-                             [disabledBtn]="insuranceRequest?.certificateUrl === null">
-          </app-download-file>
-          <app-upload-file-component
-            [disabledBtn]="insuranceRequest?.status !== 'Submitted'"
-            [uploadButtonLabel]="'Upload certificate'"
-            (uploadFinished)="onCertificateUploadFinished($event)"
-            [storagePath]="getCertificateStoragePath()">
-          </app-upload-file-component>
-          <button mat-raised-button (click)="onSubmitRequest()"
-                  [disabled]="!f.valid || (insuranceRequest?.status !== 'New')">Submit
-          </button>
-          <button mat-raised-button type="submit" color="primary"
-                  [disabled]="!f.valid">Save
-          </button>
+        <mat-card-actions fxLayout="column" fxLayoutGap="10px">
+          <div fxLayout="row" fxLayoutAlign="start start">
+            <button style="margin-left: 10px;" mat-raised-button (click)="onCancel()">Cancel</button>
+            <span fxFlex></span>
+            <button mat-raised-button (click)="onSubmitRequest()"
+                    [disabled]="!f.valid || (insuranceRequest?.status !== 'New')">Submit
+            </button>
+            <button mat-raised-button type="submit" color="primary"
+                    [disabled]="!f.valid">Save
+            </button>
+          </div>
+          <div fxLayout="row" fxLayoutAlign="start start">
+            <app-download-file [buttonLabel]="'Download Certificate'"
+                               [fileUrl]="insuranceRequest?.certificateUrl"
+                               [disabledBtn]="insuranceRequest?.certificateUrl === null">
+            </app-download-file>
+<!--            <span fxFlex></span>-->
+            <app-upload-file-component
+              [disabledBtn]="insuranceRequest?.status !== 'Submitted'"
+              [uploadButtonLabel]="'Upload Certificate'"
+              (uploadFinished)="onCertificateUploadFinished($event)"
+              [storagePath]="getCertificateStoragePath()">
+            </app-upload-file-component>
+          </div>
         </mat-card-actions>
         <mat-card-content>
           <div fxLayout="column" class="insurance-form" *ngIf="insuranceRequest != null">
