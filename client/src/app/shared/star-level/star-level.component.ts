@@ -1,4 +1,4 @@
-import {Component, Input, OnChanges, OnInit, SimpleChanges} from '@angular/core';
+import {Component, Input, OnChanges, OnInit, SimpleChange, SimpleChanges} from '@angular/core';
 
 /**
  * Component for showing number of stars
@@ -11,7 +11,7 @@ import {Component, Input, OnChanges, OnInit, SimpleChanges} from '@angular/core'
       </ng-container>
   `,
   styles: [
-  'mat-icon.compact {font-size: 16px; height: 16px; width: 16px;} ' +
+  'mat-icon.compact {font-size: 16px !important; height: 16px !important; width: 16px !important; padding: 0 !important;} ' +
   'mat-icon.normal  {font-size: 24px;}'
   ]
 })
@@ -26,6 +26,7 @@ export class StarLevelComponent implements OnChanges {
 
   constructor() {
     this.starsArray = [];
+    this.compact = true;
   }
 
   ngOnChanges(changes: SimpleChanges): void {

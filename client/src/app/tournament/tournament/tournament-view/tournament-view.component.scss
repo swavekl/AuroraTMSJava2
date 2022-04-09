@@ -5,14 +5,32 @@ mat-icon.button-icon {
   color: $primary-color;
 }
 
-td.icon-column {
-  align-content: center;
-  justify-content: center;
-  width: 64px;
+table.tournament-info-table {
+  width: 100%;
+  td.heading {
+    border-bottom: 1px solid $primary-color;
+    padding-top: 12px;
+  }
+
+  td.icon-column {
+    align-content: center;
+    justify-content: center;
+    vertical-align: middle;
+    width: 56px;
+    padding-top: 8px;
+    padding-right: 8px;
+  }
+
+  td.text-column {
+    vertical-align: top;
+    padding-top: 8px;
+  }
 }
+
 
 table.dates-table {
   width: 100%;
+  margin-top: 8px;
 }
 
 td.date-name {

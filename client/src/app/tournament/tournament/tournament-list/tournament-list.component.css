@@ -4,3 +4,13 @@ mat-grid-tile {
 .truncated-list-item {
   max-width: calc(100vw - 1px);
 }
+
+.content-container {
+  height: calc(100vh - 72px);
+}
+
+.list-container {
+  overflow: auto;
+  height: calc(100vh - 160px);
+}
+

@@ -4,15 +4,18 @@
     <mat-card>
       <mat-card-title>{{ tournament.name }}</mat-card-title>
       <div>
-        <app-star-level [numStars]="tournament.starLevel" [compact]="false"></app-star-level>
+        <div fxLayout="row">
+          <app-star-level [numStars]="tournament.starLevel" [compact]="false"></app-star-level>
+          <div *ngIf="tournament.totalPrizeMoney > 0" style="margin-left: 16px; margin-top: 4px;">{{ tournament.totalPrizeMoney | currency : 'USD' : 'symbol' : '1.0-0'}}</div>
+        </div>
       </div>
       <mat-card-content>
         <div class="mat-caption">{{ [tournament.startDate, tournament.endDate] | dateRange }}</div>
-        <table style="width: 100%">
+        <table class="tournament-info-table">
           <tbody>
           <tr>
-            <!--            <td class="mat-subheading-1"></td>-->
-            <td colspan="2" class="mat-subheading-1">Venue</td>
+            <td></td>
+            <td class="heading mat-subheading-1">Venue</td>
           </tr>
           <tr>
             <td class="icon-column">
@@ -20,15 +23,15 @@
                 <mat-icon class="button-icon">assistant_direction</mat-icon>
               </a>
             </td>
-            <td>
-              <div>{{ tournament.venueName }}</div>
-              <div>{{ tournament.streetAddress }}</div>
-              <div>{{ tournament.city }}, {{ tournament.state }}</div>
+            <td class="text-column">
+              {{ tournament.venueName }}<br>
+              {{ tournament.streetAddress }}<br>
+              {{ tournament.city }}, {{ tournament.state }}
             </td>
           </tr>
-          <tr style="padding-top: 20px;">
-            <!--            <td class="mat-subheading-1"></td>-->
-            <td colspan="2" class="mat-subheading-1">Tournament Director</td>
+          <tr>
+            <td></td>
+            <td class="heading mat-subheading-1">Tournament Director</td>
           </tr>
           <tr>
             <td class="icon-column">
@@ -36,7 +39,7 @@
                 <mat-icon class="button-icon">call</mat-icon>
               </a>
             </td>
-            <td>
+            <td class="text-column">
               <div>{{tournament.contactName}}</div>
               <div>{{tournament.phone}}</div>
               <div>
@@ -47,8 +50,8 @@
             </td>
           </tr>
           <tr>
-            <!--            <td class="mat-subheading-1"></td>-->
-            <td colspan="2" class="mat-subheading-1">Players Entered</td>
+            <td></td>
+            <td class="heading mat-subheading-1">Players Entered</td>
           </tr>
           <tr>
             <td class="icon-column">
@@ -56,15 +59,18 @@
                 <mat-icon class="button-icon">groups</mat-icon>
               </a>
             </td>
-            <td class="mat-display-1">
+            <td class="text-column mat-display-1">
               {{ tournament.numEntries }} ({{percentFull | percent}} full)
             </td>
           </tr>
           <tr>
-            <td colspan="2" class="mat-subheading-1">Key dates</td>
+            <td></td>
+            <td class="heading mat-subheading-1">Key dates</td>
           </tr>
           <tr>
-            <td class="icon-column"></td>
+            <td class="icon-column">
+              <mat-icon class="button-icon">calendar_month</mat-icon>
+            </td>
             <td>
               <table class="dates-table">
                 <tbody>
