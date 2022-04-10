@@ -130,8 +130,12 @@ public class TournamentEventEntryService {
 
     public List<TournamentEventEntry> listWaitingListEntriesForEvent(long eventId) {
         List<TournamentEventEntry> waitingListEntries = repository.findAllByTournamentEventFkEqualsAndStatusEquals(eventId, EventEntryStatus.ENTERED_WAITING_LIST);
-        // sort them so earliest entries are first
+        // sort them so that earliest entries are first
         waitingListEntries.sort(Comparator.comparing(TournamentEventEntry::getDateEntered));
         return waitingListEntries;
+    }
+
+    public List<TournamentEventEntry> findAllEntriesByTournamentFkWithWaitingListEntries(Long tournamentId) {
+        return repository.findAllEntriesByTournamentFkWithEventStatus(tournamentId, EventEntryStatus.ENTERED_WAITING_LIST);
     }
 }

@@ -1,0 +1,50 @@
+<div fxLayout="column" fxLayoutAlign="start start" class="page-container">
+  <h2>Waiting List Players</h2>
+  <div style="padding: 0 0 16px 0">
+    <mat-button-toggle-group name="sortBy" aria-label="Sort By" [value]="sortBy">
+      <mat-button-toggle value="name" (click)="onSortByName()">Sort by Player Name</mat-button-toggle>
+      <mat-button-toggle value="event" (click)="onSortByEvent()">Sort by Event</mat-button-toggle>
+    </mat-button-toggle-group>
+  </div>
+  <div class="waiting-list-container">
+    <div *ngIf="sortBy == 'name'">
+      <table class="waiting-list-by-player-table">
+        <thead>
+        <tr>
+          <th class="player-name-column">Player Name</th>
+          <th class="events-column">Waited Events</th>
+          <th class="events-column">Confirmed Events</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr *ngFor="let entry of tournamentEntryInfos">
+          <td class="player-name-column">
+            <a [routerLink]="['/userprofile', entry.profileId]">{{entry.lastName}}, {{entry.firstName}}</a>
+<!--            &nbsp;<a href="tel:'630-251-8860'">-->
+<!--              <mat-icon class="button-icon">call</mat-icon>-->
+<!--            </a>-->
+          </td>
+          <td class="events-column">{{getPlayerEventList(entry.eventIds)}}</td>
+          <td class="events-column">{{getPlayerEventList(entry.waitingListEventIds)}}</td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+    <div *ngIf="sortBy == 'event'">
+      <table class="waiting-list-by-event-table">
+        <thead>
+        <tr>
+          <th class="event-name-column">Event</th>
+          <th class="players-column">Players </th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr *ngFor="let eventWithPlayers of eventWithPlayersList">
+          <td class="event-name-column">{{eventWithPlayers.eventName}}</td>
+          <td class="players-column">{{eventWithPlayers.playersOnWaitingList.join(' | ')}}</td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

@@ -19,6 +19,9 @@
             <button mat-icon-button [routerLink]="['/processing/detail/submit', tournament.id, tournament.name]" matTooltip="Submit results for processing" style="margin-right: 20px">
               <mat-icon matListIcon>publish</mat-icon>
             </button>
+            <button mat-icon-button [routerLink]="['/tournamentwaitinglist', tournament.id]" matTooltip="Tournament Waiting List" style="margin-right: 20px">
+              <mat-icon matListIcon>playlist_add</mat-icon>
+            </button>
             <button mat-icon-button [routerLink]="['/scheduling', tournament.id]" matTooltip="Table Assignment & Time Scheduling" style="margin-right: 20px">
               <mat-icon matListIcon>schedule</mat-icon>
             </button>

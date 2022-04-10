@@ -59,13 +59,13 @@ const routes: Routes = [
     path: 'today',
     loadChildren: () => import('./today/today.module').then(m => m.TodayModule)
   },
-  // {
-  //   path: 'usattdashboard',
-  //   loadChildren: () => import('./usattdashboard/usattdashboard.module').then(m => m.USATTDashboardModule),
-  //   data: {
-  //     roles: [UserRoles.ROLE_ADMINS, UserRoles.ROLE_USATT_OFFICIALS]
-  //   }
-  // },
+  {
+    path: 'tddashboard',
+    loadChildren: () => import('./tournament-director-dashboard/tournament-director-dashboard.module').then(m => m.TournamentDirectorDashboardModule),
+    data: {
+      roles: [UserRoles.ROLE_ADMINS, UserRoles.ROLE_TOURNAMENT_DIRECTORS]
+    }
+  },
   {
     path: 'club',
     loadChildren: () => import('./club/club.module').then(m => m.ClubModule),

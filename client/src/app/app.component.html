@@ -35,9 +35,9 @@
       <mat-list-item *ngIf="(isAuthenticated$ | async)" (click)="editProfile()" routerLinkActive="active">
         <a matLine>Profile</a>
       </mat-list-item>
-      <mat-list-item *ngIf="isLinkVisible('/usattdashboard')" (click)="closeAndNavigateToRoute('/usattdashboard')" routerLinkActive="active">
-        <a matLine>USATT Dashboard</a>
-      </mat-list-item>
+<!--      <mat-list-item *ngIf="isLinkVisible('/tddashboard')" (click)="closeAndNavigateToRoute('/tddashboard')" routerLinkActive="active">-->
+<!--        <a matLine>TD Dashboard</a>-->
+<!--      </mat-list-item>-->
       <mat-list-item *ngIf="isLinkVisible('/club')" (click)="closeAndNavigateToRoute('/club/list')" routerLinkActive="active">
         <a matLine>Clubs</a>
       </mat-list-item>

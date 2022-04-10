@@ -51,4 +51,14 @@ public class TournamentEventEntryInfoController {
             return new ResponseEntity(e, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    @GetMapping("/waitinglistentries/{tournamentId}")
+    public ResponseEntity<List<TournamentEntryInfo>> getWaitingListEntries(@PathVariable Long tournamentId) {
+        try {
+            List<TournamentEntryInfo> waitingListEntries = this.tournamentEntryInfoService.getPlayerEntriesWithWaitingListEntries(tournamentId);
+            return ResponseEntity.ok(waitingListEntries);
+        } catch (Exception e) {
+            return new ResponseEntity(e, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 }

@@ -1,0 +1,75 @@
+div.page-container {
+  width: 100%;
+  overflow: hidden;
+  height: calc(100vh - 72px);
+  padding: 8px 8px 0 8px;
+}
+
+div.waiting-list-container {
+  width: 100%;
+  overflow-y: auto;
+  height: calc(100vh - 172px);
+}
+
+table.waiting-list-by-player-table {
+  width: 100%;
+  border: 1px solid black;
+  text-align: start;
+
+  tr {
+
+    &:nth-child(odd) td {
+      background: rgba(143, 126, 126, 0.18);
+    }
+
+    th {
+      font-weight: bold;
+    }
+
+    th, td {
+      padding: 8px;
+      border: 1px solid black;
+
+      &.player-name-column {
+        min-width: calc((100% - 50px) / 5);
+      }
+
+      &.events-column {
+        min-width: calc(((100% - 50px) / 5) * 2);
+      }
+    }
+  }
+}
+
+table.waiting-list-by-event-table {
+  width: 100%;
+  border: 1px solid black;
+  text-align: start;
+
+  tr {
+    &:nth-child(odd) td {
+      background: rgba(143, 126, 126, 0.18);
+    }
+
+    th {
+      font-weight: bold;
+    }
+
+    th, td {
+      padding: 8px;
+      border: 1px solid black;
+
+      &.event-name-column {
+        width: 300px;
+        //min-width: 20%;
+        //min-width: calc((100% - 50px) / 3);
+      }
+
+      &.players-column {
+        //min-width: 30%;
+        //min-width: calc(((100% - 50px) / 3) * 2);
+      }
+    }
+  }
+
+}

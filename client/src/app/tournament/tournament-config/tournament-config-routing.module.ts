@@ -4,6 +4,7 @@ import {TournamentConfigListContainerComponent} from './tournament-config-list/t
 import {TournamentConfigEditContainerComponent} from './tournament-config-edit/tournament-config-edit-container.component';
 import {TournamentEventConfigContainerComponent} from './tournament-event-config/tournament-event-config-container.component';
 import {AuthGuard} from '../../guards/auth.guard';
+import {TournamentWaitingListContainerComponent} from './tournament-waiting-list/tournament-waiting-list-container.component';
 
 
 const routes: Routes = [
@@ -30,6 +31,11 @@ const routes: Routes = [
   {
     path: 'tournament/:tournamentId/tournamentevent/edit/:id',
     component: TournamentEventConfigContainerComponent,
+    canActivate: [AuthGuard]
+  },
+  {
+    path: 'tournamentwaitinglist/:tournamentId',
+    component: TournamentWaitingListContainerComponent,
     canActivate: [AuthGuard]
   }
 ];

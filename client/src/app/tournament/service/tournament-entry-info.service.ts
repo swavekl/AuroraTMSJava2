@@ -54,4 +54,20 @@ export class TournamentEntryInfoService {
         )
       );
   }
+
+  getWaitingListEntries(tournamentId: number): Observable<TournamentEntryInfo[]> {
+    this.setLoading(true);
+    const url = `/api/waitinglistentries/${tournamentId}`;
+    return this.httpClient.get<TournamentEntryInfo []>(url)
+      .pipe(
+        tap(
+          () => {
+            this.setLoading(false);
+          },
+          () => {
+            this.setLoading(false);
+          }
+        )
+      );
+  }
 }

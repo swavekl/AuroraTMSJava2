@@ -4,12 +4,11 @@ import com.auroratms.profile.UserProfile;
 import com.auroratms.profile.UserProfileExt;
 import com.auroratms.profile.UserProfileExtService;
 import com.auroratms.profile.UserProfileService;
+import com.auroratms.tournamentevententry.EventEntryStatus;
 import com.auroratms.tournamentevententry.TournamentEventEntry;
 import com.auroratms.tournamentevententry.TournamentEventEntryService;
 import com.auroratms.usatt.UsattDataService;
 import com.auroratms.usatt.UsattPlayerRecord;
-import com.auroratms.usatt.UsattPlayerRecordRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -123,19 +122,79 @@ public class TournamentEntryInfoService {
     public List<TournamentEntryInfo> getDoublesEntryInfosForEvent(Long eventId) {
         // get all entries into this event
         List<TournamentEventEntry> eventEntryList = tournamentEventEntryService.listAllForEvent(eventId);
+        List<TournamentEntryInfo> tournamentEntryInfos = convertToTournamentEntryInfos(eventEntryList);
+        // set the events array to just this event
+        List<Long> eventIds = new ArrayList<>(1);
+        eventIds.add(eventId);
+        for (TournamentEntryInfo tournamentEntryInfo : tournamentEntryInfos) {
+            tournamentEntryInfo.setEventIds(eventIds);
+        }
+        return tournamentEntryInfos;
+    }
+
+    /**
+     * Gets all entries for players with entries on the waiting list in the specified tournament
+     *
+     * @param tournamentId id of tournament to search entries for
+     * @return list of infos
+     */
+    public List<TournamentEntryInfo> getPlayerEntriesWithWaitingListEntries(Long tournamentId) {
+        List<TournamentEventEntry> playerEventEntries = tournamentEventEntryService.findAllEntriesByTournamentFkWithWaitingListEntries(tournamentId);
+        // convert to infos
+        List<TournamentEntryInfo> infos = convertToTournamentEntryInfos(playerEventEntries);
+
+        // populate event array with ids of events on which they wait
+        for (TournamentEventEntry eventEntry : playerEventEntries) {
+            long eventFk = eventEntry.getTournamentEventFk();
+            long tournamentEntryFk = eventEntry.getTournamentEntryFk();
+            for (TournamentEntryInfo info : infos) {
+                if (info.getEntryId() == tournamentEntryFk) {
+                    // separate waiting list entries from other entries
+                    if (eventEntry.getStatus() == EventEntryStatus.ENTERED_WAITING_LIST ||
+                        eventEntry.getStatus() == EventEntryStatus.PENDING_WAITING_LIST) {
+                        List<Long> waitingListEventIds = info.getWaitingListEventIds();
+                        if (waitingListEventIds == null) {
+                            waitingListEventIds = new ArrayList<>();
+                            info.setWaitingListEventIds(waitingListEventIds);
+                        }
+                        waitingListEventIds.add(eventFk);
+                    } else {
+                        List<Long> eventIds = info.getEventIds();
+                        if (eventIds == null) {
+                            eventIds = new ArrayList<>();
+                            info.setEventIds(eventIds);
+                        }
+                        eventIds.add(eventFk);
+                    }
+                }
+            }
+        }
+
+        infos.sort(Comparator.comparing(TournamentEntryInfo::getLastName)
+                .thenComparing(TournamentEntryInfo::getFirstName));
+
+        return infos;
+    }
+
+    /**
+     * Converts event entry list into TournamentEntryInfos with player information and events they participate in
+     * @param eventEntryList
+     * @return
+     */
+    private List<TournamentEntryInfo> convertToTournamentEntryInfos(List<TournamentEventEntry> eventEntryList) {
         List<TournamentEntryInfo> tournamentEntryInfos = new ArrayList<>(eventEntryList.size());
-        // get tournament entry ids
+        // get unique tournament entry ids
         List<Long> tournamentEntryIds = new ArrayList<>(eventEntryList.size());
         for (TournamentEventEntry entry : eventEntryList) {
-            tournamentEntryIds.add(entry.getTournamentEntryFk());
+            if (!tournamentEntryIds.contains(entry.getTournamentEntryFk())) {
+                tournamentEntryIds.add(entry.getTournamentEntryFk());
+            }
         }
 
         // get all entries which contain profile ids
         List<TournamentEntry> tournamentEntries = tournamentEntryService.listEntries(tournamentEntryIds);
         // make these maps for efficient joining in memory - we may have to do it in database if it is too slow
         Map<String, TournamentEntryInfo> mapProfileIdToInfo = new HashMap<>();
-        List<Long> eventIds = new ArrayList<>(1);
-        eventIds.add(eventId);
         // translate partially into infos
         for (TournamentEntry tournamentEntry : tournamentEntries) {
             TournamentEntryInfo info = new TournamentEntryInfo();
@@ -143,7 +202,6 @@ public class TournamentEntryInfoService {
             info.setProfileId(tournamentEntry.getProfileId());
             info.setEligibilityRating(tournamentEntry.getEligibilityRating());
             info.setSeedRating(tournamentEntry.getSeedRating());
-            info.setEventIds(eventIds);
             tournamentEntryInfos.add(info);
 
             // collect for efficient matching below

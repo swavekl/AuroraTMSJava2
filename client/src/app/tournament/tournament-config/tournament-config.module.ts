@@ -41,6 +41,9 @@ import {MatTooltipModule} from '@angular/material/tooltip';
 import {TournamentEventEntryDataService} from './tournament-event-entry-data.service';
 import { PrizeInfoDialogComponent } from './tournament-event-config/prize-info-dialog/prize-info-dialog.component';
 import { PrizeInfoValidatorDirective } from './tournament-event-config/prize-info-dialog/prize-info-validator.directive';
+import { TournamentWaitingListComponent } from './tournament-waiting-list/tournament-waiting-list.component';
+import { TournamentWaitingListContainerComponent } from './tournament-waiting-list/tournament-waiting-list-container.component';
+import {MatButtonToggleModule} from '@angular/material/button-toggle';
 
 @NgModule({
   declarations: [
@@ -54,32 +57,35 @@ import { PrizeInfoValidatorDirective } from './tournament-event-config/prize-inf
     TournamentEventConfigContainerComponent,
     SelectEventDialogComponent,
     PrizeInfoDialogComponent,
-    PrizeInfoValidatorDirective
+    PrizeInfoValidatorDirective,
+    TournamentWaitingListComponent,
+    TournamentWaitingListContainerComponent
   ],
-    imports: [
-        CommonModule,
-        FormsModule,
-        MatProgressBarModule,
-        MatCardModule,
-        MatListModule,
-        MatIconModule,
-        MatFormFieldModule,
-        MatInputModule,
-        MatSelectModule,
-        MatButtonModule,
-        MatDatepickerModule,
-        MatNativeDateModule,
-        MatTabsModule,
-        MatTableModule,
-        MatToolbarModule,
-        FlexLayoutModule,
-        RouterModule,
-        SharedModule,
-        TournamentConfigRoutingModule,
-        MatCheckboxModule,
-        MatDialogModule,
-        MatTooltipModule
-    ],
+  imports: [
+    CommonModule,
+    FormsModule,
+    MatProgressBarModule,
+    MatCardModule,
+    MatListModule,
+    MatIconModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    MatButtonModule,
+    MatDatepickerModule,
+    MatNativeDateModule,
+    MatTabsModule,
+    MatTableModule,
+    MatToolbarModule,
+    FlexLayoutModule,
+    RouterModule,
+    SharedModule,
+    TournamentConfigRoutingModule,
+    MatCheckboxModule,
+    MatDialogModule,
+    MatTooltipModule,
+    MatButtonToggleModule
+  ],
   providers: []
 })
 export class TournamentConfigModule {

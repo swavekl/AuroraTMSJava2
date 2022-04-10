@@ -31,4 +31,14 @@ public interface TournamentEventEntryRepository extends JpaRepository<Tournament
     @Query("select count(distinct tee.tournamentEntryFk) from TournamentEventEntry tee " +
             "where tee.tournamentFk = ?1 and tee.status in (?2)")
     int countTournamentEntries(Long tournamentFk, List<EventEntryStatus> statusList);
+
+    // find all entries for players who have an event entry with given status (e.g. waiting list)
+    @Query("from TournamentEventEntry tee2" +
+            " where tee2.tournamentEntryFk in (" +
+            "   select distinct tee.tournamentEntryFk" +
+            "   from TournamentEventEntry tee" +
+            "   where tee.tournamentFk = ?1 and tee.status = ?2" +
+            ")"
+    )
+    List<TournamentEventEntry> findAllEntriesByTournamentFkWithEventStatus(Long tournamentFk, EventEntryStatus status);
 }

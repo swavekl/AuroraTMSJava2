@@ -25,4 +25,7 @@ public class TournamentEntryInfo {
 
     // ids of events player entered
     private List<Long> eventIds;
+
+    // ids of events player is waiting on
+    private List<Long> waitingListEventIds;
 }

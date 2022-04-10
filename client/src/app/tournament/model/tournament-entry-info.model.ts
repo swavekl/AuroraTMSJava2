@@ -19,4 +19,7 @@ export class TournamentEntryInfo {
 
   // ids of events player entered
   eventIds: number [];
+
+  // ids of events player is waiting on
+  waitingListEventIds: number [];
 }
