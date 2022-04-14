@@ -1,0 +1,42 @@
+div.payments-refunds-container {
+  width: 100%;
+  //border: 1px solid blue;
+}
+
+table.payments-refunds {
+  overflow: hidden;
+
+  tfoot tr, thead th {
+    font-weight: bold;
+  }
+
+  tbody tr:nth-child(odd) td {
+    background: rgba(143, 126, 126, 0.18);
+  }
+
+  th, td {
+    padding: 4px 8px;
+    //border: 1px solid black;
+
+    &.pr-name-column {
+      min-width: 350px;
+      text-align: left;
+    }
+
+    &.pr-amount-column {
+      min-width: 120px;
+      max-width: 180px;
+      text-align: right;
+    }
+
+    &.pr-payment-refund-column {
+      max-width: 50px;
+      text-align: right;
+    }
+
+    &.pr-date-time-column {
+      min-width: 170px;
+      text-align: right;
+    }
+  }
+}

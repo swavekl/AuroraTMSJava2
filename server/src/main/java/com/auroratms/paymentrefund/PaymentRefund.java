@@ -32,7 +32,7 @@ public class PaymentRefund {
     @NonNull
     private PaymentRefundFor paymentRefundFor;
 
-    // id of a tournament, clinic or something for which we are paying/refunding
+    // id of a tournament entry, clinic entry or something for which we are paying/refunding
     private long itemId;
 
     // amount of transaction (payment or refund) - this is decimal expressed as a number $20.34 is 2034

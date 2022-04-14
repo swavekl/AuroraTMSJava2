@@ -147,6 +147,18 @@ public class PaymentRefundService {
     }
 
     /**
+     * Gets all payment refunds for
+     *
+     * @param itemIds
+     * @param paymentRefundFor
+     * @return
+     */
+    @Transactional(readOnly = true)
+    public List<PaymentRefund> findAllPaymentRefunds(List<Long> itemIds, PaymentRefundFor paymentRefundFor) {
+        return this.paymentRefundRepository.findPaymentRefundsByItemIdInAndPaymentRefundForOrderByItemId(itemIds, paymentRefundFor);
+    }
+
+    /**
      * Gets Stripe account currency
      * @param accountId
      * @return
@@ -161,4 +173,6 @@ public class PaymentRefundService {
         }
         return defaultAccountCurrency;
     }
+
+
 }

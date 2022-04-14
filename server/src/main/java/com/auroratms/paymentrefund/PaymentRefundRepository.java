@@ -13,5 +13,8 @@ public interface PaymentRefundRepository extends JpaRepository<PaymentRefund, Lo
 
     List<PaymentRefund> findPaymentRefundsByItemIdAndPaymentRefundFor(long itemId, PaymentRefundFor paymentRefundFor);
 
+    // get payments and refunds for all items in the list
+    List<PaymentRefund> findPaymentRefundsByItemIdInAndPaymentRefundForOrderByItemId(List<Long> itemIds, PaymentRefundFor paymentRefundFor);
+
 }
 

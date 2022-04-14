@@ -113,6 +113,27 @@ export class PaymentRefundService {
         })
       );
   }
+
+  /**
+   * Gets payments refunds for given type of item and event type with id (tournament, clinic)
+   */
+  public listPaymentsRefundsForEvent(paymentFor: PaymentRefundFor, eventId: number): Observable<PaymentRefundInfo[]> {
+    this.setLoading(true);
+    const url = `/api/paymentrefund/listforevent/${paymentFor}/${eventId}`;
+    return this.httpClient.get<PaymentRefundInfo[]>(url)
+      .pipe(
+        tap(() => {
+            this.setLoading(false);
+          },
+          (error: any) => {
+            this.setLoading(false);
+          }),
+        map((response: PaymentRefundInfo[]) => {
+          // console.log ('got ALL payment refunds ' + JSON.stringify(response));
+          return response;
+        })
+      );
+  }
 }
 
 /**
@@ -142,5 +163,16 @@ export interface KeyAccountInfo {
 
   // default account currency code e.g. 'USD'
   defaultAccountCurrency: string;
+}
+
+export interface PaymentRefundInfo {
+  // id of person who made these payments
+  profileId: string;
+
+  // full name of person
+  fullName: string;
+
+  // list of payments and refunds
+  paymentRefundList: PaymentRefund [];
 }
 

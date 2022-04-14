@@ -1,0 +1,46 @@
+<div class="payments-refunds-container">
+  <table class="payments-refunds">
+    <thead>
+    <tr>
+      <th class="pr-name-column">Name</th>
+      <th class="pr-amount-column">Amount</th>
+      <th class="pr-date-time-column">Date</th>
+    </tr>
+    </thead>
+    <tbody>
+    <ng-container *ngFor="let paymentRefundInfo of paymentRefundInfos">
+      <ng-container *ngFor="let paymentRefund of paymentRefundInfo.paymentRefundList; first as first">
+      <tr>
+          <td class="pr-name-column">
+            {{first ? paymentRefundInfo.fullName : ''}}
+          </td>
+          <td class="pr-amount-column">
+            <ng-container *ngIf="paymentRefund.paidAmount !== paymentRefund.amount">
+              {{ isPayment(paymentRefund) ? '' : '-' }}{{ (paymentRefund.paidAmount / 100) | currency: paymentRefund.paidCurrency }} =
+            </ng-container>
+            {{ isPayment(paymentRefund) ? '' : '-' }}{{ (paymentRefund.amount / 100) | currency: tournamentCurrency }}
+          </td>
+          <td class="pr-date-time-column">{{ paymentRefund.transactionDate | date:'short' }}</td>
+      </tr>
+      </ng-container>
+    </ng-container>
+    </tbody>
+    <tfoot>
+      <tr>
+        <td class="pr-name-column">Total Payments</td>
+        <td class="pr-amount-column">{{(totalPayments / 100) | currency: tournamentCurrency}}</td>
+        <td class="pr-date-time-column"></td>
+      </tr>
+      <tr>
+        <td class="pr-name-column">Total Refunds</td>
+        <td class="pr-amount-column">{{(totalRefunds / 100) | currency: tournamentCurrency }}</td>
+        <td class="pr-date-time-column"></td>
+      </tr>
+      <tr>
+        <td class="pr-name-column">Grand Total</td>
+        <td class="pr-amount-column">{{(grandTotal / 100) | currency: tournamentCurrency }}</td>
+        <td class="pr-date-time-column"></td>
+      </tr>
+    </tfoot>
+  </table>
+</div>

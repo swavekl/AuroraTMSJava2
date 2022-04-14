@@ -79,7 +79,6 @@ export class TournamentWaitingListContainerComponent implements OnInit, OnDestro
       .pipe(first())
       .subscribe(
         (events: TournamentEvent[]) => {
-          console.log('checking events', events);
           if (events != null && events.length > 0 && events[0].tournamentFk === tournamentId) {
             this.tournamentEvents$ = of(events);
           } else {

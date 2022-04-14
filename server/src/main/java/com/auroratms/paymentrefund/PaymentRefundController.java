@@ -6,11 +6,16 @@ import com.auroratms.paymentrefund.exception.PaymentException;
 import com.auroratms.paymentrefund.notification.PaymentsRefundsEventPublisher;
 import com.auroratms.paymentrefund.notification.event.PaymentEvent;
 import com.auroratms.paymentrefund.notification.event.RefundsEvent;
+import com.auroratms.profile.UserProfileExt;
+import com.auroratms.profile.UserProfileExtService;
 import com.auroratms.profile.UserProfileService;
 import com.auroratms.tournament.TournamentService;
+import com.auroratms.tournamententry.TournamentEntry;
+import com.auroratms.tournamententry.TournamentEntryService;
+import com.auroratms.usatt.UsattDataService;
+import com.auroratms.usatt.UsattPlayerRecord;
 import com.stripe.Stripe;
 import com.stripe.exception.StripeException;
-import com.stripe.model.Account;
 import com.stripe.model.PaymentIntent;
 import com.stripe.model.Refund;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("api/paymentrefund")
@@ -40,6 +46,15 @@ public class PaymentRefundController {
 
     @Autowired
     private AccountService accountService;
+
+    @Autowired
+    private TournamentEntryService tournamentEntryService;
+
+    @Autowired
+    private UserProfileExtService userProfileExtService;
+
+    @Autowired
+    private UsattDataService usattDataService;
 
     @Autowired
     private PaymentsRefundsEventPublisher eventPublisher;
@@ -225,6 +240,107 @@ public class PaymentRefundController {
                                                                       @PathVariable long accountItemId) {
         List<PaymentRefund> paymentRefunds = this.paymentRefundService.getPaymentRefunds(accountItemId, paymentRefundFor);
         return new ResponseEntity(paymentRefunds, HttpStatus.OK);
+    }
+
+    /**
+     * Gets a list of payments and refunds
+     *
+     * @param paymentRefundFor what the payment is for - i.e. tournament entry, application fee
+     * @param eventItemId id of the event (tournament, clinic etc.) for which to get
+     * @return
+     */
+    @GetMapping("/listforevent/{paymentRefundFor}/{eventItemId}")
+    @ResponseBody
+    public ResponseEntity<List<PaymentRefundInfo>> listPaymentsAndRefundsForEvent(
+            @PathVariable PaymentRefundFor paymentRefundFor,
+            @PathVariable long eventItemId) {
+        try {
+            List<Long> itemIds = Collections.emptyList();
+            Set<String> profileIdsSet = Collections.emptySet();
+            List<PaymentRefundInfo> paymentRefundInfos = Collections.emptyList();
+
+            Map<String, Long> mapProfileIdToEntryId = new HashMap<>();
+            if (paymentRefundFor == PaymentRefundFor.TOURNAMENT_ENTRY) {
+                List<TournamentEntry> allTournamentEntries = this.tournamentEntryService.listForTournament(eventItemId);
+                itemIds = new ArrayList<>(allTournamentEntries.size());
+                profileIdsSet = new HashSet<>(allTournamentEntries.size());
+                for (TournamentEntry tournamentEntry : allTournamentEntries) {
+                    itemIds.add(tournamentEntry.getId());
+                    profileIdsSet.add(tournamentEntry.getProfileId());
+                    mapProfileIdToEntryId.put(tournamentEntry.getProfileId(), tournamentEntry.getId());
+                }
+            }
+
+            // get all payments
+            List<PaymentRefund> paymentRefunds = this.paymentRefundService.findAllPaymentRefunds(itemIds, paymentRefundFor);
+            Map<String, String> profileToName = makeProfileToFullNameMap(profileIdsSet);
+            paymentRefundInfos = new ArrayList<>(profileIdsSet.size());
+            for (Map.Entry<String, String> entry : profileToName.entrySet()) {
+                String profileId = entry.getKey();
+                String fullName = entry.getValue();
+
+                // find all payments (and refunds) for this entry
+                Long entryId = mapProfileIdToEntryId.get(profileId);
+                List<PaymentRefund> paymentsRefundsForThisEntry = paymentRefunds
+                        .stream()
+                        .filter(c -> c.getItemId() == entryId)
+                        .sorted(Comparator.comparing(PaymentRefund::getTransactionDate))
+                        .collect(Collectors.toList());
+                // skip players who didn't pay
+                if (paymentsRefundsForThisEntry.size() > 0) {
+                    PaymentRefundInfo paymentRefundInfo = new PaymentRefundInfo();
+                    paymentRefundInfo.setProfileId(profileId);
+                    paymentRefundInfo.setFullName(fullName);
+
+                    paymentRefundInfo.setPaymentRefundList(paymentsRefundsForThisEntry);
+
+                    paymentRefundInfos.add(paymentRefundInfo);
+                }
+            }
+
+            Collections.sort(paymentRefundInfos, Comparator.comparing(PaymentRefundInfo::getFullName));
+
+            return new ResponseEntity(paymentRefundInfos, HttpStatus.OK);
+        } catch (Exception e) {
+            String errorMessage = String.format("Unable to list payments and refunds for event %d.  Error: %s",
+                    eventItemId, e.getMessage());
+            return new ResponseEntity(errorMessage, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /**
+     * Get profile id to player full name map
+     *
+     * @param profileIdsSet set of unique profile ids
+     * @return
+     */
+    private Map<String, String> makeProfileToFullNameMap (Set<String> profileIdsSet) {
+        Map<String, String> profileIdToFullnameMap = new HashMap<>(profileIdsSet.size());
+        // first find all member ids so we can pull up player records with first and last name
+        List<String> profileIds = new ArrayList<>(profileIdsSet);
+
+        // collect membership ids
+        Map<String, UserProfileExt> userProfileExtMap = userProfileExtService.findByProfileIds(profileIds);
+        List<Long> membershipIds = new ArrayList<>(profileIdsSet.size());
+        Map<Long, String> reverseMapMembershipIdToProfileId = new HashMap<>();
+        for (Map.Entry<String, UserProfileExt> entry : userProfileExtMap.entrySet()) {
+            UserProfileExt userProfileExt = entry.getValue();
+            membershipIds.add(userProfileExt.getMembershipId());
+            reverseMapMembershipIdToProfileId.put(userProfileExt.getMembershipId(), userProfileExt.getProfileId());
+        }
+
+        // pull player records for first and last name
+        List<UsattPlayerRecord> playerRecords = usattDataService.findAllByMembershipIdIn(membershipIds);
+        for (UsattPlayerRecord playerRecord : playerRecords) {
+            Long membershipId = playerRecord.getMembershipId();
+            String profileId = reverseMapMembershipIdToProfileId.get(membershipId);
+            if (profileId != null) {
+                String fullName = playerRecord.getLastName() + ", " + playerRecord.getFirstName();
+                profileIdToFullnameMap.put(profileId, fullName);
+            }
+        }
+
+        return profileIdToFullnameMap;
     }
 
     /**

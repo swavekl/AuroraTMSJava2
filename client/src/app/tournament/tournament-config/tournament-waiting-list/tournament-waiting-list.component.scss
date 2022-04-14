@@ -13,8 +13,6 @@ div.waiting-list-container {
 
 table.waiting-list-by-player-table {
   width: 100%;
-  border: 1px solid black;
-  text-align: start;
 
   tr {
 
@@ -27,8 +25,8 @@ table.waiting-list-by-player-table {
     }
 
     th, td {
-      padding: 8px;
-      border: 1px solid black;
+      padding: 4px 8px 4px 8px;
+      text-align: left;
 
       &.player-name-column {
         min-width: calc((100% - 50px) / 5);
@@ -43,7 +41,6 @@ table.waiting-list-by-player-table {
 
 table.waiting-list-by-event-table {
   width: 100%;
-  border: 1px solid black;
   text-align: start;
 
   tr {
@@ -56,18 +53,14 @@ table.waiting-list-by-event-table {
     }
 
     th, td {
-      padding: 8px;
-      border: 1px solid black;
+      padding: 4px 8px;
+      text-align: left;
 
       &.event-name-column {
         width: 300px;
-        //min-width: 20%;
-        //min-width: calc((100% - 50px) / 3);
       }
 
       &.players-column {
-        //min-width: 30%;
-        //min-width: calc(((100% - 50px) / 3) * 2);
       }
     }
   }

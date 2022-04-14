@@ -10,12 +10,16 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { LayoutModule } from '@angular/cdk/layout';
 import { TournamentDirectorDashboardContainerComponent } from './tournament-director-dashboard/tournament-director-dashboard-container.component';
+import { PaymentsRefundsDashletComponent } from './payments-refunds-dashlet/payments-refunds-dashlet.component';
+import { PaymentsRefundsDashletContainerComponent } from './payments-refunds-dashlet/payments-refunds-dashlet-container.component';
 
 
 @NgModule({
   declarations: [
     TournamentDirectorDashboardComponent,
-    TournamentDirectorDashboardContainerComponent
+    TournamentDirectorDashboardContainerComponent,
+    PaymentsRefundsDashletComponent,
+    PaymentsRefundsDashletContainerComponent
   ],
   imports: [
     CommonModule,

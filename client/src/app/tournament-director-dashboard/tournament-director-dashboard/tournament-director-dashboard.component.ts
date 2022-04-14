@@ -18,18 +18,16 @@ export class TournamentDirectorDashboardComponent {
     map(({ matches }) => {
       if (matches) {
         return [
-          { title: 'Card 1', cols: 1, rows: 1 },
-          { title: 'Clubs', cols: 1, rows: 1 },
-          { title: 'Card 3', cols: 1, rows: 1 },
-          { title: 'Card 4', cols: 1, rows: 1 }
+          { title: 'Confirmed Players', cols: 1, rows: 1, outletName: 'ploutlet' },
+          { title: 'Payments & Refunds', cols: 1, rows: 1, outletName: 'proutlet' },
+          { title: 'Waiting List', cols: 1, rows: 1, outletName: 'wloutlet' }
         ];
       }
 
       return [
-        { title: 'Players', cols: 1, rows: 1 },
-        { title: 'Clubs', cols: 1, rows: 1 },
-        { title: 'Referees & Umpires', cols: 1, rows: 1 },
-        { title: 'Tournaments', cols: 1, rows: 1 }
+        { title: 'Payments & Refunds', cols: 1, rows: 2, outletName: 'proutlet' },
+        { title: 'Confirmed Players', cols: 1, rows: 1, outletName: 'ploutlet' },
+        { title: 'Waiting List', cols: 1, rows: 1, outletName: 'wloutlet' }
       ];
     })
   );

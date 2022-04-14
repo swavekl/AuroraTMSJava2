@@ -1,5 +1,14 @@
 .grid-container {
-  margin: 20px;
+  height: calc(100vh - 72px);
+  //border: 1px solid green;
+  overflow: hidden;
+  padding: 10px 10px 0 10px;
+}
+
+div.dashlet-container {
+  height: calc(100vh - 122px);
+  //border: 1px solid blue;
+  overflow: auto;
 }
 
 .dashboard-card {
@@ -8,6 +17,7 @@
   left: 15px;
   right: 15px;
   bottom: 15px;
+  overflow-y: auto;
 }
 
 .more-button {
@@ -17,5 +27,6 @@
 }
 
 .dashboard-card-content {
-  text-align: center;
+  //text-align: center;
+  overflow-y: auto;
 }
