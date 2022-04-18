@@ -1,0 +1,63 @@
+@import "~src/my-theme.scss";
+
+.title-container {
+  padding-left: 8px;
+  width: 98%;
+}
+
+.content-container {
+  height: calc(100vh - 120px);
+  overflow: auto;
+}
+
+table.group-results {
+  margin: 0 16px 16px 16px;
+
+  thead th {
+    font-weight: bold;
+    vertical-align: middle;
+  }
+
+  td, th {
+    border: 1px solid black;
+    padding: 4px;
+
+    &.player-info-column {
+      width: 300px;
+    }
+
+    &.letter-code-column {
+      width: 25px;
+      text-align: center;
+    }
+
+    &.rating-column {
+      width: 45px;
+      text-align: right;
+    }
+
+    &.player-name-column {
+      width: 200px;
+    }
+
+    &.rank-column {
+      width: 25px;
+      text-align: center;
+    }
+
+    &.win-loss-column {
+      width: 45px;
+      text-align: center;
+    }
+
+    &.match-result-column {
+      width: 45px;
+      text-align: center;
+    }
+
+    &.empty-cell {
+      width: 45px;
+      background-color: #d7c8f5;
+    }
+  }
+}

@@ -111,7 +111,8 @@ const routes: Routes = [
     data: {
       roles: [UserRoles.ROLE_USATT_TOURNAMENT_MANAGERS, UserRoles.ROLE_ADMINS]
     }
-  }
+  },
+  { path: 'results', loadChildren: () => import('./tournament-results/tournament-results.module').then(m => m.TournamentResultsModule) }
 ];
 
 @NgModule({

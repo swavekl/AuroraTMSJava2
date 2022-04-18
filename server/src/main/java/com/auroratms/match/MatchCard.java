@@ -1,12 +1,17 @@
 package com.auroratms.match;
 
 import com.auroratms.draw.DrawType;
+import com.auroratms.event.TournamentEventConfiguration;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.io.IOException;
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -61,7 +66,7 @@ public class MatchCard implements Serializable {
     // so if played on 2 tables it will
     private int duration;
 
-    // String representing player rankings
+    // String representing player rankings - map of profileId to rank
     @Column(length = 400)
     private String playerRankings;
 
@@ -108,6 +113,26 @@ public class MatchCard implements Serializable {
                 break;
         }
         return strRound;
+    }
+
+    /**
+     * Gets player rankings as map
+     * @return
+     */
+    public Map<Integer, String> getPlayerRankingsAsMap() {
+        Map<Integer, String> rankToProfileIdMap = new HashMap<>();
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            Map<String, String> map = mapper.readValue(playerRankings, Map.class);
+            for (String rank : map.keySet()) {
+                String profileId = map.get(rank);
+                Integer iRank = Integer.valueOf(rank);
+                rankToProfileIdMap.put(iRank, profileId);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return rankToProfileIdMap;
     }
 
 }

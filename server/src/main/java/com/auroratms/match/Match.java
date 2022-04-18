@@ -263,4 +263,65 @@ public class Match implements Serializable {
 
         return compactResult;
     }
+
+    /**
+     *
+     * @param numberOfGames
+     * @param pointsPerGame
+     * @return
+     */
+    public MatchResult getGamesOnlyResult(int numberOfGames, int pointsPerGame) {
+        int numGamesWonByA = 0;
+        int numGamesWonByB = 0;
+        int minimumNumberOfGamesToWin = (numberOfGames == 3) ? 2 : ((numberOfGames == 5) ? 3 : 4);
+        for (int i = 0; i < numberOfGames; i++) {
+            int playerAGameScore = 0;
+            int playerBGameScore = 0;
+            switch (i) {
+                case 0:
+                    playerAGameScore = this.game1ScoreSideA;
+                    playerBGameScore = this.game1ScoreSideB;
+                    break;
+                case 1:
+                    playerAGameScore = this.game2ScoreSideA;
+                    playerBGameScore = this.game2ScoreSideB;
+                    break;
+                case 2:
+                    playerAGameScore = this.game3ScoreSideA;
+                    playerBGameScore = this.game3ScoreSideB;
+                    break;
+                case 3:
+                    playerAGameScore = this.game4ScoreSideA;
+                    playerBGameScore = this.game4ScoreSideB;
+                    break;
+                case 4:
+                    playerAGameScore = this.game5ScoreSideA;
+                    playerBGameScore = this.game5ScoreSideB;
+                    break;
+                case 5:
+                    playerAGameScore = this.game6ScoreSideA;
+                    playerBGameScore = this.game6ScoreSideB;
+                    break;
+                case 6:
+                    playerAGameScore = this.game7ScoreSideA;
+                    playerBGameScore = this.game7ScoreSideB;
+                    break;
+            }
+
+            if (playerAGameScore >= pointsPerGame && playerBGameScore < playerAGameScore) {
+                numGamesWonByA++;
+            } else if (playerBGameScore >= pointsPerGame && playerAGameScore < playerBGameScore) {
+                numGamesWonByB++;
+            }
+        }
+
+        MatchResult matchResult = new MatchResult();
+        matchResult.setGamesWonByA(numGamesWonByA);
+        matchResult.setGamesWonByB(numGamesWonByB);
+        matchResult.setPlayerALetter(this.getPlayerALetter());
+        matchResult.setPlayerBLetter(this.getPlayerBLetter());
+        matchResult.setSideADefaulted(this.isSideADefaulted());
+        matchResult.setSideBDefaulted(this.isSideBDefaulted());
+        return matchResult;
+    }
 }

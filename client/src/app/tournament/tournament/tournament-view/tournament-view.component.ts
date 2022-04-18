@@ -8,6 +8,7 @@ import {TournamentEvent} from '../../tournament-config/tournament-event.model';
 import {DateUtils} from '../../../shared/date-utils';
 import {Tournament} from '../../tournament-config/tournament.model';
 import {NavigateUtil} from '../../../shared/navigate-util';
+import {TodayService} from '../../../shared/today.service';
 
 @Component({
   selector: 'app-tournament-view',
@@ -29,7 +30,8 @@ export class TournamentViewComponent implements OnInit, OnChanges {
 
   constructor(private router: Router,
               private authService: AuthenticationService,
-              private tournamentEntryService: TournamentEntryService) {
+              private tournamentEntryService: TournamentEntryService,
+              private todayService: TodayService) {
     this.entryId = 0;
   }
 
@@ -101,5 +103,36 @@ export class TournamentViewComponent implements OnInit, OnChanges {
   showDirections() {
     const url = this.getDirectionsURL();
     window.open(url);
+  }
+
+  resultsAvailable() {
+    const startDate = this.tournament.startDate;
+    const endDate = this.tournament.endDate || startDate;
+    const today = this.todayService.todaysDate;
+    return !(new DateUtils().isDateBefore(today, endDate));
+  }
+
+  canWithdraw() {
+    const isBeforeEntryCutoffDate = this.isBeforeEntryCutoffDate();
+    const hasEntry = this.entryId !== 0;
+    return hasEntry && isBeforeEntryCutoffDate;
+  }
+
+  private isBeforeEntryCutoffDate() {
+    const entryCutoffDate = this.tournament.configuration.entryCutoffDate;
+    const today = this.todayService.todaysDate;
+    return !(new DateUtils().isDateBefore(today, entryCutoffDate));
+  }
+
+  canEnter() {
+    const isBeforeEntryCutoffDate = this.isBeforeEntryCutoffDate();
+    const noEntry = this.entryId === 0;
+    return noEntry && isBeforeEntryCutoffDate;
+  }
+
+  canView () {
+    const isBeforeEntryCutoffDate = this.isBeforeEntryCutoffDate();
+    const hasEntry = this.entryId !== 0;
+    return hasEntry && isBeforeEntryCutoffDate;
   }
 }

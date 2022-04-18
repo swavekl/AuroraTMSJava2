@@ -1,0 +1,25 @@
+@import "~src/my-theme.scss";
+
+.title-container {
+  padding-left: 8px;
+  width: 98%;
+}
+
+.content-container {
+  height: calc(100vh - 120px);
+  overflow: auto;
+}
+
+mat-card-actions div.actions-button-bar {
+  //border: 1px solid red;
+  padding-bottom: 8px;
+}
+
+.results-card {
+  margin: 0 8px 8px 8px;
+}
+
+.place-line {
+  //border: 1px solid green;
+  width: 100%;
+}

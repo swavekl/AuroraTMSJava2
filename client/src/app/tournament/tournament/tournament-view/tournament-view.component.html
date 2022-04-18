@@ -98,10 +98,11 @@
         </table>
       </mat-card-content>
       <mat-card-actions>
-        <button *ngIf="entryId !== 0" mat-raised-button type="button" (click)="onWithdraw()">Withdraw</button>
+        <button *ngIf="canWithdraw()" mat-raised-button type="button" (click)="onWithdraw()">Withdraw</button>
+        <button *ngIf="resultsAvailable()" mat-raised-button type="button" [routerLink]="['/results', tournament.id]">Results</button>
         <span fxFlex></span>
-        <button *ngIf="entryId === 0" mat-raised-button type="button" color="primary" (click)="onEnter()">Enter</button>
-        <button *ngIf="entryId !== 0" mat-raised-button type="button" color="primary" (click)="onView()">View</button>
+        <button *ngIf="canEnter()" mat-raised-button type="button" color="primary" (click)="onEnter()">Enter</button>
+        <button *ngIf="canView()" mat-raised-button type="button" color="primary" (click)="onView()">View</button>
       </mat-card-actions>
     </mat-card>
     <mat-card>

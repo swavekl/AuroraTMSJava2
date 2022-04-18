@@ -146,7 +146,7 @@ public class ResultsReportService {
         boolean playerAIsMatchWinner = match.isMatchWinner(match.getPlayerAProfileId(), tournamentEvent.getNumberOfGames(), tournamentEvent.getPointsPerGame());
         Long winnerMembershipId = (playerAIsMatchWinner) ? playerAUserProfileExt.getMembershipId() : playerBUserProfileExt.getMembershipId();
         Long loserMembershipId = (!playerAIsMatchWinner) ? playerAUserProfileExt.getMembershipId() : playerBUserProfileExt.getMembershipId();
-        String compactResult = match.getCompactResult(tournamentEvent.getNumberOfGames(), tournamentEvent.getPointsPerGame());
+        String compactResult = match.getCompactResult(matchCard.getNumberOfGames(), tournamentEvent.getPointsPerGame());
         String drawType = (matchCard.getDrawType() == DrawType.ROUND_ROBIN) ? "RR" : "SE";
         String roundName = (matchCard.getDrawType() == DrawType.ROUND_ROBIN) ? "" : matchCard.getRoundName();
         String division = String.format("%s %s %s ", tournamentEvent.getName(), drawType, roundName);

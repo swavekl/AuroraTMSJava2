@@ -1,0 +1,50 @@
+<div class="mat-title title-container">Event Results for {{event?.name}}</div>
+<div class="content-container" fxLayout="row" fxLayoutAlign="start start">
+  <div class="results-container" fxFlex.lt-md="100%" fxFlex.md="100%" fxFlex="70%">
+    <ng-container *ngFor="let eventResults of eventResultsList">
+      <table class="group-results" *ngIf="!eventResults.singleElimination">
+        <thead>
+          <tr>
+            <th class="player-info-column" colspan="3">Group {{eventResults.groupNumber}}</th>
+            <th class="rank-column">#</th>
+            <th class="win-loss-column">W/L</th>
+            <th class="match-result-column" *ngFor="let playerResults of eventResults.playerResultsList">
+              {{playerResults.letterCode}}
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let playerResults of eventResults.playerResultsList">
+<!--            <td class="player-info-column">{{playerResults.letterCode}}: {{playerResults.rating}} - {{playerResults.fullName}}</td>-->
+            <td class="letter-code-column">{{playerResults.letterCode}}</td>
+            <td class="rating-column">{{playerResults.rating}}</td>
+            <td class="player-name-column">{{playerResults.fullName}}</td>
+            <td class="rank-column">{{playerResults.rank}}</td>
+            <td class="win-loss-column">{{playerResults.matchesWon}}/{{playerResults.matchesLost}}</td>
+            <ng-container *ngFor="let matchResults of playerResults.matchResults">
+              <ng-container *ngIf="matchResults.playerBLetter !== playerResults.letterCode; else emptyCell">
+                <td class="match-result-column" >{{matchResults.gamesWonByA}}:{{matchResults.gamesWonByB}}</td>
+              </ng-container>
+              <ng-template #emptyCell>
+                <td class="empty-cell"></td>
+              </ng-template>
+            </ng-container>
+          </tr>
+        </tbody>
+      </table>
+      <table *ngIf="eventResults.singleElimination">
+        <thead>
+        <tr>
+          <th>Round of {{eventResults.round}}</th>
+        </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let playerResults of eventResults.playerResultsList">
+            <td>{{playerResults.fullName}}</td>
+          </tr>
+        </tbody>
+      </table>
+    </ng-container>
+  </div>
+  <div fxFlex></div>
+</div>
