@@ -9,8 +9,11 @@ import lombok.Data;
 public class MatchResult {
 
     // number of games won by A and B sides
-    int gamesWonByA;
-    int gamesWonByB;
+    private int gamesWonByA;
+    private int gamesWonByB;
+
+    // compact result e.g. 6, 7, -5, 9
+    private String compactMatchResult;
 
     private Character playerALetter;
     private Character playerBLetter;

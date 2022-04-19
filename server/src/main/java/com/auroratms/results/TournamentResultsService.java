@@ -1,5 +1,7 @@
 package com.auroratms.results;
 
+import com.auroratms.draw.DrawItem;
+import com.auroratms.draw.DrawService;
 import com.auroratms.draw.DrawType;
 import com.auroratms.event.TournamentEvent;
 import com.auroratms.event.TournamentEventConfiguration;
@@ -26,6 +28,9 @@ public class TournamentResultsService {
 
     @Autowired
     private MatchCardService matchCardService;
+
+    @Autowired
+    private DrawService drawService;
 
     public List<EventResultStatus> listEventResultsStatus(long tournamentId) {
         Collection<TournamentEvent> tournamentEvents =
@@ -63,6 +68,8 @@ public class TournamentResultsService {
         List<MatchCard> matchCards = this.matchCardService.findAllForEvent(eventId);
         this.matchCardService.fillPlayerIdToNameMapForAllMatches(matchCards);
         List<EventResults> resultsList = new ArrayList<>(matchCards.size());
+        List<EventResults> seResultsList = new ArrayList<>(matchCards.size());
+        Map<String, String> matchToCompactNotationResultMap = new HashMap<>();
         for (MatchCard matchCard : matchCards) {
             boolean singleElimination = (matchCard.getDrawType() == DrawType.SINGLE_ELIMINATION);
             EventResults eventResults = new EventResults();
@@ -71,12 +78,161 @@ public class TournamentResultsService {
             eventResults.setRound(matchCard.getRound());
             List<PlayerResults> playerResultsList = getPlayerResults(matchCard, tournamentEvent);
             eventResults.setPlayerResultsList(playerResultsList);
-            resultsList.add(eventResults);
+            if (singleElimination) {
+                List<Match> matches = matchCard.getMatches();
+                if (matches.size() == 1) {
+                    Match match = matches.get(0);
+                    String compactResult = match.getCompactResult(matchCard.getNumberOfGames(), tournamentEvent.getPointsPerGame());
+                    String matchKey = String.format("%d:%d", matchCard.getRound(), matchCard.getGroupNum());
+                    matchToCompactNotationResultMap.put(matchKey, compactResult);
+                }
+                seResultsList.add(eventResults);
+            } else {
+                resultsList.add(eventResults);
+            }
+        }
+
+        // enrich and organized SE results so it is easy to draw them
+        if (!seResultsList.isEmpty()) {
+            enhanceSEResultsList(tournamentEvent, seResultsList, resultsList);
+            for (EventResults eventResults : seResultsList) {
+                List<PlayerResults> playerResultsList = eventResults.getPlayerResultsList();
+                if (playerResultsList.size() == 2) {
+                    PlayerResults playerOneResults = playerResultsList.get(0);
+                    PlayerResults playerTwoResults = playerResultsList.get(1);
+                    MatchResult matchResult = null;
+                    if (playerOneResults.getRank() == 1) {
+                        matchResult = playerOneResults.getMatchResults().get(0);
+                    } else {
+                        matchResult = playerTwoResults.getMatchResults().get(0);
+                    }
+                    if (matchResult != null) {
+                        String matchKey = String.format("%d:%d", eventResults.getRound(), eventResults.getGroupNumber());
+                        String compactMatchResult = matchToCompactNotationResultMap.get(matchKey);
+                        matchResult.setCompactMatchResult(compactMatchResult);
+                    }
+                }
+            }
+            resultsList.addAll(seResultsList);
         }
 
         return resultsList;
     }
 
+    /**
+     *
+     * @param tournamentEvent
+     * @param seResultsList
+     * @param resultsList
+     */
+    private void enhanceSEResultsList(TournamentEvent tournamentEvent, List<EventResults> seResultsList, List<EventResults> resultsList) {
+        // get SE draw items so we can identify byes
+        List<DrawItem> drawItems = drawService.list(tournamentEvent.getId(), DrawType.SINGLE_ELIMINATION);
+        int maxRoundOf = 0;
+        for (DrawItem drawItem : drawItems) {
+            maxRoundOf = Math.max(drawItem.getRound(), maxRoundOf);
+        }
+
+        // find
+        int roundMatches = maxRoundOf / 2;
+        int roundOf = maxRoundOf;
+
+        // find all matches for this first round so we can fill the byes
+        List<EventResults> roundResults = new ArrayList<>();
+        for (EventResults eventResults : seResultsList) {
+            if (eventResults.getRound() == roundOf) {
+                roundResults.add(eventResults);
+            }
+        }
+
+        List<EventResults> byeResults = new ArrayList<>(roundMatches - roundResults.size());
+        for (int groupNum = 1; groupNum <= roundMatches; groupNum++) {
+            boolean found = false;
+            for (EventResults eventResults : roundResults) {
+                if (eventResults.getGroupNumber() == groupNum) {
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                EventResults byeEventResult = new EventResults();
+                byeEventResult.setGroupNumber(groupNum);
+                byeEventResult.setRound(roundOf);
+                byeEventResult.setSingleElimination(true);
+                List<PlayerResults> playerResultsList = makePlayerResultsForBye(roundOf, groupNum, drawItems, resultsList);
+                byeEventResult.setPlayerResultsList(playerResultsList);
+                byeResults.add(byeEventResult);
+            }
+        }
+        seResultsList.addAll(byeResults);
+
+        Collections.sort(seResultsList,
+                Comparator.comparing(EventResults::getRound).reversed()
+                .thenComparing(EventResults::getGroupNumber));
+    }
+
+    private List<PlayerResults> makePlayerResultsForBye(int roundOf, int groupNum, List<DrawItem> drawItems, List<EventResults> resultsList) {
+        // find the draw item for this round
+        List<PlayerResults> playerResultsList = new ArrayList<>(1);
+        int minSingleElimLineNum = (groupNum * 2) - 1;
+        int maxSingleElimLineNum = groupNum * 2;
+        for (DrawItem drawItem : drawItems) {
+            if (drawItem.getRound() == roundOf &&
+               (drawItem.getSingleElimLineNum() == minSingleElimLineNum || drawItem.getSingleElimLineNum() == maxSingleElimLineNum)) {
+                Character letterCode = (drawItem.getSingleElimLineNum() % 2 == 1) ? 'A' : 'B';
+                PlayerResults playerResults = new PlayerResults();
+                playerResults.setLetterCode(letterCode);
+                playerResultsList.add(playerResults);
+                if (drawItem.getByeNum() == 0) {
+                    String profileId = drawItem.getPlayerId();
+                    playerResults.setProfileId(profileId);
+                    fillPlayerFullNameAndRating(resultsList, playerResults);
+                    playerResults.setRank(1);
+                    playerResults.setRating(drawItem.getRating());
+                    playerResults.setMatchResults(Collections.singletonList(new MatchResult()));
+                } else {
+                    // bye line
+                    playerResults.setProfileId(null);
+                    playerResults.setFullName("Bye");
+                    playerResults.setRank(2);
+                    playerResults.setRating(0);
+                    playerResults.setMatchResults(Collections.singletonList(new MatchResult()));
+                }
+            }
+        }
+        return playerResultsList;
+    }
+
+    /**
+     *
+     * @param resultsList
+     * @param playerResultsToFill
+     */
+    private void fillPlayerFullNameAndRating(List<EventResults> resultsList, PlayerResults playerResultsToFill) {
+        boolean found = false;
+        String profileId = playerResultsToFill.getProfileId();
+        for (EventResults eventResults : resultsList) {
+            List<PlayerResults> playerResultsList = eventResults.getPlayerResultsList();
+            for (PlayerResults playerResults : playerResultsList) {
+                if (playerResults.getProfileId().equals(profileId)) {
+                    playerResultsToFill.setRating(playerResults.getRating());
+                    playerResultsToFill.setFullName(playerResults.getFullName());
+                    found = true;
+                    break;
+                }
+            }
+            if (found) {
+                break;
+            }
+        }
+    }
+
+    /**
+     *
+     * @param matchCard
+     * @param tournamentEvent
+     * @return
+     */
     private List<PlayerResults> getPlayerResults(MatchCard matchCard, TournamentEvent tournamentEvent) {
         List<PlayerResults> playerResultsList = new ArrayList<>();
         Map<String, String> profileIdToNameMap = matchCard.getProfileIdToNameMap();

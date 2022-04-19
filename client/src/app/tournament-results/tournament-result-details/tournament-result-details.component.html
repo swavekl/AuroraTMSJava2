@@ -35,12 +35,18 @@
       <table *ngIf="eventResults.singleElimination">
         <thead>
         <tr>
-          <th>Round of {{eventResults.round}}</th>
+          <th>Round of {{eventResults.round}}, group {{eventResults.groupNumber}}</th>
+          <th></th>
         </tr>
         </thead>
         <tbody>
           <tr *ngFor="let playerResults of eventResults.playerResultsList">
-            <td>{{playerResults.fullName}}</td>
+            <td style="padding: 4px;">{{playerResults.letterCode}} {{playerResults.fullName}} {{playerResults.rating}}</td>
+            <ng-container *ngFor="let matchResult of playerResults.matchResults">
+              <ng-container *ngIf="matchResult.compactMatchResult != null">
+                <td style="padding: 4px;">{{matchResult.compactMatchResult}}</td>
+              </ng-container>
+            </ng-container>
           </tr>
         </tbody>
       </table>

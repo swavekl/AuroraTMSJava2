@@ -4,6 +4,9 @@ export class MatchResult {
   gamesWonByA: number;
   gamesWonByB: number;
 
+  // compact result e.g. 6, 7, -5, 9
+  compactMatchResult: string;
+
   playerALetter: string;
   playerBLetter: string;
 
