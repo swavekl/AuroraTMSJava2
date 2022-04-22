@@ -102,9 +102,19 @@ public class TournamentResultsService {
                     PlayerResults playerTwoResults = playerResultsList.get(1);
                     MatchResult matchResult = null;
                     if (playerOneResults.getRank() == 1) {
-                        matchResult = playerOneResults.getMatchResults().get(0);
-                    } else {
-                        matchResult = playerTwoResults.getMatchResults().get(0);
+                        for (MatchResult result : playerOneResults.getMatchResults()) {
+                            if (result.getPlayerALetter() != result.getPlayerBLetter()) {
+                                matchResult = result;
+                                break;
+                            }
+                        }
+                    } else if (playerTwoResults.getRank() == 1) {
+                        for (MatchResult result : playerTwoResults.getMatchResults()) {
+                            if (result.getPlayerALetter() != result.getPlayerBLetter()) {
+                                matchResult = result;
+                                break;
+                            }
+                        }
                     }
                     if (matchResult != null) {
                         String matchKey = String.format("%d:%d", eventResults.getRound(), eventResults.getGroupNumber());
@@ -235,76 +245,80 @@ public class TournamentResultsService {
      */
     private List<PlayerResults> getPlayerResults(MatchCard matchCard, TournamentEvent tournamentEvent) {
         List<PlayerResults> playerResultsList = new ArrayList<>();
-        Map<String, String> profileIdToNameMap = matchCard.getProfileIdToNameMap();
-        Map<Integer, String> playerRankings = matchCard.getPlayerRankingsAsMap();
-        int numPlayers = profileIdToNameMap.size();
-        for (Map.Entry<String, String> entry : profileIdToNameMap.entrySet()) {
-            PlayerResults playerResults = new PlayerResults();
-            playerResultsList.add(playerResults);
-            String profileId = entry.getKey();
-            String fullName = entry.getValue();
-            playerResults.setProfileId(profileId);
-            playerResults.setFullName(fullName);
-            playerResults.setMatchResults(new ArrayList<>(numPlayers));   // +1 is for A vs A.
-            for (Map.Entry<Integer, String> rankingsEntry : playerRankings.entrySet()) {
-                if (rankingsEntry.getValue().equals(profileId)) {
-                    playerResults.setRank(rankingsEntry.getKey());
+        try {
+            Map<String, String> profileIdToNameMap = matchCard.getProfileIdToNameMap();
+            Map<Integer, String> playerRankings = matchCard.getPlayerRankingsAsMap();
+            int numPlayers = profileIdToNameMap.size();
+            for (Map.Entry<String, String> entry : profileIdToNameMap.entrySet()) {
+                PlayerResults playerResults = new PlayerResults();
+                playerResultsList.add(playerResults);
+                String profileId = entry.getKey();
+                String fullName = entry.getValue();
+                playerResults.setProfileId(profileId);
+                playerResults.setFullName(fullName);
+                playerResults.setMatchResults(new ArrayList<>(numPlayers));   // +1 is for A vs A.
+                for (Map.Entry<Integer, String> rankingsEntry : playerRankings.entrySet()) {
+                    if (rankingsEntry.getValue().equals(profileId)) {
+                        playerResults.setRank(rankingsEntry.getKey());
+                    }
                 }
             }
-        }
 
-        List<Match> matches = matchCard.getMatches();
-        for (Match match : matches) {
-            String playerAProfileId = match.getPlayerAProfileId();
-            String playerBProfileId = match.getPlayerBProfileId();
-            Character playerALetter = match.getPlayerALetter();
-            Character playerBLetter = match.getPlayerBLetter();
-            int playerARating = match.getPlayerARating();
-            int playerBRating = match.getPlayerBRating();
-            MatchResult matchResult = match.getGamesOnlyResult(matchCard.getNumberOfGames(),
-                    tournamentEvent.getPointsPerGame());
-            boolean playerAisMatchWinner = match.isMatchWinner(playerAProfileId, matchCard.getNumberOfGames(), tournamentEvent.getPointsPerGame());
-            boolean playerBisMatchWinner = match.isMatchWinner(playerBProfileId, matchCard.getNumberOfGames(), tournamentEvent.getPointsPerGame());
+            List<Match> matches = matchCard.getMatches();
+            for (Match match : matches) {
+                String playerAProfileId = match.getPlayerAProfileId();
+                String playerBProfileId = match.getPlayerBProfileId();
+                Character playerALetter = match.getPlayerALetter();
+                Character playerBLetter = match.getPlayerBLetter();
+                int playerARating = match.getPlayerARating();
+                int playerBRating = match.getPlayerBRating();
+                MatchResult matchResult = match.getGamesOnlyResult(matchCard.getNumberOfGames(),
+                        tournamentEvent.getPointsPerGame());
+                boolean playerAisMatchWinner = match.isMatchWinner(playerAProfileId, matchCard.getNumberOfGames(), tournamentEvent.getPointsPerGame());
+                boolean playerBisMatchWinner = match.isMatchWinner(playerBProfileId, matchCard.getNumberOfGames(), tournamentEvent.getPointsPerGame());
 
-            // find the player results
+                // find the player results
+                for (PlayerResults playerResults : playerResultsList) {
+                    List<MatchResult> matchResults = playerResults.getMatchResults();
+                    if (playerResults.getProfileId().equals(playerAProfileId)) {
+                        playerResults.setLetterCode(playerALetter);
+                        playerResults.setRating(playerARating);
+                        matchResults.add(matchResult);
+                        if (playerAisMatchWinner) {
+                            playerResults.addNumMatchesWon();
+                        } else if (playerBisMatchWinner) {
+                            playerResults.addNumMatchesLost();
+                        }
+                    } else if (playerResults.getProfileId().equals(playerBProfileId)) {
+                        playerResults.setLetterCode(playerBLetter);
+                        playerResults.setRating(playerBRating);
+                        MatchResult reversedMatchResults = matchResult.makeReverse();
+                        matchResults.add(reversedMatchResults);
+                        if (playerBisMatchWinner) {
+                            playerResults.addNumMatchesWon();
+                        } else if (playerAisMatchWinner) {
+                            playerResults.addNumMatchesLost();
+                        }
+                    }
+                }
+            }
+
+            // sort match results by opposing player letter A, B, C etc.
             for (PlayerResults playerResults : playerResultsList) {
                 List<MatchResult> matchResults = playerResults.getMatchResults();
-                if (playerResults.getProfileId().equals(playerAProfileId)) {
-                    playerResults.setLetterCode(playerALetter);
-                    playerResults.setRating(playerARating);
-                    matchResults.add(matchResult);
-                    if (playerAisMatchWinner) {
-                        playerResults.addNumMatchesWon();
-                    } else if (playerBisMatchWinner) {
-                        playerResults.addNumMatchesLost();
-                    }
-                } else if (playerResults.getProfileId().equals(playerBProfileId)) {
-                    playerResults.setLetterCode(playerBLetter);
-                    playerResults.setRating(playerBRating);
-                    MatchResult reversedMatchResults = matchResult.makeReverse();
-                    matchResults.add(reversedMatchResults);
-                    if (playerBisMatchWinner) {
-                        playerResults.addNumMatchesWon();
-                    } else if (playerAisMatchWinner) {
-                        playerResults.addNumMatchesLost();
-                    }
-                }
+                // add empty cell for A vs A, B vs B, etc.
+                MatchResult empty = new MatchResult();
+                empty.setPlayerALetter(playerResults.getLetterCode());
+                empty.setPlayerBLetter(playerResults.getLetterCode());
+                matchResults.add(empty);
+                Collections.sort(matchResults, Comparator.comparing(MatchResult::getPlayerBLetter));
             }
-        }
 
-        // sort match results by opposing player letter A, B, C etc.
-        for (PlayerResults playerResults : playerResultsList) {
-            List<MatchResult> matchResults = playerResults.getMatchResults();
-            // add empty cell for A vs A, B vs B, etc.
-            MatchResult empty = new MatchResult();
-            empty.setPlayerALetter(playerResults.getLetterCode());
-            empty.setPlayerBLetter(playerResults.getLetterCode());
-            matchResults.add(empty);
-            Collections.sort(matchResults, Comparator.comparing(MatchResult::getPlayerBLetter));
+            // sort players results by player letter
+            Collections.sort(playerResultsList, Comparator.comparing(PlayerResults::getLetterCode));
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-
-        // sort players results by player letter
-        Collections.sort(playerResultsList, Comparator.comparing(PlayerResults::getLetterCode));
 
         return playerResultsList;
     }

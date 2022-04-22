@@ -9,6 +9,8 @@ import {UndoMemento} from '../model/undo-memento';
 import {DrawRound} from '../model/draw-round.model';
 import {MatDialog} from '@angular/material/dialog';
 import {ConfirmationPopupComponent} from '../../shared/confirmation-popup/confirmation-popup.component';
+import {NgttRound, NgttTournament} from 'ng-tournament-tree/lib/declarations/interfaces';
+import {Match} from '../model/match.model';
 
 @Component({
   selector: 'app-draws',
@@ -37,6 +39,12 @@ export class DrawsComponent implements OnInit, OnChanges {
 
   // single elimination draw rounds
   singleEliminationRounds: DrawRound [] = [];
+
+  // draws converted into draw rounds usable by bracket component
+  tournament: NgttTournament;
+
+  // round numbers
+  roundNumbers: number [] = [];
 
   // if true expanded information i.e. state, club of player
   expandedView: boolean;
@@ -95,6 +103,8 @@ export class DrawsComponent implements OnInit, OnChanges {
       });
 
       this.finishRemainingSERounds();
+
+      this.transformToNgttTournament();
 
       this.setupGroupsForDragAndDrop();
     }
@@ -461,6 +471,46 @@ export class DrawsComponent implements OnInit, OnChanges {
       }
     }
     return null;
+  }
+
+  private transformToNgttTournament () {
+    if (this.singleEliminationRounds) {
+      const drawRounds = this.singleEliminationRounds;
+      const roundNumbers: number [] = [];
+      const rounds: NgttRound [] = [];
+      for (let i = 0; i < drawRounds.length; i++) {
+        const drawRound = drawRounds[i];
+        roundNumbers.push(drawRound.round);
+        const drawItems: DrawItem [] = drawRound.drawItems;
+        const roundMatches = [];
+        for (let j = 0; j < drawItems.length; ) {
+          const drawItemLeft: DrawItem = drawItems[j];
+          const drawItemRight: DrawItem = drawItems[j + 1];
+          const match: Match = new Match();
+          match.opponentA = drawItemLeft;
+          match.opponentB = drawItemRight;
+          match.time = 10.5;
+          match.tableNum = 6 + j;  // for now
+          match.result = null;
+          match.opponentAWon = false;
+          match.showSeedNumber = (i === 0); // show seed number for first round only
+
+          roundMatches.push(match);
+          j += 2;
+        }
+        const type = ((i + 1) === drawRounds.length) ? 'Final' : 'Winnerbracket';
+        const round: NgttRound = { type: type, matches: roundMatches};
+        rounds.push(round);
+      }
+
+      if (rounds.length > 0) {
+        this.tournament = {
+          rounds: rounds
+        };
+      }
+      this.roundNumbers = roundNumbers;
+    }
+
   }
 
   private confirmDrawChanges (callbackMethod: () => void) {

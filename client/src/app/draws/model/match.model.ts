@@ -18,6 +18,9 @@ export class Match {
   // results of the match if it is completed
   result: number [];
 
+  // if true A won, if false B won
+  opponentAWon: boolean;
+
   // if true the match template should show seed number
   showSeedNumber: boolean;
 

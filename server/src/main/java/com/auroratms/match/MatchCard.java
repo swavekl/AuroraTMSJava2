@@ -122,12 +122,14 @@ public class MatchCard implements Serializable {
     public Map<Integer, String> getPlayerRankingsAsMap() {
         Map<Integer, String> rankToProfileIdMap = new HashMap<>();
         try {
-            ObjectMapper mapper = new ObjectMapper();
-            Map<String, String> map = mapper.readValue(playerRankings, Map.class);
-            for (String rank : map.keySet()) {
-                String profileId = map.get(rank);
-                Integer iRank = Integer.valueOf(rank);
-                rankToProfileIdMap.put(iRank, profileId);
+            if (playerRankings != null) {
+                ObjectMapper mapper = new ObjectMapper();
+                Map<String, String> map = mapper.readValue(playerRankings, Map.class);
+                for (String rank : map.keySet()) {
+                    String profileId = map.get(rank);
+                    Integer iRank = Integer.valueOf(rank);
+                    rankToProfileIdMap.put(iRank, profileId);
+                }
             }
         } catch (IOException e) {
             e.printStackTrace();

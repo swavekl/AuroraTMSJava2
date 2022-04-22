@@ -6,12 +6,14 @@
 }
 
 .content-container {
-  height: calc(100vh - 120px);
+  height: calc(100vh - 122px);
   overflow: auto;
+  width: 100%;
+  //border: 1px solid green;
 }
 
 table.group-results {
-  margin: 0 16px 16px 16px;
+  margin: 16px 16px 16px 16px;
 
   thead th {
     font-weight: bold;
@@ -58,6 +60,10 @@ table.group-results {
     &.empty-cell {
       width: 45px;
       background-color: #d7c8f5;
+    }
+
+    &.winner-cell {
+      font-weight: bold;
     }
   }
 }

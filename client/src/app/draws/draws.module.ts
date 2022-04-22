@@ -24,28 +24,31 @@ import { SingleEliminationBracketComponent } from './single-elimination-bracket/
 import { SEMatchComponent } from './single-elimination-bracket/sematch/sematch.component';
 
 @NgModule({
-  declarations: [
-    DrawsComponent,
-    DrawsContainerComponent,
-    SingleEliminationBracketComponent,
-    SEMatchComponent
-  ],
-  imports: [
-    CommonModule,
-    DrawsRoutingModule,
-    MatListModule,
-    FlexLayoutModule,
-    MatGridListModule,
-    MatToolbarModule,
-    MatButtonModule,
-    MatIconModule,
-    SharedModule,
-    DragDropModule,
-    MatTooltipModule,
-    FormsModule,
-    MatSlideToggleModule,
-    NgTournamentTreeModule
-  ]
+    declarations: [
+        DrawsComponent,
+        DrawsContainerComponent,
+        SingleEliminationBracketComponent,
+        SEMatchComponent
+    ],
+    exports: [
+        SingleEliminationBracketComponent
+    ],
+    imports: [
+        CommonModule,
+        DrawsRoutingModule,
+        MatListModule,
+        FlexLayoutModule,
+        MatGridListModule,
+        MatToolbarModule,
+        MatButtonModule,
+        MatIconModule,
+        SharedModule,
+        DragDropModule,
+        MatTooltipModule,
+        FormsModule,
+        MatSlideToggleModule,
+        NgTournamentTreeModule
+    ]
 })
 export class DrawsModule {
   // Inject the service to ensure it registers with EntityServices
