@@ -5,12 +5,20 @@
   width: 98%;
 }
 
-.content-container {
+.results-container {
   height: calc(100vh - 122px);
-  overflow: auto;
   width: 100%;
-  //border: 1px solid green;
+  overflow: auto;
 }
+
+.se-results-container {
+  overflow: hidden;
+}
+
+.rr-results-container {
+
+}
+
 
 table.group-results {
   margin: 16px 16px 16px 16px;
@@ -67,3 +75,4 @@ table.group-results {
     }
   }
 }
+

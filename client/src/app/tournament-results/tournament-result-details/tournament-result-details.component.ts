@@ -183,4 +183,8 @@ export class TournamentResultDetailsComponent implements OnInit, OnChanges {
     }
     return null;
   }
+
+  public getBracketsHeight(): string {
+    return (window.innerHeight - 212) + 'px';
+  }
 }

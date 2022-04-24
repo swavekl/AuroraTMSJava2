@@ -1,8 +1,7 @@
 <div class="mat-title title-container">Event Results for {{event?.name}}</div>
-<div fxLayout="row" fxLayoutAlign="start start">
-  <mat-tab-group class="content-container">
+  <mat-tab-group class="results-container">
     <mat-tab label="Round Robin">
-      <div fxFlex.lt-md="100%" fxFlex.md="100%" fxFlex="70%">
+      <div class="rr-results-container" fxFlex.lt-md="100%" fxFlex.md="100%" fxFlex="70%" fxLayout="row wrap" fxLayoutAlign="start start">
         <ng-container *ngFor="let eventResults of eventResultsList">
           <table class="group-results" *ngIf="!eventResults.singleElimination">
             <thead>
@@ -39,11 +38,12 @@
       <div fxFlex></div>
     </mat-tab>
     <mat-tab label="Single Elimination">
-      <div fxFlex.lt-md="100%" fxFlex.md="100%" fxFlex="70%">
-        <app-single-elimination-bracket [rounds]="roundNumbers" [tournament]="tournament">
+      <div class="se-results-container">
+        <app-single-elimination-bracket [rounds]="roundNumbers"
+                                        [tournament]="tournament"
+                                        [bracketsHeight]="getBracketsHeight()">
         </app-single-elimination-bracket>
       </div>
       <div fxFlex></div>
     </mat-tab>
   </mat-tab-group>
-</div>

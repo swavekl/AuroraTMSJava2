@@ -17,6 +17,9 @@ export class SingleEliminationBracketComponent implements OnInit, OnChanges {
   @Input()
   tournament: NgttTournament;
 
+  @Input()
+  bracketsHeight: string;
+
   constructor() { }
 
   ngOnInit(): void {

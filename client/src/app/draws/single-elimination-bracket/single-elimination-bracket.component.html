@@ -1,15 +1,21 @@
-<div fxLayout="row" class="round-header">
-  <div *ngFor="let round of rounds">
-    {{ round | roundName: 1}}
+<div class="round-header-container">
+  <div fxLayout="row" class="round-header">
+    <div *ngFor="let round of rounds">
+      {{ round | roundName: 1}}
+    </div>
   </div>
 </div>
-<div class="se-draws-panel" *ngIf="tournament">
-  <ngtt-single-elimination-tree
-    [tournament]="tournament"
-    [matchTemplate]="myMatchTemplate">
-  </ngtt-single-elimination-tree>
+<div class="se-bracket-panel" [style.height]="bracketsHeight" *ngIf="tournament" fxLayout="row">
+  <div>
+    <ngtt-single-elimination-tree
+      [tournament]="tournament"
+      [matchTemplate]="myMatchTemplate">
+    </ngtt-single-elimination-tree>
 
-  <ng-template #myMatchTemplate let-match>
-    <app-sematch [match]="match"></app-sematch>
-  </ng-template>
+    <ng-template #myMatchTemplate let-match>
+      <app-sematch [match]="match"></app-sematch>
+    </ng-template>
+  </div>
+<!--  filler -->
+  <div fxFlex style="background-color: white;"></div>
 </div>
