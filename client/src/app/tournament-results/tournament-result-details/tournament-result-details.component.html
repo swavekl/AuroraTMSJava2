@@ -41,7 +41,8 @@
       <div class="se-results-container">
         <app-single-elimination-bracket [rounds]="roundNumbers"
                                         [tournament]="tournament"
-                                        [bracketsHeight]="getBracketsHeight()">
+                                        [bracketsHeight]="getBracketsHeight()"
+                                        [doublesEvent]="event?.doubles">
         </app-single-elimination-bracket>
       </div>
       <div fxFlex></div>

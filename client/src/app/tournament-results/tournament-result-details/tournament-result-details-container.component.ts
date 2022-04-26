@@ -35,8 +35,7 @@ export class TournamentResultDetailsContainerComponent implements OnInit, OnDest
   constructor(private linearProgressBarService: LinearProgressBarService,
               private activatedRoute: ActivatedRoute,
               private tournamentResultsService: TournamentResultsService,
-              private tournamentEventConfigService: TournamentEventConfigService,
-              private matchCardService: MatchCardService) {
+              private tournamentEventConfigService: TournamentEventConfigService) {
     const strTournamentId = this.activatedRoute.snapshot.params['tournamentId'] || 0;
     const tournamentId = Number(strTournamentId);
     const strEventId = this.activatedRoute.snapshot.params['eventId'] || 0;
@@ -76,7 +75,7 @@ export class TournamentResultDetailsContainerComponent implements OnInit, OnDest
       });
     const subscription = this.tournamentEventConfigService.store.select(selector)
       .subscribe((tournamentEvent: TournamentEvent) => {
-        console.log('tournamentEvent ', tournamentEvent);
+        // console.log('tournamentEvent ', tournamentEvent);
         if (!tournamentEvent) {
           this.tournamentEventConfigService.getByKey(tournamentId, eventId);
         } else {

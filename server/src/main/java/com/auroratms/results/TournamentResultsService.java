@@ -32,6 +32,11 @@ public class TournamentResultsService {
     @Autowired
     private DrawService drawService;
 
+    /**
+     * Gets all events in the tournament and their status - i.e. completed or not and who got which place
+     * @param tournamentId
+     * @return
+     */
     public List<EventResultStatus> listEventResultsStatus(long tournamentId) {
         Collection<TournamentEvent> tournamentEvents =
                 this.tournamentEventEntityService.list(tournamentId, Pageable.unpaged());
@@ -63,6 +68,11 @@ public class TournamentResultsService {
         return eventResultStatusList;
     }
 
+    /**
+     * Gets aggregated results for one event
+     * @param eventId
+     * @return
+     */
     public List<EventResults> getEventResults(long eventId) {
         TournamentEvent tournamentEvent = this.tournamentEventEntityService.get(eventId);
         List<MatchCard> matchCards = this.matchCardService.findAllForEvent(eventId);
@@ -130,40 +140,99 @@ public class TournamentResultsService {
     }
 
     /**
+     * Adds byes to single elimination results so we can draw a full bracket
      *
-     * @param tournamentEvent
-     * @param seResultsList
-     * @param resultsList
+     * @param tournamentEvent tournament event
+     * @param seResultsList list of single elimination round events to add to
+     * @param resultsList all results list so we can get full player names from the round robin round
      */
     private void enhanceSEResultsList(TournamentEvent tournamentEvent, List<EventResults> seResultsList, List<EventResults> resultsList) {
         // get SE draw items so we can identify byes
         List<DrawItem> drawItems = drawService.list(tournamentEvent.getId(), DrawType.SINGLE_ELIMINATION);
+        // find the first round after RR e.g. round of 16
         int maxRoundOf = 0;
         for (DrawItem drawItem : drawItems) {
             maxRoundOf = Math.max(drawItem.getRound(), maxRoundOf);
         }
 
-        // find
-        int roundMatches = maxRoundOf / 2;
-        int roundOf = maxRoundOf;
+        fillSeedNumbers(seResultsList, drawItems, maxRoundOf);
 
-        // find all matches for this first round so we can fill the byes
-        List<EventResults> roundResults = new ArrayList<>();
-        for (EventResults eventResults : seResultsList) {
-            if (eventResults.getRound() == roundOf) {
-                roundResults.add(eventResults);
+        // find byes in each round
+        for (int roundOf = maxRoundOf; roundOf > 1;) {
+            List<EventResults> byeResults = getByesForRound(seResultsList, resultsList, drawItems, roundOf);
+            if (!byeResults.isEmpty()) {
+                seResultsList.addAll(byeResults);
+                // this round was of 16 next round is of 8
+                roundOf = roundOf / 2;
+            } else {
+                // this round didn't produce any byes so the next one won't either - let's stop
+                break;
             }
         }
 
-        List<EventResults> byeResults = new ArrayList<>(roundMatches - roundResults.size());
-        for (int groupNum = 1; groupNum <= roundMatches; groupNum++) {
-            boolean found = false;
-            for (EventResults eventResults : roundResults) {
-                if (eventResults.getGroupNumber() == groupNum) {
-                    found = true;
-                    break;
+        Collections.sort(seResultsList,
+                Comparator.comparing(EventResults::getRound).reversed()
+                .thenComparing(EventResults::getGroupNumber));
+    }
+
+    /**
+     * Fills non-bye matches seSeed numbers
+     * @param seResultsList
+     * @param drawItems
+     * @param roundOf
+     */
+    private void fillSeedNumbers(List<EventResults> seResultsList, List<DrawItem> drawItems, int roundOf) {
+        for (EventResults eventResults : seResultsList) {
+            if (eventResults.getRound() == roundOf) {
+                int groupNumber = eventResults.getGroupNumber();
+                List<PlayerResults> playerResultsList = eventResults.getPlayerResultsList();
+                if (playerResultsList.size() == 2) {
+                    PlayerResults playerAResults = playerResultsList.get(0);
+                    fillPlayerSeedNumber(playerAResults, drawItems, roundOf, groupNumber);
+                    PlayerResults playerBResults = playerResultsList.get(1);
+                    fillPlayerSeedNumber(playerBResults, drawItems, roundOf, groupNumber);
                 }
             }
+        }
+    }
+
+    /**
+     * Fills seed number of one player
+     * @param playerAResults
+     * @param drawItems
+     * @param roundOf
+     * @param groupNumber
+     */
+    private void fillPlayerSeedNumber(PlayerResults playerAResults, List<DrawItem> drawItems, int roundOf, int groupNumber) {
+        for (DrawItem drawItem : drawItems) {
+            if (drawItem.getRound() == roundOf && drawItem.getPlayerId().equals(playerAResults.getProfileId())) {
+                playerAResults.setSeSeedNumber(drawItem.getSeSeedNumber());
+                break;
+            }
+        }
+    }
+
+    /**
+     *
+     * @param seResultsList
+     * @param resultsList
+     * @param drawItems
+     * @param roundOf
+     * @return
+     */
+    private List<EventResults> getByesForRound(List<EventResults> seResultsList, List<EventResults> resultsList, List<DrawItem> drawItems, int roundOf) {
+        // find all matches for this first round so we can fill the byes
+        Set<Integer> existingGroupNums = new HashSet<>();
+        for (EventResults eventResults : seResultsList) {
+            if (eventResults.getRound() == roundOf) {
+                existingGroupNums.add(eventResults.getGroupNumber());
+            }
+        }
+
+        int roundMatches = roundOf / 2;
+        List<EventResults> byeResults = new ArrayList<>(roundMatches - existingGroupNums.size());
+        for (int groupNum = 1; groupNum <= roundMatches; groupNum++) {
+            boolean found = existingGroupNums.contains(groupNum);
             if (!found) {
                 EventResults byeEventResult = new EventResults();
                 byeEventResult.setGroupNumber(groupNum);
@@ -174,11 +243,7 @@ public class TournamentResultsService {
                 byeResults.add(byeEventResult);
             }
         }
-        seResultsList.addAll(byeResults);
-
-        Collections.sort(seResultsList,
-                Comparator.comparing(EventResults::getRound).reversed()
-                .thenComparing(EventResults::getGroupNumber));
+        return byeResults;
     }
 
     private List<PlayerResults> makePlayerResultsForBye(int roundOf, int groupNum, List<DrawItem> drawItems, List<EventResults> resultsList) {
@@ -191,22 +256,20 @@ public class TournamentResultsService {
                (drawItem.getSingleElimLineNum() == minSingleElimLineNum || drawItem.getSingleElimLineNum() == maxSingleElimLineNum)) {
                 Character letterCode = (drawItem.getSingleElimLineNum() % 2 == 1) ? 'A' : 'B';
                 PlayerResults playerResults = new PlayerResults();
-                playerResults.setLetterCode(letterCode);
                 playerResultsList.add(playerResults);
+                playerResults.setLetterCode(letterCode);
+                playerResults.setSeSeedNumber(drawItem.getSeSeedNumber());
+                playerResults.setByeNumber(drawItem.getByeNum());
+                playerResults.setProfileId(drawItem.getPlayerId());
+                playerResults.setMatchResults(Collections.singletonList(new MatchResult()));
+                playerResults.setRating(drawItem.getRating());
                 if (drawItem.getByeNum() == 0) {
-                    String profileId = drawItem.getPlayerId();
-                    playerResults.setProfileId(profileId);
                     fillPlayerFullNameAndRating(resultsList, playerResults);
                     playerResults.setRank(1);
-                    playerResults.setRating(drawItem.getRating());
-                    playerResults.setMatchResults(Collections.singletonList(new MatchResult()));
                 } else {
                     // bye line
-                    playerResults.setProfileId(null);
                     playerResults.setFullName("Bye");
                     playerResults.setRank(2);
-                    playerResults.setRating(0);
-                    playerResults.setMatchResults(Collections.singletonList(new MatchResult()));
                 }
             }
         }

@@ -14,6 +14,9 @@ export class SEMatchComponent implements OnInit {
   @Input()
   match: Match;
 
+  @Input()
+  doublesEvent: boolean;
+
   constructor() { }
 
   ngOnInit(): void {

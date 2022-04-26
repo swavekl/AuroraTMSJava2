@@ -62,7 +62,7 @@ export class TournamentResultsService {
             this.setLoading(false);
           }),
         map((response: EventResults[]) => {
-            console.log('EventResults response ' + JSON.stringify(response));
+            // console.log('EventResults response ' + JSON.stringify(response));
             return response;
           }
         )

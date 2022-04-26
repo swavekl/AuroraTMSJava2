@@ -53,7 +53,7 @@ export class TournamentResultDetailsComponent implements OnInit, OnChanges {
             drawType: DrawType.SINGLE_ELIMINATION,
             clubName: null,
             eventFk: this.event.id,
-            byeNum: 0, // todo
+            byeNum: playerResult.byeNumber,
             conflicts: null,
             groupNum: eventResults.groupNumber,
             placeInGroup: 1, // todo
@@ -61,7 +61,7 @@ export class TournamentResultDetailsComponent implements OnInit, OnChanges {
             playerName: playerResult.fullName,
             round: eventResults.round,
             rating: playerResult.rating,
-            seSeedNumber: 1, // todo
+            seSeedNumber: playerResult.seSeedNumber,
             state: null // todo
           };
           tempSeDrawItems.push(drawItem);
@@ -187,4 +187,15 @@ export class TournamentResultDetailsComponent implements OnInit, OnChanges {
   public getBracketsHeight(): string {
     return (window.innerHeight - 212) + 'px';
   }
+
+  getPlayerNames(playerName: string) {
+    if (!this.event.doubles) {
+      return playerName;
+    } else {
+      const split = playerName.replace('/ ', '</br>');
+      console.log('split', split);
+      return split;
+    }
+  }
+
 }

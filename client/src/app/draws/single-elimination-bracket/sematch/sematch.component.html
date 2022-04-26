@@ -1,22 +1,22 @@
 <div class="match-box" *ngIf="match">
   <div fxLayout="row">
     <div [fxFlex]="match.showSeedNumber ? '25px' : '0px'">
-      <div class="group-num-column" *ngIf="match.showSeedNumber">{{(match.opponentA.byeNum === 0) ? match.opponentA.groupNum : '&nbsp;'}}</div>
+      <div class="group-num-column" *ngIf="match.showSeedNumber">{{(match.opponentA.byeNum === 0) ? match.opponentA.seSeedNumber : '&nbsp;'}}</div>
       <div *ngIf="match.showSeedNumber">&nbsp;</div>
-      <div class="group-num-column" *ngIf="match.showSeedNumber">{{(match.opponentB.byeNum === 0) ? match.opponentB.groupNum : '&nbsp;'}}</div>
+      <div class="group-num-column" *ngIf="match.showSeedNumber">{{(match.opponentB.byeNum === 0) ? match.opponentB.seSeedNumber : '&nbsp;'}}</div>
     </div>
-    <div [fxFlex]="match.showSeedNumber ? '175px' : '200px'">
-      <div class="player-line" [ngClass]="(match.result != null && match.opponentAWon) ? 'match-winner' : ''"
+    <div [fxFlex]="match.showSeedNumber ? '200px' : '225px'">
+      <div class="player-line" [ngClass]="(match.result != null && match.opponentAWon && match.opponentB.byeNum === 0) ? 'match-winner' : ''"
            *ngIf="match.opponentA.byeNum === 0"
            [matTooltip]="match.getTooltipTextA()" matTooltipClass="additional-info-tooltip"
-           matTooltipPosition="after">{{match.opponentA.rating}} {{match.opponentA.playerName}}</div>
+           matTooltipPosition="after"><span *ngIf="match.showSeedNumber">{{match.opponentA.rating}}</span> {{match.opponentA.playerName}}</div>
       <div class="player-line" *ngIf="match.opponentA.byeNum > 0"  >Bye</div>
       <div class="time-and-table" *ngIf="match.time !== 0">{{match.time | startTime }} Table {{match.tableNum}}</div>
       <div class="time-and-table" *ngIf="match.result != null">&nbsp; {{match.result.join(', ')}}</div>
-      <div class="player-line" [ngClass]="(match.result != null && !match.opponentAWon) ? 'match-winner' : ''"
+      <div class="player-line" [ngClass]="(match.result != null && !match.opponentAWon && match.opponentA.byeNum === 0) ? 'match-winner' : ''"
            *ngIf="match.opponentB.byeNum === 0"
            [matTooltip]="match.getTooltipTextB()" matTooltipClass="additional-info-tooltip"
-           matTooltipPosition="after">{{match.opponentB.rating}} {{match.opponentB.playerName}}</div>
+           matTooltipPosition="after"><span *ngIf="match.showSeedNumber">{{match.opponentB.rating}}</span> {{match.opponentB.playerName}}</div>
       <div class="player-line" *ngIf="match.opponentB.byeNum > 0"  >Bye</div>
     </div>
   </div>

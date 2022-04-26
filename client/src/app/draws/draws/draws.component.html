@@ -110,7 +110,9 @@
           <app-single-elimination-bracket *ngIf="showPlayoffDraw"
                                           [bracketsHeight]="getBracketsHeight()"
                                           [rounds]="roundNumbers"
-                                          [tournament]="tournament">
+                                          [tournament]="tournament"
+                                          [doublesEvent]="selectedEvent.doubles"
+          >
           </app-single-elimination-bracket>
         </div>
       </div>

@@ -20,6 +20,9 @@ export class SingleEliminationBracketComponent implements OnInit, OnChanges {
   @Input()
   bracketsHeight: string;
 
+  @Input()
+  doublesEvent: boolean;
+
   constructor() { }
 
   ngOnInit(): void {
