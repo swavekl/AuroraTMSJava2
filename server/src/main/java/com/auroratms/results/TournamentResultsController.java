@@ -44,4 +44,16 @@ public class TournamentResultsController {
             return ResponseEntity.internalServerError().build();
         }
     }
+
+    @GetMapping("/tournamentresults/entry/{entryId}/{profileId}")
+    public ResponseEntity<List<PlayerMatchSummary>> getPlayerResults(@PathVariable long entryId,
+                                                                     @PathVariable String profileId) {
+        try {
+            List<PlayerMatchSummary> result = tournamentResultsService.getPlayerResults(entryId, profileId);
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            return ResponseEntity.internalServerError().build();
+        }
+    }
 }

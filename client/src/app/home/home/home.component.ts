@@ -231,4 +231,9 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.router.navigateByUrl(`/today/playerschedule/${this.todaysTournamentId}/${tournamentDay}/${this.todaysTournamentEntryId}`);
   }
 
+
+  showMyResults() {
+    const profileId = this.authenticationService.getCurrentUserProfileId();
+    this.router.navigateByUrl(`/results/playerresults/${this.todaysTournamentEntryId}/${profileId}`);
+  }
 }

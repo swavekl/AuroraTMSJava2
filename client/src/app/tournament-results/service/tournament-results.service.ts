@@ -5,6 +5,7 @@ import {distinctUntilChanged, map, tap} from 'rxjs/operators';
 import {AccountStatus} from '../../account/service/account.service';
 import {EventResultStatus} from '../model/event-result-status';
 import {EventResults} from '../model/event-results';
+import {PlayerMatchSummary} from '../model/player-match-summary';
 
 @Injectable({
   providedIn: 'root'
@@ -63,6 +64,31 @@ export class TournamentResultsService {
           }),
         map((response: EventResults[]) => {
             // console.log('EventResults response ' + JSON.stringify(response));
+            return response;
+          }
+        )
+      );
+  }
+
+  /**
+   * Gets a list of completed matches and their results for a player in a tournament
+   * @param tournamentId
+   * @param entryId
+   * @param profileId
+   */
+  public getPlayerTournamentResults(entryId: number, profileId: string): Observable<PlayerMatchSummary[]> {
+    const url = `/api/tournamentresults/entry/${entryId}/${profileId}`;
+    this.setLoading(true);
+    return this.httpClient.get<PlayerMatchSummary[]>(url)
+      .pipe(
+        tap(() => {
+            this.setLoading(false);
+          },
+          (error: any) => {
+            this.setLoading(false);
+          }),
+        map((response: PlayerMatchSummary[]) => {
+            console.log('PlayerMatchSummary response ' + JSON.stringify(response));
             return response;
           }
         )

@@ -10,6 +10,14 @@ import com.auroratms.match.Match;
 import com.auroratms.match.MatchCard;
 import com.auroratms.match.MatchCardService;
 import com.auroratms.match.MatchResult;
+import com.auroratms.profile.UserProfile;
+import com.auroratms.profile.UserProfileExt;
+import com.auroratms.profile.UserProfileExtService;
+import com.auroratms.profile.UserProfileService;
+import com.auroratms.tournamentevententry.TournamentEventEntry;
+import com.auroratms.tournamentevententry.TournamentEventEntryService;
+import com.auroratms.usatt.UsattDataService;
+import com.auroratms.usatt.UsattPlayerRecord;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
@@ -31,6 +39,18 @@ public class TournamentResultsService {
 
     @Autowired
     private DrawService drawService;
+
+    @Autowired
+    private TournamentEventEntryService tournamentEventEntryService;
+
+//    @Autowired
+//    private UserProfileExtService userProfileExtService;
+//
+//    @Autowired
+//    private UsattDataService usattDataService;
+
+    @Autowired
+    private UserProfileService userProfileService;
 
     /**
      * Gets all events in the tournament and their status - i.e. completed or not and who got which place
@@ -384,5 +404,195 @@ public class TournamentResultsService {
         }
 
         return playerResultsList;
+    }
+
+    /**
+     * Gets results of all completed matches for a player
+     *
+     * @param tournamentEntryId tournament entry id
+     * @param playerProfileId   player profile id
+     * @return
+     */
+    public List<PlayerMatchSummary> getPlayerResults(long tournamentEntryId, String playerProfileId) {
+        // events the player entered
+        // get this player's entry and its event entries
+        List<TournamentEventEntry> tournamentEventEntries = this.tournamentEventEntryService.listAllForTournamentEntry(tournamentEntryId);
+        List<Long> enteredEventIds = new ArrayList<>(tournamentEventEntries.size());
+        for (TournamentEventEntry tournamentEventEntry : tournamentEventEntries) {
+            enteredEventIds.add(tournamentEventEntry.getTournamentEventFk());
+        }
+
+        // get entered events so we can get their names
+        List<TournamentEvent> enteredEventEntities = tournamentEventEntityService.findAllById(enteredEventIds);
+
+        // get all draws for this player so we know which groups he/she is in each event
+        // in round robin and single elimination rounds
+        List<DrawItem> drawItems = drawService.listByProfileIdAndEventFkIn(playerProfileId, enteredEventIds);
+        List<PlayerMatchSummary> playerMatchSummaries = new ArrayList<>(drawItems.size());
+        for (DrawItem drawItem : drawItems) {
+//            String message = String.format("Getting match card for (%d, %d, %d)", drawItem.getEventFk(), drawItem.getRound(), drawItem.getGroupNum());
+//            System.out.println(message);
+            if (drawItem.getDrawType() == DrawType.ROUND_ROBIN) {
+                // player who gets a bye in the single elimination round doesn't have a match card
+                if (this.matchCardService.existsMatchCard(drawItem.getEventFk(), drawItem.getRound(), drawItem.getGroupNum())) {
+                    MatchCard matchCard = this.matchCardService.getMatchCard(drawItem.getEventFk(), drawItem.getRound(), drawItem.getGroupNum());
+                    for (TournamentEvent eventEntity : enteredEventEntities) {
+                        if (eventEntity.getId().equals(matchCard.getEventFk())) {
+                            List<Match> matches = matchCard.getMatches();
+                            for (Match match : matches) {
+                                if (match.getPlayerAProfileId().contains(playerProfileId) ||
+                                        match.getPlayerBProfileId().contains(playerProfileId)) {
+                                    if (match.isMatchFinished(matchCard.getNumberOfGames(), eventEntity.getPointsPerGame())) {
+                                        PlayerMatchSummary playerMatchSummary = toPlayerMatchSummary(match, matchCard, eventEntity,
+                                                playerProfileId);
+                                        playerMatchSummaries.add(playerMatchSummary);
+                                    }
+                                }
+                            }
+                            break;
+                        }
+                    }
+                }
+            } else {
+                List<MatchCard> singleEliminationMatchCards = matchCardService.findAllForEventAndDrawTypeAndRound(drawItem.getEventFk(), drawItem.getDrawType(), drawItem.getRound());
+                boolean found = false;
+                for (MatchCard matchCard : singleEliminationMatchCards) {
+                    List<Match> matches = matchCard.getMatches();
+                    for (Match match : matches) {
+                        if (match.getPlayerAProfileId().contains(playerProfileId) ||
+                                match.getPlayerBProfileId().contains(playerProfileId)) {
+                            for (TournamentEvent eventEntity : enteredEventEntities) {
+                                if (eventEntity.getId().equals(matchCard.getEventFk())) {
+                                    if (match.isMatchFinished(matchCard.getNumberOfGames(), eventEntity.getPointsPerGame())) {
+                                        PlayerMatchSummary playerMatchSummary = toPlayerMatchSummary(match, matchCard, eventEntity,
+                                                playerProfileId);
+                                        playerMatchSummaries.add(playerMatchSummary);
+                                    }
+                                    found = true;
+                                    break;
+                                }
+                            }
+                        }
+                        if (found) {
+                            break;
+                        }
+                    }
+                    if (found) {
+                        break;
+                    }
+                }
+            }
+        }
+
+        this.fillPlayerFullNames(playerMatchSummaries);
+
+        return playerMatchSummaries;
+    }
+
+    /**
+     * @param match
+     * @param matchCard
+     * @param tournamentEvent
+     * @param playerProfileId
+     * @return
+     */
+    private PlayerMatchSummary toPlayerMatchSummary(Match match,
+                                                    MatchCard matchCard,
+                                                    TournamentEvent tournamentEvent,
+                                                    String playerProfileId) {
+        PlayerMatchSummary playerMatchSummary = new PlayerMatchSummary();
+        playerMatchSummary.setEventName(tournamentEvent.getName());
+        playerMatchSummary.setMatchDay(tournamentEvent.getDay());
+        playerMatchSummary.setEventFormat(tournamentEvent.isSingleElimination() ? DrawType.SINGLE_ELIMINATION : DrawType.ROUND_ROBIN);
+        playerMatchSummary.setDoubles(tournamentEvent.isDoubles());
+
+        playerMatchSummary.setRound(matchCard.getRound());
+        Map<String, String> profileIdToNameMap = matchCard.getProfileIdToNameMap();
+        boolean playerWonMatch = false;
+        if (match.getPlayerAProfileId().contains(playerProfileId)) {
+            playerMatchSummary.setOpponentProfileId(match.getPlayerBProfileId());
+            playerMatchSummary.setOpponentRating(match.getPlayerBRating());
+            if (profileIdToNameMap != null) {
+                String opponentName = profileIdToNameMap.get(match.getPlayerBProfileId());
+                playerMatchSummary.setOpponentFullName(opponentName);
+            }
+            playerWonMatch = match.isMatchWinner(match.getPlayerAProfileId(), matchCard.getNumberOfGames(), tournamentEvent.getPointsPerGame());
+        } else {
+            playerMatchSummary.setOpponentProfileId(match.getPlayerAProfileId());
+            playerMatchSummary.setOpponentRating(match.getPlayerARating());
+            if (profileIdToNameMap != null) {
+                String opponentName = profileIdToNameMap.get(match.getPlayerAProfileId());
+                playerMatchSummary.setOpponentFullName(opponentName);
+            }
+            playerWonMatch = match.isMatchWinner(match.getPlayerBProfileId(), matchCard.getNumberOfGames(), tournamentEvent.getPointsPerGame());
+        }
+        playerMatchSummary.setMatchWon(playerWonMatch);
+        playerMatchSummary.setCompactMatchResult(match.getCompactResult(matchCard.getNumberOfGames(), tournamentEvent.getPointsPerGame()));
+
+        // get exchanged points
+        if (!tournamentEvent.isDoubles()) {
+            int exchangedPoints = 0;
+            if (!match.isSideADefaulted() && !match.isSideBDefaulted()) {
+                exchangedPoints = RatingChartCalculator.getExchangedPoints(
+                        match.getPlayerARating(), match.getPlayerBRating(), playerWonMatch);
+            }
+            playerMatchSummary.setPointsExchanged(exchangedPoints);
+        }
+
+        return playerMatchSummary;
+    }
+
+    /**
+     *
+     * @param playerMatchSummaries
+     */
+    private void fillPlayerFullNames(List<PlayerMatchSummary> playerMatchSummaries) {
+        // find all player full names from match cards that were already finished
+        Map<String, String> profileIdToNameMap = new HashMap<>();
+        for (PlayerMatchSummary playerMatchSummary : playerMatchSummaries) {
+            if (playerMatchSummary.getOpponentFullName() != null) {
+                profileIdToNameMap.put(playerMatchSummary.getOpponentProfileId(), playerMatchSummary.getOpponentFullName());
+            }
+        }
+
+        // find missing unique profile ids
+        Set<String> playerProfileIds = new HashSet<>();
+        for (PlayerMatchSummary playerMatchSummary : playerMatchSummaries) {
+            String opponentProfileId = playerMatchSummary.getOpponentProfileId();
+            if (playerMatchSummary.getOpponentFullName() == null) {
+                if (opponentProfileId.contains(";")) {
+                    String [] teamProfileIds = opponentProfileId.split(";");
+                    playerProfileIds.add(teamProfileIds[0]);
+                    playerProfileIds.add(teamProfileIds[1]);
+                } else {
+                    playerProfileIds.add(opponentProfileId);
+                }
+            }
+        }
+
+        // using profile service - slower but more accurate in case opponent doesn't have a USATT record
+        List<String> uniquePlayerProfiles = new ArrayList<>(playerProfileIds);
+        Collection<UserProfile> userProfiles = this.userProfileService.listByProfileIds(uniquePlayerProfiles);
+        for (UserProfile userProfile : userProfiles) {
+            String fullName = userProfile.getLastName() + ", " + userProfile.getFirstName();
+            profileIdToNameMap.put(userProfile.getUserId(), fullName);
+        }
+
+        // fill them up
+        for (PlayerMatchSummary playerMatchSummary : playerMatchSummaries) {
+            String opponentProfileId = playerMatchSummary.getOpponentProfileId();
+            if (playerMatchSummary.getOpponentFullName() == null) {
+                if (opponentProfileId.contains(";")) {
+                    String [] teamProfileIds = opponentProfileId.split(";");
+                    String playerAFullName = profileIdToNameMap.get(teamProfileIds[0]);
+                    String playerBFullName = profileIdToNameMap.get(teamProfileIds[1]);
+                    String opponentFullName = playerAFullName + " / " + playerBFullName;
+                    playerMatchSummary.setOpponentFullName(opponentFullName);
+                } else {
+                    String opponentFullName = profileIdToNameMap.get(opponentProfileId);
+                    playerMatchSummary.setOpponentFullName(opponentFullName);
+                }
+            }
+        }
     }
 }

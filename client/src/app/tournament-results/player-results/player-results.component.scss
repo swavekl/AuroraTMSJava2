@@ -1,0 +1,40 @@
+table.player-results-table {
+  tr {
+    th {
+      font-weight: bold;
+    }
+    td, th {
+      border: 1px solid black;
+      padding: 4px;
+      vertical-align: middle;
+
+      &.names-column {
+        width: 225px;
+        //background-color: #d7c8f5;
+      }
+
+      &.rating-column {
+        width: 35px;
+      }
+
+      &.event-name-column {
+        width: 200px;
+      }
+
+      &.event-format-column {
+        width: 35px;
+      }
+
+      &.result-column {
+        width: 100px;
+      }
+
+      &.doubles-partner-top-cell {
+        border-bottom-width: 0;
+      }
+      &.doubles-partner-bottom-cell {
+        border-top-width: 0;
+      }
+    }
+  }
+}

@@ -11,6 +11,9 @@ import {TournamentResultsListContainerComponent} from './tournament-results-list
 import {TournamentResultDetailsComponent} from './tournament-result-details/tournament-result-details.component';
 import {TournamentResultDetailsContainerComponent} from './tournament-result-details/tournament-result-details-container.component';
 import {DrawsModule} from '../draws/draws.module';
+import { PlayerResultsComponent } from './player-results/player-results.component';
+import { PlayerResultsContainerComponent } from './player-results/player-results-container.component';
+import {SharedModule} from '../shared/shared.module';
 
 
 @NgModule({
@@ -18,7 +21,9 @@ import {DrawsModule} from '../draws/draws.module';
     TournamentResultsListComponent,
     TournamentResultsListContainerComponent,
     TournamentResultDetailsComponent,
-    TournamentResultDetailsContainerComponent
+    TournamentResultDetailsContainerComponent,
+    PlayerResultsComponent,
+    PlayerResultsContainerComponent
   ],
     imports: [
         CommonModule,
@@ -27,7 +32,8 @@ import {DrawsModule} from '../draws/draws.module';
         MatButtonModule,
         TournamentResultsRoutingModule,
         DrawsModule,
-        MatTabsModule
+        MatTabsModule,
+        SharedModule
     ]
 })
 export class TournamentResultsModule { }

@@ -13,7 +13,7 @@
 <!--    <button mat-raised-button color="primary" [routerLink]="todayService.todayUrl">-->
 <!--      See Details...-->
 <!--    </button>-->
-    <div fxLayout="row" fxLayoutAlign="center center" fxLayoutGap="40px">
+    <div fxLayout="row wrap" fxLayoutAlign="center center" fxLayoutGap="40px">
       <div fxLayout="column" fxLayoutAlign="start center">
         <button type="button" class="icon-button" mat-button color="" (click)="directionsToVenue()">
           <mat-icon>assistant_direction</mat-icon>
@@ -32,6 +32,12 @@
           <mat-icon>schedule</mat-icon>
         </button>
         <div>Schedule</div>
+      </div>
+      <div fxLayout="column" fxLayoutAlign="start center">
+        <button type="button" class="icon-button" mat-button color="" (click)="showMyResults()">
+          <mat-icon>grading</mat-icon>
+        </button>
+        <div>My Results</div>
       </div>
     </div>
   </div>
