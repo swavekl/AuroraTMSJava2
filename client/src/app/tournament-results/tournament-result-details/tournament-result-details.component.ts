@@ -188,14 +188,15 @@ export class TournamentResultDetailsComponent implements OnInit, OnChanges {
     return (window.innerHeight - 212) + 'px';
   }
 
-  getPlayerNames(playerName: string) {
-    if (!this.event.doubles) {
-      return playerName;
+  getDoublesPlayerName(playerNames: string, index: number): string {
+    const playerNamesArray: string [] = playerNames.split('/');
+    if (playerNamesArray.length === 2) {
+      const playerName = playerNamesArray[index].trim();
+      return (index === 0) ? playerName + ' /' : playerName;
     } else {
-      const split = playerName.replace('/ ', '</br>');
-      console.log('split', split);
-      return split;
+      return playerNames;
     }
   }
+
 
 }

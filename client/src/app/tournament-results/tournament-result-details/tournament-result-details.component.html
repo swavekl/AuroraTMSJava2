@@ -19,7 +19,15 @@
               <!--            <td class="player-info-column">{{playerResults.letterCode}}: {{playerResults.rating}} - {{playerResults.fullName}}</td>-->
               <td class="letter-code-column">{{playerResults.letterCode}}</td>
               <td class="rating-column">{{playerResults.rating}}</td>
-              <td class="player-name-column" [ngClass]="playerResults.rank === 1 ? 'winner-cell' : ''">{{playerResults.fullName}}</td>
+              <td class="player-name-column" [ngClass]="playerResults.rank === 1 ? 'winner-cell' : ''">
+                <ng-container *ngIf="playerResults.fullName.indexOf('/') === -1; else doublesResult">
+                  <div>{{playerResults.fullName}}</div>
+                </ng-container>
+                <ng-template #doublesResult>
+                  <div>{{ getDoublesPlayerName(playerResults.fullName, 0) }}</div>
+                  <div>{{ getDoublesPlayerName(playerResults.fullName, 1) }}</div>
+                </ng-template>
+              </td>
               <td class="rank-column" [ngClass]="playerResults.rank === 1 ? 'winner-cell' : ''">{{playerResults.rank}}</td>
               <td class="win-loss-column">{{playerResults.matchesWon}}/{{playerResults.matchesLost}}</td>
               <ng-container *ngFor="let matchResults of playerResults.matchResults">
