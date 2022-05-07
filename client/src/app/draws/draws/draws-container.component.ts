@@ -1,6 +1,6 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {TournamentEventConfigService} from '../../tournament/tournament-config/tournament-event-config.service';
-import {combineLatest, Observable, Subscription} from 'rxjs';
+import {combineLatest, Observable, of, Subscription} from 'rxjs';
 import {TournamentEvent} from '../../tournament/tournament-config/tournament-event.model';
 import {ActivatedRoute} from '@angular/router';
 import {LinearProgressBarService} from '../../shared/linear-progress-bar/linear-progress-bar.service';
@@ -9,6 +9,10 @@ import {DrawService} from '../service/draw.service';
 import {DrawItem} from '../model/draw-item.model';
 import {DrawType} from '../model/draw-type.enum';
 import {first} from 'rxjs/operators';
+import {TournamentInfoService} from '../../tournament/service/tournament-info.service';
+import {TournamentConfigService} from '../../tournament/tournament-config/tournament-config.service';
+import {createSelector} from '@ngrx/store';
+import {Tournament} from '../../tournament/tournament-config/tournament.model';
 
 @Component({
   selector: 'app-draws-container',
@@ -16,6 +20,7 @@ import {first} from 'rxjs/operators';
     <p>
       <app-draws [tournamentEvents]="tournamentEvents$ | async"
                  [draws]="draws$ | async"
+                 [tournamentName]="tournamentName$ | async"
                  (drawsAction)="onDrawsAction($event)">
       </app-draws>
     </p>
@@ -30,6 +35,8 @@ export class DrawsContainerComponent implements OnInit, OnDestroy {
   // draws for the currently selected event
   draws$: Observable<DrawItem[]>;
 
+  tournamentName$: Observable<string>;
+
   private tournamentId: number;
 
   private loading$: Observable<boolean>;
@@ -38,11 +45,15 @@ export class DrawsContainerComponent implements OnInit, OnDestroy {
 
 
   constructor(private tournamentEventConfigService: TournamentEventConfigService,
+              private tournamentConfigService: TournamentConfigService,
               private activatedRoute: ActivatedRoute,
               private drawService: DrawService,
               private linearProgressBarService: LinearProgressBarService) {
+    const strTournamentId = this.activatedRoute.snapshot.params['tournamentId'] || 0;
+    this.tournamentId = Number(strTournamentId);
     this.setupProgressIndicator();
-    this.loadTournamentEvents();
+    this.loadTournamentEvents(this.tournamentId);
+    this.loadTournamentName(this.tournamentId);
     this.setupDraws();
   }
 
@@ -54,9 +65,10 @@ export class DrawsContainerComponent implements OnInit, OnDestroy {
     // if any of the service are loading show the loading progress
     this.loading$ = combineLatest(
       this.tournamentEventConfigService.store.select(this.tournamentEventConfigService.selectors.selectLoading),
+      this.tournamentConfigService.store.select(this.tournamentConfigService.selectors.selectLoading),
       this.drawService.store.select(this.drawService.selectors.selectLoading),
-      (eventConfigsLoading: boolean, drawsLoading: boolean) => {
-        return eventConfigsLoading || drawsLoading;
+      (eventConfigsLoading: boolean, tournamentLoading, drawsLoading: boolean) => {
+        return eventConfigsLoading || tournamentLoading || drawsLoading;
       }
     );
 
@@ -73,15 +85,30 @@ export class DrawsContainerComponent implements OnInit, OnDestroy {
     this.subscriptions.unsubscribe();
   }
 
-  private loadTournamentEvents() {
-    const strTournamentId = this.activatedRoute.snapshot.params['tournamentId'] || 0;
-    this.tournamentId = Number(strTournamentId);
+  private loadTournamentEvents(tournamentId: number) {
     this.tournamentEvents$ = this.tournamentEventConfigService.store.select(
       this.tournamentEventConfigService.selectors.selectEntities);
     // load them - they will surface via this selector
-    this.tournamentEventConfigService.loadTournamentEvents(this.tournamentId);
+    this.tournamentEventConfigService.loadTournamentEvents(tournamentId);
   }
 
+  private loadTournamentName(tournamentId: number) {
+    const selectedTournamentSelector = createSelector(
+      this.tournamentConfigService.selectors.selectEntityMap,
+      (entityMap) => {
+        return entityMap[tournamentId];
+      });
+    const localTournament$ = this.tournamentConfigService.store.select(selectedTournamentSelector);
+    const subscription = localTournament$
+      .subscribe((tournament: Tournament) => {
+      if (!tournament) {
+        this.tournamentConfigService.getByKey(tournamentId);
+      } else {
+        this.tournamentName$ = of(tournament.name);
+      }
+    });
+    this.subscriptions.add(subscription);
+  }
 
   private setupDraws() {
     // this will be subscribed by the template

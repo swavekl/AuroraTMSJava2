@@ -28,6 +28,9 @@ export class DrawsComponent implements OnInit, OnChanges {
   @Input()
   draws: DrawItem [] = [];
 
+  @Input()
+  tournamentName: string;
+
   @Output()
   private drawsAction: EventEmitter<any> = new EventEmitter<any>();
 
