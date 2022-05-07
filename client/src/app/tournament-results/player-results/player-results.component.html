@@ -1,103 +1,93 @@
-<h1>My Results</h1>
-<ng-container *ngIf="playerMatchSummaryList">
-  <h1>Matches Won</h1>
-  <table class="player-results-table">
-    <thead>
-    <tr>
-      <th class="names-column">Opponent name(s)</th>
-      <th class="rating-column">Rating</th>
-      <!--      <th>Membership Id</th>-->
-      <th class="event-name-column">Event</th>
-<!--      <th class="event-format-column">Format</th>-->
-      <!--      <th>Round</th>-->
-      <th class="result-column">Result</th>
-      <th>Points</th>
-    </tr>
-    </thead>
-    <tbody>
-    <ng-container *ngFor="let playerMatchSummary of playerMatchSummaryList">
-      <ng-container *ngIf="playerMatchSummary.matchWon">
-        <ng-container *ngIf="!playerMatchSummary.doubles; else doublesWon">
-          <!--          SINGLES match -->
+<div class="mat-title" style="padding: 16px 0 0 16px;">My Results</div>
+<ng-container *ngIf="tournamentEntry != null && summariesByEvent != null">
+  <ng-container *ngIf="summariesByEvent?.length > 0; else resultsNotAvailable">
+    <table class="ratings-change-table">
+      <tbody>
+      <tr>
+        <td class="text-column">Initial Rating</td>
+        <td class="ratings-column">{{initialRating}}</td>
+      </tr>
+      <tr>
+        <td class="text-column">Points gained/lost</td>
+        <td class="ratings-column">{{totalPointsExchanged}}</td>
+      </tr>
+      <tr>
+        <td class="text-column">Approximate New Rating</td>
+        <td class="ratings-column">{{newRating}}</td>
+      </tr>
+      <tr>
+        <td class="text-column">Matches Won / Lost</td>
+        <td class="ratings-column">{{matchesWon}} / {{matchesLost}}</td>
+      </tr>
+      </tbody>
+    </table>
+    <div class="result-info-line">Matches won shown in <span class="win-cell">green</span>, lost in <span class="loss-cell">red</span></div>
+    <!-- for phone displays -->
+    <div class="small-results-list" fxShow.lt-md="true" fxHide.gt-md="true" fxHide.md="true" *ngIf="summariesByEvent">
+      <ng-container *ngFor="let summaryByEvent of summariesByEvent">
+        <div class="mat-subtitle matches-won-lost-header">{{summaryByEvent.eventName}}</div>
+        <mat-card class="match-card" *ngFor="let playerMatchSummary of summaryByEvent.eventSummaries">
+          <mat-card-subtitle>
+            {{ playerMatchSummary.round | roundName : playerMatchSummary.group }} {{ (playerMatchSummary.round === 0 ) ? ('/ M ' + playerMatchSummary.matchNum) :'' }}
+          </mat-card-subtitle>
+          <mat-card-content>
+            <div fxLayout="row" fxLayoutAlign="space-between start">
+              <div fxLayout="column">
+                <ng-container *ngIf="!playerMatchSummary.doubles; else doublesResult">
+                  <div>{{playerMatchSummary.opponentFullName}}</div>
+                </ng-container>
+                <ng-template #doublesResult>
+                  <div>{{ getDoublesPlayerName(playerMatchSummary.opponentFullName, 0) }}</div>
+                  <div>{{ getDoublesPlayerName(playerMatchSummary.opponentFullName, 1) }}</div>
+                </ng-template>
+              </div>
+              <div [ngClass]="playerMatchSummary.matchWon ? 'match-won-result' : 'match-lost-result'"> {{playerMatchSummary.compactMatchResult}}</div>
+            </div>
+            <div fxLayout="row" fxLayoutAlign="space-between start" class="ratings-points-row">
+              <div>Rating: {{playerMatchSummary.opponentRating}}</div>
+              <div class="ratings-points-cell">Points: {{playerMatchSummary.pointsExchanged}}</div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </ng-container>
+    </div>
+    <!-- for medium and larger displays -->
+    <div class="large-results-table" fxShow.gt-md="true" fxShow.md="true" fxHide.lt-md="true">
+      <table class="player-results-table">
+        <ng-container *ngFor="let summaryByEvent of summariesByEvent">
           <tr>
-            <td>{{ playerMatchSummary.opponentFullName }}</td>
-            <td>{{playerMatchSummary.opponentRating}}</td>
-            <!--        <td>{{playerMatchSummary.opponentMembershipId}}</td>-->
-            <td>{{playerMatchSummary.eventName}}</td>
-<!--            <td>{{playerMatchSummary.eventFormat === 'ROUND_ROBIN' ? 'R.R.' : 'S.E.'}}</td>-->
-            <!--        <td>{{playerMatchSummary.round | roundName: 1}}</td>-->
-            <td>{{playerMatchSummary.compactMatchResult}}</td>
-            <td>{{playerMatchSummary.pointsExchanged}}</td>
+            <th class="event-name-header" colspan="5">{{summaryByEvent.eventName}}</th>
+          </tr>
+          <tr>
+            <th class="names-column">Player name(s)</th>
+            <th class="rating-column">Rating</th>
+            <th class="round-column">Match</th>
+            <th class="result-column">Result</th>
+            <th class="points-column">Points</th>
+          </tr>
+          <tr *ngFor="let playerMatchSummary of summaryByEvent.eventSummaries">
+            <td class="names-column">
+              <ng-container *ngIf="!playerMatchSummary.doubles; else doublesResult">
+                <div>{{playerMatchSummary.opponentFullName}}</div>
+              </ng-container>
+              <ng-template #doublesResult>
+                <div>{{ getDoublesPlayerName(playerMatchSummary.opponentFullName, 0) }}</div>
+                <div>{{ getDoublesPlayerName(playerMatchSummary.opponentFullName, 1) }}</div>
+              </ng-template>
+            </td>
+            <td class="rating-column">{{ playerMatchSummary.opponentRating}}</td>
+            <td class="round-column">{{ playerMatchSummary.round | roundName : playerMatchSummary.group }} {{ (playerMatchSummary.round === 0 ) ? ('/ M ' + playerMatchSummary.matchNum) :'' }}</td>
+            <td [ngClass]="playerMatchSummary.matchWon ? 'match-won-result' : 'match-lost-result'"> {{playerMatchSummary.compactMatchResult}}</td>
+            <td class="points-column">{{playerMatchSummary.pointsExchanged}}</td>
+          </tr>
+          <tr>
+            <th class="event-name-header-separator" colspan="5"></th>
           </tr>
         </ng-container>
-        <!--        doubles match -->
-        <ng-template #doublesWon>
-          <tr>
-            <td class="doubles-partner-top-cell">{{ getDoublesPlayerName(playerMatchSummary.opponentFullName, 0) }}</td>
-            <td rowspan="2">{{playerMatchSummary.opponentRating}}</td>
-            <!--        <td>{{playerMatchSummary.opponentMembershipId}}</td>-->
-            <td rowspan="2">{{playerMatchSummary.eventName}}</td>
-<!--            <td rowspan="2">{{playerMatchSummary.eventFormat === 'ROUND_ROBIN' ? 'R.R.' : 'S.E.'}}</td>-->
-            <!--        <td>{{playerMatchSummary.round | roundName: 1}}</td>-->
-            <td rowspan="2">{{playerMatchSummary.compactMatchResult}}</td>
-            <td rowspan="2">{{playerMatchSummary.pointsExchanged}}</td>
-          </tr>
-          <tr>
-            <td class="doubles-partner-bottom-cell">{{ getDoublesPlayerName(playerMatchSummary.opponentFullName, 1) }}</td>
-          </tr>
-        </ng-template>
-      </ng-container>
-    </ng-container>
-    </tbody>
-  </table>
-  <h1>Matches Lost</h1>
-  <table class="player-results-table">
-    <thead>
-    <tr>
-      <th class="names-column">Opponent name(s)</th>
-      <th class="rating-column">Rating</th>
-      <!--      <th>Membership Id</th>-->
-      <th class="event-name-column">Event</th>
-<!--      <th class="event-format-column">Format</th>-->
-      <!--      <th>Round</th>-->
-      <th class="result-column">Result</th>
-      <th>Points</th>
-    </tr>
-    </thead>
-    <tbody>
-    <ng-container *ngFor="let playerMatchSummary of playerMatchSummaryList">
-      <ng-container *ngIf="!playerMatchSummary.matchWon">
-        <ng-container *ngIf="!playerMatchSummary.doubles; else doublesLost">
-          <!--          singles match lost -->
-          <tr>
-            <td>{{ playerMatchSummary.opponentFullName }}</td>
-            <td>{{playerMatchSummary.opponentRating}}</td>
-            <!--        <td>{{playerMatchSummary.opponentMembershipId}}</td>-->
-            <td>{{playerMatchSummary.eventName}}</td>
-<!--            <td>{{playerMatchSummary.eventFormat === 'ROUND_ROBIN' ? 'R.R.' : 'S.E.'}}</td>-->
-            <!--        <td>{{playerMatchSummary.round | roundName: 1}}</td>-->
-            <td>{{playerMatchSummary.compactMatchResult}}</td>
-            <td>{{playerMatchSummary.pointsExchanged}}</td>
-          </tr>
-        </ng-container>
-        <ng-template #doublesLost>
-          <tr>
-            <td class="doubles-partner-top-cell">{{ getDoublesPlayerName(playerMatchSummary.opponentFullName, 0) }}</td>
-            <td rowspan="2">{{playerMatchSummary.opponentRating}}</td>
-            <!--        <td>{{playerMatchSummary.opponentMembershipId}}</td>-->
-            <td rowspan="2">{{playerMatchSummary.eventName}}</td>
-<!--            <td rowspan="2">{{playerMatchSummary.eventFormat === 'ROUND_ROBIN' ? 'R.R.' : 'S.E.'}}</td>-->
-            <!--        <td>{{playerMatchSummary.round | roundName: 1}}</td>-->
-            <td rowspan="2">{{playerMatchSummary.compactMatchResult}}</td>
-            <td rowspan="2">{{playerMatchSummary.pointsExchanged}}</td>
-          </tr>
-          <tr>
-            <td class="doubles-partner-bottom-cell">{{ getDoublesPlayerName(playerMatchSummary.opponentFullName, 1) }}</td>
-          </tr>
-        </ng-template>
-      </ng-container>
-    </ng-container>
-    </tbody>
-  </table>
+      </table>
+    </div>
+  </ng-container>
+  <ng-template #resultsNotAvailable>
+    <app-centered-panel>Results are not available yet</app-centered-panel>
+  </ng-template>
 </ng-container>
-

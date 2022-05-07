@@ -30,6 +30,12 @@ public class PlayerMatchSummary {
     // event round
     private int round;
 
+    // group number
+    private int group;
+
+    // match number on the match card
+    private int matchNum;
+
     // true if doubles match
     private boolean doubles;
 

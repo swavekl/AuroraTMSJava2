@@ -88,7 +88,7 @@ export class TournamentResultsService {
             this.setLoading(false);
           }),
         map((response: PlayerMatchSummary[]) => {
-            console.log('PlayerMatchSummary response ' + JSON.stringify(response));
+            // console.log('PlayerMatchSummary response ' + JSON.stringify(response));
             return response;
           }
         )

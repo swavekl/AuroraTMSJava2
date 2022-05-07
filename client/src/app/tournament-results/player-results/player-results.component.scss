@@ -1,7 +1,64 @@
+table.ratings-change-table {
+  margin: 0 8px 16px 16px;
+
+  tr td {
+    &.text-column {
+      width: 250px;
+    }
+
+    &.ratings-column {
+      text-align: right;
+    }
+  }
+}
+
+$win-color: green;
+$loss-color: red;
+$background-color: #d7c8f5;
+
+div.result-info-line {
+  padding: 0 0 16px 16px;
+
+  span {
+    &.win-cell {
+      color: $win-color;
+    }
+
+    &.loss-cell {
+      color: $loss-color;
+    }
+  }
+}
+
+div.large-results-table {
+  padding: 0 16px;
+}
+
+.won-lost-header {
+  margin-bottom: 16px;
+}
+
+
 table.player-results-table {
+  margin-bottom: 16px;
   tr {
     th {
       font-weight: bold;
+
+      &.event-name-header {
+        padding: 16px;
+        text-align: left;
+        background-color: $background-color;
+        border-top: 0;
+        border-right: 1px solid $background-color;
+        border-left: 1px solid $background-color;
+      }
+
+      &.event-name-header-separator {
+        height: 8px;
+        padding: 0;
+        border: 0;
+      }
     }
     td, th {
       border: 1px solid black;
@@ -10,31 +67,73 @@ table.player-results-table {
 
       &.names-column {
         width: 225px;
-        //background-color: #d7c8f5;
       }
 
       &.rating-column {
         width: 35px;
+        text-align: right;
       }
 
-      &.event-name-column {
-        width: 200px;
-      }
-
-      &.event-format-column {
-        width: 35px;
+      &.round-column {
+        width: 150px;
       }
 
       &.result-column {
-        width: 100px;
+        width: 130px;
       }
 
-      &.doubles-partner-top-cell {
-        border-bottom-width: 0;
+      &.points-column {
+        text-align: right;
       }
-      &.doubles-partner-bottom-cell {
-        border-top-width: 0;
+
+      &.match-won-result {
+        color: $win-color;
+      }
+
+      &.match-lost-result {
+        color: $loss-color;
       }
     }
   }
 }
+
+.matches-won-lost-header {
+  background-color: $background-color;
+  margin: 10px 0;
+  padding: 20px 0;
+  text-align: center;
+}
+
+div.event-name {
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+  padding: 3px 0;
+}
+
+.match-card {
+  margin-bottom: 4px;
+}
+
+.small-results-list {
+  padding: 0 4px;
+}
+
+div.match-won-result {
+  color: $win-color;
+  font-size: 20px !important;
+}
+
+div.match-lost-result {
+  color: $loss-color;
+  font-size: 20px !important;
+}
+
+.ratings-points-row {
+  margin-top: 4px;
+}
+
+.ratings-points-cell {
+  text-align: right;
+}
+

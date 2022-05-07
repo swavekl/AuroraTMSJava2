@@ -23,6 +23,22 @@
                 <input matInput type="number" step="5" min="0" name="usattDonation" [ngModel]="entry.usattDonation" (change)="onChange(f.form)">
               </mat-form-field>
           </div>
+          <table class="ratings-table">
+            <tr>
+              <th>Ratings</th>
+              <th></th>
+            </tr>
+            <tbody>
+            <tr>
+              <td>Seed</td>
+              <td class="ratings-column">{{ entry.seedRating }}</td>
+            </tr>
+            <tr>
+              <td>Eligibility as of ({{ tournament.configuration.eligibilityDate | date }})</td>
+              <td class="ratings-column">{{entry.eligibilityRating}}</td>
+            </tr>
+            </tbody>
+          </table>
           <div class="wizard-button-bar" fxLayout="row">
             <span fxFlex></span>
             <button mat-raised-button color="primary" matStepperNext type="button">Next</button>

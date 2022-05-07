@@ -1,6 +1,6 @@
 import {NgModule} from '@angular/core';
 import {CommonModule} from '@angular/common';
-import {FlexModule} from '@angular/flex-layout';
+import {FlexLayoutModule, FlexModule} from '@angular/flex-layout';
 import {MatCardModule} from '@angular/material/card';
 import {MatButtonModule} from '@angular/material/button';
 import {MatTabsModule} from '@angular/material/tabs';
@@ -33,7 +33,8 @@ import {SharedModule} from '../shared/shared.module';
         TournamentResultsRoutingModule,
         DrawsModule,
         MatTabsModule,
-        SharedModule
+        SharedModule,
+        FlexLayoutModule
     ]
 })
 export class TournamentResultsModule { }

@@ -11,13 +11,11 @@ import com.auroratms.match.MatchCard;
 import com.auroratms.match.MatchCardService;
 import com.auroratms.match.MatchResult;
 import com.auroratms.profile.UserProfile;
-import com.auroratms.profile.UserProfileExt;
-import com.auroratms.profile.UserProfileExtService;
 import com.auroratms.profile.UserProfileService;
+import com.auroratms.tournamententry.TournamentEntry;
+import com.auroratms.tournamententry.TournamentEntryService;
 import com.auroratms.tournamentevententry.TournamentEventEntry;
 import com.auroratms.tournamentevententry.TournamentEventEntryService;
-import com.auroratms.usatt.UsattDataService;
-import com.auroratms.usatt.UsattPlayerRecord;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
@@ -42,6 +40,9 @@ public class TournamentResultsService {
 
     @Autowired
     private TournamentEventEntryService tournamentEventEntryService;
+
+    @Autowired
+    private TournamentEntryService tournamentEntryService;
 
 //    @Autowired
 //    private UserProfileExtService userProfileExtService;
@@ -414,6 +415,9 @@ public class TournamentResultsService {
      * @return
      */
     public List<PlayerMatchSummary> getPlayerResults(long tournamentEntryId, String playerProfileId) {
+
+        TournamentEntry tournamentEntry = this.tournamentEntryService.get(tournamentEntryId);
+        int playerRating = tournamentEntry.getSeedRating();
         // events the player entered
         // get this player's entry and its event entries
         List<TournamentEventEntry> tournamentEventEntries = this.tournamentEventEntryService.listAllForTournamentEntry(tournamentEntryId);
@@ -444,7 +448,7 @@ public class TournamentResultsService {
                                         match.getPlayerBProfileId().contains(playerProfileId)) {
                                     if (match.isMatchFinished(matchCard.getNumberOfGames(), eventEntity.getPointsPerGame())) {
                                         PlayerMatchSummary playerMatchSummary = toPlayerMatchSummary(match, matchCard, eventEntity,
-                                                playerProfileId);
+                                                playerProfileId, playerRating);
                                         playerMatchSummaries.add(playerMatchSummary);
                                     }
                                 }
@@ -465,7 +469,7 @@ public class TournamentResultsService {
                                 if (eventEntity.getId().equals(matchCard.getEventFk())) {
                                     if (match.isMatchFinished(matchCard.getNumberOfGames(), eventEntity.getPointsPerGame())) {
                                         PlayerMatchSummary playerMatchSummary = toPlayerMatchSummary(match, matchCard, eventEntity,
-                                                playerProfileId);
+                                                playerProfileId, playerRating);
                                         playerMatchSummaries.add(playerMatchSummary);
                                     }
                                     found = true;
@@ -494,12 +498,13 @@ public class TournamentResultsService {
      * @param matchCard
      * @param tournamentEvent
      * @param playerProfileId
+     * @param playerRating
      * @return
      */
     private PlayerMatchSummary toPlayerMatchSummary(Match match,
                                                     MatchCard matchCard,
                                                     TournamentEvent tournamentEvent,
-                                                    String playerProfileId) {
+                                                    String playerProfileId, int playerRating) {
         PlayerMatchSummary playerMatchSummary = new PlayerMatchSummary();
         playerMatchSummary.setEventName(tournamentEvent.getName());
         playerMatchSummary.setMatchDay(tournamentEvent.getDay());
@@ -528,13 +533,16 @@ public class TournamentResultsService {
         }
         playerMatchSummary.setMatchWon(playerWonMatch);
         playerMatchSummary.setCompactMatchResult(match.getCompactResult(matchCard.getNumberOfGames(), tournamentEvent.getPointsPerGame()));
+        playerMatchSummary.setGroup(matchCard.getGroupNum());
+        playerMatchSummary.setMatchNum(match.getMatchNum());
 
         // get exchanged points
         if (!tournamentEvent.isDoubles()) {
             int exchangedPoints = 0;
             if (!match.isSideADefaulted() && !match.isSideBDefaulted()) {
+                int opponentPlayerSeedRating = (match.getPlayerAProfileId().contains(playerProfileId)) ? match.getPlayerBRating() : match.getPlayerARating();
                 exchangedPoints = RatingChartCalculator.getExchangedPoints(
-                        match.getPlayerARating(), match.getPlayerBRating(), playerWonMatch);
+                        playerRating, opponentPlayerSeedRating, playerWonMatch);
             }
             playerMatchSummary.setPointsExchanged(exchangedPoints);
         }

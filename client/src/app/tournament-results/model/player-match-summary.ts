@@ -23,6 +23,12 @@ export class PlayerMatchSummary {
   // event round
   round: number;
 
+  // group number
+  group: number;
+
+  // match number on the match card
+  matchNum: number;
+
   // true if doubles match
   doubles: boolean;
 

@@ -65,6 +65,23 @@ table.summary-table {
   color: black;
 }
 
+table.ratings-table {
+  tr {
+    th {
+      text-align: left;
+      font-weight: bold;
+    }
+
+    td {
+      padding: 8px;
+
+      &.ratings-column {
+        text-align: right;
+      }
+    }
+  }
+}
+
 .event-item-line1 {
   font-size: 22px!important;
 }
