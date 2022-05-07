@@ -3,9 +3,6 @@ import {LinearProgressBarService} from '../../shared/linear-progress-bar/linear-
 import {ActivatedRoute} from '@angular/router';
 import {TournamentResultsService} from '../service/tournament-results.service';
 import {combineLatest, Observable, of, Subscription} from 'rxjs';
-import {first} from 'rxjs/operators';
-import {MatchCardService} from '../../matches/service/match-card.service';
-import {MatchCard} from '../../matches/model/match-card.model';
 import {TournamentEventConfigService} from '../../tournament/tournament-config/tournament-event-config.service';
 import {createSelector} from '@ngrx/store';
 import {TournamentEvent} from '../../tournament/tournament-config/tournament-event.model';

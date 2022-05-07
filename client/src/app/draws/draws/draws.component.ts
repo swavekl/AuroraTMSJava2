@@ -550,8 +550,6 @@ export class DrawsComponent implements OnInit, OnChanges {
   }
 
   public getBracketsHeight(): string {
-    const height = (window.innerHeight - 180) + 'px';
-    console.log(height);
-    return height;
+    return (window.innerHeight - 180) + 'px';
   }
 }
