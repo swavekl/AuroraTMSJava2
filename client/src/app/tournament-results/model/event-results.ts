@@ -5,6 +5,9 @@ export class EventResults {
   // is single elimination round result
   singleElimination: boolean;
 
+  // if true this is doubles event
+  doubles: boolean;
+
   // round robin group number
   groupNumber: number;
 

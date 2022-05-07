@@ -20,8 +20,8 @@
               <td class="letter-code-column">{{playerResults.letterCode}}</td>
               <td class="rating-column">{{playerResults.rating}}</td>
               <td class="player-name-column" [ngClass]="playerResults.rank === 1 ? 'winner-cell' : ''">
-                <ng-container *ngIf="playerResults.fullName.indexOf('/') === -1; else doublesResult">
-                  <div>{{playerResults.fullName}}</div>
+                <ng-container *ngIf="!eventResults.doubles; else doublesResult">
+                  {{playerResults.fullName}}
                 </ng-container>
                 <ng-template #doublesResult>
                   <div>{{ getDoublesPlayerName(playerResults.fullName, 0) }}</div>

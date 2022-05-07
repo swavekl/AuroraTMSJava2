@@ -105,6 +105,7 @@ public class TournamentResultsService {
             boolean singleElimination = (matchCard.getDrawType() == DrawType.SINGLE_ELIMINATION);
             EventResults eventResults = new EventResults();
             eventResults.setSingleElimination(singleElimination);
+            eventResults.setDoubles(tournamentEvent.isDoubles());
             eventResults.setGroupNumber(matchCard.getGroupNum());
             eventResults.setRound(matchCard.getRound());
             List<PlayerResults> playerResultsList = getPlayerResults(matchCard, tournamentEvent);
