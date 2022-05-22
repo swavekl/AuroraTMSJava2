@@ -24,4 +24,9 @@ export class TournamentConfigService extends EntityCollectionServiceBase<Tournam
     return super.getByKey(key, options)
       .pipe(map(tournament => Tournament.convert(tournament)));
   }
+
+  clone(tournament: Tournament): Observable<Tournament> {
+    return super.add(tournament)
+      .pipe(map(savedTournament => Tournament.convert(savedTournament)));
+  }
 }

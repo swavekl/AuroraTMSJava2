@@ -3,6 +3,8 @@ import {Observable, of, Subscription} from 'rxjs';
 import {TournamentEvent} from '../tournament-event.model';
 import {ActivatedRoute, Router} from '@angular/router';
 import {TournamentEventConfigService} from '../tournament-event-config.service';
+import {createSelector} from '@ngrx/store';
+import {first} from 'rxjs/operators';
 
 @Component({
   selector: 'app-tournament-event-config-container',
@@ -32,23 +34,29 @@ export class TournamentEventConfigContainerComponent implements OnInit, OnDestro
     const strTournamentId = this.activatedRoute.snapshot.paramMap.get('tournamentId');
     this.tournamentId = Number(strTournamentId);
     if (!this.creating) {
-      const editedId = this.activatedRoute.snapshot.paramMap.get('id');
-      this.tournamentEvent$ = tournamentEventConfigService.getByKey(this.tournamentId, editedId);
+      const strEditedId = this.activatedRoute.snapshot.paramMap.get('id');
+      const editedId = Number(strEditedId);
+      const entityMapSelector = this.tournamentEventConfigService.selectors.selectEntityMap;
+      const selectedEventSelector = createSelector(
+        entityMapSelector,
+        (entityMap) => {
+          return entityMap[editedId];
+        });
+
+      // use selector on the store and once it is activated
+      const selectedEvent$ = this.tournamentEventConfigService.store.select(selectedEventSelector);
+      selectedEvent$.pipe(first()).subscribe((event: TournamentEvent) => {
+        if (event == null) {
+            this.tournamentEvent$ = tournamentEventConfigService.getByKey(this.tournamentId, editedId);
+        } else {
+          this.tournamentEvent$ = of (event);
+        }
+      });
     } else {
       const selectedEvent = history.state.data;
       const newTournamentEvent = TournamentEvent.fromDefaults(this.tournamentId, selectedEvent);
       this.tournamentEvent$ = of(newTournamentEvent);
     }
-    const subscription = this.tournamentEvent$.subscribe(
-      (event: TournamentEvent) => {
-        console.log('got event to edit', event.name);
-        return event;
-      },
-      error => {
-        console.log('error loading event data', error);
-      }
-    );
-    this.subscriptions.add(subscription);
   }
 
   ngOnInit(): void {

@@ -159,8 +159,8 @@ export class TournamentEventConfigComponent implements OnInit, OnChanges, OnDest
 
         this.maxAgeRestrictionDate = dateUtils.getMaxAgeRestrictionDate(startDate);
         this.minAgeRestrictionDate = dateUtils.getMinAgeRestrictionDate(startDate);
-        console.log('maxAgeRestrictionDate', this.maxAgeRestrictionDate);
-        console.log('minAgeRestrictionDate', this.minAgeRestrictionDate);
+        // console.log('maxAgeRestrictionDate', this.maxAgeRestrictionDate);
+        // console.log('minAgeRestrictionDate', this.minAgeRestrictionDate);
       }
     });
     this.subscriptions.add(subscription);

@@ -6,6 +6,7 @@ import {Tournament} from '../tournament.model';
 import {TournamentConfigEditComponent} from './tournament-config-edit.component';
 import {createSelector} from '@ngrx/store';
 import {LinearProgressBarService} from '../../../shared/linear-progress-bar/linear-progress-bar.service';
+import {TournamentEventConfigService} from '../tournament-event-config.service';
 
 @Component({
   selector: 'app-tournament-config-edit-container',
@@ -27,6 +28,7 @@ export class TournamentConfigEditContainerComponent implements OnInit, OnDestroy
   tournamentConfigEditComponent: TournamentConfigEditComponent;
 
   constructor(public tournamentConfigService: TournamentConfigService,
+              private tournamentEventConfigService: TournamentEventConfigService,
               private activatedRoute: ActivatedRoute,
               private router: Router,
               private linearProgressBarService: LinearProgressBarService) {
@@ -58,22 +60,26 @@ export class TournamentConfigEditContainerComponent implements OnInit, OnDestroy
     const subscription = selectedTournament$.subscribe((next: Tournament) => {
       let tournamentToEdit = next;
       if (creating) {
+        // clear events from cache so they are not picked up by a clone
+        this.tournamentEventConfigService.clearCache();
         if (fromId) {
-          tournamentToEdit = Tournament.makeTournamentCopy(tournamentToEdit);
+          const clonedTournament = Tournament.makeTournamentCopy(tournamentToEdit);
+          // keep this id so we know which events to clone
+          clonedTournament.id = fromId;
+          this.tournament$ = this.tournamentConfigService.clone(clonedTournament);
         } else {
           tournamentToEdit = Tournament.makeDefault();
+          this.tournament$ = of(tournamentToEdit);
         }
       } else {
         // if tournament was not found in cache - e.g. direct navigation by url emailed to you
         if (!tournamentToEdit) {
           this.tournament$ = this.tournamentConfigService.getByKey(selectedTournamentId);
-          return;
         } else {
           tournamentToEdit = Tournament.convert(tournamentToEdit);  // convert string dates to date objects
+          this.tournament$ = of(tournamentToEdit);
         }
       }
-      // make this tournament into observable
-      this.tournament$ = of(tournamentToEdit);
     });
     this.subscriptions.add(subscription);
   }

@@ -126,4 +126,12 @@ public class TournamentEventEntityService {
     public void delete(long id) {
         repository.deleteById(id);
     }
+
+    public void saveAll(List<TournamentEvent> tournamentEventList) {
+        List<TournamentEventEntity> eventEntityList = new ArrayList<>(tournamentEventList.size());
+        for (TournamentEvent tournamentEvent : tournamentEventList) {
+            eventEntityList.add(tournamentEvent.toEntity());
+        }
+        repository.saveAllAndFlush(eventEntityList);
+    }
 }

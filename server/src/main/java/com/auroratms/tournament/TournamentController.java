@@ -15,6 +15,9 @@ public class TournamentController {
     @Autowired
     private TournamentService tournamentService;
 
+    @Autowired
+    private TournamentEventCloner tournamentEventCloner;
+
     @GetMapping("/tournaments")
     @PreAuthorize("hasAuthority('TournamentDirectors') or hasAuthority('Admins') or hasAuthority('Referees') or hasAuthority('DataEntryClerks') or hasAuthority('Monitors') or hasAuthority('DigitalScoreBoards')")
     public Collection<Tournament> list(@RequestParam (required = false) Date today) {
@@ -44,6 +47,17 @@ public class TournamentController {
     @PostMapping("/tournament")
     @PreAuthorize("hasAuthority('TournamentDirectors') or hasAuthority('Admins')")
     public @ResponseBody Tournament save(@RequestBody Tournament tournament) {
-        return tournamentService.saveTournament(tournament);
+        String name = tournament.getName();
+        if (name != null && name.startsWith("--clone--")) {
+            String newName = tournament.getName().substring("--clone--".length());
+            tournament.setName(newName);
+            long originalTournamentId = tournament.getId();
+            tournament.setId(null);
+            Tournament clonedTournament = tournamentService.saveTournament(tournament);
+            this.tournamentEventCloner.cloneEvents(originalTournamentId, clonedTournament.getId());
+            return clonedTournament;
+        } else {
+            return tournamentService.saveTournament(tournament);
+        }
     }
 }

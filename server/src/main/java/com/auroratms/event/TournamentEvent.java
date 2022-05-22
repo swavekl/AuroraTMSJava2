@@ -219,4 +219,41 @@ public class TournamentEvent {
         }
         return tournamentEvent;
     }
+
+    public TournamentEvent(TournamentEvent cloneFrom) {
+        this.setId(cloneFrom.getId());
+        this.setTournamentFk(cloneFrom.getTournamentFk());
+        this.setName(cloneFrom.getName());
+        this.setOrdinalNumber(cloneFrom.getOrdinalNumber());
+        this.setDay(cloneFrom.getDay());
+        this.setStartTime(cloneFrom.getStartTime());
+        this.setSingleElimination(cloneFrom.isSingleElimination());
+        this.setDoubles(cloneFrom.isDoubles());
+        this.setMaxEntries(cloneFrom.getMaxEntries());
+        this.setNumEntries(cloneFrom.getNumEntries());
+        this.setMinPlayerRating(cloneFrom.getMinPlayerRating());
+        this.setMaxPlayerRating(cloneFrom.getMaxPlayerRating());
+        this.setMinPlayerAge(cloneFrom.getMinPlayerAge());
+        this.setMaxPlayerAge(cloneFrom.getMaxPlayerAge());
+        this.setAgeRestrictionType(cloneFrom.getAgeRestrictionType());
+        this.setAgeRestrictionDate(cloneFrom.getAgeRestrictionDate());
+        this.setGenderRestriction(cloneFrom.getGenderRestriction());
+        this.setPlayersPerGroup(cloneFrom.getPlayersPerGroup());
+        this.setDrawMethod(cloneFrom.getDrawMethod());
+        this.setNumTablesPerGroup(cloneFrom.getNumTablesPerGroup());
+        this.setPointsPerGame(cloneFrom.getPointsPerGame());
+        this.setNumberOfGames(cloneFrom.getNumberOfGames());
+        this.setNumberOfGamesSEPlayoffs(cloneFrom.getNumberOfGamesSEPlayoffs());
+        this.setNumberOfGamesSEQuarterFinals(cloneFrom.getNumberOfGamesSEQuarterFinals());
+        this.setNumberOfGamesSESemiFinals(cloneFrom.getNumberOfGamesSESemiFinals());
+        this.setNumberOfGamesSEFinals(cloneFrom.getNumberOfGamesSEFinals());
+        this.setPlay3rd4thPlace(cloneFrom.isPlay3rd4thPlace());
+        this.setPlayersToAdvance(cloneFrom.getPlayersToAdvance());
+        this.setAdvanceUnratedWinner(cloneFrom.isAdvanceUnratedWinner());
+        this.setPlayersToSeed(cloneFrom.getPlayersToSeed());
+        this.setFeeAdult(cloneFrom.getFeeAdult());
+        this.setFeeJunior(cloneFrom.getFeeJunior());
+        this.setMatchScoresEntered(cloneFrom.isMatchScoresEntered());
+        this.setConfiguration(new TournamentEventConfiguration(cloneFrom.getConfiguration()));
+    }
 }

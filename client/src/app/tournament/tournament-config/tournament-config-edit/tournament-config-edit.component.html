@@ -136,6 +136,12 @@
               </div>
             </mat-card-content>
           </mat-card>
+<!--          <p>Form values: {{ f.value | json }} </p>-->
+<!--          <p>Form status: {{ f.status | json }} </p>-->
+<!--            <div>All Errors</div>-->
+<!--            <ng-container *ngFor="let error of getErrors(f)">-->
+<!--              <div>{{ error }}</div>-->
+<!--            </ng-container>-->
         </mat-tab>
         <mat-tab label="Other Information">
           <mat-card>
@@ -327,11 +333,6 @@
           </mat-card>
         </mat-tab>
       </mat-tab-group>
-      <!--                <p>Form values: {{ f.value | json }} </p>-->
-      <!--          <p>Form status: {{ f.status | json }} </p>-->
-      <!--          <p>eligibilityDate ALL errors: {{ f.controls.eligibilityDate?.errors | json }} </p>-->
-      <!--<p>Zip code required is: {{ zipCode.control?.errors?.required | json }} </p>-->
-      <!--<p>Zip code pattern is: {{ zipCode.control?.errors?.pattern | json }} </p>-->
     </form>
   </div>
   <div fxFlex></div>

@@ -169,6 +169,9 @@ export class Tournament {
    * @param tournament
    */
   static makeTournamentCopy(tournament: Tournament) {
+    if (tournament == null) {
+      return new Tournament();
+    }
     const startDate = moment(tournament.startDate);
     const endDate = moment(tournament.endDate);
     const diffDays = endDate.diff(startDate, 'days');
@@ -184,30 +187,44 @@ export class Tournament {
     // same number of days long.
     const proposedEndDate = moment(proposedStartDate).add(diffDays, 'days');
     const newStartDate = proposedStartDate.toDate();
-    const newEndDate = proposedStartDate.toDate();
+    const newEndDate = proposedEndDate.toDate();
 
-    const dateUtils = new DateUtils();
-    const entryCutoffDate = proposedStartDate.subtract(1, 'weeks').toDate();
-    const lateEntryDate = proposedStartDate.subtract(1, 'weeks').toDate();
-    const refundDate = lateEntryDate;
-    const eligibilityDate = proposedStartDate.subtract(2, 'weeks').toDate();
+    const cutoffDateDiff = (tournament?.configuration?.entryCutoffDate)
+          ? startDate.diff(moment(tournament.configuration.entryCutoffDate), 'days')
+          : 7;
+    const entryCutoffDate = moment(proposedStartDate).subtract(cutoffDateDiff, 'days').toDate();
+
+    const lateEntryDateDiff = (tournament?.configuration?.lateEntryDate)
+      ? startDate.diff(moment(tournament.configuration.lateEntryDate), 'days')
+      : 7;
+    const lateEntryDate = moment(proposedStartDate).subtract(lateEntryDateDiff, 'days').toDate();
+
+    const refundDateDiff = (tournament?.configuration?.refundDate)
+      ? startDate.diff(moment(tournament.configuration.refundDate), 'days')
+      : 7;
+    const refundDate = moment(proposedStartDate).subtract(refundDateDiff, 'days').toDate();
+
+    const eligibilityDateDiff = (tournament?.configuration?.eligibilityDate)
+      ? startDate.diff(moment(tournament.configuration.eligibilityDate), 'days')
+      : 14;
+    const eligibilityDate = moment(proposedStartDate).subtract(eligibilityDateDiff, 'days').toDate();
 
     const convertedConfiguration = {
       ...tournament.configuration,
-      eligibilityDate: dateUtils.convertFromString(eligibilityDate),
-      lateEntryDate: dateUtils.convertFromString(lateEntryDate),
-      entryCutoffDate: dateUtils.convertFromString(entryCutoffDate),
-      refundDate: dateUtils.convertFromString(refundDate)
+      eligibilityDate: eligibilityDate,
+      lateEntryDate: lateEntryDate,
+      entryCutoffDate: entryCutoffDate,
+      refundDate: refundDate
     };
+    const dateUtils = new DateUtils();
     const clonedTournament: Tournament = {
       ...tournament,
       id: null,
-      name: null,
+      name: '--clone--' + tournament.name + ' Copy',
       startDate: dateUtils.convertFromLocalToUTCDate(newStartDate),
       endDate: dateUtils.convertFromLocalToUTCDate(newEndDate),
       configuration: convertedConfiguration
     };
-
     return clonedTournament;
   }
 

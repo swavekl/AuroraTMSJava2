@@ -38,4 +38,12 @@ public class PrizeInfo {
         this.prizeMoneyAmount = prizeMoneyAmount;
         this.awardTrophy = awardTrophy;
     }
+
+    public PrizeInfo(PrizeInfo prizeInfo) {
+        this.division = prizeInfo.division;
+        this.awardedForPlace = prizeInfo.awardedForPlace;
+        this.awardedForPlaceRangeEnd = prizeInfo.awardedForPlaceRangeEnd;
+        this.prizeMoneyAmount = prizeInfo.prizeMoneyAmount;
+        this.awardTrophy = prizeInfo.awardTrophy;
+    }
 }

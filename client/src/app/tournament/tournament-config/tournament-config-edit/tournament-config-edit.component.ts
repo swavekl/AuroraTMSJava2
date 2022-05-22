@@ -11,6 +11,7 @@ import {Personnel} from '../model/personnel.model';
 import {CheckInType} from '../../model/check-in-type.enum';
 // tslint:disable-next-line:max-line-length
 import {TournamentEventConfigListContainerComponent} from '../tournament-event-config-list/tournament-event-config-list-container.component';
+import {FormControl} from '@angular/forms';
 
 @Component({
   selector: 'app-tournament-config-edit',
@@ -268,6 +269,22 @@ export class TournamentConfigEditComponent implements OnChanges {
         this.tournament = clonedTournament;
       }
     }
+  }
+
+  public getErrors (form) {
+    const allControls = form?.controls;
+    const errors = [];
+    if (allControls) {
+      Object.entries(allControls)
+        .forEach(([key, value]) => {
+          const control: FormControl = allControls[key];
+          if (control.errors != null) {
+            const errorJSON = JSON.stringify(control.errors);
+              errors.push (`field ${key} -> error [${errorJSON}]`);
+          }
+      });
+    }
+    return errors;
   }
 }
 
