@@ -70,9 +70,11 @@
                   <ng-container matColumnDef="awards">
                     <mat-header-cell *matHeaderCellDef>Prize</mat-header-cell>
                     <mat-cell *matCellDef="let prizeData">
-                      {{prizeData.prizeMoneyAmount | currency : tournamentCurrency : 'symbol' : '1.0-0'}}
-                      {{(prizeData.prizeMoneyAmount != null && prizeData.awardTrophy) ? '/' : ''}}
-                      {{prizeData.awardTrophy ? 'T' : '' }} </mat-cell>
+                    <span
+                      *ngIf="prizeData.prizeMoneyAmount > 0">{{prizeData.prizeMoneyAmount | currency : tournamentCurrency : 'symbol' : '1.0-0'}}</span>
+                      <span *ngIf="prizeData.prizeMoneyAmount > 0 && prizeData.awardTrophy">&nbsp;+&nbsp;</span>
+                      <span *ngIf="prizeData.awardTrophy">{{prizeData.awardTrophy ? 'T' : '' }}</span>
+                    </mat-cell>
                   </ng-container>
 
                   <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
