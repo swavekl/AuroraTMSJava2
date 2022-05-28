@@ -47,7 +47,7 @@ export class MatchCardPrinterService implements OnDestroy {
     let params = '?matchCardIds=' + matchCardIds.join(',');
     const downloadAsBase64 = true;
     params += `&base64=${downloadAsBase64}`;
-    const pdfUrl = `https://${environment.baseServer}/api/matchcard/download` + params;
+    const pdfUrl = `/api/matchcard/download` + params;
     this.download$ = this.downloadService.download(pdfUrl, downloadAs);
     const subscription = this.download$.subscribe(
       (downloadStatus: Download) => {

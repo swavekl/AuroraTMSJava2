@@ -3,56 +3,95 @@
   <div fxFlex></div>
   <div fxFlex.lt-md="100%" fxFlex="50%">
     <mat-accordion class="example-headers-align">
-      <mat-expansion-panel *ngFor="let tournamentEvent of events" (opened)="onSelectEvent(tournamentEvent)">
-        <!--    expansion panel header -->
-        <mat-expansion-panel-header>
-          <ng-container *ngIf="isCompletedEvent(tournamentEvent); else elseblock">
-            <span style="font-weight: bold">{{tournamentEvent.name}}</span>
-          </ng-container>
-          <ng-template #elseblock>
-            {{tournamentEvent.name}}
-          </ng-template>
-        </mat-expansion-panel-header>
+      <ng-container *ngFor="let tournamentEvent of events">
 
-        <!--    Expansion panel body -->
-        <ng-container *ngIf="isCompletedEvent(tournamentEvent); else elseblock2">
-          <mat-table [dataSource]="prizeDataList">
-            <ng-container matColumnDef="place">
-              <mat-header-cell *matHeaderCellDef></mat-header-cell>
-              <mat-cell *matCellDef="let prizeData"> {{prizeData.place }} </mat-cell>
+        <ng-container *ngIf="!isGiantRREvent(tournamentEvent); else elseblockGiantRR">
+          <mat-expansion-panel (opened)="onSelectEvent(tournamentEvent)">
+            <!--    expansion panel header -->
+            <mat-expansion-panel-header>
+              <span [class]="isCompletedEvent(tournamentEvent) ? 'completedEvent' : ''">{{tournamentEvent.name}}</span>
+            </mat-expansion-panel-header>
+
+            <!--    Expansion panel body -->
+            <ng-container *ngIf="isCompletedEvent(tournamentEvent); else elseblock2">
+              <mat-table [dataSource]="prizeDataList">
+                <ng-container matColumnDef="place">
+                  <mat-header-cell *matHeaderCellDef></mat-header-cell>
+                  <mat-cell *matCellDef="let prizeData"> {{prizeData.place }} </mat-cell>
+                </ng-container>
+
+                <ng-container matColumnDef="playerFullName">
+                  <mat-header-cell *matHeaderCellDef>Name (L, F)</mat-header-cell>
+                  <mat-cell *matCellDef="let prizeData"> {{prizeData.playerFullName}} </mat-cell>
+                </ng-container>
+
+                <ng-container matColumnDef="awards">
+                  <mat-header-cell *matHeaderCellDef>Prize</mat-header-cell>
+                  <mat-cell *matCellDef="let prizeData">
+                    <span
+                      *ngIf="prizeData.prizeMoneyAmount > 0">{{prizeData.prizeMoneyAmount | currency : tournamentCurrency : 'symbol' : '1.0-0'}}</span>
+                    <span *ngIf="prizeData.prizeMoneyAmount > 0 && prizeData.awardTrophy">&nbsp;+&nbsp;</span>
+                    <span *ngIf="prizeData.awardTrophy">{{prizeData.awardTrophy ? 'T' : '' }}</span>
+                  </mat-cell>
+                </ng-container>
+
+                <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+                <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
+              </mat-table>
             </ng-container>
 
-            <ng-container matColumnDef="playerFullName">
-              <mat-header-cell *matHeaderCellDef>Name (L, F)</mat-header-cell>
-              <mat-cell *matCellDef="let prizeData"> {{prizeData.playerFullName}} </mat-cell>
-            </ng-container>
-
-            <!--          <ng-container matColumnDef="prizeMoneyAmount">-->
-            <!--            <mat-header-cell *matHeaderCellDef>Prize</mat-header-cell>-->
-            <!--            <mat-cell *matCellDef="let prizeData"> {{prizeData.prizeMoneyAmount | currency : tournamentCurrency : 'symbol' : '1.0-0'}} </mat-cell>-->
-            <!--          </ng-container>-->
-
-            <!--          <ng-container matColumnDef="awardTrophy">-->
-            <!--            <mat-header-cell *matHeaderCellDef>Trophy</mat-header-cell>-->
-            <!--            <mat-cell *matCellDef="let prizeData"> {{prizeData.awardTrophy ? 'Yes' : '' }} </mat-cell>-->
-            <!--          </ng-container>-->
-
-            <ng-container matColumnDef="awards">
-              <mat-header-cell *matHeaderCellDef>Prize</mat-header-cell>
-              <mat-cell
-                *matCellDef="let prizeData"> {{prizeData.prizeMoneyAmount | currency : tournamentCurrency : 'symbol' : '1.0-0'}}
-                / {{prizeData.awardTrophy ? 'T' : '' }} </mat-cell>
-            </ng-container>
-
-            <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
-            <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
-          </mat-table>
+            <ng-template #elseblock2>
+              Final results not available yet...
+            </ng-template>
+          </mat-expansion-panel>
         </ng-container>
 
-        <ng-template #elseblock2>
-          Final results not available yet...
+        <!--        Giant Round robin event with divisions -->
+        <ng-template #elseblockGiantRR>
+          <ng-container *ngFor="let division of getRRDivisions(tournamentEvent)">
+            <!--    Expansion panel body -->
+            <ng-container *ngIf="isCompletedRRDivision(tournamentEvent, division); else elseblock3">
+              <mat-expansion-panel>
+                <mat-expansion-panel-header>
+                  <span class="completedEvent">{{tournamentEvent.name}} / Division {{division}}</span>
+                </mat-expansion-panel-header>
+<!--                body of panel -->
+                <mat-table [dataSource]="getRRDivisionPrizeData(tournamentEvent, division)">
+                  <ng-container matColumnDef="place">
+                    <mat-header-cell *matHeaderCellDef></mat-header-cell>
+                    <mat-cell *matCellDef="let prizeData"> {{prizeData.place }} </mat-cell>
+                  </ng-container>
+
+                  <ng-container matColumnDef="playerFullName">
+                    <mat-header-cell *matHeaderCellDef>Name (L, F)</mat-header-cell>
+                    <mat-cell *matCellDef="let prizeData"> {{prizeData.playerFullName}} </mat-cell>
+                  </ng-container>
+
+                  <ng-container matColumnDef="awards">
+                    <mat-header-cell *matHeaderCellDef>Prize</mat-header-cell>
+                    <mat-cell *matCellDef="let prizeData">
+                      {{prizeData.prizeMoneyAmount | currency : tournamentCurrency : 'symbol' : '1.0-0'}}
+                      {{(prizeData.prizeMoneyAmount != null && prizeData.awardTrophy) ? '/' : ''}}
+                      {{prizeData.awardTrophy ? 'T' : '' }} </mat-cell>
+                  </ng-container>
+
+                  <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+                  <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
+                </mat-table>
+              </mat-expansion-panel>
+            </ng-container>
+            <ng-template #elseblock3>
+              <mat-expansion-panel>
+                <!--                   not completed -->
+                <mat-expansion-panel-header>
+                  <span>{{tournamentEvent.name}} / Division {{division}}</span>
+                </mat-expansion-panel-header>
+                Final results not available yet...
+              </mat-expansion-panel>
+            </ng-template>
+          </ng-container>
         </ng-template>
-      </mat-expansion-panel>
+      </ng-container>
     </mat-accordion>
   </div>
   <div fxFlex></div>

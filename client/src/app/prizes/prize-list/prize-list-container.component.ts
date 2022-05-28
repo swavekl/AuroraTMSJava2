@@ -1,18 +1,22 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
-import {combineLatest, Observable, Subscription} from 'rxjs';
-import {first, map} from 'rxjs/operators';
+import {combineLatest, Observable, of, Subscription} from 'rxjs';
+import {first, map, tap} from 'rxjs/operators';
 import {LinearProgressBarService} from '../../shared/linear-progress-bar/linear-progress-bar.service';
 import {Tournament} from '../../tournament/tournament-config/tournament.model';
 import {TournamentConfigService} from '../../tournament/tournament-config/tournament-config.service';
 import {TodayService} from '../../shared/today.service';
 import {TournamentEventConfigService} from '../../tournament/tournament-config/tournament-event-config.service';
 import {TournamentEvent} from '../../tournament/tournament-config/tournament-event.model';
+import {MatchCardService} from '../../matches/service/match-card.service';
+import {DrawMethod} from '../../tournament/tournament-config/model/draw-method.enum';
+import {MatchCard} from '../../matches/model/match-card.model';
 
 @Component({
   selector: 'app-prize-list-container',
   template: `
-    <app-prize-list [events]="tournamentEvents$ | async">
-      prize-list-container works!
+    <app-prize-list
+      [events]="tournamentEvents$ | async"
+      [finishedRRMatchCards]="finishedRRMatchCards$ | async">
     </app-prize-list>
   `,
   styles: []
@@ -23,12 +27,15 @@ export class PrizeListContainerComponent implements OnInit, OnDestroy {
 
   tournamentEvents$: Observable<TournamentEvent[]>;
 
+  finishedRRMatchCards$: Observable<MatchCard[]>;
+
   private subscriptions: Subscription = new Subscription();
 
   constructor(private tournamentConfigService: TournamentConfigService,
               private linearProgressBarService: LinearProgressBarService,
               private todayService: TodayService,
-              private tournamentEventConfigService: TournamentEventConfigService) {
+              private tournamentEventConfigService: TournamentEventConfigService,
+              private matchCardService: MatchCardService) {
     this.setupProgressIndicator();
     this.loadTodaysTournamentEvents();
   }
@@ -49,8 +56,9 @@ export class PrizeListContainerComponent implements OnInit, OnDestroy {
     this.loading$ = combineLatest(
       this.tournamentConfigService.store.select(this.tournamentConfigService.selectors.selectLoading),
       this.tournamentEventConfigService.store.select(this.tournamentEventConfigService.selectors.selectLoading),
-      (loadingTournament: boolean, loadingEvents: boolean) => {
-        return loadingTournament || loadingEvents;
+      this.matchCardService.store.select(this.matchCardService.selectors.selectLoading),
+      (loadingTournament: boolean, loadingEvents: boolean, loadingMatchCards: boolean) => {
+        return loadingTournament || loadingEvents || loadingMatchCards;
       }
     );
 
@@ -68,12 +76,32 @@ export class PrizeListContainerComponent implements OnInit, OnDestroy {
         map((todaysTournaments: Tournament[]) => {
             if (todaysTournaments?.length > 0) {
               const tournamentId = todaysTournaments[0].id;
-              // this will be subscribe by the template
-              this.tournamentEvents$ = this.tournamentEventConfigService.loadTournamentEvents(tournamentId);
+              // this will be subscribed by the template
+              this.tournamentEvents$ = this.tournamentEventConfigService.loadTournamentEvents(tournamentId)
+                .pipe(
+                  tap((events: TournamentEvent[]) => {
+                    this.getFinishedRRMatchCards(events);
+                }));
             }
           }
         )
       ).subscribe();
     this.subscriptions.add(subscription);
+  }
+
+  private getFinishedRRMatchCards(events: TournamentEvent[]) {
+    let finishedMatchCards = [];
+    for (let i = 0; i < events.length; i++) {
+      const event = events[i];
+      if (event.drawMethod === DrawMethod.DIVISION && event.playersToAdvance === 0) {
+        this.matchCardService.loadForEvent(event.id, true)
+          .pipe(
+            first(),
+            tap((matchCards: MatchCard[]) => {
+              finishedMatchCards = finishedMatchCards.concat(matchCards);
+              this.finishedRRMatchCards$ = of(finishedMatchCards);
+            })).subscribe();
+      }
+    }
   }
 }

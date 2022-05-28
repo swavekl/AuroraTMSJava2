@@ -93,6 +93,8 @@ public class TournamentEntryInfoService {
                     tournamentEntryInfo.setFirstName(playerRecord.getFirstName());
                     tournamentEntryInfo.setLastName(playerRecord.getLastName());
                 }
+            } else {
+                System.out.println("didn't find profile id for membership " + membershipId);
             }
         }
 

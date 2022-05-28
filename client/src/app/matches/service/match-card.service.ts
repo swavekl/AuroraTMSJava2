@@ -11,8 +11,9 @@ export class MatchCardService extends EntityCollectionServiceBase<MatchCard> {
     super('MatchCard', serviceElementsFactory);
   }
 
-  public loadForEvent(eventId: number): Observable<MatchCard[]> {
-    const queryParams = `eventId=${eventId}`;
+  public loadForEvent(eventId: number, includePlayerNames?: boolean): Observable<MatchCard[]> {
+    let queryParams = `eventId=${eventId}`;
+    queryParams += (includePlayerNames) ? '&includePlayerNames=true' : '';
     super.clearCache();
     return super.getWithQuery(queryParams);
   }

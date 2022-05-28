@@ -10,6 +10,21 @@
   padding-left: 8px;
 }
 
+.completedEvent {
+  font-weight: bold;
+  color: red;
+}
+
+//.example-headers-align .mat-expansion-panel-header-title,
+//.example-headers-align .mat-expansion-panel-header-description {
+//  flex-basis: 0;
+//}
+//
+//.example-headers-align .mat-expansion-panel-header-description {
+//  justify-content: space-between;
+//  align-items: center;
+//}
+
 .event-list {
   width: 200px;
   height: calc(100vh - 125px);
@@ -36,16 +51,6 @@ mat-list-item:hover {
 .mat-column-playerFullName {
   flex: 6;
 }
-
-//.mat-column-prizeMoneyAmount {
-//  flex: 1;
-//  text-align: right;
-//}
-//
-//.mat-column-awardTrophy {
-//  flex: 1;
-//  text-align: right;
-//}
 
 .mat-column-awards {
   flex: 3;

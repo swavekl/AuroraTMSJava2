@@ -92,7 +92,7 @@ export class MatchesContainerComponent implements OnInit, OnDestroy {
   }
 
   onTournamentEventSelected(eventId: number) {
-    this.matchCardService.loadForEvent(eventId);
+    this.matchCardService.loadForEvent(eventId, false);
   }
 
   onMatchCardSelected(matchCardId: number) {

@@ -71,8 +71,8 @@ public class MatchCardPrinterService {
         try {
             String tempDir = System.getenv("TEMP");
             tempDir = (StringUtils.isEmpty(tempDir)) ? System.getenv("TMP") : tempDir;
-//            File matchCardFile = File.createTempFile("match-card", ".pdf", new File(tempDir));
-            File matchCardFile = new File(tempDir + File.separator + "match-card-" + matchCardId + ".pdf");
+            File matchCardFile = File.createTempFile("match-card-" + matchCardId + "-", ".pdf", new File(tempDir));
+//            File matchCardFile = new File(tempDir + File.separator + "match-card-" + matchCardId + ".pdf");
             matchCardFilename = matchCardFile.getCanonicalPath();
 
             //Initialize PDF writer
@@ -123,7 +123,8 @@ public class MatchCardPrinterService {
             //Initialize PDF writer
             String tempDir = System.getenv("TEMP");
             tempDir = (StringUtils.isEmpty(tempDir)) ? System.getenv("TMP") : tempDir;
-            File mergedMatchCardFile = new File(tempDir + File.separator + "event-match-card-" + tournamentId + "-" + eventFk + ".pdf");
+            File mergedMatchCardFile = File.createTempFile("event-match-card-" + tournamentId + "-" + eventFk + "-", ".pdf", new File(tempDir));
+//            File mergedMatchCardFile = new File(tempDir + File.separator + "event-match-card-" + tournamentId + "-" + eventFk + ".pdf");
             String mergedFilename = mergedMatchCardFile.getAbsolutePath();
 
             PdfWriter writer = new PdfWriter(mergedMatchCardFile);
@@ -251,7 +252,7 @@ public class MatchCardPrinterService {
     private Table addEventInfoTable(String eventName, MatchCard matchCard, String startTime, PdfFont font) {
         int groupNum = matchCard.getGroupNum();
         String assignedTables = matchCard.getAssignedTables();
-//        assignedTables = "120, 121";
+        assignedTables = (assignedTables != null) ? assignedTables : "";
         String [] tableHeadersText = {"Event", "Group", "Table(s)", "Time"};
         String [] cellValues = {eventName, ("" + groupNum), assignedTables, startTime};
         float [] columnWidths = new float[]{5, 1, 2, 2};
@@ -260,8 +261,6 @@ public class MatchCardPrinterService {
             tableHeadersText = new String[]{"Event", "Round", "Table", "Time"};
             columnWidths = new float[]{5, 3, 1, 2};
             String roundName = getRoundName(matchCard.getRound());
-//            eventName = "Boys' Singles U17-Prelims";
-//            assignedTables = "1";
             cellValues = new String [] {eventName, roundName, assignedTables, startTime};
         }
 
@@ -419,13 +418,17 @@ public class MatchCardPrinterService {
         table.addCell(ratingCell);
 
         Cell playerNameCell = new Cell();
-        if (playerNames.contains("/")) {
-            String[] playerNameArray = playerNames.split("/");
-            for (String playerName : playerNameArray) {
-                playerNameCell.add(new Paragraph(playerName));
+        if (playerNames != null) {
+            if (playerNames.contains("/")) {
+                String[] playerNameArray = playerNames.split("/");
+                for (String playerName : playerNameArray) {
+                    playerNameCell.add(new Paragraph(playerName));
+                }
+            } else {
+                playerNameCell.add(new Paragraph(playerNames));
             }
         } else {
-            playerNameCell.add(new Paragraph(playerNames));
+            playerNameCell.add(new Paragraph("Missing player name"));
         }
         playerNameCell.setPadding(CELL_PADDING);
         playerNameCell.setVerticalAlignment(VerticalAlignment.MIDDLE);
