@@ -46,10 +46,10 @@ export class PrizeListComponent implements OnInit, OnChanges {
         this.prepareAllEventPrizeData();
       }
     }
-    const matchCardsChanges: SimpleChange = changes.finishedRRMatchCards;
-    if (matchCardsChanges && matchCardsChanges.currentValue != null) {
-      this.finishedRRMatchCards = matchCardsChanges.currentValue;
-    }
+    // const matchCardsChanges: SimpleChange = changes.finishedRRMatchCards;
+    // if (matchCardsChanges && matchCardsChanges.currentValue != null) {
+    //   this.finishedRRMatchCards = matchCardsChanges.currentValue;
+    // }
 
     if (this.events != null && this.finishedRRMatchCards != null) {
       this.prepareRoundRobinPrizeData();
@@ -227,20 +227,19 @@ export class PrizeListComponent implements OnInit, OnChanges {
         });
       }
     }
-    console.log('got RR divisions', divisions);
     return divisions;
   }
 
   isCompletedRRDivision(tournamentEvent: TournamentEvent, division: string): boolean {
+    let isCompleted = false;
     if (this.finishedRRMatchCards != null && this.finishedRRMatchCards.length > 0) {
       this.finishedRRMatchCards.forEach((matchCard: MatchCard) => {
         if (this.getRRDivisionName(matchCard) === division) {
-          console.log('division ' + division + ' is completed ' + (matchCard.playerRankings != null));
-          return matchCard.playerRankings != null;
+          isCompleted = matchCard.playerRankings != null;
         }
       });
     }
-    return false;
+    return isCompleted;
   }
 
   private getRRDivisionName(matchCard: MatchCard): string {
@@ -249,14 +248,13 @@ export class PrizeListComponent implements OnInit, OnChanges {
   }
 
   getRRDivisionPrizeData(tournamentEvent: TournamentEvent, division: string): PrizeData [] {
-    console.log('in getRRDivisionPrizeData for division ', division);
     let divisionPrizeData: PrizeData [] = [];
     // find all divisions prize data for this event
     this.divisionsPrizeDataList.forEach((eventPrizeDataList: PrizeData[], eventId: number) => {
       if (tournamentEvent.id === eventId) {
         // get the prize data only for this division
         divisionPrizeData = eventPrizeDataList.filter((prizeData: PrizeData) => {
-          console.log(division + ' divisionPrizeData ', (prizeData.division === division));
+          // console.log(division + ' divisionPrizeData ', (prizeData.division === division));
           return (prizeData.division === division);
         });
       }

@@ -2,7 +2,7 @@
 <div fxLayout="row">
   <div fxFlex></div>
   <div fxFlex.lt-md="100%" fxFlex="50%">
-    <mat-accordion class="example-headers-align">
+    <mat-accordion *ngIf="events">
       <ng-container *ngFor="let tournamentEvent of events">
 
         <ng-container *ngIf="!isGiantRREvent(tournamentEvent); else elseblockGiantRR">

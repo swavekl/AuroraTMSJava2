@@ -2,7 +2,6 @@
 
 .prizes-list-container {
   height: calc(100vh - 75px);
-  //border: 1px solid green;
   overflow: hidden;
 }
 
@@ -12,24 +11,12 @@
 
 .completedEvent {
   font-weight: bold;
-  color: red;
 }
-
-//.example-headers-align .mat-expansion-panel-header-title,
-//.example-headers-align .mat-expansion-panel-header-description {
-//  flex-basis: 0;
-//}
-//
-//.example-headers-align .mat-expansion-panel-header-description {
-//  justify-content: space-between;
-//  align-items: center;
-//}
 
 .event-list {
   width: 200px;
   height: calc(100vh - 125px);
   overflow-y: auto;
-  //border: 1px solid blue;
 }
 
 .not-selected {
