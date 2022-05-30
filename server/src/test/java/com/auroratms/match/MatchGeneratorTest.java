@@ -68,7 +68,7 @@ public class MatchGeneratorTest {
                 "B - C",
                 // round 2
                 "A - C",
-                "D - B",
+                "B - D",
                 // round 3
                 "C - D",
                 "A - B"
@@ -83,7 +83,7 @@ public class MatchGeneratorTest {
         String [] expectedMatchOrder = {
                 // round 1
                 "A - C",
-                "D - B",
+                "B - D",
                 // round 2
                 "A - B",
                 "C - D",
@@ -109,11 +109,11 @@ public class MatchGeneratorTest {
                 "B - C",
                 // round 3
                 "A - D",
-                "E - C",
+                "C - E",
                 "bye - B",
                 // round 4
                 "A - C",
-                "D - B",
+                "B - D",
                 "E - bye",
                 // round 5
                 "C - bye",
@@ -134,11 +134,11 @@ public class MatchGeneratorTest {
                 "C - D",
                 // round 2
                 "A - D",
-                "E - C",
+                "C - E",
                 "bye - B",
                 // round 3
                 "A - C",
-                "D - B",
+                "B - D",
                 "E - bye",
                 // round 4
                 "A - B",
@@ -163,15 +163,15 @@ public class MatchGeneratorTest {
                 "C - D",
                 // round 2
                 "A - E",
-                "F - D",
+                "D - F",
                 "B - C",
                 // round 3
                 "A - D",
-                "E - C",
-                "F - B",
+                "C - E",
+                "B - F",
                 // round 4
                 "A - C",
-                "D - B",
+                "B - D",
                 "E - F",
                 // round 5
                 "C - F",
@@ -192,11 +192,11 @@ public class MatchGeneratorTest {
                 "C - D",
                 // round 2
                 "A - D",
-                "E - C",
-                "F - B",
+                "C - E",
+                "B - F",
                 // round 3
                 "A - C",
-                "D - B",
+                "B - D",
                 "E - F",
                 // round 4
                 "A - B",
@@ -204,7 +204,7 @@ public class MatchGeneratorTest {
                 "D - E",
                 // round 5
                 "A - E",
-                "F - D",
+                "D - F",
                 "B - C"
         };
 
@@ -227,22 +227,22 @@ public class MatchGeneratorTest {
                 "C - D",
                 // round 3
                 "A - F",
-                "G - E",
+                "E - G",
                 "bye - D",
                 "B - C",
                 // round 4
                 "A - E",
-                "F - D",
-                "G - C",
+                "D - F",
+                "C - G",
                 "bye - B",
                 // round 5
                 "A - D",
-                "E - C",
-                "F - B",
+                "C - E",
+                "B - F",
                 "G - bye",
                 // round 6
                 "A - C",
-                "D - B",
+                "B - D",
                 "E - bye",
                 "F - G",
                 // round 7
@@ -270,17 +270,17 @@ public class MatchGeneratorTest {
                 "C - D",
                 // round 3
                 "A - E",
-                "F - D",
-                "G - C",
+                "D - F",
+                "C - G",
                 "bye - B",
                 // round 4
                 "A - D",
-                "E - C",
-                "F - B",
+                "C - E",
+                "B - F",
                 "G - bye",
                 // round 5
                 "A - C",
-                "D - B",
+                "B - D",
                 "E - bye",
                 "F - G",
                 // round 6
@@ -290,7 +290,7 @@ public class MatchGeneratorTest {
                 "E - F",
                 // round 7
                 "A - F",
-                "G - E",
+                "E - G",
                 "bye - D",
                 "B - C"
         };
@@ -309,27 +309,27 @@ public class MatchGeneratorTest {
                 "D - E",
                 // round 2
                 "A - G",
-                "H - F",
+                "F - H",
                 "B - E",
                 "C - D",
                 // round 3
                 "A - F",
-                "G - E",
-                "H - D",
+                "E - G",
+                "D - H",
                 "B - C",
                 // round 4
                 "A - E",
-                "F - D",
-                "G - C",
-                "H - B",
+                "D - F",
+                "C - G",
+                "B - H",
                 // round 5
                 "A - D",
-                "E - C",
-                "F - B",
+                "C - E",
+                "B - F",
                 "G - H",
                 // round 6
                 "A - C",
-                "D - B",
+                "B - D",
                 "E - H",
                 "F - G",
                 // round 7
@@ -353,22 +353,22 @@ public class MatchGeneratorTest {
                 "D - E",
                 // round 2
                 "A - G",
-                "H - F",
+                "F - H",
                 "B - E",
                 "C - D",
                 // round 3
                 "A - E",
-                "F - D",
-                "G - C",
-                "H - B",
+                "D - F",
+                "C - G",
+                "B - H",
                 // round 4
                 "A - D",
-                "E - C",
-                "F - B",
+                "C - E",
+                "B - F",
                 "G - H",
                 // round 5
                 "A - C",
-                "D - B",
+                "B - D",
                 "E - H",
                 "F - G",
                 // round 6
@@ -378,8 +378,8 @@ public class MatchGeneratorTest {
                 "E - F",
                 // round 7
                 "A - F",
-                "G - E",
-                "H - D",
+                "E - G",
+                "D - H",
                 "B - C"
         };
 

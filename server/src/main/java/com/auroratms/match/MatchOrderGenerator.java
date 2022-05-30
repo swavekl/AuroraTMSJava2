@@ -44,8 +44,8 @@ public class MatchOrderGenerator {
         int totalRounds = (sideSpots * 2) - 1;
 
         // match to avoid
-        char avoidMatchPlayer1 = (char) ('A' + (playersToAdvance - 1));
-        char avoidMatchPlayer2 = (char) ('B' + (playersToAdvance - 1));
+        char avoidMatchPlayer1 = (char) ('A' + ((playersToAdvance > 0) ? playersToAdvance - 1 : 0));
+        char avoidMatchPlayer2 = (char) ('B' + ((playersToAdvance > 0) ? playersToAdvance - 1 : 0));
 
         // rotate players in counter clockwise fashion to get the rounds opponents
         for (int round = 0; round < totalRounds; round++) {
@@ -96,12 +96,21 @@ public class MatchOrderGenerator {
         for (MatchOpponents matchOpponents : matchOpponentsList) {
             if ((matchOpponents.playerALetter == avoidMatchPlayer1 && matchOpponents.playerBLetter == avoidMatchPlayer2) ||
                 (matchOpponents.playerALetter == avoidMatchPlayer2 && matchOpponents.playerBLetter == avoidMatchPlayer1)) {
-                removedMatchOpponents = matchOpponentsList.remove(index);
+                // don't do anything if the match is already played last
+                if (index != matchOpponentsList.size() -1) {
+                    removedMatchOpponents = matchOpponentsList.remove(index);
+                }
                 break;
             }
             index++;
         }
+
         if (removedMatchOpponents != null) {
+            // swap strongest and weakest player matches
+//            if (matchOpponentsList.size() > 1) {
+//                MatchOpponents weakestMatchOpponents = matchOpponentsList.remove(matchOpponentsList.size() - 1);
+//                matchOpponentsList.add(0, weakestMatchOpponents);
+//            }
             matchOpponentsList.add(removedMatchOpponents);
         }
     }
@@ -159,6 +168,13 @@ public class MatchOrderGenerator {
         for (int i = 0; i < sideSpots; i++) {
             Character leftSidePlayer = leftSidePlayers.get(i);
             Character rightSidePlayer = rightSidePlayers.get(i);
+            // reverse C vs B to be B vs C i.e. in alphabetical order
+            // reverse Bye vs C to C vs Bye, but leave A vs Bye unchanged
+            if (leftSidePlayer > rightSidePlayer && rightSidePlayer != BYE) {
+                Character tempPlayer = leftSidePlayer;
+                leftSidePlayer = rightSidePlayer;
+                rightSidePlayer = tempPlayer;
+            }
             MatchOpponents matchOpponents = new MatchOpponents();
             matchOpponents.playerALetter = leftSidePlayer;
             matchOpponents.playerBLetter = rightSidePlayer;
