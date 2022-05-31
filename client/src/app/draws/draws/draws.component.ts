@@ -190,6 +190,10 @@ export class DrawsComponent implements OnInit, OnChanges {
     this.showPlayoffDraw = !this.showPlayoffDraw;
   }
 
+  isSwitchDrawDisabled(): boolean {
+    return this.selectedEvent == null || this.selectedEvent.playersToAdvance === 0;
+  }
+
   /**
    * Sets up connectedTo array of tables
    */

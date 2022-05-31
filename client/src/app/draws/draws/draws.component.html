@@ -20,7 +20,7 @@
           <mat-icon matListIcon>clear</mat-icon>Clear Draw
         </button>
         <span class="toolbar-spacer-2"></span>
-        <button type="button" mat-raised-button  (click)="switchDraw()" [disabled]="selectedEvent == null">
+        <button type="button" mat-raised-button  (click)="switchDraw()" [disabled]="isSwitchDrawDisabled()">
           <mat-icon matListIcon>line_style</mat-icon>{{ showPlayoffDraw ? 'Main Draw' : 'Playoff Draw' }}
         </button>
         <span class="toolbar-spacer-2"></span>
