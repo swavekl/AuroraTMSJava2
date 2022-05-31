@@ -90,6 +90,9 @@ public class MatchSchedulingService {
         // assign tables to each match card
         int currentTableNum = startingTableNumber;
         List<MatchCard> allForEvent = matchCardService.findAllForEventAndDrawType(event.getId(), DrawType.ROUND_ROBIN);
+        // if we need more tables to play all matches then are available then, push some matches to start later
+        // this happens in Giant Round Robin events that schedule play in two parts (morning and afternoon)
+        boolean mustStartAtStartTime = ((maxNumGroups * numTablesPerGroup) <= totalAvailableTables);
         for (MatchCard matchCard : allForEvent) {
             matchCard.setAssignedTables(null);
             // can't assign more tables than we have
@@ -105,7 +108,7 @@ public class MatchSchedulingService {
 //                System.out.println("eventName = " + name + " startTime = " + event.getStartTime());
                 double assignedStartTime = event.getStartTime();
                 for (int i = 0; i < tablesToAssign; i++) {
-                    TableAvailabilityMatrix.AvailableTableInfo availableTable = matrix.findAvailableTable(event.getStartTime(), durationOnOneTable, currentTableNum, true);
+                    TableAvailabilityMatrix.AvailableTableInfo availableTable = matrix.findAvailableTable(event.getStartTime(), durationOnOneTable, currentTableNum, mustStartAtStartTime);
                     if (availableTable != null) {
                         matrix.markTableAsUnavailable (availableTable.tableNum, availableTable.startTime, durationOnOneTable);
                         assignedStartTime = availableTable.startTime;
@@ -113,6 +116,10 @@ public class MatchSchedulingService {
                         assignedTables += (availableTable.tableNum);
 
                         currentTableNum = availableTable.tableNum + 1;
+                        // start over from first table if we got to the end
+                        if (currentTableNum > totalAvailableTables) {
+                            currentTableNum = startingTableNumber;
+                        }
                     }
                 }
 //                System.out.println("assignedStartTime = " +assignedStartTime);
@@ -172,7 +179,7 @@ public class MatchSchedulingService {
                 singleMatchDuration = 20;
                 break;
             case 5:
-                singleMatchDuration = 30;
+                singleMatchDuration = 25;
                 break;
             case 7:
                 singleMatchDuration = 60;

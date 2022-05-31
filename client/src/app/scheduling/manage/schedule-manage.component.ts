@@ -186,6 +186,7 @@ export class ScheduleManageComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   onGenerateSchedule() {
+    this.changedMatchCards = [];
     this.generateScheduleForEvent.emit(this.selectedDay);
   }
 
@@ -222,13 +223,13 @@ export class ScheduleManageComponent implements OnInit, OnChanges, OnDestroy {
       // convert match cards into gridster items
       matchCards.forEach((matchCard: MatchCard) => {
         const assignedTables = matchCard.assignedTables;
-        // console.log(matchCard.id + ' assignedTables ' + assignedTables + ' time ' + matchCard.startTime);
+        console.log(matchCard.id + ' assignedTables ' + assignedTables + ' time ' + matchCard.startTime);
         if (assignedTables != null && assignedTables !== '') {
           const strTableNums: string [] = assignedTables.split(',');
           const firstTableNum = (strTableNums.length > 0) ? Number(strTableNums[0]) - 1 : 0;
           const duration = matchCard.duration;
           const rowSpan = strTableNums.length;
-          const colSpan = (duration / 30);
+          const colSpan = Math.ceil(duration / 30);
           const startTime = matchCard.startTime;
           const endTime = startTime + (0.5 * colSpan);
           const eventColor = eventToColorMap[matchCard.eventFk];
@@ -253,7 +254,7 @@ export class ScheduleManageComponent implements OnInit, OnChanges, OnDestroy {
    * @param event
    */
   eventStart(item: GridsterItem, itemComponent: GridsterItemComponentInterface, event: MouseEvent): void {
-    // console.log('eventStart', item, itemComponent, event);
+    console.log('eventStart', item, itemComponent, event);
     const me = item['scheduleManageComponent'];
     me.changedMatchCards = [];
   }
@@ -269,7 +270,7 @@ export class ScheduleManageComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   private itemChangeInternal(item: GridsterItem, itemComponent: GridsterItemComponentInterface) {
-    // console.log ('itemChange', item);
+    console.log ('itemChangeInternal', item);
     // we are called here successively but we don't know which call is the last one in this drag and drop sequence
     // collect updated match cards in changedMatchCards array
     const matchCard: MatchCard = item['matchCard'];

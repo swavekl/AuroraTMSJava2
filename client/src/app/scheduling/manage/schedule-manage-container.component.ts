@@ -136,7 +136,7 @@ export class ScheduleManageContainerComponent implements OnInit, OnDestroy {
   }
 
   onUpdateMatchCards(updatedMatchCards: MatchCard[]) {
-    console.log('matchCards', updatedMatchCards);
+    console.log('onUpdateMatchCards matchCards', updatedMatchCards);
     this.matchSchedulingService.updateMatchCards(updatedMatchCards)
       .subscribe(() => {
         console.log('finished updating');

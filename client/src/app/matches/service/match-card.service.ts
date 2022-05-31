@@ -26,6 +26,7 @@ export class MatchCardService extends EntityCollectionServiceBase<MatchCard> {
   }
 
   public putIntoCache(matchCards: MatchCard[]) {
+    super.clearCache();
     super.addAllToCache(matchCards);
   }
 }
