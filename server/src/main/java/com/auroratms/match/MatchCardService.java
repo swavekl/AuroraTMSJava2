@@ -490,7 +490,7 @@ public class MatchCardService {
      */
     public List<MatchCard> findAllForTournamentAndDay(long tournamentId, int day) {
         List<Long> eventIds = getEventIdsForTheDay(tournamentId);
-        return this.matchCardRepository.findMatchCardByEventFkInAndDayOrderByEventFkAscStartTimeAsc(eventIds, day);
+        return this.matchCardRepository.findMatchCardByEventFkInAndDayOrderByEventFkAscStartTimeAscGroupNumAsc(eventIds, day);
     }
 
     public void fillPlayerIdToNameMapForAllMatches (List<MatchCard> matchCards) {

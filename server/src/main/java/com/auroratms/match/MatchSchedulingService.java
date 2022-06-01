@@ -99,11 +99,17 @@ public class MatchSchedulingService {
             if (currentTableNum <= totalAvailableTables) {
                 // calculate duration
                 int numMatchesToPlay = matchCard.getMatches().size();
-                int allMatchesDuration = calculateAllMatchesDuration(event.getNumberOfGames(), numMatchesToPlay);
+                int allMatchesDuration = calculateAllMatchesDuration(event.getNumberOfGames(), numMatchesToPlay, event.getPointsPerGame());
                 int tablesToAssign = getNumTablesToAssign (numTablesPerGroup, numMatchesToPlay, playersPerGroup, playersToAdvance);
                 // assign tables and mark them as used - one at a time
                 String assignedTables = "";
                 int durationOnOneTable = Math.floorDiv(allMatchesDuration, tablesToAssign);
+                // round up to the nearest 30 minutes, so it is nicely fitting into the matrix which is also 30 minutes based
+                if (durationOnOneTable % TableAvailabilityMatrix.TIME_SLOT_SIZE_INT > 0) {
+                    int numSlotsNeeded = (durationOnOneTable / TableAvailabilityMatrix.TIME_SLOT_SIZE_INT) + 1;
+                    durationOnOneTable = numSlotsNeeded * TableAvailabilityMatrix.TIME_SLOT_SIZE_INT;
+                }
+
                 String name = event.getName();
 //                System.out.println("eventName = " + name + " startTime = " + event.getStartTime());
                 double assignedStartTime = event.getStartTime();
@@ -170,19 +176,20 @@ public class MatchSchedulingService {
      *
      * @param numberOfGames
      * @param numMatchesToPlay
+     * @param pointsPerGame
      * @return
      */
-    private int calculateAllMatchesDuration(int numberOfGames, int numMatchesToPlay) {
+    private int calculateAllMatchesDuration(int numberOfGames, int numMatchesToPlay, int pointsPerGame) {
         int singleMatchDuration = 0;
         switch (numberOfGames) {
             case 3:
-                singleMatchDuration = 20;
+                singleMatchDuration = (pointsPerGame == 11) ? 15 : 25;
                 break;
             case 5:
-                singleMatchDuration = 25;
+                singleMatchDuration = (pointsPerGame == 11) ? 20 : 30;
                 break;
             case 7:
-                singleMatchDuration = 60;
+                singleMatchDuration = 40;
                 break;
             default:
                 singleMatchDuration = 20;
@@ -234,7 +241,7 @@ public class MatchSchedulingService {
         boolean firstMatch = true;
 //        System.out.println("event = " + event.getName());
         for (MatchCard matchCard : singleEliminationMatchCards) {
-            int duration = calculateAllMatchesDuration(matchCard.getNumberOfGames(), 1);
+            int duration = calculateAllMatchesDuration(matchCard.getNumberOfGames(), 1, event.getPointsPerGame());
 //            System.out.println("matchCard = " + matchCard.getGroupNum() + " assigned tables " + matchCard.getAssignedTables() + " startTime " + matchCard.getStartTime());
 //            System.out.println("duration = " + duration);
             // get the first match round and duration

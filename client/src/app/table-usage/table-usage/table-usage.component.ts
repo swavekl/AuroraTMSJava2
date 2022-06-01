@@ -126,6 +126,14 @@ export class TableUsageComponent implements OnInit, OnChanges {
         matchInfo.matchCard.drawType === DrawType.ROUND_ROBIN &&
         matchInfo.matchCardPlayability === MatchCardPlayabilityStatus.ReadyToPlay);
     });
+
+    // sort matches by start time
+    selectedEventRRMatchCards.sort((matchInfo1: MatchInfo, matchInfo2: MatchInfo) => {
+      return (matchInfo1.matchCard.startTime === matchInfo2.matchCard.startTime) ? 0 : (
+        (matchInfo1.matchCard.startTime < matchInfo2.matchCard.startTime) ? -1 : 1
+      );
+    });
+
     const eventRRMatchCardIds = selectedEventRRMatchCards.map(matchInfo => matchInfo.matchCard.id);
     if (eventRRMatchCardIds.length > 0) {
       this.startSelectedMatchCards(eventRRMatchCardIds);
@@ -166,13 +174,24 @@ export class TableUsageComponent implements OnInit, OnChanges {
                   if (tableUsage.tableStatus !== TableStatus.Free) {
                     unavailableTables.push(tableNumber);
                   }
-                  const updatedTableUsage: TableUsage = {
-                    ...tableUsage,
-                    tableStatus:  TableStatus.InUse,
-                    matchStartTime: startTime,
-                    matchCardFk: matchCardId
-                  };
-                  updatedTableUsages.push(updatedTableUsage);
+                  // in giant round robin they may have afternoon round which will be the same event
+                  // so check if tables are avaialble before starting the match
+                  let tablesOccupied = false;
+                  for (const updatedTableUsage1 of updatedTableUsages) {
+                    if (updatedTableUsage1.tableNumber === tableNumber) {
+                        tablesOccupied = (updatedTableUsage1.tableStatus !== TableStatus.Free);
+                        break;
+                    }
+                  }
+                  if (!tablesOccupied) {
+                    const updatedTableUsage: TableUsage = {
+                      ...tableUsage,
+                      tableStatus:  TableStatus.InUse,
+                      matchStartTime: startTime,
+                      matchCardFk: matchCardId
+                    };
+                    updatedTableUsages.push(updatedTableUsage);
+                  }
                 }
               }
             }

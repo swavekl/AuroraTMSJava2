@@ -7,6 +7,8 @@ import {MatchCard} from '../../matches/model/match-card.model';
 import {DisplayGrid, Draggable, GridsterConfig, GridsterItem, GridsterItemComponentInterface, GridType} from 'angular-gridster2';
 import {Subject, Subscription} from 'rxjs';
 import {debounceTime} from 'rxjs/operators';
+import {MatDialog} from '@angular/material/dialog';
+import {ConfirmationPopupComponent} from '../../shared/confirmation-popup/confirmation-popup.component';
 
 interface Safe extends GridsterConfig {
   draggable: Draggable;
@@ -81,7 +83,7 @@ export class ScheduleManageComponent implements OnInit, OnChanges, OnDestroy {
   // subscriptions for this component
   subscriptions: Subscription = new Subscription();
 
-  constructor() {
+  constructor(private dialog: MatDialog) {
     this.startingTimes = new DateUtils().getEventStartingTimes();
     this.selectedDay = 1;
     this.targetItemIndex = -1;
@@ -193,22 +195,16 @@ export class ScheduleManageComponent implements OnInit, OnChanges, OnDestroy {
   private makeGridsterItems (matchCards: MatchCard[]): GridsterItem[] {
     const gridsterItems: Array<GridsterItem> = [];
     const numTables = this.tournament?.configuration?.numberOfTables ?? 0;
+    const unassignedMatchCards: string [] = [];
     if (numTables > 0) {
-      // gridsterItems.push({cols: 1, rows: 1, y: 0, x: 0,
-      //   dragEnabled: false, resizeEnabled: false,
-      //   label: 'Table #', isHeader: true});
-      // for (let i = 0; i < this.startingTimes.length; i++) {
-      //   gridsterItems.push({cols: 1, rows: 1, y: 0, x: (i + 1),
-      //     dragEnabled: false, resizeEnabled: false, isHeader: true, isTableNum: false,
-      //     label: this.startingTimes[i].startTimeText});
-      // }
-      // for (let tableNum = 1; tableNum <= numTables; tableNum++) {
+      // fill first column with table numbers
       for (let tableNum = 0; tableNum < numTables; tableNum++) {
         gridsterItems.push({cols: 1, rows: 1, y: tableNum, x: 0,
           dragEnabled: false, resizeEnabled: false, isHeader: true, isTableNum: true,
           label: `${tableNum + 1}`});
       }
 
+      // show time slots for each match card
       let colorIndex = 0;
       const eventToColorMap = {};
       matchCards.forEach((matchCard: MatchCard) => {
@@ -223,13 +219,14 @@ export class ScheduleManageComponent implements OnInit, OnChanges, OnDestroy {
       // convert match cards into gridster items
       matchCards.forEach((matchCard: MatchCard) => {
         const assignedTables = matchCard.assignedTables;
-        console.log(matchCard.id + ' assignedTables ' + assignedTables + ' time ' + matchCard.startTime);
+        // console.log(matchCard.id + ' assignedTables ' + assignedTables + ' time ' + matchCard.startTime);
         if (assignedTables != null && assignedTables !== '') {
           const strTableNums: string [] = assignedTables.split(',');
           const firstTableNum = (strTableNums.length > 0) ? Number(strTableNums[0]) - 1 : 0;
           const duration = matchCard.duration;
           const rowSpan = strTableNums.length;
-          const colSpan = Math.ceil(duration / 30);
+          let colSpan = duration / 30;
+          colSpan = (Number.isInteger(colSpan)) ? colSpan : Math.ceil(colSpan);  // avoid fractions and bumping into next item
           const startTime = matchCard.startTime;
           const endTime = startTime + (0.5 * colSpan);
           const eventColor = eventToColorMap[matchCard.eventFk];
@@ -240,8 +237,24 @@ export class ScheduleManageComponent implements OnInit, OnChanges, OnDestroy {
             label: eventName, backgroundColor: eventColor,
             groupNum: matchCard.groupNum, round: matchCard.round, matchCard: matchCard,
             scheduleManageComponent: this});
+        } else {
+          unassignedMatchCards.push(`Event: ${matchCard.eventFk}, round: ${matchCard.round}, group: ${matchCard.groupNum}`);
         }
       });
+    }
+
+    if (unassignedMatchCards.length > 0) {
+      const str = unassignedMatchCards.join(', ');
+      const config = {
+        width: '450px', height: '450px', data: {
+          message: `Some match cards were not scheduled because of insufficient table time. ${str}`,
+          showCancel: false, contentAreaHeight: '300px'
+        }
+      };
+      const dialogRef = this.dialog.open(ConfirmationPopupComponent, config);
+      dialogRef.afterClosed().subscribe(result => {
+      });
+
     }
 
     return gridsterItems;
