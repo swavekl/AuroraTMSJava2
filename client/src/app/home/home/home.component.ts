@@ -167,7 +167,6 @@ export class HomeComponent implements OnInit, OnDestroy {
             this.hasTournamentToday = (tournamentEntries.length > 0);
             if (this.hasTournamentToday) {
               for (const tournamentEntry of tournamentEntries) {
-                if (tournamentEntry.tournamentFk === 153) {
                   this.todaysTournamentId = tournamentEntry.tournamentFk;
                   this.todaysTournamentEntryId = tournamentEntry.id;
                   // get tournament start and end date
@@ -175,7 +174,6 @@ export class HomeComponent implements OnInit, OnDestroy {
                   this.loadTournamentInfo(this.todaysTournamentId, today);
                   break;
                 }
-              }
             }
             this.todayService.hasTournamentToday = this.hasTournamentToday;
           })
