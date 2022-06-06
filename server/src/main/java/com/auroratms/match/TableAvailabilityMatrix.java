@@ -38,7 +38,7 @@ public class TableAvailabilityMatrix {
      */
     public void markTableAsUnavailable(int tableNum, double startTime, int duration) {
         int startTimeSlotIndex = timeSlotIndex(startTime);
-        int timeSlotsNeeded = (int) (duration / TIME_SLOT_SIZE_INT);
+        int timeSlotsNeeded = calculateTimeSlotsNeeded (duration);
         int endTimeSlotIndex = startTimeSlotIndex + timeSlotsNeeded;
         int tableIndex = tableNum - 1;
         boolean[] tableTimeSlots = this.availableTableTimeSlotsMatrix[tableIndex];
@@ -46,6 +46,10 @@ public class TableAvailabilityMatrix {
             // mark it as unavailable
             tableTimeSlots[i] = false;
         }
+    }
+
+    private int calculateTimeSlotsNeeded(int duration) {
+        return (int) Math.ceil((double)duration / (double)TIME_SLOT_SIZE_INT);
     }
 
     /**
@@ -71,7 +75,8 @@ public class TableAvailabilityMatrix {
     public AvailableTableInfo findAvailableTable(double startTime, int duration, int startingTableNumber, boolean mustStartAtStartTime) {
         AvailableTableInfo availableTableInfo = null;
         try {
-            int timeSlotsNeeded = (int) (duration / TIME_SLOT_SIZE_INT);
+//            System.out.println("find startTime = " + startTime + " duration " + startingTableNumber + " mustStartAtStartTime " + mustStartAtStartTime);
+            int timeSlotsNeeded = calculateTimeSlotsNeeded(duration);
             for (int tableIndex = (startingTableNumber - 1); tableIndex < this.availableTableTimeSlotsMatrix.length; tableIndex++) {
                 boolean[] tableTimeSlots = this.availableTableTimeSlotsMatrix[tableIndex];
                 double foundStartTime = findEarliestAvailableTable(startTime, timeSlotsNeeded, tableTimeSlots);
@@ -80,6 +85,7 @@ public class TableAvailabilityMatrix {
                     if ((mustStartAtStartTime && foundStartTime == startTime) ||
                         (!mustStartAtStartTime && foundStartTime >= startTime)) {
                         if (availableTableInfo == null) {
+//                            System.out.println("initial foundStartTime = " + foundStartTime);
                             availableTableInfo = new AvailableTableInfo();
                             availableTableInfo.tableNum = tableIndex + 1;
                             availableTableInfo.startTime = foundStartTime;
@@ -87,6 +93,7 @@ public class TableAvailabilityMatrix {
                         } else {
                             // if time found is earlier lets use it instead of the later time to compress schedule
                             if (foundStartTime < availableTableInfo.startTime) {
+//                                System.out.println("earlier foundStartTime = " + foundStartTime);
                                 availableTableInfo.tableNum = tableIndex + 1;
                                 availableTableInfo.startTime = foundStartTime;
                             }

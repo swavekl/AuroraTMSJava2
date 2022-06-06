@@ -762,4 +762,7 @@ public class MatchCardService {
         this.matchCardRepository.delete(matchCard);
     }
 
+    public void saveAllAndFlush(List<MatchCard> matchCards) {
+        this.matchCardRepository.saveAllAndFlush(matchCards);
+    }
 }

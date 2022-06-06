@@ -9,6 +9,7 @@ import {Subject, Subscription} from 'rxjs';
 import {debounceTime} from 'rxjs/operators';
 import {MatDialog} from '@angular/material/dialog';
 import {ConfirmationPopupComponent} from '../../shared/confirmation-popup/confirmation-popup.component';
+import {DrawType} from '../../draws/model/draw-type.enum';
 
 interface Safe extends GridsterConfig {
   draggable: Draggable;
@@ -193,7 +194,7 @@ export class ScheduleManageComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   private makeGridsterItems (matchCards: MatchCard[]): GridsterItem[] {
-    const gridsterItems: Array<GridsterItem> = [];
+    let gridsterItems: Array<GridsterItem> = [];
     const numTables = this.tournament?.configuration?.numberOfTables ?? 0;
     const unassignedMatchCards: string [] = [];
     if (numTables > 0) {
@@ -216,10 +217,14 @@ export class ScheduleManageComponent implements OnInit, OnChanges, OnDestroy {
         }
       });
 
+      const RRGridsterItems: GridsterItem [] = [];
+      const SEGridsterItems: GridsterItem [] = [];
+
       // convert match cards into gridster items
       matchCards.forEach((matchCard: MatchCard) => {
         const assignedTables = matchCard.assignedTables;
         // console.log(matchCard.id + ' assignedTables ' + assignedTables + ' time ' + matchCard.startTime);
+        const eventName = this.getEventName(matchCard.eventFk);
         if (assignedTables != null && assignedTables !== '') {
           const strTableNums: string [] = assignedTables.split(',');
           const firstTableNum = (strTableNums.length > 0) ? Number(strTableNums[0]) - 1 : 0;
@@ -230,17 +235,41 @@ export class ScheduleManageComponent implements OnInit, OnChanges, OnDestroy {
           const startTime = matchCard.startTime;
           const endTime = startTime + (0.5 * colSpan);
           const eventColor = eventToColorMap[matchCard.eventFk];
-          const eventName = this.getEventName(matchCard.eventFk);
           const x = ((startTime - this.startingTimes[0].startTime) / 0.5) + 1;
-          gridsterItems.push({cols: colSpan, rows: rowSpan, y: firstTableNum, x: x,
+          // console.log(`event: ${eventName}, tables: ${assignedTables}, group: ${matchCard.groupNum} => cols: ${colSpan}, rows: ${rowSpan}, y: ${firstTableNum}, x: ${x}`);
+          const gridsterItem: GridsterItem = {
+            cols: colSpan, rows: rowSpan, y: firstTableNum, x: x,
             dragEnabled: true, resizeEnabled: false, isHeader: false,
             label: eventName, backgroundColor: eventColor,
             groupNum: matchCard.groupNum, round: matchCard.round, matchCard: matchCard,
-            scheduleManageComponent: this});
+            scheduleManageComponent: this
+          };
+          // add the RR and SE items separately in case there is a scheduling conflict
+          // the RR items will be placed first and SE items second.
+          // any conflicts identified by gridster will be probably in SE items
+          // gridster moves those automatically and just give a warning inthe console
+          if (matchCard.drawType === DrawType.ROUND_ROBIN) {
+            RRGridsterItems.push (gridsterItem);
+          } else {
+            SEGridsterItems.push(gridsterItem);
+          }
         } else {
-          unassignedMatchCards.push(`Event: ${matchCard.eventFk}, round: ${matchCard.round}, group: ${matchCard.groupNum}`);
+          unassignedMatchCards.push(`Event: ${eventName}, round: ${matchCard.round}, group: ${matchCard.groupNum}`);
         }
       });
+
+      RRGridsterItems.sort((item1, item2) => {
+        return item1.x === item2.x
+          ? (item1.y === item2.y ? 0 : (item1.y < item2.y ? -1 : 1))
+          : (item1.x < item2.x ? -1 : 1);
+      });
+
+      SEGridsterItems.sort((item1, item2) => {
+        return item1.x === item2.x
+          ? (item1.y === item2.y ? 0 : (item1.y < item2.y ? -1 : 1))
+          : (item1.x < item2.x ? -1 : 1);
+      });
+      gridsterItems = gridsterItems.concat(RRGridsterItems, SEGridsterItems);
     }
 
     if (unassignedMatchCards.length > 0) {
@@ -256,7 +285,6 @@ export class ScheduleManageComponent implements OnInit, OnChanges, OnDestroy {
       });
 
     }
-
     return gridsterItems;
   }
 
@@ -267,7 +295,7 @@ export class ScheduleManageComponent implements OnInit, OnChanges, OnDestroy {
    * @param event
    */
   eventStart(item: GridsterItem, itemComponent: GridsterItemComponentInterface, event: MouseEvent): void {
-    console.log('eventStart', item, itemComponent, event);
+    // console.log('eventStart', item, itemComponent, event);
     const me = item['scheduleManageComponent'];
     me.changedMatchCards = [];
   }
@@ -283,7 +311,7 @@ export class ScheduleManageComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   private itemChangeInternal(item: GridsterItem, itemComponent: GridsterItemComponentInterface) {
-    console.log ('itemChangeInternal', item);
+    // console.log (item.label + ' itemChangeInternal', item);
     // we are called here successively but we don't know which call is the last one in this drag and drop sequence
     // collect updated match cards in changedMatchCards array
     const matchCard: MatchCard = item['matchCard'];
