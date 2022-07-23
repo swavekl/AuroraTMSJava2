@@ -1,15 +1,4 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  EventEmitter,
-  Input,
-  OnChanges,
-  OnDestroy,
-  OnInit,
-  Output,
-  SimpleChange,
-  SimpleChanges
-} from '@angular/core';
+import {Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChange, SimpleChanges} from '@angular/core';
 import {TournamentEvent} from '../tournament-event.model';
 import {EventDayPipePipe} from '../../../shared/pipes/event-day-pipe.pipe';
 import {createSelector} from '@ngrx/store';
@@ -18,14 +7,13 @@ import {DateUtils} from '../../../shared/date-utils';
 import {TournamentConfigService} from '../tournament-config.service';
 import {Tournament} from '../tournament.model';
 import {AgeRestrictionType} from '../model/age-restriction-type.enum';
-import {MatSelectChange} from '@angular/material/select/select';
+import {MatSelectChange} from '@angular/material/select';
 import {DrawMethod} from '../model/draw-method.enum';
 import {PrizeInfo} from '../model/prize-info.model';
 import {CommonRegexPatterns} from '../../../shared/common-regex-patterns';
 import {TournamentEventConfiguration} from '../model/tournament-event-configuration.model';
 import {PrizeInfoDialogComponent, PrizeInfoDialogData} from './prize-info-dialog/prize-info-dialog.component';
 import {MatDialog, MatDialogConfig} from '@angular/material/dialog';
-import {Configuration} from 'jasmine-spec-reporter/built/configuration';
 
 @Component({
   selector: 'app-tournament-event-config',

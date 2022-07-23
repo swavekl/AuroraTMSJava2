@@ -1,7 +1,7 @@
 import {Directive, Input} from '@angular/core';
 import {AbstractControl, NG_VALIDATORS, ValidationErrors, Validator} from '@angular/forms';
 import {Club} from './model/club.model';
-import {createGlobalSettings} from '@angular/cli/utilities/config';
+// import {createGlobalSettings} from '@angular/cli/utilities/config';
 
 /**
  * Validator for checking if club names are valid i.e. among the clubs loaded from server

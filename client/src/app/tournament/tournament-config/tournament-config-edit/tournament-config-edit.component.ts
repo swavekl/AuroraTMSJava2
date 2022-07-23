@@ -11,7 +11,7 @@ import {Personnel} from '../model/personnel.model';
 import {CheckInType} from '../../model/check-in-type.enum';
 // tslint:disable-next-line:max-line-length
 import {TournamentEventConfigListContainerComponent} from '../tournament-event-config-list/tournament-event-config-list-container.component';
-import {FormControl} from '@angular/forms';
+import {UntypedFormControl} from '@angular/forms';
 
 @Component({
   selector: 'app-tournament-config-edit',
@@ -277,7 +277,7 @@ export class TournamentConfigEditComponent implements OnChanges {
     if (allControls) {
       Object.entries(allControls)
         .forEach(([key, value]) => {
-          const control: FormControl = allControls[key];
+          const control: UntypedFormControl = allControls[key];
           if (control.errors != null) {
             const errorJSON = JSON.stringify(control.errors);
               errors.push (`field ${key} -> error [${errorJSON}]`);

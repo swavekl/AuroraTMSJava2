@@ -1,6 +1,5 @@
 import {Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChange, SimpleChanges} from '@angular/core';
-import {MatDialogRef} from '@angular/material/dialog/dialog-ref';
-import {MatDialog} from '@angular/material/dialog';
+import {MatDialog, MatDialogRef} from '@angular/material/dialog';
 import {Subscription} from 'rxjs';
 import {first, switchMap} from 'rxjs/operators';
 import {TournamentEvent} from '../../tournament/tournament-config/tournament-event.model';

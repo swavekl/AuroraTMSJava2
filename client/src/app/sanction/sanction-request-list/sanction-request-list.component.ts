@@ -1,5 +1,5 @@
 import {Router} from '@angular/router';
-import {FormControl} from '@angular/forms';
+import {UntypedFormControl} from '@angular/forms';
 import {AfterViewInit, Component, ViewChild} from '@angular/core';
 import {debounceTime, distinctUntilChanged, skip} from 'rxjs/operators';
 import {MatPaginator} from '@angular/material/paginator';
@@ -20,7 +20,7 @@ export class SanctionRequestListComponent implements AfterViewInit {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
   @ViewChild(MatTable) table!: MatTable<SanctionRequest>;
-  @ViewChild('filterClubNameCtrl') filterClubNameCtrl: FormControl;
+  @ViewChild('filterClubNameCtrl') filterClubNameCtrl: UntypedFormControl;
   dataSource: SanctionRequestListDataSource;
   filterClubName: string;
 

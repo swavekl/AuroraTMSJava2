@@ -1,6 +1,6 @@
 import {Component, Inject, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
-import {FormBuilder, FormGroup, Validators} from '@angular/forms';
+import {UntypedFormBuilder, UntypedFormGroup, Validators} from '@angular/forms';
 import {distinctUntilChanged, first} from 'rxjs/operators';
 import {BehaviorSubject, Observable, Subscription} from 'rxjs';
 import {
@@ -89,7 +89,7 @@ export class PaymentDialogComponent implements OnInit, OnDestroy {
     locale: 'auto',
   };
 
-  formGroup: FormGroup;
+  formGroup: UntypedFormGroup;
 
   // payment in progress indicator
   private paymentInProgressSubject: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
@@ -130,7 +130,7 @@ export class PaymentDialogComponent implements OnInit, OnDestroy {
    */
   constructor(public dialogRef: MatDialogRef<PaymentDialogComponent>,
               @Inject(MAT_DIALOG_DATA) public data: PaymentDialogData,
-              private fb: FormBuilder,
+              private fb: UntypedFormBuilder,
               private paymentRefundService: PaymentRefundService,
               private stripeFactoryService: StripeFactoryService) {
     this.stripeInstance = data.stripeInstance;

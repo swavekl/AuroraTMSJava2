@@ -10,7 +10,7 @@ import {DateUtils} from '../../shared/date-utils';
 import {MatchCardPlayabilityStatus, MatchInfo} from '../model/match-info.model';
 import {MatchCardStatusPipe} from '../pipes/match-card-status.pipe';
 import {MatSlideToggleChange} from '@angular/material/slide-toggle';
-import {MatSelectChange} from '@angular/material/select/select';
+import {MatSelectChange} from '@angular/material/select';
 import {MatchAssignmentDialogComponent, MatchAssignmentDialogData} from '../util/match-assignment-dialog.component';
 import {MatDialog, MatDialogConfig} from '@angular/material/dialog';
 import {ConfirmationPopupComponent} from '../../shared/confirmation-popup/confirmation-popup.component';

@@ -13,7 +13,7 @@ import {
 import {MembershipType, TournamentEntry} from '../model/tournament-entry.model';
 import {ProfileFindPopupComponent, ProfileSearchData} from '../../../profile/profile-find-popup/profile-find-popup.component';
 import {MatDialog} from '@angular/material/dialog';
-import {FormGroup} from '@angular/forms';
+import {UntypedFormGroup} from '@angular/forms';
 import {TournamentEventEntryInfo} from '../model/tournament-event-entry-info-model';
 import {EventEntryStatus} from '../model/event-entry-status.enum';
 import {AvailabilityStatus} from '../model/availability-status.enum';
@@ -229,7 +229,7 @@ export class EntryWizardComponent implements OnInit, OnChanges, OnDestroy {
 
   }
 
-  onChange(form: FormGroup) {
+  onChange(form: UntypedFormGroup) {
     console.log('in onChange');
     if (this.entry != null) {
       const updatedEntry = {

@@ -7,7 +7,7 @@ import {ClubService} from '../service/club.service';
 import {Club} from '../model/club.model';
 import {AuthenticationService} from '../../user/authentication.service';
 import {UserRoles} from '../../user/user-roles.enum';
-import {FormControl} from '@angular/forms';
+import {UntypedFormControl} from '@angular/forms';
 import {debounceTime, distinctUntilChanged, first, skip} from 'rxjs/operators';
 import {ClubEditCallbackData, ClubEditPopupService} from '../service/club-edit-popup.service';
 
@@ -20,7 +20,7 @@ export class ClubListComponent implements AfterViewInit {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
   @ViewChild(MatTable) table!: MatTable<Club>;
-  @ViewChild('filterClubNameCtrl') filterClubNameCtrl: FormControl;
+  @ViewChild('filterClubNameCtrl') filterClubNameCtrl: UntypedFormControl;
   dataSource: ClubListDataSource;
   filterClubName: string;
 

@@ -2,7 +2,7 @@ import {AfterViewInit, Component, ViewChild} from '@angular/core';
 import {MatPaginator} from '@angular/material/paginator';
 import {MatSort} from '@angular/material/sort';
 import {MatTable} from '@angular/material/table';
-import {FormControl} from '@angular/forms';
+import {UntypedFormControl} from '@angular/forms';
 import {MatDialog} from '@angular/material/dialog';
 import {Router} from '@angular/router';
 import {debounceTime, distinctUntilChanged, skip} from 'rxjs/operators';
@@ -20,7 +20,7 @@ export class InsuranceListComponent implements AfterViewInit {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
   @ViewChild(MatTable) table!: MatTable<InsuranceRequest>;
-  @ViewChild('filterClubNameCtrl') filterClubNameCtrl: FormControl;
+  @ViewChild('filterClubNameCtrl') filterClubNameCtrl: UntypedFormControl;
   dataSource: InsuranceListDataSource;
   filterClubName: string;
 

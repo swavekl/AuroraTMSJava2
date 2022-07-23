@@ -21,7 +21,7 @@ import {UsattPlayerRecord} from '../model/usatt-player-record.model';
 import {Observable, of, Subscription} from 'rxjs';
 import {Club} from '../../club/model/club.model';
 import {ClubService} from '../../club/service/club.service';
-import {AbstractControl, FormControl, NgForm} from '@angular/forms';
+import {AbstractControl, UntypedFormControl, NgForm} from '@angular/forms';
 import {debounceTime, distinctUntilChanged, filter, finalize, first, map, skip, switchMap, tap} from 'rxjs/operators';
 import {MatAutocompleteSelectedEvent} from '@angular/material/autocomplete';
 import {ClubEditCallbackData, ClubEditPopupService} from '../../club/service/club-edit-popup.service';
@@ -61,7 +61,7 @@ export class ProfileEditComponent implements OnInit, OnChanges, AfterViewInit, O
 
   // control showing home club name for autocompletion loading of clubs
   @ViewChild('homeClubName')
-  private homeClubNameControl: FormControl;
+  private homeClubNameControl: UntypedFormControl;
 
   constructor(private usattRecordSearchPopupService: UsattRecordSearchPopupService,
               private clubService: ClubService,

@@ -1,6 +1,6 @@
 import {AfterViewInit, Component, ViewChild} from '@angular/core';
 import {Router} from '@angular/router';
-import {FormControl} from '@angular/forms';
+import {UntypedFormControl} from '@angular/forms';
 import {MatPaginator} from '@angular/material/paginator';
 import {MatSort} from '@angular/material/sort';
 import {MatTable} from '@angular/material/table';
@@ -20,7 +20,7 @@ export class ClubAffiliationApplicationListComponent implements AfterViewInit {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
   @ViewChild(MatTable) table!: MatTable<ClubAffiliationApplication>;
-  @ViewChild('filterClubNameCtrl') filterClubNameCtrl: FormControl;
+  @ViewChild('filterClubNameCtrl') filterClubNameCtrl: UntypedFormControl;
   dataSource: ClubAffiliationApplicationListDataSource;
   filterClubName: string;
 

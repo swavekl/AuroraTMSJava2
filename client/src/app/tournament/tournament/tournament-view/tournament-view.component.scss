@@ -1,8 +1,15 @@
 @import "~src/my-theme.scss";
 
 mat-icon.button-icon {
-  font-size: 48px;
-  color: $primary-color;
+  //font-size: 32px;
+  color: white;
+}
+
+mat-icon.non-button-icon {
+  font-size: 32px;
+  height: 40px;
+  width: 40px;
+  padding: 12px;
 }
 
 table.tournament-info-table {

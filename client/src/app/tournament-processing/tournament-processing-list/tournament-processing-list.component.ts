@@ -2,7 +2,7 @@ import {AfterViewInit, Component, ViewChild} from '@angular/core';
 import {MatPaginator} from '@angular/material/paginator';
 import {MatSort} from '@angular/material/sort';
 import {MatTable} from '@angular/material/table';
-import {FormControl} from '@angular/forms';
+import {UntypedFormControl} from '@angular/forms';
 import {debounceTime, distinctUntilChanged, skip} from 'rxjs/operators';
 import {TournamentProcessingListDataSource} from './tournament-processing-list-datasource';
 import {TournamentProcessingService} from '../service/tournament-processing.service';
@@ -17,7 +17,7 @@ export class TournamentProcessingListComponent implements AfterViewInit {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
   @ViewChild(MatTable) table!: MatTable<TournamentProcessingRequest>;
-  @ViewChild('filterTournamentNameCtrl') filterTournamentNameCtrl: FormControl;
+  @ViewChild('filterTournamentNameCtrl') filterTournamentNameCtrl: UntypedFormControl;
   dataSource: TournamentProcessingListDataSource;
 
   /** Columns displayed in the table. Columns IDs can be added, removed, or reordered. */
