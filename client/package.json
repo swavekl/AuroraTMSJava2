@@ -36,7 +36,7 @@
     "core-js": "^3.20.1",
     "file-saver": "^2.0.5",
     "jwt-decode": "^3.1.2",
-    "moment": "^2.29.1",
+    "moment": "^2.29.4",
     "ng-tournament-tree": "^2.0.2",
     "ngx-stripe": "^13.0.0",
     "print-js": "^1.6.0",
