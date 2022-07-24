@@ -1,5 +1,5 @@
 export enum MatchStatus {
-  NOT_PLAYED,
-  LOSS,
-  WIN
+  NOT_PLAYED = 'NOT_PLAYED',
+  LOSS = 'LOSS',
+  WIN = 'WIN'
 }

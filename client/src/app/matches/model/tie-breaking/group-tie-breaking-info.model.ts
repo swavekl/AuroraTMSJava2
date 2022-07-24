@@ -10,5 +10,5 @@ export class GroupTieBreakingInfo {
 
   // maps a string indicating the order in which tie breaks are resolved
   // to a subset of matrix used to do the tie breaking
-  nWayTieBreakingInfosMap: any;
+  nwayTieBreakingInfosMap: Map<string, PlayerTieBreakingInfo[]>;
 }

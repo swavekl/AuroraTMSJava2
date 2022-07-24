@@ -1,0 +1,56 @@
+<div mat-dialog-title>Tie Breaking Information</div>
+<mat-dialog-content>
+  <div class="match-points-explanation">Match Won = 2 Match Points, Match Lost = 1 Match Points, Match not Played = 0</div>
+
+  <div *ngFor="let info of dataAsArray">
+    <p class="tie-breaking-table-container" >{{info.title}}</p>
+    <table class="tie-breaking-table">
+      <thead>
+      <tr>
+        <!--    first column with player codes-->
+        <th></th>
+        <th *ngFor="let playerTieBreakingInfo of info.playerTieBreakingInfoList">
+          {{ playerTieBreakingInfo.playerCode }}
+        </th>
+        <th>Match Points</th>
+        <th *ngIf="info.showGamesRatio">Games Won/Lost</th>
+        <th *ngIf="info.showPointsRatio">Points Won/Lost</th>
+        <th>Place</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let playerTieBreakingInfo of info.playerTieBreakingInfoList">
+        <td class="player-code-column">{{playerTieBreakingInfo.playerCode}}</td>
+        <ng-container *ngFor="let matchResult of playerTieBreakingInfo.allPlayerMatchResults">
+          <ng-container *ngIf="playerTieBreakingInfo.playerCode !== matchResult.opponentCode; else emptycell">
+            <td>
+              {{ getMatchStatus(matchResult.matchStatus) }}<br>
+              {{ getGameScores(matchResult.gameScores, matchResult.matchStatus)}}
+            </td>
+          </ng-container>
+          <ng-template #emptycell>
+            <td class="blank-cell">&nbsp;</td>
+          </ng-template>
+        </ng-container>
+        <!--    match points-->
+        <td>
+          {{playerTieBreakingInfo.matchPoints}}
+        </td>
+        <td *ngIf="info.showGamesRatio">{{playerTieBreakingInfo.gamesWon}} / {{playerTieBreakingInfo.gamesLost}}</td>
+        <td *ngIf="info.showPointsRatio">{{playerTieBreakingInfo.pointsWon}} / {{playerTieBreakingInfo.pointsLost}}</td>
+        <!--    place -->
+        <td>
+          {{playerTieBreakingInfo.rank}}
+        </td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+</mat-dialog-content>
+
+<mat-dialog-actions fxLayout="row" style="margin-top: 8px">
+  <span fxFlex></span>
+  <button mat-raised-button color="primary" (click)="onClose()">
+    Close
+  </button>
+</mat-dialog-actions>

@@ -1,0 +1,35 @@
+div.match-points-explanation {
+  margin-bottom: 8px;
+}
+
+p.tie-breaking-table-container {
+  margin: 12px 0;
+}
+
+table.tie-breaking-table {
+  tr {
+    th {
+      font-weight: bold;
+      border: 1px solid black;
+      width: 50px;
+      vertical-align: middle;
+      padding: 4px;
+    }
+
+    td {
+      border: 1px solid black;
+      width: 50px;
+      text-align: center;
+      vertical-align: middle;
+      padding: 4px;
+
+      &.player-code-column {
+        font-weight: bold;
+      }
+
+      &.blank-cell {
+        background-color: #d7c8f5;
+      }
+    }
+  }
+}

@@ -11,6 +11,7 @@ import {MatchService} from '../service/match.service';
 import {TieBreakingService} from '../service/tie-breaking.service';
 import {GroupTieBreakingInfo} from '../model/tie-breaking/group-tie-breaking-info.model';
 import {DrawType} from '../../draws/model/draw-type.enum';
+import {TieBreakingResultsDialogComponent} from '../tie-breaking-results-dialog/tie-breaking-results-dialog.component';
 
 @Component({
   selector: 'app-matches',
@@ -333,5 +334,20 @@ export class MatchesComponent implements OnInit, OnChanges, OnDestroy {
 
   isMatchReady(match: Match) {
     return match.playerBProfileId !== Match.TBD_PROFILE_ID && match.playerAProfileId !== Match.TBD_PROFILE_ID;
+  }
+
+  explainRanking() {
+    const subscription = this.tieBreakingService.rankAndAdvance(this.selectedMatchCardId)
+      .subscribe((groupTieBreakingInfo: GroupTieBreakingInfo) => {
+        const numPlayers = groupTieBreakingInfo.playerTieBreakingInfoList.length;
+        const width = ((numPlayers + 2) * 75) + 'px';
+        const height = ((numPlayers * 50) + 150) + 'px';
+        const config = {
+          width: width, height: height, data: groupTieBreakingInfo
+        };
+
+        this.dialog.open(TieBreakingResultsDialogComponent, config);
+      });
+    this.subscriptions.add(subscription);
   }
 }
