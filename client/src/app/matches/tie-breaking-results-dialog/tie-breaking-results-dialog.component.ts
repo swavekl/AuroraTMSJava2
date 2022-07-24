@@ -3,6 +3,7 @@ import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
 import {GroupTieBreakingInfo} from '../model/tie-breaking/group-tie-breaking-info.model';
 import {MatchStatus} from '../model/tie-breaking/match-status';
 import {PlayerTieBreakingInfo} from '../model/tie-breaking/player-tie-breaking-info.model';
+import {PlayerMatchResults} from '../model/tie-breaking/player-match-results.model';
 
 @Component({
   selector: 'app-tie-breaking-results-dialog',
@@ -56,15 +57,31 @@ export class TieBreakingResultsDialogComponent implements OnInit {
     this.dialogRef.close(null);
   }
 
-  getMatchStatus(matchStatus: MatchStatus) {
+  getMatchStatus(matchStatus: MatchStatus, playerCode: string, opponentCode: string, playerTieBreakingInfoList: PlayerTieBreakingInfo[]) {
     switch (matchStatus) {
       case MatchStatus.WIN:
         return 'W';
       case MatchStatus.LOSS:
         return 'L';
       case MatchStatus.NOT_PLAYED:
-        return 'NP';
+        // find out if match was defaulted by both players or just one
+        const notPlayedByBoth = this.isNotPlayedByBothPlayers(playerTieBreakingInfoList, opponentCode, playerCode);
+        return (notPlayedByBoth) ? 'NP' : 'L';
     }
+  }
+
+  private isNotPlayedByBothPlayers(playerTieBreakingInfoList: PlayerTieBreakingInfo[], opponentCode: string, playerCode: string) {
+    let notPlayedByBoth = false;
+    playerTieBreakingInfoList.forEach((playerTieBreakingInfo: PlayerTieBreakingInfo) => {
+      if (playerTieBreakingInfo.playerCode === opponentCode) {
+        playerTieBreakingInfo.allPlayerMatchResults.forEach((playerMatchResult: PlayerMatchResults) => {
+          if (playerMatchResult.opponentCode === playerCode) {
+            notPlayedByBoth = playerMatchResult.matchStatus === MatchStatus.NOT_PLAYED;
+          }
+        });
+      }
+    });
+    return notPlayedByBoth;
   }
 
   getGameScores(gameScores: number[], matchStatus: MatchStatus) {
@@ -93,9 +110,17 @@ export class TieBreakingResultsDialogComponent implements OnInit {
 
     let strGameScores;
     if (matchStatus === MatchStatus.WIN) {
-      strGameScores = gamesWon + ' : ' + gamesLost;
+      if (gamesWon === 0 && gamesLost === 0) {
+        strGameScores = 'Def';
+      } else {
+        strGameScores = gamesWon + ' : ' + gamesLost;
+      }
     } else if (matchStatus === MatchStatus.LOSS) {
-      strGameScores = gamesLost + ' : ' + gamesWon;
+      if (gamesWon === 0 && gamesLost === 0) {
+        strGameScores = 'Def';
+      } else {
+        strGameScores = gamesLost + ' : ' + gamesWon;
+      }
     } else {
       strGameScores = 'Def';
     }

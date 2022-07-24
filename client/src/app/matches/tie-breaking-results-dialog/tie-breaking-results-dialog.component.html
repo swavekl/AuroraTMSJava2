@@ -1,6 +1,7 @@
-<div mat-dialog-title>Tie Breaking Information</div>
+<div mat-dialog-title>Tie Breaking Procedure Results</div>
 <mat-dialog-content>
-  <div class="match-points-explanation">Match Won = 2 Match Points, Match Lost = 1 Match Points, Match not Played = 0</div>
+
+  <div class="match-points-explanation">Match Won => 2 Match Points, Match Lost => 1 Match Point, Match Defaulted => 0 Match Points</div>
 
   <div *ngFor="let info of dataAsArray">
     <p class="tie-breaking-table-container" >{{info.title}}</p>
@@ -24,8 +25,8 @@
         <ng-container *ngFor="let matchResult of playerTieBreakingInfo.allPlayerMatchResults">
           <ng-container *ngIf="playerTieBreakingInfo.playerCode !== matchResult.opponentCode; else emptycell">
             <td>
-              {{ getMatchStatus(matchResult.matchStatus) }}<br>
-              {{ getGameScores(matchResult.gameScores, matchResult.matchStatus)}}
+              {{ getMatchStatus(matchResult.matchStatus, playerTieBreakingInfo.playerCode, matchResult.opponentCode, info.playerTieBreakingInfoList) }}<br>
+              {{ getGameScores(matchResult.gameScores, matchResult.matchStatus) }}
             </td>
           </ng-container>
           <ng-template #emptycell>

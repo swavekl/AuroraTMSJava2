@@ -340,10 +340,23 @@ export class MatchesComponent implements OnInit, OnChanges, OnDestroy {
     const subscription = this.tieBreakingService.rankAndAdvance(this.selectedMatchCardId)
       .subscribe((groupTieBreakingInfo: GroupTieBreakingInfo) => {
         const numPlayers = groupTieBreakingInfo.playerTieBreakingInfoList.length;
-        const width = ((numPlayers + 2) * 75) + 'px';
-        const height = ((numPlayers * 50) + 150) + 'px';
+        let width = (numPlayers + 2) * 75;
+        width = Math.max(width, 520);
+        width = Math.min(width, window.innerWidth - 100);
+        let height = (numPlayers * 50) + 180;
+        if (groupTieBreakingInfo.nwayTieBreakingInfosMap != null) {
+          for (const [title, playerTieBreakingInfoList] of Object.entries(groupTieBreakingInfo.nwayTieBreakingInfosMap)) {
+            height += (playerTieBreakingInfoList.length * 50) + 75;
+          }
+        }
+        height = Math.max (height, 400);
+        height = Math.min (height, window.innerHeight - 100);
+        const strHeight = height + 'px';
+        const strWidth = width + 'px';
+        console.log('strWidth', strWidth);
+        console.log('strHeight', strHeight);
         const config = {
-          width: width, height: height, data: groupTieBreakingInfo
+          width: strWidth, height: strHeight, data: groupTieBreakingInfo
         };
 
         this.dialog.open(TieBreakingResultsDialogComponent, config);
