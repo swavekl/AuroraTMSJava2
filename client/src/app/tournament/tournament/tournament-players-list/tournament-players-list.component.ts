@@ -183,7 +183,9 @@ export class TournamentPlayersListComponent implements OnInit, OnChanges {
         const eventId = eventIds[i];
         if (this.eventIdToEventMap) {
           const tournamentEvent = this.eventIdToEventMap[eventId];
-          eventNames.push(tournamentEvent.name);
+          if (tournamentEvent) {
+            eventNames.push(tournamentEvent.name);
+          }
         }
       }
       return eventNames.join(', ');
