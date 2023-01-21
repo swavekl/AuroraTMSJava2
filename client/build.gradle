@@ -1,0 +1,23 @@
+plugins {
+  id 'java'
+  id "com.github.node-gradle.node" version "3.4.0"
+}
+
+//jar.dependsOn 'npm_run_build'
+
+jar {
+  from 'dist/client' into 'static'
+}
+
+task buildAngularApp(type: NpxTask) {
+  dependsOn npmInstall
+  command = 'ng'
+//  args = ['build', '--configuration', 'production', '--host=ttaurora.com', '--ssl=true', '--ssl-cert=c:\\myprojects\\AuroraTMSJava2\\server\\ssl\\server.crt', '--ssl-key=c:\\myprojects\\AuroraTMSJava2\\server\\ssl\\server.key', '--proxy-config proxy.conf.json']
+  args = ['build', '--configuration', 'production']
+  inputs.files('package.json', 'package-lock.json', 'angular.json', 'tsconfig.json', 'tsconfig.app.json')
+  inputs.dir('src')
+  inputs.dir(fileTree("node_modules").exclude(".cache"))
+  outputs.dir('dist')
+}
+
+jar.dependsOn 'buildAngularApp'

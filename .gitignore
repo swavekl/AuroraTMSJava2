@@ -1,2 +1,9 @@
 # Editor-based HTTP Client requests
 http-client.private.env.json
+# Ignore Gradle project-specific cache directory
+.gradle
+
+# Ignore Gradle build output directory
+build
+
+kubernetes

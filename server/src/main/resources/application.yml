@@ -1,7 +1,8 @@
 spring.jpa.hibernate.ddl-auto: update
 spring.datasource:
   driver-class-name: com.mysql.jdbc.Driver
-  url: jdbc:mysql://localhost:3306/auroratmsspring
+  url: jdbc:mysql://mysql:3306/auroratmsspring
+#  url: jdbc:mysql://localhost:3306/auroratmsspring
 
 spring:
   liquibase:
@@ -18,13 +19,16 @@ spring:
     jdbc:
       initialize-schema: never
     job-store-type: jdbc
-#  jpa:
+    properties:
+      org.quartz.threadPool.threadCount : 5
+      org.quartz.jobStore.isClustered: true
+  #  jpa:
 #    show-sql: true
 #    properties.hibernate.format_sql: true
 
 
-spring.quartz.properties.org.quartz.threadPool.threadCount : 5
-spring.quartz.properties.org.quartz.jobStore.isClustered: true
+#spring.quartz.properties.org.quartz.threadPool.threadCount : 5
+#spring.quartz.properties.org.quartz.jobStore.isClustered: true
 
 #logging.level.org.hibernate.SQL: TRACE
 # # trace how many results were returned
@@ -42,27 +46,22 @@ spring.quartz.properties.org.quartz.jobStore.isClustered: true
 #  level:
 #    org:
 #      springframework:
+#        web:
+#          client: DEBUG  # debug server responses
 #        security:
+#          access: DEBUG
 #          web:
+#            access: DEBUG   # debug server requests
 #            csrf:
-#              CsrfFilter: TRACE
+#             CsrfFilter: DEBUG
 
 ## Websocket debugging
 #logging.level.org.springframework.web.socket.sockjs: TRACE
 
-# debug server responses
-#logging:
-#  level:
-#    org:
-#      springframework:
-#        web:
-#          client: DEBUG
+# debug server requests and responses
+#logging.level.org.springframework.web.client: DEBUG
+#logging.level.org.springframework.security.web.access: DEBUG
 
-#org:
-#  springframework:
-#    security:
-#      web:
-#        access:
 #logging:
 #  level:
 #    "liquibase" : info
@@ -78,6 +77,7 @@ spring.quartz.properties.org.quartz.jobStore.isClustered: true
 okta:
   oauth2:
     redirectUri: https://gateway-pc:4200/authorization-code/callback
+#    redirectUri: https://ttaurora.com:443/authorization-code/callback
     audience: api://default
   client:
     connectionTimeout: 30 # seconds
@@ -100,8 +100,10 @@ server:
   port: 8443
 
 client.host.url: https://gateway-pc:4200
+#client.host.url: https://ttaurora.com:443
 deploymentType: local
 local.repository.root.path: C:\myprojects\filerepository
+#local.repository.root.path: /filerepository
 
 spring.servlet.multipart:
   max-file-size: 30MB
@@ -111,8 +113,8 @@ spring.servlet.multipart:
 
 
 # Rabbit MQ 3.9.11 with Erlang 24.2
-#message.broker.type: inmemory
-message.broker.type: rabbitmq
+message.broker.type: inmemory
+#message.broker.type: rabbitmq
 
 message.broker.rabbitmq:
   host: gateway-pc

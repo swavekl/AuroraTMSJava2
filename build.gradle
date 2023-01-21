@@ -1,0 +1,18 @@
+plugins {
+    id "com.palantir.docker" version "0.34.0"
+}
+
+allprojects {
+    group = 'com.auroratms'
+    version = '0.0.1-SNAPSHOT'
+}
+
+docker {
+    tags 'latest'
+    push true
+    name "docker.io/swavekl/auroratms:latest"
+//    name "auroratms:${rootProject.version}"
+//    name "auroratms:latest"
+    files "server/build/libs/server-${rootProject.version}.jar", "kubernetes/vault-standalone/vault.properties", "kubernetes/vault-standalone/tls/ca.pem"
+    dockerfile file('docker/Dockerfile')
+}

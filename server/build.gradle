@@ -115,8 +115,19 @@ dependencies {
 
     // quartz scheduler for cleanup job
     implementation 'org.springframework.boot:spring-boot-starter-quartz'
+
+    // make this project depend on building the client portion of the project
+//    implementation (project(':client'))
 }
 
 //configurations {
 //    all*.exclude module : 'spring-boot-starter-logging'
 //}
+
+task copyAngularApp (type: Copy) {
+    from '../client/dist/client'
+    into './build/resources/main/static'
+}
+
+processResources.dependsOn(copyAngularApp)
+//jar.dependsOn(copyAngularApp)

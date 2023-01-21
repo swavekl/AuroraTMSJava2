@@ -68,7 +68,8 @@ public class ServerApplication {
                 resolver.setAllowUriQueryParameter(true);
 
                 http.authorizeRequests()
-                        .antMatchers("/", "/login", "/images/**", "/api/users/**", fileRepoUrlPattern)
+                        .antMatchers("/", "/login", "/userwelcome", "/logout","/images/**", "/api/users/**", fileRepoUrlPattern,
+                                "/index.html", "/*.css", "/*.css.map", "/*.ico", "/*.js", "/*.js.map", "/assets/**")
                         .permitAll()
                         .anyRequest().authenticated()  // authenticate everything else!;
                         .and()
