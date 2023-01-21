@@ -353,8 +353,8 @@ export class MatchesComponent implements OnInit, OnChanges, OnDestroy {
         height = Math.min (height, window.innerHeight - 100);
         const strHeight = height + 'px';
         const strWidth = width + 'px';
-        console.log('strWidth', strWidth);
-        console.log('strHeight', strHeight);
+        // console.log('strWidth', strWidth);
+        // console.log('strHeight', strHeight);
         const config = {
           width: strWidth, height: strHeight, data: groupTieBreakingInfo
         };
