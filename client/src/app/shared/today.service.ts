@@ -49,11 +49,13 @@ export class TodayService {
 
   get todaysDate(): Date {
     // todo - remove for production
+    // Phoenix Winter Open
+    // const utcMoment = moment([2023, 1, 25, 0, 0, 0]).utc();
     // Aurora Cup
     // const utcMoment = moment([2023, 0, 15, 0, 0, 0]).utc();
     // Aurora Fall Open
-    const utcMoment = moment([2025, 4, 10, 0, 0, 0]).utc();
-    return utcMoment.toDate();
-    // return new Date();
+    // const utcMoment = moment([2025, 4, 10, 0, 0, 0]).utc();
+    // return utcMoment.toDate();
+    return new Date();
   }
 }

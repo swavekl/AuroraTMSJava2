@@ -1,0 +1,14 @@
+table.player-data-table {
+  border-bottom: 1px solid black;
+  border-top: 1px solid black;
+  width: 300px;
+
+  td {
+    &.row-title {
+      text-align: left;
+    }
+    &.row-value {
+      text-align: right;
+    }
+  }
+}

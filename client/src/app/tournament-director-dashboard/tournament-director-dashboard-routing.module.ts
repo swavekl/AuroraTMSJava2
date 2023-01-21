@@ -1,6 +1,5 @@
 import {NgModule} from '@angular/core';
 import {RouterModule, Routes} from '@angular/router';
-import {TournamentDirectorDashboardComponent} from './tournament-director-dashboard/tournament-director-dashboard.component';
 import {
   TournamentWaitingListContainerComponent
 } from '../tournament/tournament-config/tournament-waiting-list/tournament-waiting-list-container.component';
@@ -8,11 +7,14 @@ import {
   TournamentPlayersListContainerComponent
 } from '../tournament/tournament/tournament-players-list/tournament-players-list-container.component';
 import {PaymentsRefundsDashletContainerComponent} from './payments-refunds-dashlet/payments-refunds-dashlet-container.component';
+import {
+  TournamentDirectorDashboardContainerComponent
+} from './tournament-director-dashboard/tournament-director-dashboard-container.component';
 
 const routes: Routes = [
   {
     path: ':tournamentId',
-    component: TournamentDirectorDashboardComponent,
+    component: TournamentDirectorDashboardContainerComponent,
     children: [
       {
         path: 'paymentsrefunds',

@@ -12,6 +12,7 @@ import { LayoutModule } from '@angular/cdk/layout';
 import { TournamentDirectorDashboardContainerComponent } from './tournament-director-dashboard/tournament-director-dashboard-container.component';
 import { PaymentsRefundsDashletComponent } from './payments-refunds-dashlet/payments-refunds-dashlet.component';
 import { PaymentsRefundsDashletContainerComponent } from './payments-refunds-dashlet/payments-refunds-dashlet-container.component';
+import {MatToolbarModule} from '@angular/material/toolbar';
 
 
 @NgModule({
@@ -21,15 +22,16 @@ import { PaymentsRefundsDashletContainerComponent } from './payments-refunds-das
     PaymentsRefundsDashletComponent,
     PaymentsRefundsDashletContainerComponent
   ],
-  imports: [
-    CommonModule,
-    TournamentDirectorDashboardRoutingModule,
-    MatGridListModule,
-    MatCardModule,
-    MatMenuModule,
-    MatIconModule,
-    MatButtonModule,
-    LayoutModule
-  ]
+    imports: [
+        CommonModule,
+        TournamentDirectorDashboardRoutingModule,
+        MatGridListModule,
+        MatCardModule,
+        MatMenuModule,
+        MatIconModule,
+        MatButtonModule,
+        LayoutModule,
+        MatToolbarModule
+    ]
 })
 export class TournamentDirectorDashboardModule { }

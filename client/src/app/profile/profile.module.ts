@@ -28,6 +28,8 @@ import {MatProgressBarModule} from '@angular/material/progress-bar';
 import { UsattRecordSearchPopupComponent } from './usatt-record-search-popup/usatt-record-search-popup.component';
 import {MatAutocompleteModule} from '@angular/material/autocomplete';
 import {ClubModule} from '../club/club.module';
+import { ProfileAddByTDComponent } from './profile-add-by-td/profile-add-by-td.component';
+import { ProfileAddByTdContainerComponent } from './profile-add-by-td/profile-add-by-td-container.component';
 
 const profileRoutes: Routes = [
   {
@@ -38,6 +40,11 @@ const profileRoutes: Routes = [
   {
     path: 'userprofilestart',
     component: ProfileEditStartComponent,
+    canActivate: [AuthGuard]
+  },
+  {
+    path: 'tdadduserprofile/:tournamentId',
+    component: ProfileAddByTdContainerComponent,
     canActivate: [AuthGuard]
   },
   {
@@ -55,7 +62,9 @@ const profileRoutes: Routes = [
     ProfileEditStartComponent,
     UsattRecordSearchComponent,
     OnBoardCompleteComponent,
-    UsattRecordSearchPopupComponent
+    UsattRecordSearchPopupComponent,
+    ProfileAddByTDComponent,
+    ProfileAddByTdContainerComponent
   ],
   exports: [
     ProfileFindPopupComponent

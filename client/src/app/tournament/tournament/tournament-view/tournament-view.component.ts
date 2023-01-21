@@ -9,6 +9,7 @@ import {DateUtils} from '../../../shared/date-utils';
 import {Tournament} from '../../tournament-config/tournament.model';
 import {NavigateUtil} from '../../../shared/navigate-util';
 import {TodayService} from '../../../shared/today.service';
+import {UserRoles} from '../../../user/user-roles.enum';
 
 @Component({
   selector: 'app-tournament-view',
@@ -70,6 +71,15 @@ export class TournamentViewComponent implements OnInit, OnChanges {
       );
   }
 
+  onEnterPlayer() {
+    // find or create profile of player to enter
+
+    // switch profile ??
+
+    // navigate to entry screen
+
+  }
+
   onView() {
     const url = `entries/entrywizard/${this.tournament.id}/edit/${this.entryId}`;
     this.router.navigateByUrl(url);
@@ -121,7 +131,7 @@ export class TournamentViewComponent implements OnInit, OnChanges {
   private isBeforeEntryCutoffDate() {
     const entryCutoffDate = this.tournament.configuration.entryCutoffDate;
     const today = this.todayService.todaysDate;
-    return !(new DateUtils().isDateBefore(today, entryCutoffDate));
+    return (new DateUtils().isDateBefore(today, entryCutoffDate));
   }
 
   canEnter() {
@@ -130,9 +140,23 @@ export class TournamentViewComponent implements OnInit, OnChanges {
     return noEntry && isBeforeEntryCutoffDate;
   }
 
+  canEnterPlayer() {
+    // only if you are a tournament director for this tournament can you enter players
+    const profileId = this.authService.getCurrentUserProfileId();
+    const isAllowed = this.authService.hasCurrentUserRole(
+      [UserRoles.ROLE_ADMINS, UserRoles.ROLE_TOURNAMENT_DIRECTORS]);
+    if (isAllowed) {
+      // get list of tournaments owned by this tournament director
+
+      // is this tournament owned by it.
+    }
+    return true;
+  }
+
   canView () {
     const isBeforeEntryCutoffDate = this.isBeforeEntryCutoffDate();
     const hasEntry = this.entryId !== 0;
     return hasEntry && isBeforeEntryCutoffDate;
   }
+
 }

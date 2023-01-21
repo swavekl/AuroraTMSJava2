@@ -122,7 +122,7 @@ export class ProfileEditContainerComponent implements OnInit, OnDestroy {
    */
   onSave(profile: Profile) {
     profile.userId = this.profileId;
-    // update and and unsubscribe immediately with first but in case user navigates still remember subscription
+    // update and unsubscribe immediately with first but in case user navigates still remember subscription
     const subscription = this.profileService.updateProfile(profile)
       .pipe(first())
       .subscribe(
@@ -224,6 +224,9 @@ export class ProfileEditContainerComponent implements OnInit, OnDestroy {
     profile.zipCode = playerRecord.zip;
     profile.state = playerRecord.state;
     profile.tournamentRating = playerRecord.tournamentRating;
+    profile.city = playerRecord.city;
+    profile.membershipId = playerRecord.membershipId;
+    profile.membershipExpirationDate = playerRecord.membershipExpirationDate;
   }
 
 }

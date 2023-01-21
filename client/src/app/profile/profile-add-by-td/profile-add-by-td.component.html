@@ -1,0 +1,56 @@
+<!--<app-centered-panel [noTopGap]="true">-->
+<div style="padding: 12px">
+  <div class="mat-headline">
+    Find or create player profile
+  </div>
+  <div fxLayout="column" fxLayoutAlign="center start">
+    <div style="margin: 8px">
+      Find existing profile by first and last name.
+    </div>
+    <div fxLayout="row" fxFlexAlign="start center">
+      <button mat-raised-button (click)="findPlayerProfile()">Find Player Profile</button>
+    </div>
+    <div style="margin: 8px">
+      If profile doesn't exist, find player USATT record by first and last name or by membership id.
+    </div>
+    <div fxLayout="row" fxFlexAlign="start center" fxLayoutGap="10px">
+      <button mat-raised-button (click)="onFindPlayerByName()">Find by Name</button>
+      <span fxFlex></span>
+      <button mat-raised-button (click)="onFindPlayerById()">Find by Id</button>
+    </div>
+    <div *ngIf="playerRecordFound || playerProfileFound">
+      Found Player Information:
+      <table class="player-data-table">
+        <tbody>
+        <tr>
+          <td class="row-title">Name</td>
+          <td class="row-value">{{firstName}} {{lastName}}</td>
+        </tr>
+        <tr>
+          <td class="row-title">State</td>
+          <td class="row-value">{{ playerRecord?.state }}</td>
+        </tr>
+        <tr>
+          <td class="row-title">Membership Id</td>
+          <td class="row-value">{{ playerRecord?.membershipId }}</td>
+        </tr>
+        <tr>
+          <td class="row-title">Expiration Date</td>
+          <td class="row-value">{{ playerRecord?.membershipExpirationDate | date }}</td>
+        </tr>
+        <tr>
+          <td class="row-title">Rating</td>
+          <td class="row-value">{{ playerRecord?.tournamentRating }}</td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+    <div *ngIf="!playerProfileFound && playerRecordFound">
+       <button type="button" mat-raised-button>Create Profile</button>
+    </div>
+    <div *ngIf="playerProfileFound">
+       <button type="button" mat-raised-button>Use Profile</button>
+    </div>
+  </div>
+</div>
+<!--</app-centered-panel>-->
