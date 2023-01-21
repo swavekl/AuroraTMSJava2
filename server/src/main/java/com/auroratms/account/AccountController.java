@@ -200,4 +200,27 @@ public class AccountController {
             return this.configureAccount(userProfileId);
         }
     }
+
+//    @DeleteMapping("/{userProfileId}")
+//    @PreAuthorize("hasAuthority('TournamentDirectors') or hasAuthority('Admins')")
+//    public void deleteAccount(@PathVariable String userProfileId) {
+//        boolean exists = accountService.existsById(userProfileId);
+//        if (exists) {
+//            try {
+//                // retrieve the account id which was already started
+//                AccountEntity accountEntity = accountService.findById(userProfileId);
+//
+//                // create a new link
+//                Stripe.apiKey = this.stripeApiKey;
+//                Account account = Account.retrieve(accountEntity.getAccountId());
+//                Account deletedAccount = account.delete();
+//
+//                accountService.delete(userProfileId);
+//
+//            } catch (StripeException e) {
+//                String errorMessage = e.getMessage();
+//                String json = "{\"error\": \"" + errorMessage + "\"}";
+//            }
+//        }
+//    }
 }
