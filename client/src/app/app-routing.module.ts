@@ -7,7 +7,7 @@ import {TournamentProcessingModule} from './tournament-processing/tournament-pro
 
 
 const routes: Routes = [
-  {path: '', redirectTo: '/login', pathMatch: 'full'},
+  {path: '', redirectTo: '/login/signin', pathMatch: 'full'},
   {path: 'logout', component: LogoutComponent},
   {
     path: 'home', component: HomeComponent
