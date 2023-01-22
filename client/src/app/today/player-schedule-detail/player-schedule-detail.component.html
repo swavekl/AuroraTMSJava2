@@ -21,14 +21,14 @@
             <span *ngIf="playerScheduleItem.assignedTables">{{ (playerScheduleItem.assignedTables.indexOf(',') !== -1) ? 'Tables:' : 'Table:'}} {{ playerScheduleItem.assignedTables}}</span>
           </div>
         </mat-card-title>
+        <mat-card-subtitle>
+          <div>{{playerScheduleItem.eventName}}</div>
+          <span>{{ playerScheduleItem.round | roundName: playerScheduleItem.group }}</span>
+          <span *ngIf="playerScheduleItem.round === 0">, Group: {{playerScheduleItem.group}}</span>
+        </mat-card-subtitle>
       </mat-card-header>
-      <mat-card-subtitle>
-        <div>{{playerScheduleItem.eventName}}</div>
-        <span>{{ playerScheduleItem.round | roundName: playerScheduleItem.group }}</span>
-        <span *ngIf="playerScheduleItem.round === 0">, Group: {{playerScheduleItem.group}}</span>
-      </mat-card-subtitle>
       <mat-card-content>
-        <table style="width: 100%">
+        <table class="schedule-detail">
           <thead>
           <tr>
             <th>Status</th>
@@ -41,8 +41,11 @@
             *ngFor="let playerDetail of playerScheduleItem?.playerDetails; last as last; first as first; index as index"
             [class]="getPlayerRowStyle(playerScheduleItem.doubles, index, last)">
             <td class="player-status-column">
-              <mat-icon
-                [className]="getStatusIconClass(playerDetail.statusCode)">{{getStatusIcon(playerDetail.statusCode)}}</mat-icon>
+              <mat-icon [className]="getStatusIconClass(playerDetail.statusCode)"
+                        (click)="showStatusDetail(playerDetail)">
+                {{getStatusIcon(playerDetail.statusCode)}}
+              </mat-icon>
+
             </td>
             <td class="player-name-column">
               <div>{{playerDetail.playerFullName}}</div>

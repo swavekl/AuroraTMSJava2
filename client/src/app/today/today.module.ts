@@ -28,7 +28,7 @@ import {MatExpansionModule} from '@angular/material/expansion';
 import {MatToolbarModule} from '@angular/material/toolbar';
 import {MatCheckboxModule} from '@angular/material/checkbox';
 import {MatSelectModule} from '@angular/material/select';
-
+import {MatSnackBarModule} from '@angular/material/snack-bar';
 
 @NgModule({
   declarations: [
@@ -59,7 +59,8 @@ import {MatSelectModule} from '@angular/material/select';
         MatExpansionModule,
         MatToolbarModule,
         MatCheckboxModule,
-        MatSelectModule
+        MatSelectModule,
+        MatSnackBarModule
     ]
 })
 export class TodayModule {  // Inject the service to ensure it registers with EntityServices

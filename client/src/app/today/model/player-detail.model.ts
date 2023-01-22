@@ -21,4 +21,7 @@ export class PlayerDetail {
 
   // ETA if late arrival
   estimatedArrivalTime: string;
+
+  // Reason if will not play
+  reason: string;
 }

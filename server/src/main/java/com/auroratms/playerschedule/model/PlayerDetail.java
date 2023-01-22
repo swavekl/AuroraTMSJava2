@@ -27,4 +27,7 @@ public class PlayerDetail {
 
     // ETA if late arrival
     private String estimatedArrivalTime;
+
+    // Reason if will not play
+    private String reason;
 }

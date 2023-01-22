@@ -3,11 +3,13 @@ import {PlayerScheduleItem} from '../model/player-schedule-item.model';
 import {EventStatusCode} from '../model/event-status-code.enum';
 import {Router} from '@angular/router';
 import {CheckInType} from '../../tournament/model/check-in-type.enum';
+import {MatSnackBar} from '@angular/material/snack-bar';
+import {PlayerDetail} from '../model/player-detail.model';
 
 @Component({
   selector: 'app-player-schedule-detail',
   templateUrl: './player-schedule-detail.component.html',
-  styleUrls: ['./player-schedule-detail.component.css']
+  styleUrls: ['./player-schedule-detail.component.scss']
 })
 export class PlayerScheduleDetailComponent implements OnInit, OnChanges {
 
@@ -23,7 +25,8 @@ export class PlayerScheduleDetailComponent implements OnInit, OnChanges {
   @Input()
   public checkInType: CheckInType;
 
-  constructor(private router: Router) { }
+  constructor(private router: Router,
+              private snackBar: MatSnackBar) { }
 
   ngOnInit(): void {
   }
@@ -89,5 +92,26 @@ export class PlayerScheduleDetailComponent implements OnInit, OnChanges {
       }
     };
     this.router.navigateByUrl(url, extras);
+  }
+
+  showStatusDetail(playerDetail: PlayerDetail) {
+    let statusText = "";
+    switch (playerDetail.statusCode) {
+      case EventStatusCode.WILL_PLAY:
+        statusText = "Will play";
+        break;
+      case EventStatusCode.WILL_NOT_PLAY:
+        statusText = "Will not play: " + playerDetail.reason;
+        break;
+      case EventStatusCode.WILL_PLAY_BUT_IS_LATE:
+        statusText = "Will play but will arrive at " + playerDetail.estimatedArrivalTime;
+        break;
+    }
+
+    if (statusText !== "") {
+      this.snackBar.open(statusText, "Close", {
+        duration: 3000
+      });
+    }
   }
 }

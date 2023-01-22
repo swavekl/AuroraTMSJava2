@@ -11,6 +11,16 @@ mat-icon.will-play-late {
   color: orange;
 }
 
+table.schedule-detail {
+  margin-top: 8px;
+  width: 100%;
+
+  thead tr {
+    border-top: 1px solid lightgray;
+  }
+}
+
+
 tr.player-row-separated {
   border-top: 1px solid lightgray
 }
@@ -33,7 +43,7 @@ td.player-status-column {
 td.player-name-column {
   vertical-align: middle;
   padding-top: 1px;
-  border: 0px solid blue;
+  //border: 0px solid blue;
 }
 
 td.player-rating-column {

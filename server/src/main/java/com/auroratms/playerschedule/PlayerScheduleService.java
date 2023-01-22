@@ -221,6 +221,7 @@ public class PlayerScheduleService {
                 if (playerStatus.getPlayerProfileId().equals(playerProfileId)) {
                     playerDetail.setStatusCode(playerStatus.getEventStatusCode());
                     playerDetail.setEstimatedArrivalTime(playerStatus.getEstimatedArrivalTime());
+                    playerDetail.setReason(playerStatus.getReason());
                     break;
                 }
             }
