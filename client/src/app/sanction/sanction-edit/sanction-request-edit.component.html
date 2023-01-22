@@ -3,7 +3,9 @@
   <div fxFlex="70%" fxFlex.lt-md="100%" *ngIf="sanctionRequest != null">
     <form name="form" (ngSubmit)="save(f.value, false)" #f="ngForm" novalidate>
       <mat-card appearance="outlined">
-        <mat-card-title>Tournament Sanction Request</mat-card-title>
+        <mat-card-header>
+          <mat-card-title>Tournament Sanction Request</mat-card-title>
+        </mat-card-header>
         <mat-card-actions>
           <button mat-raised-button type="button" (click)="onCancel()" style="margin-left: 10px">Cancel</button>
           <span fxFlex></span>

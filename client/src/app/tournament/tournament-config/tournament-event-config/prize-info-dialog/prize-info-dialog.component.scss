@@ -1,8 +1,15 @@
-@use "../../../../../my-theme.scss" as mytheme;
+@use "src/my-theme.scss" as *;
 
-/* TODO(mdc-migration): The following rule targets internal classes of checkbox that may no longer apply for the MDC version. */
-div.mat-checkbox-container {
-  padding-top: 35px;
+h1 {
+  padding-left: 25px;
+  margin-bottom: 8px;
 }
+
+div.dialog-toolbar {
+  padding-left: 25px;
+  padding-right: 25px;
+}
+
+
 
 

@@ -12,12 +12,12 @@
           <mat-divider></mat-divider>
           <mat-list-item *ngFor="let playerScheduleItem of daySchedule.playerScheduleItems; last as last; first as first"
                           (click)="showScheduleDetail(playerScheduleItem.matchCardId)">
-            <div matLine>
+            <div matListItemTitle>
               <span style="font-weight: bold">{{ playerScheduleItem.startTime | startTime }}</span>&nbsp;&nbsp;
               <span *ngIf="playerScheduleItem.assignedTables">{{ (playerScheduleItem.assignedTables.indexOf(',') !== -1) ? 'Tables:' : 'Table:'}} {{ playerScheduleItem.assignedTables}}</span>
             </div>
-            <div matLine>{{playerScheduleItem.eventName}}</div>
-              <div matLine>
+            <div matListItemLine>{{playerScheduleItem.eventName}}</div>
+              <div matListItemLine>
                 <span>{{ playerScheduleItem.round | roundName: playerScheduleItem.group }}</span>
                 <span *ngIf="playerScheduleItem.round === 0">, Group: {{playerScheduleItem.group}}</span>
               </div>

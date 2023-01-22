@@ -14,7 +14,7 @@ $ngtt-bracket-border-radius: 0 !default;
 $ngtt-bracket-line-width: 2px !default;
 
 @include mat.all-component-typographies();
-@include mat.core ();
+@include mat.core();
 //@include mat.core ($custom-typography);
 
 // Define the theme.
@@ -26,31 +26,31 @@ $primary-color: mat.get-color-from-palette($candy-app-primary);
 $accent-color: mat.get-color-from-palette($candy-app-accent);
 $warn-color: mat.get-color-from-palette($candy-app-warn);
 
-// Define a custom typography config that overrides the font-family
-$custom-typography: mat.define-typography-config(
-  $font-family: 'Roboto, monospace',
-);
-
+// Define a custom typography config that overrides the font-family and certain font sizes
 //$custom-typography: mat.define-typography-config(
 //  $font-family: 'Roboto, monospace',
-//    // overrides
-//  $caption:       mat.define-typography-level(20px, 28px, 400),
-//  $button:        mat.define-typography-level(18px, 18px, 500),
-//  $body-2:        mat.define-typography-level(18px, 20px, 400),
-//
-//    // standard
-//  $headline-1:     mat.define-typography-level(112px, 112px, 300, $letter-spacing: -0.05em),
-//  $headline-2:     mat.define-typography-level(56px, 56px, 400, $letter-spacing: -0.02em),
-//  $headline-3:     mat.define-typography-level(45px, 48px, 400, $letter-spacing: -0.005em),
-//  $headline-4:     mat.define-typography-level(34px, 40px, 400),
-//  $headline-5:      mat.define-typography-level(24px, 32px, 400),
-//  $headline-6:         mat.define-typography-level(20px, 32px, 500),
-//  $subtitle-1:  mat.define-typography-level(16px, 28px, 400),
-//  $sbody-1  mat.define-typography-level(15px, 24px, 400),
-//  $bosubtitle-2       mat.define-typography-level(14px, 24px, 500),
-//    // Line-height must be unit-less fraction of the font-size.
-//  $in/* TODO(mdc-migration): No longer supported. Use `body-1` instead. put:         mat.define-typography-level(inherit, 1.125, 400)
-//); */
+//);
+
+$custom-typography: mat.define-typography-config(
+  $font-family: 'Roboto, monospace',
+    // overrides
+  //$caption: mat.define-typography-level(20px, 28px, 400),
+  $button: mat.define-typography-level(18px, 18px, 500),
+  $body-2: mat.define-typography-level(18px, 20px, 400),
+    // standard
+  $headline-1: mat.define-typography-level(112px, 112px, 300, $letter-spacing: -0.05em),
+  $headline-2: mat.define-typography-level(56px, 56px, 400, $letter-spacing: -0.02em),
+  $headline-3: mat.define-typography-level(45px, 48px, 400, $letter-spacing: -0.005em),
+  $headline-4: mat.define-typography-level(34px, 40px, 400),
+  $headline-5: mat.define-typography-level(24px, 32px, 400),
+  $headline-6: mat.define-typography-level(20px, 32px, 500),
+  $subtitle-1: mat.define-typography-level(16px, 28px, 400),
+  $body-1: mat.define-typography-level(15px, 24px, 400),
+  $subtitle-2: mat.define-typography-level(14px, 24px, 500), // Line-height must be unit-less fraction of the font-size.
+  /* TODO(mdc-migration): No longer supported. Use `body-1` instead.
+  $input:         mat.define-typography-level(inherit, 1.125, 400)
+ */
+);
 //@include mat.input-typography ($custom-typography);
 
 // Create the theme object (a Sass map containing all of the palettes).

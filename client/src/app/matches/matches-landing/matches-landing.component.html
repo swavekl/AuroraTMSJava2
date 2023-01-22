@@ -2,9 +2,9 @@
   <p>Select Tournament to Enter scores for</p>
   <mat-list>
     <mat-list-item *ngFor="let tournament of tournaments">
-    <h3 matLine>{{tournament.name}}</h3>
-      <h3 matLine>{{tournament.startDate | date }} - {{tournament.endDate | date }}</h3>
-      <h4 matLine>{{ tournament.city }}, {{tournament.state}} </h4>
+      <h3 matListItemTitle>{{tournament.name}}</h3>
+      <h3 matListItemLine>{{tournament.startDate | date }} - {{tournament.endDate | date }}</h3>
+      <h4 matListItemLine>{{ tournament.city }}, {{tournament.state}} </h4>
       <button mat-raised-button type="button" style="margin-left: 20px;"
               [routerLink]="['/matches/scoreentry/', tournament.id]">
         Select

@@ -15,11 +15,13 @@
       </div>
     </mat-toolbar>
     <mat-card appearance="outlined">
-      <mat-card-title>
-        <div>{{ playerScheduleItem.startTime | startTime }}&nbsp;&nbsp;
-          <span *ngIf="playerScheduleItem.assignedTables">{{ (playerScheduleItem.assignedTables.indexOf(',') !== -1) ? 'Tables:' : 'Table:'}} {{ playerScheduleItem.assignedTables}}</span>
-        </div>
-      </mat-card-title>
+      <mat-card-header>
+        <mat-card-title>
+          <div>{{ playerScheduleItem.startTime | startTime }}&nbsp;&nbsp;
+            <span *ngIf="playerScheduleItem.assignedTables">{{ (playerScheduleItem.assignedTables.indexOf(',') !== -1) ? 'Tables:' : 'Table:'}} {{ playerScheduleItem.assignedTables}}</span>
+          </div>
+        </mat-card-title>
+      </mat-card-header>
       <mat-card-subtitle>
         <div>{{playerScheduleItem.eventName}}</div>
         <span>{{ playerScheduleItem.round | roundName: playerScheduleItem.group }}</span>

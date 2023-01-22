@@ -27,9 +27,9 @@
       <mat-list-item *ngFor="let matchInfo of filteredMatchInfos" (click)="onSelectMatchCard(matchInfo.matchCard)"
                      [matTooltip]="getTooltipText(matchInfo)"
                      [ngClass]="isSelectedMatchCard (matchInfo.matchCard) ? 'selected' : 'not-selected'">
-        <h3 mat-line>{{getMatchIdentifierText(matchInfo.matchCard.id)}}</h3>
-        <h4 mat-line class="match-info-line2">{{matchInfo.matchCard.startTime | startTime}} on {{getMatchTables(matchInfo.matchCard.assignedTables)}} <span style="color: red"> {{isTableFree(matchInfo.matchCard.assignedTables) ? '' : '(N/A)'}}</span></h4>
-        <h4 mat-line class="match-info-line2" [ngClass]="getStatusClass(matchInfo.matchCardPlayability)">Status: {{matchInfo.matchCardPlayability | matchCardStatus: matchInfo.playabilityDetail }}</h4>
+        <h3 matListItemTitle>{{getMatchIdentifierText(matchInfo.matchCard.id)}}</h3>
+        <h4 matListItemLine class="match-info-line2">{{matchInfo.matchCard.startTime | startTime}} on {{getMatchTables(matchInfo.matchCard.assignedTables)}} <span style="color: red"> {{isTableFree(matchInfo.matchCard.assignedTables) ? '' : '(N/A)'}}</span></h4>
+        <h4 matListItemLine class="match-info-line2" [ngClass]="getStatusClass(matchInfo.matchCardPlayability)">Status: {{matchInfo.matchCardPlayability | matchCardStatus: matchInfo.playabilityDetail }}</h4>
 <!--        <mat-icon mat-list-icon [ngClass]="getStatusClass(matchInfo.matchCardPlayability)">info</mat-icon>-->
         <mat-divider></mat-divider>
       </mat-list-item>

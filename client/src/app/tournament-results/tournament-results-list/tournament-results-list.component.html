@@ -2,7 +2,9 @@
 <div class="content-container" fxLayout="row" fxLayoutAlign="start start">
   <div fxFlex.lt-md="100%" fxFlex.md="100%" fxFlex="30%">
       <mat-card appearance="outlined" class="results-card" *ngFor="let eventResultStatus of eventResultStatusList">
-        <mat-card-title>{{eventResultStatus.eventName}}</mat-card-title>
+        <mat-card-header>
+          <mat-card-title>{{eventResultStatus.eventName}}</mat-card-title>
+        </mat-card-header>
         <mat-card-content>
           <ng-container *ngIf="eventResultStatus.resultsAvailable; else notAvailable">
             <div fxLayout="column" fxLayoutAlign="start start">
