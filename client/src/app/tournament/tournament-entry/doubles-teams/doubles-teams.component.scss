@@ -1,4 +1,4 @@
-@import "~src/my-theme.scss";
+@use "src/my-theme.scss" as *;
 
 .not-selected {
   background-color: white;

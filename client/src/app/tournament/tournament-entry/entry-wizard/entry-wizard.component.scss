@@ -1,4 +1,4 @@
-@import "~src/my-theme.scss";
+@use "src/my-theme.scss" as *;
 
 .wizard-button-bar {
   padding-top: 25px;

@@ -46,7 +46,7 @@
         </mat-step>
         <mat-step label="Events">
           <mat-list>
-            <div class="mat-title">Entered Events</div>
+            <div class="mat-headline-6">Entered Events</div>
             <mat-divider></mat-divider>
             <mat-list-item *ngFor="let enteredEvent of enteredEvents; last as last">
               <div mat-line class="event-item-line1">{{enteredEvent.event?.name}}</div>
@@ -58,7 +58,7 @@
               <mat-divider [inset]="true" *ngIf="!last"></mat-divider>
             </mat-list-item>
             <mat-divider></mat-divider>
-            <div class="mat-title" style="padding-top: 10px">Events Available to Enter</div>
+            <div class="mat-headline-6" style="padding-top: 10px">Events Available to Enter</div>
             <mat-divider></mat-divider>
             <mat-list-item *ngFor="let availableEvent of availableEvents; last as last2">
               <div mat-line class="event-item-line1">{{availableEvent.event?.name}}</div>
@@ -70,7 +70,7 @@
               <mat-divider [inset]="true" *ngIf="!last2"></mat-divider>
             </mat-list-item>
             <mat-divider></mat-divider>
-            <div class="mat-title" style="padding-top: 10px">Events Not Available to Enter</div>
+            <div class="mat-headline-6" style="padding-top: 10px">Events Not Available to Enter</div>
             <mat-divider></mat-divider>
             <mat-list-item *ngFor="let unavailableEvent of unavailableEvents; last as last3">
               <div mat-line class="event-item-line1">{{unavailableEvent.event?.name}} </div>

@@ -1,3 +1,13 @@
+@use "src/my-theme" as *;
+
+mat-card {
+  height: 80%;
+}
+
+mat-card-title {
+  padding: 10px 0 0 10px;
+}
+
 .profile-button-bar {
   padding-top: 20px;
 }

@@ -1,21 +1,23 @@
 <div fxLayout="row" *ngIf="tournament">
   <div fxFlex></div>
   <div fxFlex.lt-md="100%" fxFlex="70%">
-    <mat-card>
-      <mat-card-title>{{ tournament.name }}</mat-card-title>
-      <div>
-        <div fxLayout="row">
-          <app-star-level [numStars]="tournament.starLevel" [compact]="false"></app-star-level>
-          <div *ngIf="tournament.totalPrizeMoney > 0" style="margin-left: 16px; margin-top: 4px;">{{ tournament.totalPrizeMoney | currency : 'USD' : 'symbol' : '1.0-0'}}</div>
-        </div>
-      </div>
-      <mat-card-content>
-        <div class="mat-caption">{{ [tournament.startDate, tournament.endDate] | dateRange }}</div>
+    <mat-card appearance="outlined">
+      <mat-card-header>
+          <div fxLayout="column">
+            <mat-card-title>{{ tournament.name }}</mat-card-title>
+            <div fxLayout="row">
+              <app-star-level [numStars]="tournament.starLevel" [compact]="false"></app-star-level>
+              <div class="mat-headline-6" *ngIf="tournament.totalPrizeMoney > 0" style="margin: 0 0 0 16px;">{{ tournament.totalPrizeMoney | currency : 'USD' : 'symbol' : '1.0-0'}}</div>
+            </div>
+            <div class="mat-headline-6">{{ [tournament.startDate, tournament.endDate] | dateRange }}</div>
+          </div>
+      </mat-card-header>
+      <mat-card-content class="mat-headline-6">
         <table class="tournament-info-table">
           <tbody>
           <tr>
             <td></td>
-            <td class="heading mat-subheading-1">Venue</td>
+            <td class="heading mat-body-1">Venue</td>
           </tr>
           <tr>
             <td class="icon-column">
@@ -33,7 +35,7 @@
           </tr>
           <tr>
             <td></td>
-            <td class="heading mat-subheading-1">Tournament Director</td>
+            <td class="heading mat-body-1">Tournament Director</td>
           </tr>
           <tr>
             <td class="icon-column">
@@ -55,7 +57,7 @@
           </tr>
           <tr>
             <td></td>
-            <td class="heading mat-subheading-1">Players Entered</td>
+            <td class="heading mat-body-1">Players Entered</td>
           </tr>
           <tr>
             <td class="icon-column">
@@ -65,13 +67,13 @@
               </a>
               </button>
             </td>
-            <td class="text-column mat-display-1">
+            <td class="text-column mat-headline-4">
               {{ tournament.numEntries }} ({{percentFull | percent}} full)
             </td>
           </tr>
           <tr>
             <td></td>
-            <td class="heading mat-subheading-1">Key dates</td>
+            <td class="heading mat-body-1">Key dates</td>
           </tr>
           <tr>
             <td class="icon-column">
@@ -112,7 +114,7 @@
         <button *ngIf="canView()" mat-raised-button type="button" color="primary" (click)="onView()">View</button>
       </mat-card-actions>
     </mat-card>
-    <mat-card>
+    <mat-card appearance="outlined">
       <mat-card-subtitle>
         <div mat-line fxLayout="row">
           <div fxFlex="60%">Events</div>

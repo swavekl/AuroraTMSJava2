@@ -1,8 +1,9 @@
-@import "~src/my-theme.scss";
+@use "src/my-theme.scss" as *;
 
 mat-icon.button-icon {
   //font-size: 32px;
   color: white;
+  padding-top: 4px;
 }
 
 mat-icon.non-button-icon {

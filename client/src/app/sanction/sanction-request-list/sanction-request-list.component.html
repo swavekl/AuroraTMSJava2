@@ -1,9 +1,9 @@
-<div class="mat-title" style="padding-left: 8px; width: 100%;">Tournament Sanction Requests</div>
+<div class="mat-headline-6" style="padding-left: 8px; width: 100%;">Tournament Sanction Requests</div>
 <mat-toolbar fxLayout="row" fxLayoutGap="10">
   <form>
     <button type="button" mat-raised-button color="" [routerLink]="['/sanction/edit', 0]"
             [disabled]="!canAddSanctionRequest()">
-      <mat-icon matListIcon>add</mat-icon>
+      <mat-icon matListItemIcon>add</mat-icon>
       New Request
     </button>
     <span class="toolbar-spacer-2"></span>
@@ -35,11 +35,11 @@
       <mat-cell *matCellDef="let sanctionRequest">
         <button mat-icon-button (click)="onDeleteSanctionRequest(sanctionRequest.id, sanctionRequest.eventName)"
                 matTooltip="Delete" style="margin-right: 20px">
-          <mat-icon matListIcon>delete</mat-icon>
+          <mat-icon matListItemIcon>delete</mat-icon>
         </button>
         <button mat-icon-button [routerLink]="['/sanction/create', sanctionRequest.id]" matTooltip="Copy"
                 style="margin-right: 20px">
-          <mat-icon matListIcon>flip_to_front</mat-icon>
+          <mat-icon matListItemIcon>flip_to_front</mat-icon>
         </button>
       </mat-cell>
     </ng-container>

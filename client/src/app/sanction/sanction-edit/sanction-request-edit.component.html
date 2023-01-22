@@ -2,7 +2,7 @@
   <div fxFlex></div>
   <div fxFlex="70%" fxFlex.lt-md="100%" *ngIf="sanctionRequest != null">
     <form name="form" (ngSubmit)="save(f.value, false)" #f="ngForm" novalidate>
-      <mat-card>
+      <mat-card appearance="outlined">
         <mat-card-title>Tournament Sanction Request</mat-card-title>
         <mat-card-actions>
           <button mat-raised-button type="button" (click)="onCancel()" style="margin-left: 10px">Cancel</button>
@@ -12,7 +12,7 @@
         <mat-card-content class="sanction-form">
           <mat-horizontal-stepper linear>
             <mat-step label="Tournament Information">
-              <mat-card-subtitle class="mat-title">Tournament Information</mat-card-subtitle>
+              <mat-card-subtitle class="mat-headline-6">Tournament Information</mat-card-subtitle>
               <div fxLayout="column">
                 <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="10px">
                   <input type="hidden" name="id" [ngModel]="sanctionRequest.id">
@@ -59,7 +59,7 @@
                   </mat-form-field>
                 </div>
 
-                <mat-card-subtitle class="mat-title">Venue Address</mat-card-subtitle>
+                <mat-card-subtitle class="mat-headline-6">Venue Address</mat-card-subtitle>
                 <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="10px">
                   <mat-form-field fxFlex="50%">
                     <mat-label>Street Address</mat-label>
@@ -104,7 +104,7 @@
 
               </div>
 
-              <mat-card-subtitle class="mat-title">Contact Person</mat-card-subtitle>
+              <mat-card-subtitle class="mat-headline-6">Contact Person</mat-card-subtitle>
               <!-- Contact person -->
               <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="10px">
                 <mat-form-field fxFlex="40%">

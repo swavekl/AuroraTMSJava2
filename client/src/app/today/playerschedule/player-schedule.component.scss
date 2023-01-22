@@ -1,4 +1,4 @@
-@import "~src/my-theme.scss";
+@use "src/my-theme.scss" as *;
 
 .my-schedule-container {
   margin: 10px;

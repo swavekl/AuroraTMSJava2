@@ -148,7 +148,7 @@ export class MatchesComponent implements OnInit, OnChanges, OnDestroy {
   onMatchScoreEntry(match: Match, matchIndex: number) {
     const data: ScoreEntryDialogData = this.makeMatchDialogData(match, matchIndex);
     const config = {
-      width: '860px', height: '450px', data: data
+      width: '860px', height: '500px', data: data
     };
 
     this.scoreEntryDialogRef = this.dialog.open(ScoreEntryDialogComponent, config);

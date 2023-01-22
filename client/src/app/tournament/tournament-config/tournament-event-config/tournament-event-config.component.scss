@@ -1,4 +1,4 @@
-@import "~src/my-theme.scss";
+@use "src/my-theme.scss" as *;
 
 div.prizes-list {
   height: calc(100vh - 250px);
@@ -6,11 +6,12 @@ div.prizes-list {
   /*border: 1px solid red;*/
 }
 
+/*TODO(mdc-migration): The following rule targets internal classes of checkbox that may no longer apply for the MDC version.*/
 div.mat-checkbox-container {
   padding-top: 35px;
 }
 
-.mat-row:hover {
+.mat-mdc-row:hover {
   background-color: lighten($primary-color, 40%);
   cursor: pointer;
 }

@@ -1,4 +1,4 @@
-<div class="mat-title" style="padding: 16px 0 0 16px;">My Results</div>
+<div class="mat-headline-6" style="padding: 16px 0 0 16px;">My Results</div>
 <ng-container *ngIf="tournamentEntry != null && summariesByEvent != null">
   <ng-container *ngIf="summariesByEvent?.length > 0; else resultsNotAvailable">
     <table class="ratings-change-table">
@@ -26,7 +26,7 @@
     <div class="small-results-list" fxShow.lt-md="true" fxHide.gt-md="true" fxHide.md="true" *ngIf="summariesByEvent">
       <ng-container *ngFor="let summaryByEvent of summariesByEvent">
         <div class="mat-subtitle matches-won-lost-header">{{summaryByEvent.eventName}}</div>
-        <mat-card class="match-card" *ngFor="let playerMatchSummary of summaryByEvent.eventSummaries">
+        <mat-card appearance="outlined" class="match-card" *ngFor="let playerMatchSummary of summaryByEvent.eventSummaries">
           <mat-card-subtitle>
             {{ playerMatchSummary.round | roundName : playerMatchSummary.group }} {{ (playerMatchSummary.round === 0 ) ? ('/ M ' + playerMatchSummary.matchNum) :'' }}
           </mat-card-subtitle>

@@ -1,7 +1,7 @@
-<div class="mat-title title-container" >Tournament Results</div>
+<div class="mat-headline-6 title-container" >Tournament Results</div>
 <div class="content-container" fxLayout="row" fxLayoutAlign="start start">
   <div fxFlex.lt-md="100%" fxFlex.md="100%" fxFlex="30%">
-      <mat-card class="results-card" *ngFor="let eventResultStatus of eventResultStatusList">
+      <mat-card appearance="outlined" class="results-card" *ngFor="let eventResultStatus of eventResultStatusList">
         <mat-card-title>{{eventResultStatus.eventName}}</mat-card-title>
         <mat-card-content>
           <ng-container *ngIf="eventResultStatus.resultsAvailable; else notAvailable">

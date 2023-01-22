@@ -6,15 +6,15 @@ import { Component, OnInit } from '@angular/core';
     <p>
       <a href="https://material.angular.io/guide/typography" target="_blank">Material typography</a>
     </p>
-    <div class="mat-display-4">This is display-4</div>
-    <div class="mat-display-3">This is display-3</div>
-    <div class="mat-display-2">This is display-2</div>
-    <div class="mat-display-1">This is display-1</div>
-    <div class="mat-headline">This is mat-headline (h1)</div>
-    <div class="mat-title">This is mat-title (h2)</div>
-    <div class="mat-subheading-2">This is mat-subheading-2 (h3)</div>
-    <div class="mat-subheading-1">This is mat-subheading-1 (h4)</div>
-    <div class="mat-body-1">This is mat-body-1</div>
+    <div class="mat-headline-1">This is mat-headline-1</div>
+    <div class="mat-headline-2">This is mat-headline-2</div>
+    <div class="mat-headline-3">This is mat-headline-3</div>
+    <div class="mat-headline-4">This is mat-headline-4</div>
+    <div class="mat-headline-5">This is mat-headline-5 (h1)</div>
+    <div class="mat-headline-6">This is mat-headline-6 (h2)</div>
+    <div class="mat-subtitle-1">This is mat-subtitle-2 (h3)</div>
+    <div class="mat-subtitle-2">This is mat-subtitle-2</div>
+    <div class="mat-body-1">This is mat-body-1 (h4)</div>
     <div class="mat-body-2">This is mat-body-2</div>
     <div class="mat-caption">This is mat-caption</div>
     <p>This is p</p>

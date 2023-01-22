@@ -2,10 +2,12 @@
   <div fxFlex></div>
   <div fxFlex="60%" fxFlex.lt-lg="100%">
     <form name="form" (ngSubmit)="save()" #f="ngForm" novalidate>
-      <mat-card>
-        <mat-card-title>Certificate of Insurance Request</mat-card-title>
+      <mat-card appearance="outlined">
+        <mat-card-header>
+          <mat-card-title>Certificate of Insurance Request</mat-card-title>
+        </mat-card-header>
         <mat-card-actions fxLayout="column" fxLayoutGap="10px">
-          <div fxLayout="row" fxLayoutAlign="start start">
+          <div fxLayout="row" fxLayoutAlign="start start" fxLayoutGap="10px">
             <button style="margin-left: 10px;" mat-raised-button (click)="onCancel()">Cancel</button>
             <span fxFlex></span>
             <button mat-raised-button (click)="onSubmitRequest()"
@@ -46,7 +48,7 @@
               </mat-form-field>
             </div>
 
-            <div class="mat-subheading-2">Mailing Address of Organization</div>
+            <div class="mat-subtitle-1">Mailing Address of Organization</div>
             <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="10px">
               <mat-form-field fxFlex="95%">
                 <mat-label>Street Address</mat-label>
@@ -93,7 +95,7 @@
 
             </div>
 
-            <div class="mat-subheading-2">Person Completing This Form</div>
+            <div class="mat-subtitle-1">Person Completing This Form</div>
             <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="10px">
               <mat-form-field fxFlex="40%">
                 <mat-label>Person Name</mat-label>
@@ -131,7 +133,7 @@
               </mat-form-field>
             </div>
 
-            <div class="mat-subheading-2">Certificate Holder Address</div>
+            <div class="mat-subtitle-1">Certificate Holder Address</div>
             <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="10px">
               <mat-form-field fxFlex="95%">
                 <mat-label>Street Address</mat-label>
@@ -212,7 +214,7 @@
               </mat-form-field>
             </div>
 
-            <div class="mat-subheading-2">
+            <div class="mat-subtitle-1">
               ADDITIONAL INSURED SHOULD ONLY BE REQUESTED IF IT IS A REQUIREMENT OF THE CERTIFICATE HOLDER
             </div>
             <div>

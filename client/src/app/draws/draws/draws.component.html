@@ -13,19 +13,19 @@
     <mat-toolbar>
       <mat-toolbar-row>
         <button type="button" color="primary" mat-raised-button (click)="generateDraw()" [disabled]="selectedEvent == null">
-          <mat-icon matListIcon>assignment</mat-icon>Generate
+          <mat-icon matListItemIcon>assignment</mat-icon>Generate
         </button>
         <span class="toolbar-spacer-2"></span>
         <button type="button" mat-raised-button  (click)="clearDraw()" [disabled]="selectedEvent == null">
-          <mat-icon matListIcon>clear</mat-icon>Clear Draw
+          <mat-icon matListItemIcon>clear</mat-icon>Clear Draw
         </button>
         <span class="toolbar-spacer-2"></span>
         <button type="button" mat-raised-button  (click)="switchDraw()" [disabled]="isSwitchDrawDisabled()">
-          <mat-icon matListIcon>line_style</mat-icon>{{ showPlayoffDraw ? 'Main Draw' : 'Playoff Draw' }}
+          <mat-icon matListItemIcon>line_style</mat-icon>{{ showPlayoffDraw ? 'Main Draw' : 'Playoff Draw' }}
         </button>
         <span class="toolbar-spacer-2"></span>
         <button type="button" mat-raised-button  (click)="undoMove()" [disabled]="undoStack?.length === 0">
-          <mat-icon matListIcon>undo</mat-icon>Undo Move
+          <mat-icon matListItemIcon>undo</mat-icon>Undo Move
         </button>
         <span class="toolbar-spacer-2"></span>
         <mat-slide-toggle name="expandedView" [(ngModel)]="expandedView">Expanded View</mat-slide-toggle>

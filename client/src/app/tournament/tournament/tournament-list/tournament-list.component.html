@@ -3,7 +3,7 @@
   <div fxFlex.lt-md="100%" fxFlex.md="100%" fxFlex="80%">
     <div>
       <div fxLayout="row" fxLayoutAlign="space-between start" style="padding: 8px 16px 0 16px;">
-        <div class="mat-title">Tournaments</div>
+        <div class="mat-headline-6">Tournaments</div>
         <mat-icon [matMenuTriggerFor]="beforeMenu">filter_list</mat-icon>
         <mat-menu #beforeMenu="matMenu" xPosition="before">
           <button mat-menu-item *ngFor="let region of regions" (click)="onRegionChangeViaMenu(region.name)">
@@ -20,7 +20,7 @@
         <div fxLayout.lt-md="row" fxLayout.gt-md="column">
 <!--          For small devices-->
           <div style="width: 100%; margin: 8px;" fxShow.gt-md="false" fxShow.md="false" fxShow.lt-md="true">
-            <mat-card *ngFor="let tournament of tournaments; first as first"
+            <mat-card appearance="outlined" *ngFor="let tournament of tournaments; first as first"
                       fxLayout="column" fxLayoutGap="8px"
                       style="margin-bottom: 8px;" [routerLink]="['view', tournament.id]">
               <mat-card-content>
@@ -44,7 +44,7 @@
               <mat-divider></mat-divider>
             <mat-list>
               <mat-list-item>
-                <div mat-line style="margin-left: 56px;">
+                <div matListItemTitle style="margin-left: 56px;">
                   <div fxFlex="45%">Name / Star Level / Prize Money</div>
                   <div fxFlex="25%">Dates</div>
                   <div fxFlex="25%">Location</div>
@@ -53,8 +53,8 @@
                 </div>
               </mat-list-item>
               <mat-list-item *ngFor="let tournament of tournaments; first as first" [routerLink]="['view', tournament.id]">
-                <img matListAvatar [src]="tournament.logo" alt=""/>
-                <div mat-line fxLayout="row">
+                <img matListItemAvatar [src]="tournament.logo" alt=""/>
+                <div matListItemTitle fxLayout="row">
                   <div fxFlex="45%" fxLayout="column">
                     <div>{{tournament.name}}</div>
                     <div fxLayout="row">
@@ -66,7 +66,7 @@
                   <div fxFlex="25%">{{ tournament.city }}, {{tournament.state}}</div>
                   <div fxFlex="5%" fxLayout="row" fxFlexAlign="start start">
                     <button fxShow.gt-md="true" fxShow.md="true" fxHide.lt-md="true" mat-icon-button [routerLink]="['view', tournament.id]">
-                      <mat-icon matListIcon>info</mat-icon>
+                      <mat-icon matListItemIcon>info</mat-icon>
                     </button>
                   </div>
                   <mat-divider></mat-divider>

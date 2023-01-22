@@ -2,7 +2,7 @@
   <div fxHide.xs="true" fxFlex.gt-xs="50%">&nbsp;</div>
   <div fxFlexFill fxFlex.gt-xs="400px">
   <div *ngIf="playerDaySchedules != null && tournamentInfo != null">
-    <div class="mat-title" style="text-align: center">{{tournamentInfo.name}}</div>
+    <div class="mat-headline-6" style="text-align: center">{{tournamentInfo.name}}</div>
     <ng-container *ngFor="let daySchedule of playerDaySchedules">
       <div>
         <div class="day-header">

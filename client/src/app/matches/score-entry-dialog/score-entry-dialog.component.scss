@@ -1,4 +1,8 @@
-@import "~src/my-theme.scss";
+@use "src/my-theme.scss" as *;
+
+h1 {
+  padding-left: 25px;
+}
 
 table.match-display {
   border: 1px solid red;

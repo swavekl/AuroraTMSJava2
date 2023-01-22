@@ -1,6 +1,6 @@
 <div fxLayout="row" class="match-container">
   <div>
-    <div class="event-list-title mat-title">Events</div>
+    <div class="event-list-title mat-headline-6">Events</div>
     <mat-list dense class="event-list">
       <mat-list-item *ngFor="let tournamentEvent of tournamentEvents" (click)="onSelectEvent(tournamentEvent)"
                      [ngClass]="isSelected (tournamentEvent) ? 'selected' : 'not-selected'">
@@ -9,7 +9,7 @@
     </mat-list>
   </div>
   <div style="border-right: 4px solid gray;">
-    <div class="match-card-list-title mat-title">Match Cards</div>
+    <div class="match-card-list-title mat-headline-6">Match Cards</div>
     <mat-list dense class="match-card-list">
       <mat-list-item *ngFor="let matchCard of matchCards" (click)="onSelectMatchCard(matchCard)"
                      [ngClass]="isSelectedMatchCard (matchCard) ? 'selected' : 'not-selected'">
@@ -29,7 +29,7 @@
           <mat-toolbar-row>
             <span fxFlex></span>
             <button type="button" mat-button (click)="rankAndAdvance()" [disabled]="isRankAndAdvanceDisabled()">
-              <mat-icon matListIcon>reorder</mat-icon>Rank And Advance
+              <mat-icon matListItemIcon>reorder</mat-icon>Rank And Advance
             </button>
           </mat-toolbar-row>
         </mat-toolbar>
@@ -39,7 +39,7 @@
           <table class="match-card-header">
             <thead>
             <tr>
-              <th colspan="4" class="mat-display-2 tournament-name-row">{{tournamentName}}</th>
+              <th colspan="4" class="mat-headline-3 tournament-name-row">{{tournamentName}}</th>
             </tr>
             <tr>
               <th class="event-name-col">Event</th>
@@ -56,8 +56,8 @@
             </thead>
             <tbody>
             <tr>
-              <td class="mat-display-1">{{selectedEvent?.name}}</td>
-              <td class="mat-display-1">
+              <td class="mat-headline-4">{{selectedEvent?.name}}</td>
+              <td class="mat-headline-4">
                 <ng-container *ngIf="selectedMatchCard?.drawType === 'ROUND_ROBIN'; else elseblock">
                   {{selectedMatchCard?.groupNum}}
                 </ng-container>
@@ -65,10 +65,10 @@
                   {{ getMatchIdentifier(selectedMatchCard?.round, selectedMatchCard?.groupNum) }}
                 </ng-template>
               </td>
-              <td class="mat-display-1">
+              <td class="mat-headline-4">
                 {{ selectedMatchCard.assignedTables }}
               </td>
-              <td class="mat-display-1">
+              <td class="mat-headline-4">
                 {{ selectedMatchCard.startTime | startTime }}
               </td>
             </tr>

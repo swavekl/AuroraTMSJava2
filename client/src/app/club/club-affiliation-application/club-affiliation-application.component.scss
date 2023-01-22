@@ -1,3 +1,9 @@
+@use "src/my-theme.scss" as *;
+
+mat-card-title {
+  padding: 10px 0 0 10px;
+}
+
 table.summary-table {
   width: 100%;
 

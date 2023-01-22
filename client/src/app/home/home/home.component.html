@@ -1,15 +1,15 @@
 <app-centered-panel>
-  <h2>Hi,</h2>
-  <h1 class="mat-display-2">{{ playerFirstName }}</h1>
+  <h2 class="mat-headline-3">Hi,</h2>
+  <h1 class="mat-headline-2">{{ playerFirstName }}</h1>
   <div *ngIf="ratedPlayer && !hasTournamentToday">
-    <p class="mat-subheading-2">Your rating is</p>
-    <p class="mat-headline">{{ playerRating }}</p>
-    <p class="mat-subheading-2">USATT Membership {{ membershipExpired ? 'expired' : 'expires' }} on</p>
+    <p class="mat-subtitle-1">Your rating is</p>
+    <p class="mat-headline-5">{{ playerRating }}</p>
+    <p class="mat-subtitle-1">USATT Membership {{ membershipExpired ? 'expired' : 'expires' }} on</p>
     <p [style.color]="membershipExpired ? 'red' : 'green'">{{ membershipExpirationDate | date }}</p>
   </div>
   <div *ngIf="hasTournamentToday" fxLayout="column" fxLayoutAlign="center center" fxLayoutGap="20px">
     <h2>You are playing in </h2>
-    <div class="mat-headline">{{tournamentName}}</div>
+    <div class="mat-headline-5">{{tournamentName}}</div>
 <!--    <button mat-raised-button color="primary" [routerLink]="todayService.todayUrl">-->
 <!--      See Details...-->
 <!--    </button>-->

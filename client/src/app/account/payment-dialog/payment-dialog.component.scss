@@ -1,4 +1,4 @@
-@import "~src/my-theme.scss";
+@use "src/my-theme.scss" as *;
 
 // shows amount in large font
 .credit-card-amount-header {

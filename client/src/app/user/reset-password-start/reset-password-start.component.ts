@@ -7,7 +7,7 @@ import {Subscription} from 'rxjs';
   template: `
     <div class="center">
       <div fxLayout="column" fxLayoutAlign="start center">
-        <mat-card>
+        <mat-card appearance="outlined">
           <mat-card-content>
             <div fxLayout="column">
               <div [hidden]="done">

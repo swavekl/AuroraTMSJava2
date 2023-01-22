@@ -1,3 +1,5 @@
+@use "src/my-theme" as *;
+
 mat-grid-tile {
   background: lightblue;
 }

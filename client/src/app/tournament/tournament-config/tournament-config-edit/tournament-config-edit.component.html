@@ -11,7 +11,7 @@
       </mat-toolbar>
       <mat-tab-group>
         <mat-tab label="General Information">
-          <mat-card>
+          <mat-card appearance="outlined">
             <mat-card-content>
               <input type="hidden" name="id" [(ngModel)]="tournament.id">
               <div fxLayout.lt-sm="column" fxLayout="row" fxLayoutGap="10px">
@@ -99,7 +99,7 @@
                 </mat-form-field>
               </div>
 
-              <mat-card-subtitle class="mat-title">Venue Information</mat-card-subtitle>
+              <mat-card-subtitle class="mat-headline-6">Venue Information</mat-card-subtitle>
               <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="10px">
                 <mat-form-field fxFlex="100%">
                   <mat-label>Venue Name</mat-label>
@@ -144,9 +144,9 @@
 <!--            </ng-container>-->
         </mat-tab>
         <mat-tab label="Other Information">
-          <mat-card>
+          <mat-card appearance="outlined">
             <mat-card-content>
-              <mat-card-subtitle class="mat-title">Contact Information</mat-card-subtitle>
+              <mat-card-subtitle class="mat-headline-6">Contact Information</mat-card-subtitle>
               <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="10px">
                 <mat-form-field fxFlex="70%">
                   <mat-label>Contact Name</mat-label>
@@ -258,44 +258,44 @@
               <button class="personnel-toolbar-button" mat-raised-button type="button" (click)="onCreateUser()">Create Login</button>
             </mat-toolbar-row>
           </mat-toolbar>
-          <mat-card class="personnel-card">
+          <mat-card appearance="outlined" class="personnel-card">
             <mat-card-content fxLayout="column" fxLayoutAlign="start stretch" fxFlexFill>
               <div fxLayout="row" fxFlex>
                 <div fxFlex="33%">
-                  <mat-card-subtitle class="mat-title">Referees</mat-card-subtitle>
+                  <mat-card-subtitle class="mat-headline-6">Referees</mat-card-subtitle>
                   <div style="padding-bottom: 10px;" *ngFor="let referee of refereeList; let idx = index">
                     <div fxFlex="row" fxLayoutGap="10px">
                       <input fxFlex="80%" matInput type="text" [ngModel]="referee.name" [name]="'referee_' + idx"/>
                       <button mat-icon-button type="button" (click)="onRemovePersonnel(referee.profileId)">
-                        <mat-icon matListIcon>delete</mat-icon>
+                        <mat-icon matListItemIcon>delete</mat-icon>
                       </button>
                     </div>
                   </div>
                 </div>
                 <div fxFlex="33%">
-                  <mat-card-subtitle class="mat-title">Umpires</mat-card-subtitle>
+                  <mat-card-subtitle class="mat-headline-6">Umpires</mat-card-subtitle>
                   <div style="padding-bottom: 10px;" *ngFor="let umpire of umpireList; let idx = index">
                     <div fxFlex="row" fxLayoutGap="10px">
                       <input fxFlex="80%" matInput type="text" [ngModel]="umpire.name" [name]="'umpire_' + idx"/>
                       <button mat-icon-button type="button" (click)="onRemovePersonnel(umpire.profileId)">
-                        <mat-icon matListIcon>delete</mat-icon>
+                        <mat-icon matListItemIcon>delete</mat-icon>
                       </button>
                     </div>
                   </div>
                 </div>
                 <div fxFlex="33%">
-                  <mat-card-subtitle class="mat-title">Data Entry Clerks</mat-card-subtitle>
+                  <mat-card-subtitle class="mat-headline-6">Data Entry Clerks</mat-card-subtitle>
                   <div style="padding-bottom: 10px;" *ngFor="let dataEntryClerk of dataEntryClerksList; let idx = index">
                     <div fxFlex="row" fxLayoutGap="10px">
                       <input fxFlex matInput type="text" [ngModel]="dataEntryClerk.name" [name]="'dataEntryClerk_' + idx"/>
                       <button  mat-icon-button type="button" (click)="onRemovePersonnel(dataEntryClerk.profileId)">
-                        <mat-icon matListIcon>delete</mat-icon>
+                        <mat-icon matListItemIcon>delete</mat-icon>
                       </button>
                     </div>
                   </div>
                 </div>
               </div>
-              <mat-card-subtitle class="mat-title">Live Scoring</mat-card-subtitle>
+              <mat-card-subtitle class="mat-headline-6">Live Scoring</mat-card-subtitle>
               <div fxLayout="row" fxLayoutGap="10px">
                 <mat-form-field fxFlex="40%">
                   <mat-label>User for score monitors</mat-label>

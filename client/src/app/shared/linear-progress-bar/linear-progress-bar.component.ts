@@ -5,9 +5,9 @@ import {Observable} from 'rxjs';
 @Component({
   selector: 'app-linear-progress-bar',
   template: `
-    <mat-progress-bar *ngIf="loading$ | async; else elseblock" mode="indeterminate" color="accent" style="height: 8px;"></mat-progress-bar>
+    <mat-progress-bar *ngIf="loading$ | async; else elseblock" mode="indeterminate" color="accent" style="height: 4px;"></mat-progress-bar>
     <ng-template #elseblock>
-      <div style="height: 8px; width: 100%; background-color: white;"></div>
+      <div style="height: 4px; width: 100%; background-color: white; color: white"></div>
     </ng-template>
   `,
   styleUrls: []

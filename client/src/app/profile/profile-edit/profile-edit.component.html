@@ -2,14 +2,14 @@
   <div fxFlex></div>
   <div fxFlex.lt-md="100%" fxFlex="40%" >
     <form name="form" (ngSubmit)="onSave(f.value)" #f="ngForm" novalidate>
-      <mat-card style="height: 80%">
-        <mat-card-title>Player Profile</mat-card-title>
+      <mat-card appearance="outlined">
+        <mat-card-header>
+          <mat-card-title>Player Profile</mat-card-title>
+        </mat-card-header>
         <mat-card-actions>
-          <div class="profile-button-bar" fxLayout="row">
             <button mat-raised-button type="button" (click)="onCancel()">Cancel</button>
             <span fxFlex></span>
             <button mat-raised-button color="primary" type="submit" [disabled]="!f.form.valid">Save</button>
-          </div>
 <!--          <p>Form values: {{ f.value | json }} </p>-->
           <!--<p>Form status: {{ f.status | json }} </p>-->
           <!--<p>Zip code ALL errors: {{ zipCode.control?.errors | json }} </p>-->
@@ -45,7 +45,7 @@
               </div>
             </mat-radio-group>
           </div>
-          <mat-card-subtitle class="mat-title">Mailing Address</mat-card-subtitle>
+          <mat-card-subtitle class="mat-headline-6">Mailing Address</mat-card-subtitle>
           <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="10px">
             <mat-form-field fxFlex="100%">
               <mat-label>Street Address</mat-label>
@@ -87,7 +87,7 @@
               <mat-error>This field is required</mat-error>
             </mat-form-field>
           </div>
-          <mat-card-subtitle class="mat-title">Contact Information</mat-card-subtitle>
+          <mat-card-subtitle class="mat-headline-6">Contact Information</mat-card-subtitle>
           <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="10px">
             <mat-form-field fxFlex="70%">
               <mat-label>Email</mat-label>

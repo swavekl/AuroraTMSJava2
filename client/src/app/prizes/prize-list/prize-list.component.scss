@@ -1,4 +1,4 @@
-@import "~src/my-theme.scss";
+@use "src/my-theme.scss" as *;
 
 .prizes-list-container {
   height: calc(100vh - 75px);
@@ -27,6 +27,7 @@
   background-color: $accent-color;
 }
 
+/* TODO(mdc-migration): The following rule targets internal classes of list that may no longer apply for the MDC version. */
 mat-list-item:hover {
   background-color: #7A73FF;
 }

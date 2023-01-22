@@ -1,9 +1,11 @@
-@import "~src/my-theme.scss";
+@use "src/my-theme.scss" as *;
 
+/*TODO(mdc-migration): The following rule targets internal classes of tabs that may no longer apply for the MDC version.*/
 mat-tab-group {
   height: calc(100vh - 140px);
 }
 
+/*TODO(mdc-migration): The following rule targets internal classes of card that may no longer apply for the MDC version.*/
 mat-card.personnel-card {
   height: calc(100vh - 290px);
   /*border: 2px solid green;*/

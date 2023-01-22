@@ -168,7 +168,7 @@
               </mat-checkbox>
             </div>
           </div>
-          <mat-card-subtitle class="mat-title">Number of Games in Round</mat-card-subtitle>
+          <mat-card-subtitle class="mat-headline-6">Number of Games in Round</mat-card-subtitle>
           <div fxLayout.lt-sm="column" fxLayout="row" fxLayoutGap="10px">
             <mat-form-field fxFlex="20%">
               <mat-label>First Round</mat-label>
@@ -263,7 +263,7 @@
                 <mat-header-cell *matHeaderCellDef></mat-header-cell>
                 <mat-cell *matCellDef="let prizeInfo; let rowIndex = index;">
                   <button type="button" mat-icon-button (click)="onRemovePrizesRow(rowIndex)">
-                    <mat-icon matListIcon>delete</mat-icon>
+                    <mat-icon matListItemIcon>delete</mat-icon>
                   </button>
                 </mat-cell>
               </ng-container>

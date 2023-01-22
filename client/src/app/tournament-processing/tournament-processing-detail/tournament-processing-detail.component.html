@@ -1,14 +1,14 @@
-<div class="mat-title" style="padding-left: 8px; width: 100%;">Tournament Publishing: {{ tournamentProcessingRequest?.tournamentName }}</div>
+<div class="mat-headline-6" style="padding-left: 8px; width: 100%;">Tournament Publishing: {{ tournamentProcessingRequest?.tournamentName }}</div>
 <mat-toolbar fxLayout="row" fxLayoutGap="10">
   <button type="button" mat-raised-button (click)="generateAllReports()" [disabled]="!isGenerateReportsEnabled()">
-    <mat-icon matListIcon>note_add</mat-icon>
+    <mat-icon matListItemIcon>note_add</mat-icon>
     Generate Reports
   </button>
 </mat-toolbar>
 <div *ngIf="tournamentProcessingRequest != null">
   <ng-container
     *ngIf="tournamentProcessingRequest.details != null && tournamentProcessingRequest.details.length > 0"></ng-container>
-  <mat-card class="detail" *ngFor="let detail of tournamentProcessingRequest.details">
+  <mat-card appearance="outlined" class="detail" *ngFor="let detail of tournamentProcessingRequest.details">
     <mat-card-content>
       <mat-card-subtitle>Status: {{detail.status }}</mat-card-subtitle>
       <div fxLayout="row" fxLayoutGap="70px">

@@ -1,4 +1,4 @@
-@import "~src/my-theme.scss";
+@use "src/my-theme.scss" as *;
 
 div.table-container {
   overflow: auto;
@@ -14,7 +14,7 @@ div.table-container {
   width: 100%;
 }
 
-.mat-row:hover {
+.mat-mdc-row:hover {
   background-color: lighten($primary-color, 40%);
   cursor: pointer;
 }

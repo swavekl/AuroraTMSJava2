@@ -1,11 +1,11 @@
 <mat-toolbar>
   <mat-toolbar-row>
     <button type="button" mat-raised-button (click)="addEvent()">
-<!--      <mat-icon matListIcon>add</mat-icon>-->
+<!--      <mat-icon matListItemIcon>add</mat-icon>-->
       Add
     </button>
     <button type="button" mat-raised-button (click)="renumberEvents()">
-<!--      <mat-icon matListIcon>reorder</mat-icon>-->
+<!--      <mat-icon matListItemIcon>reorder</mat-icon>-->
       Renumber Events
     </button>
     <span fxFlex></span>
@@ -50,10 +50,10 @@
       <mat-header-cell *matHeaderCellDef></mat-header-cell>
       <mat-cell *matCellDef="let event">
         <!--      <button type="button" mat-icon-button (click)="editEvent(event.id)">-->
-        <!--        <mat-icon matListIcon>edit</mat-icon>-->
+        <!--        <mat-icon matListItemIcon>edit</mat-icon>-->
         <!--      </button>-->
         <button type="button" mat-icon-button (click)="deleteEvent(event.id)">
-          <mat-icon matListIcon>delete</mat-icon>
+          <mat-icon matListItemIcon>delete</mat-icon>
         </button>
       </mat-cell>
     </ng-container>

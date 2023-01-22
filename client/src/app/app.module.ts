@@ -38,9 +38,8 @@ import {MonitorModule} from './monitor/monitor.module';
 import { PrizesModule } from './prizes/prizes.module';
 
 const appearance: MatFormFieldDefaultOptions = {
-  // appearance: 'fill'
+  appearance: 'fill'
   // appearance: 'outline'
-  appearance: 'standard'
 };
 
 @NgModule({

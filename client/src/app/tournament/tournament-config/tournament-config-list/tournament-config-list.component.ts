@@ -4,7 +4,7 @@ import {Tournament} from '../tournament.model';
 @Component({
   selector: 'app-tournament-config-list',
   templateUrl: './tournament-config-list.component.html',
-  styleUrls: ['./tournament-config-list.component.css']
+  styleUrls: ['./tournament-config-list.component.scss']
 })
 export class TournamentConfigListComponent implements OnInit {
 

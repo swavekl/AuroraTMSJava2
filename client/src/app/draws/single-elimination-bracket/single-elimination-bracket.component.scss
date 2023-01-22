@@ -1,4 +1,4 @@
-@import "~src/my-theme";
+@use "src/my-theme.scss" as *;
 
 .se-bracket-panel {
   overflow: auto;

@@ -22,16 +22,34 @@ mat-form-field {
   /*color: blueviolet;*/
 }
 
+/* TODO(mdc-migration): The following rule targets internal classes of option that may no longer apply for the MDC version. */
 .mat-option-text {
   font-size: 18px !important;
   /*color: blueviolet;*/
 }
 
+/* TODO(mdc-migration): The following rule targets internal classes of select that may no longer apply for the MDC version. */
 .mat-select-value {
   font-size: 18px !important;
   /*color: blueviolet;*/
 }
 
+/* TODO(mdc-migration): The following rule targets internal classes of form-field that may no longer apply for the MDC version. */
 .mat-form-field-appearance-outline.mat-form-field-can-float.mat-form-field-should-float .mat-form-field-label, .mat-form-field-appearance-outline.mat-form-field-can-float .mat-input-server:focus .mat-form-field-label-wrapper .mat-form-field-label {
   transform: translateY(-1.59375em) scale(0.90);
+}
+
+mat-card-title {
+  font-size: 24px !important;
+  line-height: 20px !important;
+  letter-spacing: normal !important;
+  font-weight: 500;
+  margin-bottom: 8px !important;
+  margin-top: 0;
+}
+
+mat-card-actions {
+  padding-left: 16px !important;
+  padding-right: 16px !important;
+  margin-bottom: 12px;
 }
