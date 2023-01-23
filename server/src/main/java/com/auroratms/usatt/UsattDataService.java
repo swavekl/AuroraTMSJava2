@@ -2,6 +2,7 @@ package com.auroratms.usatt;
 
 import com.auroratms.profile.UserProfileExt;
 import com.auroratms.profile.UserProfileExtService;
+import com.auroratms.ratingsprocessing.RatingsProcessorStatus;
 import com.opencsv.CSVReader;
 import com.opencsv.exceptions.CsvValidationException;
 import org.apache.commons.lang3.StringUtils;
@@ -36,7 +37,8 @@ public class UsattDataService {
     @Autowired
     private UserProfileExtService userProfileExtService;
 
-    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("MM/dd/yyyy");
+    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
+    private static final SimpleDateFormat ALT_DATE_FORMAT = new SimpleDateFormat("MM/dd/yyyy");
 
     public List<UsattPlayerRecord> findAllPlayersByNames(String firstName, String lastName, Pageable pageable) {
         return this.playerRecordRepository.findAllByFirstNameOrLastName(firstName, lastName, pageable);
@@ -116,10 +118,12 @@ public class UsattDataService {
 
     /**
      * Loads data from the ratings file into a list
+     *
      * @param filename
+     * @param ratingsProcessorStatus
      * @return
      */
-    public List<UsattPlayerRecord> readAllPlayersFromFile (String filename) {
+    public List<UsattPlayerRecord> readAllPlayersFromFile (String filename, RatingsProcessorStatus ratingsProcessorStatus) {
         List<UsattPlayerRecord> playerInfos = new ArrayList<>(63000);
 
         try {
@@ -205,9 +209,11 @@ public class UsattDataService {
                         }
                         System.out.println();
                         badRecordsNum++;
+                        ratingsProcessorStatus.badRecords = badRecordsNum;
                        continue;
                     }
                     playerInfos.add(usattPlayerInfo);
+                    ratingsProcessorStatus.totalRecords = rowNumber - 1;
                 }
 
                 System.out.println("total records = " + rowNumber);
@@ -237,6 +243,11 @@ public class UsattDataService {
                 date = DATE_FORMAT.parse(strDate);
             }
         } catch (ParseException e) {
+            try {
+                date = ALT_DATE_FORMAT.parse(strDate);
+            } catch (ParseException ex) {
+                System.out.println("unable to parse date '" + strDate + "' " + e);
+            }
             System.out.println("unable to parse date '" + strDate + "' " + e);
         }
         return date;
@@ -257,16 +268,21 @@ public class UsattDataService {
 
     /**
      * Imports changes to the records
+     *
      * @param recordsToImport
+     * @param ratingsProcessorStatus
      */
-    public void insertPlayerData (List<UsattPlayerRecord> recordsToImport) {
+    public void insertPlayerData (List<UsattPlayerRecord> recordsToImport, RatingsProcessorStatus ratingsProcessorStatus) {
 
         int startingIndex = 0;
         int BATCH_SIZE = 100;
         int endingIndex = startingIndex;
         List<Long> batchOfIds = new ArrayList<>(BATCH_SIZE);
         List<UsattPlayerRecord> newRecords = new ArrayList<>();
+        long start = System.currentTimeMillis();
         System.out.println("recordsToImport = " + recordsToImport.size());
+        ratingsProcessorStatus.newRecords = 0;
+        ratingsProcessorStatus.processedRecords = 0;
         do {
             batchOfIds.clear();
             newRecords.clear();
@@ -298,6 +314,12 @@ public class UsattDataService {
                         found = true;
                         // merge updated & existing record
                         existingRecord.setMembershipExpirationDate(updatedRecord.getMembershipExpirationDate());
+                        if (updatedRecord.getLastTournamentPlayedDate() != null) {
+                            existingRecord.setLastTournamentPlayedDate(updatedRecord.getLastTournamentPlayedDate());
+                        }
+                        if (updatedRecord.getLastLeaguePlayedDate() != null) {
+                            existingRecord.setLastLeaguePlayedDate(updatedRecord.getLastLeaguePlayedDate());
+                        }
                         break;
                     }
                 }
@@ -312,10 +334,15 @@ public class UsattDataService {
 
             if (newRecords.size() > 0) {
                 this.playerRecordRepository.saveAll(newRecords);
+                ratingsProcessorStatus.newRecords += newRecords.size();
             }
             this.playerRecordRepository.flush();
 
+            ratingsProcessorStatus.processedRecords = endingIndex;
+
         } while (startingIndex < (recordsToImport.size() - 1));
+        long duration = (System.currentTimeMillis() - start) / 1000;
+        System.out.println("Finished processing " + endingIndex + " records in " + duration + " seconds.");
     }
 
     /**

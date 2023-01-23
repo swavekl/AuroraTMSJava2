@@ -1,5 +1,6 @@
 package com.auroratms.usatt;
 
+import com.auroratms.ratingsprocessing.RatingsProcessorStatus;
 import com.auroratms.server.ServerApplication;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -19,7 +20,6 @@ import org.springframework.test.context.web.ServletTestExecutionListener;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 
 import static org.junit.Assert.*;
@@ -42,10 +42,11 @@ public class UsattDataServiceTest extends AbstractJUnit4SpringContextTests {
 //    @Ignore
     public void testFetchOneUser () {
         String filename = "C:\\myprojects\\DubinaRecords.csv";
-        List<UsattPlayerRecord> usattPlayerInfos = usattDataService.readAllPlayersFromFile(filename);
+        RatingsProcessorStatus ratingsProcessorStatus = new RatingsProcessorStatus();
+        List<UsattPlayerRecord> usattPlayerInfos = usattDataService.readAllPlayersFromFile(filename, ratingsProcessorStatus);
         assertEquals("wrong count of records inserted into db", 11, usattPlayerInfos.size());
 
-        usattDataService.insertPlayerData(usattPlayerInfos);
+        usattDataService.insertPlayerData(usattPlayerInfos, ratingsProcessorStatus);
         long count = usattDataService.getTotalCount();
         assertEquals("wrong count of records inserted into db", 11, count);
 
@@ -68,7 +69,8 @@ public class UsattDataServiceTest extends AbstractJUnit4SpringContextTests {
     @Ignore
     public void testReadingFromCSV () {
         String filename = "C:\\myprojects\\TD Ratings File 9.26.2019.csv";
-        List<UsattPlayerRecord> usattPlayerInfos = usattDataService.readAllPlayersFromFile(filename);
+        RatingsProcessorStatus ratingsProcessorStatus = new RatingsProcessorStatus();
+        List<UsattPlayerRecord> usattPlayerInfos = usattDataService.readAllPlayersFromFile(filename, ratingsProcessorStatus);
         assertTrue("wrong number of records", (usattPlayerInfos.size() > 60000));
         for (UsattPlayerRecord usattPlayerInfo : usattPlayerInfos) {
             assertNotNull("first name is null", usattPlayerInfo.getFirstName());
@@ -76,7 +78,7 @@ public class UsattDataServiceTest extends AbstractJUnit4SpringContextTests {
             assertNotNull("Gender is null", usattPlayerInfo.getGender());
         }
 
-        usattDataService.insertPlayerData(usattPlayerInfos);
+        usattDataService.insertPlayerData(usattPlayerInfos, ratingsProcessorStatus);
         long count = usattDataService.getTotalCount();
         assertEquals("wrong count of records inserted into db", usattPlayerInfos.size(), count);
 

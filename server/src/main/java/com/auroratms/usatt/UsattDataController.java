@@ -1,5 +1,6 @@
 package com.auroratms.usatt;
 
+import com.auroratms.ratingsprocessing.RatingsProcessorStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -67,9 +68,10 @@ public class UsattDataController {
 
 //    @PreAuthorize("hasAuthority('Admins')")
     public void processFile(String filename) {
-        List<UsattPlayerRecord> usattPlayerRecords = this.usattDataService.readAllPlayersFromFile(filename);
+        RatingsProcessorStatus ratingsProcessorStatus = new RatingsProcessorStatus();
+        List<UsattPlayerRecord> usattPlayerRecords = this.usattDataService.readAllPlayersFromFile(filename, ratingsProcessorStatus);
         if (usattPlayerRecords.size() > 0) {
-            this.usattDataService.insertPlayerData(usattPlayerRecords);
+            this.usattDataService.insertPlayerData(usattPlayerRecords, ratingsProcessorStatus);
         }
     }
 }

@@ -1,0 +1,25 @@
+<mat-card>
+  <mat-card-header>
+    <mat-card-title>Administration</mat-card-title>
+  </mat-card-header>
+  <mat-card-actions>
+    <app-upload-file-component
+      [disabledBtn]="processing"
+      [uploadButtonLabel]="'Process Ratings File'"
+      (uploadFinished)="onRatingsUploadFinished($event)"
+      [storagePath]="getRatingsStoragePath()">
+    </app-upload-file-component>
+  </mat-card-actions>
+  <mat-card-content>
+    <div class="mat-subtitle-1">
+      <div>Phase: {{ ratingsProcessorStatus.phase }}</div>
+      <div>Total Records: {{ ratingsProcessorStatus.totalRecords }}</div>
+      <div>Processed Records: {{ ratingsProcessorStatus.processedRecords }} ({{ (ratingsProcessorStatus.processedRecords / ratingsProcessorStatus.totalRecords) | percent }})</div>
+      <div>New Records: {{ ratingsProcessorStatus.newRecords }}</div>
+      <div>Bad Records: {{ ratingsProcessorStatus.badRecords }}</div>
+      <div>Elapsed time (secs): {{ (!ratingsProcessorStatus.endTime || !ratingsProcessorStatus.startTime)
+        ? 0 : (ratingsProcessorStatus.endTime - ratingsProcessorStatus.startTime) / 1000 }}</div>
+    </div>
+  </mat-card-content>
+</mat-card>
+

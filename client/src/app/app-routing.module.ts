@@ -112,7 +112,12 @@ const routes: Routes = [
       roles: [UserRoles.ROLE_USATT_TOURNAMENT_MANAGERS, UserRoles.ROLE_ADMINS]
     }
   },
-  { path: 'results', loadChildren: () => import('./tournament-results/tournament-results.module').then(m => m.TournamentResultsModule) }
+  { path: 'results', loadChildren: () => import('./tournament-results/tournament-results.module').then(m => m.TournamentResultsModule) },
+  { path: 'ui/admin', loadChildren: () => import('./admin/admin.module').then(m => m.AdminModule),
+    data: {
+      roles: [UserRoles.ROLE_ADMINS]
+    }
+  }
 ];
 
 @NgModule({
