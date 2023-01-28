@@ -19,18 +19,19 @@ public class UsattPlayerRecord {
     private Long id;
 
     @NonNull
-    @Column(unique = true)
+    @Column(unique = true, nullable = false)
     private Long membershipId;
 
-    @NonNull
+    // for foreign players we don't have USATT membership expiration.
+    // It is controlled by their country's association expiration date
     private Date membershipExpirationDate;
 
     @NonNull
-    @Column(length = 50)
+    @Column(length = 50, nullable = false)
     private String firstName;
 
     @NonNull
-    @Column(length = 50)
+    @Column(length = 50, nullable = false)
     private String lastName;
 
     private Date dateOfBirth;
@@ -59,9 +60,3 @@ public class UsattPlayerRecord {
     private Date lastLeaguePlayedDate;
 }
 
-/*
-maxLenFirstName = 26
-maxLenLastName  = 30
-maxLenState     = 3
-maxLenZip       = 18
- */

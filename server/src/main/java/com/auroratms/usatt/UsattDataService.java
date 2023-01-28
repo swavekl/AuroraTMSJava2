@@ -50,7 +50,7 @@ public class UsattDataService {
         return this.playerRecordRepository.getFirstByMembershipId(membershipId);
     }
 
-    public UsattPlayerRecord getPlayerByNames (String firstName, String lastName) {
+    public UsattPlayerRecord getPlayerByNames(String firstName, String lastName) {
         return this.playerRecordRepository.getFirstByFirstNameAndLastName(firstName, lastName);
     }
 
@@ -85,7 +85,7 @@ public class UsattDataService {
         UserProfileExt userProfileExt = new UserProfileExt();
         userProfileExt.setProfileId(profileId);
         userProfileExt.setMembershipId(membershipId);
-        if(userProfileExtService.existsByMembershipId(membershipId)) {
+        if (userProfileExtService.existsByMembershipId(membershipId)) {
             UserProfileExt oldUserProfileExt = userProfileExtService.getByMembershipId(membershipId);
             System.out.println("oldUserProfileExt = " + oldUserProfileExt);
             userProfileExt.setClubFk(oldUserProfileExt.getClubFk());
@@ -99,6 +99,7 @@ public class UsattDataService {
 
     /**
      * Establish this date as the expiration date for new membership so we can tell it easily
+     *
      * @return
      */
     private static Date getNewMembershipExpirationDate() {
@@ -109,7 +110,6 @@ public class UsattDataService {
     }
 
     /**
-     *
      * @param membershipExpirationDate
      * @return
      */
@@ -125,7 +125,7 @@ public class UsattDataService {
      * @param ratingsProcessorStatus
      * @return
      */
-    public List<UsattPlayerRecord> readAllPlayersFromFile (String filename, RatingsProcessorStatus ratingsProcessorStatus) {
+    public List<UsattPlayerRecord> readAllPlayersFromFile(String filename, RatingsProcessorStatus ratingsProcessorStatus) {
         List<UsattPlayerRecord> playerInfos = new ArrayList<>(63000);
 
         try {
@@ -140,7 +140,6 @@ public class UsattDataService {
                 while ((values = csvReader.readNext()) != null) {
                     rowNumber++;
                     if (rowNumber == 1) {
-                        logger.info("skip header");
                         continue;
                     }
 
@@ -199,19 +198,13 @@ public class UsattDataService {
                         columnNum++;
                     }
                     if (StringUtils.isEmpty(usattPlayerInfo.getFirstName()) ||
-                            StringUtils.isEmpty(usattPlayerInfo.getLastName()) ||
-                            (usattPlayerInfo.getMembershipExpirationDate() == null)) {
+                            StringUtils.isEmpty(usattPlayerInfo.getLastName())) {
                         String csvValues = StringUtils.joinWith(",", Arrays.stream(values).toArray());
-                        logger.warn("Insufficient values in record " + csvValues);
+                        logger.warn("Missing critical values in record " + csvValues);
 
-//                        System.out.print("Insufficient critical values in record ");
-//                        for (String value : values) {
-//                            System.out.print(value + ", ");
-//                        }
-//                        System.out.println();
                         badRecordsNum++;
                         ratingsProcessorStatus.badRecords = badRecordsNum;
-                       continue;
+                        continue;
                     }
                     playerInfos.add(usattPlayerInfo);
                     ratingsProcessorStatus.totalRecords = rowNumber - 1;
@@ -231,11 +224,10 @@ public class UsattDataService {
     }
 
     /**
-     *
      * @param strDate
      * @return
      */
-    private Date parseDate (String strDate) {
+    private Date parseDate(String strDate) {
         Date date = null;
         try {
             if (!StringUtil.isBlank(strDate)) {
@@ -271,7 +263,7 @@ public class UsattDataService {
      * @param recordsToImport
      * @param ratingsProcessorStatus
      */
-    public void insertPlayerData (List<UsattPlayerRecord> recordsToImport, RatingsProcessorStatus ratingsProcessorStatus) {
+    public void insertPlayerData(List<UsattPlayerRecord> recordsToImport, RatingsProcessorStatus ratingsProcessorStatus) {
 
         int startingIndex = 0;
         int BATCH_SIZE = 100;
@@ -286,13 +278,10 @@ public class UsattDataService {
             batchOfIds.clear();
             newRecords.clear();
 
-            endingIndex = ((startingIndex + BATCH_SIZE) < recordsToImport.size())
-                    ? (startingIndex + BATCH_SIZE)
-                    : recordsToImport.size();
-//            endingIndex = endingIndex - 1;  // sublist ending index is exclusive
+            endingIndex = Math.min((startingIndex + BATCH_SIZE), recordsToImport.size());
 
             // get a sublist of updated records
-            logger.info("startingIndex = " + startingIndex + " endingIndex = " + endingIndex);
+            logger.info("Processing records sublist (" + startingIndex + ", " + endingIndex + ")");
             List<UsattPlayerRecord> subList = recordsToImport.subList(startingIndex, endingIndex);
             startingIndex = endingIndex;
 
@@ -316,17 +305,10 @@ public class UsattDataService {
 
                         // rating or last played date changed
                         if (existingRecord.getTournamentRating() != updatedRecord.getTournamentRating()) {
-                            System.out.println(" ==============================ex id = " + existingRecord.getMembershipId() + " up id " + updatedRecord.getMembershipId());
-                            System.out.println("existingRecord.getTournamentRating() = " + existingRecord.getTournamentRating());
-                            System.out.println("updatedRecord.getTournamentRating()  = "  + updatedRecord.getTournamentRating());
-                            System.out.println("existingRecord.getLastTournamentPlayedDate() = " + existingRecord.getLastTournamentPlayedDate());
-                            System.out.println("updatedRecord.getLastTournamentPlayedDate()  = " + updatedRecord.getLastTournamentPlayedDate());
 
                             if (!existingRecord.getLastTournamentPlayedDate().equals(updatedRecord.getLastTournamentPlayedDate())) {
-                                System.out.println("Creating history record");
                                 // new history record
                                 RatingHistoryRecord ratingHistoryRecord = new RatingHistoryRecord();
-//                                memberIdToHistoryRecordMap.put(existingRecord.getMembershipId(), ratingHistoryRecord);
                                 ratingHistoryRecordList.add(ratingHistoryRecord);
 
                                 ratingHistoryRecord.setMembershipId(existingRecord.getMembershipId());
@@ -335,14 +317,12 @@ public class UsattDataService {
                                 ratingHistoryRecord.setFinalRating(updatedRecord.getTournamentRating());
                                 ratingHistoryRecord.setFinalRatingDate(updatedRecord.getLastTournamentPlayedDate());
                             } else {
-                                System.out.println("Updating history record");
                                 // same last played date means it is a ratings update so we need to update existing record
                                 // there should be few of these
                                 List<RatingHistoryRecord> existingRatingHistoryRecords = this.ratingHistoryRecordRepository.getPlayerRatingAsOfDate(existingRecord.getMembershipId(), existingRecord.getLastLeaguePlayedDate());
                                 if (existingRatingHistoryRecords.size() > 0) {
                                     RatingHistoryRecord existingRatingHistoryRecord = existingRatingHistoryRecords.get(0);
                                     existingRatingHistoryRecord.setFinalRating(updatedRecord.getTournamentRating());
-//                                    memberIdToHistoryRecordMap.put(existingRecord.getMembershipId(), existingRatingHistoryRecord);
                                     updatedRatingHistoryRecordList.add(existingRatingHistoryRecord);
                                 }
                             }
@@ -365,7 +345,6 @@ public class UsattDataService {
                     newRecords.add(updatedRecord);
 
                     RatingHistoryRecord ratingHistoryRecord = new RatingHistoryRecord();
-//                    memberIdToHistoryRecordMap.put(updatedRecord.getMembershipId(), ratingHistoryRecord);
                     ratingHistoryRecordList.add(ratingHistoryRecord);
 
                     ratingHistoryRecord.setMembershipId(updatedRecord.getMembershipId());
@@ -410,6 +389,7 @@ public class UsattDataService {
 
     /**
      * Gets current total count
+     *
      * @return
      */
     public long getTotalCount() {
@@ -418,6 +398,7 @@ public class UsattDataService {
 
     /**
      * Gets the rating of a player that he had on the particular date
+     *
      * @param membershipId
      * @param dateOfRating
      * @return
@@ -439,6 +420,7 @@ public class UsattDataService {
 
     /**
      * Gets all player records matching the membership id
+     *
      * @param membershipIds
      * @return
      */
@@ -446,134 +428,6 @@ public class UsattDataService {
         return this.playerRecordRepository.findAllByMembershipIdIn(membershipIds);
     }
 }
-
-//    private String baseURL = "https://usatt.simplycompete.com/userAccount/s2?citizenship=usOnly&gamesEligibility=&gender=&minAge=&maxAge=&minTrnRating=&maxTrnRating=&minLeagueRating=&maxLeagueRating=&state=&region=Any Region&favorites=&q=${query}&displayColumns=First Name,Last Name,USATT#,Location,Home Club,Tournament Rating,Last Played Tournament,League Rating,Last Played League,Membership Expiration&pageSize=25";
-
-
-//    public UsattPlayerInfo getPlayerInfo(String firstName, String lastName) {
-//        UsattPlayerInfo usattPlayerInfo = new UsattPlayerInfo();
-//        try {
-//            String url = getUrl(firstName, lastName);
-//
-////            File input = new File("C:\\Users\\Swavek\\AppData\\Roaming\\JetBrains\\IntelliJIdea2020.3\\scratches\\scratch_8.html");
-////            Document doc = Jsoup.parse(input, "UTF-8", "https://usatt.simplycompete.com/");
-//            Document doc = makeRequest(url);
-//            // <table class="table table-striped table-condensed list-area">
-//            Elements listTables = doc.select("table.list-area");
-//            for (Element table : listTables) {
-//                Elements tableRows = table.select("tbody tr.list-item");
-//                for (Element tableRow : tableRows) {
-//                    Elements rowColumns = tableRow.select("td.list-column");
-//                    // First Name,Last Name,USATT#,Location,Home Club,Tournament Rating,Last Played Tournament,
-//                    // League Rating,Last Played League,Membership Expiration
-//                    //<td class="list-item-bar"></td>
-//                    //<td class="list-column">1</td>
-//                    //<td class="list-column"><a href="/userAccount/up/1866">Samson</a></td>
-//                    //<td class="list-column"><a href="/userAccount/up/1866">Dubina</a></td>
-//                    //<td class="list-column">9051</td>
-//                    //<td class="list-column">Akron, OH</td>
-//                    //<td class="list-column"><a href="/c/p/183">Samson Dubina Table Tennis Academy</a></td>
-//                    //<td class="list-column text-center">2443</td>
-//                    //<td class="list-column">03/08/2020</td>
-//                    //<td class="list-column text-center">2435</td>
-//                    //<td class="list-column">01/23/2016</td>
-//                    //<td class="list-column">02/28/2100</td>
-//                    int columnNum = 0;
-//                    for (Element rowColumn : rowColumns) {
-//                        String text = rowColumn.text();
-////                        System.out.println("text = " + text);
-//                        switch (columnNum) {
-//                            case 0: // skip row number
-//                                break;
-//                            case 1:
-//                                usattPlayerInfo.setFirstName(text);
-//                                break;
-//                            case 2:
-//                                usattPlayerInfo.setLastName(text);
-//                                break;
-//                            case 3:
-//                                usattPlayerInfo.setMembershipId(Long.parseLong(text));
-//                                break;
-//                            case 4:
-//                                usattPlayerInfo.setLocation(text);
-//                                break;
-//                            case 5:
-//                                usattPlayerInfo.setHomeClub(text);
-//                                break;
-//                            case 6:
-//                                usattPlayerInfo.setTournamentRating(Integer.parseInt(text));
-//                                break;
-//                            case 7:
-//                                usattPlayerInfo.setLastTournamentPlayedDate(parseDate(text));
-//                                break;
-//                            case 8:
-//                                usattPlayerInfo.setLeagueRating(Integer.parseInt(text));
-//                                break;
-//                            case 9:
-//                                usattPlayerInfo.setLastLeaguePlayedDate(parseDate(text));
-//                                break;
-//                            case 10:
-//                                usattPlayerInfo.setMembershipExpiration(parseDate(text));
-//                                break;
-//                            default:
-//                                break;
-//                        }
-//                        columnNum++;
-//                    }
-//                }
-//            }
-//        } catch (IOException e) {
-//
-//        }
-//
-//        return usattPlayerInfo;
-//    }
-//
-//    String getUrl(String firstName, String lastName) {
-//        String url = baseURL;
-//        url = url.replace("${query}", lastName);
-//        url = url.replaceAll("\\s", "+");
-//        return url;
-//    }
-//
-//
-//    private Document makeRequest(String url) throws IOException {
-//
-//        // Firefox
-//        return Jsoup.connect(url)
-//                .userAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:85.0) Gecko/20100101 Firefox/85.0")
-//                .header("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8")
-//                .header("Accept-Encoding", "gzip, deflate, br")
-//                .header("Accept-Language", "en-US,en;q=0.5")
-//                .header("Host", "usatt.simplycompete.com")
-//                .header("Connection", "keep-alive")
-//                .header("Referrer", "https://usatt.simplycompete.com/userAccount/s2?citizenship=usOnly&gamesEligibility=&gender=&minAge=&maxAge=&minTrnRating=&maxTrnRating=&minLeagueRating=&maxLeagueRating=&state=&region=Any+Region&favorites=&q=Samson&displayColumns=First+Name&displayColumns=Last+Name&displayColumns=USATT%23&displayColumns=Location&displayColumns=Home+Club&displayColumns=Tournament+Rating&displayColumns=Last+Played+Tournament&displayColumns=League+Rating&displayColumns=Last+Played+League&displayColumns=Membership+Expiration&pageSize=25")
-//                .cookie("AWSALB", "FyKFWnAdy1BXJZv21nq0HNWEe6qefGwYB3FaohObpTAHRTLhIBOD4ehpJMSWldO9Z7++v6crPRbjRiJMALJeEoFNp4+swgTneUru0WItdNKdkNrD7m0DsFl23wqG;")
-//                .cookie("AWSALBCORS", "FyKFWnAdy1BXJZv21nq0HNWEe6qefGwYB3FaohObpTAHRTLhIBOD4ehpJMSWldO9Z7++v6crPRbjRiJMALJeEoFNp4+swgTneUru0WItdNKdkNrD7m0DsFl23wqG")
-//                .cookie("JSESSIONID", "C6A73587F16F4D3D7D950954C87A219B")
-//                .timeout(3000)
-//                .get();
-//
-//
-//        // MS Edge
-//        return Jsoup.connect(url)
-//                .userAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.150 Safari/537.36 Edg/88.0.705.63")
-//                .header("accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9")
-//                .header("Accept-Encoding", "gzip, deflate, br")
-//                .header("Accept-Language", "en-US,en;q=0.9")
-//                .header("Referrer", "https://www.teamusa.org/")
-//                .header("sec-fetch-dest", "document")
-//                .header("sec-fetch-mode", "navigate")
-//                .header("sec-fetch-site", "cross-site")
-//                .header("sec-fetch-user", "?1")
-//                .header("upgrade-insecure-requests", "1")
-//                .cookie("AWSALB", "k4l9d0aABlbfDGdZy1sPxOxGMfk5/AhjUbdTLgS/Dm4sqjNwttCXCNCI79fG6f7trglkQvO2sa+K4Qb6f5+oTIyBN/j61Zvqy9yi0cUERXyjXQab91B5M9SvzFbD;")
-//                .cookie("AWSALBCORS", "k4l9d0aABlbfDGdZy1sPxOxGMfk5/AhjUbdTLgS/Dm4sqjNwttCXCNCI79fG6f7trglkQvO2sa+K4Qb6f5+oTIyBN/j61Zvqy9yi0cUERXyjXQab91B5M9SvzFbD")
-////                .cookie("JSESSIONID", "")
-//                .timeout(3000)
-//                .get();
-//        }
-//    }
 
 
 
