@@ -14,9 +14,11 @@
     <div class="mat-subtitle-1">
       <div>Phase: {{ ratingsProcessorStatus.phase }}</div>
       <div>Total Records: {{ ratingsProcessorStatus.totalRecords }}</div>
-      <div>Processed Records: {{ ratingsProcessorStatus.processedRecords }} ({{ (ratingsProcessorStatus.processedRecords / ratingsProcessorStatus.totalRecords) | percent }})</div>
+      <div>Processed Records: {{ ratingsProcessorStatus.processedRecords }} ({{ ((ratingsProcessorStatus.processedRecords + ratingsProcessorStatus.badRecords) / ratingsProcessorStatus.totalRecords) | percent }})</div>
       <div>New Records: {{ ratingsProcessorStatus.newRecords }}</div>
       <div>Bad Records: {{ ratingsProcessorStatus.badRecords }}</div>
+      <div>New Rating History Records: {{ ratingsProcessorStatus.newHistoryRecords }}</div>
+      <div>Updated Rating History Records: {{ ratingsProcessorStatus.updatedHistoryRecords }}</div>
       <div>Elapsed time (secs): {{ (!ratingsProcessorStatus.endTime || !ratingsProcessorStatus.startTime)
         ? 0 : (ratingsProcessorStatus.endTime - ratingsProcessorStatus.startTime) / 1000 }}</div>
     </div>

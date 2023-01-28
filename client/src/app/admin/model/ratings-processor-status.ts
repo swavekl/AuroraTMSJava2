@@ -12,5 +12,7 @@ export class RatingsProcessorStatus {
   badRecords: number;
   newRecords: number;
 
-  processedHistoryRecords: number;
+  newHistoryRecords: number;
+  updatedHistoryRecords: number;
+
 }

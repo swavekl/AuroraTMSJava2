@@ -7,6 +7,8 @@ import com.opencsv.CSVReader;
 import com.opencsv.exceptions.CsvValidationException;
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.internal.StringUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.data.domain.Pageable;
@@ -15,18 +17,18 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.FileReader;
 import java.io.IOException;
+import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 
 @Service
 @CacheConfig(cacheNames = {"player-data"})
 @Transactional
 public class UsattDataService {
+
+    private static final Logger logger = LoggerFactory.getLogger(UsattDataService.class);
 
     @Autowired
     private UsattPlayerRecordRepository playerRecordRepository;
@@ -138,7 +140,7 @@ public class UsattDataService {
                 while ((values = csvReader.readNext()) != null) {
                     rowNumber++;
                     if (rowNumber == 1) {
-                        System.out.println("skip header");
+                        logger.info("skip header");
                         continue;
                     }
 
@@ -146,11 +148,8 @@ public class UsattDataService {
 
                     UsattPlayerRecord usattPlayerInfo = new UsattPlayerRecord();
                     if (values.length != 10) {
-                        System.out.print("Insufficient values in record ");
-                        for (String value : values) {
-                            System.out.print(value + ", ");
-                        }
-                        System.out.println();
+                        String csvValues = StringUtils.joinWith(",", Arrays.stream(values).toArray());
+                        logger.warn("Insufficient values in record " + csvValues);
                         badRecordsNum++;
                         continue;
                     }
@@ -201,13 +200,15 @@ public class UsattDataService {
                     }
                     if (StringUtils.isEmpty(usattPlayerInfo.getFirstName()) ||
                             StringUtils.isEmpty(usattPlayerInfo.getLastName()) ||
-                            (usattPlayerInfo.getMembershipExpirationDate() == null) ||
-                            StringUtils.isEmpty(usattPlayerInfo.getGender())) {
-                        System.out.print("Insufficient critical values in record ");
-                        for (String value : values) {
-                            System.out.print(value + ", ");
-                        }
-                        System.out.println();
+                            (usattPlayerInfo.getMembershipExpirationDate() == null)) {
+                        String csvValues = StringUtils.joinWith(",", Arrays.stream(values).toArray());
+                        logger.warn("Insufficient values in record " + csvValues);
+
+//                        System.out.print("Insufficient critical values in record ");
+//                        for (String value : values) {
+//                            System.out.print(value + ", ");
+//                        }
+//                        System.out.println();
                         badRecordsNum++;
                         ratingsProcessorStatus.badRecords = badRecordsNum;
                        continue;
@@ -216,16 +217,14 @@ public class UsattDataService {
                     ratingsProcessorStatus.totalRecords = rowNumber - 1;
                 }
 
-                System.out.println("total records = " + rowNumber);
-                System.out.println("bad   records = " + badRecordsNum);
-                System.out.println("maxLenFirstName = " + maxLenFirstName);
-                System.out.println("maxLenLastName  = " + maxLenLastName);
-                System.out.println("maxLenState     = " + maxLenState);
-                System.out.println("maxLenZip       = " + maxLenZip);
+                logger.info("total records = " + rowNumber);
+                logger.info("bad   records = " + badRecordsNum);
+                logger.info("maxLenFirstName = " + maxLenFirstName);
+                logger.info("maxLenLastName  = " + maxLenLastName);
+                logger.info("maxLenState     = " + maxLenState);
+                logger.info("maxLenZip       = " + maxLenZip);
             }
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (CsvValidationException e) {
+        } catch (IOException | CsvValidationException e) {
             e.printStackTrace();
         }
         return playerInfos;
@@ -246,11 +245,11 @@ public class UsattDataService {
             try {
                 date = ALT_DATE_FORMAT.parse(strDate);
             } catch (ParseException ex) {
-                System.out.println("unable to parse date '" + strDate + "' " + e);
+                logger.error("unable to parse date '" + strDate + "' ", e);
             }
-            System.out.println("unable to parse date '" + strDate + "' " + e);
         }
-        return date;
+
+        return (date != null) ? new Timestamp(date.getTime()) : null;
     }
 
     void moveZipToCountry(UsattPlayerRecord usattPlayerRecord) {
@@ -280,7 +279,7 @@ public class UsattDataService {
         List<Long> batchOfIds = new ArrayList<>(BATCH_SIZE);
         List<UsattPlayerRecord> newRecords = new ArrayList<>();
         long start = System.currentTimeMillis();
-        System.out.println("recordsToImport = " + recordsToImport.size());
+        logger.info("recordsToImport = " + recordsToImport.size());
         ratingsProcessorStatus.newRecords = 0;
         ratingsProcessorStatus.processedRecords = 0;
         do {
@@ -293,7 +292,7 @@ public class UsattDataService {
 //            endingIndex = endingIndex - 1;  // sublist ending index is exclusive
 
             // get a sublist of updated records
-            System.out.println("startingIndex = " + startingIndex + " endingIndex = " + endingIndex);
+            logger.info("startingIndex = " + startingIndex + " endingIndex = " + endingIndex);
             List<UsattPlayerRecord> subList = recordsToImport.subList(startingIndex, endingIndex);
             startingIndex = endingIndex;
 
@@ -306,12 +305,48 @@ public class UsattDataService {
 
             // fetch records with same membership id from database
             List<UsattPlayerRecord> batchOfExistingRecords = this.playerRecordRepository.findAllByMembershipIdIn(batchOfIds);
+            List<RatingHistoryRecord> ratingHistoryRecordList = new ArrayList<>(subList.size());
+            List<RatingHistoryRecord> updatedRatingHistoryRecordList = new ArrayList<>(subList.size());
             for (UsattPlayerRecord updatedRecord : subList) {
                 boolean found = false;
                 for (UsattPlayerRecord existingRecord : batchOfExistingRecords) {
                     // find existing record in the batch
                     if (updatedRecord.getMembershipId().equals(existingRecord.getMembershipId())) {
                         found = true;
+
+                        // rating or last played date changed
+                        if (existingRecord.getTournamentRating() != updatedRecord.getTournamentRating()) {
+                            System.out.println(" ==============================ex id = " + existingRecord.getMembershipId() + " up id " + updatedRecord.getMembershipId());
+                            System.out.println("existingRecord.getTournamentRating() = " + existingRecord.getTournamentRating());
+                            System.out.println("updatedRecord.getTournamentRating()  = "  + updatedRecord.getTournamentRating());
+                            System.out.println("existingRecord.getLastTournamentPlayedDate() = " + existingRecord.getLastTournamentPlayedDate());
+                            System.out.println("updatedRecord.getLastTournamentPlayedDate()  = " + updatedRecord.getLastTournamentPlayedDate());
+
+                            if (!existingRecord.getLastTournamentPlayedDate().equals(updatedRecord.getLastTournamentPlayedDate())) {
+                                System.out.println("Creating history record");
+                                // new history record
+                                RatingHistoryRecord ratingHistoryRecord = new RatingHistoryRecord();
+//                                memberIdToHistoryRecordMap.put(existingRecord.getMembershipId(), ratingHistoryRecord);
+                                ratingHistoryRecordList.add(ratingHistoryRecord);
+
+                                ratingHistoryRecord.setMembershipId(existingRecord.getMembershipId());
+                                ratingHistoryRecord.setInitialRating(existingRecord.getTournamentRating());
+                                ratingHistoryRecord.setInitialRatingDate(existingRecord.getLastTournamentPlayedDate());
+                                ratingHistoryRecord.setFinalRating(updatedRecord.getTournamentRating());
+                                ratingHistoryRecord.setFinalRatingDate(updatedRecord.getLastTournamentPlayedDate());
+                            } else {
+                                System.out.println("Updating history record");
+                                // same last played date means it is a ratings update so we need to update existing record
+                                // there should be few of these
+                                List<RatingHistoryRecord> existingRatingHistoryRecords = this.ratingHistoryRecordRepository.getPlayerRatingAsOfDate(existingRecord.getMembershipId(), existingRecord.getLastLeaguePlayedDate());
+                                if (existingRatingHistoryRecords.size() > 0) {
+                                    RatingHistoryRecord existingRatingHistoryRecord = existingRatingHistoryRecords.get(0);
+                                    existingRatingHistoryRecord.setFinalRating(updatedRecord.getTournamentRating());
+//                                    memberIdToHistoryRecordMap.put(existingRecord.getMembershipId(), existingRatingHistoryRecord);
+                                    updatedRatingHistoryRecordList.add(existingRatingHistoryRecord);
+                                }
+                            }
+                        }
                         // merge updated & existing record
                         existingRecord.setMembershipExpirationDate(updatedRecord.getMembershipExpirationDate());
                         if (updatedRecord.getLastTournamentPlayedDate() != null) {
@@ -320,29 +355,57 @@ public class UsattDataService {
                         if (updatedRecord.getLastLeaguePlayedDate() != null) {
                             existingRecord.setLastLeaguePlayedDate(updatedRecord.getLastLeaguePlayedDate());
                         }
+                        if (existingRecord.getGender() == null && updatedRecord.getGender() != null) {
+                            existingRecord.setGender(updatedRecord.getGender());
+                        }
                         break;
                     }
                 }
                 if (!found) {
                     newRecords.add(updatedRecord);
+
+                    RatingHistoryRecord ratingHistoryRecord = new RatingHistoryRecord();
+//                    memberIdToHistoryRecordMap.put(updatedRecord.getMembershipId(), ratingHistoryRecord);
+                    ratingHistoryRecordList.add(ratingHistoryRecord);
+
+                    ratingHistoryRecord.setMembershipId(updatedRecord.getMembershipId());
+                    ratingHistoryRecord.setInitialRating(0);
+                    long initialRatingDate = updatedRecord.getLastTournamentPlayedDate().getTime();
+                    initialRatingDate -= (1000L * 60 * 60 * 24);  // 1 day before
+                    Timestamp tsInitialRatingDate = new Timestamp(initialRatingDate);
+                    ratingHistoryRecord.setInitialRatingDate(tsInitialRatingDate);
+                    ratingHistoryRecord.setFinalRating(updatedRecord.getTournamentRating());
+                    ratingHistoryRecord.setFinalRatingDate(updatedRecord.getLastTournamentPlayedDate());
                 }
             }
 
             if (batchOfExistingRecords.size() > 0) {
-                this.playerRecordRepository.saveAll(batchOfExistingRecords);
+                this.playerRecordRepository.saveAllAndFlush(batchOfExistingRecords);
             }
 
             if (newRecords.size() > 0) {
-                this.playerRecordRepository.saveAll(newRecords);
+                this.playerRecordRepository.saveAllAndFlush(newRecords);
                 ratingsProcessorStatus.newRecords += newRecords.size();
             }
-            this.playerRecordRepository.flush();
 
             ratingsProcessorStatus.processedRecords = endingIndex;
 
+            if (ratingHistoryRecordList.size() > 0) {
+                logger.info("Inserting " + ratingHistoryRecordList.size() + " rating history records");
+                this.ratingHistoryRecordRepository.saveAllAndFlush(ratingHistoryRecordList);
+            }
+
+            if (updatedRatingHistoryRecordList.size() > 0) {
+                logger.info("Updating " + updatedRatingHistoryRecordList.size() + " rating history records");
+                this.ratingHistoryRecordRepository.saveAllAndFlush(updatedRatingHistoryRecordList);
+            }
+            ratingsProcessorStatus.newHistoryRecords += ratingHistoryRecordList.size();
+            ratingsProcessorStatus.updatedHistoryRecords += updatedRatingHistoryRecordList.size();
+
         } while (startingIndex < (recordsToImport.size() - 1));
+
         long duration = (System.currentTimeMillis() - start) / 1000;
-        System.out.println("Finished processing " + endingIndex + " records in " + duration + " seconds.");
+        logger.info("Finished processing " + endingIndex + " records in " + duration + " seconds.");
     }
 
     /**

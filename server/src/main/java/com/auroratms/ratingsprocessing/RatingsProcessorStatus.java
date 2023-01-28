@@ -14,5 +14,6 @@ public class RatingsProcessorStatus {
     public int badRecords;
     public int newRecords;
 
-    public int processedHistoryRecords;
+    public int newHistoryRecords;
+    public int updatedHistoryRecords;
 }
