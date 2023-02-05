@@ -185,6 +185,7 @@ public class UsattDataService {
                                 break;
                             case 5:
                                 maxLenZip = Math.max(maxLenZip, text.length());
+                                text = cleanupZipCode(text);
                                 usattPlayerInfo.setZip(text);
                                 break;
                             case 6:
@@ -231,6 +232,18 @@ public class UsattDataService {
             e.printStackTrace();
         }
         return playerInfos;
+    }
+
+    private String cleanupZipCode(String text) {
+        // remove .0 from 89456.0
+        if (StringUtils.isNotEmpty(text)) {
+            text = text.endsWith(".0") ? text.substring(0, text.length() - 2) : text;
+            // zip code was treated as a number - preceed it with 0s e.g. 926 is really 00926
+            if (text.length() < 5 && text.matches("\\d*")) {
+                text = String.format("%05d", Integer.parseInt(text));
+            }
+        }
+        return text;
     }
 
     /**
@@ -324,10 +337,6 @@ public class UsattDataService {
                     if (updatedRecord.getMembershipId().equals(existingRecord.getMembershipId())) {
                         found = true;
 
-                        if (updatedRecord.getFirstName().equals("Matthew") && updatedRecord.getLastName().equals("Chamblee")) {
-                            System.out.println("existingRecord = " + existingRecord);
-                        }
-
                         // rating or last played date changed
                         if (existingRecord.getTournamentRating() != updatedRecord.getTournamentRating()) {
 
@@ -362,6 +371,21 @@ public class UsattDataService {
                         // merge updated & existing record
                         existingRecord.setMembershipExpirationDate(updatedRecord.getMembershipExpirationDate());
                         existingRecord.setTournamentRating(updatedRecord.getTournamentRating());
+                        // player might have moved to another state/zip or finally provided it
+                        if (StringUtils.isNotEmpty(updatedRecord.getState())) {
+                            existingRecord.setState(updatedRecord.getState());
+                        }
+                        if (StringUtils.isNotEmpty(updatedRecord.getZip())) {
+                            existingRecord.setZip(updatedRecord.getZip());
+                        }
+
+                        // changed/corrected spelling of name
+                        existingRecord.setFirstName(updatedRecord.getFirstName());
+                        existingRecord.setLastName(updatedRecord.getLastName());
+
+                        if (updatedRecord.getDateOfBirth() != null) {
+                            existingRecord.setDateOfBirth(updatedRecord.getDateOfBirth());
+                        }
 
                         if (updatedRecord.getLastTournamentPlayedDate() != null) {
                             existingRecord.setLastTournamentPlayedDate(updatedRecord.getLastTournamentPlayedDate());
