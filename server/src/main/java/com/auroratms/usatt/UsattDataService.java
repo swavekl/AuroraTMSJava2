@@ -4,6 +4,7 @@ import com.auroratms.profile.UserProfileExt;
 import com.auroratms.profile.UserProfileExtService;
 import com.auroratms.ratingsprocessing.RatingsProcessorStatus;
 import com.opencsv.CSVReader;
+import com.opencsv.CSVReaderBuilder;
 import com.opencsv.exceptions.CsvValidationException;
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.internal.StringUtil;
@@ -15,9 +16,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.sql.Timestamp;
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -129,7 +130,8 @@ public class UsattDataService {
         List<UsattPlayerRecord> playerInfos = new ArrayList<>(63000);
 
         try {
-            try (CSVReader csvReader = new CSVReader(new FileReader(filename));) {
+            logger.info("Processing ratings file " + filename);
+            try (CSVReader csvReader = new CSVReader(new InputStreamReader(new FileInputStream(filename), "UTF-8"));) {
                 String[] values = null;
                 int rowNumber = 0;
                 int badRecordsNum = 0;
@@ -148,9 +150,15 @@ public class UsattDataService {
                     UsattPlayerRecord usattPlayerInfo = new UsattPlayerRecord();
                     if (values.length != 10) {
                         String csvValues = StringUtils.joinWith(",", Arrays.stream(values).toArray());
-                        logger.warn("Insufficient values in record " + csvValues);
-                        badRecordsNum++;
-                        continue;
+                        logger.warn("Insufficient values in record (" + values.length + ") " + csvValues);
+                        logger.info("Attempting parsing again");
+                        values = csvValues.split(",");
+                        if (values.length != 10) {
+                            badRecordsNum++;
+                            continue;
+                        } else {
+                            logger.info("Parsing succeeded");
+                        }
                     }
                     // Member ID	Last Name	First Name	Rating	State	Zip	Gender	Date of Birth	Expiration Date	Last Played Date
                     for (String text : values) {
@@ -160,10 +168,12 @@ public class UsattDataService {
                                 break;
                             case 1:
                                 maxLenLastName = Math.max(maxLenLastName, text.length());
+                                text = cleanupName(text);
                                 usattPlayerInfo.setLastName(text);
                                 break;
                             case 2:
                                 maxLenFirstName = Math.max(maxLenFirstName, text.length());
+                                text = cleanupName(text);
                                 usattPlayerInfo.setFirstName(text);
                                 break;
                             case 3:
@@ -224,6 +234,16 @@ public class UsattDataService {
     }
 
     /**
+     * Removes non-breaking space from strings and trims it
+     * @param text
+     * @return
+     */
+    private String cleanupName(String text) {
+        text = text.replace("\u00A0", "");
+        return text.trim();
+    }
+
+    /**
      * @param strDate
      * @return
      */
@@ -274,6 +294,7 @@ public class UsattDataService {
         logger.info("recordsToImport = " + recordsToImport.size());
         ratingsProcessorStatus.newRecords = 0;
         ratingsProcessorStatus.processedRecords = 0;
+        DateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
         do {
             batchOfIds.clear();
             newRecords.clear();
@@ -303,6 +324,10 @@ public class UsattDataService {
                     if (updatedRecord.getMembershipId().equals(existingRecord.getMembershipId())) {
                         found = true;
 
+                        if (updatedRecord.getFirstName().equals("Matthew") && updatedRecord.getLastName().equals("Chamblee")) {
+                            System.out.println("existingRecord = " + existingRecord);
+                        }
+
                         // rating or last played date changed
                         if (existingRecord.getTournamentRating() != updatedRecord.getTournamentRating()) {
 
@@ -319,9 +344,16 @@ public class UsattDataService {
                             } else {
                                 // same last played date means it is a ratings update so we need to update existing record
                                 // there should be few of these
-                                List<RatingHistoryRecord> existingRatingHistoryRecords = this.ratingHistoryRecordRepository.getPlayerRatingAsOfDate(existingRecord.getMembershipId(), existingRecord.getLastLeaguePlayedDate());
-                                if (existingRatingHistoryRecords.size() > 0) {
-                                    RatingHistoryRecord existingRatingHistoryRecord = existingRatingHistoryRecords.get(0);
+                                Optional<RatingHistoryRecord> optExistingRatingHistoryRecord = this.ratingHistoryRecordRepository.findByMembershipIdAndFinalRatingDate(
+                                        existingRecord.getMembershipId(), existingRecord.getLastTournamentPlayedDate());
+                                if (optExistingRatingHistoryRecord.isPresent()) {
+                                    RatingHistoryRecord existingRatingHistoryRecord = optExistingRatingHistoryRecord.get();
+                                    logger.info("Fixing rating history rating for " + existingRecord.getLastName() +
+                                            ", " + existingRecord.getFirstName() +
+                                            " Id: " + existingRecord.getMembershipId() +
+                                            " as of: " + dateFormat.format(existingRecord.getLastTournamentPlayedDate()) +
+                                            " from " + existingRatingHistoryRecord.getFinalRating() +
+                                            " to " + updatedRecord.getTournamentRating());
                                     existingRatingHistoryRecord.setFinalRating(updatedRecord.getTournamentRating());
                                     updatedRatingHistoryRecordList.add(existingRatingHistoryRecord);
                                 }
@@ -329,6 +361,8 @@ public class UsattDataService {
                         }
                         // merge updated & existing record
                         existingRecord.setMembershipExpirationDate(updatedRecord.getMembershipExpirationDate());
+                        existingRecord.setTournamentRating(updatedRecord.getTournamentRating());
+
                         if (updatedRecord.getLastTournamentPlayedDate() != null) {
                             existingRecord.setLastTournamentPlayedDate(updatedRecord.getLastTournamentPlayedDate());
                         }

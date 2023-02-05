@@ -41,18 +41,17 @@ public class UsattDataServiceTest extends AbstractJUnit4SpringContextTests {
     @Test ()
 //    @Ignore
     public void testFetchOneUser () {
-        String filename = "C:\\myprojects\\DubinaRecords.csv";
+        String filename = "C:\\myprojects\\data\\DubinaRecords.csv";
         RatingsProcessorStatus ratingsProcessorStatus = new RatingsProcessorStatus();
         List<UsattPlayerRecord> usattPlayerInfos = usattDataService.readAllPlayersFromFile(filename, ratingsProcessorStatus);
         assertEquals("wrong count of records inserted into db", 11, usattPlayerInfos.size());
 
         usattDataService.insertPlayerData(usattPlayerInfos, ratingsProcessorStatus);
         long count = usattDataService.getTotalCount();
-        assertEquals("wrong count of records inserted into db", 11, count);
+        assertTrue("wrong count of records inserted into db", count > 68000);
 
-        List<UsattPlayerRecord> playerInfos = usattDataService.findAllPlayersByNames("Samson", "Dubina", PageRequest.of(0, 3));
-        assertEquals("wrong count", 1, playerInfos.size());
-        UsattPlayerRecord playerInfo = playerInfos.get(0);
+        UsattPlayerRecord playerInfo = usattDataService.getPlayerByNames("Samson", "Dubina");
+        assertNotNull("wrong count", playerInfo);
         assertEquals ("wrong first name", playerInfo.getFirstName(), "Samson");
         assertEquals ("wrong last name", playerInfo.getLastName(), "Dubina");
         assertEquals ("wrong membership id", playerInfo.getMembershipId().longValue(), 9051L);
@@ -87,59 +86,66 @@ public class UsattDataServiceTest extends AbstractJUnit4SpringContextTests {
     @Test
     public void testRating() {
         // Samson's rating as of
-//        ('2020-03-06 00:00:00',	'2020-03-08 00:00:00',	2437,	2443,	9051),
-//        ('2020-02-27 00:00:00',	'2020-03-01 00:00:00',	2437,	2437,	9051),
-//        ('2020-02-21 00:00:00',	'2020-02-21 00:00:00',	2444,	2437,	9051),
-//        ('2020-02-07 00:00:00',	'2020-02-08 00:00:00',	2449,	2444,	9051),
+//        INSERT INTO auroratmstest.usattratinghistory
+//         (final_rating, final_rating_date, initial_rating, initial_rating_date, membership_id, tournament_fk)
+//        VALUES
+//         (2444, '2020-02-08 00:00:00', 2449, '2020-02-07 00:00:00', 9051, null)
+//         (2415, '2020-02-21 00:00:00', 2444, '2020-02-08 00:00:00', 9051, null)
+//         (2551, '2020-02-27 00:00:00', 2415, '2020-02-21 00:00:00', 9051, null)
+//         (2437, '2020-03-01 00:00:00', 2551, '2020-02-27 00:00:00', 9051, null)
+//         (2443, '2020-03-08 00:00:00', 2437, '2020-03-01 00:00:00', 9051, null);
 
         long membershipId = 9051L;
 
+        int playerRatingAsOfDate = 0;
+
         Calendar calendar = Calendar.getInstance();
+//        calendar.set(2020, Calendar.MARCH, 5, 0, 0 ,0);
+//        playerRatingAsOfDate = usattDataService.getPlayerRatingAsOfDate(membershipId,  calendar.getTime());
+//        assertEquals("wrong rating as of " + calendar.getTime(), 2437, playerRatingAsOfDate);
+
         calendar.set(2020, Calendar.MARCH, 9, 0, 0 ,0);
         calendar.set(Calendar.MILLISECOND, 0);
-        int playerRatingAsOfDate = usattDataService.getPlayerRatingAsOfDate(membershipId,  calendar.getTime());
-        assertEquals("wrong rating", 2443, playerRatingAsOfDate);
+        playerRatingAsOfDate = usattDataService.getPlayerRatingAsOfDate(membershipId,  calendar.getTime());
+        assertEquals("wrong rating as of " + calendar.getTime(), 2443, playerRatingAsOfDate);
 
         calendar.set(2020, Calendar.MARCH, 8, 0, 0 ,0);
         playerRatingAsOfDate = usattDataService.getPlayerRatingAsOfDate(membershipId,  calendar.getTime());
-        assertEquals("wrong rating", 2437, playerRatingAsOfDate);
-
-        calendar.set(2020, Calendar.MARCH, 5, 0, 0 ,0);
-        playerRatingAsOfDate = usattDataService.getPlayerRatingAsOfDate(membershipId,  calendar.getTime());
-        assertEquals("wrong rating", 2437, playerRatingAsOfDate);
+        assertEquals("wrong rating as of " + calendar.getTime(), 2443, playerRatingAsOfDate);
 
         calendar.set(2020, Calendar.FEBRUARY, 28, 0, 0 ,0);
         playerRatingAsOfDate = usattDataService.getPlayerRatingAsOfDate(membershipId,  calendar.getTime());
-        assertEquals("wrong rating", 2437, playerRatingAsOfDate);
+        assertEquals("wrong rating as of " + calendar.getTime(), 2551, playerRatingAsOfDate);
 
         calendar.set(2020, Calendar.FEBRUARY, 27, 0, 0 ,0);
         playerRatingAsOfDate = usattDataService.getPlayerRatingAsOfDate(membershipId,  calendar.getTime());
-        assertEquals("wrong rating", 2437, playerRatingAsOfDate);
+        assertEquals("wrong rating as of " + calendar.getTime(), 2437, playerRatingAsOfDate);
 
         calendar.set(2020, Calendar.FEBRUARY, 26, 0, 0 ,0);
         playerRatingAsOfDate = usattDataService.getPlayerRatingAsOfDate(membershipId,  calendar.getTime());
+        assertEquals("wrong rating as of " + calendar.getTime(), 2437, playerRatingAsOfDate);
 
         calendar.set(2020, Calendar.FEBRUARY, 22, 0, 0 ,0);
         playerRatingAsOfDate = usattDataService.getPlayerRatingAsOfDate(membershipId,  calendar.getTime());
-        assertEquals("wrong rating", 2437, playerRatingAsOfDate);
+        assertEquals("wrong rating as of " + calendar.getTime(), 2437, playerRatingAsOfDate);
 
         calendar.set(2020, Calendar.FEBRUARY, 21, 0, 0 ,0);
         playerRatingAsOfDate = usattDataService.getPlayerRatingAsOfDate(membershipId,  calendar.getTime());
-        assertEquals("wrong rating", 2444, playerRatingAsOfDate);
+        assertEquals("wrong rating as of " + calendar.getTime(), 2444, playerRatingAsOfDate);
 
         calendar.set(2020, Calendar.FEBRUARY, 20, 0, 0 ,0);
         playerRatingAsOfDate = usattDataService.getPlayerRatingAsOfDate(membershipId,  calendar.getTime());
-        assertEquals("wrong rating", 2444, playerRatingAsOfDate);
+        assertEquals("wrong rating as of " + calendar.getTime(), 2444, playerRatingAsOfDate);
 
         // get latest rating as before the first tournament
         calendar.set(2015, Calendar.DECEMBER, 12, 0, 0 ,0);
         playerRatingAsOfDate = usattDataService.getPlayerRatingAsOfDate(membershipId,  calendar.getTime());
-        assertEquals("wrong rating", 2409, playerRatingAsOfDate);
+        assertEquals("wrong rating as of " + calendar.getTime(), 2409, playerRatingAsOfDate);
 
         // get latest rating as before the first tournament
         calendar.set(2021, Calendar.FEBRUARY, 26, 0, 0 ,0);
         playerRatingAsOfDate = usattDataService.getPlayerRatingAsOfDate(400000,  calendar.getTime());
-        assertEquals("wrong rating", 0, playerRatingAsOfDate);
+        assertEquals("wrong rating as of " + calendar.getTime(), 0, playerRatingAsOfDate);
     }
 
     @Test

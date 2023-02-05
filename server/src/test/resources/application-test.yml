@@ -1,9 +1,9 @@
 spring.jpa.hibernate.ddl-auto: create
 spring.datasource:
   driver-class-name: com.mysql.jdbc.Driver
-  url: jdbc:mysql://localhost:3306/auroratmstest
+  url: jdbc:mysql://mysql:3306/auroratmsspring
   username: tester
-  password: tester2021
+  password: tester2023$
 
 spring:
   liquibase:
@@ -16,6 +16,9 @@ spring:
         smtp:
           auth: true
           starttls.enable: true
+  jpa:
+    show-sql: true
+#    properties.hibernate.format_sql: true
 
 
 okta:

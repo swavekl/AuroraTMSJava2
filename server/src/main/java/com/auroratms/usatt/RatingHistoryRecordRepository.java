@@ -6,6 +6,7 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 public interface RatingHistoryRecordRepository extends JpaRepository<RatingHistoryRecord, Long> {
 
@@ -17,14 +18,22 @@ public interface RatingHistoryRecordRepository extends JpaRepository<RatingHisto
      * @return
      */
     @Query(nativeQuery = true,
-            value = "SELECT * FROM usattratinghistory " +
-                    " WHERE membership_id = :membershipId AND final_rating_date = (" +
+            value = "SELECT u.* FROM usattratinghistory u" +
+                    " WHERE u.membership_id = :membershipId AND u.final_rating_date = (" +
                     "    SELECT MAX(final_rating_date) FROM usattratinghistory" +
-                    "    WHERE membership_id = :membershipId AND final_rating_date < :dateOfRating" +
+                    "    WHERE membership_id = :membershipId AND final_rating_date <= :dateOfRating" +
                     ");"
     )
     List<RatingHistoryRecord> getPlayerRatingAsOfDate(@Param("membershipId") Long membershipId,
                                                       @Param("dateOfRating") Date dateOfRating);
+
+    /**
+     * Get the record when the rating date change is known
+     * @param membershipId
+     * @param finalRatingDate
+     * @return
+     */
+    Optional<RatingHistoryRecord> findByMembershipIdAndFinalRatingDate(Long membershipId, Date finalRatingDate);
 
     /**
      * Gets a batch of player ratings as of date
@@ -40,7 +49,7 @@ public interface RatingHistoryRecordRepository extends JpaRepository<RatingHisto
                     " (SELECT membership_id, MAX(final_rating_date) as max_final_rating_date" +
                     " FROM usattratinghistory" +
                     " WHERE membership_id in (:membershipIdList)" +
-                    " AND final_rating_date < :dateOfRating" +
+                    " AND final_rating_date <= :dateOfRating" +
                     " GROUP BY membership_id) sub " +
                     "ON sub.membership_id = u.membership_id " +
                     "AND sub.max_final_rating_date = u.final_rating_date;"
