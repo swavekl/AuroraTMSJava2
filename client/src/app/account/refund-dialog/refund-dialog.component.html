@@ -15,21 +15,23 @@
   </div>
 </div>
 <app-message-area [message]="errorMessage" [isError]="isError"></app-message-area>
-<div mat-dialog-actions fxLayout="row">
-  <button [style.display]="refundComplete ? 'none' : 'block'" mat-raised-button (click)="onCancel()"
-          [disabled]="this.refundInProgress$ | async">Cancel
-  </button>
-  <span fxFlex></span>
-  <button [style.display]="refundComplete ? 'none' : 'block'" mat-raised-button color="primary" type="submit"
-          (click)="onSubmit()" debounceClicks
-          [disabled]="this.refundInProgress$ | async">
-    Submit
-  </button>
-  <button [style.display]="!refundComplete ? 'none' : 'block'"
-          [disabled]="this.refundInProgress$ | async"
-          mat-raised-button color="primary"
-          (click)="onClose()">
-    Close
-  </button>
-</div>
+<mat-dialog-actions>
+  <div fxLayout="row" fxLayoutAlign="space-between start" style="width: 100%; margin: 0 8px;">
+    <button [style.display]="refundComplete ? 'none' : 'block'" mat-raised-button (click)="onCancel()"
+            [disabled]="this.refundInProgress$ | async">Cancel
+    </button>
+    <span fxFlex></span>
+    <button [style.display]="refundComplete ? 'none' : 'block'" mat-raised-button color="primary" type="submit"
+            (click)="onSubmit()" debounceClicks
+            [disabled]="this.refundInProgress$ | async">
+      Submit
+    </button>
+    <button [style.display]="!refundComplete ? 'none' : 'block'"
+            [disabled]="this.refundInProgress$ | async"
+            mat-raised-button color="primary"
+            (click)="onClose()">
+      Close
+    </button>
+  </div>
+</mat-dialog-actions>
 
