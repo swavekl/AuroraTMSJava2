@@ -5,6 +5,7 @@ import {TournamentInfo} from '../../model/tournament-info.model';
 import {LocalStorageService} from '../../../shared/local-storage.service';
 import {Regions} from '../../../shared/regions';
 import {LinearProgressBarService} from '../../../shared/linear-progress-bar/linear-progress-bar.service';
+import {TodayService} from '../../../shared/today.service';
 
 @Component({
   selector: 'app-tournament-list-container',
@@ -27,7 +28,8 @@ export class TournamentListContainerComponent implements OnInit, OnDestroy {
 
   constructor(private tournamentInfoService: TournamentInfoService,
               private localStorageService: LocalStorageService,
-              private linearProgressBarService: LinearProgressBarService) {
+              private linearProgressBarService: LinearProgressBarService,
+              private todayService: TodayService) {
     this.tournaments$ = this.tournamentInfoService.filteredEntities$;
     const subscription = this.tournamentInfoService.loading$.subscribe((loading: boolean) => {
       this.linearProgressBarService.setLoading(loading);
@@ -65,8 +67,9 @@ export class TournamentListContainerComponent implements OnInit, OnDestroy {
       }
     }
     // default date range 3 months old and all future tournaments
+    let twoMonthsBackDate = this.todayService.todaysDate;
     // const twoMonthsBackDate = moment().subtract(1, 'months').toDate();
-    const twoMonthsBackDate = new Date();
+    // const twoMonthsBackDate = new Date();
     this.tournamentInfoService.setFilter({
       states: states,
       startDate: twoMonthsBackDate,

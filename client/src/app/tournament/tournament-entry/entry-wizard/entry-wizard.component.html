@@ -45,40 +45,52 @@
           </div>
         </mat-step>
         <mat-step label="Events">
-          <mat-list>
-            <div class="mat-headline-6">Entered Events</div>
+          <mat-action-list>
+            <div matSubheader>Entered Events</div>
             <mat-divider></mat-divider>
             <mat-list-item *ngFor="let enteredEvent of enteredEvents; last as last">
-              <div mat-line class="event-item-line1">{{enteredEvent.event?.name}}</div>
-              <div mat-line class="event-item-line2">{{ enteredEvent.event?.day | eventDay: tournamentStartDate }} {{ enteredEvent.event?.startTime | startTime }}</div>
-              <div mat-line class="event-item-line2" [class]="getStatusClass(enteredEvent.status)">{{enteredEvent.status | eventEntryStatus }}  &nbsp; ${{ enteredEvent.price }}</div>
-              <button type="button" mat-fab color="" (click)="onEventWithdraw(enteredEvent.eventEntryFk)">
-                <mat-icon>{{getEnterButtonIcon(enteredEvent.eventEntryCommand)}}</mat-icon>
-              </button>
+              <div fxLayout="row" fxLayoutAlign="space-between start">
+                <div>
+                  <div matListItemTitle class="event-item-line1">{{enteredEvent.event?.name}}</div>
+                  <div matListItemLine class="event-item-line2">{{ enteredEvent.event?.day | eventDay: tournamentStartDate }} {{ enteredEvent.event?.startTime | startTime }}</div>
+                  <div matListItemLine class="event-item-line2" [class]="getStatusClass(enteredEvent.status)">{{enteredEvent.status | eventEntryStatus }} &nbsp; ${{ enteredEvent.price }}</div>
+                </div>
+                <div style="margin-right: 8px">
+                  <button type="button" mat-fab color="" (click)="onEventWithdraw(enteredEvent.eventEntryFk)">
+                    <mat-icon>{{getEnterButtonIcon(enteredEvent.eventEntryCommand)}}</mat-icon>
+                  </button>
+              </div>
+              </div>
               <mat-divider [inset]="true" *ngIf="!last"></mat-divider>
             </mat-list-item>
             <mat-divider></mat-divider>
-            <div class="mat-headline-6" style="padding-top: 10px">Events Available to Enter</div>
+            <div matSubheader style="padding-top: 10px">Events Available to Enter</div>
             <mat-divider></mat-divider>
             <mat-list-item *ngFor="let availableEvent of availableEvents; last as last2">
-              <div mat-line class="event-item-line1">{{availableEvent.event?.name}}</div>
-              <div mat-line class="event-item-line2">{{ availableEvent.event?.day | eventDay: tournamentStartDate }} {{ availableEvent.event?.startTime | startTime }}</div>
-              <div mat-line class="event-item-line2" [class]="getStatusClass(availableEvent.status)">{{ availableEvent.status | eventEntryStatus }} &nbsp; ${{ availableEvent.price }}</div>
-              <button type="button" mat-fab color="" (click)="onEventEnter(availableEvent.event?.id, availableEvent.eventEntryCommand)">
-                <mat-icon>{{getEnterButtonIcon(availableEvent.eventEntryCommand)}}</mat-icon>
-              </button>
+              <div fxLayout="row" fxLayoutAlign="space-between start">
+                <div>
+                  <div matListItemTitle class="event-item-line1">{{availableEvent.event?.name}}</div>
+                  <div matListItemLine class="event-item-line2">{{ availableEvent.event?.day | eventDay: tournamentStartDate }} {{ availableEvent.event?.startTime | startTime }}</div>
+                  <div matListItemLine class="event-item-line2" [class]="getStatusClass(availableEvent.status)">{{ availableEvent.status | eventEntryStatus }} &nbsp; ${{ availableEvent.price }}</div>
+                </div>
+                <div style="margin-right: 8px">
+                  <button type="button" mat-fab color="" (click)="onEventEnter(availableEvent.event?.id, availableEvent.eventEntryCommand)">
+                    <mat-icon>{{getEnterButtonIcon(availableEvent.eventEntryCommand)}}</mat-icon>
+                  </button>
+                </div>
+              </div>
               <mat-divider [inset]="true" *ngIf="!last2"></mat-divider>
             </mat-list-item>
             <mat-divider></mat-divider>
-            <div class="mat-headline-6" style="padding-top: 10px">Events Not Available to Enter</div>
+            <div matSubheader style="padding-top: 10px">Events Not Available to Enter</div>
             <mat-divider></mat-divider>
             <mat-list-item *ngFor="let unavailableEvent of unavailableEvents; last as last3">
-              <div mat-line class="event-item-line1">{{unavailableEvent.event?.name}} </div>
-              <div mat-line class="event-item-line2">{{ unavailableEvent.event?.day | eventDay: tournamentStartDate }} {{ unavailableEvent.event?.startTime | startTime }}</div>
-              <div mat-line class="event-item-line2">{{unavailableEvent.availabilityStatus | availabilityStatus }} &nbsp; ${{ unavailableEvent.price }}</div>
+              <div matListItemTitle class="event-item-line1">{{unavailableEvent.event?.name}} </div>
+              <div matListItemLine class="event-item-line2">{{ unavailableEvent.event?.day | eventDay: tournamentStartDate }} {{ unavailableEvent.event?.startTime | startTime }}</div>
+              <div matListItemLine class="event-item-line2">{{unavailableEvent.availabilityStatus | availabilityStatus }} &nbsp; ${{ unavailableEvent.price }}</div>
               <mat-divider [inset]="true" *ngIf="!last3"></mat-divider>
             </mat-list-item>
-          </mat-list>
+          </mat-action-list>
           <div class="wizard-button-bar" fxLayout="row">
             <button mat-raised-button matStepperPrevious type="button">Back</button>
             <span fxFlex></span>

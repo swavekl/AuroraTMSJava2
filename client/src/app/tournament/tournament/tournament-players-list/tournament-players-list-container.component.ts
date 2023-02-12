@@ -110,9 +110,16 @@ export class TournamentPlayersListContainerComponent implements OnInit, OnDestro
       .pipe(first())
       .subscribe(
         (events: TournamentEvent[]) => {
+          let sameTournament = true;
           if (events != null && events.length > 0) {
-            this.tournamentEvents$ = of(events);
-          } else {
+            const firstEvent = events[0];
+            sameTournament = (firstEvent.tournamentFk === tournamentId);
+            if (sameTournament) {
+              this.tournamentEvents$ = of(events);
+            }
+          }
+          if (!sameTournament)  {
+            this.tournamentEventConfigService.clearCache();
             // don't have event configs cached - load them - again template is subscribed to this
             this.tournamentEvents$ = this.tournamentEventConfigService.loadTournamentEvents(tournamentId);
           }
