@@ -16,6 +16,12 @@ export class TournamentInfoService extends EntityCollectionServiceBase<Tournamen
       .pipe(map(tournamentInfos => tournamentInfos.map(tournamentInfo => TournamentInfo.convert(tournamentInfo))));
   }
 
+  getAllRecentAndFuture(date: Date): Observable<TournamentInfo[]> {
+    const params = `date=${date}`;
+    return super.getWithQuery(params)
+      .pipe(map(tournamentInfos => tournamentInfos.map(tournamentInfo => TournamentInfo.convert(tournamentInfo))));
+  }
+
   getByKey(key: any, options?: EntityActionOptions): Observable<TournamentInfo> {
     return super.getByKey(key, options)
       .pipe(map(tournamentInfo => TournamentInfo.convert(tournamentInfo)));

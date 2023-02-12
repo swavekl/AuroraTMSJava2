@@ -69,4 +69,11 @@ public interface TournamentRepository extends JpaRepository<TournamentEntity, Lo
                     " AND :day <= tournament.end_date"
     )
     Collection<TournamentEntity> findDaysTournaments(Date day);
+
+    /**
+     * Finds all tournaments which have a start date after given date
+     * @param day
+     * @return
+     */
+    Collection<TournamentEntity> findAllByStartDateAfterOrderByStartDateDesc(Date day);
 }

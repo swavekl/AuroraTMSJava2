@@ -60,6 +60,12 @@ public class TournamentService {
         return toTournamentCollection(tournamentEntities);
     }
 
+    public Collection<Tournament> listTournamentsAfterDate(Date date) {
+        Collection<TournamentEntity> tournamentEntities = repository.findAllByStartDateAfterOrderByStartDateDesc(date).stream()
+                .collect(Collectors.toList());
+        return toTournamentCollection(tournamentEntities);
+    }
+
     private Collection<Tournament> toTournamentCollection(Collection<TournamentEntity> tournamentEntities) {
         Collection<Tournament> tournaments = new ArrayList<>();
         for (TournamentEntity tournamentEntity : tournamentEntities) {

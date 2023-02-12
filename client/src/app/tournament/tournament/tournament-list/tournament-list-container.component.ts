@@ -6,6 +6,7 @@ import {LocalStorageService} from '../../../shared/local-storage.service';
 import {Regions} from '../../../shared/regions';
 import {LinearProgressBarService} from '../../../shared/linear-progress-bar/linear-progress-bar.service';
 import {TodayService} from '../../../shared/today.service';
+import * as moment from 'moment/moment';
 
 @Component({
   selector: 'app-tournament-list-container',
@@ -48,7 +49,8 @@ export class TournamentListContainerComponent implements OnInit, OnDestroy {
     }
     this.setFilter(this.selectedRegion);
 
-    this.tournamentInfoService.getAll();
+    const listingDate = this.getListingDate();
+    this.tournamentInfoService.getAllRecentAndFuture(listingDate);
   }
 
   onFilterChange(selectedRegion: string) {
@@ -66,15 +68,19 @@ export class TournamentListContainerComponent implements OnInit, OnDestroy {
         break;
       }
     }
-    // default date range 3 months old and all future tournaments
-    let twoMonthsBackDate = this.todayService.todaysDate;
-    // const twoMonthsBackDate = moment().subtract(1, 'months').toDate();
-    // const twoMonthsBackDate = new Date();
+    const listingDate = this.getListingDate();
     this.tournamentInfoService.setFilter({
       states: states,
-      startDate: twoMonthsBackDate,
+      startDate: listingDate,
       endDate: null
     });
+  }
+
+  // gets a listing date which is one month back from today
+  // this way some tournaments that have alredy completed can be shown
+  // to view results
+  getListingDate () {
+    return moment(this.todayService.todaysDate).subtract(1, 'months').toDate();
   }
 
   ngOnDestroy(): void {

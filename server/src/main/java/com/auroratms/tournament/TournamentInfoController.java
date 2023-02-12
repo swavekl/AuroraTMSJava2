@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 
 @RestController
 @RequestMapping("api")
@@ -16,8 +17,12 @@ public class TournamentInfoController {
     private TournamentService tournamentService;
 
     @GetMapping("/tournamentinfos")
-    public Collection<TournamentInfo> list() {
-        return toTournamentInfos(tournamentService.list());
+    public Collection<TournamentInfo> list(@RequestParam(required = false) Date date) {
+        if (date != null) {
+            return toTournamentInfos(tournamentService.listTournamentsAfterDate(date));
+        } else {
+            return toTournamentInfos(tournamentService.list());
+        }
     }
 
     @GetMapping("/tournamentinfo/{id}")
