@@ -7,7 +7,7 @@ import {Component, Input, OnChanges, OnInit, SimpleChange, SimpleChanges} from '
   selector: 'app-star-level',
   template: `
       <ng-container *ngFor="let star of starsArray">
-        <mat-icon matListItemIcon color="accent" [ngClass]="compact ? 'compact' : 'normal'">star</mat-icon>
+        <mat-icon color="accent" [ngClass]="compact ? 'compact' : 'normal'">star</mat-icon>
       </ng-container>
   `,
   styles: [

@@ -21,10 +21,14 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.oauth2.server.resource.web.DefaultBearerTokenResolver;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
+import org.springframework.security.web.header.HeaderWriter;
+import org.springframework.security.web.header.writers.CacheControlHeadersWriter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.util.Collections;
 
 @SpringBootApplication
@@ -82,6 +86,8 @@ public class ServerApplication {
                 http.requiresChannel()
                         .anyRequest().requiresSecure();
 
+                configureCaching(http);
+
                 http.oauth2ResourceServer(OAuth2ResourceServerConfigurer::jwt);
 //                // disable session fixation
 //                http.sessionManagement()
@@ -102,6 +108,24 @@ public class ServerApplication {
 //                return new OktaAuthoritiesExtractor();
 //            }
         };
+    }
+
+    /**
+     * Turn off caching for all but image files
+     * @param http
+     * @throws Exception
+     */
+    private void configureCaching (HttpSecurity http) throws Exception {
+        http.headers().cacheControl().disable();
+        http.headers().addHeaderWriter(new HeaderWriter() {
+
+            final CacheControlHeadersWriter originalWriter = new CacheControlHeadersWriter();
+
+            @Override
+            public void writeHeaders(HttpServletRequest request, HttpServletResponse response) {
+                originalWriter.writeHeaders(request, response);
+            }
+        });
     }
 
     /**
