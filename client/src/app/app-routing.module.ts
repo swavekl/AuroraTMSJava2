@@ -3,7 +3,6 @@ import {RouterModule, Routes} from '@angular/router';
 import {HomeComponent} from './home/home/home.component';
 import {LogoutComponent} from './user/logout/logout.component';
 import {UserRoles} from './user/user-roles.enum';
-import {TournamentProcessingModule} from './tournament-processing/tournament-processing.module';
 
 
 const routes: Routes = [

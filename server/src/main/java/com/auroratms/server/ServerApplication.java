@@ -29,6 +29,7 @@ import org.springframework.web.filter.CorsFilter;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.Arrays;
 import java.util.Collections;
 
 @SpringBootApplication
@@ -123,7 +124,17 @@ public class ServerApplication {
 
             @Override
             public void writeHeaders(HttpServletRequest request, HttpServletResponse response) {
-                originalWriter.writeHeaders(request, response);
+                String requestURI = request.getRequestURI();
+                // check if request is for one of the image files
+                String [] imageFileExtensions = { ".png", ".ico", ".jpeg", ".jpg"};
+                String foundExtension = Arrays.stream(imageFileExtensions)
+                        .filter(e -> requestURI.endsWith(e))
+                        .findFirst()
+                        .orElse(null);
+                // if not then write no-cache in header
+                if (foundExtension == null) {
+                    originalWriter.writeHeaders(request, response);
+                }
             }
         });
     }
