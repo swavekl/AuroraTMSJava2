@@ -1,23 +1,23 @@
 import {NgModule} from '@angular/core';
 import {CommonModule} from '@angular/common';
+import {RouterModule, Routes} from '@angular/router';
 import {MatButtonModule} from '@angular/material/button';
 import {MatCardModule} from '@angular/material/card';
 import {MatIconModule} from '@angular/material/icon';
 import {MatInputModule} from '@angular/material/input';
+import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
+import {MatProgressBarModule} from '@angular/material/progress-bar';
 import {FormsModule} from '@angular/forms';
-import {RouterModule, Routes} from '@angular/router';
+import {FlexLayoutModule} from '@angular/flex-layout';
+import {SharedModule} from '../shared/shared.module';
 import {LoginComponent} from './login/login.component';
 import {SignInComponent} from './sign-in/sign-in.component';
 import {RegisterComponent} from './register/register.component';
-import {FlexLayoutModule} from '@angular/flex-layout';
 import {RegistrationConfirmedComponent} from './registration-confirmed/registration-confirmed.component';
 import {ResetPasswordComponent} from './reset-password/reset-password.component';
 import {ResetPasswordResultComponent} from './reset-password-result/reset-password-result.component';
 import {ResetPasswordStartComponent} from './reset-password-start/reset-password-start.component';
-import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
-import { LogoutComponent } from './logout/logout.component';
-import {SharedModule} from '../shared/shared.module';
-import {MatProgressBarModule} from '@angular/material/progress-bar';
+import {LogoutComponent} from './logout/logout.component';
 
 const userRoutes: Routes = [
   {

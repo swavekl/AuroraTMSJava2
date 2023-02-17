@@ -40,6 +40,6 @@ export class TournamentDirectorDashboardComponent {
   }
 
   onRegisterPlayer() {
-    this.router.navigate(['/tdadduserprofile', this.tournamentId]);
+    this.router.navigate(['/userprofile/addbytd', this.tournamentId]);
   }
 }

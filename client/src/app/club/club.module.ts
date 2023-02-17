@@ -26,7 +26,10 @@ import {ClubListComponent} from './club-list/club-list.component';
 import {ClubAffiliationApplicationListComponent} from './club-affiliation-application-list/club-affiliation-application-list.component';
 import {ClubAffiliationApplicationComponent} from './club-affiliation-application/club-affiliation-application.component';
 // tslint:disable-next-line:max-line-length
-import {ClubAffiliationApplicationContainerComponent} from './club-affiliation-application/club-affiliation-application-container.component';
+import {
+  ClubAffiliationApplicationContainerComponent
+} from './club-affiliation-application/club-affiliation-application-container.component';
+import {ClubEditPopupService} from './service/club-edit-popup.service';
 
 
 @NgModule({
@@ -41,27 +44,30 @@ import {ClubAffiliationApplicationContainerComponent} from './club-affiliation-a
   exports: [
     ClubNameValidatorDirective
   ],
-    imports: [
-        CommonModule,
-        ClubRoutingModule,
-        MatTableModule,
-        MatPaginatorModule,
-        MatSortModule,
-        MatToolbarModule,
-        MatIconModule,
-        MatButtonModule,
-        MatListModule,
-        MatInputModule,
-        FlexModule,
-        FormsModule,
-        MatDialogModule,
-        MatSelectModule,
-        MatCardModule,
-        MatStepperModule,
-        MatRadioModule,
-        MatTooltipModule,
-        MatDatepickerModule
-    ]
+  imports: [
+    CommonModule,
+    ClubRoutingModule,
+    MatTableModule,
+    MatPaginatorModule,
+    MatSortModule,
+    MatToolbarModule,
+    MatIconModule,
+    MatButtonModule,
+    MatListModule,
+    MatInputModule,
+    FlexModule,
+    FormsModule,
+    MatDialogModule,
+    MatSelectModule,
+    MatCardModule,
+    MatStepperModule,
+    MatRadioModule,
+    MatTooltipModule,
+    MatDatepickerModule
+  ],
+  providers: [
+    ClubEditPopupService
+  ]
 })
 export class ClubModule {
 }

@@ -1,28 +1,17 @@
 import {NgModule} from '@angular/core';
 import {CommonModule} from '@angular/common';
-import {Routes, RouterModule} from '@angular/router';
-// import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
-import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
-import { MatInputModule } from '@angular/material/input';
-import { MatListModule } from '@angular/material/list';
-import { MatToolbarModule } from '@angular/material/toolbar';
-import {HomeComponent} from './home/home.component';
-import { UserWelcomeComponent } from './user-welcome/user-welcome.component';
+import {MatButtonModule} from '@angular/material/button';
+import {MatCardModule} from '@angular/material/card';
+import {MatInputModule} from '@angular/material/input';
+import {MatListModule} from '@angular/material/list';
+import {MatToolbarModule} from '@angular/material/toolbar';
+import {MatIconModule} from '@angular/material/icon';
 import {FlexLayoutModule} from '@angular/flex-layout';
 import {SharedModule} from '../shared/shared.module';
-import {MatIconModule} from '@angular/material/icon';
+import {HomeComponent} from './home/home.component';
+import {UserWelcomeComponent} from './user-welcome/user-welcome.component';
+import {HomeRoutingModule} from './home-routing.module';
 
-const homeRoutes: Routes = [
-    {
-      path: 'home',
-      component: HomeComponent
-    },
-  {
-    path: 'userwelcome',
-    component: UserWelcomeComponent
-  }
-  ];
 
 @NgModule({
   declarations: [
@@ -30,9 +19,8 @@ const homeRoutes: Routes = [
     UserWelcomeComponent
   ],
     imports: [
-        RouterModule.forChild(homeRoutes),
+        HomeRoutingModule,
         CommonModule,
-        // BrowserAnimationsModule,
         MatButtonModule,
         MatCardModule,
         MatInputModule,

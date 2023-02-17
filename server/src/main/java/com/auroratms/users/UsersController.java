@@ -112,7 +112,7 @@ public class UsersController extends AbstractOktaController {
       }
              */
             String requestBody = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(topLevelObjectNode);
-            System.out.println("requestBody = " + requestBody);
+//            System.out.println("requestBody = " + requestBody);
             String result = makePostRequest(strRegisterUserURL, requestBody);
 
             Map<String, Object> jsonMap = objectMapper.readValue(result,

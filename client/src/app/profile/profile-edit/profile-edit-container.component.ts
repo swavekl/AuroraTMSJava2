@@ -58,7 +58,7 @@ export class ProfileEditContainerComponent implements OnInit, OnDestroy {
 
     // if we are coming from registration filling in the first time
     if (this.initializingProfile) {
-      this.returnUrl = '/onboardcomplete';
+      this.returnUrl = '/userprofile/onboardcomplete';
     } else {
       // console.log('player data', this.playerRecord);
       // this.returnUrl = history?.state?.url;  // for when TD edits profiles

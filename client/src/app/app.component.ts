@@ -50,7 +50,7 @@ export class AppComponent implements OnInit {
 
   editProfile() {
     const profileId: string = this.authenticationService.getCurrentUserProfileId();
-    this.closeAndNavigateToRoute(`/userprofile/${profileId}`);
+    this.closeAndNavigateToRoute(`/userprofile/edit/${profileId}`);
   }
 
   hasTournamentToday(): boolean {

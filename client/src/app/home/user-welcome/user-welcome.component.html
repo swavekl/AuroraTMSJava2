@@ -2,7 +2,7 @@
   <h3>Welcome to "Aurora TMS" {{firstName}}</h3>
   <div *ngIf="activationResult == true">
     <h3>Your account has been successfully activated.</h3>
-    <h3>Please <a routerLink="/userprofilestart">login</a> so we can fill your player profile.</h3>
+    <h3>Please <a routerLink="/userprofile/start">login</a> so we can fill your player profile.</h3>
   </div>
   <div *ngIf="activationResult == false">
     <h3>Something went wrong with you email verification.

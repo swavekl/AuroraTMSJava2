@@ -8,7 +8,6 @@ import {combineLatest, Observable, Subscription} from 'rxjs';
 import {LinearProgressBarService} from '../../shared/linear-progress-bar/linear-progress-bar.service';
 import {TournamentEntry} from '../../tournament/tournament-entry/model/tournament-entry.model';
 import {TournamentEntryService} from '../../tournament/tournament-entry/service/tournament-entry.service';
-import * as moment from 'moment';
 import {Router} from '@angular/router';
 import {TodayService} from '../../shared/today.service';
 import {createSelector} from '@ngrx/store';

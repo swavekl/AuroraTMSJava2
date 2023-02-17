@@ -54,7 +54,7 @@ export class ProfileEditStartComponent implements OnInit {
 
   onProfileEditStart(initializingProfile: boolean, playerRecord: UsattPlayerRecord) {
     const state = {initializingProfile: initializingProfile, playerRecord: playerRecord};
-    const url = `/userprofile/${this.profileId}`;
+    const url = `/userprofile/edit/${this.profileId}`;
     this.router.navigate([url], {state: state});
   }
 

@@ -25,6 +25,8 @@ import {MatDialogModule} from '@angular/material/dialog';
 import {MatSelectModule} from '@angular/material/select';
 import { MaxRatingDirective } from './doubles-pair-dialog/max-rating.directive';
 import {EntryWizardCanDeactivateGuard} from './entry-wizard/entry-wizard-can-deactivate.guard';
+import {DoublesTeamsContainerComponent} from './doubles-teams/doubles-teams-container.component';
+import {DoublesTeamsComponent} from './doubles-teams/doubles-teams.component';
 
 @NgModule({
   declarations: [
@@ -33,6 +35,8 @@ import {EntryWizardCanDeactivateGuard} from './entry-wizard/entry-wizard-can-dea
     EventEntryStatusPipe,
     AvailabilityStatusPipe,
     DoublesPairDialogComponent,
+    DoublesTeamsComponent,
+    DoublesTeamsContainerComponent,
     MaxRatingDirective
   ],
   imports: [
@@ -55,7 +59,9 @@ import {EntryWizardCanDeactivateGuard} from './entry-wizard/entry-wizard-can-dea
     MatDialogModule,
     MatSelectModule
   ],
-  exports: [],
+  exports: [
+    DoublesTeamsContainerComponent
+  ],
   providers: [EntryWizardCanDeactivateGuard]
 })
 export class TournamentEntryModule {

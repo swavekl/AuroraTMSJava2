@@ -1,6 +1,5 @@
 import {NgModule} from '@angular/core';
 import {RouterModule, Routes} from '@angular/router';
-import {HomeComponent} from './home/home/home.component';
 import {LogoutComponent} from './user/logout/logout.component';
 import {UserRoles} from './user/user-roles.enum';
 
@@ -9,7 +8,12 @@ const routes: Routes = [
   {path: '', redirectTo: '/login/signin', pathMatch: 'full'},
   {path: 'logout', component: LogoutComponent},
   {
-    path: 'home', component: HomeComponent
+    path: 'home',
+    loadChildren: () => import('./home/home.module').then(m => m.HomeModule)
+  },
+  {
+    path: 'userprofile',
+    loadChildren: () => import('./profile/profile.module').then(m => m.ProfileModule)
   },
   {
     path: 'tournamentsconfig',

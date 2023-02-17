@@ -13,10 +13,10 @@ import {LinearProgressBarService} from '../../shared/linear-progress-bar/linear-
 export class RegisterComponent implements OnInit, OnDestroy {
 
   firstName = '';
-  lastName = 'Lorenc';
-  email = 'swaveklorenc+@gmail.com';
-  password = ''; // 'Julia1234';
-  password2 = ''; // 'Julia1234';
+  lastName = '';
+  email = '';
+  password = '';
+  password2 = '';
 
   crossFieldErrorMatcher = new CrossFieldErrorMatcher();
 

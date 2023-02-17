@@ -15,7 +15,7 @@
       </mat-form-field>
     </div>
     <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="10px">
-      <mat-form-field fxFlex="45%">
+      <mat-form-field fxFlex="50%">
         <mat-label>City</mat-label>
         <input matInput type="text" name="city" [(ngModel)]="club.city" required>
         <mat-error>This field is required</mat-error>
@@ -28,7 +28,7 @@
         </mat-select>
         <mat-error>This field is required</mat-error>
       </mat-form-field>
-      <mat-form-field fxFlex="25%">
+      <mat-form-field fxFlex="30%">
         <mat-label>Zip Code</mat-label>
         <input matInput type="text" name="zipCode" [(ngModel)]="club.zipCode"
                [pattern]="zipCodePattern" [maxlength]="zipCodeLength" #zipCode="ngModel"
@@ -39,7 +39,7 @@
     </div>
   </mat-dialog-content>
   <mat-dialog-actions>
-    <div fxLayout="row" fxLayoutAlign="space-between start" fxLayoutGap="10" style="width: 100%;">
+    <div fxLayout="row" fxLayoutAlign="space-between start" fxLayoutGap="10" style="width: 100%; margin: 0 8px">
       <button mat-raised-button type="button" (click)="onCancel()">Cancel</button>
       <span fxFlex></span>
       <button mat-raised-button type="button" color="primary" [disabled]="!f.form.valid" (click)="onSave()">

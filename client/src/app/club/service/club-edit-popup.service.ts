@@ -4,9 +4,7 @@ import {MatDialog} from '@angular/material/dialog';
 import {Club} from '../model/club.model';
 import {ClubEditComponent} from '../club-edit/club-edit.component';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable()
 export class ClubEditPopupService implements OnDestroy {
 
   private subscriptions: Subscription = new Subscription();
@@ -19,7 +17,7 @@ export class ClubEditPopupService implements OnDestroy {
 
   showPopup(clubToEdit: Club, callbackData: ClubEditCallbackData) {
     const config = {
-      width: '420px', height: '430px', data: clubToEdit
+      width: '500px', height: '400px', data: clubToEdit
     };
     const callbackScope = callbackData.callbackScope;
     const dialogRef = this.dialog.open(ClubEditComponent, config);
