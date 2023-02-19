@@ -21,6 +21,8 @@ import {MatDialogModule} from '@angular/material/dialog';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 import {MatProgressBarModule} from '@angular/material/progress-bar';
 import { RefundDialogComponent } from './refund-dialog/refund-dialog.component';
+import {PaymentDialogService} from './service/payment-dialog.service';
+import {PaymentRefundService} from './service/payment-refund.service';
 
 
 @NgModule({
@@ -52,6 +54,10 @@ import { RefundDialogComponent } from './refund-dialog/refund-dialog.component';
     MatDialogModule,
     MatProgressSpinnerModule,
     MatProgressBarModule
+  ],
+  providers: [
+    PaymentDialogService,
+    PaymentRefundService
   ]
 })
 export class AccountModule {

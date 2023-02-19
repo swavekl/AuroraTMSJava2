@@ -42,18 +42,18 @@ spring:
 #    org.springframework.transaction: DEBUG
 #logging.level.org.springframework.security: TRACE
 # debug server requests and responses
-logging:
-  level:
-    org:
-      springframework:
-        web:
-          client: DEBUG  # debug server responses
-        security:
-          access: DEBUG
-          web:
-            access: DEBUG   # debug server requests
-            csrf:
-             CsrfFilter: DEBUG
+#logging:
+#  level:
+#    org:
+#      springframework:
+#        web:
+#          client: DEBUG  # debug server responses
+#        security:
+#          access: DEBUG
+#          web:
+#            access: DEBUG   # debug server requests
+#            csrf:
+#             CsrfFilter: DEBUG
 
 ## Websocket debugging
 #logging.level.org.springframework.web.socket.sockjs: TRACE
@@ -72,7 +72,7 @@ logging:
 # https:///dev-758120.okta.com/oauth2/default/.well-known/oauth-authorization-server
 okta:
   oauth2:
-    redirectUri: https://gateway-pc:4200/authorization-code/callback
+    redirectUri: https://ttaurora.com:443/authorization-code/callback
     audience: api://default
   client:
     connectionTimeout: 30 # seconds
@@ -94,9 +94,9 @@ server.ssl:
 server:
   port: 8443
 
-client.host.url: https://gateway-pc:4200
+client.host.url: https://ttaurora.com:443
 deploymentType: local
-local.repository.root.path: C:\myprojects\filerepository
+local.repository.root.path: /filerepository
 
 spring.servlet.multipart:
   max-file-size: 30MB

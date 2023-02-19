@@ -18,6 +18,7 @@ import {MatStepperModule} from '@angular/material/stepper';
 import {MatRadioModule} from '@angular/material/radio';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {MatDatepickerModule} from '@angular/material/datepicker';
+import {MatNativeDateModule} from '@angular/material/core';
 
 import {ClubRoutingModule} from './club-routing.module';
 import {ClubEditComponent} from './club-edit/club-edit.component';
@@ -30,6 +31,7 @@ import {
   ClubAffiliationApplicationContainerComponent
 } from './club-affiliation-application/club-affiliation-application-container.component';
 import {ClubEditPopupService} from './service/club-edit-popup.service';
+import {AccountModule} from '../account/account.module';
 
 
 @NgModule({
@@ -63,7 +65,9 @@ import {ClubEditPopupService} from './service/club-edit-popup.service';
     MatStepperModule,
     MatRadioModule,
     MatTooltipModule,
-    MatDatepickerModule
+    MatDatepickerModule,
+    MatNativeDateModule,
+    AccountModule
   ],
   providers: [
     ClubEditPopupService

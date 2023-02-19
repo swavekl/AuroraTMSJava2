@@ -300,7 +300,8 @@ export class AuthenticationService {
 
   private showErrorPopup(error: any) {
     const errorMessageData: ErrorMessagePopupData = {
-      errorMessage: error
+      errorMessage: error,
+      title: null
     };
     const config = {
       width: '450px', height: '250px', data: errorMessageData

@@ -1,5 +1,6 @@
 import {DefaultPersistenceResultHandler, EntityAction} from '@ngrx/data';
 import {Action} from '@ngrx/store';
+import {Injectable} from '@angular/core';
 
 /**
  * Handler called when data arrives from the data service
@@ -8,6 +9,9 @@ import {Action} from '@ngrx/store';
  * and the total count in 'total' property.  Content needs to be
  * passed for action handler as 2nd param.
  */
+@Injectable({
+  providedIn: 'root'
+})
 export class PagedPersistenceResultHandler extends DefaultPersistenceResultHandler {
   handleSuccess(originalAction: EntityAction): (data: any) => Action {
     const actionHandler = super.handleSuccess(originalAction);

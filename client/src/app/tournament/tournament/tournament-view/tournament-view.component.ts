@@ -90,7 +90,7 @@ export class TournamentViewComponent implements OnInit, OnChanges {
   }
 
   showPlayers() {
-    const url = `playerlist/${this.tournament.id}`;
+    const url = `tournaments/playerlist/${this.tournament.id}`;
     // get the single piece of information that it needs to properly render event dates
     // to prevent going to the server for it
     const extras = {
