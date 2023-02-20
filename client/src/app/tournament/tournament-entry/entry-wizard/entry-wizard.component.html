@@ -101,8 +101,10 @@
           <div *ngFor="let doublesEnteredEvent of doublesEntries" class="doubles-entries">
             <div fxLayout="column">
               <div>Partner for '{{doublesEnteredEvent.eventName}}'</div>
-              <div fxLayout="row">
-                <input matInput type="text" [ngModel]="doublesEnteredEvent.partnerName" [name]="doublesEnteredEvent.varName"/>
+              <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="10px">
+                <mat-form-field style="width: 250px;">
+                  <input matInput type="text" [readonly]="true" [ngModel]="doublesEnteredEvent.partnerName" [name]="doublesEnteredEvent.varName"/>
+                </mat-form-field>
                 <button mat-raised-button type="button" (click)="onFindDoublesPartnerByName(doublesEnteredEvent.eventFk)">Select</button>
               </div>
             </div>

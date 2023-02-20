@@ -11,15 +11,20 @@ import {
   SimpleChanges
 } from '@angular/core';
 import {MembershipType, TournamentEntry} from '../model/tournament-entry.model';
-import {ProfileFindPopupComponent, ProfileSearchData} from '../../../profile/profile-find-popup/profile-find-popup.component';
-import {MatDialog} from '@angular/material/dialog';
+import {getCurrencySymbol} from '@angular/common';
 import {UntypedFormGroup} from '@angular/forms';
+import {MatDialog} from '@angular/material/dialog';
+import {Profile} from '../../../profile/profile';
+import {ProfileFindPopupComponent, ProfileSearchData} from '../../../profile/profile-find-popup/profile-find-popup.component';
+import {DateUtils} from '../../../shared/date-utils';
+
+import {first} from 'rxjs/operators';
+import {Subscription} from 'rxjs';
+
 import {TournamentEventEntryInfo} from '../model/tournament-event-entry-info-model';
 import {EventEntryStatus} from '../model/event-entry-status.enum';
 import {AvailabilityStatus} from '../model/availability-status.enum';
 import {EventEntryCommand} from '../model/event-entry-command.enum';
-import {Profile} from '../../../profile/profile';
-import {DateUtils} from '../../../shared/date-utils';
 import {PaymentRefund} from '../../../account/model/payment-refund.model';
 import {CallbackData} from '../../../account/model/callback-data';
 import {PaymentDialogData} from '../../../account/payment-dialog/payment-dialog-data';
@@ -29,15 +34,12 @@ import {PaymentRequest} from '../../../account/model/payment-request.model';
 import {RefundRequest} from '../../../account/model/refund-request.model';
 import {PaymentDialogService} from '../../../account/service/payment-dialog.service';
 import {RefundDialogService} from '../../../account/service/refund-dialog.service';
-import {first} from 'rxjs/operators';
 import {CurrencyService} from '../../../account/service/currency.service';
-import {getCurrencySymbol} from '@angular/common';
 import {Tournament} from '../../tournament-config/tournament.model';
 import {PriceCalculator} from '../pricecalculator/price-calculator';
 import {PricingMethod} from '../../model/pricing-method.enum';
 import {StandardPriceCalculator} from '../pricecalculator/standard-price-calculator';
 import {DiscountedPriceCalculator} from '../pricecalculator/discounted-price-calculator';
-import {Subscription} from 'rxjs';
 
 @Component({
   selector: 'app-entry-wizard',

@@ -51,11 +51,12 @@ export class TodayService {
     // todo - remove for production
     // Phoenix Winter Open
     // const utcMoment = moment([2023, 1, 25, 0, 0, 0]).utc();
+    // const utcMoment = moment([2022, 11, 20, 0, 0, 0]).utc();
     // Aurora Cup Real
-    const utcMoment = moment([2023, 0, 13, 0, 0, 0]).utc();
+    // const utcMoment = moment([2023, 0, 13, 0, 0, 0]).utc();
     // Aurora Fall Open
     // const utcMoment = moment([2025, 4, 10, 0, 0, 0]).utc();
-    return utcMoment.toDate();
-    // return new Date();
+    // return utcMoment.toDate();
+    return new Date();
   }
 }

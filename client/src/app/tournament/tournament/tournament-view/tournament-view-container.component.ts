@@ -1,6 +1,5 @@
 import {ChangeDetectionStrategy, Component, OnDestroy, OnInit} from '@angular/core';
 import {Observable, Subject, Subscription} from 'rxjs';
-import {TournamentInfo} from '../../model/tournament-info.model';
 import {ActivatedRoute} from '@angular/router';
 import {TournamentEntryService} from '../../tournament-entry/service/tournament-entry.service';
 import {TournamentEntry} from '../../tournament-entry/model/tournament-entry.model';
@@ -11,8 +10,6 @@ import {TournamentEventConfigService} from '../../tournament-config/tournament-e
 import {TournamentEvent} from '../../tournament-config/tournament-event.model';
 import {Tournament} from '../../tournament-config/tournament.model';
 import {TournamentConfigService} from '../../tournament-config/tournament-config.service';
-import {map} from 'rxjs/operators';
-import {ErrorMessagePopupService} from '../../../shared/error-message-dialog/error-message-popup.service';
 
 @Component({
   selector: 'app-tournament-view-container',
@@ -44,8 +41,7 @@ export class TournamentViewContainerComponent implements OnInit, OnDestroy {
               private tournamentEventConfigService: TournamentEventConfigService,
               private authService: AuthenticationService,
               private activatedRoute: ActivatedRoute,
-              private linearProgressBarService: LinearProgressBarService,
-              private errorMessagePopupService: ErrorMessagePopupService) {
+              private linearProgressBarService: LinearProgressBarService) {
     this.entryId$ = new Subject<number>();
   }
 
@@ -113,23 +109,6 @@ export class TournamentViewContainerComponent implements OnInit, OnDestroy {
   private loadTournamentEvents(tournamentId: number) {
     this.tournamentEvents$ = this.tournamentEventConfigService.store.select(
       this.tournamentEventConfigService.selectors.selectEntities);
-    console.log('initiate loadTournamentEvents for ', tournamentId);
     this.tournamentEventConfigService.loadTournamentEvents(tournamentId);
-    // const subscription = this.tournamentEventConfigService.loadTournamentEvents(tournamentId)
-    // this.tournamentEventConfigService.loadTournamentEvents(tournamentId)
-    //   .subscribe(
-    //     (events: TournamentEvent[]) => {
-    //       return events;
-    //     },
-    //     (error: any) => {
-    //       this.errorMessagePopupService.showError(JSON.stringify(error), '400px', '400px');
-    //       console.log ('error loading tournament events ' + JSON.stringify(error));
-    //     },
-    //     () => {
-    //
-    //    }
-    //   );
-    //
-    // this.subscriptions.add(subscription);
   }
 }

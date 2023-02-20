@@ -17,6 +17,11 @@ import {AuthInterceptor} from './auth.interceptor';
 import {AppStoreModule} from './store/app-store.module';
 import {UserModule} from './user/user.module';
 import {SharedModule} from './shared/shared.module';
+import {EntityDataService, EntityServices} from '@ngrx/data';
+import {TournamentConfigService} from './tournament/tournament-config/tournament-config.service';
+import {TournamentEventConfigService} from './tournament/tournament-config/tournament-event-config.service';
+import {TournamentEventConfigDataService} from './tournament/tournament-config/tournament-event-config-data.service';
+import {TournamentEventEntryDataService} from './tournament/tournament-config/tournament-event-entry-data.service';
 
 const appearance: MatFormFieldDefaultOptions = {
   appearance: 'fill'
@@ -53,4 +58,26 @@ const appearance: MatFormFieldDefaultOptions = {
   bootstrap: [AppComponent]
 })
 export class AppModule {
+  // Inject the service to ensure it registers with EntityServices
+  constructor(
+    entityServices: EntityServices,
+    entityDataService: EntityDataService,
+    // custom collection services
+    tournamentConfigService: TournamentConfigService,
+
+    tournamentEventConfigService: TournamentEventConfigService,
+    tournamentEventConfigDataService: TournamentEventConfigDataService,
+
+    tournamentEventEntryDataService: TournamentEventEntryDataService
+
+  ) {
+    // register service for contacting REST API because it doesn't follow the pattern of standard REST call
+    entityDataService.registerService('TournamentEvent', tournamentEventConfigDataService);
+    entityDataService.registerService('TournamentEventEntry', tournamentEventEntryDataService);
+
+    entityServices.registerEntityCollectionServices([
+      tournamentConfigService,
+      tournamentEventConfigService
+    ]);
+  }
 }
