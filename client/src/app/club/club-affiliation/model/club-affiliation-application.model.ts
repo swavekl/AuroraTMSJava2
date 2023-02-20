@@ -1,7 +1,7 @@
 /**
  * Club affiliation application
  */
-import {DateUtils} from '../../shared/date-utils';
+import {DateUtils} from '../../../shared/date-utils';
 import {ClubAffiliationApplicationStatus} from './club-affiliation-application-status';
 import {PlayingSite} from './playing-site';
 

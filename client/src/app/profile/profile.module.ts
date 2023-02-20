@@ -25,7 +25,7 @@ import {ProfileEditStartComponent} from './profile-edit-start/profile-edit-start
 import {UsattRecordSearchComponent} from './usatt-record-search/usatt-record-search.component';
 import {OnBoardCompleteComponent} from './on-board-complete/on-board-complete.component';
 import {UsattRecordSearchPopupComponent} from './usatt-record-search-popup/usatt-record-search-popup.component';
-import {ClubModule} from '../club/club.module';
+import {ClubModule} from '../club/club/club.module';
 import {ProfileAddByTDComponent} from './profile-add-by-td/profile-add-by-td.component';
 import {ProfileAddByTdContainerComponent} from './profile-add-by-td/profile-add-by-td-container.component';
 import {ProfileRoutingModule} from './profile-routing.module';

@@ -130,8 +130,8 @@ public class ClubAffiliationApplicationEventListener {
             } else {
                 logger.error("Unable to find USATT club manager profile");
             }
-            // https://gateway-pc:4200/club/affiliationedit/15
-            String applicationUrl = clientHostUrl + "/ui/club/affiliationedit/" + clubAffiliationApplication.getId();
+            // https://gateway-pc:4200/ui/clubaffiliation/edit/15
+            String applicationUrl = clientHostUrl + "/ui/clubaffiliation/edit/" + clubAffiliationApplication.getId();
             templateModel.put("applicationUrl", applicationUrl);
 
             String strStatus = clubAffiliationApplication.getStatus().toString().toLowerCase();

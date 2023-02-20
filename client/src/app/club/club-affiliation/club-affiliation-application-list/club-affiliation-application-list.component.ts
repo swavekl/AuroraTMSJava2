@@ -9,7 +9,7 @@ import {debounceTime, distinctUntilChanged, skip} from 'rxjs/operators';
 import {ClubAffiliationApplicationListDataSource} from './club-affiliation-application-list-datasource';
 import {ClubAffiliationApplication} from '../model/club-affiliation-application.model';
 import {ClubAffiliationApplicationService} from '../service/club-affiliation-application.service';
-import {ConfirmationPopupComponent} from '../../shared/confirmation-popup/confirmation-popup.component';
+import {ConfirmationPopupComponent} from '../../../shared/confirmation-popup/confirmation-popup.component';
 
 @Component({
   selector: 'app-club-affiliation-application-list',
@@ -23,6 +23,7 @@ export class ClubAffiliationApplicationListComponent implements AfterViewInit {
   @ViewChild('filterClubNameCtrl') filterClubNameCtrl: UntypedFormControl;
   dataSource: ClubAffiliationApplicationListDataSource;
   filterClubName: string;
+  editApplicationLink: string = '../edit';
 
   /** Columns displayed in the table. Columns IDs can be added, removed, or reordered. */
   displayedColumns = ['name', 'cityState', 'affiliation_expiration_date', 'status', 'actions'];
@@ -49,7 +50,7 @@ export class ClubAffiliationApplicationListComponent implements AfterViewInit {
   }
 
   newApplication() {
-    this.router.navigateByUrl('/ui/club/affiliationedit/0');
+    this.router.navigateByUrl('/ui/clubaffiliation/edit/0');
   }
 
   canAddApplication(): boolean {

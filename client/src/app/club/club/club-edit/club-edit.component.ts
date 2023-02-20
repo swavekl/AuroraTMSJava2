@@ -1,7 +1,7 @@
 import {Component, Inject, OnInit} from '@angular/core';
 import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
 import {Club} from '../model/club.model';
-import {StatesList} from '../../shared/states/states-list';
+import {StatesList} from '../../../shared/states/states-list';
 
 @Component({
   selector: 'app-club-edit',

@@ -74,7 +74,14 @@ const routes: Routes = [
   },
   {
     path: 'ui/club',
-    loadChildren: () => import('./club/club.module').then(m => m.ClubModule),
+    loadChildren: () => import('./club/club/club.module').then(m => m.ClubModule),
+    data: {
+      roles: [UserRoles.ROLE_EVERYONE]
+    }
+  },
+  {
+    path: 'ui/clubaffiliation',
+    loadChildren: () => import('./club/club-affiliation/club-affiliation.module').then(m => m.ClubAffiliationModule),
     data: {
       roles: [UserRoles.ROLE_ADMINS, UserRoles.ROLE_USATT_CLUB_MANAGERS, UserRoles.ROLE_TOURNAMENT_DIRECTORS]
     }

@@ -1,5 +1,6 @@
 import {NgModule} from '@angular/core';
 import {CommonModule} from '@angular/common';
+import {FormsModule} from '@angular/forms';
 
 import {MatTableModule} from '@angular/material/table';
 import {MatPaginatorModule} from '@angular/material/paginator';
@@ -9,45 +10,30 @@ import {MatIconModule} from '@angular/material/icon';
 import {MatButtonModule} from '@angular/material/button';
 import {MatListModule} from '@angular/material/list';
 import {MatInputModule} from '@angular/material/input';
-import {FlexModule} from '@angular/flex-layout';
-import {FormsModule} from '@angular/forms';
 import {MatDialogModule} from '@angular/material/dialog';
 import {MatSelectModule} from '@angular/material/select';
-import {MatCardModule} from '@angular/material/card';
-import {MatStepperModule} from '@angular/material/stepper';
-import {MatRadioModule} from '@angular/material/radio';
-import {MatTooltipModule} from '@angular/material/tooltip';
-import {MatDatepickerModule} from '@angular/material/datepicker';
-import {MatNativeDateModule} from '@angular/material/core';
+
+import {FlexModule} from '@angular/flex-layout';
 
 import {ClubRoutingModule} from './club-routing.module';
 import {ClubEditComponent} from './club-edit/club-edit.component';
 import {ClubNameValidatorDirective} from './club-name-validator.directive';
 import {ClubListComponent} from './club-list/club-list.component';
-import {ClubAffiliationApplicationListComponent} from './club-affiliation-application-list/club-affiliation-application-list.component';
-import {ClubAffiliationApplicationComponent} from './club-affiliation-application/club-affiliation-application.component';
-// tslint:disable-next-line:max-line-length
-import {
-  ClubAffiliationApplicationContainerComponent
-} from './club-affiliation-application/club-affiliation-application-container.component';
 import {ClubEditPopupService} from './service/club-edit-popup.service';
-import {AccountModule} from '../account/account.module';
 
 
 @NgModule({
   declarations: [
     ClubEditComponent,
     ClubNameValidatorDirective,
-    ClubListComponent,
-    ClubAffiliationApplicationListComponent,
-    ClubAffiliationApplicationComponent,
-    ClubAffiliationApplicationContainerComponent
+    ClubListComponent
   ],
   exports: [
     ClubNameValidatorDirective
   ],
   imports: [
     CommonModule,
+    FormsModule,
     ClubRoutingModule,
     MatTableModule,
     MatPaginatorModule,
@@ -56,18 +42,10 @@ import {AccountModule} from '../account/account.module';
     MatIconModule,
     MatButtonModule,
     MatListModule,
-    MatInputModule,
-    FlexModule,
-    FormsModule,
-    MatDialogModule,
     MatSelectModule,
-    MatCardModule,
-    MatStepperModule,
-    MatRadioModule,
-    MatTooltipModule,
-    MatDatepickerModule,
-    MatNativeDateModule,
-    AccountModule
+    MatInputModule,
+    MatDialogModule,
+    FlexModule
   ],
   providers: [
     ClubEditPopupService

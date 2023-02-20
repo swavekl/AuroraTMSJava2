@@ -4,7 +4,8 @@ import {
   Component,
   EventEmitter,
   Input,
-  OnChanges, OnDestroy,
+  OnChanges,
+  OnDestroy,
   OnInit,
   Output,
   SimpleChange,
@@ -18,13 +19,13 @@ import {DateUtils} from '../../shared/date-utils';
 import {UsattRecordSearchCallbackData, UsattRecordSearchPopupService} from '../service/usatt-record-search-popup.service';
 import {RecordSearchData} from '../usatt-record-search-popup/usatt-record-search-popup.component';
 import {UsattPlayerRecord} from '../model/usatt-player-record.model';
-import {Observable, of, Subscription} from 'rxjs';
-import {Club} from '../../club/model/club.model';
-import {ClubService} from '../../club/service/club.service';
-import {AbstractControl, UntypedFormControl, NgForm} from '@angular/forms';
-import {debounceTime, distinctUntilChanged, filter, finalize, first, map, skip, switchMap, tap} from 'rxjs/operators';
+import {Observable, Subscription} from 'rxjs';
+import {Club} from '../../club/club/model/club.model';
+import {ClubService} from '../../club/club/service/club.service';
+import {UntypedFormControl} from '@angular/forms';
+import {debounceTime, distinctUntilChanged, filter, first, skip, switchMap} from 'rxjs/operators';
 import {MatAutocompleteSelectedEvent} from '@angular/material/autocomplete';
-import {ClubEditCallbackData, ClubEditPopupService} from '../../club/service/club-edit-popup.service';
+import {ClubEditCallbackData, ClubEditPopupService} from '../../club/club/service/club-edit-popup.service';
 
 @Component({
   selector: 'app-profile-edit',

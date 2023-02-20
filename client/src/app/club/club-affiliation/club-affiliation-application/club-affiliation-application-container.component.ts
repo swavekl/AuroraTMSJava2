@@ -2,21 +2,21 @@ import {Component, OnDestroy, OnInit} from '@angular/core';
 import {ClubAffiliationApplicationService} from '../service/club-affiliation-application.service';
 import {combineLatest, Observable, of, Subscription} from 'rxjs';
 import {ClubAffiliationApplication} from '../model/club-affiliation-application.model';
-import {LinearProgressBarService} from '../../shared/linear-progress-bar/linear-progress-bar.service';
+import {LinearProgressBarService} from '../../../shared/linear-progress-bar/linear-progress-bar.service';
 import {ActivatedRoute, Router} from '@angular/router';
 import {createSelector} from '@ngrx/store';
 import {first} from 'rxjs/operators';
 import {ClubAffiliationApplicationStatus} from '../model/club-affiliation-application-status';
-import {PaymentDialogService} from '../../account/service/payment-dialog.service';
+import {PaymentDialogService} from '../../../account/service/payment-dialog.service';
 import {ApplicationAndPayment} from './club-affiliation-application.component';
-import {PaymentRequest} from '../../account/model/payment-request.model';
-import {PaymentRefundFor} from '../../account/model/payment-refund-for.enum';
-import {PaymentDialogData} from '../../account/payment-dialog/payment-dialog-data';
-import {CallbackData} from '../../account/model/callback-data';
-import {AuthenticationService} from '../../user/authentication.service';
-import {Profile} from '../../profile/profile';
-import {PaymentRefundService} from '../../account/service/payment-refund.service';
-import {PaymentRefund} from '../../account/model/payment-refund.model';
+import {PaymentRequest} from '../../../account/model/payment-request.model';
+import {PaymentRefundFor} from '../../../account/model/payment-refund-for.enum';
+import {PaymentDialogData} from '../../../account/payment-dialog/payment-dialog-data';
+import {CallbackData} from '../../../account/model/callback-data';
+import {AuthenticationService} from '../../../user/authentication.service';
+import {Profile} from '../../../profile/profile';
+import {PaymentRefundService} from '../../../account/service/payment-refund.service';
+import {PaymentRefund} from '../../../account/model/payment-refund.model';
 
 @Component({
   selector: 'app-club-affiliation-application-container',
@@ -107,7 +107,7 @@ export class ClubAffiliationApplicationContainerComponent implements OnInit, OnD
 
   private goBackToList() {
     // go back to list
-    this.router.navigateByUrl('/ui/club/affiliationlist');
+    this.router.navigateByUrl('/ui/clubaffiliation/list');
   }
 
   private loadApplication() {

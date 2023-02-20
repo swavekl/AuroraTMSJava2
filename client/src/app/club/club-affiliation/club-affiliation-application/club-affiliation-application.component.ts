@@ -1,13 +1,13 @@
 import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {ClubAffiliationApplication} from '../model/club-affiliation-application.model';
-import {StatesList} from '../../shared/states/states-list';
+import {StatesList} from '../../../shared/states/states-list';
 import {PlayingSite} from '../model/playing-site';
 import {Router} from '@angular/router';
 import {ClubAffiliationApplicationStatus} from '../model/club-affiliation-application-status';
-import {UserRoles} from '../../user/user-roles.enum';
-import {AuthenticationService} from '../../user/authentication.service';
-import {PaymentRefund} from '../../account/model/payment-refund.model';
-import {PaymentRefundStatus} from '../../account/model/payment-refund-status.enum';
+import {UserRoles} from '../../../user/user-roles.enum';
+import {AuthenticationService} from '../../../user/authentication.service';
+import {PaymentRefund} from '../../../account/model/payment-refund.model';
+import {PaymentRefundStatus} from '../../../account/model/payment-refund-status.enum';
 
 @Component({
   selector: 'app-club-affiliation-application',
@@ -61,7 +61,7 @@ export class ClubAffiliationApplicationComponent implements OnInit {
   }
 
   onCancel() {
-    this.router.navigateByUrl('/ui/club/affiliationlist');
+    this.router.navigateByUrl('/ui/clubaffiliation/list');
   }
 
   isApproveRejectEnabled() {
