@@ -109,7 +109,7 @@ export class InsuranceContainerComponent implements OnInit, OnDestroy {
 
   private goBackToList() {
     // go back to list
-    this.router.navigateByUrl('/insurance/list');
+    this.router.navigateByUrl('/ui/insurance/list');
   }
 
 }

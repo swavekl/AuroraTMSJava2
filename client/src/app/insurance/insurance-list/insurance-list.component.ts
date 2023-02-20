@@ -49,11 +49,11 @@ export class InsuranceListComponent implements AfterViewInit {
   }
 
   newInsuranceRequest() {
-    this.router.navigateByUrl('/insurance/edit/0');
+    this.router.navigateByUrl('/ui/insurance/edit/0');
   }
 
   editInsuranceRequest(insuranceRequestId: number) {
-    this.router.navigateByUrl('/insurance/edit/' + insuranceRequestId);
+    this.router.navigateByUrl('/ui/insurance/edit/' + insuranceRequestId);
   }
 
   canAddInsuranceRequest(): boolean {

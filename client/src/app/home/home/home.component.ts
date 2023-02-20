@@ -120,13 +120,16 @@ export class HomeComponent implements OnInit, OnDestroy {
             this.processPlayerRecord(usattPlayerRecord, today);
           }))
         .subscribe();
-    } else {
+    } else if (this.playerFirstName != null && lastName != null) {
       this.usattPlayerRecordService.getByNames(this.playerFirstName, lastName)
         .pipe(first(),
           map((usattPlayerRecord: UsattPlayerRecord) => {
             this.processPlayerRecord(usattPlayerRecord, today);
           }))
         .subscribe();
+    } else {
+      // deal with reload and no prior sign in
+      this.router.navigateByUrl('/ui/login/signin');
     }
   }
 
@@ -155,17 +158,18 @@ export class HomeComponent implements OnInit, OnDestroy {
   private loadTodaysTournamentEntry() {
     // see if player is playing in any tournament today.
     const profileId = this.authenticationService.getCurrentUserProfileId();
-    const today = this.todayService.todaysDate;
-    const params = `tournamentId=0&profileId=${profileId}&date=${today}`;
-    const subscription: Subscription = this.tournamentEntryService.getWithQuery(params)
-      .pipe(
-        first(),
-        map(
-          (tournamentEntries: TournamentEntry[]) => {
-            // console.log('got today tournament entries', tournamentEntries);
-            this.hasTournamentToday = (tournamentEntries.length > 0);
-            if (this.hasTournamentToday) {
-              for (const tournamentEntry of tournamentEntries) {
+    if (profileId) {
+      const today = this.todayService.todaysDate;
+      const params = `tournamentId=0&profileId=${profileId}&date=${today}`;
+      const subscription: Subscription = this.tournamentEntryService.getWithQuery(params)
+        .pipe(
+          first(),
+          map(
+            (tournamentEntries: TournamentEntry[]) => {
+              // console.log('got today tournament entries', tournamentEntries);
+              this.hasTournamentToday = (tournamentEntries.length > 0);
+              if (this.hasTournamentToday) {
+                for (const tournamentEntry of tournamentEntries) {
                   this.todaysTournamentId = tournamentEntry.tournamentFk;
                   this.todaysTournamentEntryId = tournamentEntry.id;
                   // get tournament start and end date
@@ -173,11 +177,12 @@ export class HomeComponent implements OnInit, OnDestroy {
                   this.loadTournamentInfo(this.todaysTournamentId, today);
                   break;
                 }
-            }
-            this.todayService.hasTournamentToday = this.hasTournamentToday;
-          })
-      ).subscribe();
-    this.subscriptions.add(subscription);
+              }
+              this.todayService.hasTournamentToday = this.hasTournamentToday;
+            })
+        ).subscribe();
+      this.subscriptions.add(subscription);
+    }
   }
 
   private loadTournamentInfo(tournamentId: number, today: Date) {
@@ -212,7 +217,7 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   checkInCommunicate() {
     const tournamentDay = this.todayService.tournamentDay;
-    this.router.navigateByUrl(`/today/checkincommunicate/${this.todaysTournamentId}/${tournamentDay}/0`);
+    this.router.navigateByUrl(`/ui/today/checkincommunicate/${this.todaysTournamentId}/${tournamentDay}/0`);
   }
 
   directionsToVenue() {
@@ -225,12 +230,12 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   todaysSchedule() {
     const tournamentDay = this.todayService.tournamentDay;
-    this.router.navigateByUrl(`/today/playerschedule/${this.todaysTournamentId}/${tournamentDay}/${this.todaysTournamentEntryId}`);
+    this.router.navigateByUrl(`/ui/today/playerschedule/${this.todaysTournamentId}/${tournamentDay}/${this.todaysTournamentEntryId}`);
   }
 
 
   showMyResults() {
     const profileId = this.authenticationService.getCurrentUserProfileId();
-    this.router.navigateByUrl(`/results/playerresults/${this.todaysTournamentEntryId}/${profileId}`);
+    this.router.navigateByUrl(`/ui/results/playerresults/${this.todaysTournamentEntryId}/${profileId}`);
   }
 }

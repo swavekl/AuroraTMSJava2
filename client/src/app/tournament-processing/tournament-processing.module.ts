@@ -11,6 +11,7 @@ import {MatIconModule} from '@angular/material/icon';
 import {FlexModule} from '@angular/flex-layout';
 import {MatButtonModule} from '@angular/material/button';
 import {MatCardModule} from '@angular/material/card';
+import {MatCheckboxModule} from '@angular/material/checkbox';
 import {MatDialogModule} from '@angular/material/dialog';
 
 import {TournamentProcessingRoutingModule} from './tournament-processing-routing.module';
@@ -20,7 +21,7 @@ import {
   TournamentProcessingDetailContainerComponent
 } from './tournament-processing-detail/tournament-processing-detail-container.component';
 import {GenerateReportsDialogComponent} from './generate-reports-dialog/generate-reports-dialog.component';
-import {MatCheckboxModule} from '@angular/material/checkbox';
+import {AccountModule} from '../account/account.module';
 
 
 @NgModule({
@@ -44,8 +45,9 @@ import {MatCheckboxModule} from '@angular/material/checkbox';
         MatButtonModule,
         MatCardModule,
         MatDialogModule,
+        MatCheckboxModule,
         TournamentProcessingRoutingModule,
-        MatCheckboxModule
+        AccountModule
     ]
 })
 export class TournamentProcessingModule {

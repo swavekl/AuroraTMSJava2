@@ -103,7 +103,7 @@ export class MonitorConnectContainerComponent implements OnInit, OnDestroy {
         console.log('got connected status', connected);
         if (connected === true) {
           if (this.tournamentId && this.tableToMonitor) {
-            const url = `/monitor/display/${this.tournamentId}/${this.tableToMonitor}`;
+            const url = `/ui/monitor/display/${this.tournamentId}/${this.tableToMonitor}`;
             console.log('connected navigating to table display', url);
             this.router.navigateByUrl(url);
           }

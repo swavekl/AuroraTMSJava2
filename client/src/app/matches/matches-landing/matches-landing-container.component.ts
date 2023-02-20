@@ -79,7 +79,7 @@ export class MatchesLandingContainerComponent implements OnInit, OnDestroy {
                 tournamentName: filteredTournaments[0].name
               }
             };
-            this.router.navigateByUrl(`matches/scoreentry/${tournamentId}`, extras);
+            this.router.navigateByUrl(`/ui/matches/scoreentry/${tournamentId}`, extras);
           } else {
             // sort them so the earlier tournament is listed first
             const dateUtils = new DateUtils();

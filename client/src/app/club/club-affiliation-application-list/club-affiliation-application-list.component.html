@@ -1,7 +1,7 @@
 <div class="mat-headline-6" style="padding-left: 8px; width: 100%;">Club Affiliation Applications</div>
 <mat-toolbar fxLayout="row" fxLayoutGap="10">
   <form>
-    <button type="button" mat-raised-button color="" [routerLink]="['/club/affiliationedit', 0]" [disabled]="!canAddApplication()">
+    <button type="button" mat-raised-button color="" [routerLink]="['/ui/club/affiliationedit', 0]" [disabled]="!canAddApplication()">
       <mat-icon matListItemIcon>add</mat-icon>
       New Application
     </button>
@@ -17,25 +17,25 @@
     <!-- Name Column -->
     <ng-container matColumnDef="name">
       <mat-header-cell *matHeaderCellDef mat-sort-header>Name</mat-header-cell>
-      <mat-cell *matCellDef="let row" [routerLink]="['/club/affiliationedit', row.id]">{{row.name}}</mat-cell>
+      <mat-cell *matCellDef="let row" [routerLink]="['/ui/club/affiliationedit', row.id]">{{row.name}}</mat-cell>
     </ng-container>
 
     <!-- City & State Column -->
     <ng-container matColumnDef="cityState">
       <mat-header-cell *matHeaderCellDef>City & State</mat-header-cell>
-      <mat-cell *matCellDef="let row" [routerLink]="['/club/affiliationedit', row.id]">{{row.city}}, {{row.state}}</mat-cell>
+      <mat-cell *matCellDef="let row" [routerLink]="['/ui/club/affiliationedit', row.id]">{{row.city}}, {{row.state}}</mat-cell>
     </ng-container>
 
     <!-- Affiliation Expiration Date Column -->
     <ng-container matColumnDef="affiliation_expiration_date">
       <mat-header-cell *matHeaderCellDef mat-sort-header>Expiration Date</mat-header-cell>
-      <mat-cell *matCellDef="let row" [routerLink]="['/club/affiliationedit', row.id]">{{row.affiliationExpirationDate | date }}</mat-cell>
+      <mat-cell *matCellDef="let row" [routerLink]="['/ui/club/affiliationedit', row.id]">{{row.affiliationExpirationDate | date }}</mat-cell>
     </ng-container>
 
     <!-- Status Column -->
     <ng-container matColumnDef="status">
       <mat-header-cell *matHeaderCellDef mat-sort-header>Status</mat-header-cell>
-      <mat-cell *matCellDef="let row" [routerLink]="['/club/affiliationedit', row.id]">{{row.status}}</mat-cell>
+      <mat-cell *matCellDef="let row" [routerLink]="['/ui/club/affiliationedit', row.id]">{{row.status}}</mat-cell>
     </ng-container>
 
     <!-- Action Column -->
@@ -45,7 +45,7 @@
         <button mat-icon-button (click)="onDeleteApplication(row.id, row.name)" matTooltip="Delete" style="margin-right: 20px">
           <mat-icon matListItemIcon>delete</mat-icon>
         </button>
-        <button mat-icon-button [routerLink]="['/club/affiliationcreate', row.id]" matTooltip="Copy" style="margin-right: 20px">
+        <button mat-icon-button [routerLink]="['/ui/club/affiliationcreate', row.id]" matTooltip="Copy" style="margin-right: 20px">
           <mat-icon matListItemIcon>flip_to_front</mat-icon>
         </button>
       </mat-cell>

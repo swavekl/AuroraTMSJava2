@@ -5,61 +5,61 @@
                [opened]="!(isHandset$ | async)">
     <mat-toolbar>Menu</mat-toolbar>
     <mat-nav-list>
-      <mat-list-item *ngIf="(isAuthenticated$ | async)" (click)="closeAndNavigateToRoute('/home')" routerLinkActive="active">
+      <mat-list-item *ngIf="(isAuthenticated$ | async)" (click)="closeAndNavigateToRoute('/ui/home')" routerLinkActive="active">
         <a matListItemTitle>Home</a>
       </mat-list-item>
-      <mat-list-item *ngIf="(isAuthenticated$ | async)" (click)="closeAndNavigateToRoute('/tournaments')" routerLinkActive="active">
+      <mat-list-item *ngIf="(isAuthenticated$ | async)" (click)="closeAndNavigateToRoute('/ui/tournaments')" routerLinkActive="active">
         <a matListItemTitle>Tournaments</a>
       </mat-list-item>
-      <mat-list-item *ngIf="isLinkVisible('/tournamentsconfig')" (click)="closeAndNavigateToRoute('/tournamentsconfig')" routerLinkActive="active">
+      <mat-list-item *ngIf="isLinkVisible('/ui/tournamentsconfig')" (click)="closeAndNavigateToRoute('/ui/tournamentsconfig')" routerLinkActive="active">
         <a matListItemTitle>Tournaments Config</a>
       </mat-list-item>
-      <mat-list-item *ngIf="isLinkVisible('/matches')" (click)="closeAndNavigateToRoute('/matches')" routerLinkActive="active">
+      <mat-list-item *ngIf="isLinkVisible('/ui/matches')" (click)="closeAndNavigateToRoute('/ui/matches')" routerLinkActive="active">
         <a matListItemTitle>Match Scores</a>
       </mat-list-item>
-      <mat-list-item *ngIf="isLinkVisible('/tableusage')" (click)="closeAndNavigateToRoute('/tableusage')" routerLinkActive="active">
+      <mat-list-item *ngIf="isLinkVisible('/ui/tableusage')" (click)="closeAndNavigateToRoute('/ui/tableusage')" routerLinkActive="active">
         <a matListItemTitle>Manage Tables</a>
       </mat-list-item>
-      <mat-list-item *ngIf="isLinkVisible('/prizes')" (click)="closeAndNavigateToRoute('/prizes')" routerLinkActive="active">
+      <mat-list-item *ngIf="isLinkVisible('/ui/prizes')" (click)="closeAndNavigateToRoute('/ui/prizes')" routerLinkActive="active">
         <a matListItemTitle>Prizes</a>
       </mat-list-item>
-      <mat-list-item *ngIf="isLinkVisible('/monitor')" (click)="closeAndNavigateToRoute('/monitor')" routerLinkActive="active">
+      <mat-list-item *ngIf="isLinkVisible('/ui/monitor')" (click)="closeAndNavigateToRoute('/ui/monitor')" routerLinkActive="active">
         <a matListItemTitle>Live Scores Display</a>
       </mat-list-item>
-      <mat-list-item *ngIf="isLinkVisible('/scoreboard')" (click)="closeAndNavigateToRoute('/scoreboard')" routerLinkActive="active">
+      <mat-list-item *ngIf="isLinkVisible('/ui/scoreboard')" (click)="closeAndNavigateToRoute('/ui/scoreboard')" routerLinkActive="active">
         <a matListItemTitle>Live Score Entry</a>
       </mat-list-item>
-      <mat-list-item *ngIf="isLinkVisible('/account')" (click)="closeAndNavigateToRoute('/account')" routerLinkActive="active">
+      <mat-list-item *ngIf="isLinkVisible('/ui/account')" (click)="closeAndNavigateToRoute('/ui/account')" routerLinkActive="active">
         <a matListItemTitle>Account</a>
       </mat-list-item>
       <mat-list-item *ngIf="(isAuthenticated$ | async)" (click)="editProfile()" routerLinkActive="active">
         <a matListItemTitle>Profile</a>
       </mat-list-item>
-<!--      <mat-list-item *ngIf="isLinkVisible('/tddashboard')" (click)="closeAndNavigateToRoute('/tddashboard')" routerLinkActive="active">-->
+<!--      <mat-list-item *ngIf="isLinkVisible('/ui/tddashboard')" (click)="closeAndNavigateToRoute('/ui/tddashboard')" routerLinkActive="active">-->
 <!--        <a matListItemTitle>TD Dashboard</a>-->
 <!--      </mat-list-item>-->
-      <mat-list-item *ngIf="isLinkVisible('/club')" (click)="closeAndNavigateToRoute('/club/list')" routerLinkActive="active">
+      <mat-list-item *ngIf="isLinkVisible('/ui/club')" (click)="closeAndNavigateToRoute('/ui/club/list')" routerLinkActive="active">
         <a matListItemTitle>Clubs</a>
       </mat-list-item>
-      <mat-list-item *ngIf="isLinkVisible('/club')" (click)="closeAndNavigateToRoute('/club/affiliationlist')" routerLinkActive="active">
+      <mat-list-item *ngIf="isLinkVisible('/ui/club')" (click)="closeAndNavigateToRoute('/ui/club/affiliationlist')" routerLinkActive="active">
         <a matListItemTitle>Club Affiliation</a>
       </mat-list-item>
-      <mat-list-item *ngIf="isLinkVisible('/insurance')" (click)="closeAndNavigateToRoute('/insurance/list')" routerLinkActive="active">
+      <mat-list-item *ngIf="isLinkVisible('/ui/insurance')" (click)="closeAndNavigateToRoute('/ui/insurance/list')" routerLinkActive="active">
         <a matListItemTitle>Insurance</a>
       </mat-list-item>
-      <mat-list-item *ngIf="isLinkVisible('/sanction')" (click)="closeAndNavigateToRoute('/sanction/list')" routerLinkActive="active">
+      <mat-list-item *ngIf="isLinkVisible('/ui/sanction')" (click)="closeAndNavigateToRoute('/ui/sanction/list')" routerLinkActive="active">
         <a matListItemTitle>Tournament Sanction</a>
       </mat-list-item>
-      <mat-list-item *ngIf="isLinkVisible('/processing')" (click)="closeAndNavigateToRoute('/processing')" routerLinkActive="active">
+      <mat-list-item *ngIf="isLinkVisible('/ui/processing')" (click)="closeAndNavigateToRoute('/ui/processing')" routerLinkActive="active">
         <a matListItemTitle>Tournament Processing</a>
       </mat-list-item>
       <mat-list-item *ngIf="isLinkVisible('/ui/admin')" (click)="closeAndNavigateToRoute('/ui/admin')" routerLinkActive="active">
         <a matListItemTitle>Admin</a>
       </mat-list-item>
-      <mat-list-item *ngIf="!(isAuthenticated$ | async)" (click)="closeAndNavigateToRoute('/login/signin')" routerLinkActive="active">
+      <mat-list-item *ngIf="!(isAuthenticated$ | async)" (click)="closeAndNavigateToRoute('/ui/login/signin')" routerLinkActive="active">
         <a matListItemTitle>Login</a>
       </mat-list-item>
-      <a mat-list-item href="#" *ngIf="isAuthenticated$ | async" (click)="logout()" routerLink="/home">Logout</a>
+      <a mat-list-item href="#" *ngIf="isAuthenticated$ | async" (click)="logout()" routerLink="/ui/home">Logout</a>
     </mat-nav-list>
   </mat-sidenav>
   <mat-sidenav-content>

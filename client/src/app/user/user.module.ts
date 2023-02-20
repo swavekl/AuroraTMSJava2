@@ -21,7 +21,7 @@ import {LogoutComponent} from './logout/logout.component';
 
 const userRoutes: Routes = [
   {
-    path: 'login', component: LoginComponent,
+    path: 'ui/login', component: LoginComponent,
     children: [
       {path: '', redirectTo: 'signin', pathMatch: 'full'},
       {path: 'signin', component: SignInComponent},
@@ -29,16 +29,16 @@ const userRoutes: Routes = [
     ],
   },
   {
-    path: 'registrationconfirmed', component: RegistrationConfirmedComponent
+    path: 'ui/registrationconfirmed', component: RegistrationConfirmedComponent
   },
   {
-    path: 'resetpasswordstart', component: ResetPasswordStartComponent
+    path: 'ui/resetpasswordstart', component: ResetPasswordStartComponent
   },
   {
-    path: 'resetpassword/:resetPasswordToken', component: ResetPasswordComponent
+    path: 'ui/resetpassword/:resetPasswordToken', component: ResetPasswordComponent
   },
   {
-    path: 'resetpasswordresult/:succeeded', component: ResetPasswordResultComponent
+    path: 'ui/resetpasswordresult/:succeeded', component: ResetPasswordResultComponent
   }
 ];
 

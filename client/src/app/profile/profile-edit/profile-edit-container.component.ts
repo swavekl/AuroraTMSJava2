@@ -58,11 +58,11 @@ export class ProfileEditContainerComponent implements OnInit, OnDestroy {
 
     // if we are coming from registration filling in the first time
     if (this.initializingProfile) {
-      this.returnUrl = '/userprofile/onboardcomplete';
+      this.returnUrl = '/ui/userprofile/onboardcomplete';
     } else {
       // console.log('player data', this.playerRecord);
       // this.returnUrl = history?.state?.url;  // for when TD edits profiles
-      this.returnUrl = '/home';
+      this.returnUrl = '/ui/home';
     }
     // check if user can change membership id - sometimes it is necessary when they make a mistake
     const roles = [UserRoles.ROLE_TOURNAMENT_DIRECTORS, UserRoles.ROLE_ADMINS];

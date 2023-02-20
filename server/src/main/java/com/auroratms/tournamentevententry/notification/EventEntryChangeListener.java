@@ -160,7 +160,7 @@ public class EventEntryChangeListener {
 
             templateModel.put("cartSessionExpiration", futureCartSessionStartDate);
 
-            String eventEntryUrl = String.format("%s/entries/entrywizard/%d/edit/%d",
+            String eventEntryUrl = String.format("%s/ui/entries/entrywizard/%d/edit/%d",
                     this.clientHostUrl, tournamentFk, tournamentEntry.getId());
             templateModel.put("eventEntryUrl", eventEntryUrl);
 

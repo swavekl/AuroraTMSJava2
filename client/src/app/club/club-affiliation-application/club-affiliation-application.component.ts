@@ -61,7 +61,7 @@ export class ClubAffiliationApplicationComponent implements OnInit {
   }
 
   onCancel() {
-    this.router.navigateByUrl('/club/affiliationlist');
+    this.router.navigateByUrl('/ui/club/affiliationlist');
   }
 
   isApproveRejectEnabled() {

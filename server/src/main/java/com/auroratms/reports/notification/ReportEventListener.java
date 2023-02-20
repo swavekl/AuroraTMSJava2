@@ -255,7 +255,7 @@ public class ReportEventListener {
             }
 
             // https://gateway-pc:4200/processing/detail/10
-            String processingRequestUrl = clientHostUrl + "/processing/detail/" + tournamentProcessingRequest.getId();
+            String processingRequestUrl = clientHostUrl + "/ui/processing/detail/" + tournamentProcessingRequest.getId();
             templateModel.put("processingRequestUrl", processingRequestUrl);
 
             String strStatus = "";

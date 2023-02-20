@@ -4,8 +4,8 @@ import {ActivatedRoute} from '@angular/router';
 @Component({
   selector: 'app-reset-password-result',
   template: `
-    <app-centered-panel>
-      <div *ngIf="succeeded">Reset password was successful.  Proceed to <a routerLink="/login">Login</a></div>
+    <app-centered-panel class="mat-body-1">
+      <div *ngIf="succeeded">Reset password was successful.  Proceed to <a routerLink="/ui/login">Login</a></div>
       <div *ngIf="!succeeded">Reset password failed.  Please try again</div>
     </app-centered-panel>
   `,

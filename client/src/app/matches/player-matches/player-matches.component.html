@@ -126,7 +126,7 @@
               <div fxLayout="row" fxLayoutAlign="end start" style="width: 100%; margin-top: 16px;">
                 <button mat-raised-button color="primary" *ngIf="isPlayerMatch(match)"
                         [disabled]="!isPlayerMatch(match)"
-                        [routerLink]="['/matches/scoreentryphone', tournamentId, matchCard.id, matchIndex]"
+                        [routerLink]="['/ui/matches/scoreentryphone', tournamentId, matchCard.id, matchIndex]"
                         [state]="{doubles: doubles}">
                   Enter Score
                 </button>

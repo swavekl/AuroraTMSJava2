@@ -45,7 +45,7 @@ export class AuthInterceptor implements HttpInterceptor {
                     return next.handle(this.addAuthenticationToken(request));
                   } else {
                     // console.log('(1) refresh failed so ....');
-                    this.router.navigate(['/login']);
+                    this.router.navigate(['/ui/login']);
                     return throwError(error);
                   }
                 }
@@ -68,7 +68,7 @@ export class AuthInterceptor implements HttpInterceptor {
                 } else {
                   // refreshing access token failed - our only option is to ask user to login
                   // console.log('(2) refresh failed so ....');
-                  this.router.navigate(['/login']);
+                  this.router.navigate(['/ui/login']);
                   return throwError(error);
                 }
               }),

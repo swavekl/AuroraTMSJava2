@@ -41,7 +41,7 @@ export class PlayerScheduleDetailContainerComponent implements OnInit, OnDestroy
               private tournamentInfoService: TournamentInfoService) {
     this.tournamentId = this.activatedRoute.snapshot.params['tournamentId'] || 0;
     const matchCardId = this.activatedRoute.snapshot.params['matchCardId'] || 0;
-    this.returnUrl = history.state?.returnUrl || '/home';
+    this.returnUrl = history.state?.returnUrl || '/ui/home';
     this.setupProgressIndicator();
     this.loadPlayerScheduleDetail(matchCardId);
     this.loadTournamentInfo(this.tournamentId);

@@ -122,7 +122,7 @@ export class ScoreEntryPhoneContainerComponent implements OnInit, OnDestroy {
   }
 
   private backToMatchCard() {
-    const url = `/matches/playermatches/${this.tournamentId}/${this.matchCardId}`;
+    const url = `/ui/matches/playermatches/${this.tournamentId}/${this.matchCardId}`;
     const extras = {
       state: {
         doubles: this.doubles,

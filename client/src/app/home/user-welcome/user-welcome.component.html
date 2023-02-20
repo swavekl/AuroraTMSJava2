@@ -1,13 +1,15 @@
-<app-centered-panel>
-  <h3>Welcome to "Aurora TMS" {{firstName}}</h3>
+<app-centered-panel class="mat-body-1">
+  <div>Welcome to "Aurora TMS" {{firstName}}</div>
   <div *ngIf="activationResult == true">
-    <h3>Your account has been successfully activated.</h3>
-    <h3>Please <a routerLink="/userprofile/start">login</a> so we can fill your player profile.</h3>
+    <div>Your account has been successfully activated.</div>
+    <div>Please <a routerLink="/ui/userprofile/start">login</a> so we can fill your player profile.</div>
   </div>
   <div *ngIf="activationResult == false">
-    <h3>Something went wrong with you email verification.
+    <div>Something went wrong with you email verification. Your link may have expired or was already used once. If this
+      is
+      the case please try signing up again.
       Please contact <a href="mailto:swaveklorenc@yahoo.com">system administrator</a>
-    </h3>
+    </div>
   </div>
 </app-centered-panel>
 

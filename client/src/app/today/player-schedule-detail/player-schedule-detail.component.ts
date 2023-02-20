@@ -85,7 +85,7 @@ export class PlayerScheduleDetailComponent implements OnInit, OnChanges {
   }
 
   checkInForEvent() {
-    const url = `/today/checkincommunicate/${this.tournamentId}/${this.playerScheduleItem.day}/${this.playerScheduleItem.eventId}`;
+    const url = `/ui/today/checkincommunicate/${this.tournamentId}/${this.playerScheduleItem.day}/${this.playerScheduleItem.eventId}`;
     const extras = {
       state: {
         eventName: this.playerScheduleItem.eventName

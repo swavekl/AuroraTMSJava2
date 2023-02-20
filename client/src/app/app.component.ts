@@ -45,12 +45,12 @@ export class AppComponent implements OnInit {
 
   logout() {
     this.closeDrawerOnMobile();
-    this.router.navigate(['/logout']);
+    this.router.navigate(['/ui/logout']);
   }
 
   editProfile() {
     const profileId: string = this.authenticationService.getCurrentUserProfileId();
-    this.closeAndNavigateToRoute(`/userprofile/edit/${profileId}`);
+    this.closeAndNavigateToRoute(`/ui/userprofile/edit/${profileId}`);
   }
 
   hasTournamentToday(): boolean {

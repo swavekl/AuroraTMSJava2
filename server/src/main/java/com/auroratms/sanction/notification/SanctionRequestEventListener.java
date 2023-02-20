@@ -65,7 +65,7 @@ public class SanctionRequestEventListener {
             templateModel.put("contactName", contactName);
             templateModel.put("contactEmail", contactEmail);
 
-            String sanctionRequestUrl = clientHostUrl + "/sanction/edit/" + sanctionRequest.getId();
+            String sanctionRequestUrl = clientHostUrl + "/ui/sanction/edit/" + sanctionRequest.getId();
             templateModel.put("sanctionRequestUrl", sanctionRequestUrl);
             String strStatus = sanctionRequest.getStatus().toString().toLowerCase();
             String subject = "Tournament Sanction Request " + strStatus;

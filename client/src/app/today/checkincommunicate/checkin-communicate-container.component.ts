@@ -118,7 +118,7 @@ export class CheckinCommunicateContainerComponent implements OnInit, OnDestroy {
   navigateBack() {
     // console.log('navigating back to ', this.todayService.todayUrl);
     // this.router.navigateByUrl(this.todayService.todayUrl);
-    this.router.navigateByUrl('/home');
+    this.router.navigateByUrl('/ui/home');
   }
 
 }

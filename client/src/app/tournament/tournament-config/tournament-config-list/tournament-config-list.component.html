@@ -23,7 +23,7 @@
               </div>
               <div fxFlex="70%">
                 <button mat-icon-button
-                        [routerLink]="['/tddashboard', tournament.id, {
+                        [routerLink]="['/ui/tddashboard', tournament.id, {
                     outlets: {
                       'ploutlet': ['playerlist', tournament.id],
                       'proutlet': ['paymentsrefunds'],
@@ -33,25 +33,25 @@
                         matTooltip="TD Dashboard" style="margin-right: 20px">
                   <mat-icon matListItemIcon>dashboard</mat-icon>
                 </button>
-                <button mat-icon-button [routerLink]="['/processing/detail/submit', tournament.id, tournament.name]" matTooltip="Submit results for processing" style="margin-right: 20px">
+                <button mat-icon-button [routerLink]="['/ui/processing/detail/submit', tournament.id, tournament.name]" matTooltip="Submit results for processing" style="margin-right: 20px">
                   <mat-icon matListItemIcon>publish</mat-icon>
                 </button>
                 <button mat-icon-button [routerLink]="['./tournamentwaitinglist', tournament.id]" matTooltip="Tournament Waiting List" style="margin-right: 20px">
                   <mat-icon matListItemIcon>playlist_add</mat-icon>
                 </button>
-                <button mat-icon-button [routerLink]="['/scheduling', tournament.id]" matTooltip="Table Assignment & Time Scheduling" style="margin-right: 20px">
+                <button mat-icon-button [routerLink]="['/ui/scheduling', tournament.id]" matTooltip="Table Assignment & Time Scheduling" style="margin-right: 20px">
                   <mat-icon matListItemIcon>schedule</mat-icon>
                 </button>
-                <button mat-icon-button [routerLink]="['/entries/doublesteams', tournament.id]" matTooltip="Doubles Teams" style="margin-right: 20px">
+                <button mat-icon-button [routerLink]="['/ui/entries/doublesteams', tournament.id]" matTooltip="Doubles Teams" style="margin-right: 20px">
                   <mat-icon matListItemIcon>group</mat-icon>
                 </button>
-                <button mat-icon-button [routerLink]="['/draws', tournament.id]" matTooltip="Draws" style="margin-right: 20px">
+                <button mat-icon-button [routerLink]="['/ui/draws', tournament.id]" matTooltip="Draws" style="margin-right: 20px">
                   <mat-icon matListItemIcon>grid_view</mat-icon>
                 </button>
-                <button mat-icon-button [routerLink]="['tournament/edit', tournament.id]" matTooltip="Edit" style="margin-right: 20px">
+                <button mat-icon-button [routerLink]="['./tournament/edit', tournament.id]" matTooltip="Edit" style="margin-right: 20px">
                   <mat-icon matListItemIcon>edit</mat-icon>
                 </button>
-                <button mat-icon-button [routerLink]="['tournament/create']" [queryParams]="{from: tournament.id}" matTooltip="Copy">
+                <button mat-icon-button [routerLink]="['./tournament/create']" [queryParams]="{from: tournament.id}" matTooltip="Copy">
                   <mat-icon matListItemIcon>flip_to_front</mat-icon>
                 </button>
               </div>

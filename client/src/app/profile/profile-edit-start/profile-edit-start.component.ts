@@ -48,13 +48,13 @@ export class ProfileEditStartComponent implements OnInit {
   // onSelectedPlayer(playerRecord: UsattPlayerRecord) {
   //   // console.log ('using this player record for profile init', playerRecord);
   //   const state = {initializingProfile: true, playerRecord: playerRecord};
-  //   const url = `/userprofile/${this.profileId}`;
+  //   const url = `/ui/userprofile/${this.profileId}`;
   //   this.router.navigate([url], {state: state});
   // }
 
   onProfileEditStart(initializingProfile: boolean, playerRecord: UsattPlayerRecord) {
     const state = {initializingProfile: initializingProfile, playerRecord: playerRecord};
-    const url = `/userprofile/edit/${this.profileId}`;
+    const url = `/ui/userprofile/edit/${this.profileId}`;
     this.router.navigate([url], {state: state});
   }
 

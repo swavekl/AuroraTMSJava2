@@ -144,7 +144,7 @@ export class SanctionRequestEditContainerComponent implements OnInit, OnDestroy 
 
   private goBackToList() {
       // go back to list
-      this.router.navigateByUrl('/sanction/list');
+      this.router.navigateByUrl('/ui/sanction/list');
     }
 
   private loadPayments() {

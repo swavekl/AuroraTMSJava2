@@ -83,7 +83,7 @@ export class TournamentEventConfigContainerComponent implements OnInit, OnDestro
   }
 
   navigateBack() {
-    this.router.navigateByUrl(`tournament/edit/${this.tournamentId}?activateTab=2`);
+    this.router.navigateByUrl(`/ui/tournament/edit/${this.tournamentId}?activateTab=2`);
   }
 
 }

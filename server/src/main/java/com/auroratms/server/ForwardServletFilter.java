@@ -21,15 +21,12 @@ public class ForwardServletFilter implements Filter {
 
         HttpServletRequest myRequest = (HttpServletRequest) request;
         String servletPath = myRequest.getServletPath();
-        if (servletPath.startsWith("/api") || servletPath.startsWith("/images/") || servletPath.startsWith("/assets/") || servletPath.equals("/")
-                || servletPath.endsWith(".js") || servletPath.endsWith(".css") || servletPath.endsWith(".map") || servletPath.endsWith(".ico")
-        ) {
+        if (!servletPath.startsWith("/ui")) {
             chain.doFilter(myRequest, response);
         } else {
             RequestDispatcher dispatcher = myRequest.getServletContext()
                     .getRequestDispatcher("/index.html");
             dispatcher.forward(myRequest, response);
-            return;
         }
     }
 }

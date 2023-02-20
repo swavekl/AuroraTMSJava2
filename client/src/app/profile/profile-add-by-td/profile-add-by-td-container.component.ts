@@ -48,7 +48,7 @@ export class ProfileAddByTdContainerComponent implements OnInit {
     //       this.profileService.getProfile(profileId);
     //
     //       // todo
-    //       this.router.navigate(['/userprofile', profileId]);
+    //       this.router.navigate(['/ui/userprofile', profileId]);
     //     }
     //     // error => {
     //     //   // console.log('error registering', error);

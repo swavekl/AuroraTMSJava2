@@ -78,7 +78,7 @@ export class PlayerScheduleComponent implements OnInit, OnChanges {
 
   showScheduleDetail(matchCardId: number) {
     const returnUrl = window.location.pathname;
-    const url = `/today/playerscheduledetail/${this.tournamentInfo.id}/${matchCardId}`;
+    const url = `/ui/today/playerscheduledetail/${this.tournamentInfo.id}/${matchCardId}`;
     const extras = {
       state: {
         returnUrl:  returnUrl

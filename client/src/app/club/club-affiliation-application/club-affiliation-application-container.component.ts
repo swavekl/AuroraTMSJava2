@@ -107,7 +107,7 @@ export class ClubAffiliationApplicationContainerComponent implements OnInit, OnD
 
   private goBackToList() {
     // go back to list
-    this.router.navigateByUrl('/club/affiliationlist');
+    this.router.navigateByUrl('/ui/club/affiliationlist');
   }
 
   private loadApplication() {

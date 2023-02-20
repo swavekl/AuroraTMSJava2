@@ -142,7 +142,7 @@ export class PlayerMatchesContainerComponent implements OnInit, OnDestroy {
   }
 
   onGoBack() {
-    const url = `today/playerscheduledetail/${this.tournamentId}/${this.matchCardId}`;
+    const url = `/ui/today/playerscheduledetail/${this.tournamentId}/${this.matchCardId}`;
     const extras = {
       state: {
         doubles: this.doubles

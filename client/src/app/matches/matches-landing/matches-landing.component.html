@@ -6,7 +6,7 @@
       <h3 matListItemLine>{{tournament.startDate | date }} - {{tournament.endDate | date }}</h3>
       <h4 matListItemLine>{{ tournament.city }}, {{tournament.state}} </h4>
       <button mat-raised-button type="button" style="margin-left: 20px;"
-              [routerLink]="['/matches/scoreentry/', tournament.id]">
+              [routerLink]="['/ui/matches/scoreentry/', tournament.id]">
         Select
       </button>
       <mat-divider></mat-divider>

@@ -1,7 +1,7 @@
 <div class="mat-headline-6" style="padding-left: 8px; width: 100%;">Insurance Certificate Requests</div>
 <mat-toolbar fxLayout="row" fxLayoutGap="10">
   <form>
-    <button type="button" mat-raised-button color="" [routerLink]="['/insurance/edit', 0]"
+    <button type="button" mat-raised-button color="" [routerLink]="['/ui/insurance/edit', 0]"
             [disabled]="!canAddInsuranceRequest()">
       <mat-icon matListItemIcon>add</mat-icon>
       New Request
@@ -17,22 +17,22 @@
   <mat-table matSort aria-label="Insurance Requests">
     <ng-container matColumnDef="eventName">
       <mat-header-cell *matHeaderCellDef>Event Name</mat-header-cell>
-      <mat-cell *matCellDef="let insuranceRequest" [routerLink]="['/insurance/edit', insuranceRequest.id]">{{ insuranceRequest.eventName }}</mat-cell>
+      <mat-cell *matCellDef="let insuranceRequest" [routerLink]="['/ui/insurance/edit', insuranceRequest.id]">{{ insuranceRequest.eventName }}</mat-cell>
     </ng-container>
 
     <ng-container matColumnDef="eventStartDate">
       <mat-header-cell *matHeaderCellDef>Event Start Date</mat-header-cell>
-      <mat-cell *matCellDef="let insuranceRequest" [routerLink]="['/insurance/edit', insuranceRequest.id]">{{ insuranceRequest.eventStartDate | date }}</mat-cell>
+      <mat-cell *matCellDef="let insuranceRequest" [routerLink]="['/ui/insurance/edit', insuranceRequest.id]">{{ insuranceRequest.eventStartDate | date }}</mat-cell>
     </ng-container>
 
     <ng-container matColumnDef="requestDate">
       <mat-header-cell *matHeaderCellDef>Request Date</mat-header-cell>
-      <mat-cell *matCellDef="let insuranceRequest" [routerLink]="['/insurance/edit', insuranceRequest.id]">{{ insuranceRequest.requestDate | date }}</mat-cell>
+      <mat-cell *matCellDef="let insuranceRequest" [routerLink]="['/ui/insurance/edit', insuranceRequest.id]">{{ insuranceRequest.requestDate | date }}</mat-cell>
     </ng-container>
 
     <ng-container matColumnDef="status">
       <mat-header-cell *matHeaderCellDef>Status</mat-header-cell>
-      <mat-cell *matCellDef="let insuranceRequest" [routerLink]="['/insurance/edit', insuranceRequest.id]">{{ insuranceRequest.status }}</mat-cell>
+      <mat-cell *matCellDef="let insuranceRequest" [routerLink]="['/ui/insurance/edit', insuranceRequest.id]">{{ insuranceRequest.status }}</mat-cell>
     </ng-container>
 
     <ng-container matColumnDef="actions">
@@ -42,7 +42,7 @@
                 matTooltip="Delete" style="margin-right: 20px">
           <mat-icon matListItemIcon>delete</mat-icon>
         </button>
-        <button mat-icon-button [routerLink]="['/insurance/create', insuranceRequest.id]" matTooltip="Copy"
+        <button mat-icon-button [routerLink]="['/ui/insurance/create', insuranceRequest.id]" matTooltip="Copy"
                 style="margin-right: 20px">
           <mat-icon matListItemIcon>flip_to_front</mat-icon>
         </button>

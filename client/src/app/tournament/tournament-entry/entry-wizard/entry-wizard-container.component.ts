@@ -247,7 +247,7 @@ export class EntryWizardContainerComponent implements OnInit, OnDestroy {
   }
 
   onFinish(event: any) {
-    this.router.navigateByUrl(`/tournaments/view/${this.tournamentId}`);
+    this.router.navigateByUrl(`/ui/tournaments/view/${this.tournamentId}`);
   }
 
   private loadPlayerProfile() {

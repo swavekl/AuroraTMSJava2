@@ -98,7 +98,7 @@ export class TodayComponent implements OnInit, OnDestroy {
   }
 
   checkInCommunicate() {
-    this.router.navigateByUrl(`/today/checkincommunicate/${this.tournamentId}/${this.tournamentDay}/0`);
+    this.router.navigateByUrl(`/ui/today/checkincommunicate/${this.tournamentId}/${this.tournamentDay}/0`);
   }
 
   directionsToVenue() {
@@ -110,6 +110,6 @@ export class TodayComponent implements OnInit, OnDestroy {
   }
 
   todaysSchedule() {
-    this.router.navigateByUrl(`/today/playerschedule/${this.tournamentId}/${this.tournamentDay}/${this.tournamentEntryId}`);
+    this.router.navigateByUrl(`/ui/today/playerschedule/${this.tournamentId}/${this.tournamentDay}/${this.tournamentEntryId}`);
   }
 }

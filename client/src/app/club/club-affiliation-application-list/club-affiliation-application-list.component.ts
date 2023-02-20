@@ -49,7 +49,7 @@ export class ClubAffiliationApplicationListComponent implements AfterViewInit {
   }
 
   newApplication() {
-    this.router.navigateByUrl('/club/affiliationedit/0');
+    this.router.navigateByUrl('/ui/club/affiliationedit/0');
   }
 
   canAddApplication(): boolean {

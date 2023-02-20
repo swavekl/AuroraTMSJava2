@@ -113,7 +113,7 @@ export class TournamentConfigEditContainerComponent implements OnInit, OnDestroy
 
   // back to the list of tournaments
   navigateBack() {
-    this.router.navigateByUrl('/tournamentsconfig');
+    this.router.navigateByUrl('/ui/tournamentsconfig');
   }
 
 }

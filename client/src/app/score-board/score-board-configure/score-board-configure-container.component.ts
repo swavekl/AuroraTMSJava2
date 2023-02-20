@@ -104,7 +104,7 @@ tournamentDay = 1;
 
   onTableSelected(selectedTableInfo: any) {
     console.log('user selected table', selectedTableInfo);
-    const url = `/scoreboard/scoreentry/${selectedTableInfo.tournamentId}/${selectedTableInfo.tournamentDay}/${selectedTableInfo.tableNumber}`;
+    const url = `/ui/scoreboard/scoreentry/${selectedTableInfo.tournamentId}/${selectedTableInfo.tournamentDay}/${selectedTableInfo.tableNumber}`;
     this.router.navigateByUrl(url);
   }
 }

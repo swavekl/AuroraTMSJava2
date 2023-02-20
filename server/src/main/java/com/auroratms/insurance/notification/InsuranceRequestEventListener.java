@@ -68,7 +68,7 @@ public class InsuranceRequestEventListener {
             templateModel.put("contactName", contactName);
             templateModel.put("contactEmail", contactEmail);
 
-            String applicationUrl = clientHostUrl + "/insurance/edit/" + insuranceRequest.getId();
+            String applicationUrl = clientHostUrl + "/ui/insurance/edit/" + insuranceRequest.getId();
             templateModel.put("applicationUrl", applicationUrl);
             String strStatus = insuranceRequest.getStatus().toString().toLowerCase();
             String subject = "Insurance Certificate Request " + strStatus;

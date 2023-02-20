@@ -37,7 +37,7 @@ export class SignInComponent implements OnInit, OnDestroy {
               private store: Store,
               private linearProgressBarService: LinearProgressBarService) {
     this.returnUrl = activatedRoute.snapshot.queryParamMap.get('returnUrl');
-    this.returnUrl = (this.returnUrl != null) ? this.returnUrl : '/home';
+    this.returnUrl = (this.returnUrl != null) ? this.returnUrl : '/ui/home';
     this.isSuccess = false;
   }
 
