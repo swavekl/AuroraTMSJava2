@@ -60,6 +60,9 @@ export class DrawsComponent implements OnInit, OnChanges {
   // checks if there are any scores entered for the event to prevent any changes to the draw after results are entered
   allowDrawChanges: boolean;
 
+  // to be determined player profile id same as matches/match.model.ts
+  public readonly TBD_PROFILE_ID = 'TBD';
+
   constructor(private dialog: MatDialog) {
     this.groups = [];
     this.expandedView = false;
@@ -401,7 +404,7 @@ export class DrawsComponent implements OnInit, OnChanges {
           if (drawItem == null) {
             drawItem = {
               id: 0, eventFk: eventFK, drawType: DrawType.SINGLE_ELIMINATION, groupNum: groupNum, placeInGroup: placeInGroup,
-              state: null, rating: 0, clubName: null, playerName: null, playerId: null, conflicts: null, byeNum: 0,
+              state: null, rating: 0, clubName: null, playerName: null, playerId: this.TBD_PROFILE_ID, conflicts: null, byeNum: 0,
               round: drawRound.round, seSeedNumber: 0
             };
             drawRound.drawItems.push(drawItem);
@@ -416,7 +419,7 @@ export class DrawsComponent implements OnInit, OnChanges {
             if (drawItem == null) {
               drawItem = {
                 id: 0, eventFk: eventFK, drawType: DrawType.SINGLE_ELIMINATION, groupNum: groupNum, placeInGroup: placeInGroup,
-                state: null, rating: 0, clubName: null, playerName: null, playerId: null, conflicts: null, byeNum: 0,
+                state: null, rating: 0, clubName: null, playerName: null, playerId: this.TBD_PROFILE_ID, conflicts: null, byeNum: 0,
                 round: 2, seSeedNumber: 0
               };
               drawRound.drawItems.push(drawItem);
