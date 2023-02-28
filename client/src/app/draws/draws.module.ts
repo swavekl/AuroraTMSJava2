@@ -19,7 +19,7 @@ import {DrawsContainerComponent} from './draws/draws-container.component';
 import {DrawService} from './service/draw.service';
 import {DrawDataService} from './service/draw-data.service';
 import {SharedModule} from '../shared/shared.module';
-import {NgTournamentTreeModule} from 'ng-tournament-tree';
+import {NgttSingleEliminationTreeModule} from 'ng-tournament-tree';
 import { SingleEliminationBracketComponent } from './single-elimination-bracket/single-elimination-bracket.component';
 import { SEMatchComponent } from './single-elimination-bracket/sematch/sematch.component';
 
@@ -47,7 +47,7 @@ import { SEMatchComponent } from './single-elimination-bracket/sematch/sematch.c
         MatTooltipModule,
         FormsModule,
         MatSlideToggleModule,
-        NgTournamentTreeModule
+        NgttSingleEliminationTreeModule
     ]
 })
 export class DrawsModule {

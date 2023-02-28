@@ -39,7 +39,7 @@
     "file-saver": "^2.0.5",
     "jwt-decode": "^3.1.2",
     "moment": "^2.29.1",
-    "ng-tournament-tree": "^2.0.2",
+    "ng-tournament-tree": "https://github.com/swavekl/ng-tree-tournament.git",
     "ngx-stripe": "^15.4.4",
     "print-js": "^1.6.0",
     "rxjs": "~7.4.0",
