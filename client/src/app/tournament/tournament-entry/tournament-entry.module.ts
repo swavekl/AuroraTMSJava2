@@ -29,6 +29,7 @@ import {MaxRatingDirective} from './doubles-pair-dialog/max-rating.directive';
 import {EntryWizardCanDeactivateGuard} from './entry-wizard/entry-wizard-can-deactivate.guard';
 import {DoublesTeamsContainerComponent} from './doubles-teams/doubles-teams-container.component';
 import {DoublesTeamsComponent} from './doubles-teams/doubles-teams.component';
+import {AccountModule} from '../../account/account.module';
 
 @NgModule({
   declarations: [
@@ -59,12 +60,15 @@ import {DoublesTeamsComponent} from './doubles-teams/doubles-teams.component';
     MatInputModule,
     ProfileModule,
     MatDialogModule,
-    MatSelectModule
+    MatSelectModule,
+    AccountModule
   ],
   exports: [
     DoublesTeamsContainerComponent
   ],
-  providers: [EntryWizardCanDeactivateGuard]
+  providers: [
+    EntryWizardCanDeactivateGuard
+  ]
 })
 export class TournamentEntryModule {
 }

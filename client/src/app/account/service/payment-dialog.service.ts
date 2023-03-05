@@ -3,7 +3,7 @@ import {StripeFactoryService, StripeInstance} from 'ngx-stripe';
 import {KeyAccountInfo, PaymentRefundService} from './payment-refund.service';
 import {MatDialog, MatDialogConfig} from '@angular/material/dialog';
 import {PaymentDialogData} from '../payment-dialog/payment-dialog-data';
-import {BehaviorSubject, Observable, Subject} from 'rxjs';
+import {BehaviorSubject, Observable} from 'rxjs';
 import {distinctUntilChanged, first, map, tap} from 'rxjs/operators';
 import {PaymentDialogComponent} from '../payment-dialog/payment-dialog.component';
 import {CallbackData} from '../model/callback-data';

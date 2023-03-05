@@ -29,8 +29,8 @@
               <mat-error>This field is required</mat-error>
             </mat-form-field>
           </div>
-          <div fxLayout="row" fxLayoutGap="20px">
-            <mat-form-field fxFlex="50%">
+          <div fxLayout="row">
+            <mat-form-field fxFlex="60%">
               <mat-label>Birth Date</mat-label>
               <input matInput [matDatepicker]="dateOfBirth" placeholder="mm/dd/yyyy" name="dateOfBirth"
                      [max]="maxDateOfBirth" [ngModel]="profile?.dateOfBirth" required>

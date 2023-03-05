@@ -14,7 +14,7 @@ import {
   StripeElementsOptions,
   StripeElementStyle
 } from '@stripe/stripe-js';
-import {StripeCardNumberComponent, StripeFactoryService, StripeInstance} from 'ngx-stripe';
+import {StripeCardNumberComponent, StripeInstance} from 'ngx-stripe';
 import {PaymentDialogData} from './payment-dialog-data';
 import {PaymentIntentResponse, PaymentRefundService} from '../service/payment-refund.service';
 import {PaymentRefund} from '../model/payment-refund.model';
@@ -126,13 +126,11 @@ export class PaymentDialogComponent implements OnInit, OnDestroy {
    * @param data
    * @param fb
    * @param paymentRefundService
-   * @param stripeFactoryService
    */
   constructor(public dialogRef: MatDialogRef<PaymentDialogComponent>,
               @Inject(MAT_DIALOG_DATA) public data: PaymentDialogData,
               private fb: UntypedFormBuilder,
-              private paymentRefundService: PaymentRefundService,
-              private stripeFactoryService: StripeFactoryService) {
+              private paymentRefundService: PaymentRefundService) {
     this.stripeInstance = data.stripeInstance;
     this.paymentRequest = data.paymentRequest;
     this.currencyCode = data.paymentRequest.currencyCode;

@@ -16,11 +16,11 @@ import {AccountRefreshComponent} from './account-refresh/account-refresh.compone
 import {ConnectWithStripeIconComponent} from './connect-with-stripe.icon';
 import {HttpClientModule} from '@angular/common/http';
 import {PaymentDialogComponent} from './payment-dialog/payment-dialog.component';
-import {NgxStripeModule} from 'ngx-stripe';
+import {NgxStripeModule, StripeFactoryService} from 'ngx-stripe';
 import {MatDialogModule} from '@angular/material/dialog';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 import {MatProgressBarModule} from '@angular/material/progress-bar';
-import { RefundDialogComponent } from './refund-dialog/refund-dialog.component';
+import {RefundDialogComponent} from './refund-dialog/refund-dialog.component';
 import {PaymentDialogService} from './service/payment-dialog.service';
 import {PaymentRefundService} from './service/payment-refund.service';
 
@@ -57,7 +57,8 @@ import {PaymentRefundService} from './service/payment-refund.service';
   ],
   providers: [
     PaymentDialogService,
-    PaymentRefundService
+    PaymentRefundService,
+    StripeFactoryService
   ]
 })
 export class AccountModule {
