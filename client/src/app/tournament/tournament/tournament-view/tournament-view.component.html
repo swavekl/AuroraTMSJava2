@@ -106,7 +106,7 @@
         </table>
       </mat-card-content>
       <mat-card-actions>
-        <button *ngIf="canWithdraw()" mat-raised-button type="button" (click)="onWithdraw()">Withdraw</button>
+<!--        <button *ngIf="canWithdraw()" mat-raised-button type="button" (click)="onWithdraw()">Withdraw</button>-->
         <button *ngIf="resultsAvailable()" mat-raised-button type="button" [routerLink]="['/ui/results', tournament.id]">Results</button>
         <span fxFlex></span>
 <!--        <button *ngIf="canEnterPlayer()" mat-raised-button type="button" color="primary" (click)="onEnterPlayer()">Enter Player</button>-->

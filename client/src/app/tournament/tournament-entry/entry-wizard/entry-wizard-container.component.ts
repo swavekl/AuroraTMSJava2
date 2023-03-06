@@ -289,7 +289,7 @@ export class EntryWizardContainerComponent implements OnInit, OnDestroy {
         first(),
         map((cartSessionId: string) => {
           const now = new Date();
-          console.log(`Started cartSessionId ${cartSessionId} at ${now}`);
+          // console.log(`Started cartSessionId ${cartSessionId} at ${now}`);
           this.cartSessionId = cartSessionId;
         })
       ).subscribe();

@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {AuthenticationService} from '../authentication.service';
 import {CrossFieldErrorMatcher} from '../cross-field-error-matcher/cross-field-error-matcher';
+import {PasswordCriteria} from '../password-criteria';
 
 @Component({
   selector: 'app-reset-password',
@@ -13,6 +14,8 @@ export class ResetPasswordComponent implements OnInit {
   password2: string;
   crossFieldErrorMatcher = new CrossFieldErrorMatcher();
   resetPasswordToken: string;
+
+  passwordCriteria: PasswordCriteria = new PasswordCriteria();
 
   constructor(private activatedRoute: ActivatedRoute,
               private router: Router,

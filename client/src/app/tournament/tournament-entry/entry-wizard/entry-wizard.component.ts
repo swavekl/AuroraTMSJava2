@@ -165,7 +165,7 @@ export class EntryWizardComponent implements OnInit, OnChanges, OnDestroy {
       this.tournament = tournamentChange.currentValue;
       if (this.tournament != null) {
         this.teamsTournament = this.tournament.configuration.tournamentType === 'Teams';
-        console.log('tournament start date is ' + this.tournament.startDate);
+        // console.log('tournament start date is ' + this.tournament.startDate);
         this.tournamentStartDate = new DateUtils().convertFromString(this.tournament.startDate);
         this.tournamentStarLevel = this.tournament.starLevel;
       }
@@ -223,7 +223,7 @@ export class EntryWizardComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   onSave(formValues: any) {
-    console.log('formValues', formValues);
+    // console.log('formValues', formValues);
     this.finish.emit(null);
   }
 

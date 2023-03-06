@@ -4,6 +4,7 @@ import {CrossFieldErrorMatcher} from '../cross-field-error-matcher/cross-field-e
 import {first} from 'rxjs/operators';
 import {Subscription} from 'rxjs';
 import {LinearProgressBarService} from '../../shared/linear-progress-bar/linear-progress-bar.service';
+import {PasswordCriteria} from '../password-criteria';
 
 @Component({
   selector: 'app-register',
@@ -17,6 +18,8 @@ export class RegisterComponent implements OnInit, OnDestroy {
   email = '';
   password = '';
   password2 = '';
+
+  passwordCriteria: PasswordCriteria = new PasswordCriteria();
 
   crossFieldErrorMatcher = new CrossFieldErrorMatcher();
 

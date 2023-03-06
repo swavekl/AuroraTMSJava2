@@ -14,6 +14,7 @@ import {CenteredPanelComponent} from './centered-panel/centered-panel.component'
 import {FlexLayoutModule} from '@angular/flex-layout';
 import {DebounceClicksDirective} from './directives/debounce-clicks.directive';
 import {SelectionsDifferentDirective} from './directives/selections-different.directive';
+import {ValuesMatchDirective} from './directives/values-match.directive';
 import {MessageAreaComponent} from './message-area/message-area.component';
 import {TypographyComponent} from './typograhpy/typography.component';
 import {DateRangePipe} from './pipes/date-range.pipe';
@@ -45,7 +46,8 @@ import {getSaver, SAVER} from './download-service/saver.provider';
     RoundNamePipe,
     UploadButtonComponent,
     DownloadButtonComponent,
-    SelectionsDifferentDirective
+    SelectionsDifferentDirective,
+    ValuesMatchDirective
   ],
   exports: [
     LinearProgressBarComponent,
@@ -62,7 +64,8 @@ import {getSaver, SAVER} from './download-service/saver.provider';
     RoundNamePipe,
     UploadButtonComponent,
     DownloadButtonComponent,
-    SelectionsDifferentDirective
+    SelectionsDifferentDirective,
+    ValuesMatchDirective
   ],
   imports: [
     CommonModule,
