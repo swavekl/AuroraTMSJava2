@@ -26,6 +26,8 @@ export class SignInComponent implements OnInit, OnDestroy {
 
   returnUrl: string;
 
+  showPassword: boolean = false;
+
   // progress indicator
   loginInProgress$: Subject<boolean> = new Subject<boolean>();
 
@@ -84,5 +86,9 @@ export class SignInComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.subscriptions.unsubscribe();
+  }
+
+  toggleShowPassword() {
+    this.showPassword = !this.showPassword;
   }
 }

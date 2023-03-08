@@ -29,6 +29,10 @@ export class RegisterComponent implements OnInit, OnDestroy {
   public registrationCompleted: boolean;
   private subscription: Subscription = new Subscription();
 
+  showPassword: boolean = false;
+  showPassword2: boolean = false;
+
+
   constructor(
     private authenticationService: AuthenticationService,
     private linearProgressBarService: LinearProgressBarService) {
@@ -69,4 +73,13 @@ export class RegisterComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.subscription.unsubscribe();
   }
+
+  toggleShowPassword() {
+    this.showPassword = !this.showPassword;
+  }
+
+  toggleShowPassword2() {
+    this.showPassword2 = !this.showPassword2;
+  }
+
 }

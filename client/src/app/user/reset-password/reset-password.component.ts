@@ -17,6 +17,9 @@ export class ResetPasswordComponent implements OnInit {
 
   passwordCriteria: PasswordCriteria = new PasswordCriteria();
 
+  showPassword: boolean = false;
+  showPassword2: boolean = false;
+
   constructor(private activatedRoute: ActivatedRoute,
               private router: Router,
               private authenticationService: AuthenticationService) {
@@ -41,4 +44,13 @@ export class ResetPasswordComponent implements OnInit {
       }
     );
   }
+
+  toggleShowPassword() {
+    this.showPassword = !this.showPassword;
+  }
+
+  toggleShowPassword2() {
+    this.showPassword2 = !this.showPassword2;
+  }
+
 }

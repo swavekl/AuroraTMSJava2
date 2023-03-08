@@ -11,18 +11,26 @@ import {AbstractControl, NG_VALIDATORS, ValidationErrors, Validator} from '@angu
 export class ValuesMatchDirective implements Validator {
 
   @Input('appValuesMatch')
-  otherControlName: string;
+  controlNames: string;
 
   constructor() { }
 
-  validate(control: AbstractControl): ValidationErrors | null {
-    const otherCtrl = control.parent.get(this.otherControlName);
-    const otherValue = otherCtrl?.value;
-    const thisValue = control?.value;
-    // console.log(`otherValue [${this.otherControlName}] = ${otherValue}`);
-    // console.log(`thisValue [password2] = ${thisValue}`);
-    const isMatching = (otherValue != null) && (thisValue != null) && (otherValue === thisValue);
-    // console.log('isMatching', isMatching);
-    return !isMatching ? {'appValuesMatch': true} : null;
+  validate(formGroup: AbstractControl): ValidationErrors | null {
+    const controlNamesArray = (this.controlNames != null) ? this.controlNames.split(',') : [];
+    if (controlNamesArray.length === 2) {
+      const controlOneName = controlNamesArray[0].trim();
+      const controlTwoName = controlNamesArray[1].trim();
+      const ctrlOne = formGroup.get(controlOneName);
+      const ctrlTwo = formGroup.get(controlTwoName);
+      const valueOne = ctrlOne?.value;
+      const valueTwo = ctrlTwo?.value;
+      // console.log(`valueOne [${controlOneName}]  = ${valueOne}`);
+      // console.log(`valueTwo [${controlTwoName}] = ${valueTwo}`);
+      const isMatching = (valueOne != null) && (valueTwo != null) && (valueOne === valueTwo);
+      // console.log('isMatching', isMatching);
+      return !isMatching ? {'appValuesMatch': true} : null;
+    } else {
+      return {'appValuesMatch': true};
+    }
   }
 }
