@@ -10,14 +10,16 @@
     </div>
     <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="10px">
       <mat-icon class="material-icons md-dark md-inactive" fxFlex="10%">lock_open</mat-icon>
-      <mat-form-field fxFlex="85%" class="sign-in-field">
+      <mat-form-field fxFlex="80%" class="sign-in-field">
         <input matInput [type]="!showPassword ? 'password' : 'text'"
                placeholder="Password" name="password" [(ngModel)]="password" required>
         <mat-error>This field is required</mat-error>
       </mat-form-field>
-      <mat-icon class="material-icons md-dark md-inactive" fxFlex="10%"
-                (click)="toggleShowPassword()">{{ showPassword ? 'visibility' : 'visibility_off' }}
-      </mat-icon>
+      <button fxFlex="10%" mat-mini-fab style="background-color: white; margin-top: 20px;"
+              (click)="toggleShowPassword()" aria-label="Show/hide password">
+        <mat-icon
+          class="material-icons md-dark md-inactive">{{ showPassword ? 'visibility' : 'visibility_off' }}</mat-icon>
+      </button>
     </div>
     <button mat-raised-button color="primary" style="margin-top: 10px; margin-bottom: 8px;" debounceClicks (debounceClick)="login()">LOGIN</button>
     <app-message-area [message]="status" [isError]="!isSuccess" [minHeight]="'32px'"></app-message-area>
