@@ -27,7 +27,6 @@ export class ResetPasswordComponent implements OnInit {
 
   ngOnInit(): void {
     this.resetPasswordToken = this.activatedRoute.snapshot.params['resetPasswordToken'];
-    // console.log ('resetPasswordToken', this.resetPasswordToken);
   }
 
   resetPassword() {
@@ -36,10 +35,10 @@ export class ResetPasswordComponent implements OnInit {
       data => {
         // console.log ('reset password data', data);
         const succeeded: boolean = (data && data?.status === 'SUCCESS');
-        this.router.navigate(['/resetpasswordresult/', succeeded]);
+        this.router.navigate(['/ui/resetpasswordresult/', succeeded]);
       },
       error => {
-        const url = `/resetpasswordresult/false`;
+        const url = `/ui/resetpasswordresult/false`;
         this.router.navigate([url]);
       }
     );
