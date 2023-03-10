@@ -16,24 +16,24 @@
       </mat-form-field>
     </div>
     <div #fgPasswords="ngModelGroup" ngModelGroup="passwords" appValuesMatch="password,password2"
-         fxLayout="column" class="form-group">
+         fxLayout="column" fxLayoutAlign="start start">
       <p class="password-instructions">{{ passwordCriteria.passwordRequirements }}</p>
       <div fxLayout="row" fxLayoutAlign="start start" fxLayoutGap="10px">
-        <mat-form-field fxFlex="80%">
+        <mat-form-field>
           <input [type]="showPassword ? 'text' : 'password'"
                  matInput placeholder="Password" name="password" [(ngModel)]="password"
                  #passwordCtrl="ngModel" required [pattern]="passwordCriteria.passwordPattern"/>
           <mat-error *ngIf="passwordCtrl?.errors?.required">Password is required</mat-error>
           <mat-error *ngIf="passwordCtrl?.errors?.pattern">Invalid password</mat-error>
         </mat-form-field>
-        <button fxFlex="10%" mat-mini-fab style="background-color: white; margin-top: 20px;"
+        <button type="button" mat-mini-fab style="background-color: white; margin-top: 20px;"
                 (click)="toggleShowPassword()" aria-label="Show/hide password">
           <mat-icon
             class="material-icons md-dark md-inactive">{{ showPassword ? 'visibility' : 'visibility_off' }}</mat-icon>
         </button>
       </div>
       <div fxLayout="row" fxLayoutAlign="start start" fxLayoutGap="10px">
-        <mat-form-field fxFlex="80%">
+        <mat-form-field>
           <input [type]="showPassword2 ? 'text' : 'password'"
                  matInput placeholder="Reenter Password" name="password2" [(ngModel)]="password2"
                  #password2Ctrl="ngModel"
@@ -44,7 +44,7 @@
           <mat-error *ngIf="fgPasswords?.errors?.appValuesMatch && password2Ctrl.touched">Passwords don't match
           </mat-error>
         </mat-form-field>
-        <button type="button" fxFlex="10%" mat-mini-fab style="background-color: white"
+        <button type="button" mat-mini-fab style="background-color: white"
                 aria-label="Show/hide password" (click)="toggleShowPassword2()">
           <mat-icon
             class="material-icons md-dark md-inactive">{{ showPassword2 ? 'visibility' : 'visibility_off' }}</mat-icon>
