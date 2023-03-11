@@ -1,6 +1,6 @@
 <div fxLayout="row">
   <div fxFlex></div>
-  <div fxFlex.lt-md="100%" fxFlex="40%" >
+  <div fxFlex.lt-md="100%" fxFlex="55%" >
     <form name="form" (ngSubmit)="onSave(f.value)" #f="ngForm" novalidate>
       <mat-card appearance="outlined">
         <mat-card-header>
@@ -53,21 +53,21 @@
               <mat-error>This field is required</mat-error>
             </mat-form-field>
           </div>
-          <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="10px">
-            <mat-form-field fxFlex="55%">
+          <div fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px grid">
+            <mat-form-field fxFlex="55%" fxFlex.lt-md="100%">
               <mat-label>City</mat-label>
               <input matInput type="text" name="city" [ngModel]="profile?.city" required>
               <mat-error>This field is required</mat-error>
             </mat-form-field>
-            <mat-form-field fxFlex="20%">
+            <mat-form-field fxFlex="20%" fxFlex.lt-md="40%">
               <mat-label>State</mat-label>
-              <mat-select matInput type="text" name="state" [ngModel]="profile?.state" required>
+              <mat-select type="text" name="state" [ngModel]="profile?.state" required>
                 <mat-option *ngFor="let state of statesList" value="{{state.abbreviation}}">{{state.abbreviation}}
                 </mat-option>
               </mat-select>
               <mat-error>This field is required</mat-error>
             </mat-form-field>
-            <mat-form-field fxFlex="25%">
+            <mat-form-field fxFlex="25%" fxFlex.lt-md="60%">
               <mat-label>Zip Code</mat-label>
               <input matInput type="text" name="zipCode" [ngModel]="profile?.zipCode"
                      [pattern]="zipCodePattern" [maxlength]="zipCodeLength" #zipCode="ngModel"
@@ -88,30 +88,31 @@
             </mat-form-field>
           </div>
           <mat-card-subtitle class="mat-headline-6">Contact Information</mat-card-subtitle>
-          <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="10px">
-            <mat-form-field fxFlex="70%">
+          <div fxLayout="row wrap" fxLayoutAlign="start center" fxLayoutGap="10px grid">
+            <mat-form-field fxFlex="70%" fxFlex.lt-md="100%">
               <mat-label>Email</mat-label>
               <input matInput type="email" name="email" [ngModel]="profile?.email" email required>
               <mat-error>Invalid email address</mat-error>
             </mat-form-field>
             <input type="hidden" [ngModel]="profile?.login" name="login">
             <input type="hidden" [ngModel]="profile?.division" name="division">
-            <mat-form-field fxFlex="30%">
+            <mat-form-field fxFlex="30%" fxFlex.lt-md="100%">
               <mat-label>Cell Phone</mat-label>
               <input matInput type="tel" placeholder="xxx-xxxx-xxxx" name="mobilePhone" [ngModel]="profile?.mobilePhone" required>
               <mat-error>Invalid phone</mat-error>
             </mat-form-field>
           </div>
-          <div fxLayout="row" fxLayoutGap="10px">
-            <mat-form-field fxFlex="30%">
-              <mat-label>Usatt Membership Id</mat-label>
+          <mat-card-subtitle class="mat-headline-6">USATT Information</mat-card-subtitle>
+          <div fxLayout="row wrap" fxLayoutGap="10px grid">
+            <mat-form-field fxFlex="35%" fxFlex.lt-md="45%">
+              <mat-label>Membership Id</mat-label>
               <input matInput type="text" name="membershipId" [ngModel]="profile?.membershipId" readonly>
             </mat-form-field>
-            <mat-form-field fxFlex="40%">
-              <mat-label>Membership Expires on</mat-label>
+            <mat-form-field fxFlex="40%" fxFlex.lt-md="55%">
+              <mat-label>Membership Expires</mat-label>
               <input matInput name="membershipExpirationDate" [ngModel]="profile?.membershipExpirationDate | date:'MM/dd/yyyy'" readonly>
             </mat-form-field>
-            <mat-form-field fxFlex="25%">
+            <mat-form-field fxFlex="25%" fxFlex.lt-md="45%">
               <mat-label>Rating</mat-label>
               <input matInput type="text" name="tournamentRating" [ngModel]="profile?.tournamentRating" readonly>
             </mat-form-field>
@@ -123,7 +124,10 @@
           <div fxLayout="row" fxLayoutGap="10px">
             <mat-form-field fxFlex="100%">
               <mat-label>Your Club</mat-label>
-              <input matInput name="homeClubName" #homeClubName="ngModel" [ngModel]="profile?.homeClubName" [matAutocomplete]="auto" required [appClubName]="filteredClubs">
+              <input matInput name="homeClubName" #homeClubName="ngModel"
+                     [ngModel]="profile?.homeClubName" [matAutocomplete]="auto"
+                     required [appClubName]="filteredClubs"
+                     placeholder="Start typing and select it or add new club">
               <button *ngIf="profile?.homeClubName" matSuffix mat-icon-button aria-label="Clear" (click)="clearClubName()">
                 <mat-icon>close</mat-icon>
               </button>
@@ -138,7 +142,7 @@
           </div>
           <div fxLayout="row">
             <span fxFlex></span>
-            <button mat-raised-button color="" type="button" (click)="onAddClub()">Add Club</button>
+            <button mat-raised-button color="" type="button" (click)="onAddClub()">Add New Club</button>
           </div>
         </mat-card-content>
       </mat-card>
