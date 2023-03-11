@@ -5,31 +5,32 @@ import {Subscription} from 'rxjs';
 @Component({
   selector: 'app-reset-password-start',
   template: `
-    <div class="center">
-      <div fxLayout="column" fxLayoutAlign="start center">
-        <mat-card appearance="outlined">
-          <mat-card-content>
-            <div fxLayout="column">
-              <div [hidden]="done">
-                <div>Specify email address for sending reset password instructions</div>
-                <form name="form" #f="ngForm" novalidate>
-                  <mat-form-field fxFlex="75%">
-                    <input type="email" matInput name="email" [(ngModel)]="email" required>
-                    <mat-error>Email is required</mat-error>
-                  </mat-form-field>
-                </form>
+      <app-centered-panel>
+        <div fxLayout="column" fxLayoutAlign="start center">
+          <mat-card>
+            <mat-card-content>
+              <div fxLayout="column">
+                <div [hidden]="done">
+                  <div style="padding-bottom: 10px;">Specify email address for sending reset password instructions</div>
+                  <form name="form" #f="ngForm">
+                    <mat-form-field fxFlex="100%">
+                      <input type="email" matInput name="email" [(ngModel)]="email" email required>
+                      <mat-error *ngIf="f.form.controls['email']?.errors?.required">Field is required</mat-error>
+                      <mat-error *ngIf="f.form.controls['email']?.errors?.email">Email is invalid</mat-error>
+                    </mat-form-field>
+                  </form>
+                </div>
+                <div [hidden]="!done" [innerHtml]="message"></div>
               </div>
-              <div [hidden]="!done" [innerHtml]="message"></div>
-            </div>
-          </mat-card-content>
-          <mat-card-actions>
-            <div [hidden]="done">
-              <button mat-raised-button color="primary" [disabled]="!f.form.valid" (click)="forgotPassword()">Submit</button>
-            </div>
-          </mat-card-actions>
-        </mat-card>
-      </div>
-    </div>
+            </mat-card-content>
+            <mat-card-actions fxLayout="row" fxLayoutAlign="end start">
+              <div [hidden]="done">
+                <button mat-raised-button color="primary" [disabled]="!f.form.valid" (click)="forgotPassword()">Submit</button>
+              </div>
+            </mat-card-actions>
+          </mat-card>
+        </div>
+      </app-centered-panel>
   `,
   styles: []
 })

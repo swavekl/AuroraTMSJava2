@@ -14,6 +14,7 @@ export class UserWelcomeComponent implements OnInit {
   lastName: string;
   username: string;
   activationResult: boolean;
+  systemAdminEmail: string = 'mailto:swaveklorenc@yahoo.com';
 
   constructor(private httpClient: HttpClient,
               private activatedRoute: ActivatedRoute,
