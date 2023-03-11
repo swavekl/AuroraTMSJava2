@@ -1,16 +1,20 @@
 @use "src/my-theme.scss" as *;
 
-$field-width: 230px;
-
-mat-form-field {
-  max-width: $field-width;
-  min-width: $field-width;
-}
+$field-width: 270px;
 
 .password-instructions {
   text-align: start;
   max-width: $field-width;
   padding-bottom: 15px;
+}
+
+.other-field {
+  max-width: $field-width;
+}
+
+.password-field {
+  max-width: calc($field-width - 48px)!important;
+  min-width: calc($field-width - 48px)!important;
 }
 
 .registration-error-message {
