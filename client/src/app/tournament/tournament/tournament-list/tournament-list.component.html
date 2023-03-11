@@ -79,7 +79,8 @@
       <ng-template #noTournaments>
         <app-centered-panel>
           <div *ngIf="tournaments?.length === 0" style="width: 100%; text-align: center">
-            No tournaments found in {{selectedRegion}} region.  Please choose a different region.
+            <p>No tournaments found in {{selectedRegion}} region.</p>
+            <p>Please select region using <mat-icon>filter_list</mat-icon> button.</p>
           </div>
         </app-centered-panel>
       </ng-template>
