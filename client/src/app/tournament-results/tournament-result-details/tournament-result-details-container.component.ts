@@ -13,7 +13,8 @@ import {EventResults} from '../model/event-results';
   template: `
     <app-tournament-result-details
       [event]="event$ | async"
-      [eventResultsList]="eventResultsList$ | async">
+      [eventResultsList]="eventResultsList$ | async"
+    [tournamentId]="tournamentId">
     </app-tournament-result-details>
   `,
   styles: []
@@ -26,6 +27,8 @@ export class TournamentResultDetailsContainerComponent implements OnInit, OnDest
   // event information
   event$: Observable<TournamentEvent>;
 
+  tournamentId: number;
+
   private subscriptions: Subscription = new Subscription();
   private loading$: Observable<boolean>;
 
@@ -34,12 +37,12 @@ export class TournamentResultDetailsContainerComponent implements OnInit, OnDest
               private tournamentResultsService: TournamentResultsService,
               private tournamentEventConfigService: TournamentEventConfigService) {
     const strTournamentId = this.activatedRoute.snapshot.params['tournamentId'] || 0;
-    const tournamentId = Number(strTournamentId);
+    this.tournamentId = Number(strTournamentId);
     const strEventId = this.activatedRoute.snapshot.params['eventId'] || 0;
     const eventId = Number(strEventId);
     this.setupProgressIndicator();
-    this.loadTournamentEvent(tournamentId, eventId);
-    this.loadEventResults(tournamentId, eventId);
+    this.loadTournamentEvent(this.tournamentId, eventId);
+    this.loadEventResults(this.tournamentId, eventId);
   }
 
   ngOnInit(): void {

@@ -14,6 +14,7 @@ import {DrawsModule} from '../draws/draws.module';
 import { PlayerResultsComponent } from './player-results/player-results.component';
 import { PlayerResultsContainerComponent } from './player-results/player-results-container.component';
 import {SharedModule} from '../shared/shared.module';
+import {MatToolbarModule} from '@angular/material/toolbar';
 
 
 @NgModule({
@@ -34,7 +35,8 @@ import {SharedModule} from '../shared/shared.module';
         DrawsModule,
         MatTabsModule,
         SharedModule,
-        FlexLayoutModule
+        FlexLayoutModule,
+        MatToolbarModule
     ]
 })
 export class TournamentResultsModule { }

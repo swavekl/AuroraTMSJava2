@@ -1,4 +1,7 @@
 <div class="mat-headline-6 title-container">Event Results for {{event?.name}}</div>
+  <mat-toolbar>
+    <button mat-raised-button type="button" [routerLink]="['/ui/results', tournamentId]" >Back</button>
+  </mat-toolbar>
   <mat-tab-group class="results-container">
     <mat-tab label="Round Robin">
       <div class="rr-results-container" fxFlex.lt-md="100%" fxFlex.md="100%" fxFlex="70%" fxLayout="row wrap" fxLayoutAlign="start start">

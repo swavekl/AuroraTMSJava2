@@ -1,4 +1,7 @@
 <div class="mat-headline-6 title-container" >Tournament Results</div>
+<mat-toolbar>
+  <button mat-raised-button type="button" [routerLink]="['/ui/tournaments/view', tournamentId]" >Back</button>
+</mat-toolbar>
 <div class="content-container" fxLayout="row" fxLayoutAlign="start start">
   <div fxFlex.lt-md="100%" fxFlex.md="100%" fxFlex="30%">
       <mat-card appearance="outlined" class="results-card" *ngFor="let eventResultStatus of eventResultStatusList">

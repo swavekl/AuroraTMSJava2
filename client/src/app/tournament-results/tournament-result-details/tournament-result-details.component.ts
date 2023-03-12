@@ -22,6 +22,9 @@ export class TournamentResultDetailsComponent implements OnInit, OnChanges {
   @Input()
   event: TournamentEvent;
 
+  @Input()
+  tournamentId: number;
+
   singleEliminationRounds: DrawRound[] = [];
 
   tournament: NgttTournament;

@@ -1,6 +1,6 @@
 <div fxLayout="row" *ngIf="tournament">
   <div fxFlex></div>
-  <div fxFlex.lt-md="100%" fxFlex="70%">
+  <div fxFlex.lt-md="100%" fxFlex="40%">
     <mat-card appearance="outlined">
       <mat-card-header>
           <div fxLayout="column">
@@ -12,7 +12,7 @@
             <div class="mat-headline-6">{{ [tournament.startDate, tournament.endDate] | dateRange }}</div>
           </div>
       </mat-card-header>
-      <mat-card-content class="mat-headline-6">
+      <mat-card-content>
         <table class="tournament-info-table">
           <tbody>
           <tr>
@@ -67,7 +67,7 @@
               </a>
               </button>
             </td>
-            <td class="text-column mat-headline-4">
+            <td class="text-column mat-headline-6">
               {{ tournament.numEntries }} ({{percentFull | percent}} full)
             </td>
           </tr>
@@ -106,36 +106,43 @@
         </table>
       </mat-card-content>
       <mat-card-actions>
-<!--        <button *ngIf="canWithdraw()" mat-raised-button type="button" (click)="onWithdraw()">Withdraw</button>-->
-        <button *ngIf="resultsAvailable()" mat-raised-button type="button" [routerLink]="['/ui/results', tournament.id]">Results</button>
-        <span fxFlex></span>
-<!--        <button *ngIf="canEnterPlayer()" mat-raised-button type="button" color="primary" (click)="onEnterPlayer()">Enter Player</button>-->
-        <button *ngIf="canEnter()" mat-raised-button type="button" color="primary" (click)="onEnter()">Enter</button>
-        <button *ngIf="canView()" mat-raised-button type="button" color="primary" (click)="onView()">View</button>
+        <div fxLayout="column" fxLayoutAlign="start stretch" fxLayoutGap="10px" style="width: 100%">
+          <div fxLayout="row" fxLayoutGap="10px" fxLayoutAlign="start start">
+            <button [disabled]="!resultsAvailable()" mat-raised-button type="button" [routerLink]="['/ui/results', tournament.id]">Results</button>
+            <span fxFlex></span>
+          </div>
+          <div fxLayout="row" fxLayoutGap="10px" fxLayoutAlign="end start">
+<!--            <button [disabled]="!canWithdraw()" mat-raised-button type="button" (click)="onWithdraw()">Withdraw</button>-->
+            <span fxFlex></span>
+            <!--        <button *ngIf="canEnterPlayer()" mat-raised-button type="button" color="primary" (click)="onEnterPlayer()">Enter Player</button>-->
+            <button *ngIf="canEnter()" mat-raised-button type="button" color="primary" (click)="onEnter()">Enter</button>
+            <button *ngIf="canView()" mat-raised-button type="button" color="primary" (click)="onView()">View</button>
+          </div>
+        </div>
       </mat-card-actions>
     </mat-card>
-    <mat-card appearance="outlined">
-      <mat-card-subtitle>
-        <div mat-line fxLayout="row">
-          <div fxFlex="60%">Events</div>
-          <div fxFlex="40%" style="text-align: right;">Spots (Taken/Max)</div>
-        </div>
-      </mat-card-subtitle>
+    <mat-card>
       <mat-card-content>
-        <mat-divider></mat-divider>
-        <mat-list>
-          <mat-list-item *ngFor="let tournamentEvent of tournamentEvents; first as isFirst; last as isLast">
-            <mat-divider></mat-divider>
-            <div mat-line fxLayout="row">
-              <div fxFlex="80%">{{tournamentEvent.name}} </div>
-              <div fxFlex="20%" style="text-align: right;">({{tournamentEvent.numEntries}}
-                /{{tournamentEvent.maxEntries}})
-              </div>
-            </div>
-            <div
-              mat-line>{{ tournamentEvent.day | eventDay: tournamentStartDate }} {{ tournamentEvent.startTime | startTime }}</div>
-          </mat-list-item>
-        </mat-list>
+        <mat-card-subtitle>Event Availability</mat-card-subtitle>
+        <table class="table-events-status">
+          <thead>
+          <tr>
+            <th class="event-name-day-column">Events</th>
+            <th class="event-spots-column">Spots (Taken/Max)</th>
+          </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let tournamentEvent of tournamentEvents; first as isFirst; last as isLast">
+              <td class="event-name-day-column">
+                  <div>{{tournamentEvent.name}} </div>
+                  <div>{{ tournamentEvent.day | eventDay: tournamentStartDate }} {{ tournamentEvent.startTime | startTime }}</div>
+              </td>
+              <td class="event-spots-column">
+                  {{tournamentEvent.numEntries}} / {{tournamentEvent.maxEntries}}
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </mat-card-content>
     </mat-card>
   </div>
