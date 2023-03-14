@@ -1,19 +1,35 @@
-<div class="round-header-container">
-  <div fxLayout="row" class="round-header">
-    <div *ngFor="let round of rounds">
-      {{ round | roundName: 1}}
+<div fxShow.gt-md="true" fxShow.md="true" fxHide.lt-md="true" >
+  <div class="round-header-container">
+    <div fxLayout="row" class="round-header">
+      <div *ngFor="let round of rounds">
+        {{ round | roundName: 1}}
+      </div>
+    </div>
+  </div>
+  <div class="se-bracket-panel" [style.height]="bracketsHeight" *ngIf="tournament" fxLayout="row">
+    <div>
+      <ngtt-single-elimination-tree
+        [tournament]="tournament"
+        [matchTemplate]="myMatchTemplate">
+      </ngtt-single-elimination-tree>
+
+      <ng-template #myMatchTemplate let-match>
+        <app-sematch [match]="match" [doublesEvent]="doublesEvent"></app-sematch>
+      </ng-template>
+
     </div>
   </div>
 </div>
-<div class="se-bracket-panel" [style.height]="bracketsHeight" *ngIf="tournament" fxLayout="row">
-  <div>
-    <ngtt-single-elimination-tree
-      [tournament]="tournament"
-      [matchTemplate]="myMatchTemplate">
-    </ngtt-single-elimination-tree>
+<div fxHide.gt-md="true" fxHide.md="true" fxShow.lt-md="true" >
+  <app-single-elimination-bracket-small
+    [rounds]="rounds"
+    [tournament]="tournament"
+    [matchTemplate]="mySmallMatchTemplate"
+    [doublesEvent]="doublesEvent">
 
-    <ng-template #myMatchTemplate let-match>
+    <ng-template #mySmallMatchTemplate let-match="match">
       <app-sematch [match]="match" [doublesEvent]="doublesEvent"></app-sematch>
     </ng-template>
-  </div>
+  </app-single-elimination-bracket-small>
 </div>
+

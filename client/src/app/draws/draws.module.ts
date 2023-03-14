@@ -22,13 +22,15 @@ import {SharedModule} from '../shared/shared.module';
 import {NgttSingleEliminationTreeModule} from 'ng-tournament-tree';
 import { SingleEliminationBracketComponent } from './single-elimination-bracket/single-elimination-bracket.component';
 import { SEMatchComponent } from './single-elimination-bracket/sematch/sematch.component';
+import { SingleEliminationBracketSmallComponent } from './single-elimination-bracket-small/single-elimination-bracket-small.component';
 
 @NgModule({
     declarations: [
         DrawsComponent,
         DrawsContainerComponent,
         SingleEliminationBracketComponent,
-        SEMatchComponent
+        SEMatchComponent,
+        SingleEliminationBracketSmallComponent
     ],
     exports: [
         SingleEliminationBracketComponent

@@ -1,0 +1,68 @@
+@use "src/my-theme.scss" as *;
+
+$match-box-color: #d7c8f5;
+
+.se-bracket-container {
+  width: 99%;
+  height: calc(100vh - 320px);
+  overflow-y: auto;
+
+}
+
+div.round-header {
+  text-align: center;
+  background-color: $accent-color;
+  padding-top: 6px;
+  padding-bottom: 6px;
+  margin: 0 8px;
+}
+
+$se-match-cell-width: $ngtt-match-wrapper-width;
+$lines-border-style: $ngtt-bracket-line-width solid $accent-color;
+
+table {
+  width: 95%;
+  border-collapse: collapse;
+  margin: 8px;
+
+  tbody {
+    tr td {
+
+      &.match-cell {
+        vertical-align: top; // uff - this made the lines align correctly
+        width: $se-match-cell-width;
+      }
+
+      &.match-cell-subsequent {
+        width: $se-match-cell-width;
+      }
+
+      &.lines-cell {
+        min-width: calc(((100% - ($se-match-cell-width + 16px)) / 2));
+        padding: 0;
+      }
+
+      &.vertical-line-cell-down {
+        border-top: $lines-border-style;
+        border-right: $lines-border-style;
+      }
+
+      &.vertical-line-cell-up {
+        border-bottom: $lines-border-style;
+        border-right: $lines-border-style;
+      }
+
+      &.vertical-line-cell {
+        border-right: $lines-border-style;
+      }
+    }
+
+    tr td.horizontal-line {
+      border-bottom: $lines-border-style;
+    }
+
+    tr td.separator-cell {
+      height: 15px;
+    }
+  }
+}

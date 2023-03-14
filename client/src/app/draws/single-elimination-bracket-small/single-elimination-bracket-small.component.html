@@ -1,0 +1,40 @@
+<mat-toolbar>
+  <div fxFlex="row" fxLayoutAlign="start start">
+    <button type="button" mat-raised-button [disabled]="!hasPreviousRound()" (click)="onPreviousRound()"><mat-icon>navigate_before</mat-icon></button>
+    <div fxFlex class="round-header mat-body-1">{{currentRound | roundName: 1}}</div>
+    <button type="button" mat-raised-button [disabled]="!hasNextRound()" (click)="onNextRound()"><mat-icon>navigate_next</mat-icon></button>
+  </div>
+</mat-toolbar>
+<div class="se-bracket-container">
+  <table>
+    <tbody>
+    <ng-container *ngFor="let match of currentRoundMatches; let idx = index; let last = last">
+      <tr>
+        <td class="match-cell" rowspan="2">
+          <div *ngIf="(currentRound === 2)">{{ (match.opponentA.groupNum === 1) ? '1st/2nd ' : '3rd/4th ' }}place</div>
+          <ng-container *ngTemplateOutlet="matchTemplate; context: {match: match, doublesEvent: doublesEvent}">
+          </ng-container>
+        </td>
+        <td class="lines-cell" [ngClass]="(idx % 2 === 0 || currentRound === 2) ? '' : 'vertical-line-cell-up'">&nbsp;</td>
+        <td class="lines-cell">&nbsp;</td>
+      </tr>
+      <tr>
+        <td class="lines-cell" [ngClass]="(idx % 2 !== 0 || currentRound === 2) ? '' : 'vertical-line-cell-down'">&nbsp;</td>
+        <td class="lines-cell">&nbsp;</td>
+      </tr>
+      <ng-container *ngIf="!last" >
+        <tr>
+          <td class="separator-cell"></td>
+          <td class="separator-cell" [ngClass]="(idx % 2 !== 0 || currentRound === 2) ? '' : 'vertical-line-cell'"></td>
+          <td class="separator-cell" [ngClass]="(idx % 2 !== 0 || currentRound === 2) ? '' : 'horizontal-line'"></td>
+        </tr>
+        <tr>
+          <td class="separator-cell"></td>
+          <td class="separator-cell" [ngClass]="(idx % 2 !== 0 || currentRound === 2) ? '' : 'vertical-line-cell'"></td>
+          <td class="separator-cell"></td>
+        </tr>
+      </ng-container>
+    </ng-container>
+    </tbody>
+  </table>
+</div>
