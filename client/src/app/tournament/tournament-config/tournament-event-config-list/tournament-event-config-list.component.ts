@@ -63,7 +63,7 @@ export class TournamentEventConfigListComponent implements OnInit, OnChanges {
     const dialogRef = this.dialog.open(SelectEventDialogComponent);
     dialogRef.afterClosed().subscribe(result => {
       if (result !== false) {
-        const url = `tournament/${this.tournamentId}/tournamentevent/create`;
+        const url = `/ui/tournamentsconfig/tournament/${this.tournamentId}/tournamentevent/create`;
         const selectedEventData = {
           ...result,
           ordinalNumber: this.events.length + 1
@@ -74,7 +74,7 @@ export class TournamentEventConfigListComponent implements OnInit, OnChanges {
   }
 
   getEventEditLink(eventId: number) {
-    return `/tournament/${this.tournamentId}/tournamentevent/edit/${eventId}`;
+    return `/ui/tournamentsconfig/tournament/${this.tournamentId}/tournamentevent/edit/${eventId}`;
   }
 
   editEvent(eventId: number) {

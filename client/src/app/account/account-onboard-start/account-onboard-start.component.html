@@ -8,7 +8,16 @@
         </mat-card-title>
       </mat-card-header>
       <mat-card-content style="text-align: left">
-        <h3>During the Connect with Stripe on-boarding process, you will be asked for personal and financial information to establish your identity.
+        <h3>
+          <p>During the 'Connect with Stripe' on-boarding process, you will be redirected to Stripe website and it will ask for your personal and financial information to establish your identity.</p>
+          <p>All of these steps are designed to ensure safety of money transfers and
+            verify that you represent a reputable individual or business.  The verification process may take a few days before it is completed, and until then you will not be able to
+            accept payments.
+          </p>
+          <p>
+          None of this information is kept on 'Aurora TMS' website.  It is stored securely on Stripe's website.</p>
+          <p>At the end of this process you will be returned to this website.</p>
+          <p>Please collect this information before you begin this process and have your smart phone handy.</p>
           <ul>
             <li>Email address</li>
             <li>First and last name</li>
@@ -31,20 +40,11 @@
               your statement descriptor if you choose to add a customized descriptor to a charge.
             </li>
           </ul>
-          All of these steps are designed to ensure safety of money transfers and verify that you represent a reputable
-          individual or business.
-          The verification process may take a few days before it is completed, and until then you will not be able to
-          accept payments.
-          All of this information is kept securely on Stripe's website.
-          At the end of this process you will be returned to this website.
         </h3>
-        <h3>Please collect this information before you begin this process and have your smart phone handy.</h3>
       </mat-card-content>
-      <mat-card-actions>
-        <div fxLayout="row">
+      <mat-card-actions fxLayout="row" fxLayoutAlign="start start">
           <span fxFlex></span>
           <app-connect-with-stripe-icon (click)="onCreateAccount()"></app-connect-with-stripe-icon>
-        </div>
       </mat-card-actions>
     </mat-card>
   </div>

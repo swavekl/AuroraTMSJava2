@@ -36,7 +36,7 @@ export class TournamentConfigListContainerComponent implements OnInit, OnDestroy
   }
 
   onAdd(event: any) {
-    this.router.navigateByUrl('/ui/tournament/create');
+    this.router.navigateByUrl('/ui/tournamentsconfig/tournament/create');
   }
 
   ngOnDestroy(): void {

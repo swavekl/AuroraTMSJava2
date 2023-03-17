@@ -75,7 +75,7 @@ export class TournamentPlayersListComponent implements OnInit, OnChanges {
         sortFunction = this.sortByRatingFn;
         break;
     }
-    return infos.sort(sortFunction);
+    return (infos != null) ? infos.sort(sortFunction) : [];
   }
 
   /**

@@ -223,7 +223,9 @@ export class Tournament {
       name: '--clone--' + tournament.name + ' Copy',
       startDate: dateUtils.convertFromLocalToUTCDate(newStartDate),
       endDate: dateUtils.convertFromLocalToUTCDate(newEndDate),
-      configuration: convertedConfiguration
+      configuration: convertedConfiguration,
+      numEntries: 0,
+      numEventEntries: 0
     };
     return clonedTournament;
   }
