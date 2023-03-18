@@ -275,8 +275,8 @@ public class TournamentEventListener {
             // time is expressed as 17.5 = 5:30 PM
             int hourOfDay = (int) Math.floor(startTime);
             int minutes = (int) ((startTime - Math.floor(startTime)) * 60);
-            calendar.add(Calendar.HOUR_OF_DAY, hourOfDay);
-            calendar.add(Calendar.MINUTE, minutes);
+            calendar.set(Calendar.HOUR_OF_DAY, hourOfDay);
+            calendar.set(Calendar.MINUTE, minutes);
 
             DateFormat dateFormat = new SimpleDateFormat("E hh:mm a");
             return dateFormat.format(calendar.getTime());

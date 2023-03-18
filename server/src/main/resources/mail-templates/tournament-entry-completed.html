@@ -7,9 +7,9 @@
 <p>Hello <span th:text="${playerFirstName}"></span>,</p>
 This is to confirm your entry in the '<span th:text="${tournamentName}"></span>' tournament,
 which will take place on
-<span th:text="${#dates.format(tournamentStartDate,'dd MMMM yyyy')}"></span>
+<span th:text="${#dates.format(tournamentStartDate,'E, MMMM dd, yyyy')}"></span>
 <span th:if="${tournamentEndDate != null}"> through </span>
-<span th:if="${tournamentEndDate != null}" th:text="${#dates.format(tournamentEndDate,'dd MMMM yyyy')}"></span>.
+<span th:if="${tournamentEndDate != null}" th:text="${#dates.format(tournamentEndDate,'E, MMMM dd, yyyy')}"></span>.
 </p>
 <p>Here are the events that you entered</p>
 
