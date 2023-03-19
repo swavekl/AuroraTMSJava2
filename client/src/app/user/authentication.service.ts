@@ -27,6 +27,8 @@ export class AuthenticationService {
 
   private readonly sessionStorageKey = 'currentUser';
 
+  private membershipExpirationDate: Date = null;
+
   constructor(private http: HttpClient,
               private jwtDecoderService: JWTDecoderService,
               private dialog: MatDialog) {
@@ -229,6 +231,18 @@ export class AuthenticationService {
 
   getCurrentUserMembershipId() {
     return this.currentUser?.profile?.membershipId;
+  }
+
+  getCurrentUserMembershipExpiration() {
+    return this.membershipExpirationDate;
+  }
+
+  setCurrentUserMembershipExpiration(membershipExpirationDate: Date) {
+    this.membershipExpirationDate = membershipExpirationDate;
+  }
+
+  getCurrentUserMembershipBirthDate() {
+    return this.currentUser?.profile?.birthdate;
   }
 
   getCurrentUserProfileId() {

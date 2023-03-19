@@ -10,7 +10,7 @@ export class EventEntryStatusPipe implements PipeTransform {
     'ENTERED': 'Entered',
     'ENTERED_WAITING_LIST': 'On waiting list',
     'PENDING_CONFIRMATION': 'Pending confirmation',
-    'PENDING_DELETION': 'Pending delete confirmation',
+    'PENDING_DELETION':     'Pending delete',
     'PENDING_WAITING_LIST': 'Pending Waiting list',
     'RESERVED_WAITING_LIST': ''  // special
   };

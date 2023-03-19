@@ -30,7 +30,8 @@ public class EventEntryStatusController {
 
     @PutMapping("/tournamententry/{tournamentEntryId}/eventstatus/confirmall/{cartSessionId}")
     public void confirmAll(@PathVariable Long tournamentEntryId,
-                           @PathVariable String cartSessionId) {
-        eventEntryStatusService.confirmAll(tournamentEntryId, cartSessionId);
+                           @PathVariable String cartSessionId,
+                           @RequestParam Boolean withdrawing) {
+        eventEntryStatusService.confirmAll(tournamentEntryId, cartSessionId, withdrawing);
     }
 }

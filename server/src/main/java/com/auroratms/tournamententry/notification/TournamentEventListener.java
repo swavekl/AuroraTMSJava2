@@ -132,7 +132,7 @@ public class TournamentEventListener {
 
             UserProfile userProfile = addPlayerInformation(templateModel, tournamentEntry.getProfileId());
             // is player in any events
-            if (countOfEvents > 0) {
+            if (!event.isWithdrawing()) {
                 emailService.sendMessageUsingThymeleafTemplate(userProfile.getEmail(), tournament.getEmail(),
                         "Tournament Registration Confirmation",
                         "tournament-entry-completed.html",

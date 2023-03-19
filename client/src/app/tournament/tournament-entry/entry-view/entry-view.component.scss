@@ -1,0 +1,63 @@
+.entry-view-small {
+  min-width: calc(100vw - 20px);
+  width: calc(100vw - 20px);
+  text-align: left;
+  margin: 10px 0;
+}
+
+.entry-view {
+  width: 360px;
+  min-width: 360px;
+  text-align: left;
+  margin: 10px 0;
+}
+
+mat-card-title-group {
+  padding: 16px 0 0 16px;
+}
+
+span.no-events-warning {
+  padding: 8px;
+}
+
+table.table-events-status {
+  width: 100%;
+  margin-top: 10px;
+
+  thead {
+    tr th {
+      padding: 4px;
+      font-weight: bold;
+      text-align: left;
+
+      &.event-name-day-column {
+        width: 70%;
+      }
+
+      &.event-status-column {
+        width: 30%;
+      }
+    }
+  }
+
+  tbody {
+    tr:nth-child(odd) {
+      background: rgba(143, 126, 126, 0.18);
+    }
+
+    tr {
+      td {
+        padding: 4px;
+        text-align: left;
+
+        &.event-name-day-column {
+          width: 70%;
+        }
+
+        &.event-status-column {
+          width: 30%;
+        }
+      }
+    }
+  }
+}

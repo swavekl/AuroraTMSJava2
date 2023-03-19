@@ -10,6 +10,7 @@ import {Tournament} from '../../tournament-config/tournament.model';
 import {NavigateUtil} from '../../../shared/navigate-util';
 import {TodayService} from '../../../shared/today.service';
 import {UserRoles} from '../../../user/user-roles.enum';
+import {MembershipUtil} from '../../util/membership-util';
 
 @Component({
   selector: 'app-tournament-view',
@@ -57,13 +58,18 @@ export class TournamentViewComponent implements OnInit, OnChanges {
     entryToEdit.tournamentFk = this.tournament.id;
     entryToEdit.dateEntered = new Date();
     entryToEdit.profileId = this.authService.getCurrentUserProfileId();
+    const membershipExpirationDate: Date = this.authService.getCurrentUserMembershipExpiration();
+    const dateOfBirth = this.authService.getCurrentUserMembershipBirthDate();
+    entryToEdit.membershipOption = new MembershipUtil().getInitialMembershipOption(
+      dateOfBirth, membershipExpirationDate, this.tournamentStartDate, this.tournament.starLevel);
     this.tournamentEntryService.add(entryToEdit, null)
       .pipe(first())
       .subscribe(
         (tournamentEntry: TournamentEntry) => {
           // console.log('created new tournament entry', tournamentEntry);
           this.entryId = tournamentEntry.id;
-          this.onView();
+          const url = `ui/entries/entrywizard/${this.tournament.id}/edit/${this.entryId}`;
+          this.router.navigateByUrl(url);
         },
         (error: any) => {
           console.log('error during entry creation', error);
@@ -81,7 +87,7 @@ export class TournamentViewComponent implements OnInit, OnChanges {
   }
 
   onView() {
-    const url = `ui/entries/entrywizard/${this.tournament.id}/edit/${this.entryId}`;
+    const url = `ui/entries/entryview/${this.tournament.id}/edit/${this.entryId}`;
     this.router.navigateByUrl(url);
   }
 

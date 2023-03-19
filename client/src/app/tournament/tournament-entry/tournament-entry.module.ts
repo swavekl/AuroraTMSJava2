@@ -14,6 +14,7 @@ import {MatTableModule} from '@angular/material/table';
 import {MatToolbarModule} from '@angular/material/toolbar';
 import {MatDialogModule} from '@angular/material/dialog';
 import {MatSelectModule} from '@angular/material/select';
+import {MatCardModule} from '@angular/material/card';
 import {FlexLayoutModule} from '@angular/flex-layout';
 
 import {SharedModule} from '../../shared/shared.module';
@@ -30,6 +31,8 @@ import {EntryWizardCanDeactivateGuard} from './entry-wizard/entry-wizard-can-dea
 import {DoublesTeamsContainerComponent} from './doubles-teams/doubles-teams-container.component';
 import {DoublesTeamsComponent} from './doubles-teams/doubles-teams.component';
 import {AccountModule} from '../../account/account.module';
+import {EntryViewComponent} from './entry-view/entry-view.component';
+import {EntryViewContainerComponent} from './entry-view/entry-view-container.component';
 
 @NgModule({
   declarations: [
@@ -40,7 +43,9 @@ import {AccountModule} from '../../account/account.module';
     DoublesPairDialogComponent,
     DoublesTeamsComponent,
     DoublesTeamsContainerComponent,
-    MaxRatingDirective
+    MaxRatingDirective,
+    EntryViewComponent,
+    EntryViewContainerComponent
   ],
   imports: [
     CommonModule,
@@ -58,9 +63,10 @@ import {AccountModule} from '../../account/account.module';
     MatToolbarModule,
     MatFormFieldModule,
     MatInputModule,
-    ProfileModule,
     MatDialogModule,
     MatSelectModule,
+    MatCardModule,
+    ProfileModule,
     AccountModule
   ],
   exports: [

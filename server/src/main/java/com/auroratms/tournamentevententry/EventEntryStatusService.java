@@ -374,12 +374,12 @@ public class EventEntryStatusService {
     }
 
     /**
-     *
      * @param tournamentEntryId
      * @param cartSessionId
+     * @param withdrawing
      */
     @Transactional
-    public void confirmAll(Long tournamentEntryId, String cartSessionId) {
+    public void confirmAll(Long tournamentEntryId, String cartSessionId, boolean withdrawing) {
         // confirm entries
         MakeBreakDoublesPairsEvent makeBreakDoublesPairsEvent = confirmAllInternal(tournamentEntryId);
 
@@ -388,8 +388,8 @@ public class EventEntryStatusService {
             doublesEventPublisher.publishMakeBreakPairsEvent(makeBreakDoublesPairsEvent);
         }
 
-        // send email to TD and player confirming entry
-        eventPublisher.publishRegistrationCompleteEvent(tournamentEntryId);
+        // send email to TD and player confirming entry or withdrawal
+        eventPublisher.publishRegistrationCompleteEvent(tournamentEntryId, withdrawing);
 
         // each time event is entered or dropped update last time cart session was active
         // so we can determine which sessions were abandoned

@@ -29,6 +29,7 @@ import {CartSessionService} from '../../../account/service/cart-session.service'
                       [allEventEntryInfos]="allEventEntryInfos$ | async"
                       [playerProfile]="playerProfile$ | async"
                       [paymentsRefunds]="paymentsRefunds$ | async"
+                      [isWithdrawing]="withdrawing"
                       (tournamentEntryChanged)="onTournamentEntryChanged($event)"
                       (confirmEntries)="onConfirmEntries($event)"
                       (eventEntryChanged)="onEventEntryChanged($event)"
@@ -60,6 +61,8 @@ export class EntryWizardContainerComponent implements OnInit, OnDestroy {
 
   @ViewChild(EntryWizardComponent)
   private entryWizardComponent: EntryWizardComponent;
+
+  withdrawing: boolean = false;
 
   constructor(private tournamentEntryService: TournamentEntryService,
               private tournamentConfigService: TournamentConfigService,
@@ -93,6 +96,7 @@ export class EntryWizardContainerComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.entryId = this.activatedRoute.snapshot.params['entryId'] || 0;
     this.tournamentId = this.activatedRoute.snapshot.params['tournamentId'] || 0;
+    this.withdrawing = this.activatedRoute.snapshot.queryParamMap.get('withdraw') === 'true';
     this.selectTournament(this.tournamentId);
     this.selectEntry(this.entryId);
     this.loadEventEntriesInfos(this.entryId);
@@ -213,7 +217,7 @@ export class EntryWizardContainerComponent implements OnInit, OnDestroy {
    */
   onConfirmEntries(tournamentEntry: TournamentEntry): void {
     if (tournamentEntry) {
-      this.eventEntryInfoService.confirmEntries(this.entryId, this.cartSessionId)
+      this.eventEntryInfoService.confirmEntries(this.entryId, this.cartSessionId, this.withdrawing)
         .pipe(first())
         .subscribe((success: boolean) => {
           console.log('confirmed all - success', success);

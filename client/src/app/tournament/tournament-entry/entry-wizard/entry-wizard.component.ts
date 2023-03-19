@@ -8,12 +8,14 @@ import {
   OnInit,
   Output,
   SimpleChange,
-  SimpleChanges
+  SimpleChanges, ViewChild
 } from '@angular/core';
 import {MembershipType, TournamentEntry} from '../model/tournament-entry.model';
 import {getCurrencySymbol} from '@angular/common';
 import {UntypedFormGroup} from '@angular/forms';
 import {MatDialog} from '@angular/material/dialog';
+import {STEPPER_GLOBAL_OPTIONS} from '@angular/cdk/stepper';
+
 import {Profile} from '../../../profile/profile';
 import {ProfileFindPopupComponent, ProfileSearchData} from '../../../profile/profile-find-popup/profile-find-popup.component';
 import {DateUtils} from '../../../shared/date-utils';
@@ -40,15 +42,20 @@ import {PriceCalculator} from '../pricecalculator/price-calculator';
 import {PricingMethod} from '../../model/pricing-method.enum';
 import {StandardPriceCalculator} from '../pricecalculator/standard-price-calculator';
 import {DiscountedPriceCalculator} from '../pricecalculator/discounted-price-calculator';
+import {MembershipUtil} from '../../util/membership-util';
+import {MatStepper} from '@angular/material/stepper';
 
 @Component({
   selector: 'app-entry-wizard',
   templateUrl: './entry-wizard.component.html',
   styleUrls: ['./entry-wizard.component.scss'],
   providers: [
-    PaymentDialogService
-  ]
-})
+    PaymentDialogService,
+    {
+      provide: STEPPER_GLOBAL_OPTIONS,
+      useValue: {showError: true},
+    },
+  ]})
 export class EntryWizardComponent implements OnInit, OnChanges, OnDestroy {
 
   @Input()
@@ -65,6 +72,9 @@ export class EntryWizardComponent implements OnInit, OnChanges, OnDestroy {
 
   @Input()
   allEventEntryInfos: TournamentEventEntryInfo[];
+
+  @Input()
+  isWithdrawing: boolean = false;
 
   enteredEvents: TournamentEventEntryInfo[] = [];
   availableEvents: TournamentEventEntryInfo[] = [];
@@ -111,19 +121,18 @@ export class EntryWizardComponent implements OnInit, OnChanges, OnDestroy {
   // indicates if user made any changes
   private dirty: boolean;
 
-  public membershipOptions: any [] = [
-    {value: MembershipType.NO_MEMBERSHIP_REQUIRED.valueOf(), label: 'My Membership is up to date', cost: 0, available: true},
-    {value: MembershipType.TOURNAMENT_PASS_JUNIOR.valueOf(), label: 'Tournament Pass Junior (17 and under)', cost: 20, available: true},
-    {value: MembershipType.TOURNAMENT_PASS_ADULT.valueOf(), label: 'Tournament Pass Adult', cost: 50, available: true},
-    {value: MembershipType.BASIC_PLAN.valueOf(), label: 'Basic Plan 1 year (0 – 4 star)', cost: 25, available: true},
-    {value: MembershipType.PRO_PLAN.valueOf(), label: 'Pro Plan 1 year', cost: 75, available: true},
-    {value: MembershipType.LIFETIME.valueOf(), label: 'Lifetime', cost: 1300, available: true}
-  ];
+  private membershipUtil: MembershipUtil;
+  public membershipOptions: any [] = [];
 
   // players entries into doubles
   doublesEntries: any [] = [];
 
   private subscriptions: Subscription;
+
+  @ViewChild(MatStepper)
+  stepper: MatStepper;
+
+  public visitedEvents: boolean = false;
 
   constructor(private dialog: MatDialog,
               private _change: ChangeDetectorRef,
@@ -135,8 +144,10 @@ export class EntryWizardComponent implements OnInit, OnChanges, OnDestroy {
     this.playerCurrency = 'USD';
     this.currencyExchangeRate = 1.0;
     this.dirty = false;
+    this.visitedEvents = false;
     this.subscriptions = new Subscription ();
-
+    this.membershipUtil = new MembershipUtil();
+    this.membershipOptions = this.membershipUtil.getMembershipOptions();
   }
 
   ngOnInit(): void {
@@ -171,10 +182,23 @@ export class EntryWizardComponent implements OnInit, OnChanges, OnDestroy {
       }
     }
 
+    const entryChange: SimpleChange = changes.entry;
+    if (entryChange != null) {
+      const entry = entryChange.currentValue;
+      if (entry != null) {
+        // change option to not required when player is withdrawing
+        const membershipOption = (!this.isWithdrawing) ? entry.membershipOption : MembershipType.NO_MEMBERSHIP_REQUIRED;
+        this.entry = {
+          ...entry,
+          membershipOption: membershipOption
+        }
+      }
+    }
+
     // when both are ready proceed with some calculations
     if (this.playerProfile != null && this.tournament != null) {
       const dateOfBirth = this.playerProfile.dateOfBirth;
-      this.hideMembershipOptions(dateOfBirth, this.tournamentStartDate, this.tournamentStarLevel);
+      this.membershipUtil.hideMembershipOptions(dateOfBirth, this.tournament.startDate, this.tournamentStarLevel);
       // fetch account information in case they want to pay so the payment dialog comes up faster
       this.prepareForPayment(this.tournament.id);
       // check if membership is expired
@@ -275,18 +299,13 @@ export class EntryWizardComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
-  private isPlayerAJunior(dateOfBirth: Date, tournamentStartDate: Date) {
-    const ageOnTournamentStartDate = new DateUtils().getAgeOnDate(dateOfBirth, tournamentStartDate);
-    return ageOnTournamentStartDate < 18;
-  }
-
   /**
    * Initializes pricing calculator
    * @param pricingMethod
    * @private
    */
   private initPricingCalculator(pricingMethod: PricingMethod) {
-    const isJunior = this.isPlayerAJunior(this.playerProfile.dateOfBirth, this.tournament.startDate);
+    const isJunior = this.membershipUtil.isPlayerAJunior(this.playerProfile.dateOfBirth, this.tournament.startDate);
     const isLateEntry = new DateUtils().isDateBefore(this.tournament.configuration.lateEntryDate, new Date());
     switch (pricingMethod) {
       case PricingMethod.STANDARD:
@@ -521,34 +540,6 @@ export class EntryWizardComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   /**
-   *
-   * @param dateOfBirth
-   * @param tournamentStartDate
-   * @param tournamentStarLevel
-   * @private
-   */
-  private hideMembershipOptions(dateOfBirth: Date, tournamentStartDate: Date, tournamentStarLevel: number) {
-    if (dateOfBirth != null && tournamentStartDate != null) {
-      const isJunior = this.isPlayerAJunior(dateOfBirth, this.tournamentStartDate);
-      this.membershipOptions.forEach((membershipOption: any) => {
-        switch (membershipOption.value) {
-          case MembershipType.TOURNAMENT_PASS_JUNIOR:
-            membershipOption.available = isJunior;
-            break;
-          case MembershipType.TOURNAMENT_PASS_ADULT:
-            membershipOption.available = !isJunior;
-            break;
-          case MembershipType.PRO_PLAN:
-            break;
-          case MembershipType.BASIC_PLAN:
-            membershipOption.available = (tournamentStarLevel >= 0 && tournamentStarLevel <= 4);
-            break;
-        }
-      });
-    }
-  }
-
-  /**
    * Decides what action to do to confirm the entry
    */
   balanceAction(): number {
@@ -754,5 +745,18 @@ export class EntryWizardComponent implements OnInit, OnChanges, OnDestroy {
 
   public isDirty (): boolean {
     return this.dirty;
+  }
+
+  hasEventsError(): boolean {
+    return this.isWithdrawing ? false : (this.enteredEvents?.length === 0);
+  }
+
+  onLeavingEvents() {
+    this.visitedEvents = true;
+    this.stepper.next();
+  }
+
+  showNoEventsError (): boolean {
+    return this.visitedEvents && this.hasEventsError();
   }
 }

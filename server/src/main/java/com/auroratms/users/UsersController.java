@@ -284,6 +284,7 @@ public class UsersController extends AbstractOktaController {
         slimProfileNode.put("firstName", profileMap.get("firstName").toString());
         slimProfileNode.put("lastName", profileMap.get("lastName").toString());
         slimProfileNode.put("email", profileMap.get("email").toString());
+        slimProfileNode.put("birthdate", profileMap.get("birthdate").toString());
         loginJsonMap.put("profile", slimProfileNode);
         Object profileId = userJsonMap.get("id");
         loginJsonMap.put("id", profileId);

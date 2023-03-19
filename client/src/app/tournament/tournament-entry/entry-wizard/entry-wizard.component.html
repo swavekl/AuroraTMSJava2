@@ -44,7 +44,7 @@
             <button mat-raised-button color="primary" matStepperNext type="button">Next</button>
           </div>
         </mat-step>
-        <mat-step label="Events">
+        <mat-step label="Events" [completed]="!hasEventsError()">
           <mat-action-list>
             <div matSubheader>Entered Events</div>
             <mat-divider></mat-divider>
@@ -91,10 +91,11 @@
               <mat-divider [inset]="true" *ngIf="!last3"></mat-divider>
             </mat-list-item>
           </mat-action-list>
+          <mat-error *ngIf="showNoEventsError()">You didn't select any events</mat-error>
           <div class="wizard-button-bar" fxLayout="row">
             <button mat-raised-button matStepperPrevious type="button">Back</button>
             <span fxFlex></span>
-            <button mat-raised-button color="primary" matStepperNext type="button">Next</button>
+            <button mat-raised-button matStepperNext color="primary" type="button" (click)="onLeavingEvents()">Next</button>
           </div>
         </mat-step>
         <mat-step label="Doubles Partners" *ngIf="doublesEntries.length > 0">

@@ -4,6 +4,7 @@ import {EntryWizardContainerComponent} from './entry-wizard/entry-wizard-contain
 import {AuthGuard} from '../../guards/auth.guard';
 import {DoublesTeamsContainerComponent} from './doubles-teams/doubles-teams-container.component';
 import {EntryWizardCanDeactivateGuard} from './entry-wizard/entry-wizard-can-deactivate.guard';
+import {EntryViewContainerComponent} from './entry-view/entry-view-container.component';
 
 
 const routes: Routes = [
@@ -17,6 +18,11 @@ const routes: Routes = [
     path: 'doublesteams/:tournamentId',
     component: DoublesTeamsContainerComponent,
     canActivate: [AuthGuard]
+  },
+  {
+    path: 'entryview/:tournamentId/edit/:entryId',
+    component: EntryViewContainerComponent,
+    canActivate: [AuthGuard],
   }
 ];
 

@@ -21,7 +21,7 @@ export class RefundDialogService {
    */
   showRefundDialog(refundRequest: RefundRequest, callbackData: CallbackData) {
     const config: MatDialogConfig = {
-      width: '330px', height: '240px', data: refundRequest
+      width: '330px', height: '260px', data: refundRequest
     };
 
     const callbackScope = callbackData.callbackScope;

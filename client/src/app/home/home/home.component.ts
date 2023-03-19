@@ -149,6 +149,7 @@ export class HomeComponent implements OnInit, OnDestroy {
       this.membershipExpirationDate = today;
     }
     this.membershipExpired = new DateUtils().isDateBefore(this.membershipExpirationDate, today);
+    this.authenticationService.setCurrentUserMembershipExpiration(this.membershipExpirationDate);
   }
 
   /**

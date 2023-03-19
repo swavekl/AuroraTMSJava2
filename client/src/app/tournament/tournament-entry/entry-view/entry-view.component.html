@@ -1,0 +1,40 @@
+<app-centered-panel noTopGap="true">
+  <mat-card ngClass.lt-sm="entry-view-small" ngClass.sm="entry-view-small" ngClass.gt-sm="entry-view">
+    <mat-card-title-group>
+      <mat-card-title>Entry status</mat-card-title>
+      <mat-card-subtitle>{{ tournament?.name }}</mat-card-subtitle>
+    </mat-card-title-group>
+    <mat-card-content>
+      <ng-container *ngIf="enteredEvents?.length === 0; else showEntriesTable">
+        <div class="no-events-warning">You are not entered in any events or withdrew from this tournament.</div>
+      </ng-container>
+      <ng-template #showEntriesTable>
+      <table class="table-events-status">
+        <thead>
+        <tr>
+          <th class="event-name-day-column">Event Name<br/>Day & time</th>
+          <th class="event-status-column">Status</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr *ngFor="let enteredEvent of enteredEvents">
+          <td class="event-name-day-column">
+            <div>{{enteredEvent.event?.name }}</div>
+            <div>{{ enteredEvent.event?.day | eventDay: tournamentStartDate }} {{ enteredEvent.event?.startTime | startTime }}</div>
+          </td>
+          <td class="event-status-column">
+            {{enteredEvent.status | eventEntryStatus }}
+          </td>
+        </tr>
+        </tbody>
+      </table>
+      </ng-template>
+    </mat-card-content>
+    <mat-card-actions fxLayout="row" fxLayoutAlign="space-between start" style="margin-top: 10px">
+      <button [disabled]="!canWithdraw()" mat-raised-button type="button" (click)="onWithdraw()">Withdraw</button>
+      <span fxFlex></span>
+      <button [disabled]="!canModify()" mat-raised-button type="button" color="primary" (click)="onModify()">Modify
+      </button>
+    </mat-card-actions>
+  </mat-card>
+</app-centered-panel>

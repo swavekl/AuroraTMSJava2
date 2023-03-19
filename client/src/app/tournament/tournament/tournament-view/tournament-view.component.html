@@ -106,19 +106,11 @@
         </table>
       </mat-card-content>
       <mat-card-actions>
-        <div fxLayout="column" fxLayoutAlign="start stretch" fxLayoutGap="10px" style="width: 100%">
-          <div fxLayout="row" fxLayoutGap="10px" fxLayoutAlign="start start">
+          <div fxLayout="row" fxLayoutGap="10px" fxLayoutAlign="space-between start" style="width: 100%">
             <button [disabled]="!resultsAvailable()" mat-raised-button type="button" [routerLink]="['/ui/results', tournament.id]">Results</button>
-            <span fxFlex></span>
-          </div>
-          <div fxLayout="row" fxLayoutGap="10px" fxLayoutAlign="end start">
-<!--            <button [disabled]="!canWithdraw()" mat-raised-button type="button" (click)="onWithdraw()">Withdraw</button>-->
-            <span fxFlex></span>
-            <!--        <button *ngIf="canEnterPlayer()" mat-raised-button type="button" color="primary" (click)="onEnterPlayer()">Enter Player</button>-->
             <button *ngIf="canEnter()" mat-raised-button type="button" color="primary" (click)="onEnter()">Enter</button>
-            <button *ngIf="canView()" mat-raised-button type="button" color="primary" (click)="onView()">View</button>
+            <button *ngIf="canView()" mat-raised-button type="button" color="primary" (click)="onView()">View Entry</button>
           </div>
-        </div>
       </mat-card-actions>
     </mat-card>
     <mat-card>

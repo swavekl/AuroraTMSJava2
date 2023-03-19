@@ -26,10 +26,12 @@ public class TournamentEventPublisher {
 
     /**
      * Publishes event after registration is complete
+     *
      * @param tournamentEntryId id of the tournament entry
+     * @param withdrawing
      */
-    public void publishRegistrationCompleteEvent(long tournamentEntryId) {
-        TournamentEntryConfirmedEvent event = new TournamentEntryConfirmedEvent(tournamentEntryId);
+    public void publishRegistrationCompleteEvent(long tournamentEntryId, boolean withdrawing) {
+        TournamentEntryConfirmedEvent event = new TournamentEntryConfirmedEvent(tournamentEntryId, withdrawing);
         applicationEventPublisher.publishEvent(event);
     }
 }
