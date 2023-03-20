@@ -1,0 +1,29 @@
+.info-container {
+  padding: 8px;
+  text-align: left;
+  max-width: 350px;
+}
+
+table.usatt-info {
+  border-bottom: 1px solid black;
+  border-top: 1px solid black;
+  //width: calc(100vw - 20px);
+  width: 100%;
+  max-width: 330px;
+  margin-bottom: 16px;
+
+  tr {
+    td {
+
+      &.item-column {
+        width: 40%;
+        text-align: left;
+      }
+      &.value-column {
+        width: 60%;
+        text-align: right;
+      }
+      //border: 1px solid blue;
+    }
+  }
+}

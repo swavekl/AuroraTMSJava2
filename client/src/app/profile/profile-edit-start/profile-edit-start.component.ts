@@ -10,7 +10,7 @@ import {RecordSearchData} from '../usatt-record-search-popup/usatt-record-search
 @Component({
   selector: 'app-profile-edit-start',
   templateUrl: './profile-edit-start.component.html',
-  styleUrls: ['./profile-edit-start.component.css']
+  styleUrls: ['./profile-edit-start.component.scss']
 })
 export class ProfileEditStartComponent implements OnInit {
   firstName: string;

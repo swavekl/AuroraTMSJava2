@@ -1,66 +1,51 @@
 <app-centered-panel [noTopGap]="true">
-  <div fxLayout="row" fxFlexAlign="start start" style="text-align: left;">
-    <div fxFlex.lt-md="16px" fxFlex="20%" style="border: 0px solid red;">&nbsp;</div>
-    <div fxFlex.lt-md="90%" fxFlex="60%" style="border: 0px solid green;">
-      <div *ngIf="playerRecordFound">
-        <h2>Yeay! We found your USATT (USA Table Tennis) player record</h2>
-        <div fxLayout="row" fxFlexAlign="center center">
-          <div fxFlex.sm="10%" fxFlex.lt-sm="10%" fxFlex.gt-sm="5%"></div>
-          <div fxFlex.sm="80%" fxFlex.lt-sm="80%" fxFlex.gt-sm="40%">
-            <table style="border-bottom: 1px solid black; border-top: 1px solid black; width: 300px;">
+      <div *ngIf="playerRecordFound" class="info-container" >
+        <h3>Yeay! We found your USATT (USA Table Tennis) player record</h3>
+            <table class="usatt-info">
               <tbody>
               <tr>
-                <td>Name</td>
-                <td style="text-align: right;"> {{firstName}} {{lastName}}</td>
+                <td class="item-column">Name</td>
+                <td class="value-column"> {{firstName}} {{lastName}}</td>
               </tr>
               <tr>
-                <td>State</td>
-                <td style="text-align: right;">{{ playerRecord.state }}</td>
+                <td class="item-column">State</td>
+                <td class="value-column">{{ playerRecord.state }}</td>
               </tr>
               <tr>
-                <td>Membership Id</td>
-                <td style="text-align: right;">{{ playerRecord.membershipId }}</td>
+                <td class="item-column">Membership Id</td>
+                <td class="value-column">{{ playerRecord.membershipId }}</td>
               </tr>
               <tr>
-                <td>Expiration Date</td>
-                <td style="text-align: right;">{{ playerRecord.membershipExpirationDate | date }}</td>
+                <td class="item-column">Expiration Date</td>
+                <td class="value-column">{{ playerRecord.membershipExpirationDate | date }}</td>
               </tr>
               <tr>
-                <td style="text-align: left;">Rating</td>
-                <td style="text-align: right;">{{ playerRecord.tournamentRating }}</td>
+                <td class="item-column">Rating</td>
+                <td class="value-column">{{ playerRecord.tournamentRating }}</td>
               </tr>
               </tbody>
             </table>
-          </div>
-          <div fxFlex.sm="10%" fxFlex.lt-sm="10%" fxFlex.gt-sm="65%" style="border: 0px solid red;"></div>
-        </div>
-        <div style="width: 100%; padding-top: 16px;"></div>
         <h3>If this is your record, let's proceed to filling remaining information in your profile.
         </h3>
-        <div fxLayout="row">
+        <div fxLayout="row" fxLayoutAlign="end start" style="width: 100%;">
           <button mat-raised-button color="primary" (click)="onProfileEditStart(true, playerRecord)">Go to Profile</button>
-          <span fxFlex></span>
         </div>
-
         <div style="width: 100%; padding-top: 16px;"></div>
         <h3>If this is not your record, let's see if we can find it using different spelling of your name or by membership id.</h3>
       </div>
-      <div *ngIf="!playerRecordFound"  >
-        <h2>We didn't find your USATT (USA Table Tennis) membership record using your first and last name.</h2>
+      <div *ngIf="!playerRecordFound" class="info-container">
+        <h3>We didn't find your USATT (USA Table Tennis) membership record using your first and last name.</h3>
         <h3>If you are not a member yet, let's get started on filling your profile </h3>
-        <div fxLayout="row">
+        <div fxLayout="row" fxLayoutAlign="end start" style="width: 100%;">
           <button mat-raised-button color="primary" (click)="onProfileEditStart(true, playerRecord)">Go to Profile</button>
-          <span fxFlex></span>
         </div>
         <div style="width: 100%; padding-top: 16px;"></div>
         <h3>If you are a member, let's see if we can find your record using different spelling of your name or by membership id.</h3>
       </div>
-      <div fxLayout="row">
+
+      <div fxLayout="row" style="margin: 0 8px;">
         <button mat-raised-button (click)="onFindPlayerByName()">Find by Name</button>
         <span fxFlex></span>
         <button mat-raised-button (click)="onFindPlayerById()">Find by Id</button>
       </div>
-    </div>
-    <div fxFlex.lt-md="16px" fxFlex="20%">&nbsp;</div>
-  </div>
 </app-centered-panel>
