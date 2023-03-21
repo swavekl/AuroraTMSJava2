@@ -9,7 +9,6 @@ import {DrawService} from '../service/draw.service';
 import {DrawItem} from '../model/draw-item.model';
 import {DrawType} from '../model/draw-type.enum';
 import {first} from 'rxjs/operators';
-import {TournamentInfoService} from '../../tournament/service/tournament-info.service';
 import {TournamentConfigService} from '../../tournament/tournament-config/tournament-config.service';
 import {createSelector} from '@ngrx/store';
 import {Tournament} from '../../tournament/tournament-config/tournament.model';
@@ -122,10 +121,10 @@ export class DrawsContainerComponent implements OnInit, OnDestroy {
   onDrawsAction(drawAction: DrawAction) {
     switch (drawAction.actionType) {
       case DrawActionType.DRAW_ACTION_LOAD:
-        this.onLoadDraw(drawAction.eventId);
+        this.onLoadDraw(drawAction.eventId, drawAction.payload?.drawType);
         break;
       case DrawActionType.DRAW_ACTION_GENERATE:
-        this.onGenerateDraw(drawAction.eventId);
+        this.onGenerateDraw(drawAction.eventId, drawAction.payload?.drawType);
         break;
       case DrawActionType.DRAW_ACTION_CLEAR:
         this.onClearDraw(drawAction.eventId);
@@ -139,23 +138,25 @@ export class DrawsContainerComponent implements OnInit, OnDestroy {
   /**
    *
    * @param eventId
+   * @param drawType
    * @private
    */
-  private onLoadDraw(eventId: number) {
-    this.drawService.loadForEvent(eventId, DrawType.ROUND_ROBIN);
+  private onLoadDraw(eventId: number, drawType: DrawType) {
+    this.drawService.loadForEvent(eventId, (drawType != null)? drawType : DrawType.ROUND_ROBIN);
   }
 
   /**
    *
    * @param eventId
+   * @param drawType
    * @private
    */
-  private onGenerateDraw(eventId: number) {
-    this.drawService.generate(eventId, DrawType.ROUND_ROBIN)
+  private onGenerateDraw(eventId: number, drawType: DrawType) {
+    this.drawService.generate(eventId, (drawType != null) ? drawType : DrawType.ROUND_ROBIN)
       .pipe(first())
       .subscribe(
         (draws: DrawItem[]) => {
-          console.log('generated draw for event ' + eventId + ' got draws of length ' + draws?.length);
+          console.log(`generated ${drawType} draw for event ${eventId} got draws of length ${draws?.length}`);
           this.updateEventFlag(eventId);
         },
         (error: any) => {

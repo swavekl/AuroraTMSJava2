@@ -342,7 +342,7 @@ public class DrawController {
                         existingDrawItems, entryIdToPlayerDrawInfo);
 
             // see if we need to create draw for single elimination round
-            if (thisEvent.getPlayersToAdvance() > 0) {
+            if (!thisEvent.isSingleElimination() && thisEvent.getPlayersToAdvance() > 0) {
                 List<TournamentEventEntry> seSimulatedEventEntries = SingleEliminationEntriesConverter.generateSEEventEntriesFromDraws(
                         drawItems, eventEntries, thisEvent, entryIdToPlayerDrawInfo);
                 fillCityStateCountryForSEPlayers (seSimulatedEventEntries, entryIdToPlayerDrawInfo);

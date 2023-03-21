@@ -9,6 +9,16 @@ import static org.junit.Assert.*;
 public class BracketGeneratorTest {
 
     @Test
+    public void test2 () {
+        BracketGenerator bracketGenerator = new BracketGenerator(2);
+        BracketLine[] bracketLines = bracketGenerator.generateBracket();
+        assertEquals ("wrong size", 2, bracketLines.length);
+
+        int [] expectedLineNumbers = {1, 2};
+        checkDrawLines(bracketLines, expectedLineNumbers);
+    }
+
+    @Test
     public void test4 () {
         BracketGenerator bracketGenerator = new BracketGenerator(4);
         BracketLine[] bracketLines = bracketGenerator.generateBracket();

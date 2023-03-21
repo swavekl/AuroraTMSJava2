@@ -32,7 +32,7 @@ public class BracketGenerator {
         roundDrawLines.add(simpleMatch);
 
         List<BracketLine> bracket = new ArrayList<>(bracketSize);
-        if (participantsCount > 2) {
+        if (participantsCount >= 2) {
             // go through each round, each time expanding draw lines to fill 4, 8, 16 etc lines
             for (int round = 1; round < rounds; round++) {
                 List<List<BracketLine>> roundMatches = new ArrayList<>();

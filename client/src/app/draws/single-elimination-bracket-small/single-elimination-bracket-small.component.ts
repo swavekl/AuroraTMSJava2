@@ -36,11 +36,10 @@ export class SingleEliminationBracketSmallComponent implements OnInit, OnChanges
     if (roundsChange?.currentValue != null && roundsChange?.currentValue.length > 0) {
       this.currentRound = roundsChange.currentValue[0];
       this.firstRound = this.currentRound;
-      console.log('firstRound', this.firstRound);
     }
 
     const tournamentChange: SimpleChange = changes.tournament;
-    if (tournamentChange.currentValue != null) {
+    if (tournamentChange?.currentValue != null) {
       this.tournament = tournamentChange.currentValue;
     }
 
@@ -72,13 +71,13 @@ export class SingleEliminationBracketSmallComponent implements OnInit, OnChanges
 
   onNextRound(): void {
     this.currentRound = (this.currentRound > 2) ? this.currentRound / 2 : 2;
-    console.log('onNextRound this.currentRound', this.currentRound);
+    // console.log('onNextRound this.currentRound', this.currentRound);
     this.currentRoundMatches = this.filterCurrentRoundMatches(this.currentRound);
   }
 
   onPreviousRound(): void {
     this.currentRound = this.currentRound * 2;
-    console.log('onPreviousRound this.currentRound', this.currentRound);
+    // console.log('onPreviousRound this.currentRound', this.currentRound);
     this.currentRoundMatches = this.filterCurrentRoundMatches(this.currentRound);
   }
 

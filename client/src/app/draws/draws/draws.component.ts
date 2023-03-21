@@ -80,8 +80,7 @@ export class DrawsComponent implements OnInit, OnChanges {
   ngOnChanges(changes: SimpleChanges): void {
     const tournamentEventsChanges: SimpleChange = changes.tournamentEvents;
     if (tournamentEventsChanges) {
-      const te = tournamentEventsChanges.currentValue;
-      // console.log('DrawsComponent got tournament events of length ' + te.length);
+      this.groups = [];
     }
     const drawsChanges: SimpleChange = changes.draws;
     if (drawsChanges) {
@@ -123,12 +122,13 @@ export class DrawsComponent implements OnInit, OnChanges {
   onSelectEvent(tournamentEvent: TournamentEvent) {
     this.undoStack = [];
     this.selectedEvent = tournamentEvent;
-    this.showPlayoffDraw = false;
+    this.showPlayoffDraw = this.selectedEvent?.singleElimination;
     this.allowDrawChanges = !tournamentEvent.matchScoresEntered;
+    const drawType: DrawType = this.selectedEvent.singleElimination ? DrawType.SINGLE_ELIMINATION : DrawType.ROUND_ROBIN;
     const action: DrawAction = {
       actionType: DrawActionType.DRAW_ACTION_LOAD,
       eventId: this.selectedEvent.id,
-      payload: {}
+      payload: {drawType: drawType}
     };
     this.drawsAction.emit(action);
   }
@@ -147,7 +147,7 @@ export class DrawsComponent implements OnInit, OnChanges {
 
   private generateDrawInternal(): void {
     this.undoStack = [];
-    this.showPlayoffDraw = false;
+    this.showPlayoffDraw = this.selectedEvent?.singleElimination;
     const drawType: DrawType = this.selectedEvent.singleElimination ? DrawType.SINGLE_ELIMINATION : DrawType.ROUND_ROBIN;
     const action: DrawAction = {
       actionType: DrawActionType.DRAW_ACTION_GENERATE,
@@ -172,7 +172,7 @@ export class DrawsComponent implements OnInit, OnChanges {
   clearDrawInternal() {
     if (this.selectedEvent != null) {
       this.undoStack = [];
-      this.showPlayoffDraw = false;
+      this.showPlayoffDraw = this.selectedEvent?.singleElimination;
       const action: DrawAction = {
         actionType: DrawActionType.DRAW_ACTION_CLEAR,
         eventId: this.selectedEvent.id,
@@ -484,10 +484,10 @@ export class DrawsComponent implements OnInit, OnChanges {
   }
 
   private transformToNgttTournament () {
+    const roundNumbers: number [] = [];
+    const rounds: NgttRound [] = [];
     if (this.singleEliminationRounds) {
       const drawRounds = this.singleEliminationRounds;
-      const roundNumbers: number [] = [];
-      const rounds: NgttRound [] = [];
       for (let i = 0; i < drawRounds.length; i++) {
         const drawRound = drawRounds[i];
         roundNumbers.push(drawRound.round);
@@ -512,15 +512,15 @@ export class DrawsComponent implements OnInit, OnChanges {
         const round: NgttRound = { type: type, matches: roundMatches};
         rounds.push(round);
       }
-
-      if (rounds.length > 0) {
-        this.tournament = {
-          rounds: rounds
-        };
-      }
-      this.roundNumbers = roundNumbers;
     }
-
+    if (rounds.length > 0) {
+      this.tournament = {
+        rounds: rounds
+      };
+    } else {
+      this.tournament = null;
+    }
+    this.roundNumbers = roundNumbers;
   }
 
   private confirmDrawChanges (callbackMethod: () => void) {
