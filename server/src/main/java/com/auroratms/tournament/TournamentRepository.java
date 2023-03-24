@@ -65,8 +65,8 @@ public interface TournamentRepository extends JpaRepository<TournamentEntity, Lo
     @Query (nativeQuery = true,
             value = "SELECT *" +
                     " FROM tournament" +
-                    " WHERE tournament.start_date <= :day" +
-                    " AND :day <= tournament.end_date"
+                    " WHERE DATE(tournament.start_date) <= DATE(:day)" +
+                    " AND DATE(:day) <= DATE(tournament.end_date)"
     )
     Collection<TournamentEntity> findDaysTournaments(Date day);
 
