@@ -10,7 +10,7 @@ import {ScoreEntryDialogData, ScoreEntryDialogResult} from '../score-entry-dialo
 import {MatchService} from '../service/match.service';
 import {TieBreakingService} from '../service/tie-breaking.service';
 import {GroupTieBreakingInfo} from '../model/tie-breaking/group-tie-breaking-info.model';
-import {DrawType} from '../../draws/model/draw-type.enum';
+import {DrawType} from '../../draws/draws-common/model/draw-type.enum';
 import {TieBreakingResultsDialogComponent} from '../tie-breaking-results-dialog/tie-breaking-results-dialog.component';
 
 @Component({

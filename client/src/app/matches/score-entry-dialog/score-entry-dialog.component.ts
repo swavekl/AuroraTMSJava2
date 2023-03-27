@@ -4,7 +4,7 @@ import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
 import {Match} from '../model/match.model';
 import {ScoreEntryDialogData, ScoreEntryDialogResult} from './score-entry-dialog-data';
 import {MatCheckboxChange} from '@angular/material/checkbox';
-import {DrawType} from '../../draws/model/draw-type.enum';
+import {DrawType} from '../../draws/draws-common/model/draw-type.enum';
 
 /**
  * Dialog for entering match score

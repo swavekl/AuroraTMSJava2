@@ -1,5 +1,5 @@
 import {Match} from './match.model';
-import {DrawType} from '../../draws/model/draw-type.enum';
+import {DrawType} from '../../draws/draws-common/model/draw-type.enum';
 import {TournamentEvent} from '../../tournament/tournament-config/tournament-event.model';
 
 export class MatchCard {

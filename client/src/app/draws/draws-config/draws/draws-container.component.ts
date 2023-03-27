@@ -1,28 +1,26 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
-import {TournamentEventConfigService} from '../../tournament/tournament-config/tournament-event-config.service';
-import {combineLatest, Observable, of, Subscription} from 'rxjs';
-import {TournamentEvent} from '../../tournament/tournament-config/tournament-event.model';
 import {ActivatedRoute} from '@angular/router';
-import {LinearProgressBarService} from '../../shared/linear-progress-bar/linear-progress-bar.service';
-import {DrawAction, DrawActionType} from './draw-action';
-import {DrawService} from '../service/draw.service';
-import {DrawItem} from '../model/draw-item.model';
-import {DrawType} from '../model/draw-type.enum';
+import {combineLatest, Observable, of, Subscription} from 'rxjs';
 import {first} from 'rxjs/operators';
-import {TournamentConfigService} from '../../tournament/tournament-config/tournament-config.service';
 import {createSelector} from '@ngrx/store';
-import {Tournament} from '../../tournament/tournament-config/tournament.model';
+import {TournamentConfigService} from '../../../tournament/tournament-config/tournament-config.service';
+import {Tournament} from '../../../tournament/tournament-config/tournament.model';
+import {TournamentEventConfigService} from '../../../tournament/tournament-config/tournament-event-config.service';
+import {TournamentEvent} from '../../../tournament/tournament-config/tournament-event.model';
+import {LinearProgressBarService} from '../../../shared/linear-progress-bar/linear-progress-bar.service';
+import {DrawAction, DrawActionType} from './draw-action';
+import {DrawService} from '../../draws-common/service/draw.service';
+import {DrawItem} from '../../draws-common/model/draw-item.model';
+import {DrawType} from '../../draws-common/model/draw-type.enum';
 
 @Component({
   selector: 'app-draws-container',
   template: `
-    <p>
       <app-draws [tournamentEvents]="tournamentEvents$ | async"
                  [draws]="draws$ | async"
                  [tournamentName]="tournamentName$ | async"
                  (drawsAction)="onDrawsAction($event)">
       </app-draws>
-    </p>
   `,
   styles: []
 })
@@ -156,7 +154,7 @@ export class DrawsContainerComponent implements OnInit, OnDestroy {
       .pipe(first())
       .subscribe(
         (draws: DrawItem[]) => {
-          console.log(`generated ${drawType} draw for event ${eventId} got draws of length ${draws?.length}`);
+          // console.log(`generated ${drawType} draw for event ${eventId} got draws of length ${draws?.length}`);
           this.updateEventFlag(eventId);
         },
         (error: any) => {
@@ -173,7 +171,7 @@ export class DrawsContainerComponent implements OnInit, OnDestroy {
     this.drawService.deleteForEvent(eventId)
       .pipe(first())
       .subscribe((next: number) => {
-        console.log('deleted draw ' + next);
+        // console.log('deleted draw ' + next);
         this.updateEventFlag(eventId);
       });
   }

@@ -1,0 +1,30 @@
+@use "src/my-theme" as *;
+
+.all-draws-panel {
+  height: calc(100vh - 70px);
+  overflow: hidden;
+}
+
+.all-draws-panel-edit {
+  height: calc(100vh - 134px);
+  overflow: hidden;
+}
+
+.one-round-panel-edit {
+  height: calc(100vh - 134px);
+  overflow: auto;
+}
+
+.one-round-panel {
+  height: 100%;
+  overflow: auto;
+}
+
+.tab-contents {
+  overflow: hidden;
+  height: 100%;
+}
+
+mat-tab-group {
+  height: 100%;
+}

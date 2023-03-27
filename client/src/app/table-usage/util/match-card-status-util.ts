@@ -1,7 +1,7 @@
 import {MatchCardPlayabilityStatus, MatchInfo} from '../model/match-info.model';
 import {TableUsage} from '../model/table-usage.model';
 import {MatchCard} from '../../matches/model/match-card.model';
-import {DrawType} from '../../draws/model/draw-type.enum';
+import {DrawType} from '../../draws/draws-common/model/draw-type.enum';
 import {TournamentEvent} from '../../tournament/tournament-config/tournament-event.model';
 import {Match} from '../../matches/model/match.model';
 

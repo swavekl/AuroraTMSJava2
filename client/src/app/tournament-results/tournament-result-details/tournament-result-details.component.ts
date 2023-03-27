@@ -1,9 +1,9 @@
 import {Component, Input, OnChanges, OnInit, SimpleChanges} from '@angular/core';
 import {EventResults} from '../model/event-results';
-import {DrawItem} from '../../draws/model/draw-item.model';
-import {DrawType} from '../../draws/model/draw-type.enum';
-import {DrawRound} from '../../draws/model/draw-round.model';
-import {Match} from '../../draws/model/match.model';
+import {DrawItem} from '../../draws/draws-common/model/draw-item.model';
+import {DrawType} from '../../draws/draws-common/model/draw-type.enum';
+import {DrawRound} from '../../draws/draws-common/model/draw-round.model';
+import {Match} from '../../draws/draws-common/model/match.model';
 import {TournamentEvent} from '../../tournament/tournament-config/tournament-event.model';
 import {PlayerResults} from '../model/player-results';
 import {NgttRound, NgttTournament} from 'ng-tournament-tree/lib/declarations/interfaces';

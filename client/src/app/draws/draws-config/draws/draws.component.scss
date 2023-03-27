@@ -1,0 +1,44 @@
+@use "src/my-theme" as *;
+
+h2 {
+  padding-left: 16px;
+  padding-top: 16px;
+}
+
+.toolbar-spacer-2 {
+  margin-right: 16px;
+}
+
+mat-toolbar {
+  min-width: calc(100vw - 430px);
+}
+
+.event-list {
+  width: 220px;
+  height: calc(100vh - 140px);
+  overflow-y: auto;
+}
+
+.not-selected {
+  background-color: white;
+}
+
+.selected {
+  background-color: $accent-color;
+}
+
+mat-list-item:hover {
+  background-color: #7A73FF;
+}
+
+draws-container {
+  height: calc(100vh - 132px);
+  //height: 100%;
+  //border: 2px solid greenyellow;
+}
+
+.all-draws-panel-edit {
+  height: calc(100vh - 135px);
+  //overflow: auto;
+  //border: 1px solid deeppink;
+}

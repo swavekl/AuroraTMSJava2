@@ -42,9 +42,16 @@ const routes: Routes = [
   },
   {
     path: 'ui/draws',
-    loadChildren: () => import('./draws/draws.module').then(m => m.DrawsModule),
+    loadChildren: () => import('./draws/draws-config/draws.module').then(m => m.DrawsModule),
     data: {
       roles: [UserRoles.ROLE_TOURNAMENT_DIRECTORS, UserRoles.ROLE_ADMINS, UserRoles.ROLE_REFEREES]
+    }
+  },
+  {
+    path: 'ui/drawsview',
+    loadChildren: () => import('./draws/draws-view/draws-view.module').then(m => m.DrawsViewModule),
+    data: {
+      roles: [UserRoles.ROLE_EVERYONE]
     }
   },
   {

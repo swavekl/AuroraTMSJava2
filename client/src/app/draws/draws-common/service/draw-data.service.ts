@@ -63,7 +63,6 @@ export class DrawDataService extends DefaultDataService<DrawItem> {
    */
   delete(eventId: number): Observable<number> {
     const url = `/api/draws?eventId=${eventId}`;
-    console.log('deleting draws for event ' + eventId);
     return this.execute('DELETE', url);
   }
 

@@ -2,7 +2,7 @@
  * Results of individual match of a player.  Used for listing all matches played by a player
  * played in a tournament
  */
-import {DrawType} from '../../draws/model/draw-type.enum';
+import {DrawType} from '../../draws/draws-common/model/draw-type.enum';
 
 export class PlayerMatchSummary {
   // profile id of the opponent

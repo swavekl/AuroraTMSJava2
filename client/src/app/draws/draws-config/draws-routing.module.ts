@@ -1,8 +1,8 @@
 import {NgModule} from '@angular/core';
 import {Routes, RouterModule} from '@angular/router';
-import {AuthGuard} from '../guards/auth.guard';
+import {AuthGuard} from '../../guards/auth.guard';
 import {DrawsContainerComponent} from './draws/draws-container.component';
-import {SingleEliminationBracketComponent} from './single-elimination-bracket/single-elimination-bracket.component';
+import {SingleEliminationBracketComponent} from '../draws-common/single-elimination-bracket/single-elimination-bracket.component';
 
 const routes: Routes = [
   {

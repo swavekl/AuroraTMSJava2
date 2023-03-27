@@ -7,15 +7,15 @@ import {MatTabsModule} from '@angular/material/tabs';
 import {MatToolbarModule} from '@angular/material/toolbar';
 import {MatIconModule} from '@angular/material/icon';
 
+import {SharedModule} from '../shared/shared.module';
+import {DrawsCommonModule} from '../draws/draws-common/draws-common.module';
 import {TournamentResultsRoutingModule} from './tournament-results-routing.module';
 import {TournamentResultsListComponent} from './tournament-results-list/tournament-results-list.component';
 import {TournamentResultsListContainerComponent} from './tournament-results-list/tournament-results-list-container.component';
 import {TournamentResultDetailsComponent} from './tournament-result-details/tournament-result-details.component';
 import {TournamentResultDetailsContainerComponent} from './tournament-result-details/tournament-result-details-container.component';
-import {DrawsModule} from '../draws/draws.module';
 import {PlayerResultsComponent} from './player-results/player-results.component';
 import {PlayerResultsContainerComponent} from './player-results/player-results-container.component';
-import {SharedModule} from '../shared/shared.module';
 
 
 @NgModule({
@@ -33,7 +33,7 @@ import {SharedModule} from '../shared/shared.module';
     MatCardModule,
     MatButtonModule,
     TournamentResultsRoutingModule,
-    DrawsModule,
+    DrawsCommonModule,
     MatTabsModule,
     SharedModule,
     FlexLayoutModule,

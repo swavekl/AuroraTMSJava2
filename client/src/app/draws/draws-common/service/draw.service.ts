@@ -44,7 +44,7 @@ import {tap} from 'rxjs/operators';
     return this.drawDataService.generate(eventId, drawType)
       .pipe(tap(
         (draws: DrawItem[]) => {
-          console.log('adding generated draws to cache of length ' + draws.length);
+          // console.log('adding generated draws to cache of length ' + draws.length);
           super.addAllToCache(draws);
           this.setLoading(false);
         },

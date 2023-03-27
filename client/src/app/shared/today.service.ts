@@ -52,10 +52,12 @@ export class TodayService {
     // Phoenix Winter Open
     // const utcMoment = moment([2023, 1, 25, 0, 0, 0]).utc();
     // const utcMoment = moment([2022, 11, 20, 0, 0, 0]).utc();
-    // Aurora Cup Real
-    // const utcMoment = moment([2023, 0, 13, 0, 0, 0]).utc();
-    // Aurora Fall Open
-    // const utcMoment = moment([2025, 4, 10, 0, 0, 0]).utc();
+    // Aurora Cup Real - RR & Single Elimination
+    // const utcMoment = moment([2023, 0, 13, 0, 0, 0]);
+    // Prisco Mini - Single Elimination
+    // const utcMoment = moment([2023, 2, 22, 0, 0, 0]);
+    // Aurora Fall Open - Giant RR
+    // const utcMoment = moment([2025, 4, 10, 0, 0, 0]);
     // return utcMoment.toDate();
     return new Date();
   }

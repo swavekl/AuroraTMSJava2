@@ -9,7 +9,7 @@ import {Subject, Subscription} from 'rxjs';
 import {debounceTime} from 'rxjs/operators';
 import {MatDialog} from '@angular/material/dialog';
 import {ConfirmationPopupComponent} from '../../shared/confirmation-popup/confirmation-popup.component';
-import {DrawType} from '../../draws/model/draw-type.enum';
+import {DrawType} from '../../draws/draws-common/model/draw-type.enum';
 
 interface Safe extends GridsterConfig {
   draggable: Draggable;

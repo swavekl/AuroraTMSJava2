@@ -239,4 +239,10 @@ export class HomeComponent implements OnInit, OnDestroy {
     const profileId = this.authenticationService.getCurrentUserProfileId();
     this.router.navigateByUrl(`/ui/results/playerresults/${this.todaysTournamentEntryId}/${profileId}`);
   }
+
+  tournamentDraws() {
+    const url = `/ui/drawsview/${this.todaysTournamentId}`;
+    console.log(`url ${url}`);
+    this.router.navigateByUrl(url);
+  }
 }

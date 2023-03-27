@@ -78,7 +78,7 @@ public class DrawController {
      */
     @GetMapping("")
     @ResponseBody
-    @PreAuthorize("hasAuthority('TournamentDirectors') or hasAuthority('Admins') or hasAuthority('Referees')")
+//    @PreAuthorize("hasAuthority('TournamentDirectors') or hasAuthority('Admins') or hasAuthority('Referees')")
     public ResponseEntity<List<DrawItem>> listAll(@RequestParam long eventId,
                                                   @RequestParam(required = false) DrawType drawType) {
         List<DrawItem> drawItems = this.drawService.list(eventId, drawType);

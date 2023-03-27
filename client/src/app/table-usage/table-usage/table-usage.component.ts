@@ -3,7 +3,7 @@ import {CdkDrag, CdkDragDrop, CdkDropList} from '@angular/cdk/drag-drop';
 import {TableUsage} from '../model/table-usage.model';
 import {MatchCard} from '../../matches/model/match-card.model';
 import {TournamentEvent} from '../../tournament/tournament-config/tournament-event.model';
-import {DrawType} from '../../draws/model/draw-type.enum';
+import {DrawType} from '../../draws/draws-common/model/draw-type.enum';
 import {Match} from '../../matches/model/match.model';
 import {TableStatus} from '../model/table-status';
 import {DateUtils} from '../../shared/date-utils';

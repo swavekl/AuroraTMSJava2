@@ -1,0 +1,18 @@
+<div>
+  <mat-list dense class="event-list-container">
+    <div *ngFor="let tournamentEvent of tournamentEvents; let last = last;" (click)="onSelectEvent(tournamentEvent)" class="event-list-item">
+      <div fxLayout="row" fxLayoutAlign="space-between center">
+        <div>
+          <h3 matListItemTitle>{{tournamentEvent.name}}</h3>
+          <h3 matListItemLine>{{ tournamentEvent.day | eventDay: tournamentStartDate }} {{ tournamentEvent.startTime | startTime }}</h3>
+        </div>
+        <div style="margin-right: 8px">
+<!--          <button type="button" color="" (click)="onSelectEvent(tournamentEvent)">-->
+            <mat-icon matListItemIcon>navigate_next</mat-icon>
+<!--          </button>-->
+        </div>
+      </div>
+      <mat-divider [inset]="false" *ngIf="!last"></mat-divider>
+    </div>
+  </mat-list>
+</div>

@@ -1,0 +1,52 @@
+<div [ngClass]="editMode ? 'all-draws-panel-edit': 'all-draws-panel'" *ngIf="selectedEvent != null">
+  <ng-container *ngIf="showTwoRounds(); else oneround">
+    <mat-tab-group>
+      <mat-tab label="Round Robin">
+        <div class="tab-contents">
+          <app-round-robin-draws-panel
+            [editMode]="editMode"
+            [allowDrawChanges]="allowDrawChanges"
+            [draws]="draws"
+            [selectedEvent]="selectedEvent"
+            (drawsAction)="onRRDrawsAction($event)"
+            (updateFlagEE)="onUpdateEEFlag($event)">
+          </app-round-robin-draws-panel>
+        </div>
+      </mat-tab>
+      <mat-tab label="Single Elimination">
+        <div class="tab-contents">
+          <app-single-elimination-bracket
+            [bracketsHeight]="getBracketsHeight()"
+            [draws]="draws"
+            [selectedEvent]="selectedEvent"
+            [doublesEvent]="selectedEvent?.doubles"
+          >
+          </app-single-elimination-bracket>
+        </div>
+      </mat-tab>
+    </mat-tab-group>
+  </ng-container>
+  <ng-template #oneround>
+    <div [ngClass]="editMode ? 'one-round-panel-edit': 'one-round-panel'">
+      <ng-container *ngIf="hasRRRound; else seroundonly">
+          <app-round-robin-draws-panel
+            [editMode]="editMode"
+            [allowDrawChanges]="allowDrawChanges"
+            [draws]="draws"
+            [selectedEvent]="selectedEvent"
+            (drawsAction)="onRRDrawsAction($event)"
+            (updateFlagEE)="onUpdateEEFlag($event)">
+          </app-round-robin-draws-panel>
+      </ng-container>
+      <ng-template #seroundonly>
+        <app-single-elimination-bracket
+          [bracketsHeight]="getBracketsHeight()"
+          [draws]="draws"
+          [selectedEvent]="selectedEvent"
+          [doublesEvent]="selectedEvent?.doubles"
+        >
+        </app-single-elimination-bracket>
+      </ng-template>
+    </div>
+  </ng-template>
+</div>

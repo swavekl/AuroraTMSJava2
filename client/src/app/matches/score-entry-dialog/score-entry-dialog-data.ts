@@ -1,5 +1,5 @@
 import {Match} from '../model/match.model';
-import {DrawType} from '../../draws/model/draw-type.enum';
+import {DrawType} from '../../draws/draws-common/model/draw-type.enum';
 
 /**
  * Data for match score entry dialog

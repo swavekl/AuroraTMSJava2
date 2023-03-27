@@ -1,0 +1,49 @@
+<div fxLayout="row" class="draws-container">
+  <div>
+    <h2>Events</h2>
+    <mat-list dense class="event-list">
+      <mat-list-item *ngFor="let tournamentEvent of tournamentEvents" (click)="onSelectEvent(tournamentEvent)"
+                     [ngClass]="isSelected (tournamentEvent) ? 'selected' : 'not-selected'">
+        {{tournamentEvent.name}}
+      </mat-list-item>
+    </mat-list>
+  </div>
+  <form name="form" #f="ngForm" novalidate>
+    <div fxFlex>
+      <mat-toolbar>
+        <mat-toolbar-row>
+          <button type="button" color="primary" mat-raised-button (click)="generateDraw()"
+                  [disabled]="selectedEvent == null">
+            <mat-icon matListItemIcon>assignment</mat-icon>
+            Generate
+          </button>
+          <span class="toolbar-spacer-2"></span>
+          <button type="button" mat-raised-button (click)="clearDraw()" [disabled]="selectedEvent == null">
+            <mat-icon matListItemIcon>clear</mat-icon>
+            Clear Draw
+          </button>
+          <span class="toolbar-spacer-2"></span>
+          <button type="button" mat-raised-button (click)="undoMove()" [disabled]="!hasUndoItems()">
+            <mat-icon matListItemIcon>undo</mat-icon>
+            Undo Move
+          </button>
+          <span class="toolbar-spacer-2"></span>
+          <mat-slide-toggle name="expandedView" [(ngModel)]="expandedView" (change)="onExpandedViewChange($event)">
+            Expanded View
+          </mat-slide-toggle>
+          <span fxFlex></span>
+          <span class="mat-h2" style="padding-top: 12px;">{{tournamentName}}</span>
+        </mat-toolbar-row>
+      </mat-toolbar>
+      <div class="all-draws-panel-edit" *ngIf="selectedEvent != null">
+        <app-tabbed-draws-panel [editMode]="true"
+                                [allowDrawChanges]="allowDrawChanges"
+                                [selectedEvent]="selectedEvent"
+                                [draws]="draws"
+                                (drawsAction)="onRRDrawsAction($event)"
+                                (updateFlagEE)="updateFlag()">
+        </app-tabbed-draws-panel>
+      </div>
+    </div>
+  </form>
+</div>

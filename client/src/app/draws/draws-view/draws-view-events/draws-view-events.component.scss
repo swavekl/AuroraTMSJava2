@@ -1,0 +1,13 @@
+@use "src/my-theme" as *;
+
+.event-list-container {
+  height: calc(100vh - 90px);
+  //border: 1px solid red;
+  overflow: auto;
+  max-width: 300px;
+}
+
+.event-list-item {
+  border-bottom: 1px solid gray;
+  padding: 0 0 0 8px;
+}
