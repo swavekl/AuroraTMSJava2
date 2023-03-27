@@ -19,6 +19,7 @@ import {TournamentViewContainerComponent} from './tournament-view/tournament-vie
 import {TournamentViewComponent} from './tournament-view/tournament-view.component';
 import {TournamentPlayersListComponent} from './tournament-players-list/tournament-players-list.component';
 import {TournamentPlayersListContainerComponent} from './tournament-players-list/tournament-players-list-container.component';
+import {DrawsCommonModule} from '../../draws/draws-common/draws-common.module';
 
 
 @NgModule({
@@ -43,7 +44,8 @@ import {TournamentPlayersListContainerComponent} from './tournament-players-list
     MatTooltipModule,
     MatButtonModule,
     FlexLayoutModule,
-    MatMenuModule
+    MatMenuModule,
+    DrawsCommonModule
   ]
 })
 export class TournamentModule {
