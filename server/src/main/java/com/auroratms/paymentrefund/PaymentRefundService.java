@@ -169,7 +169,7 @@ public class PaymentRefundService {
             Account stripeAccount = Account.retrieve(accountId);
             defaultAccountCurrency = stripeAccount.getDefaultCurrency();
         } catch (StripeException e) {
-            log.error ("Unable to get account currency for account " + accountId);
+            log.error ("Unable to get account currency for account " + accountId, e);
         }
         return defaultAccountCurrency;
     }
