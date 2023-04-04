@@ -122,8 +122,8 @@ export class TournamentEvent {
     tournamentEvent.singleElimination = false;
     tournamentEvent.day = 1;
     tournamentEvent.startTime = 9.0;
-    tournamentEvent.playersPerGroup = 4;
-    tournamentEvent.drawMethod = DrawMethod.SNAKE;
+    tournamentEvent.playersPerGroup = (selectedEvent.playersPerGroup == null) ? 4 : selectedEvent.playersPerGroup;
+    tournamentEvent.drawMethod = (selectedEvent.drawMethod == null) ? DrawMethod.SNAKE : selectedEvent.drawMethod;
     tournamentEvent.numTablesPerGroup = 1;
     tournamentEvent.pointsPerGame = 11;
     tournamentEvent.numberOfGames = 5;
@@ -132,7 +132,7 @@ export class TournamentEvent {
     tournamentEvent.numberOfGamesSESemiFinals = 5;
     tournamentEvent.numberOfGamesSEFinals = 5;
     tournamentEvent.play3rd4thPlace = false;
-    tournamentEvent.playersToAdvance = 1;
+    tournamentEvent.playersToAdvance = (selectedEvent.playersToAdvance == null) ? 1 : selectedEvent.playersToAdvance;
     tournamentEvent.advanceUnratedWinner = false;
     tournamentEvent.playersToSeed = 0;
     tournamentEvent.feeAdult = 30;

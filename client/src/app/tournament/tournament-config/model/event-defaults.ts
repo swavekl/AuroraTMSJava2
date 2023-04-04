@@ -2,9 +2,11 @@
  *  Utility for creating events
  */
 import {GenderRestriction} from './gender-restriction.enum';
+import {DrawMethod} from './draw-method.enum';
 
 export class EventDefaults {
   public eventDefaults: any [] = [
+    {name: 'Giant RR', doubles: false, minPlayerAge: 0, maxPlayerAge: 0, minPlayerRating: 0, maxPlayerRating: 0, genderRestriction: GenderRestriction.NONE, drawMethod: DrawMethod.DIVISION, playersToAdvance: 0, playersPerGroup: 8},
     {name: 'Open Singles', doubles: false, minPlayerAge: 0, maxPlayerAge: 0, minPlayerRating: 0, maxPlayerRating: 0, genderRestriction: GenderRestriction.NONE },
     {name: 'Open Doubles', doubles: true, minPlayerAge: 0, maxPlayerAge: 0, minPlayerRating: 0, maxPlayerRating: 0, genderRestriction: GenderRestriction.NONE },
     {name: 'U4800 Doubles', doubles: true, minPlayerAge: 0, maxPlayerAge: 0, minPlayerRating: 0, maxPlayerRating: 4799, genderRestriction: GenderRestriction.NONE },
