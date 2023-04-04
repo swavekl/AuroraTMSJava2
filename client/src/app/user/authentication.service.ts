@@ -249,6 +249,26 @@ export class AuthenticationService {
     return this.currentUser?.id;
   }
 
+  isProfileComplete(): boolean {
+    let isComplete: boolean = false;
+    if (this.currentUser != null && this.currentUser.profile != null) {
+      isComplete = this.currentUser.profile.isProfileComplete === true;
+    }
+    // console.log('isProfileComplete', isComplete);
+    return isComplete;
+  }
+
+
+  makeProfileComplete() {
+    if (this.currentUser != null && this.currentUser.profile != null && !this.currentUser.profile.isProfileComplete) {
+      // console.log('Making profile complete');
+      this.currentUser.profile = {
+        ...this.currentUser.profile,
+        isProfileComplete: true
+      };
+    }
+  }
+
   public getCurrentUserRoles() {
     const decodedToken = this.jwtDecoderService.decode(this.getAccessToken());
     const roles = decodedToken?.groups;

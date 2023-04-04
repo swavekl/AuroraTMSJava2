@@ -245,4 +245,17 @@ export class HomeComponent implements OnInit, OnDestroy {
     console.log(`url ${url}`);
     this.router.navigateByUrl(url);
   }
+
+  isProfileComplete() {
+    if (this.authenticationService != null) {
+      return this.authenticationService.isProfileComplete();
+    } else {
+      return false;
+    }
+  }
+
+  goToProfileStart() {
+    const url = `/ui/userprofile/start`;
+    this.router.navigateByUrl(url);
+  }
 }

@@ -67,7 +67,12 @@ export class AppComponent implements OnInit {
   /**
    * on mobile devices the menu is opened and when you click on menu item it should close before navigating to this item
    */
-  closeAndNavigateToRoute(routerLink) {
+  closeAndNavigateToRoute(routerLink, skipProfileCheck: boolean = false) {
+    if (!skipProfileCheck) {
+      if (!this.isProfileComplete()) {
+        return;
+      }
+    }
     this.closeDrawerOnMobile();
     this.router.navigate([routerLink]);
   }
@@ -98,5 +103,9 @@ export class AppComponent implements OnInit {
     }
     // console.log (routerLink + ' isVisible ' + isVisible);
     return isVisible;
+  }
+
+  isProfileComplete() {
+    return this.authenticationService.isProfileComplete();
   }
 }

@@ -285,6 +285,8 @@ public class UsersController extends AbstractOktaController {
         slimProfileNode.put("lastName", profileMap.get("lastName").toString());
         slimProfileNode.put("email", profileMap.get("email").toString());
         slimProfileNode.put("birthdate", profileMap.get("birthdate").toString());
+        boolean isProfileComplete = this.isProfileComplete(profileMap);
+        slimProfileNode.put("isProfileComplete", isProfileComplete);
         loginJsonMap.put("profile", slimProfileNode);
         Object profileId = userJsonMap.get("id");
         loginJsonMap.put("id", profileId);
@@ -298,6 +300,25 @@ public class UsersController extends AbstractOktaController {
         }
 
         return objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(loginJsonMap);
+    }
+
+    /**
+     * Checks if profile has been completed
+     * @param profileMap
+     * @return
+     */
+    private boolean isProfileComplete(Map<String, Object> profileMap) {
+        return StringUtils.isNotEmpty((String) profileMap.get("firstName")) &&
+                StringUtils.isNotEmpty((String) profileMap.get("lastName")) &&
+                StringUtils.isNotEmpty((String) profileMap.get("mobilePhone")) &&
+                StringUtils.isNotEmpty((String) profileMap.get("email")) &&
+                StringUtils.isNotEmpty((String) profileMap.get("streetAddress")) &&
+                StringUtils.isNotEmpty((String) profileMap.get("city")) &&
+                StringUtils.isNotEmpty((String) profileMap.get("state")) &&
+                StringUtils.isNotEmpty((String) profileMap.get("zipCode")) &&
+                StringUtils.isNotEmpty((String) profileMap.get("countryCode")) &&
+                StringUtils.isNotEmpty((String) profileMap.get("gender")) &&
+                StringUtils.isNotEmpty((String) profileMap.get("birthdate"));
     }
 
     @GetMapping("/forgotpassword/{email}")

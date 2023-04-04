@@ -1,50 +1,57 @@
 <app-centered-panel>
   <h2 class="mat-headline-3">Hi,</h2>
   <h1 class="mat-headline-2">{{ playerFirstName }}</h1>
-  <div *ngIf="ratedPlayer && !hasTournamentToday">
-    <p class="mat-subtitle-1">Your rating is</p>
-    <p class="mat-headline-5">{{ playerRating }}</p>
-    <p class="mat-subtitle-1">USATT Membership {{ membershipExpired ? 'expired' : 'expires' }} on</p>
-    <p [style.color]="membershipExpired ? 'red' : 'green'">{{ membershipExpirationDate | date }}</p>
+  <div *ngIf="!isProfileComplete(); else completedProfile" class="mat-body-1">
+    <p>Your on-boarding process was not completed successfully.</p>
+    <p style="margin-bottom: 20px">You must fill out your profile before you will be allowed to proceed further.</p>
+    <button mat-raised-button color="primary" (click)="goToProfileStart()">Complete On-boarding</button>
   </div>
-  <div *ngIf="hasTournamentToday" fxLayout="column" fxLayoutAlign="center center" fxLayoutGap="20px">
-    <h2>You are playing in </h2>
-    <div class="mat-headline-5">{{tournamentName}}</div>
-<!--    <button mat-raised-button color="primary" [routerLink]="todayService.todayUrl">-->
-<!--      See Details...-->
-<!--    </button>-->
-    <div fxLayout="row wrap" fxLayoutAlign="center center" fxLayoutGap="40px">
-      <div fxLayout="column" fxLayoutAlign="start center">
-        <button type="button" class="icon-button" mat-button color="" (click)="directionsToVenue()">
-          <mat-icon>assistant_direction</mat-icon>
-        </button>
-        <div (click)="directionsToVenue()">Directions</div>
-      </div>
-      <div *ngIf="tournamentInfo?.checkInType === 'DAILY'" fxLayout="column" fxLayoutAlign="start center">
-        <button type="button" class="icon-button" mat-button color="" (click)="checkInCommunicate()">
-          <mat-icon>how_to_reg</mat-icon>
-        </button>
-        <div>Check-In /</div>
-        <div>Communicate</div>
-      </div>
-      <div fxLayout="column" fxLayoutAlign="start center">
-        <button type="button" class="icon-button" mat-button color="" (click)="todaysSchedule()">
-          <mat-icon>schedule</mat-icon>
-        </button>
-        <div>Schedule</div>
-      </div>
-      <div fxLayout="column" fxLayoutAlign="start center">
-        <button type="button" class="icon-button" mat-button color="" (click)="tournamentDraws()">
-          <mat-icon>grid_view</mat-icon>
-        </button>
-        <div>Draws</div>
-      </div>
-      <div fxLayout="column" fxLayoutAlign="start center">
-        <button type="button" class="icon-button" mat-button color="" (click)="showMyResults()">
-          <mat-icon>grading</mat-icon>
-        </button>
-        <div>My Results</div>
+  <ng-template #completedProfile>
+    <div *ngIf="ratedPlayer && !hasTournamentToday">
+      <p class="mat-subtitle-1">Your rating is</p>
+      <p class="mat-headline-5">{{ playerRating }}</p>
+      <p class="mat-subtitle-1">USATT Membership {{ membershipExpired ? 'expired' : 'expires' }} on</p>
+      <p [style.color]="membershipExpired ? 'red' : 'green'">{{ membershipExpirationDate | date }}</p>
+    </div>
+    <div *ngIf="hasTournamentToday" fxLayout="column" fxLayoutAlign="center center" fxLayoutGap="20px">
+      <h2>You are playing in </h2>
+      <div class="mat-headline-5">{{tournamentName}}</div>
+      <!--    <button mat-raised-button color="primary" [routerLink]="todayService.todayUrl">-->
+      <!--      See Details...-->
+      <!--    </button>-->
+      <div fxLayout="row wrap" fxLayoutAlign="center center" fxLayoutGap="40px">
+        <div fxLayout="column" fxLayoutAlign="start center">
+          <button type="button" class="icon-button" mat-button color="" (click)="directionsToVenue()">
+            <mat-icon>assistant_direction</mat-icon>
+          </button>
+          <div (click)="directionsToVenue()">Directions</div>
+        </div>
+        <div *ngIf="tournamentInfo?.checkInType === 'DAILY'" fxLayout="column" fxLayoutAlign="start center">
+          <button type="button" class="icon-button" mat-button color="" (click)="checkInCommunicate()">
+            <mat-icon>how_to_reg</mat-icon>
+          </button>
+          <div>Check-In /</div>
+          <div>Communicate</div>
+        </div>
+        <div fxLayout="column" fxLayoutAlign="start center">
+          <button type="button" class="icon-button" mat-button color="" (click)="todaysSchedule()">
+            <mat-icon>schedule</mat-icon>
+          </button>
+          <div>Schedule</div>
+        </div>
+        <div fxLayout="column" fxLayoutAlign="start center">
+          <button type="button" class="icon-button" mat-button color="" (click)="tournamentDraws()">
+            <mat-icon>grid_view</mat-icon>
+          </button>
+          <div>Draws</div>
+        </div>
+        <div fxLayout="column" fxLayoutAlign="start center">
+          <button type="button" class="icon-button" mat-button color="" (click)="showMyResults()">
+            <mat-icon>grading</mat-icon>
+          </button>
+          <div>My Results</div>
+        </div>
       </div>
     </div>
-  </div>
+  </ng-template>
 </app-centered-panel>

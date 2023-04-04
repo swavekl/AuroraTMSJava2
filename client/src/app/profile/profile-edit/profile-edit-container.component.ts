@@ -83,7 +83,7 @@ export class ProfileEditContainerComponent implements OnInit, OnDestroy {
           // console.log('switchMap - got profile', profile);
           if (profile != null) {
             if (this.playerRecord != null) {
-              console.log('merging passed usatt player record into profile', this.playerRecord);
+              // console.log('merging passed usatt player record into profile', this.playerRecord);
               this.merge(profile, this.playerRecord);
             }
             this.savedMembershipId = profile.membershipId;
@@ -130,6 +130,7 @@ export class ProfileEditContainerComponent implements OnInit, OnDestroy {
           // console.log ('SAVED profile');
           const membershipIdChanged = profile.membershipId !== this.savedMembershipId;
           if (!membershipIdChanged) {
+            this.authenticationService.makeProfileComplete();
             this.navigateToNextPage(profile);
           } else {
             // console.log ('updating membership id ' + this.savedMembershipId + ' new ' + profile.membershipId);
@@ -202,6 +203,11 @@ export class ProfileEditContainerComponent implements OnInit, OnDestroy {
   }
 
   onCancel($event: any) {
+    if (this.onBoarding) {
+      if (!this.authenticationService.isProfileComplete()) {
+        this.returnUrl = '/ui/home';
+      }
+    }
     this.router.navigateByUrl(this.returnUrl);
   }
 
