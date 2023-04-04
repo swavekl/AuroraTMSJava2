@@ -197,12 +197,18 @@
                 <mat-form-field fxFlex="25%">
                   <mat-label>Registration Fee</mat-label>
                   <input matInput name="registrationFee" [(ngModel)]="tournament.configuration.registrationFee"
-                         required pattern="[1-9](\d{1,2})?">
+                         required pattern="^(0|[1-9][0-9]{0,2}?)$" maxlength="3" #registrationFee="ngModel">
+                  <mat-error *ngIf="registrationFee.control?.hasError('pattern') || registrationFee.control?.hasError('required')">
+                    Enter number
+                  </mat-error>
                 </mat-form-field>
                 <mat-form-field fxFlex="25%">
                   <mat-label>Late Entry Fee</mat-label>
                   <input matInput name="lateEntryFee" [(ngModel)]="tournament.configuration.lateEntryFee"
-                         required pattern="[1-9](\d{1,2})?">
+                         required pattern="^(0|[1-9][0-9]{0,2})$" maxlength="3" #lateEntryFee="ngModel" >
+                  <mat-error *ngIf="lateEntryFee.control?.hasError('pattern') || lateEntryFee.control?.hasError('required')">
+                  Enter number
+                  </mat-error>
                 </mat-form-field>
               </div>
               <div fxLayout.lt-sm="column" fxLayout="row" fxLayoutGap="10px">
