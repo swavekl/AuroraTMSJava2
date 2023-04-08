@@ -9,6 +9,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.okta.sdk.resource.user.ForgotPasswordResponse;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -29,6 +31,8 @@ import java.util.regex.Pattern;
 @RequestMapping("api/users")
 public class UsersController extends AbstractOktaController {
 
+    private static final Logger logger = LoggerFactory.getLogger(UsersController.class);
+
     @Autowired
     private UserProfileExtService userProfileExtService;
 
@@ -42,14 +46,16 @@ public class UsersController extends AbstractOktaController {
     @PreAuthorize("permitAll()")
     ResponseEntity<String> registerUser(@RequestBody UserRegistration userRegistration) {
         try {
+            logger.info("Registering new user " + userRegistration.getLastName() + ", " + userRegistration.getFirstName() + " email: " + userRegistration.getEmail());
             UUID registrationToken = UUID.randomUUID();
 
             String userId = createUser(userRegistration, registrationToken.toString());
 
             String id = activateOktaUser(userId);
+            logger.info("Activated user " + userId);
 
             suspendUser(userId);
-
+            logger.info("Temporarily suspended user " + userId + " until email is validated");
         } catch (Exception e) {
             String message = e.getMessage();
             message = message.substring(message.indexOf("{"));
@@ -119,7 +125,7 @@ public class UsersController extends AbstractOktaController {
                     new TypeReference<Map<String, Object>>() {
                     });
             userId = jsonMap.get("id").toString();
-            System.out.println("userId = " + userId);
+            logger.info("Created user with userId = " + userId);
         return userId;
     }
 
@@ -132,6 +138,7 @@ public class UsersController extends AbstractOktaController {
     @PreAuthorize("permitAll()")
     ResponseEntity<String> validateEmail(@RequestBody UserRegistration userRegistration) {
         try {
+            logger.info("Validating email " + userRegistration.getEmail());
             // get user profile which contains user id and token
             String userProfile = getUser(userRegistration.getEmail());
             String token = userRegistration.getSecondEmail();
@@ -141,16 +148,20 @@ public class UsersController extends AbstractOktaController {
                     new TypeReference<Map<String, Object>>() {
                     });
             String userId = (String) jsonMap.get("id");
-            System.out.println("userId = " + userId);
             Object profile = jsonMap.get("profile");
             String tokenFromURL = "";
             if (profile != null) {
                 tokenFromURL = (String) ((Map<String, Object> )profile).get("secondEmail");
             }
+            logger.info("Got token from url: " + tokenFromURL + " vs token from email: " + token);
 
             // check that the activation token is OK and only then unsuspend
             if (token.equals(tokenFromURL)) {
-                unsuspendUser(userId);
+                logger.info("Unsuspending user with userId " + userId);
+                String status = unsuspendUser(userId);
+                String firstName = (String) ((Map<String, Object>) profile).get("firstName");
+                String lastName = (String) ((Map<String, Object>) profile).get("lastName");
+                logger.info("Email " + userRegistration.getEmail() + " validated successfully for user " + userId + " named " + lastName + ", " + firstName + " status is now: " + status);
             } else {
                 return new ResponseEntity<String>("{\"status\":\"Activation failed\"}", HttpStatus.BAD_REQUEST);
             }
@@ -184,10 +195,17 @@ public class UsersController extends AbstractOktaController {
         makePostRequest(url, null);
     }
 
-    private void unsuspendUser(String userId) throws IOException {
+    private String unsuspendUser(String userId) throws IOException {
         // POST /api/v1/users/${userId}/lifecycle/unsuspend
         String url = oktaServiceBase + "/api/v1/users/" + userId + "/lifecycle/unsuspend";
-        makePostRequest(url, null);
+        String response = makePostRequest(url, null);
+        ObjectMapper objectMapper = new ObjectMapper();
+        Map<String, Object> jsonMap = objectMapper.readValue(response,
+                new TypeReference<Map<String, Object>>() {
+                });
+        String prettyPrintResult = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(jsonMap);
+        System.out.println("POST unsuspendUser = " + prettyPrintResult);
+        return "status";
     }
 
     /**
@@ -326,10 +344,12 @@ public class UsersController extends AbstractOktaController {
     @ResponseBody
     public String forgotPasswordStart (@PathVariable String email) {
         try {
+            logger.info("Starting Forgot password flow.  Emailing instructions to " + email);
             ForgotPasswordResponse forgotPasswordResponse = this.getClient()
                     .apiV1UsersUserIdCredentialsForgotPasswordPost(email);
             return "{ \"status\": \"SUCCESS\" }";
         } catch (Exception e) {
+            logger.error("Error starting forgot password flow ", e);
             return String.format("{ \"status\": \"ERROR\" , \"errorMessage\": \"%s\"}", e.getMessage());
         }
     }
@@ -340,14 +360,17 @@ public class UsersController extends AbstractOktaController {
     public String resetPassword (@RequestBody UserRegistration userRegistration) {
         String status = "ERROR";
         try {
+            logger.info("Resetting password for user");
             String stateToken = verifyRecoveryToken (userRegistration.getResetPasswordToken());
 
             String result = answerRecoveryQuestion(stateToken, "spinach");
-
+            logger.info("Recover question answered result is " + result);
             if ("PASSWORD_RESET".equals(result)) {
                 status = resetPasswordInternal(stateToken, userRegistration.getPassword());
             }
+            logger.info("Reset password status " + status);
         } catch (Exception e) {
+            logger.error("Error resetting password", e);
             return String.format("{ \"status\": \"ERROR\" , \"errorMessage\": \"%s\"}", e.getMessage());
         }
         return String.format("{ \"status\" : \"%s\" }", status);
@@ -366,14 +389,23 @@ public class UsersController extends AbstractOktaController {
         String requestBody = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(topLevelObjectNode);
 
         String response = makePostRequest(url, requestBody);
-        System.out.println("verifyRecoveryToken response = " + response);
 
         Map<String, Object> jsonMap = objectMapper.readValue(response,
                 new TypeReference<Map<String, Object>>() {
                 });
+        String stateToken = jsonMap.get("stateToken").toString();
+        Map<String, Object>  embedded = (Map<String, Object>) jsonMap.get("_embedded");
+        if (embedded != null) {
+            Map<String, Object> user = (Map<String, Object>) embedded.get("user");
+            Map<String, Object> profile = (Map<String, Object>) user.get("profile");
+            String login = (String) profile.get("login");
+            String firstName = (String) profile.get("firstName");
+            String lastName = (String) profile.get("lastName");
+            logger.info("Verified recoveryToken for user " + login + ", " + lastName + ", " + firstName);
+        }
 
         // convert sessionToken into to accessToken
-        return jsonMap.get("stateToken").toString();
+        return stateToken;
     }
 
     /**
@@ -441,7 +473,6 @@ POST \
         String requestBody = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(topLevelObjectNode);
 
         String response = makePostRequest(url, requestBody);
-        System.out.println("verifyRecoveryToken response = " + response);
 
 /*
 {

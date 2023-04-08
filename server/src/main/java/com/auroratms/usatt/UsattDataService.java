@@ -64,6 +64,7 @@ public class UsattDataService {
      * @return
      */
     public UsattPlayerRecord linkPlayerToProfile(UsattPlayerRecord usattPlayerRecord, String profileId) {
+        logger.info("linkPlayerToProfile " + profileId);
         UsattPlayerRecord recordToReturn = null;
         Long membershipId = usattPlayerRecord.getMembershipId();
         if (membershipId == null) {
@@ -88,11 +89,11 @@ public class UsattDataService {
         userProfileExt.setMembershipId(membershipId);
         if (userProfileExtService.existsByMembershipId(membershipId)) {
             UserProfileExt oldUserProfileExt = userProfileExtService.getByMembershipId(membershipId);
-            System.out.println("oldUserProfileExt = " + oldUserProfileExt);
+            logger.info("Deleting oldUserProfileExt = " + oldUserProfileExt);
             userProfileExt.setClubFk(oldUserProfileExt.getClubFk());
             userProfileExtService.delete(oldUserProfileExt.getProfileId());
         }
-        System.out.println("userProfileExt = " + userProfileExt);
+        System.out.println("Saving userProfileExt = " + userProfileExt);
         userProfileExtService.save(userProfileExt);
 
         return recordToReturn;

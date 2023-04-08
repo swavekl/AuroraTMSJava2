@@ -55,7 +55,7 @@
       <!--        <p>password2 touched: {{ password2Ctrl.touched }}</p>-->
     </div>
     <div class="form-group" style="margin-top: 20px;">
-      <button mat-raised-button color="primary" [disabled]="!f.form.valid" debounceClicks (debounceClick)="register()">SIGN UP</button>
+      <button mat-raised-button color="primary" [disabled]="!f.form.valid || registrationInProgress" debounceClicks (debounceClick)="register()">SIGN UP</button>
     </div>
 <!--    <p>Form values: {{ f.value | json }} </p>-->
 <!--    <p>Form status: {{ f.status | json }} </p>-->
@@ -63,7 +63,7 @@
 <!--    <p>Password2 valid: {{ f.form.controls['password2']?.valid }} {{ f.form.controls['password2']?.errors | json }} {{ f.form.controls['password2']?.value }}</p>-->
   </form>
 </div>
-  <mat-spinner *ngIf="registrationInProgress" style="margin:0 auto;" diameter="40"></mat-spinner>
+<!--  <mat-spinner *ngIf="registrationInProgress" style="margin:0 auto;" diameter="40"></mat-spinner>-->
   <p [hidden]="registrationInProgress" [innerHtml]="message" class="registration-error-message"></p>
   <p [hidden]="registrationInProgress" [innerHtml]="okMessage" class="registration-ok-message"></p>
 

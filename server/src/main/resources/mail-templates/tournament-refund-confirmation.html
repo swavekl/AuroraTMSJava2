@@ -7,7 +7,7 @@
 <p>Hello <span th:text="${playerFirstName}"></span>,</p>
 This is to confirm that we have issued the following refund(s) totaling
 <span th:text="${#numbers.formatDecimal(amount, 1, 2)}">10.00</span> <span th:text="${currency}"></span>
-for your withdrawal from the '<span th:text="${tournamentName}"></span>' tournament.</p>
+for your entry modification or withdrawal from the '<span th:text="${tournamentName}"></span>' tournament.</p>
 <div th:if="${refundItems.size > 1}">
   <p>The refund consists of the following refunds</p>
   <table>
