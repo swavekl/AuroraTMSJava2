@@ -153,16 +153,16 @@ public class UsersController extends AbstractOktaController {
             if (profile != null) {
                 tokenFromURL = (String) ((Map<String, Object> )profile).get("secondEmail");
             }
-            logger.info("Got token from url: " + tokenFromURL + " vs token from email: " + token);
 
             // check that the activation token is OK and only then unsuspend
             if (token.equals(tokenFromURL)) {
                 logger.info("Unsuspending user with userId " + userId);
-                String status = unsuspendUser(userId);
+                unsuspendUser(userId);
                 String firstName = (String) ((Map<String, Object>) profile).get("firstName");
                 String lastName = (String) ((Map<String, Object>) profile).get("lastName");
-                logger.info("Email " + userRegistration.getEmail() + " validated successfully for user " + userId + " named " + lastName + ", " + firstName + " status is now: " + status);
+                logger.info("Email " + userRegistration.getEmail() + " validated successfully for user " + userId + " named " + lastName + ", " + firstName);
             } else {
+                logger.info("Token from url: " + tokenFromURL + " different from token from email: " + token);
                 return new ResponseEntity<String>("{\"status\":\"Activation failed\"}", HttpStatus.BAD_REQUEST);
             }
         } catch (IOException e) {
@@ -195,7 +195,7 @@ public class UsersController extends AbstractOktaController {
         makePostRequest(url, null);
     }
 
-    private String unsuspendUser(String userId) throws IOException {
+    private void unsuspendUser(String userId) throws IOException {
         // POST /api/v1/users/${userId}/lifecycle/unsuspend
         String url = oktaServiceBase + "/api/v1/users/" + userId + "/lifecycle/unsuspend";
         String response = makePostRequest(url, null);
@@ -203,9 +203,8 @@ public class UsersController extends AbstractOktaController {
         Map<String, Object> jsonMap = objectMapper.readValue(response,
                 new TypeReference<Map<String, Object>>() {
                 });
-        String prettyPrintResult = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(jsonMap);
-        System.out.println("POST unsuspendUser = " + prettyPrintResult);
-        return "status";
+//        String prettyPrintResult = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(jsonMap);
+//        System.out.println("POST unsuspendUser = " + prettyPrintResult);
     }
 
     /**
