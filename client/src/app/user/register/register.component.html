@@ -11,8 +11,11 @@
         <mat-error>Last Name is required</mat-error>
       </mat-form-field>
       <mat-form-field class="other-field">
-        <input type="email" matInput placeholder="Email" name="email" [(ngModel)]="email" required>
-        <mat-error>Email is required</mat-error>
+        <input type="email" matInput placeholder="Email" name="email" [(ngModel)]="email"
+               email required appLoginUnique #emailControl="ngModel" [ngModelOptions]="{ updateOn: 'blur'}">
+        <mat-error *ngIf="emailControl?.errors?.required">Email is required</mat-error>
+        <mat-error *ngIf="emailControl?.errors?.email">Email is invalid</mat-error>
+        <mat-error *ngIf="emailControl?.errors?.appLoginUnique === false">User with this email is already registered</mat-error>
       </mat-form-field>
     </div>
     <div #fgPasswords="ngModelGroup" ngModelGroup="passwords" appValuesMatch="password,password2"

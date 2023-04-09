@@ -61,13 +61,13 @@ export class ResetPasswordStartComponent implements OnInit, OnDestroy {
             this.message = `Reset password instructions were sent to ${this.email}. <p> Please follow instructions in the email.`;
           } else {
             const error = data?.errorMessage || 'Unknown error';
-            this.message = `Error encountered during reset password: ${error}`;
+            this.message = `<p>Error encountered during reset password.</p><p>This may be caused by using a different email address then the one used for registration/login</p><p>Error details: ${error}</p>`;
           }
           this.done = true;
         },
         error => {
           // console.log('error ', error);
-          this.message = `Error encountered during reset password: ${error}`;
+          this.message = `<p>Error encountered during reset password.</p><p>This may be caused by using a different email address then the one used for registration/login</p><p>Error details: ${error}</p>`;
         }
       );
   }

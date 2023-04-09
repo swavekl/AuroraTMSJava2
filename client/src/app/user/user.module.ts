@@ -18,6 +18,7 @@ import {ResetPasswordComponent} from './reset-password/reset-password.component'
 import {ResetPasswordResultComponent} from './reset-password-result/reset-password-result.component';
 import {ResetPasswordStartComponent} from './reset-password-start/reset-password-start.component';
 import {LogoutComponent} from './logout/logout.component';
+import { LoginUniqueDirective } from './login-unique.directive';
 
 const userRoutes: Routes = [
   {
@@ -51,7 +52,8 @@ const userRoutes: Routes = [
     ResetPasswordStartComponent,
     ResetPasswordComponent,
     ResetPasswordResultComponent,
-    LogoutComponent
+    LogoutComponent,
+    LoginUniqueDirective
   ],
     imports: [
         CommonModule,

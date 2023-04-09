@@ -129,6 +129,20 @@ public class UsersController extends AbstractOktaController {
         return userId;
     }
 
+    @GetMapping("isregistered/{email}")
+    @PreAuthorize("permitAll()")
+    public ResponseEntity<String> isUserRegistered(@PathVariable String email) {
+        try {
+            String userProfile = this.getUser(email);
+            boolean isUserRegistered = (userProfile != null);
+            String response = String.format("{\"userRegistered\": %b }", isUserRegistered);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+            return ResponseEntity.notFound().build();
+        }
+    }
+
     /**
      * @param userRegistration
      * @return

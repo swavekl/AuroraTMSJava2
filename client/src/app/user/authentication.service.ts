@@ -1,8 +1,8 @@
 import {Injectable} from '@angular/core';
 import {HttpClient, HttpErrorResponse} from '@angular/common/http';
-import {BehaviorSubject, Observable, Subject, throwError} from 'rxjs';
+import {BehaviorSubject, Observable, of, Subject, throwError} from 'rxjs';
 import {JWTDecoderService} from './jwtdecoder.service';
-import {first, map} from 'rxjs/operators';
+import {catchError, first, map} from 'rxjs/operators';
 import {DateUtils} from '../shared/date-utils';
 import {ConfirmationPopupComponent} from '../shared/confirmation-popup/confirmation-popup.component';
 import {MatDialog} from '@angular/material/dialog';
@@ -344,5 +344,19 @@ export class AuthenticationService {
     dialogRef.afterClosed().subscribe(result => {
       console.log('closed error message popup');
     });
+  }
+
+  public isUserRegistered(email: string): Observable<boolean> {
+    const partialUrl = `/api/users/isregistered/${email}`;
+    return this.http.get(this.getFullUrl(partialUrl))
+      .pipe(
+        map((response: any) => {
+          return (response?.userRegistered === true);
+        }),
+        catchError((err, caught) => {
+            return of(false);
+        })
+      );
+
   }
 }
