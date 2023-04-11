@@ -3,7 +3,7 @@ import {TournamentEntryInfoService} from '../../service/tournament-entry-info.se
 import {ActivatedRoute} from '@angular/router';
 import {combineLatest, Observable, of, Subscription} from 'rxjs';
 import {LinearProgressBarService} from '../../../shared/linear-progress-bar/linear-progress-bar.service';
-import {first} from 'rxjs/operators';
+import {filter, first, repeat, take} from 'rxjs/operators';
 import {TournamentEntryInfo} from '../../model/tournament-entry-info.model';
 import {TournamentEvent} from '../../tournament-config/tournament-event.model';
 import {TournamentEventConfigService} from '../../tournament-config/tournament-event-config.service';
@@ -63,7 +63,8 @@ export class TournamentPlayersListContainerComponent implements OnInit, OnDestro
   }
 
   ngOnInit(): void {
-    const tournamentId = this.activatedRoute.snapshot.params['id'] || 0;
+    const strTournamentId = this.activatedRoute.snapshot.params['id'];
+    const tournamentId = (strTournamentId != null) ? Number(strTournamentId) : 0;
     this.loadTournamentStartDate(tournamentId);
     this.loadTournamentEntries(tournamentId);
     this.loadTournamentEvents(tournamentId);
@@ -107,21 +108,28 @@ export class TournamentPlayersListContainerComponent implements OnInit, OnDestro
     const localTournamentEvents$ = this.tournamentEventConfigService.store.select(
       this.tournamentEventConfigService.selectors.selectEntities);
     const subscription = localTournamentEvents$
-      .pipe(first())
-      .subscribe(
-        (events: TournamentEvent[]) => {
-          let sameTournament = true;
+      .pipe(
+        repeat(),
+        filter((events: TournamentEvent[]) => {
+          let sameTournament: boolean = true;
           if (events != null && events.length > 0) {
             const firstEvent = events[0];
             sameTournament = (firstEvent.tournamentFk === tournamentId);
-            if (sameTournament) {
-              this.tournamentEvents$ = of(events);
-            }
+          } else {
+            sameTournament = false;
           }
-          if (!sameTournament)  {
-            this.tournamentEventConfigService.clearCache();
-            // don't have event configs cached - load them - again template is subscribed to this
-            this.tournamentEvents$ = this.tournamentEventConfigService.loadTournamentEvents(tournamentId);
+          if (!sameTournament) {
+            // don't have event configs cached - load them
+            this.tournamentEventConfigService.loadTournamentEvents(tournamentId);
+          }
+          return sameTournament;
+        }),
+        take(1)
+      )
+      .subscribe(
+        (events: TournamentEvent[]) => {
+          if (events != null && events.length > 0) {
+            this.tournamentEvents$ = of(events);
           }
         },
         (error: any) => {
