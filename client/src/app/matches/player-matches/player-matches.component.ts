@@ -137,7 +137,7 @@ export class PlayerMatchesComponent implements OnInit, OnChanges {
       const message = `${playerNames} is about to be defaulted. Defaulting will set all game scores to 0 and it can't be undone.  Press \'OK\' to proceed or 'Cancel' to abort.`;
       const config = {
         width: '450px', height: '230px', data: {
-          message: message,
+          message: message, contentAreaHeight: 140
         }
       };
       const dialogRef = this.dialog.open(ConfirmationPopupComponent, config);
