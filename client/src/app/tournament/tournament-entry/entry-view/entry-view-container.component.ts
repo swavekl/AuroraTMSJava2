@@ -1,7 +1,7 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {LinearProgressBarService} from '../../../shared/linear-progress-bar/linear-progress-bar.service';
-import {combineLatest, Observable, Subscription} from 'rxjs';
+import {combineLatest, Observable, of, Subscription} from 'rxjs';
 import {TournamentEntry} from '../model/tournament-entry.model';
 import {TournamentEntryService} from '../service/tournament-entry.service';
 import {TournamentConfigService} from '../../tournament-config/tournament-config.service';
@@ -11,6 +11,10 @@ import {createSelector} from '@ngrx/store';
 import {Tournament} from '../../tournament-config/tournament.model';
 import {TournamentEventEntryInfo} from '../model/tournament-event-entry-info-model';
 import {TournamentEvent} from '../../tournament-config/tournament-event.model';
+import {first} from 'rxjs/operators';
+import {Profile} from '../../../profile/profile';
+import {AuthenticationService} from '../../../user/authentication.service';
+import {ProfileService} from '../../../profile/profile.service';
 
 @Component({
   selector: 'app-entry-view-container',
@@ -18,6 +22,7 @@ import {TournamentEvent} from '../../tournament-config/tournament-event.model';
     <app-entry-view [entry]="entry$ | async"
                     [tournament]="tournament$ | async"
                     [allEventEntryInfos]="allEventEntryInfos$ | async"
+                    [playerProfile]="playerProfile$ | async"
                     (action)="onAction($event)"
     >
     </app-entry-view>
@@ -37,12 +42,17 @@ export class EntryViewContainerComponent implements OnInit, OnDestroy {
   // events and their status (confirmed, waiting list, not available etc.)
   allEventEntryInfos$: Observable<TournamentEventEntryInfo[]>;
 
+  // player profile needed for summary
+  playerProfile$: Observable<Profile>;
+
   private subscriptions: Subscription = new Subscription();
 
   constructor(private tournamentEntryService: TournamentEntryService,
               private tournamentConfigService: TournamentConfigService,
               private tournamentEventConfigService: TournamentEventConfigService,
               private eventEntryInfoService: EventEntryInfoService,
+              private authenticationService: AuthenticationService,
+              private profileService: ProfileService,
               private activatedRoute: ActivatedRoute,
               private router: Router,
               private linearProgressBarService: LinearProgressBarService) {
@@ -56,9 +66,10 @@ export class EntryViewContainerComponent implements OnInit, OnDestroy {
         this.eventEntryInfoService.loading$,
         this.tournamentConfigService.store.select(this.tournamentConfigService.selectors.selectLoading),
         this.tournamentEntryService.store.select(this.tournamentEntryService.selectors.selectLoading),
-        this.tournamentEventConfigService.store.select(this.tournamentEventConfigService.selectors.selectLoading)
-      ], (eventEntryInfosLoading: boolean, tournamentLoading: boolean, entryLoading: boolean, eventConfigLoading: boolean) => {
-        return eventEntryInfosLoading || tournamentLoading || entryLoading || eventConfigLoading;
+        this.tournamentEventConfigService.store.select(this.tournamentEventConfigService.selectors.selectLoading),
+        this.profileService.loading$,
+      ], (eventEntryInfosLoading: boolean, tournamentLoading: boolean, entryLoading: boolean, eventConfigLoading: boolean, profileLoading: boolean) => {
+        return eventEntryInfosLoading || tournamentLoading || entryLoading || eventConfigLoading || profileLoading;
       }
     );
 
@@ -80,6 +91,7 @@ export class EntryViewContainerComponent implements OnInit, OnDestroy {
     this.selectTournament(this.tournamentId);
     this.selectEntry(this.entryId);
     this.loadEventEntriesInfos(this.entryId);
+    this.loadPlayerProfile();
   }
 
   /**
@@ -165,12 +177,24 @@ export class EntryViewContainerComponent implements OnInit, OnDestroy {
     this.eventEntryInfoService.getEventEntryInfos(this.entryId);
   }
 
+  private loadPlayerProfile() {
+    const playerProfileId = this.authenticationService.getCurrentUserProfileId();
+    this.profileService.getProfile(playerProfileId)
+      .pipe(first())
+      .subscribe((profile: Profile) => {
+        this.playerProfile$ = of(profile);
+      });
+  }
+
   onAction(action: string) {
     if (action === 'modify') {
       const url = `ui/entries/entrywizard/${this.tournamentId}/edit/${this.entryId}`;
       this.router.navigateByUrl(url);
     } else if (action === 'withdraw') {
       const url = `ui/entries/entrywizard/${this.tournamentId}/edit/${this.entryId}?withdraw=true`;
+      this.router.navigateByUrl(url);
+    } else if (action === 'back') {
+      const url = `ui/tournaments/view/${this.tournamentId}`;
       this.router.navigateByUrl(url);
     }
   }

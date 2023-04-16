@@ -117,31 +117,10 @@
           </div>
         </mat-step>
         <mat-step label="Summary">
-          <table class="summary-table">
-            <tbody>
-            <ng-container *ngFor="let summaryReportItem of getSummaryReportItems()">
-              <tr *ngIf="summaryReportItem.isHeader; else nonHeader;">
-                <th>{{summaryReportItem.itemText}}</th>
-                <th>{{summaryReportItem.rightColumnText}}</th>
-              </tr>
-              <ng-template #nonHeader>
-              <tr>
-              <td>
-                <div>{{ summaryReportItem.itemText }}</div>
-                <div *ngIf="summaryReportItem.subItemText" class="summary-item-second-line">
-                  {{ summaryReportItem.subItemText }}
-                </div>
-              </td>
-              <td>{{ summaryReportItem.rightColumnText }}</td>
-              </tr>
-              </ng-template>
-            </ng-container>
-            <tr>
-              <td style="border-top: 1px solid black"><h1>ENTRY TOTAL</h1></td>
-              <td style="border-top: 1px solid black"><h1>{{ getTotal() | currency: tournamentCurrency }}</h1></td>
-            </tr>
-            </tbody>
-          </table>
+          <app-entry-summary-table [entryTotal]="getTotal()"
+                                   [summaryReportItems]="getSummaryReportItems()"
+                                   [tournamentCurrency]="tournamentCurrency">
+          </app-entry-summary-table>
           <div class="wizard-button-bar" fxLayout="row">
             <button mat-raised-button matStepperPrevious type="button">Back</button>
             <span fxFlex></span>

@@ -1,5 +1,5 @@
 import {Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChange, SimpleChanges} from '@angular/core';
-import {TournamentEntry} from '../model/tournament-entry.model';
+import {MembershipType, TournamentEntry} from '../model/tournament-entry.model';
 import {Tournament} from '../../tournament-config/tournament.model';
 import {TournamentEventEntryInfo} from '../model/tournament-event-entry-info-model';
 import {EventEntryStatus} from '../model/event-entry-status.enum';
@@ -8,6 +8,13 @@ import {DateUtils} from '../../../shared/date-utils';
 import {TodayService} from '../../../shared/today.service';
 import {ConfirmationPopupComponent} from '../../../shared/confirmation-popup/confirmation-popup.component';
 import {MatDialog} from '@angular/material/dialog';
+import {PriceCalculator} from '../pricecalculator/price-calculator';
+import {PricingMethod} from '../../model/pricing-method.enum';
+import {StandardPriceCalculator} from '../pricecalculator/standard-price-calculator';
+import {DiscountedPriceCalculator} from '../pricecalculator/discounted-price-calculator';
+import {MembershipUtil} from '../../util/membership-util';
+import {Profile} from '../../../profile/profile';
+import {SummaryReportItem} from '../pricecalculator/summary-report.model';
 
 @Component({
   selector: 'app-entry-view',
@@ -24,6 +31,9 @@ export class EntryViewComponent implements OnInit, OnChanges, OnDestroy {
   @Input()
   allEventEntryInfos: TournamentEventEntryInfo[];
 
+  @Input()
+  playerProfile: Profile;
+
   @Output()
   action: EventEmitter<string> = new EventEmitter<string>();
 
@@ -31,10 +41,22 @@ export class EntryViewComponent implements OnInit, OnChanges, OnDestroy {
 
   tournamentStartDate: Date;
 
+  // calculator for calculating total
+  public priceCalculator: PriceCalculator;
+  private membershipUtil: MembershipUtil;
+  public membershipOptions: any [] = [];
+  tournamentCurrency: string;
+
+  entryTotal: number = 0;
+  summaryReportItems: SummaryReportItem[] = [];
+
   private subscriptions = new Subscription ();
 
   constructor(private todayService: TodayService,
               private messageDialog: MatDialog) {
+    this.membershipUtil = new MembershipUtil();
+    this.membershipOptions = this.membershipUtil.getMembershipOptions();
+    this.tournamentCurrency = 'USD';
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -54,6 +76,65 @@ export class EntryViewComponent implements OnInit, OnChanges, OnDestroy {
     if (entryChanges != null) {
       this.entry = entryChanges.currentValue;
     }
+
+    const profileChanges: SimpleChange = changes.playerProfile;
+    if (profileChanges != null) {
+      this.playerProfile = profileChanges.currentValue;
+    }
+
+    if (this.playerProfile != null && this.tournament != null && this.entry) {
+      this.priceCalculator = this.initPricingCalculator(this.tournament.configuration.pricingMethod);
+      this.entryTotal = this.getTotal();
+      this.summaryReportItems = this.getSummaryReportItems();
+    }
+  }
+
+  /**
+   * Initializes pricing calculator
+   * @param pricingMethod
+   * @private
+   */
+  private initPricingCalculator(pricingMethod: PricingMethod) {
+    const isJunior = this.membershipUtil.isPlayerAJunior(this.playerProfile.dateOfBirth, this.tournament.startDate);
+    const isLateEntry = new DateUtils().isDateBefore(this.tournament.configuration.lateEntryDate, new Date());
+    switch (pricingMethod) {
+      case PricingMethod.STANDARD:
+        return new StandardPriceCalculator(this.membershipOptions,
+          this.tournament.configuration.registrationFee,
+          this.tournament.configuration.lateEntryFee, isJunior, isLateEntry,
+          this.tournamentStartDate, this.tournamentCurrency);
+      case PricingMethod.DISCOUNTED:
+        return new DiscountedPriceCalculator(this.membershipOptions,
+          this.tournament.configuration.registrationFee,
+          this.tournament.configuration.lateEntryFee, isJunior, isLateEntry,
+          this.tournamentStartDate, this.tournamentCurrency);
+      // default:
+      //   return new StandardPriceCalculator(this.membershipOptions);
+    }
+    return null;
+  }
+
+
+  getSummaryReportItems(): SummaryReportItem [] {
+    if (this.priceCalculator) {
+      // const totalPrice = this.priceCalculator.getTotalPrice(this.entry?.membershipOption, this.entry?.usattDonation, this.enteredEvents);
+      return this.priceCalculator.getSummaryReportItems();
+    } else {
+      return [];
+    }
+  }
+
+  /**
+   * Gets current player total regardless of previous payments or refunds
+   */
+  getTotal(): number {
+    const membershipOption: MembershipType = this.entry?.membershipOption;
+    const usattDonation = this.entry?.usattDonation ?? 0;
+    let total: number = 0;
+    if (this.priceCalculator) {
+      total = this.priceCalculator.getTotalPrice(membershipOption, usattDonation, this.enteredEvents);
+    }
+    return total;
   }
 
   ngOnDestroy(): void {
@@ -134,5 +215,9 @@ export class EntryViewComponent implements OnInit, OnChanges, OnDestroy {
       }
     });
 
+  }
+
+  onBack() {
+    this.action.emit('back');
   }
 }

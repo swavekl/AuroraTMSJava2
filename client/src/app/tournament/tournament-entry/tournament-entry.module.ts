@@ -33,6 +33,7 @@ import {DoublesTeamsComponent} from './doubles-teams/doubles-teams.component';
 import {AccountModule} from '../../account/account.module';
 import {EntryViewComponent} from './entry-view/entry-view.component';
 import {EntryViewContainerComponent} from './entry-view/entry-view-container.component';
+import { EntrySummaryTableComponent } from './pricecalculator/entry-summary-table/entry-summary-table.component';
 
 @NgModule({
   declarations: [
@@ -45,7 +46,8 @@ import {EntryViewContainerComponent} from './entry-view/entry-view-container.com
     DoublesTeamsContainerComponent,
     MaxRatingDirective,
     EntryViewComponent,
-    EntryViewContainerComponent
+    EntryViewContainerComponent,
+    EntrySummaryTableComponent
   ],
   imports: [
     CommonModule,
