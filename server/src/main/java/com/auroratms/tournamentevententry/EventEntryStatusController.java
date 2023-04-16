@@ -34,4 +34,11 @@ public class EventEntryStatusController {
                            @RequestParam Boolean withdrawing) {
         eventEntryStatusService.confirmAll(tournamentEntryId, cartSessionId, withdrawing);
     }
+
+    @PutMapping("/tournamententry/{tournamentEntryId}/eventstatus/discard/{cartSessionId}")
+    public void discardChanges(@PathVariable Long tournamentEntryId,
+                           @PathVariable String cartSessionId,
+                           @RequestParam Boolean withdrawing) {
+        eventEntryStatusService.discard(tournamentEntryId, cartSessionId, withdrawing);
+    }
 }

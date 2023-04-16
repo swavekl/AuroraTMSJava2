@@ -445,4 +445,25 @@ public class EventEntryStatusService {
         }
         return makeBreakDoublesPairsEvent;
     }
+
+    public void discard(Long tournamentEntryId, String cartSessionId, Boolean withdrawing) {
+        List<TournamentEventEntry> allEntries = tournamentEventEntryService.getEntries(tournamentEntryId);
+        for (TournamentEventEntry eventEntry : allEntries) {
+            EventEntryStatus status = eventEntry.getStatus();
+            if (cartSessionId.equals(eventEntry.getCartSessionId())) {
+                if (status.equals(EventEntryStatus.PENDING_DELETION)) {
+                    EventEntryStatus nextStatus = determineNextStatus(status, EventEntryCommand.REVERT_DROP);
+                    eventEntry.setStatus(nextStatus);
+                    // mark session as finished so it is not acted upon by cleanup process
+                    eventEntry.setCartSessionId(null);
+                    tournamentEventEntryService.update(eventEntry);
+                } else if (status.equals(EventEntryStatus.PENDING_WAITING_LIST) ||
+                           status.equals(EventEntryStatus.PENDING_CONFIRMATION)) {
+                    tournamentEventEntryService.delete(eventEntry.getId());
+                }
+                // update count of entries in this event now that status has changed
+                updateNumEntriesInEvent(eventEntry.getTournamentEventFk());
+            }
+        }
+    }
 }

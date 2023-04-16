@@ -747,6 +747,10 @@ export class EntryWizardComponent implements OnInit, OnChanges, OnDestroy {
     return this.dirty;
   }
 
+  public clean() {
+    this.dirty = false;
+  }
+
   hasEventsError(): boolean {
     return this.isWithdrawing ? false : (this.enteredEvents?.length === 0);
   }

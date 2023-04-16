@@ -21,23 +21,24 @@ export class EntryWizardCanDeactivateGuard implements CanDeactivate<EntryWizardC
     nextState?: RouterStateSnapshot): Observable<boolean | UrlTree> | Promise<boolean | UrlTree> | boolean | UrlTree {
     if (component.isDirty()) {
       const config = {
-        width: '350px', height: '310px', data: {
-          showCancel: false, contentAreaHeight: '160px',
+        width: '350px', height: '360px', data: {
+          contentAreaHeight: '240px',
+          okText: 'Continue', cancelText: 'Discard',
           title: 'Entry not Finalized',
           message:
           `You must go through all steps of the wizard to confirm your choices by payment or refund.
           If no balance is due you must still confirm changes via 'Confirm Changes' button.
-          You may also revert your choices and confirm them as well.
+          Press Discard to discard the changes. Press Continue to continue modifying your entry.
           Unfinished entries will be discarded by the system`,
         }
       };
       const dialogRef = this.dialog.open(ConfirmationPopupComponent, config);
       dialogRef.afterClosed().subscribe(result => {
         console.log('after close message dialog');
-        if (result === 'ok') {
+        if (result === 'cancel') {
+          component.discardChanges();
         }
       });
-      console.log('showing dialog');
       return false;
     } else {
       return true;

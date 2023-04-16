@@ -4,9 +4,9 @@
 </mat-dialog-content>
 <mat-dialog-actions>
   <div fxLayout="row" fxLayoutAlign="space-between start" style="width: 100%; margin: 0 10px;">
-    <button mat-button cdkFocusInitial type="button" *ngIf="showCancel" (click)="onCancel()">Cancel</button>
+    <button mat-button cdkFocusInitial type="button" *ngIf="showCancel" (click)="onCancel()">{{cancelText}}</button>
     <div fxFlex="1"></div>
-    <button mat-raised-button color="primary" *ngIf="showOK" (click)="onOk()">OK</button>
+    <button mat-raised-button color="primary" *ngIf="showOK" (click)="onOk()">{{ okText }}</button>
   </div>
 </mat-dialog-actions>
 

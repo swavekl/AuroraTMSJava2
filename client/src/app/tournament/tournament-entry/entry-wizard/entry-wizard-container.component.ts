@@ -299,4 +299,13 @@ export class EntryWizardContainerComponent implements OnInit, OnDestroy {
       ).subscribe();
     this.subscriptions.add(subscription);
   }
+
+  public discardChanges () {
+    this.eventEntryInfoService.discardChanges(this.entryId, this.cartSessionId, this.withdrawing)
+    .pipe(first())
+      .subscribe((success: boolean) => {
+        this.entryWizardComponent.clean();
+        this.onFinish(null);
+      });
+  }
 }

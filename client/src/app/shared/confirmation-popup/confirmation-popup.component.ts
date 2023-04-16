@@ -12,9 +12,11 @@ export class ConfirmationPopupComponent implements OnInit {
   showOK: boolean;
   showCancel: boolean;
   contentAreaHeight: string;
-
   public OK = 'ok';
   public CANCEL = 'cancel';
+
+  cancelText: string;
+  okText: string;
 
   constructor(public dialogRef: MatDialogRef<ConfirmationPopupComponent>,
               @Inject(MAT_DIALOG_DATA) public data: ConfirmationPopupData) {
@@ -22,6 +24,8 @@ export class ConfirmationPopupComponent implements OnInit {
     this.message = data?.message;
     this.showOK = (data.showOK !== undefined) ? data.showOK : true;
     this.showCancel = (data.showCancel !== undefined) ? data.showCancel : true;
+    this.okText = (data.okText !== undefined) ? data.okText : 'OK';
+    this.cancelText = (data.cancelText !== undefined) ? data.cancelText : 'Cancel';
     this.contentAreaHeight = (data.contentAreaHeight !== undefined) ? data.contentAreaHeight : '80px';
   }
 
@@ -47,4 +51,6 @@ export interface ConfirmationPopupData {
   showOK: true;
   showCancel: true;
   contentAreaHeight: string; // e.g. 80px
+  cancelText: string;
+  okText: string;
 }

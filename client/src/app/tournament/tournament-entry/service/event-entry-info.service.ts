@@ -100,4 +100,29 @@ export class EventEntryInfoService {
         })
       );
   }
+
+  /**
+   * Confirms all entries for this entry
+   *
+   * @param tournamentEntryId
+   * @param cartSessionId
+   * @param withdrawing
+   */
+  public discardChanges(tournamentEntryId: number, cartSessionId: string, withdrawing: boolean): Observable<boolean> {
+    this.setLoading(true);
+    const url = `/api/tournamententry/${tournamentEntryId}/eventstatus/discard/${cartSessionId}?withdrawing=${withdrawing}`;
+    return this.http.put(url, {})
+      .pipe(
+        tap(() => {
+            this.setLoading(false);
+          },
+          () => {
+            this.setLoading(false);
+          }),
+        map((response: Response) => {
+          return true;
+          // return (response.status === 200);
+        })
+      );
+  }
 }
