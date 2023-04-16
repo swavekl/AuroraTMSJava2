@@ -3,3 +3,13 @@
 mat-grid-tile {
   background: lightblue;
 }
+
+div.tournament-list-container mat-card {
+  margin-bottom: 8px;
+}
+
+mat-card-actions button {
+  margin-right: 20px;
+  margin-top: 10px;
+  margin-bottom: 10px;
+}

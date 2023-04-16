@@ -1,6 +1,6 @@
 <div fxLayout="row">
   <div fxFlex></div>
-  <div fxFlex.lt-md="100%" fxFlex="60%">
+  <div fxFlex.lt-md="100%" fxFlex="75%">
     <mat-card appearance="outlined">
       <mat-card-header>
         <mat-card-title>Tournament List</mat-card-title>
@@ -8,73 +8,125 @@
       <mat-card-content>
         <mat-toolbar>
           <mat-toolbar-row>
-            <button type="button" mat-button (click)="addTournament()">
+            <button type="button" mat-raised-button (click)="addTournament()">
               <mat-icon matListItemIcon>add</mat-icon>Add Tournament
             </button>
           </mat-toolbar-row>
         </mat-toolbar>
-        <mat-list>
-          <mat-list-item *ngFor="let tournament of tournaments">
-            <div fxLayout="row">
-              <div fxFlex="30%">
-                <span matListItemTitle>{{tournament.name}}</span>
-                <span matListItemLine>{{tournament.startDate | date }} - {{tournament.endDate | date }}</span>
-                <span matListItemLine>{{ tournament.city }}, {{tournament.state}} </span>
-              </div>
-              <div fxFlex="70%">
-                <button mat-icon-button
-                        [routerLink]="['/ui/tddashboard', tournament.id, {
+<!--        <mat-list>-->
+<!--          <mat-list-item *ngFor="let tournament of tournaments">-->
+<!--            <div fxLayout="row">-->
+<!--              <div fxFlex="30%">-->
+<!--                <span matListItemTitle>{{tournament.name}}</span>-->
+<!--                <span matListItemLine>{{tournament.startDate | date }} - {{tournament.endDate | date }}</span>-->
+<!--                <span matListItemLine>{{ tournament.city }}, {{tournament.state}} </span>-->
+<!--              </div>-->
+<!--              <div fxFlex="70%">-->
+<!--                <button mat-icon-button-->
+<!--                        [routerLink]="['/ui/tddashboard', tournament.id, {-->
+<!--                    outlets: {-->
+<!--                      'ploutlet': ['playerlist', tournament.id],-->
+<!--                      'proutlet': ['paymentsrefunds'],-->
+<!--                      'wloutlet': ['waitinglist', tournament.id]-->
+<!--                    }-->
+<!--                    }]"-->
+<!--                        matTooltip="TD Dashboard" style="margin-right: 20px">-->
+<!--                  <mat-icon matListItemIcon>dashboard</mat-icon>-->
+<!--                </button>-->
+<!--                <button mat-icon-button [routerLink]="['/ui/processing/detail/submit', tournament.id, tournament.name]" matTooltip="Submit results for processing" style="margin-right: 20px">-->
+<!--                  <mat-icon matListItemIcon>publish</mat-icon>-->
+<!--                </button>-->
+<!--                <button mat-icon-button [routerLink]="['./tournamentwaitinglist', tournament.id]" matTooltip="Tournament Waiting List" style="margin-right: 20px">-->
+<!--                  <mat-icon matListItemIcon>playlist_add</mat-icon>-->
+<!--                </button>-->
+<!--                <button mat-icon-button [routerLink]="['/ui/scheduling', tournament.id]" matTooltip="Table Assignment & Time Scheduling" style="margin-right: 20px">-->
+<!--                  <mat-icon matListItemIcon>schedule</mat-icon>-->
+<!--                </button>-->
+<!--                <button mat-icon-button [routerLink]="['/ui/entries/doublesteams', tournament.id]" matTooltip="Doubles Teams" style="margin-right: 20px">-->
+<!--                  <mat-icon matListItemIcon>group</mat-icon>-->
+<!--                </button>-->
+<!--                <button mat-icon-button [routerLink]="['/ui/draws', tournament.id]" matTooltip="Draws" style="margin-right: 20px">-->
+<!--                  <mat-icon matListItemIcon>grid_view</mat-icon>-->
+<!--                </button>-->
+<!--                <button mat-icon-button [routerLink]="['./tournament/edit', tournament.id]" matTooltip="Edit" style="margin-right: 20px">-->
+<!--                  <mat-icon matListItemIcon>edit</mat-icon>-->
+<!--                </button>-->
+<!--                <button mat-icon-button [routerLink]="['./tournament/create']" [queryParams]="{from: tournament.id}" matTooltip="Copy">-->
+<!--                  <mat-icon matListItemIcon>flip_to_front</mat-icon>-->
+<!--                </button>-->
+<!--              </div>-->
+<!--            </div>-->
+<!--            <mat-divider></mat-divider>-->
+<!--          </mat-list-item>-->
+<!--        </mat-list>-->
+        <div fxLayout="column" fxLayoutAlign="start stretch" class="tournament-list-container">
+          <ng-container *ngFor="let tournament of tournaments">
+            <mat-card appearance="outlined" style="padding: 8px;">
+              <mat-card-header>
+                <mat-card-title>
+                  <h3>{{tournament.name}}</h3>
+                </mat-card-title>
+              </mat-card-header>
+              <mat-card-content>
+                <h3>{{tournament.startDate | date }} - {{tournament.endDate | date }}</h3>
+                <h4>{{ tournament.city }}, {{tournament.state}} </h4>
+              </mat-card-content>
+              <mat-card-actions>
+                <div fxLayout="row wrap" fxLayoutAlign="start start">
+                  <button mat-raised-button type="button" color="primary"
+                          [routerLink]="['./tournament/edit', tournament.id]"
+                          matTooltip="Edit tournament properties">
+                    <mat-icon matListItemIcon>edit</mat-icon>
+                    Edit
+                  </button>
+                  <button mat-raised-button type="button" [routerLink]="['/ui/entries/doublesteams', tournament.id]"
+                          matTooltip="Make or break doubles teams" >
+                    <mat-icon matListItemIcon>group</mat-icon>Doubles
+                  </button>
+                  <button mat-raised-button type="button" [routerLink]="['./tournamentwaitinglist', tournament.id]"
+                          matTooltip="Players Waiting List" >
+                    <mat-icon matListItemIcon>playlist_add</mat-icon>Waiting List
+                  </button>
+                  <button mat-raised-button type="button" [routerLink]="['/ui/draws', tournament.id]"
+                          matTooltip="Generate Draws">
+                    <mat-icon matListItemIcon>grid_view</mat-icon>
+                    Draws
+                  </button>
+                  <button mat-raised-button type="button" [routerLink]="['/ui/scheduling', tournament.id]"
+                          matTooltip="Table Assignment & Time Scheduling">
+                    <mat-icon matListItemIcon>schedule</mat-icon>
+                    Schedule
+                  </button>
+                  <button mat-raised-button type="button"
+                          [routerLink]="['/ui/tddashboard', tournament.id, {
                     outlets: {
                       'ploutlet': ['playerlist', tournament.id],
                       'proutlet': ['paymentsrefunds'],
                       'wloutlet': ['waitinglist', tournament.id]
                     }
-                    }]"
-                        matTooltip="TD Dashboard" style="margin-right: 20px">
-                  <mat-icon matListItemIcon>dashboard</mat-icon>
-                </button>
-                <button mat-icon-button [routerLink]="['/ui/processing/detail/submit', tournament.id, tournament.name]" matTooltip="Submit results for processing" style="margin-right: 20px">
-                  <mat-icon matListItemIcon>publish</mat-icon>
-                </button>
-                <button mat-icon-button [routerLink]="['./tournamentwaitinglist', tournament.id]" matTooltip="Tournament Waiting List" style="margin-right: 20px">
-                  <mat-icon matListItemIcon>playlist_add</mat-icon>
-                </button>
-                <button mat-icon-button [routerLink]="['/ui/scheduling', tournament.id]" matTooltip="Table Assignment & Time Scheduling" style="margin-right: 20px">
-                  <mat-icon matListItemIcon>schedule</mat-icon>
-                </button>
-                <button mat-icon-button [routerLink]="['/ui/entries/doublesteams', tournament.id]" matTooltip="Doubles Teams" style="margin-right: 20px">
-                  <mat-icon matListItemIcon>group</mat-icon>
-                </button>
-                <button mat-icon-button [routerLink]="['/ui/draws', tournament.id]" matTooltip="Draws" style="margin-right: 20px">
-                  <mat-icon matListItemIcon>grid_view</mat-icon>
-                </button>
-                <button mat-icon-button [routerLink]="['./tournament/edit', tournament.id]" matTooltip="Edit" style="margin-right: 20px">
-                  <mat-icon matListItemIcon>edit</mat-icon>
-                </button>
-                <button mat-icon-button [routerLink]="['./tournament/create']" [queryParams]="{from: tournament.id}" matTooltip="Copy">
-                  <mat-icon matListItemIcon>flip_to_front</mat-icon>
-                </button>
-              </div>
-            </div>
-            <mat-divider></mat-divider>
-          </mat-list-item>
-        </mat-list>
+                    }]"  matTooltip="Tournament Director's dashboard">
+                    <mat-icon>dashboard</mat-icon>
+                    TD Dashboard
+                  </button>
+                  <button mat-raised-button type="button"
+                          [routerLink]="['/ui/processing/detail/submit', tournament.id, tournament.name]"
+                          matTooltip="Submit results to USATT">
+                    <mat-icon matListItemIcon>publish</mat-icon>
+                    Submit Results
+                  </button>
+                  <button mat-raised-button type="button" [routerLink]="['./tournament/create']"
+                          [queryParams]="{from: tournament.id}"
+                          matTooltip="Make a copy of tournament">
+                    <mat-icon>flip_to_front</mat-icon>
+                    Copy
+                  </button>
+                </div>
+              </mat-card-actions>
+            </mat-card>
+          </ng-container>
+        </div>
       </mat-card-content>
     </mat-card>
-    <!--<mat-grid-list cols="1" rowHeight="100px" gutterSize="10">-->
-    <!--<mat-grid-tile *ngFor="let tournament of tournaments">-->
-    <!--<mat-card>-->
-    <!--<mat-card-content>-->
-    <!--<h3>{{tournament.name}}</h3>-->
-    <!--<h3>{{tournament.startDate | date }} - {{tournament.endDate | date }}</h3>-->
-    <!--<h4>{{ tournament.city }}, {{tournament.state}} </h4>-->
-    <!--<button mat-icon-button [routerLink]="['edit']">-->
-    <!--<mat-icon matListItemIcon>navigate_next</mat-icon>-->
-    <!--</button>-->
-    <!--</mat-card-content>-->
-    <!--</mat-card>-->
-    <!--</mat-grid-tile>-->
-    <!--</mat-grid-list>-->
   </div>
   <div fxFlex></div>
 </div>
