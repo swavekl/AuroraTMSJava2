@@ -32,12 +32,11 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.ResourceUtils;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.ResourceLoader;
+import org.springframework.util.StreamUtils;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.net.MalformedURLException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -71,6 +70,9 @@ public class MembershipReportService {
 
     @Autowired
     private ClubService clubService;
+
+    @Autowired
+    ResourceLoader resourceLoader;
 
     // 11/08/2003 - mm/dd/yyyy
     private DateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
@@ -156,7 +158,8 @@ public class MembershipReportService {
             PdfFont font = PdfFontFactory.createFont(StandardFonts.TIMES_ROMAN);
             PdfFont fontBold = PdfFontFactory.createFont(StandardFonts.TIMES_BOLD);
 
-            File usattLogoFile = ResourceUtils.getFile("classpath:images/usatt-logo-horizontal.jpg");
+            Resource resource = resourceLoader.getResource("classpath:images/usatt-logo-horizontal.jpg");
+            byte[] imageBytes = StreamUtils.copyToByteArray(resource.getInputStream());
 
             PdfDocument pdfDocument = document.getPdfDocument();
 
@@ -169,7 +172,7 @@ public class MembershipReportService {
             for (ReportData reportData : reportDataList) {
                 int appOnPage = (count % 3) + 1;
                 renderMemberInformation (reportData, document, font, contactName, strTournamentDate);
-                renderFrame(canvas, document, pageSize, appOnPage, usattLogoFile);
+                renderFrame(canvas, document, pageSize, appOnPage, imageBytes);
 
                 count++;
                 if (count % 3 == 0) {
@@ -275,7 +278,7 @@ public class MembershipReportService {
     }
 
     /**
-     *
+     * @param s
      * @param canvas
      * @param document
      * @param pageSize
@@ -284,7 +287,7 @@ public class MembershipReportService {
      * @throws FileNotFoundException
      * @throws MalformedURLException
      */
-    private void renderFrame(PdfCanvas canvas, Document document, Rectangle pageSize, int appOnPage, File usattLogoFile) throws FileNotFoundException, MalformedURLException {
+    private void renderFrame(PdfCanvas canvas, Document document, Rectangle pageSize, int appOnPage, byte[] usattLogoFile) throws FileNotFoundException, MalformedURLException {
         // add border
         int spaceBetweenApps = 20;
         float width = pageSize.getWidth();
@@ -298,7 +301,7 @@ public class MembershipReportService {
         canvas.rectangle(frameRectangle);
         canvas.stroke();
 
-        ImageData usattLogoData = ImageDataFactory.create(usattLogoFile.getAbsolutePath());
+        ImageData usattLogoData = ImageDataFactory.create(usattLogoFile);
         float imageWidth = usattLogoData.getWidth() / 2;
         float imageHeight = usattLogoData.getHeight() / 2;
         float imageX = frameRectangle.getLeft() + 5;
