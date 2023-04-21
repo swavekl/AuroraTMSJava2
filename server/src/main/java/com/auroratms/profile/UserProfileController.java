@@ -87,6 +87,12 @@ public class UserProfileController extends AbstractOktaController {
                 // save mapping from Okta user profile id to USATT membership id
                 UserProfileExt userProfileExt = toUserProfileExt(userProfile);
                 userProfileExtService.save(userProfileExt);
+
+                UsattPlayerRecord usattPlayerRecord = playerRecordRepository.getFirstByMembershipId(userProfile.getMembershipId());
+                if (usattPlayerRecord != null) {
+                    usattPlayerRecord.setState(userProfile.getState());
+                    playerRecordRepository.save(usattPlayerRecord);
+                }
             }
         } catch (Exception e) {
             return new ResponseEntity(e.getMessage(), HttpStatus.NOT_FOUND);
