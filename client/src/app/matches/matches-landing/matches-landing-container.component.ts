@@ -63,8 +63,9 @@ export class MatchesLandingContainerComponent implements OnInit, OnDestroy {
         (tournaments: Tournament[]) => {
           const filteredTournaments: Tournament [] = [];
           const today: Date = this.todayService.todaysDate;
+          const dateUtils = new DateUtils();
           for (const tournament of tournaments) {
-              if (new DateUtils().isDateInRange (today, tournament.startDate, tournament.endDate)) {
+              if (dateUtils.isDateInRange (today, tournament.startDate, tournament.endDate)) {
                 filteredTournaments.push(tournament);
               }
           }

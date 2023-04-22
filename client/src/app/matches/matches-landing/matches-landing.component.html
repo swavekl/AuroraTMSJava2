@@ -1,16 +1,21 @@
 <app-centered-panel>
-  <p>Select Tournament to Enter scores for</p>
-  <mat-list>
-    <mat-list-item *ngFor="let tournament of tournaments">
-      <h3 matListItemTitle>{{tournament.name}}</h3>
-      <h3 matListItemLine>{{tournament.startDate | date }} - {{tournament.endDate | date }}</h3>
-      <h4 matListItemLine>{{ tournament.city }}, {{tournament.state}} </h4>
-      <button mat-raised-button type="button" style="margin-left: 20px;"
-              [routerLink]="['/ui/matches/scoreentry/', tournament.id]">
-        Select
-      </button>
-      <mat-divider></mat-divider>
-    </mat-list-item>
-  </mat-list>
+  <ng-container *ngIf="tournaments != null && tournaments.length === 0; else tournamentList">
+    You don't have any tournaments today.
+  </ng-container>
+  <ng-template #tournamentList>
+    <p>Select Tournament to Enter scores for</p>
+    <mat-list>
+      <mat-list-item *ngFor="let tournament of tournaments">
+        <h3 matListItemTitle>{{tournament.name}}</h3>
+        <h3 matListItemLine>{{tournament.startDate | date }} - {{tournament.endDate | date }}</h3>
+        <h4 matListItemLine>{{ tournament.city }}, {{tournament.state}} </h4>
+        <button mat-raised-button type="button" style="margin-left: 20px;"
+                [routerLink]="['/ui/matches/scoreentry/', tournament.id]">
+          Select
+        </button>
+        <mat-divider></mat-divider>
+      </mat-list-item>
+    </mat-list>
+  </ng-template>
 </app-centered-panel>
 

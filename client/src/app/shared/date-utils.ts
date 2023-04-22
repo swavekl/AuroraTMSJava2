@@ -86,7 +86,13 @@ export class DateUtils {
    * @param rangeEnd
    */
   isDateInRange(dateToTest: Date, rangeStart: Date, rangeEnd: Date): boolean {
-    return moment(rangeStart).twix(rangeEnd).contains(dateToTest);
+    const localStartMoment = moment(rangeStart);
+    const utcStartMoment = moment([localStartMoment.year(), localStartMoment.month(), localStartMoment.date(), 0, 0, 0]).utc();
+    const localEndMoment = moment(rangeEnd);
+    const utcEndMoment = moment([localEndMoment.year(), localEndMoment.month(), localEndMoment.date(), 0, 0, 0]).utc();
+    const localToTestMoment = moment(dateToTest);
+    const utcDateToTestMoment = moment([localToTestMoment.year(), localToTestMoment.month(), localToTestMoment.date(), 0, 0, 0]).utc();
+    return utcStartMoment <= utcDateToTestMoment && utcDateToTestMoment <= utcEndMoment;
   }
 
   /**
