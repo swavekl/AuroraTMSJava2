@@ -80,7 +80,6 @@ public class TournamentService {
      * @return
      */
     public Collection<Tournament> listDaysTournaments(Date date) {
-        System.out.println("listDaysTournaments for " + date);
         Collection<TournamentEntity> tournamentEntities = repository.findDaysTournaments(date).stream()
                 .collect(Collectors.toList());
         return toTournamentCollection(tournamentEntities);

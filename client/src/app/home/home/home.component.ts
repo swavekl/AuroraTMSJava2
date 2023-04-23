@@ -161,7 +161,8 @@ export class HomeComponent implements OnInit, OnDestroy {
     const profileId = this.authenticationService.getCurrentUserProfileId();
     if (profileId) {
       const today = this.todayService.todaysDate;
-      const params = `tournamentId=0&profileId=${profileId}&date=${today}`;
+      const utcToday = new DateUtils().convertFromLocalToUTCDate(today);
+      const params = `tournamentId=0&profileId=${profileId}&date=${utcToday}`;
       const subscription: Subscription = this.tournamentEntryService.getWithQuery(params)
         .pipe(
           first(),
