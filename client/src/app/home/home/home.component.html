@@ -1,6 +1,6 @@
 <app-centered-panel>
-  <h2 class="mat-headline-3">Hi,</h2>
-  <h1 class="mat-headline-2">{{ playerFirstName }}</h1>
+  <div class="mat-headline-4 salutation">Hi,</div>
+  <div class="mat-headline-4 salutation">{{ playerFirstName }}</div>
   <div *ngIf="!isProfileComplete(); else completedProfile" class="mat-body-1">
     <p>Your on-boarding process was not completed successfully.</p>
     <p style="margin-bottom: 20px">You must fill out your profile before you will be allowed to proceed further.</p>
@@ -14,7 +14,7 @@
       <p [style.color]="membershipExpired ? 'red' : 'green'">{{ membershipExpirationDate | date }}</p>
     </div>
     <div *ngIf="hasTournamentToday" fxLayout="column" fxLayoutAlign="center center" fxLayoutGap="20px">
-      <h2>You are playing in </h2>
+      <h2>Today you are playing in </h2>
       <div class="mat-headline-5">{{tournamentName}}</div>
       <!--    <button mat-raised-button color="primary" [routerLink]="todayService.todayUrl">-->
       <!--      See Details...-->

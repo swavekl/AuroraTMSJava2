@@ -5,10 +5,15 @@ button.icon-button {
   height: 80px;
   text-align: center;
   vertical-align: middle;
+  margin-top: 20px;
 
   mat-icon {
     font-size: 38px;
     height: 38px;
     width: 38px;
   }
+}
+
+.salutation {
+  margin-bottom: 24px !important;
 }
