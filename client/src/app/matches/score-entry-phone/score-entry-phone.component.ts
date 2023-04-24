@@ -108,12 +108,12 @@ export class ScoreEntryPhoneComponent implements OnInit, OnChanges {
     return hasNextGame;
   }
 
-  isAddDisabled(playerIndex: number) {
-    return (this.gameScoreSideB === 0 && this.gameScoreSideA === 0);
+  private isWinnerSelected(): boolean {
+    return !(this.gameScoreSideB === 0 && this.gameScoreSideA === 0);
   }
 
-  isSubtractDisabled(playerIndex: number) {
-    return (this.gameScoreSideB === 0 && this.gameScoreSideA === 0);
+  isSubtractDisabled() {
+    return !this.isWinnerSelected();
   }
 
   subtractPoint(playerIndex: number) {
@@ -125,15 +125,19 @@ export class ScoreEntryPhoneComponent implements OnInit, OnChanges {
   }
 
   addPoint(playerIndex: number) {
-    if (playerIndex === 0) {
-      this.gameScoreSideA++;
-      if (this.gameScoreSideA >= this.pointsPerGame + 1) {
-        this.gameScoreSideB = this.gameScoreSideA - 2;
-      }
+    if (!this.isWinnerSelected()) {
+      this.setWinner(playerIndex);
     } else {
-      this.gameScoreSideB++;
-      if (this.gameScoreSideB >= this.pointsPerGame + 1) {
-        this.gameScoreSideA = this.gameScoreSideB - 2;
+      if (playerIndex === 0) {
+        this.gameScoreSideA++;
+        if (this.gameScoreSideA >= this.pointsPerGame + 1) {
+          this.gameScoreSideB = this.gameScoreSideA - 2;
+        }
+      } else {
+        this.gameScoreSideB++;
+        if (this.gameScoreSideB >= this.pointsPerGame + 1) {
+          this.gameScoreSideA = this.gameScoreSideB - 2;
+        }
       }
     }
   }

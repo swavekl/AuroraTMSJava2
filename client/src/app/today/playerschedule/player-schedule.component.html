@@ -11,16 +11,25 @@
         <mat-list dense>
           <mat-divider></mat-divider>
           <mat-list-item *ngFor="let playerScheduleItem of daySchedule.playerScheduleItems; last as last; first as first"
-                          (click)="showScheduleDetail(playerScheduleItem.matchCardId)">
-            <div matListItemTitle>
-              <span style="font-weight: bold">{{ playerScheduleItem.startTime | startTime }}</span>&nbsp;&nbsp;
-              <span *ngIf="playerScheduleItem.assignedTables">{{ (playerScheduleItem.assignedTables.indexOf(',') !== -1) ? 'Tables:' : 'Table:'}} {{ playerScheduleItem.assignedTables}}</span>
-            </div>
-            <div matListItemLine>{{playerScheduleItem.eventName}}</div>
-              <div matListItemLine>
-                <span>{{ playerScheduleItem.round | roundName: playerScheduleItem.group }}</span>
-                <span *ngIf="playerScheduleItem.round === 0">, Group: {{playerScheduleItem.group}}</span>
+                          >
+            <div fxLayout="row">
+              <div fxLayout="column" fxFlex="90%">
+                <div matListItemTitle>
+                  <span style="font-weight: bold">{{ playerScheduleItem.startTime | startTime }}</span>&nbsp;&nbsp;
+                  <span
+                    *ngIf="playerScheduleItem.assignedTables">{{ (playerScheduleItem.assignedTables.indexOf(',') !== -1) ? 'Tables:' : 'Table:'}} {{ playerScheduleItem.assignedTables}}</span>
+                </div>
+                <div matListItemLine>{{playerScheduleItem.eventName}}</div>
+                <div matListItemLine>
+                  <span>{{ playerScheduleItem.round | roundName: playerScheduleItem.group }}</span>
+                  <span *ngIf="playerScheduleItem.round === 0">, Group: {{playerScheduleItem.group}}</span>
+                </div>
               </div>
+              <div fxFlex="10%" style="padding-top: 24px; cursor: pointer"
+                   (click)="showScheduleDetail(playerScheduleItem.matchCardId)">
+                <mat-icon matListItemIcon>chevron_right</mat-icon>
+              </div>
+            </div>
             <mat-divider></mat-divider>
           </mat-list-item>
         </mat-list>

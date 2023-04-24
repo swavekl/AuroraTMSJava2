@@ -1,36 +1,62 @@
+@use "src/my-theme.scss" as *;
+
 table.scores-table {
   //margin-left: 24px;
   margin-top: 16px;
   //border: 1px solid darkcyan;
+  width: 100%;
+  max-width: 400px;
 
   thead tr th {
     padding: 16px 4px;
     //border: 1px solid gray;
     background-color: #F5F5F5;
+
+    & button.game-prev-next-button {
+      background-color: white;
+    }
   }
 
   tbody tr {
     td {
       //border: 1px solid lightgray;
-      &.player-code-column {
-        padding: 8px 8px;
-        text-align: center;
-        vertical-align: middle;
-      }
+      &.player-code-and-name-cell {
+        font-size: 20px;
+        padding: 8px 0 8px 8px;
+        border-top: 1px solid gray;
+        border-bottom: 1px solid gray;
 
-      &.match-winner {
-        background-color: greenyellow;
-      }
+        & div.player-code {
+          //border: 1px solid red;
+          padding: 4px;
+          width: 20px;
+          text-align: center;
+        }
 
-      &.name-cell {
-        padding: 8px 8px;
-        //border: 1px solid blue;
-        text-align: left;
+        & div.player-name {
+          padding-left: 8px;
+          //border: 1px solid blue;
+        }
+
+        & div.match-winner {
+          background-color: greenyellow;
+          border-radius: 4px;
+        }
       }
 
       &.button-cell {
-        padding: 20px 10px;
+        padding: 20px 0;
+        text-align: center;
+        vertical-align: middle;
         //border: 1px solid lightgray;
+
+        & button.subtract-button {
+          background-color: white;
+        }
+
+        & button.add-button {
+          background-color: lighten($primary-color, 20%);
+        }
       }
 
       &.score-column {

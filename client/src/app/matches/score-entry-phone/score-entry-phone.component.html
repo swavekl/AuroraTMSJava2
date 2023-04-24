@@ -1,92 +1,89 @@
 <div fxLayout="column" fxFlexAlign="start center" style="height: 100%;">
   <div fxLayout="row" fxFlexAlign="center center">
-    <div fxFlex>&nbsp;</div>
-    <div>
-      <mat-toolbar>
-        <mat-toolbar-row>
+    <div>&nbsp;</div>
+    <div fxFlex>
+      <mat-toolbar fxLayoutGap="10px">
           <button mat-raised-button (click)="cancel()" style="margin-right: 10px">Cancel</button>
           <button mat-raised-button (click)="reset()">Reset</button>
           <span fxFlex></span>
           <button mat-raised-button color="primary" (click)="save()" [disabled]="!isScoreValid()">Save</button>
-        </mat-toolbar-row>
       </mat-toolbar>
-      <div style="text-align: center">Touch winning player name or team first</div>
       <table class="scores-table" *ngIf="match">
         <thead>
         <tr>
-          <th colSpan="5" class="mat-headline-5">
+          <th>
+            <button type="button" mat-fab color="" class="game-prev-next-button" (click)="previousGame()" [disabled]="!hasPreviousGame()"><mat-icon>skip_previous</mat-icon></button>
+          </th>
+          <th class="mat-headline-6">
             Game: {{gameToShowIndex + 1}}
+          </th>
+          <th>
+            <button type="button" mat-fab color="" class="game-prev-next-button" (click)="nextGame()" [disabled]="!hasNextGame()"><mat-icon>skip_next</mat-icon></button>
           </th>
         </tr>
         </thead>
         <tbody>
-        <ng-container *ngIf="doubles; else singlesPlayerAName">
-          <tr>
-            <td rowspan="2" class="player-code-column"
-                [ngClass]="isMatchWinner(match.playerAProfileId) ? 'match-winner' : ''">
-              {{match.playerALetter}}</td>
-            <td colSpan="4" class="name-cell" (click)="setWinner(0)">{{getDoublesPlayerName(playerAName, 0)}}</td>
-          </tr>
-          <tr>
-            <td colSpan="4" class="name-cell" (click)="setWinner(0)">{{getDoublesPlayerName(playerAName, 1)}}</td>
-          </tr>
-        </ng-container>
-        <ng-template #singlesPlayerAName>
-          <tr>
-            <td class="player-code-column"
-                [ngClass]="isMatchWinner(match.playerAProfileId) ? 'match-winner' : ''">
-              {{match.playerALetter}}</td>
-            <td colSpan="4" class="name-cell" (click)="setWinner(0)">{{playerAName}}</td>
-          </tr>
-        </ng-template>
         <tr>
-          <td rowspan="2" class="previous-next-button button-cell">
-            <button type="button" mat-fab color="" (click)="previousGame()" [disabled]="!hasPreviousGame()"><mat-icon>skip_previous</mat-icon></button>
+          <td colspan="3" class="player-code-and-name-cell">
+            <div fxLayout="row" fxLayoutAlign="start center">
+              <div class="player-code" [ngClass]="isMatchWinner(match.playerAProfileId) ? 'match-winner' : ''">{{match.playerALetter}}</div>
+              <div class="player-name" fxLayout="column" fxLayoutAlign="start stretch" fxLayoutGap="4px">
+                <ng-container *ngIf="doubles; else singlesPlayerAName">
+                  <div>{{getDoublesPlayerName(playerAName, 0)}}</div>
+                  <div>{{getDoublesPlayerName(playerAName, 1)}}</div>
+                </ng-container>
+                <ng-template #singlesPlayerAName>
+                  <div>{{playerAName}}</div>
+                </ng-template>
+              </div>
+            </div>
           </td>
+        </tr>
+
+        <tr>
           <td class="button-cell">
-            <button type="button" mat-fab color="" (click)="subtractPoint(0)" [disabled]="isSubtractDisabled(0)"><mat-icon>remove</mat-icon></button>
+            <button type="button" mat-fab color="" class="subtract-button" (click)="subtractPoint(0)" [disabled]="isSubtractDisabled()"><mat-icon>remove</mat-icon></button>
           </td>
           <td class="score-column">
             {{gameScoreSideA}}
           </td>
           <td class="button-cell">
-            <button type="button" mat-fab color="" (click)="addPoint(0)" [disabled]="isAddDisabled(0)"><mat-icon>add</mat-icon></button>
-          </td>
-          <td rowspan="2" class="previous-next-button button-cell">
-            <button type="button" mat-fab color="" (click)="nextGame()" [disabled]="!hasNextGame()"><mat-icon>skip_next</mat-icon></button>
+            <button type="button" mat-fab color="" class="add-button" (click)="addPoint(0)"><mat-icon>add</mat-icon></button>
           </td>
         </tr>
         <tr>
           <td class="button-cell">
-            <button type="button" mat-fab color="" (click)="subtractPoint(1)" [disabled]="isSubtractDisabled(1)"><mat-icon>remove</mat-icon></button>
+            <button type="button" mat-fab color="" class="subtract-button" (click)="subtractPoint(1)" [disabled]="isSubtractDisabled()"><mat-icon>remove</mat-icon></button>
           </td>
           <td class="score-column">
             {{gameScoreSideB}}
           </td>
           <td class="button-cell">
-            <button type="button" mat-fab color="" (click)="addPoint(1)" [disabled]="isAddDisabled(1)"><mat-icon>add</mat-icon></button>
+            <button type="button" mat-fab color="" class="add-button" (click)="addPoint(1)"><mat-icon>add</mat-icon></button>
           </td>
         </tr>
-        <ng-container *ngIf="doubles; else singlesPlayerBName">
-          <tr>
-            <td rowspan="2" class="player-code-column" [ngClass]="isMatchWinner(match.playerBProfileId) ? 'match-winner' : ''">
-              {{match.playerBLetter}}</td>
-            <td colSpan="4" class="name-cell" (click)="setWinner(1)">{{getDoublesPlayerName(playerBName, 0)}}</td>
-          </tr>
-          <tr>
-            <td colSpan="4" class="name-cell" (click)="setWinner(1)">{{getDoublesPlayerName(playerBName, 1)}}</td>
-          </tr>
-        </ng-container>
-        <ng-template #singlesPlayerBName>
-          <tr>
-            <td class="player-code-column" [ngClass]="isMatchWinner(match.playerBProfileId) ? 'match-winner' : ''">{{match.playerBLetter}}</td>
-            <td colSpan="4" class="name-cell" (click)="setWinner(1)">{{playerBName}}</td>
-          </tr>
-        </ng-template>
+        <tr>
+          <td colspan="3" class="player-code-and-name-cell">
+            <div fxLayout="row" fxLayoutAlign="start center">
+              <div class="player-code" [ngClass]="isMatchWinner(match.playerBProfileId) ? 'match-winner' : ''">
+                {{match.playerBLetter}}
+              </div>
+              <div class="player-name" fxLayout="column" fxLayoutAlign="start stretch" fxLayoutGap="4px">
+                <ng-container *ngIf="doubles; else singlesPlayerBName">
+                  <div>{{getDoublesPlayerName(playerBName, 0)}}</div>
+                  <div>{{getDoublesPlayerName(playerBName, 1)}}</div>
+                </ng-container>
+                <ng-template #singlesPlayerBName>
+                  <div>{{playerBName}}</div>
+                </ng-template>
+              </div>
+            </div>
+          </td>
+        </tr>
         </tbody>
       </table>
     </div>
-    <div fxFlex>&nbsp;</div>
+    <div>&nbsp;</div>
   </div>
 </div>
 
