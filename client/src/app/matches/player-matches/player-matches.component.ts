@@ -47,6 +47,9 @@ export class PlayerMatchesComponent implements OnInit, OnChanges {
   public back: EventEmitter<any> = new EventEmitter<any>();
 
   @Output()
+  public enterMatchScore: EventEmitter<any> = new EventEmitter<any>();
+
+  @Output()
   public updateMatch: EventEmitter<Match> = new EventEmitter<Match>();
 
   // array so we can use iteration in the template
@@ -208,5 +211,9 @@ export class PlayerMatchesComponent implements OnInit, OnChanges {
     // console.log('updatedMatch.sideBDefaulted', updatedMatch.sideBDefaulted);
     // console.log('updatedMatch', updatedMatch);
     this.updateMatch.emit(updatedMatch);
+  }
+
+  public onEnterScore(matchIndex: number) {
+    this.enterMatchScore.emit({matchIndex: matchIndex});
   }
 }

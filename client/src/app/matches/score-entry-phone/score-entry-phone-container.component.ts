@@ -36,6 +36,7 @@ export class ScoreEntryPhoneContainerComponent implements OnInit, OnDestroy {
   private matchIndex: number;
   public numberOfGames: number;
   public pointsPerGame: number;
+  private returnUrl: string;
 
   public doubles: boolean;
   private subscriptions: Subscription = new Subscription();
@@ -46,9 +47,12 @@ export class ScoreEntryPhoneContainerComponent implements OnInit, OnDestroy {
               private matchService: MatchService,
               private router: Router) {
     this.tournamentId = this.activatedRoute.snapshot.params['tournamentId'] || 0;
+    const tournamentDay = this.activatedRoute.snapshot.params['tournamentDay'] || 1;
+    const tournamentEntryId = this.activatedRoute.snapshot.params['tournamentEntryId'] || 0;
     this.matchCardId = this.activatedRoute.snapshot.params['matchCardId'] || 0;
     this.matchIndex = this.activatedRoute.snapshot.params['matchIndex'] || 0;
     this.doubles = (history?.state?.doubles === true);
+    this.returnUrl = `/ui/matches/playermatches/${this.tournamentId}/${tournamentDay}/${tournamentEntryId}/${this.matchCardId}`;
     this.pointsPerGame = 11;
     this.numberOfGames = 5;
     this.setupProgressIndicator();
@@ -90,11 +94,11 @@ export class ScoreEntryPhoneContainerComponent implements OnInit, OnDestroy {
         // get from the server if not cached yet
         this.matchCardService.getByKey(matchCardId);
       } else {
-        console.log('get match card from cache');
+        // console.log('get match card from cache');
         const allMatches = matchCard.matches;
         if (this.matchIndex < allMatches.length) {
           const match = allMatches[matchIndex];
-          console.log('cloning match');
+          // console.log('cloning match');
           const cloneOfMatch = JSON.parse(JSON.stringify(match));
           this.match$ = of(cloneOfMatch);
           // console.log('match is', match);
@@ -122,13 +126,12 @@ export class ScoreEntryPhoneContainerComponent implements OnInit, OnDestroy {
   }
 
   private backToMatchCard() {
-    const url = `/ui/matches/playermatches/${this.tournamentId}/${this.matchCardId}`;
     const extras = {
       state: {
         doubles: this.doubles,
         matchIndex: this.matchIndex
       }
     };
-    this.router.navigateByUrl(url, extras);
+    this.router.navigateByUrl(this.returnUrl, extras);
   }
 }

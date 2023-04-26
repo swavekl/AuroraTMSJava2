@@ -14,7 +14,9 @@ import {TournamentInfo} from '../../tournament/model/tournament-info.model';
   template: `
     <app-player-schedule
       [playerScheduleItems]="playerScheduleItems$ | async"
-      [tournamentInfo]="tournamentInfo">
+      [tournamentInfo]="tournamentInfo"
+      [tournamentDay]="tournamentDay"
+      [tournamentEntryId]="tournamentEntryId">
     </app-player-schedule>
   `,
   styles: []
@@ -22,7 +24,9 @@ import {TournamentInfo} from '../../tournament/model/tournament-info.model';
 export class PlayerScheduleContainerComponent implements OnInit, OnDestroy {
 
   // tournament entry id for this player
-  private tournamentEntryId: number;
+  public tournamentEntryId: number;
+
+  public tournamentDay: number;
 
   public tournamentInfo: TournamentInfo;
 
@@ -40,6 +44,7 @@ export class PlayerScheduleContainerComponent implements OnInit, OnDestroy {
               private linearProgressBarService: LinearProgressBarService) {
     const tournamentId = this.activatedRoute.snapshot.params['tournamentId'] || 0;
     this.tournamentEntryId = this.activatedRoute.snapshot.params['tournamentEntryId'] || 0;
+    this.tournamentDay = this.activatedRoute.snapshot.params['tournamentDay'] || 1;
     this.setupProgressIndicator();
     this.loadTournamentInfo(tournamentId);
     this.loadPlayerSchedule();

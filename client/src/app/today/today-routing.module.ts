@@ -23,7 +23,7 @@ const routes: Routes = [
     canActivate: [AuthGuard]
   },
   {
-    path: 'playerscheduledetail/:tournamentId/:matchCardId',
+    path: 'playerscheduledetail/:tournamentId/:tournamentDay/:tournamentEntryId/:matchCardId',
     component: PlayerScheduleDetailContainerComponent,
     canActivate: [AuthGuard]
   }

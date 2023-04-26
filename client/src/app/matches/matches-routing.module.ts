@@ -31,7 +31,7 @@ const routes: Routes = [
     }
   },
   {
-    path: 'playermatches/:tournamentId/:matchCardId',
+    path: 'playermatches/:tournamentId/:tournamentDay/:tournamentEntryId/:matchCardId',
     component: PlayerMatchesContainerComponent,
     canActivate: [AuthGuard],
     data: {
@@ -39,7 +39,7 @@ const routes: Routes = [
     }
   },
   {
-    path: 'scoreentryphone/:tournamentId/:matchCardId/:matchIndex',
+    path: 'scoreentryphone/:tournamentId/:tournamentDay/:tournamentEntryId/:matchCardId/:matchIndex',
     component: ScoreEntryPhoneContainerComponent,
     canActivate: [AuthGuard],
     data: {

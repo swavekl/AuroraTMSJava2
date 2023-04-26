@@ -24,7 +24,8 @@ import {Match} from '../model/match.model';
       [pointsPerGame]="pointsPerGame"
       [expandedMatchIndex]="expandedMatchIndex"
       (updateMatch)="onUpdateMatch($event)"
-      (back)="onGoBack()">
+      (back)="onGoBack()"
+      (enterMatchScore)="onEnterScore($event)">
     </app-player-matches>
   `,
   styles: []
@@ -44,6 +45,10 @@ export class PlayerMatchesContainerComponent implements OnInit, OnDestroy {
   public pointsPerGame: number;
 
   public tournamentId: number;
+  public tournamentEntryId: number;
+  public tournamentDay: number;
+
+  private returnUrl: string;
 
   private tournamentEvent$: Observable<TournamentEvent>;
 
@@ -56,9 +61,12 @@ export class PlayerMatchesContainerComponent implements OnInit, OnDestroy {
               private tournamentEventConfigService: TournamentEventConfigService,
               private router: Router) {
     this.tournamentId = this.activatedRoute.snapshot.params['tournamentId'] || 0;
+    this.tournamentDay = this.activatedRoute.snapshot.params['tournamentDay'] || 1;
+    this.tournamentEntryId = this.activatedRoute.snapshot.params['tournamentEntryId'] || 0;
     this.matchCardId = this.activatedRoute.snapshot.params['matchCardId'] || 0;
     this.doubles = (history?.state?.doubles === true);
     this.expandedMatchIndex = isNaN(history?.state?.matchIndex) ? 0 : parseInt(history.state.matchIndex, 10);
+    this.returnUrl = `/ui/today/playerscheduledetail/${this.tournamentId}/${this.tournamentDay}/${this.tournamentEntryId}/${this.matchCardId}`;
     this.pointsPerGame = 11;
     this.setupProgressIndicator();
     this.loadMatchesInformation(this.matchCardId);
@@ -128,11 +136,11 @@ export class PlayerMatchesContainerComponent implements OnInit, OnDestroy {
     this.tournamentEvent$ = this.tournamentEventConfigService.store.select(selectedEntrySelector);
     const subscription = this.tournamentEvent$.subscribe((tournamentEvent: TournamentEvent) => {
       if (tournamentEvent == null) {
-        console.log('loading events from server for tournament ' + tournamentId);
+        // console.log('loading events from server for tournament ' + tournamentId);
         // get from the server if not cached yet
         this.tournamentEventConfigService.loadTournamentEvents(tournamentId).pipe(first()).subscribe();
       } else {
-        console.log('got event from cache');
+        // console.log('got event from cache');
         this.pointsPerGame = tournamentEvent.pointsPerGame;
         this.tournamentId = tournamentEvent.tournamentFk;
         this.doubles = tournamentEvent.doubles;
@@ -142,7 +150,16 @@ export class PlayerMatchesContainerComponent implements OnInit, OnDestroy {
   }
 
   onGoBack() {
-    const url = `/ui/today/playerscheduledetail/${this.tournamentId}/${this.matchCardId}`;
+    const extras = {
+      state: {
+        doubles: this.doubles
+      }
+    };
+    this.router.navigateByUrl(this.returnUrl, extras);
+  }
+
+  onEnterScore(event) {
+    const url = `/ui/matches/scoreentryphone/${this.tournamentId}/${this.tournamentDay}/${this.tournamentEntryId}/${this.matchCardId}/${event.matchIndex}`;
     const extras = {
       state: {
         doubles: this.doubles
@@ -155,7 +172,7 @@ export class PlayerMatchesContainerComponent implements OnInit, OnDestroy {
     const subscription = this.matchService.update(updatedMatch)
       .pipe(first())
       .subscribe((match: Match) => {
-        console.log('Finished updating match', match);
+        // console.log('Finished updating match', match);
         this.matchCardService.getByKey(this.matchCardId);
     });
     this.subscriptions.add(subscription);

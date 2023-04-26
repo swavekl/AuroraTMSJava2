@@ -8,10 +8,7 @@
         <span fxFlex></span>
         <button mat-raised-button *ngIf="isPerEventCheckIn()"
                 (click)="checkInForEvent()">Event Check-In</button>
-        <button mat-raised-button color="primary"
-                [routerLink]="['/ui/matches/playermatches/', tournamentId, playerScheduleItem.matchCardId]"
-                [state]="{doubles: playerScheduleItem.doubles}">
-          Matches</button>
+        <button mat-raised-button color="primary" (click)="goToMatches(playerScheduleItem)">Matches</button>
       </div>
     </mat-toolbar>
     <mat-card appearance="outlined">

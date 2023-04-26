@@ -14,8 +14,10 @@ import {CheckInType} from '../../tournament/model/check-in-type.enum';
   template: `
     <app-player-schedule-detail [playerScheduleItem]="playerScheduleItem$ | async"
                                 [checkInType]="checkInType"
-    [returnUrl]="returnUrl"
-    [tournamentId]="tournamentId">
+                                [returnUrl]="returnUrl"
+                                [tournamentId]="tournamentId"
+                                [tournamentEntryId]="tournamentEntryId"
+                                [tournamentDay]="tournamentDay">
     </app-player-schedule-detail>
   `,
   styles: [
@@ -30,6 +32,8 @@ export class PlayerScheduleDetailContainerComponent implements OnInit, OnDestroy
   private subscriptions: Subscription = new Subscription();
 
   public tournamentId: number;
+  public tournamentEntryId: number;
+  public tournamentDay: number;
 
   loading$: Observable<boolean>;
 
@@ -40,8 +44,10 @@ export class PlayerScheduleDetailContainerComponent implements OnInit, OnDestroy
               private playerScheduleService: PlayerScheduleService,
               private tournamentInfoService: TournamentInfoService) {
     this.tournamentId = this.activatedRoute.snapshot.params['tournamentId'] || 0;
+    this.tournamentDay = this.activatedRoute.snapshot.params['tournamentDay'] || 0;
+    this.tournamentEntryId = this.activatedRoute.snapshot.params['tournamentEntryId'] || 0;
     const matchCardId = this.activatedRoute.snapshot.params['matchCardId'] || 0;
-    this.returnUrl = history.state?.returnUrl || '/ui/home';
+    this.returnUrl = history.state?.returnUrl || `/ui/today/playerschedule/${this.tournamentId}/${this.tournamentDay}/${this.tournamentEntryId}`;
     this.setupProgressIndicator();
     this.loadPlayerScheduleDetail(matchCardId);
     this.loadTournamentInfo(this.tournamentId);
@@ -88,10 +94,10 @@ export class PlayerScheduleDetailContainerComponent implements OnInit, OnDestroy
     const tournamentInfo$ = this.tournamentInfoService.store.select(selectedTournamentSelector);
     const subscription = tournamentInfo$.subscribe((tournamentInfo: TournamentInfo) => {
       if (tournamentInfo) {
-        console.log('got tournament info from cache');
+        // console.log('got tournament info from cache');
         this.checkInType = tournamentInfo.checkInType;
       } else {
-        console.log('tournamentInfo not in cache. getting from SERVER');
+        // console.log('tournamentInfo not in cache. getting from SERVER');
         // not in cache so get it. Since it is an entity collection it will be
         // piped to the above selector and processed by if branch
         this.tournamentInfoService.getByKey(tournamentId);

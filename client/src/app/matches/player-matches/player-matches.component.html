@@ -14,9 +14,10 @@
               <ng-container *ngIf="doubles; else singles">
                 <tr>
                   <td rowspan="4" class="match-num-column">{{matchIndex + 1}}</td>
-                  <td rowspan="2" class="player-code-column"
-                      [ngClass]="isMatchWinner(match, match.playerAProfileId) ? 'match-winner' : 'not-match-winner'">
-                    {{match.playerALetter}}
+                  <td rowspan="2" class="player-code-column">
+                    <div [ngClass]="isMatchWinner(match, match.playerAProfileId) ? 'match-winner' : 'not-match-winner'">
+                      {{match.playerALetter}}
+                    </div>
                   </td>
                   <td [ngClass]="isDoublesPlayerNameBolded(match.playerAProfileId, 0) ? 'names-column-this-player' : 'names-column'">
                     {{getDoublesPlayerName(match.playerAProfileId, 0)}}
@@ -28,9 +29,10 @@
                   </td>
                 </tr>
                 <tr>
-                  <td rowspan="2" class="player-code-column"
-                      [ngClass]="isMatchWinner(match, match.playerBProfileId) ? 'match-winner' : 'not-match-winner'">
-                    {{match.playerBLetter}}
+                  <td rowspan="2" class="player-code-column">
+                    <div [ngClass]="isMatchWinner(match, match.playerBProfileId) ? 'match-winner' : 'not-match-winner'">
+                      {{match.playerBLetter}}
+                    </div>
                   </td>
                   <td
                     [ngClass]="isDoublesPlayerNameBolded(match.playerBProfileId, 0) ? 'names-column-this-player' : 'names-column'">
@@ -47,15 +49,21 @@
               <ng-template #singles>
                 <tr>
                   <td rowspan="2" class="match-num-column">{{matchIndex + 1}}</td>
-                  <td class="player-code-column"
-                      [ngClass]="isMatchWinner(match, match.playerAProfileId) ? 'match-winner' : 'not-match-winner'">{{match.playerALetter}}</td>
+                  <td class="player-code-column">
+                    <div [ngClass]="isMatchWinner(match, match.playerAProfileId) ? 'match-winner' : 'not-match-winner'">
+                      {{match.playerALetter}}
+                    </div>
+                  </td>
                   <td [ngClass]="isNameBolded(match.playerAProfileId) ? 'names-column-this-player' : 'names-column'">
                     {{getPlayerName(match.playerAProfileId)}}
                   </td>
                 </tr>
                 <tr>
-                  <td class="player-code-column"
-                      [ngClass]="isMatchWinner(match, match.playerBProfileId) ? 'match-winner' : 'not-match-winner'">{{match.playerBLetter}}</td>
+                  <td class="player-code-column">
+                    <div [ngClass]="isMatchWinner(match, match.playerBProfileId) ? 'match-winner' : 'not-match-winner'">
+                      {{match.playerBLetter}}
+                    </div>
+                  </td>
                   <td [ngClass]="isNameBolded(match.playerBProfileId) ? 'names-column-this-player' : 'names-column'">
                     {{getPlayerName(match.playerBProfileId)}}
                   </td>
@@ -125,9 +133,7 @@
             <td [colSpan]="games.length + 2">
               <div fxLayout="row" fxLayoutAlign="end start" style="width: 100%; margin-top: 16px;">
                 <button mat-raised-button color="primary" *ngIf="isPlayerMatch(match)"
-                        [disabled]="!isPlayerMatch(match)"
-                        [routerLink]="['/ui/matches/scoreentryphone', tournamentId, matchCard.id, matchIndex]"
-                        [state]="{doubles: doubles}">
+                        [disabled]="!isPlayerMatch(match)" (click)="onEnterScore(matchIndex)">
                   Enter Score
                 </button>
               </div>

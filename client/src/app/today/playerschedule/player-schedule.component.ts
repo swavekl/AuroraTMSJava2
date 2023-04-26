@@ -19,6 +19,12 @@ export class PlayerScheduleComponent implements OnInit, OnChanges {
   @Input()
   tournamentInfo: TournamentInfo;
 
+  @Input()
+  tournamentEntryId: number;
+
+  @Input()
+  tournamentDay: number;
+
   playerDaySchedules: PlayerDaySchedule[] = [];
 
   tournamentStartDate: Date;
@@ -78,7 +84,7 @@ export class PlayerScheduleComponent implements OnInit, OnChanges {
 
   showScheduleDetail(matchCardId: number) {
     const returnUrl = window.location.pathname;
-    const url = `/ui/today/playerscheduledetail/${this.tournamentInfo.id}/${matchCardId}`;
+    const url = `/ui/today/playerscheduledetail/${this.tournamentInfo.id}/${this.tournamentDay}/${this.tournamentEntryId}/${matchCardId}`;
     const extras = {
       state: {
         returnUrl:  returnUrl

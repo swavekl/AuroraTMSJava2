@@ -23,6 +23,12 @@ export class PlayerScheduleDetailComponent implements OnInit, OnChanges {
   public tournamentId: number;
 
   @Input()
+  public tournamentEntryId: number;
+
+  @Input()
+  public tournamentDay: number;
+
+  @Input()
   public checkInType: CheckInType;
 
   constructor(private router: Router,
@@ -113,5 +119,15 @@ export class PlayerScheduleDetailComponent implements OnInit, OnChanges {
         duration: 3000
       });
     }
+  }
+
+  public goToMatches(playerScheduleItem) {
+    const url = `/ui/matches/playermatches/${this.tournamentId}/${this.tournamentDay}/${this.tournamentEntryId}/${playerScheduleItem.matchCardId}`;
+    const extras = {
+      state: {
+        doubles: playerScheduleItem.doubles
+      }
+    };
+    this.router.navigateByUrl(url, extras);
   }
 }
