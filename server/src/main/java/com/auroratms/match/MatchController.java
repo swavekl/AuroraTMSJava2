@@ -1,6 +1,8 @@
 package com.auroratms.match;
 
 import com.auroratms.match.notification.MatchEventPublisher;
+import com.auroratms.profile.UserProfileService;
+import com.auroratms.users.UserRolesHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,6 +26,9 @@ public class MatchController {
 
     @Autowired
     private MatchEventPublisher matchEventPublisher;
+
+    @Autowired
+    private UserProfileService userProfileService;
 
     /**
      * Gets match score
@@ -59,6 +64,10 @@ public class MatchController {
     public ResponseEntity<Match> updateMatch(@RequestBody Match match,
                                              @PathVariable String matchId) {
         try {
+            // record user who made the change
+            String currentUserName = UserRolesHelper.getCurrentUsername();
+            String profileByLoginId = userProfileService.getProfileByLoginId(currentUserName);
+            match.setScoreEnteredByProfileId(profileByLoginId);
             Match matchBeforeUpdate = matchService.getMatch(match.getId());
             Match updatedMatch = matchService.updateMatch(match);
             this.matchEventPublisher.publishMatchEvent(matchBeforeUpdate, updatedMatch);

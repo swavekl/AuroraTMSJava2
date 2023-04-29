@@ -7,7 +7,7 @@ import {createSelector} from '@ngrx/store';
 import {MatchCard} from '../model/match-card.model';
 import {TournamentEventConfigService} from '../../tournament/tournament-config/tournament-event-config.service';
 import {TournamentEvent} from '../../tournament/tournament-config/tournament-event.model';
-import {first} from 'rxjs/operators';
+import {first, tap} from 'rxjs/operators';
 import {MatchService} from '../service/match.service';
 import {Match} from '../model/match.model';
 
@@ -100,24 +100,15 @@ export class PlayerMatchesContainerComponent implements OnInit, OnDestroy {
    * @private
    */
   private loadMatchesInformation(matchCardId: number) {
-    this.matchCardService.store.select(this.matchCardService.selectors.selectLoading);
-    const selectedEntrySelector = createSelector(
-      this.matchCardService.selectors.selectEntityMap,
-      (entityMap) => {
-        return entityMap[matchCardId];
-      });
-    this.matchCard$ = this.matchCardService.store.select(selectedEntrySelector);
-    const subscription = this.matchCard$.subscribe((matchCard: MatchCard) => {
-      if (matchCard == null) {
-        // console.log('requesting match card from server');
-        // get from the server if not cached yet
-        this.matchCardService.getByKey(matchCardId);
-      } else {
-        // console.log('got match card');
-        this.loadEventInformation(this.tournamentId, matchCard.eventFk);
-      }
-    });
-    this.subscriptions.add(subscription);
+    // always load the match card information so it is up to date
+    // this is to detect if a player started entering scores to prevent the other player from overwriting it
+    this.matchCard$ = this.matchCardService.getByKey(matchCardId)
+      .pipe(
+        tap((matchCard: MatchCard) => {
+          // console.log('loading event information for event ', matchCard.eventFk);
+          this.loadEventInformation(this.tournamentId, matchCard.eventFk);
+        return matchCard;
+    }));
   }
 
   /**

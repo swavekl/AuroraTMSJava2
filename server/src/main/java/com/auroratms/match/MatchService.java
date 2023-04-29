@@ -57,6 +57,7 @@ public class MatchService {
             match.setSideAServesFirst(updatedMatch.isSideAServesFirst());
             match.setSideATimeoutTaken(updatedMatch.isSideATimeoutTaken());
             match.setSideBTimeoutTaken(updatedMatch.isSideBTimeoutTaken());
+            match.setScoreEnteredByProfileId(updatedMatch.getScoreEnteredByProfileId());
             return this.matchRepository.saveAndFlush(match);
         } catch (Exception e) {
             throw new ResourceUpdateFailedException("Unable to update updatedMatch results");

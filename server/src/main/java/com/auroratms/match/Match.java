@@ -83,6 +83,9 @@ public class Match implements Serializable {
     @Column(nullable = true)
     private byte game7ScoreSideB;
 
+    @Column()
+    private String scoreEnteredByProfileId;  // profile id of player who entered score or null
+
     // letters A vs D, B vs C etc. codes for each player
     private Character playerALetter;
     private Character playerBLetter;

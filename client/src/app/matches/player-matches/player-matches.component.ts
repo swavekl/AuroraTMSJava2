@@ -34,7 +34,6 @@ export class PlayerMatchesComponent implements OnInit, OnChanges {
   @Input()
   public pointsPerGame: number;
 
-  @Input()
   private thisPlayerProfileId: string;
 
   @Input()
@@ -134,32 +133,40 @@ export class PlayerMatchesComponent implements OnInit, OnChanges {
    * @param playerIndex index of player to default
    */
   defaultPlayer(match: Match, matchIndex: number, playerIndex: number) {
-    if (this.isMatchEntryStarted(match)) {
-      const profileIds = (playerIndex === 0) ? match.playerAProfileId : match.playerBProfileId;
-      const playerNames: string = this.matchCard.profileIdToNameMap[profileIds];
-      const message = `${playerNames} is about to be defaulted. Defaulting will set all game scores to 0 and it can't be undone.  Press \'OK\' to proceed or 'Cancel' to abort.`;
-      const config = {
-        width: '450px', height: '230px', data: {
-          message: message, contentAreaHeight: 140
-        }
-      };
-      const dialogRef = this.dialog.open(ConfirmationPopupComponent, config);
-      dialogRef.afterClosed().subscribe(result => {
-        if (result === 'ok') {
-          this.proceedWithDefaulting(match, playerIndex);
-        } else {
-          // revert toggle
-          const checkboxId = this.getCheckboxId(matchIndex, playerIndex);
-          this.defaultCheckboxElementRefs.forEach((matCheckbox: MatCheckbox) => {
-            if (matCheckbox.id === checkboxId) {
-              matCheckbox.toggle();
-            }
-          });
-        }
-      });
+    if (!this.canChangeScore(match)) {
+      this.revertToggle(matchIndex, playerIndex);
     } else {
-      this.proceedWithDefaulting(match, playerIndex);
+      if (this.isMatchEntryStarted(match)) {
+        const profileIds = (playerIndex === 0) ? match.playerAProfileId : match.playerBProfileId;
+        const playerNames: string = this.matchCard.profileIdToNameMap[profileIds];
+        const message = `${playerNames} is about to be defaulted. Defaulting will set all game scores to 0 and it can't be undone.  Press \'OK\' to proceed or 'Cancel' to abort.`;
+        const config = {
+          width: '450px', height: '260px', data: {
+            message: message, contentAreaHeight: 140
+          }
+        };
+        const dialogRef = this.dialog.open(ConfirmationPopupComponent, config);
+        dialogRef.afterClosed().subscribe(result => {
+          if (result === 'ok') {
+            this.proceedWithDefaulting(match, playerIndex);
+          } else {
+            this.revertToggle(matchIndex, playerIndex);
+          }
+        });
+      } else {
+        this.proceedWithDefaulting(match, playerIndex);
+      }
     }
+  }
+
+  private revertToggle(matchIndex: number, playerIndex: number) {
+    // revert toggle
+    const checkboxId = this.getCheckboxId(matchIndex, playerIndex);
+    this.defaultCheckboxElementRefs.forEach((matCheckbox: MatCheckbox) => {
+      if (matCheckbox.id === checkboxId) {
+        matCheckbox.toggle();
+      }
+    });
   }
 
   /**
@@ -213,7 +220,27 @@ export class PlayerMatchesComponent implements OnInit, OnChanges {
     this.updateMatch.emit(updatedMatch);
   }
 
+  canChangeScore(match: Match): boolean {
+    const canChange = (match?.scoreEnteredByProfileId == null || match?.scoreEnteredByProfileId === this.thisPlayerProfileId);
+    if (!canChange) {
+      const message = `You can't enter/change score because, another player or tournament official already started entering score.`;
+      const config = {
+        width: '300px', height: '240px', data: { title: 'Error',
+          message: message, contentAreaHeight: 80, showCancel: false,
+          okText: 'Close'
+        }
+      };
+      const dialogRef = this.dialog.open(ConfirmationPopupComponent, config);
+      dialogRef.afterClosed().subscribe(result => {
+      });
+    }
+    return canChange;
+  }
+
   public onEnterScore(matchIndex: number) {
-    this.enterMatchScore.emit({matchIndex: matchIndex});
+    const match = this.matchCard?.matches[matchIndex];
+    if (this.canChangeScore(match)) {
+      this.enterMatchScore.emit({matchIndex: matchIndex});
+    }
   }
 }

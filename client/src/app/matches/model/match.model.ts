@@ -44,6 +44,9 @@ export class Match {
   game7ScoreSideA: number;
   game7ScoreSideB: number;
 
+  // profile id of player who entered score or null
+  scoreEnteredByProfileId: string;
+
   // left (A) side and right (B) side letter code for player in a group e.g. A, B, C, D etc.
   playerALetter: string;
   playerBLetter: string;
