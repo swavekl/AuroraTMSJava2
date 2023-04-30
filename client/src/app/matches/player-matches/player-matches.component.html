@@ -133,6 +133,7 @@
             <td [colSpan]="games.length + 2">
               <div fxLayout="row" fxLayoutAlign="end start" style="width: 100%; margin-top: 16px;">
                 <button mat-raised-button color="primary" *ngIf="isPlayerMatch(match)"
+                        [style.display]="isEventStarted() ? 'block' : 'none'"
                         [disabled]="!isPlayerMatch(match)" (click)="onEnterScore(matchIndex)">
                   Enter Score
                 </button>

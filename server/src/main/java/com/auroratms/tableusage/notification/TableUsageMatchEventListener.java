@@ -5,6 +5,7 @@ import com.auroratms.event.TournamentEventEntityService;
 import com.auroratms.match.Match;
 import com.auroratms.match.MatchCard;
 import com.auroratms.match.MatchCardService;
+import com.auroratms.match.MatchCardStatus;
 import com.auroratms.match.notification.event.MatchUpdateEvent;
 import com.auroratms.notification.SystemPrincipalExecutor;
 import com.auroratms.tableusage.TableStatus;
@@ -18,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -83,6 +85,14 @@ public class TableUsageMatchEventListener {
                 }
             }
             tableUsageService.updateAll(tableUsageList);
+            if (allCompleted || completedMatches == 0) {
+                if (completedMatches == 0) {
+                    matchCardWithMatches.setStatus(MatchCardStatus.STARTED);  // in case they clear the whole match
+                } else {
+                    matchCardWithMatches.setStatus(MatchCardStatus.COMPLETED);
+                }
+                this.matchCardService.saveAllAndFlush(Collections.singletonList(matchCardWithMatches));
+            }
             log.info("Finished processing match update event in TableUsageMatchEventListener " + matchCardId);
         } catch (Exception e) {
             log.error("Unable to update table usage for match card " + matchCardId, e);

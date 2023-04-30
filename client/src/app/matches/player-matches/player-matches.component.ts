@@ -1,11 +1,11 @@
 import {
   Component,
-  ElementRef,
   EventEmitter,
   Input,
   OnChanges,
   OnInit,
-  Output, QueryList,
+  Output,
+  QueryList,
   SimpleChange,
   SimpleChanges,
   ViewChildren
@@ -15,8 +15,8 @@ import {Match} from '../model/match.model';
 import {AuthenticationService} from '../../user/authentication.service';
 import {ConfirmationPopupComponent} from '../../shared/confirmation-popup/confirmation-popup.component';
 import {MatDialog} from '@angular/material/dialog';
-import {MatInput} from '@angular/material/input';
 import {MatCheckbox} from '@angular/material/checkbox';
+import {MatchCardStatus} from '../model/match-card-status.enum';
 
 @Component({
   selector: 'app-player-matches',
@@ -221,7 +221,7 @@ export class PlayerMatchesComponent implements OnInit, OnChanges {
   }
 
   canChangeScore(match: Match): boolean {
-    const canChange = (match?.scoreEnteredByProfileId == null || match?.scoreEnteredByProfileId === this.thisPlayerProfileId);
+    const canChange = (match?.scoreEnteredByProfileId == null || match?.scoreEnteredByProfileId == '' || match?.scoreEnteredByProfileId === this.thisPlayerProfileId);
     if (!canChange) {
       const message = `You can't enter/change score because, another player or tournament official already started entering score.`;
       const config = {
@@ -242,5 +242,9 @@ export class PlayerMatchesComponent implements OnInit, OnChanges {
     if (this.canChangeScore(match)) {
       this.enterMatchScore.emit({matchIndex: matchIndex});
     }
+  }
+
+  isEventStarted(): boolean {
+    return this.matchCard.status === MatchCardStatus.STARTED;
   }
 }

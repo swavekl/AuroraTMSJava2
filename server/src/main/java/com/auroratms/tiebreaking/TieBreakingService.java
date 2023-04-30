@@ -6,6 +6,7 @@ import com.auroratms.event.TournamentEventEntityService;
 import com.auroratms.match.Match;
 import com.auroratms.match.MatchCard;
 import com.auroratms.match.MatchCardService;
+import com.auroratms.match.MatchCardStatus;
 import com.auroratms.tiebreaking.model.GroupTieBreakingInfo;
 import com.auroratms.tiebreaking.model.MatchStatus;
 import com.auroratms.tiebreaking.model.PlayerMatchResults;
@@ -647,6 +648,7 @@ public class TieBreakingService {
                 mapper.writeValue(stringWriter, rankToProfileIdMap);
                 String content = stringWriter.toString();
                 matchCard.setPlayerRankings(content);
+                matchCard.setStatus(MatchCardStatus.COMPLETED);
                 matchCardService.save(matchCard);
             } catch (IOException e) {
                 e.printStackTrace();

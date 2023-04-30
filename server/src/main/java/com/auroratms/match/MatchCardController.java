@@ -1,5 +1,6 @@
 package com.auroratms.match;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +16,7 @@ import java.util.List;
 @RestController
 @RequestMapping("api")
 @PreAuthorize("isAuthenticated()")
+@Slf4j
 @Transactional
 public class MatchCardController {
 
@@ -68,6 +70,21 @@ public class MatchCardController {
             return new ResponseEntity<>(matchCard, HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity(e, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PutMapping("/matchcard/{matchCardId}")
+    @ResponseBody
+    public ResponseEntity<MatchCard> update(@RequestBody MatchCard matchCard,
+                                            @PathVariable Long matchCardId) {
+        try {
+            log.info("updating match card: " + matchCard);
+            matchCardService.save(matchCard);
+            MatchCard updatedMatchCard = matchCardService.getMatchCard(matchCardId);
+            return ResponseEntity.ok(updatedMatchCard);
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            return ResponseEntity.badRequest().build();
         }
     }
 }

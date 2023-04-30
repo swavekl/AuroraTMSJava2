@@ -14,6 +14,7 @@ import {MatSelectChange} from '@angular/material/select';
 import {MatchAssignmentDialogComponent, MatchAssignmentDialogData} from '../util/match-assignment-dialog.component';
 import {MatDialog, MatDialogConfig} from '@angular/material/dialog';
 import {ConfirmationPopupComponent} from '../../shared/confirmation-popup/confirmation-popup.component';
+import {MatchCardStatus} from '../../matches/model/match-card-status.enum';
 
 @Component({
   selector: 'app-table-usage',
@@ -43,7 +44,10 @@ export class TableUsageComponent implements OnInit, OnChanges {
   printMatchCards: EventEmitter<any> = new EventEmitter<any>();
 
   @Output()
-  startMatches: EventEmitter<TableUsage[]> = new EventEmitter<TableUsage[]>();
+  startMatches: EventEmitter<any> = new EventEmitter<any>();
+
+  @Output()
+  stopMatch: EventEmitter<any> = new EventEmitter<any>();
 
   @Output()
   refreshUsage: EventEmitter<any> = new EventEmitter<any>();
@@ -155,6 +159,7 @@ export class TableUsageComponent implements OnInit, OnChanges {
   }
 
   private startSelectedMatchCards(matchCardIds: number[]) {
+    console.log('startSelectedMatchCards', matchCardIds);
     const unavailableTables: number [] = [];
     // find table numbers to update
     const startTime: Date = new Date();
@@ -212,7 +217,7 @@ export class TableUsageComponent implements OnInit, OnChanges {
           const dialogRef = this.dialog.open(MatchAssignmentDialogComponent, config);
           dialogRef.afterClosed().subscribe(result => {
             if (result.action === 'force') {
-              this.startMatches.emit(updatedTableUsages);
+              this.startMatchesAndUpdateMatchCards(updatedTableUsages, matchCardIds);
             } else if (result.action === 'move') {
               const newTableNumbers = result.useTables;
               const matchCardId = matchCardIds[0];
@@ -229,7 +234,7 @@ export class TableUsageComponent implements OnInit, OnChanges {
                   forcedTableUsages.push(tableUsage);
                 }
               }
-              this.startMatches.emit(forcedTableUsages);
+              this.startMatchesAndUpdateMatchCards(forcedTableUsages, [matchCardId]);
             }
           });
         }
@@ -237,8 +242,32 @@ export class TableUsageComponent implements OnInit, OnChanges {
         // show warning if multiple match cards are started
       }
     } else {
-      this.startMatches.emit(updatedTableUsages);
+      this.startMatchesAndUpdateMatchCards(updatedTableUsages, matchCardIds);
     }
+  }
+
+  private startMatchesAndUpdateMatchCards(tableUsages: TableUsage[], matchCardIds: number []) {
+    const updatedMatchCards = this.updateMatchCardStatus(matchCardIds, MatchCardStatus.STARTED);
+    this.startMatches.emit({tableUsages: tableUsages, matchCards: updatedMatchCards});
+  }
+
+  /**
+   * Updates match card status
+   * @param matchCardIds
+   * @param matchCardStatus
+   */
+  updateMatchCardStatus (matchCardIds: number [], matchCardStatus: MatchCardStatus) {
+    const updatedMatchCards: MatchCard [] = [];
+    for (const matchCard of this.allTodaysMatchCards) {
+      if (matchCardIds.indexOf(matchCard.id) >= 0) {
+        const updatedMatchCard: MatchCard = {
+          ...matchCard,
+          status: matchCardStatus
+        };
+        updatedMatchCards.push(updatedMatchCard);
+      }
+    }
+    return updatedMatchCards;
   }
 
   private makeTableAssignmentDialogData(matchCardIds: number[], conflictTables: number[]): MatchAssignmentDialogData {
@@ -384,7 +413,8 @@ export class TableUsageComponent implements OnInit, OnChanges {
         }
       }
       if (updatedTableUsages.length > 0) {
-        this.startMatches.emit(updatedTableUsages);
+        const stoppedMatchCards = this.updateMatchCardStatus([matchCardId], MatchCardStatus.NOT_STARTED);
+        this.stopMatch.emit({tableUsages: updatedTableUsages, matchCards: stoppedMatchCards});
       }
     }
   }

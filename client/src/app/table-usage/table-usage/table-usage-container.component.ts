@@ -1,6 +1,6 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
-import {combineLatest, interval, Observable, of, startWith, Subscription} from 'rxjs';
-import {debounceTime, distinctUntilChanged, first, map, tap} from 'rxjs/operators';
+import {combineLatest, interval, Observable, of, Subscription} from 'rxjs';
+import {distinctUntilChanged, first, map, tap} from 'rxjs/operators';
 import {TableUsage} from '../model/table-usage.model';
 import {LinearProgressBarService} from '../../shared/linear-progress-bar/linear-progress-bar.service';
 import {TableUsageService} from '../service/table-usage.service';
@@ -26,6 +26,7 @@ import {MatchCardStatusUtil} from '../util/match-card-status-util';
                      [tournamentDay]="tournamentDay"
                      (printMatchCards)="onPrintMatchCards($event)"
                      (startMatches)="onStartMatches($event)"
+                     (stopMatch)="onStopMatch($event)"
                      (refreshUsage)="onRefresh($event)">
     </app-table-usage>
   `,
@@ -201,16 +202,43 @@ export class TableUsageContainerComponent implements OnInit, OnDestroy {
     this.matchCardPrinterService.downloadAndPrint(tournamentId, eventId, matchCardIds);
   }
 
-  /**
-   * Start selected matches on tables
-   * @param tableUsages
-   */
-  onStartMatches(tableUsages: TableUsage[]) {
+  onStartMatches(startMatchInfo: any) {
+    console.log('startMatch', startMatchInfo);
+    const tableUsages: TableUsage[] = startMatchInfo.tableUsages;
+    const matchCards: MatchCard[] = startMatchInfo.matchCards;
+    this.updateTableUsages(tableUsages, matchCards);
+  }
+
+  onStopMatch(stopMatchInfo: any) {
+    console.log('in stopMatch', stopMatchInfo);
+    const tableUsages: TableUsage[] = stopMatchInfo.tableUsages;
+    const matchCards: MatchCard[] = stopMatchInfo.matchCards;
+    this.updateTableUsages(tableUsages, matchCards);
+  }
+
+  private updateTableUsages(tableUsages: TableUsage[], matchCards: MatchCard[]) {
     this.tableUsageService.updateMany(tableUsages)
       .pipe(first())
       .subscribe((updated: TableUsage[]) => {
         this.tableUsageService.updateManyInCache(updated);
+        this.updateMatchCardStatus(matchCards);
       });
+  }
+
+  private updateMatchCardStatus(matchCards: MatchCard[]) {
+    console.log('in updateMatchCardStatus', matchCards.length);
+    for (const matchCard of matchCards) {
+      this.matchCardService.update(matchCard)
+        .pipe(
+          first(),
+          tap(matchCard => {
+          console.log('Updated match card', matchCard);
+        })).subscribe(() => {
+
+      }, (error) => {
+        console.error('Error updating match card ' + matchCard, error);
+      });
+    }
   }
 
   /**

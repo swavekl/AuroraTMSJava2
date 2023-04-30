@@ -70,6 +70,9 @@ public class MatchCard implements Serializable {
     @Column(length = 400)
     private String playerRankings;
 
+    // status indicating if score entry can proceed or should be stopped
+    private MatchCardStatus status;
+
     // map of player profile ids to their names
     @Transient
     Map<String, String> profileIdToNameMap;
@@ -87,6 +90,7 @@ public class MatchCard implements Serializable {
                 ", day=" + day +
                 ", startTime=" + startTime +
                 ", duration=" + duration +
+                ", status=" + status +
                 ", playerRankings='" + playerRankings + '\'' +
                 ", profileIdToNameMap=" + profileIdToNameMap +
                 ", matches=" + matches +

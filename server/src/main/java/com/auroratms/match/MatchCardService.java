@@ -139,6 +139,7 @@ public class MatchCardService {
                 matchCard.setDay(tournamentEvent.getDay());
                 matchCard.setStartTime(tournamentEvent.getStartTime());
                 matchCard.setNumberOfGames(tournamentEvent.getNumberOfGames());
+                matchCard.setStatus(MatchCardStatus.NOT_STARTED);
                 List<Match> matches = new ArrayList<>();
 
                 int matchNumber = 0;
@@ -219,6 +220,7 @@ public class MatchCardService {
                 matchCard.setRound(roundOf);
                 matchCard.setDay(tournamentEvent.getDay());
                 matchCard.setStartTime(tournamentEvent.getStartTime());
+                matchCard.setStatus(MatchCardStatus.NOT_STARTED);
 
                 List<Match> matches = new ArrayList<>();
                 Match match = new Match();
@@ -324,6 +326,7 @@ public class MatchCardService {
         matchCard.setDay(tournamentEvent.getDay());
         matchCard.setStartTime(tournamentEvent.getStartTime());
         matchCard.setDuration(30);
+        matchCard.setStatus(MatchCardStatus.NOT_STARTED);
 
         List<Match> matches = new ArrayList<>();
         Match match = new Match();

@@ -1,6 +1,7 @@
 import {Match} from './match.model';
 import {DrawType} from '../../draws/draws-common/model/draw-type.enum';
 import {TournamentEvent} from '../../tournament/tournament-config/tournament-event.model';
+import {MatchCardStatus} from './match-card-status.enum';
 
 export class MatchCard {
   id: number;
@@ -46,6 +47,9 @@ export class MatchCard {
 
   // String representing player rankings
   playerRankings: any;
+
+  // status indicating if score entry can proceed or should be stopped
+  status: MatchCardStatus;
 
   // map of player profile ids to their names
   profileIdToNameMap: any;
