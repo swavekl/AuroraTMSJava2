@@ -68,18 +68,25 @@ public class TournamentEventMatchEventListener {
 
             Match matchAfter = matchUpdateEvent.getMatchAfter();
             boolean matchFinished = matchAfter.isMatchFinished(tournamentEvent.getNumberOfGames(), tournamentEvent.getPointsPerGame());
+            boolean updateEvent = false;
             if (!matchFinished) {
                 List<MatchCard> allMatchCards = matchCardService.findAllForEvent(eventFk);
                 List<Match> allMatchesForEvent = matchService.findAllByMatchCardIn(allMatchCards);
                 log.info("Got " + allMatchesForEvent.size() + " matches for " + allMatchCards.size() + " match cards");
-                boolean anyMatchEntered = false;
+                int countEnteredMatches = 0;
                 for (Match match : allMatchesForEvent) {
-                    anyMatchEntered = anyMatchEntered || match.isMatchFinished(tournamentEvent.getNumberOfGames(),tournamentEvent.getPointsPerGame());
-                    if (anyMatchEntered) {
-                        break;
+                    if (match.isMatchFinished(tournamentEvent.getNumberOfGames(),tournamentEvent.getPointsPerGame())) {
+                        countEnteredMatches++;
                     }
                 }
-                matchScoresEntered = anyMatchEntered;
+                matchScoresEntered = countEnteredMatches > 0;
+                if (countEnteredMatches < allMatchesForEvent.size()) {
+                    if (tournamentEvent.getConfiguration().getFinalPlayerRankings() != null) {
+                        log.info("Clearing final player rankings");
+                        tournamentEvent.getConfiguration().setFinalPlayerRankings(null);
+                        updateEvent = true;
+                    }
+                }
             } else {
                 // match finished - so at least one match was entered so we can't redo the draws without asking
                 matchScoresEntered = true;
@@ -89,6 +96,9 @@ public class TournamentEventMatchEventListener {
             if (oldMatchScoresEntered != matchScoresEntered) {
                 log.info ("Updating matchScores entered for event to " + matchScoresEntered);
                 tournamentEvent.setMatchScoresEntered(matchScoresEntered);
+                updateEvent = true;
+            }
+            if (updateEvent) {
                 tournamentEventEntityService.update(tournamentEvent);
             }
 

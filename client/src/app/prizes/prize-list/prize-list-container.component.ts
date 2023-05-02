@@ -10,6 +10,7 @@ import {TournamentEvent} from '../../tournament/tournament-config/tournament-eve
 import {MatchCardService} from '../../matches/service/match-card.service';
 import {DrawMethod} from '../../tournament/tournament-config/model/draw-method.enum';
 import {MatchCard} from '../../matches/model/match-card.model';
+import {DateUtils} from '../../shared/date-utils';
 
 @Component({
   selector: 'app-prize-list-container',
@@ -70,7 +71,8 @@ export class PrizeListContainerComponent implements OnInit, OnDestroy {
 
   private loadTodaysTournamentEvents() {
     const todaysDate: Date = this.todayService.todaysDate;
-    const subscription = this.tournamentConfigService.getTodaysTournaments(todaysDate)
+    const todaysDateUtc = new DateUtils().convertFromLocalToUTCDate(todaysDate);
+    const subscription = this.tournamentConfigService.getTodaysTournaments(todaysDateUtc)
       .pipe(
         first(),
         map((todaysTournaments: Tournament[]) => {

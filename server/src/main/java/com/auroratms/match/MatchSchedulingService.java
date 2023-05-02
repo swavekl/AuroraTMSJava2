@@ -52,7 +52,7 @@ public class MatchSchedulingService {
             if (!event.isSingleElimination()) {
                 startingTableNumber = scheduleRoundRobinMatches(startingTableNumber, totalAvailableTables, event, matrix);
             } else {
-
+                scheduleSingleEliminationMatches (totalAvailableTables, event, matrix);
             }
         }
 
@@ -64,7 +64,6 @@ public class MatchSchedulingService {
                     scheduleSingleEliminationMatches (totalAvailableTables, event, matrix);
                 }
             }
-
         }
         // get them
         return this.matchCardService.findAllForTournamentAndDay(tournamentId, day);
@@ -208,31 +207,34 @@ public class MatchSchedulingService {
         int maxDuration = 0;
         double eventStart = event.getStartTime();
         // range of tables the matches are played on in this event.
-        int eventFirstTableNum = totalAvailableTables;
+        int eventFirstTableNum = (!event.isSingleElimination()) ? totalAvailableTables : 1;
         int eventLastTableNum = 1;
 
 //        System.out.println("=============================\nevent.getName() = " + event.getName());
         // find time when the round robin matches end
-        List<MatchCard> roundRobinMatchCards = matchCardService.findAllForEventAndDrawType(event.getId(), DrawType.ROUND_ROBIN);
-        for (MatchCard matchCard : roundRobinMatchCards) {
-            int duration = matchCard.getDuration();
-            maxDuration = Math.max(duration, maxDuration);
-            String assignedTables = matchCard.getAssignedTables();
-            String[] tableNumbers = assignedTables.split(",");
-            for (String tableNumber : tableNumbers) {
-                int iTableNumber = Integer.parseInt(tableNumber);
-                eventFirstTableNum = Math.min(eventFirstTableNum, iTableNumber);
-                eventLastTableNum = Math.max(eventLastTableNum, iTableNumber);
+        double singleEliminationStartTime = eventStart;
+        if (!event.isSingleElimination()) {
+            List<MatchCard> roundRobinMatchCards = matchCardService.findAllForEventAndDrawType(event.getId(), DrawType.ROUND_ROBIN);
+            for (MatchCard matchCard : roundRobinMatchCards) {
+                int duration = matchCard.getDuration();
+                maxDuration = Math.max(duration, maxDuration);
+                String assignedTables = matchCard.getAssignedTables();
+                String[] tableNumbers = assignedTables.split(",");
+                for (String tableNumber : tableNumbers) {
+                    int iTableNumber = Integer.parseInt(tableNumber);
+                    eventFirstTableNum = Math.min(eventFirstTableNum, iTableNumber);
+                    eventLastTableNum = Math.max(eventLastTableNum, iTableNumber);
+                }
             }
-        }
 //        System.out.println("RR round firstTableNum = " + eventFirstTableNum + " lastTableNum = " + eventLastTableNum);
 //        System.out.println("maxDuration = " + maxDuration);
 
-        // When the round robin round is finished
-        double singleEliminationStartTime = eventStart + (TableAvailabilityMatrix.TIME_SLOT_SIZE * Math.floorDiv(maxDuration, TableAvailabilityMatrix.TIME_SLOT_SIZE_INT));
-        // start single elimination rounds 30 minutes later but only if there were at least 8 groups
-        singleEliminationStartTime += (roundRobinMatchCards.size() >= 8) ? TableAvailabilityMatrix.TIME_SLOT_SIZE : 0;
+            // When the round robin round is finished
+            singleEliminationStartTime = eventStart + (TableAvailabilityMatrix.TIME_SLOT_SIZE * Math.floorDiv(maxDuration, TableAvailabilityMatrix.TIME_SLOT_SIZE_INT));
+            // start single elimination rounds 30 minutes later but only if there were at least 8 groups
+            singleEliminationStartTime += (roundRobinMatchCards.size() >= 8) ? TableAvailabilityMatrix.TIME_SLOT_SIZE : 0;
 //        System.out.println("singleEliminationStartTime = " + singleEliminationStartTime);
+        }
 
         // schedule the single elimination round matches on the same tables where the round robin round matches were played
         int currentTableNum = eventFirstTableNum;

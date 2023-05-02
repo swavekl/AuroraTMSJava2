@@ -1,4 +1,4 @@
-package com.auroratms.tableusage.notification;
+package com.auroratms.tiebreaking.notification;
 
 import com.auroratms.event.TournamentEvent;
 import com.auroratms.event.TournamentEventEntityService;
@@ -8,10 +8,9 @@ import com.auroratms.match.MatchCardService;
 import com.auroratms.match.MatchCardStatus;
 import com.auroratms.match.notification.event.MatchUpdateEvent;
 import com.auroratms.notification.SystemPrincipalExecutor;
-import com.auroratms.tableusage.TableStatus;
-import com.auroratms.tableusage.TableUsage;
-import com.auroratms.tableusage.TableUsageService;
+import com.auroratms.tiebreaking.TieBreakingService;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
@@ -19,32 +18,32 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 
-import java.util.Collections;
 import java.util.List;
 
 /**
- * Reacts to match card updates, so we know the percentage of completed matches in real time and can update table usage
+ * Match update event processor for performing tie breaking, especially when using phone entry
  */
 @Component
 @Slf4j
-@Transactional  // place @Transactional here to avoid Lazy loading exception when accessing matches collection
-public class TableUsageMatchEventListener {
+@Transactional
+public class TieBreakingMatchEventListener {
 
     @Autowired
-    private TableUsageService tableUsageService;
+    private TournamentEventEntityService tournamentEventEntityService;
 
     @Autowired
     private MatchCardService matchCardService;
 
     @Autowired
-    private TournamentEventEntityService tournamentEventEntityService;
+    private TieBreakingService tieBreakingService;
 
     @Async
-    @TransactionalEventListener(phase= TransactionPhase.AFTER_COMMIT)
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handleEvent(MatchUpdateEvent matchUpdateEvent) {
         // run this task as system principal so we have access to various services
         SystemPrincipalExecutor task = new SystemPrincipalExecutor() {
             @Override
+            @Transactional
             protected void taskBody() {
                 processEvent(matchUpdateEvent);
             }
@@ -53,14 +52,12 @@ public class TableUsageMatchEventListener {
     }
 
     /**
-     *
      * @param matchUpdateEvent
      */
-    public void processEvent(MatchUpdateEvent matchUpdateEvent) {
-        Match beforeMatch = matchUpdateEvent.getMatchBefore();
-        MatchCard matchCard = beforeMatch.getMatchCard();
-        long matchCardId = matchCard.getId();
-        log.info("Begin processing match update event in TableUsageMatchEventListener " + matchCardId);
+    private void processEvent(MatchUpdateEvent matchUpdateEvent) {
+        Match matchBefore = matchUpdateEvent.getMatchBefore();
+        long matchCardId = matchBefore.getMatchCard().getId();
+        log.info("Begin processing match update event in TieBreakingMatchEventListener for match card " + matchCardId);
         try {
             MatchCard matchCardWithMatches = matchCardService.getMatchCard(matchCardId);
             long eventFk = matchCardWithMatches.getEventFk();
@@ -71,26 +68,41 @@ public class TableUsageMatchEventListener {
             int completedMatches = getNumCompletedMatches(matches, numberOfGames, pointsPerGame);
             int totalMatches = matches.size();
             boolean allCompleted = (totalMatches == completedMatches);
-            List<TableUsage> tableUsageList = tableUsageService.findAllByMatchCardFk(matchCardId);
-            for (TableUsage tableUsage : tableUsageList) {
-                if (allCompleted) {
-                    tableUsage.setTableStatus(TableStatus.Free);
-                    tableUsage.setMatchCardFk(0);
-                    tableUsage.setMatchStartTime(null);
-                    tableUsage.setCompletedMatches((byte) 0);
-                    tableUsage.setTotalMatches((byte) 0);
-                } else {
-                    tableUsage.setCompletedMatches((byte) completedMatches);
-                    tableUsage.setTotalMatches((byte) totalMatches);
+            boolean updateMatchCard = false;
+            if (allCompleted) {
+                tieBreakingService.rankAndAdvancePlayers(matchCardId);
+            } else {
+                // clear player rankings if some match card which was cleared
+                if (StringUtils.isNotEmpty(matchCardWithMatches.getPlayerRankings())) {
+                    for (Match match : matches) {
+                        if(match.getId() == matchBefore.getId()) {
+                            if (match.getGamesOnlyResult(numberOfGames, pointsPerGame).isMatchCleared()) {
+                                matchCardWithMatches.setPlayerRankings(null);
+                                updateMatchCard = true;
+                            }
+                            break;
+                        }
+                    }
                 }
             }
-            tableUsageService.updateAll(tableUsageList);
-            log.info("Finished processing match update event in TableUsageMatchEventListener " + matchCardId);
+
+            if (allCompleted || completedMatches == 0) {
+                if (completedMatches == 0) {
+                    matchCardWithMatches.setStatus(MatchCardStatus.STARTED);  // in case they clear the whole match
+                } else {
+                    matchCardWithMatches.setStatus(MatchCardStatus.COMPLETED);
+                }
+                updateMatchCard = true;
+            }
+            if (updateMatchCard) {
+                matchCardService.save(matchCardWithMatches);
+            }
+
+            log.info("Finished processing match update event for match card with id " + matchCardId);
         } catch (Exception e) {
-            log.error("Unable to update table usage for match card " + matchCardId, e);
+            log.error("Unable to perform tie breaking for match card with id " + matchCardId, e);
         }
     }
-
     /**
      *
      * @param matches

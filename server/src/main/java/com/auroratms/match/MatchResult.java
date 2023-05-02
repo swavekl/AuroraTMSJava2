@@ -36,4 +36,8 @@ public class MatchResult {
         reversedMatchResult.sideBDefaulted = sideADefaulted;
         return reversedMatchResult;
     }
+
+    public boolean isMatchCleared() {
+        return this.gamesWonByA == 0 && this.gamesWonByB == 0 && !this.sideADefaulted && !this.sideBDefaulted;
+    }
 }

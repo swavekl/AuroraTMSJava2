@@ -89,6 +89,7 @@
               <mat-checkbox *ngIf="isPlayerMatch(match)"
                             [id]="getCheckboxId(matchIndex,0)"
                             [checked]="match.sideADefaulted"
+                            [disabled]="!isEventStarted()"
                             (click)="defaultPlayer(match,matchIndex,0)">
               </mat-checkbox>
             </td>
@@ -112,6 +113,7 @@
               <mat-checkbox *ngIf="isPlayerMatch(match)"
                             [id]="getCheckboxId(matchIndex,1)"
                             [checked]="match.sideBDefaulted"
+                            [disabled]="!isEventStarted()"
                             (click)="defaultPlayer(match,matchIndex,1)">
               </mat-checkbox>
             </td>

@@ -126,6 +126,8 @@ export class ScoreEntryDialogComponent implements OnInit {
     this.match.game6ScoreSideB = 0;
     this.match.game7ScoreSideA = 0;
     this.match.game7ScoreSideB = 0;
+    this.match.sideADefaulted = false;
+    this.match.sideBDefaulted = false;
   }
 
   onSave(formValues: any) {
