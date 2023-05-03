@@ -13,7 +13,7 @@
           </app-round-robin-draws-panel>
         </div>
       </mat-tab>
-      <mat-tab label="Single Elimination">
+      <mat-tab [label]="(isHandset$ | async) ? 'Single Elim.' : 'Single Elimination'">
         <div class="tab-contents">
           <app-single-elimination-bracket
             [bracketsHeight]="getBracketsHeight()"

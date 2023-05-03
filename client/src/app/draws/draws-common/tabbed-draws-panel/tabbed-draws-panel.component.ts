@@ -2,6 +2,9 @@ import {Component, EventEmitter, Input, Output, SimpleChange, SimpleChanges, Vie
 import {TournamentEvent} from '../../../tournament/tournament-config/tournament-event.model';
 import {DrawItem} from '../model/draw-item.model';
 import {RoundRobinDrawsPanelComponent} from '../round-robin-draws-panel/round-robin-draws-panel.component';
+import {Observable} from 'rxjs';
+import {BreakpointObserver, Breakpoints} from '@angular/cdk/layout';
+import {map} from 'rxjs/operators';
 
 @Component({
   selector: 'app-tabbed-draws-panel',
@@ -33,7 +36,15 @@ export class TabbedDrawsPanelComponent {
   hasRRRound: boolean = false;
   hasSERound: boolean = false;
 
-  constructor() {
+  isHandset$: Observable<boolean> = null;
+
+  constructor(private breakpointObserver: BreakpointObserver) {
+    this.isHandset$ = this.breakpointObserver.observe(Breakpoints.Handset)
+      .pipe(
+        map(result => {
+          return result.matches;
+        })
+      );
   }
 
   ngOnChanges(changes: SimpleChanges): void {
