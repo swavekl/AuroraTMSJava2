@@ -68,7 +68,7 @@ export class TournamentViewComponent implements OnInit, OnChanges {
         (tournamentEntry: TournamentEntry) => {
           // console.log('created new tournament entry', tournamentEntry);
           this.entryId = tournamentEntry.id;
-          const url = `ui/entries/entrywizard/${this.tournament.id}/edit/${this.entryId}`;
+          const url = `ui/entries/entrywizard/${this.tournament.id}/edit/${this.entryId}?enter=true`;
           this.router.navigateByUrl(url);
         },
         (error: any) => {

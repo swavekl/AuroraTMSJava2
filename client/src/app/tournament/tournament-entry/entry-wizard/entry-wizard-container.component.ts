@@ -62,6 +62,7 @@ export class EntryWizardContainerComponent implements OnInit, OnDestroy {
   @ViewChild(EntryWizardComponent)
   private entryWizardComponent: EntryWizardComponent;
 
+  entering: boolean = false;
   withdrawing: boolean = false;
 
   constructor(private tournamentEntryService: TournamentEntryService,
@@ -97,6 +98,7 @@ export class EntryWizardContainerComponent implements OnInit, OnDestroy {
     this.entryId = this.activatedRoute.snapshot.params['entryId'] || 0;
     this.tournamentId = this.activatedRoute.snapshot.params['tournamentId'] || 0;
     this.withdrawing = this.activatedRoute.snapshot.queryParamMap.get('withdraw') === 'true';
+    this.entering = this.activatedRoute.snapshot.queryParamMap.get('enter') === 'true';
     this.selectTournament(this.tournamentId);
     this.selectEntry(this.entryId);
     this.loadEventEntriesInfos(this.entryId);
@@ -251,7 +253,11 @@ export class EntryWizardContainerComponent implements OnInit, OnDestroy {
   }
 
   onFinish(event: any) {
-    this.router.navigateByUrl(`/ui/tournaments/view/${this.tournamentId}`);
+    let url = `/ui/tournaments/view/${this.tournamentId}`
+    if (this.entering || this.withdrawing) {
+      url += '?reload=true'
+    }
+    this.router.navigateByUrl(url);
   }
 
   private loadPlayerProfile() {

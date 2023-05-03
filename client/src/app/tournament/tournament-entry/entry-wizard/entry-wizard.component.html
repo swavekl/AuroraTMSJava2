@@ -56,7 +56,7 @@
                   <div matListItemLine class="event-item-line2" [class]="getStatusClass(enteredEvent.status)">{{enteredEvent.status | eventEntryStatus }} &nbsp; ${{ enteredEvent.price }}</div>
                 </div>
                 <div style="margin-right: 8px">
-                  <button type="button" mat-fab color="" (click)="onEventWithdraw(enteredEvent.eventEntryFk)">
+                  <button type="button" mat-fab color="" class="event-button" (click)="onEventWithdraw(enteredEvent.eventEntryFk)">
                     <mat-icon>{{getEnterButtonIcon(enteredEvent.eventEntryCommand)}}</mat-icon>
                   </button>
               </div>
@@ -74,7 +74,7 @@
                   <div matListItemLine class="event-item-line2" [class]="getStatusClass(availableEvent.status)">{{ availableEvent.status | eventEntryStatus }} &nbsp; ${{ availableEvent.price }}</div>
                 </div>
                 <div style="margin-right: 8px">
-                  <button type="button" mat-fab color="" (click)="onEventEnter(availableEvent.event?.id, availableEvent.eventEntryCommand)">
+                  <button type="button" mat-fab color=""  class="event-button" (click)="onEventEnter(availableEvent.event?.id, availableEvent.eventEntryCommand)">
                     <mat-icon>{{getEnterButtonIcon(availableEvent.eventEntryCommand)}}</mat-icon>
                   </button>
                 </div>

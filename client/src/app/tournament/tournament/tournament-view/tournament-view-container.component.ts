@@ -36,6 +36,8 @@ export class TournamentViewContainerComponent implements OnInit, OnDestroy {
 
   private subscriptions: Subscription = new Subscription();
 
+  private reloadTournament: boolean = false;
+
   constructor(private tournamentConfigService: TournamentConfigService,
               private tournamentEntryService: TournamentEntryService,
               private tournamentEventConfigService: TournamentEventConfigService,
@@ -52,6 +54,7 @@ export class TournamentViewContainerComponent implements OnInit, OnDestroy {
     this.subscriptions.add(loadingSubscription);
 
     const tournamentId = this.activatedRoute.snapshot.params['id'] || 0;
+    this.reloadTournament = this.activatedRoute.snapshot.queryParamMap.get('reload') === 'true';
     this.loadTournament(tournamentId);
     this.loadEntryIfExists(tournamentId);
     this.loadTournamentEvents(tournamentId);
@@ -94,7 +97,8 @@ export class TournamentViewContainerComponent implements OnInit, OnDestroy {
     // tournament information will not change just get it once
     this.tournament$ = this.tournamentConfigService.store.select(selectedTournamentSelector);
     const subscription = this.tournament$.subscribe((tournament: Tournament) => {
-      if (!tournament) {
+      if (!tournament || this.reloadTournament) {
+        this.reloadTournament = false;
         this.tournamentConfigService.getByKey(tournamentId);
       }
     });

@@ -95,3 +95,7 @@ table.ratings-table {
   padding-bottom: 16px;
   padding-top: 8px;
 }
+
+button.event-button {
+  background-color: lighten($primary-color, 30%);
+}
