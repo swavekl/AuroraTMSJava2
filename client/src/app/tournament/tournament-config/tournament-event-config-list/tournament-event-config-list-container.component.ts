@@ -58,16 +58,18 @@ export class TournamentEventConfigListContainerComponent implements OnInit, OnCh
   ngOnChanges(changes: SimpleChanges) {
     if (changes.tournamentId != null) {
       const tournamentId = changes.tournamentId.currentValue;
-      this.tournamentEventConfigService.loadTournamentEvents(tournamentId)
-        .pipe(tap((events: TournamentEvent[]) => {
-          const eventsWithEntries: number [] = [];
-          for (const event of events) {
-            if (event.numEntries > 0) {
-              eventsWithEntries.push(event.id);
+      if (tournamentId != null) {
+        this.tournamentEventConfigService.loadTournamentEvents(tournamentId)
+          .pipe(tap((events: TournamentEvent[]) => {
+            const eventsWithEntries: number [] = [];
+            for (const event of events) {
+              if (event.numEntries > 0) {
+                eventsWithEntries.push(event.id);
+              }
             }
-          }
-          this.eventsWithEntries = eventsWithEntries;
-      }));
+            this.eventsWithEntries = eventsWithEntries;
+          }));
+      }
     }
   }
 
@@ -100,5 +102,9 @@ export class TournamentEventConfigListContainerComponent implements OnInit, OnCh
 
   getTotalPrizeMoney(): number {
     return (this.tournamentEventConfigListComponent) ? this.tournamentEventConfigListComponent.getTotalPrizeMoney() : 0;
+  }
+
+  getMaxNumEventEntries(): number {
+    return (this.tournamentEventConfigListComponent) ? this.tournamentEventConfigListComponent.getMaxNumEventEntries() : 0;
   }
 }

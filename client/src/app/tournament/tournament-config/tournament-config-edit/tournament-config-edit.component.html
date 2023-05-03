@@ -246,7 +246,7 @@
             </mat-card-content>
           </mat-card>
         </mat-tab>
-        <mat-tab label="Events">
+        <mat-tab label="Events" [disabled]="tournament?.id == null">
             <app-tournament-event-config-list-container
               [tournamentId]="tournament?.id"
               [numEventEntries]="tournament?.numEventEntries"
@@ -255,7 +255,7 @@
               [endDate]="tournament?.endDate">
             </app-tournament-event-config-list-container>
         </mat-tab>
-        <mat-tab label="Personnel">
+        <mat-tab label="Personnel" [disabled]="tournament?.id == null">
           <mat-toolbar>
             <mat-toolbar-row>
               <button class="personnel-toolbar-button" mat-raised-button type="button" (click)="onAddReferee()">Add Referee</button>

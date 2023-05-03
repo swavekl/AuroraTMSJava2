@@ -259,13 +259,16 @@ export class TournamentConfigEditComponent implements OnChanges {
     return monitorUserName;
   }
 
-  updateTotalPrizeMoney() {
+  updateTotalPrizeMoneyAndMaxEventEntries() {
     if (this.tournamentEventConfigListContainerComponent) {
       const totalPrizeMoney = this.tournamentEventConfigListContainerComponent.getTotalPrizeMoney();
       const currentTotalPrizeMoney = this.tournament.totalPrizeMoney;
-      if (currentTotalPrizeMoney !== totalPrizeMoney) {
+      const maxNumEventEntries = this.tournamentEventConfigListContainerComponent.getMaxNumEventEntries();
+      const currentMaxNumEventEntries = this.tournament.maxNumEventEntries;
+      if ((currentTotalPrizeMoney !== totalPrizeMoney) || (currentMaxNumEventEntries !== maxNumEventEntries)) {
         const clonedTournament = Tournament.cloneTournament(this.tournament);
         clonedTournament.totalPrizeMoney = totalPrizeMoney;
+        clonedTournament.maxNumEventEntries = maxNumEventEntries;
         this.tournament = clonedTournament;
       }
     }

@@ -135,4 +135,14 @@ export class TournamentEventConfigListComponent implements OnInit, OnChanges {
     }
     return totalPrizeMoney;
   }
+
+  getMaxNumEventEntries(): number {
+    let maxNumEventEntries = 0;
+    if (this.events && this.events.length > 0) {
+      this.events.forEach((event: TournamentEvent) => {
+        maxNumEventEntries += event.maxEntries;
+      });
+    }
+    return maxNumEventEntries;
+  }
 }
