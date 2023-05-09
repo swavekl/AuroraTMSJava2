@@ -7,6 +7,7 @@ import {DateUtils} from '../../shared/date-utils';
 import {TournamentProcessingRequestStatus} from '../model/tournament-processing-request-status';
 import {AuthenticationService} from '../../user/authentication.service';
 import {UserRoles} from '../../user/user-roles.enum';
+import {FileRepositoryService} from '../../shared/upload-button/file-repository.service';
 
 @Component({
   selector: 'app-tournament-processing-detail',
@@ -33,7 +34,8 @@ export class TournamentProcessingDetailComponent implements OnInit, OnChanges {
   canProcessReports: boolean;
 
   constructor(private dialog: MatDialog,
-              private authenticationService: AuthenticationService) {
+              private authenticationService: AuthenticationService,
+              private fileRepositoryService: FileRepositoryService) {
   }
 
   ngOnInit(): void {
@@ -140,5 +142,10 @@ export class TournamentProcessingDetailComponent implements OnInit, OnChanges {
         break;
       }
     }
+  }
+
+  onDownloadDFile(fileUrl: string): boolean {
+    this.fileRepositoryService.download(fileUrl);
+    return false;
   }
 }
