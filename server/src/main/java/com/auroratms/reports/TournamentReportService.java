@@ -30,9 +30,11 @@ import com.itextpdf.layout.property.VerticalAlignment;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.ResourceUtils;
+import org.springframework.util.StreamUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -55,6 +57,9 @@ public class TournamentReportService {
 
     @Autowired
     private TournamentService tournamentService;
+
+    @Autowired
+    ResourceLoader resourceLoader;
 
     static final int FONT_SIZE = 10;
     static final int NOTES_FONT_SIZE = 8;
@@ -515,8 +520,10 @@ public class TournamentReportService {
                     canvas.stroke();
 
                     // add scaled USATT logo image to the top left corner
-                    File usattLogoFile = ResourceUtils.getFile("classpath:images/usatt-logo-horizontal.jpg");
-                    ImageData usattLogoData = ImageDataFactory.create(usattLogoFile.getAbsolutePath());
+                    Resource resource = resourceLoader.getResource("classpath:images/usatt-logo-horizontal.jpg");
+                    byte[] imageBytes = StreamUtils.copyToByteArray(resource.getInputStream());
+                    ImageData usattLogoData = ImageDataFactory.create(imageBytes);
+
                     float imageWidth = usattLogoData.getWidth() / 2;
                     float imageHeight = usattLogoData.getHeight() / 2;
                     float imageX = document.getLeftMargin() + 10;
