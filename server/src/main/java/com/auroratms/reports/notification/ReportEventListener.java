@@ -131,10 +131,15 @@ public class ReportEventListener {
         UserProfile preparerUserProfile = userProfileService.getProfile(profileByLoginId);
 
         UserProfileExt userProfileExt = userProfileExtService.getByProfileId(profileByLoginId);
-        Long clubFk = userProfileExt.getClubFk();
+        String clubName = "Unknown Club";
+        if (userProfileExt != null) {
+            Long clubFk = userProfileExt.getClubFk();
 
-        ClubEntity clubEntity = clubService.findById(clubFk);
-        String clubName = clubEntity.getClubName();
+            ClubEntity clubEntity = clubService.findById(clubFk);
+            clubName = clubEntity.getClubName();
+        } else {
+            System.out.println("Unable to find user profile for current user " + currentUserName + " with login id: " + profileByLoginId);
+        }
 
         // find the detail that needs filling and save repository URLs in it
         List<TournamentProcessingRequestDetail> details = tournamentProcessingRequest.getDetails();
