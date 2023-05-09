@@ -37,7 +37,7 @@ const routes: Routes = [
     path: 'ui/account',
     loadChildren: () => import('./account/account.module').then(m => m.AccountModule),
     data: {
-      roles: [UserRoles.ROLE_TOURNAMENT_DIRECTORS, UserRoles.ROLE_ADMINS]
+      roles: [UserRoles.ROLE_TOURNAMENT_DIRECTORS, UserRoles.ROLE_ADMINS, UserRoles.ROLE_USATT_TOURNAMENT_MANAGERS]
     }
   },
   {
