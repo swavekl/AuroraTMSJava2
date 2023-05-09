@@ -166,6 +166,9 @@ export class TournamentProcessingDetailContainerComponent implements OnInit, OnD
       case 'process':
         this.processRequest(event);
         break;
+      case 'delete':
+        this.deleteRequest(event);
+        break;
     }
   }
 
@@ -358,5 +361,16 @@ export class TournamentProcessingDetailContainerComponent implements OnInit, OnD
   onPaymentCanceled(scope: any) {
     this.paidForTournamentProcessingRequest = null;
     this.paidForDetailId = null;
+  }
+
+  private deleteRequest(event: any) {
+    const tournamentProcessingRequest: TournamentProcessingRequest = event.request;
+      let subscription = this.tournamentProcessingService.update(tournamentProcessingRequest)
+        .pipe(first())
+        .subscribe((saved) => {
+          const tournamentProcessingDataToEdit: TournamentProcessingRequest = JSON.parse(JSON.stringify(saved));
+          this.tournamentProcessingRequest$ = of(tournamentProcessingDataToEdit);
+        });
+      this.subscriptions.add(subscription);
   }
 }

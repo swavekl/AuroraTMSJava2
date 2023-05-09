@@ -66,6 +66,9 @@
       <button mat-raised-button (click)="onSubmitRequest(detail.id)"
               [disabled]="!isSubmitReportsEnabled(detail)">Submit
       </button>
+      <button mat-raised-button (click)="onDeleteRequest(detail.id)"
+              [disabled]="!isDeleteReportsEnabled(detail)">Delete
+      </button>
       <button mat-raised-button (click)="onPay(detail.id)" [disabled]="!isPaymentButtonEnabled(detail)">
         Pay {{ !isPaymentButtonEnabled(detail) ? '' : ((detail.amountToPay / 100) | currency : currencyCode) }}
       </button>

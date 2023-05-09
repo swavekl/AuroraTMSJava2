@@ -103,6 +103,20 @@ public class TournamentProcessingRequestController {
         }
     }
 
+    @PutMapping("/tournamentprocessingrequest/{requestId}")
+    public @ResponseBody
+    ResponseEntity<Void> save (@RequestBody TournamentProcessingRequest tournamentProcessingRequest,
+                               @PathVariable Long requestId) {
+        try {
+            service.save(tournamentProcessingRequest);
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+
 //    /**
 //     * Deletes request
 //     *

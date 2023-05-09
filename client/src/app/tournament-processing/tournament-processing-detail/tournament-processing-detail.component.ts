@@ -8,6 +8,7 @@ import {TournamentProcessingRequestStatus} from '../model/tournament-processing-
 import {AuthenticationService} from '../../user/authentication.service';
 import {UserRoles} from '../../user/user-roles.enum';
 import {FileRepositoryService} from '../../shared/upload-button/file-repository.service';
+import {ConfirmationPopupComponent} from '../../shared/confirmation-popup/confirmation-popup.component';
 
 @Component({
   selector: 'app-tournament-processing-detail',
@@ -47,6 +48,33 @@ export class TournamentProcessingDetailComponent implements OnInit, OnChanges {
 
   isGenerateReportsEnabled(): boolean {
     return this.canGenerateReports && !this.generatingReports;
+  }
+
+
+  onDeleteRequest(detailId: number) {
+    const config = {
+      width: '450px', height: '230px', data: {
+        message: `Are you sure you want to delete these reports?`,
+      }
+    };
+    const dialogRef = this.dialog.open(ConfirmationPopupComponent, config);
+    dialogRef.afterClosed().subscribe(result => {
+      if (result === 'ok') {
+        const request = JSON.parse(JSON.stringify(this.tournamentProcessingRequest));
+        let details: TournamentProcessingRequestDetail [] = request.details || [];
+        request.details = details.filter((detail: TournamentProcessingRequestDetail) => {
+          return (detail.id != detailId);
+        });
+        const event = {action: 'delete', request: request, detailId: detailId};
+        this.requestEventEmitter.emit(event);
+      }
+    });
+
+
+  }
+
+  isDeleteReportsEnabled(detail: TournamentProcessingRequestDetail): boolean {
+    return this.canGenerateReports && (detail?.status === TournamentProcessingRequestStatus.New && detail?.createdOn != null);
   }
 
   isSubmitReportsEnabled(detail: TournamentProcessingRequestDetail): boolean {
