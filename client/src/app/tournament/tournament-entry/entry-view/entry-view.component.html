@@ -1,25 +1,28 @@
 <app-centered-panel noTopGap="true">
-  <mat-card ngClass.lt-sm="entry-view-small" ngClass.sm="entry-view-small" ngClass.gt-sm="entry-view">
-    <mat-card-title-group>
-      <mat-card-title>Entry Summary</mat-card-title>
-      <mat-card-subtitle>{{ tournament?.name }}</mat-card-subtitle>
-    </mat-card-title-group>
-    <mat-card-content>
-      <ng-container *ngIf="enteredEvents?.length === 0; else showEntriesTable">
-        <div class="no-events-warning">You are not entered in any events or withdrew from this tournament.</div>
-      </ng-container>
-      <ng-template #showEntriesTable>
-      <app-entry-summary-table [entryTotal]="entryTotal"
-        [summaryReportItems]="summaryReportItems"
-        [tournamentCurrency]="tournamentCurrency">
-      </app-entry-summary-table>
-      </ng-template>
-    </mat-card-content>
-    <mat-card-actions fxLayout="row" fxLayoutAlign="space-between start" style="margin-top: 10px">
-      <button mat-raised-button type="button" (click)="onBack()">Back</button>
-      <button [disabled]="!canWithdraw()" mat-raised-button type="button" (click)="onWithdraw()">Withdraw</button>
-      <button [disabled]="!canModify()" mat-raised-button type="button" color="primary" (click)="onModify()">Modify
-      </button>
-    </mat-card-actions>
-  </mat-card>
+  <ng-container  *ngIf="playerProfile != null" >
+    <mat-card ngClass.lt-sm="entry-view-small" ngClass.sm="entry-view-small" ngClass.gt-sm="entry-view">
+      <mat-card-title-group>
+        <mat-card-title>Entry Summary</mat-card-title>
+        <mat-card-subtitle>{{ tournament?.name }}</mat-card-subtitle>
+        <mat-card-subtitle>{{ playerProfile.lastName }}, {{playerProfile.firstName}}</mat-card-subtitle>
+      </mat-card-title-group>
+      <mat-card-content>
+        <ng-container *ngIf="enteredEvents?.length === 0; else showEntriesTable">
+          <div class="no-events-warning">You are not entered in any events or withdrew from this tournament.</div>
+        </ng-container>
+        <ng-template #showEntriesTable>
+          <app-entry-summary-table [entryTotal]="entryTotal"
+                                   [summaryReportItems]="summaryReportItems"
+                                   [tournamentCurrency]="tournamentCurrency">
+          </app-entry-summary-table>
+        </ng-template>
+      </mat-card-content>
+      <mat-card-actions fxLayout="row" fxLayoutAlign="space-between start" style="margin-top: 10px">
+        <button mat-raised-button type="button" (click)="onBack()">Back</button>
+        <button [disabled]="!canWithdraw()" mat-raised-button type="button" (click)="onWithdraw()">Withdraw</button>
+        <button [disabled]="!canModify()" mat-raised-button type="button" color="primary" (click)="onModify()">Modify
+        </button>
+      </mat-card-actions>
+    </mat-card>
+  </ng-container>
 </app-centered-panel>

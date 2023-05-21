@@ -45,6 +45,8 @@ export class EntryViewContainerComponent implements OnInit, OnDestroy {
   // player profile needed for summary
   playerProfile$: Observable<Profile>;
 
+  private returnUrl: string = null;
+
   private subscriptions: Subscription = new Subscription();
 
   constructor(private tournamentEntryService: TournamentEntryService,
@@ -91,7 +93,7 @@ export class EntryViewContainerComponent implements OnInit, OnDestroy {
     this.selectTournament(this.tournamentId);
     this.selectEntry(this.entryId);
     this.loadEventEntriesInfos(this.entryId);
-    this.loadPlayerProfile();
+    this.returnUrl = history?.state?.returnUrl;
   }
 
   /**
@@ -134,11 +136,13 @@ export class EntryViewContainerComponent implements OnInit, OnDestroy {
         return entityMap[entryId];
       });
     this.entry$ = this.tournamentEntryService.store.select(selectedEntrySelector);
-    const subscription = this.entry$.subscribe((next: TournamentEntry) => {
+    const subscription = this.entry$.subscribe((entry: TournamentEntry) => {
       // console.log('got tournament entry', next);
       // editing - check if we had it in cache if not - then fetch it
-      if (!next) {
+      if (!entry) {
         this.entry$ = this.tournamentEntryService.getByKey(entryId);
+      } else {
+        this.loadPlayerProfile(entry.profileId);
       }
     });
     this.subscriptions.add(subscription);
@@ -177,8 +181,8 @@ export class EntryViewContainerComponent implements OnInit, OnDestroy {
     this.eventEntryInfoService.getEventEntryInfos(this.entryId);
   }
 
-  private loadPlayerProfile() {
-    const playerProfileId = this.authenticationService.getCurrentUserProfileId();
+  private loadPlayerProfile(playerProfileId: string) {
+    // const playerProfileId = this.authenticationService.getCurrentUserProfileId();
     this.profileService.getProfile(playerProfileId)
       .pipe(first())
       .subscribe((profile: Profile) => {
@@ -194,7 +198,7 @@ export class EntryViewContainerComponent implements OnInit, OnDestroy {
       const url = `ui/entries/entrywizard/${this.tournamentId}/edit/${this.entryId}?withdraw=true`;
       this.router.navigateByUrl(url);
     } else if (action === 'back') {
-      const url = `ui/tournaments/view/${this.tournamentId}`;
+      const url = (this.returnUrl == null) ? `ui/tournaments/view/${this.tournamentId}` : this.returnUrl;
       this.router.navigateByUrl(url);
     }
   }

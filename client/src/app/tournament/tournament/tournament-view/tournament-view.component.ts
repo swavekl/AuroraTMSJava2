@@ -88,7 +88,12 @@ export class TournamentViewComponent implements OnInit, OnChanges {
 
   onView() {
     const url = `ui/entries/entryview/${this.tournament.id}/edit/${this.entryId}`;
-    this.router.navigateByUrl(url);
+    const extras = {
+      state: {
+        returnUrl: window.location.pathname
+      }
+    };
+    this.router.navigateByUrl(url, extras);
   }
 
   onWithdraw() {

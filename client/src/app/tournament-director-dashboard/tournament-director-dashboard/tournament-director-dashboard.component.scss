@@ -1,12 +1,17 @@
 .grid-container {
-  height: calc(100vh - 72px);
+  height: calc(100vh - 80px);
   //border: 1px solid green;
   overflow: hidden;
-  padding: 10px 10px 0 10px;
+  //padding: 10px 10px 0 10px;
+
+  .dashboard-title {
+    padding: 10px 10px 0 10px;
+  }
 }
 
 div.dashlet-container {
-  height: calc(100vh - 122px);
+  //height: calc(100vh - 122px);
+  height: 98%;
   //border: 1px solid blue;
   overflow: auto;
 }

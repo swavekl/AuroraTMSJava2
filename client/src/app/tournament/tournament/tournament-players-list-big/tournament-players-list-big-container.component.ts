@@ -1,0 +1,134 @@
+import {Component, OnDestroy, OnInit} from '@angular/core';
+import {combineLatest, Observable, of, Subscription} from 'rxjs';
+import {TournamentEntryInfoService} from '../../service/tournament-entry-info.service';
+import {ActivatedRoute, Router} from '@angular/router';
+import {LinearProgressBarService} from '../../../shared/linear-progress-bar/linear-progress-bar.service';
+import {first} from 'rxjs/operators';
+import {TournamentEntryInfo} from '../../model/tournament-entry-info.model';
+import {createSelector} from '@ngrx/store';
+import {TournamentInfo} from '../../model/tournament-info.model';
+import {TournamentInfoService} from '../../service/tournament-info.service';
+
+@Component({
+  selector: 'app-tournament-players-list-big-container',
+  template: `
+    <app-tournament-players-list-big [entryInfos]="entryInfos$ | async"
+    [tournamentName]="tournamentName$ | async"
+    (viewEntry)="onViewEntry($event)"
+    (addEntry)="onAddEntry($event)">
+    </app-tournament-players-list-big>
+  `,
+  styles: [
+  ]
+})
+export class TournamentPlayersListBigContainerComponent implements OnInit, OnDestroy {
+
+  private subscriptions: Subscription = new Subscription();
+
+  entryInfos$: Observable<TournamentEntryInfo[]>;
+
+  loading$: Observable<boolean>;
+  tournamentName$: Observable<string>;
+  tournamentId: number;
+
+  constructor(private tournamentEntryInfoService: TournamentEntryInfoService,
+              private tournamentInfoService: TournamentInfoService,
+              private router: Router,
+              private activatedRoute: ActivatedRoute,
+              private linearProgressBarService: LinearProgressBarService) {
+    this.setupProgressIndicator();
+  }
+
+  ngOnInit(): void {
+    const strTournamentId = this.activatedRoute.snapshot.params['id'];
+    this.tournamentId = (strTournamentId != null) ? Number(strTournamentId) : 0;
+    this.loadTournamentName(this.tournamentId);
+    this.loadTournamentEntries(this.tournamentId);
+  }
+
+  ngOnDestroy(): void {
+        this.subscriptions.unsubscribe();
+    }
+
+  private setupProgressIndicator() {
+    this.loading$ = combineLatest(
+      this.tournamentEntryInfoService.loading$,
+      this.tournamentInfoService.loading$,
+      (entryInfosLoading: boolean, tournamentInfoLoading: boolean) => {
+        return entryInfosLoading || tournamentInfoLoading;
+      }
+    );
+
+    const loadingSubscription = this.loading$
+      .subscribe((loading: boolean) => {
+      this.linearProgressBarService.setLoading(loading);
+    });
+
+    this.subscriptions.add(loadingSubscription);
+  }
+
+  private loadTournamentEntries(tournamentId: number) {
+    const subscription = this.tournamentEntryInfoService.getAll(tournamentId)
+      .pipe(
+        first())
+      .subscribe(
+        (infos: TournamentEntryInfo[]) => {
+          // console.log('returning infos.length ' + infos.length);
+          this.entryInfos$ = of(infos);
+        },
+        (error: any) => {
+          console.log('error loading entry infos' + JSON.stringify(error));
+        }
+      );
+    this.subscriptions.add(subscription);
+  }
+
+  private loadTournamentName(tournamentId: number) {
+    // tournament view may have passed us the tournament start date
+    // but if user navigated to this screen by url then go to the server and get it.
+    const tournamentName = history?.state?.tournamentName;
+    if (tournamentName != null) {
+      // console.log('Tournament name PASSED from previous screen', tournamentName);
+      this.tournamentName$ = of(tournamentName);
+    } else {
+      // create a selector for fast lookup in cache
+      // console.log('Tournament name NOT PASSED from previous screen');
+      const tournamentInfoSelector = this.tournamentInfoService.selectors.selectEntityMap;
+      const selectedTournamentSelector = createSelector(
+        tournamentInfoSelector,
+        (entityMap) => {
+          return entityMap[tournamentId];
+        });
+
+      const subscription = this.tournamentInfoService.store.select(selectedTournamentSelector)
+        .subscribe(
+          (tournamentInfo: TournamentInfo) => {
+            if (tournamentInfo) {
+              // console.log('got tournamentInfo from cache for tournament name');
+              this.tournamentName$ = of(tournamentInfo.name);
+            } else {
+              // console.log('tournamentInfo not in cache. getting from SERVER');
+              // not in cache so get it. Since it is an entity collection it will be
+              // piped to the above selector and processed by if branch
+              this.tournamentInfoService.getByKey(tournamentId);
+            }
+          });
+      this.subscriptions.add(subscription);
+    }
+  }
+
+  onViewEntry(tournamentEntryInfo: TournamentEntryInfo) {
+    const url = `ui/entries/entryview/${this.tournamentId}/edit/${tournamentEntryInfo.entryId}`;
+    const extras = {
+      state: {
+        returnUrl: window.location.pathname
+      }
+    };
+    this.router.navigateByUrl(url, extras);
+  }
+
+  onAddEntry($event: any) {
+    this.router.navigate(['/ui/userprofile/addbytd', this.tournamentId]);
+  }
+}
+

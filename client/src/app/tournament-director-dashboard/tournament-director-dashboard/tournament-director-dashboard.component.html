@@ -1,12 +1,7 @@
 <div class="grid-container">
-  <h2 class="mat-h1">Tournament Director Dashboard - {{tournamentName}}</h2>
-  <mat-toolbar>
-    <button type="button" mat-raised-button (click)="onRegisterPlayer()">
-      <mat-icon>add</mat-icon>Register Player
-    </button>
-  </mat-toolbar>
+  <div class="mat-h2 dashboard-title">Tournament Director Dashboard - {{tournamentName}}</div>
   <div class="dashlet-container">
-    <mat-grid-list cols="2" rowHeight="380px">
+    <mat-grid-list cols="2" rowHeight="400px">
       <mat-grid-tile *ngFor="let card of cards | async" [colspan]="card.cols" [rowspan]="card.rows">
         <mat-card appearance="outlined" class="dashboard-card">
           <mat-card-header>

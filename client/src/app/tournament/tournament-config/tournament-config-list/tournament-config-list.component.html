@@ -76,8 +76,15 @@
                   <button mat-raised-button type="button" color="primary"
                           [routerLink]="['./tournament/edit', tournament.id]"
                           matTooltip="Edit tournament properties">
-                    <mat-icon matListItemIcon>edit</mat-icon>
-                    Edit
+                    <mat-icon matListItemIcon>settings</mat-icon>
+                    Configure
+                  </button>
+                  <button mat-raised-button type="button"
+                          [routerLink]="['/ui/tournaments/playerlistbig', tournament.id]"
+                          [state]="{ tournamentName: tournament.name }"
+                          matTooltip="Players list">
+                    <mat-icon matListItemIcon>edit_note</mat-icon>
+                    Entries
                   </button>
                   <button mat-raised-button type="button" [routerLink]="['/ui/entries/doublesteams', tournament.id]"
                           matTooltip="Make or break doubles teams" >
