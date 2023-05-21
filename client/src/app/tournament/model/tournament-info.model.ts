@@ -29,6 +29,9 @@ export class TournamentInfo {
   // total of all prize money
   totalPrizeMoney: number;
 
+  // ready for showing
+  ready: boolean;
+
   // convert dates from string to date objects
   static convert(tournamentInfo: TournamentInfo): TournamentInfo {
     const dateUtils = new DateUtils();

@@ -15,7 +15,7 @@
             <mat-card-content>
               <input type="hidden" name="id" [(ngModel)]="tournament.id">
               <div fxLayout.lt-sm="column" fxLayout="row" fxLayoutGap="10px">
-                <mat-form-field fxFlex="75%">
+                <mat-form-field fxFlex="65%">
                   <mat-label>Name</mat-label>
                   <input matInput type="text" name="name" [(ngModel)]="tournament.name" required>
                 </mat-form-field>
@@ -29,6 +29,11 @@
                          required pattern="[0-5]" #starLevel="ngModel">
                   <mat-error *ngIf="starLevel.control?.hasError('pattern')">Star level must be between 0 - 5</mat-error>
                 </mat-form-field>
+                <div class="ready-toggle-container">
+                  <mat-slide-toggle name="ready" fxFlex=" 10%" [(ngModel)]="tournament.ready">
+                    Ready
+                  </mat-slide-toggle>
+                </div>
               </div>
               <div fxLayout="row" fxLayoutGap="10px">
                 <mat-form-field fxFlex="50%">

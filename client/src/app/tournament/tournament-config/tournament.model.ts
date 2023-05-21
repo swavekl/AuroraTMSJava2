@@ -36,6 +36,8 @@ export class Tournament {
   // events in the tournament
   events: TournamentEvent [];
 
+  ready: boolean;
+
   // convert dates from string to date objects
   static convert(tournament: Tournament): Tournament {
     const dateUtils = new DateUtils();
@@ -81,6 +83,7 @@ export class Tournament {
     tournament.email = formValues.email;
     tournament.phone = formValues.phone;
     tournament.totalPrizeMoney = formValues.totalPrizeMoney;
+    tournament.ready = formValues.ready;
     // load configuration object separately
     const configuration = new TournamentConfiguration();
     tournament.configuration = configuration;
@@ -161,6 +164,7 @@ export class Tournament {
     tournament.configuration.personnelList = [];
     tournament.configuration.checkInType = CheckInType.DAILY;
     tournament.configuration.monitoredTables = null;
+    tournament.ready = false;
     return tournament;
   }
 
@@ -225,7 +229,8 @@ export class Tournament {
       endDate: dateUtils.convertFromLocalToUTCDate(newEndDate),
       configuration: convertedConfiguration,
       numEntries: 0,
-      numEventEntries: 0
+      numEventEntries: 0,
+      ready: false
     };
     return clonedTournament;
   }

@@ -61,6 +61,9 @@ public class TournamentEntity {
     // total prize money
     private int totalPrizeMoney;
 
+    // if true will be displayed to players in the list.  If false it is still being configured.
+    private boolean ready;
+
     public Long getId() {
         return id;
     }
@@ -214,6 +217,14 @@ public class TournamentEntity {
         this.totalPrizeMoney = totalPrizeMoney;
     }
 
+    public boolean isReady() {
+        return ready;
+    }
+
+    public void setReady(boolean ready) {
+        this.ready = ready;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -236,11 +247,12 @@ public class TournamentEntity {
                 Objects.equals(numEventEntries, entity.numEventEntries) &&
                 Objects.equals(maxNumEventEntries, entity.maxNumEventEntries) &&
                 Objects.equals(totalPrizeMoney, entity.totalPrizeMoney) &&
+                Objects.equals(ready, entity.ready) &&
                 Objects.equals(content, entity.content);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, venueName, streetAddress, city, state, zipCode, startDate, endDate, starLevel, contactName, email, phone, totalPrizeMoney, content);
+        return Objects.hash(id, name, venueName, streetAddress, city, state, zipCode, startDate, endDate, starLevel, contactName, email, phone, totalPrizeMoney, content, ready);
     }
 }

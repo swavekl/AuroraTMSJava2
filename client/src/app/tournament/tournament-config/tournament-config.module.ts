@@ -37,6 +37,7 @@ import {PrizeInfoDialogComponent} from './tournament-event-config/prize-info-dia
 import {PrizeInfoValidatorDirective} from './tournament-event-config/prize-info-dialog/prize-info-validator.directive';
 import {TournamentWaitingListComponent} from './tournament-waiting-list/tournament-waiting-list.component';
 import {TournamentWaitingListContainerComponent} from './tournament-waiting-list/tournament-waiting-list-container.component';
+import {MatSlideToggleModule} from '@angular/material/slide-toggle';
 
 @NgModule({
   declarations: [
@@ -54,31 +55,32 @@ import {TournamentWaitingListContainerComponent} from './tournament-waiting-list
     TournamentWaitingListComponent,
     TournamentWaitingListContainerComponent
   ],
-  imports: [
-    CommonModule,
-    FormsModule,
-    MatProgressBarModule,
-    MatCardModule,
-    MatListModule,
-    MatIconModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule,
-    MatButtonModule,
-    MatDatepickerModule,
-    MatNativeDateModule,
-    MatTabsModule,
-    MatTableModule,
-    MatToolbarModule,
-    FlexLayoutModule,
-    RouterModule,
-    SharedModule,
-    TournamentConfigRoutingModule,
-    MatCheckboxModule,
-    MatDialogModule,
-    MatTooltipModule,
-    MatButtonToggleModule
-  ],
+    imports: [
+        CommonModule,
+        FormsModule,
+        MatProgressBarModule,
+        MatCardModule,
+        MatListModule,
+        MatIconModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatSelectModule,
+        MatButtonModule,
+        MatDatepickerModule,
+        MatNativeDateModule,
+        MatTabsModule,
+        MatTableModule,
+        MatToolbarModule,
+        FlexLayoutModule,
+        RouterModule,
+        SharedModule,
+        TournamentConfigRoutingModule,
+        MatCheckboxModule,
+        MatDialogModule,
+        MatTooltipModule,
+        MatButtonToggleModule,
+        MatSlideToggleModule
+    ],
   providers: []
 })
 export class TournamentConfigModule {

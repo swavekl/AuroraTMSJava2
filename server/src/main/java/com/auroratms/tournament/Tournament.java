@@ -52,6 +52,8 @@ public class Tournament {
     // total prize money
     private int totalPrizeMoney;
 
+    private boolean isReady;
+
     /**
      * converts configuration to its JSON representation
      *
@@ -76,6 +78,7 @@ public class Tournament {
         entity.setNumEventEntries(numEventEntries);
         entity.setMaxNumEventEntries(maxNumEventEntries);
         entity.setTotalPrizeMoney(totalPrizeMoney);
+        entity.setReady(isReady);
 //        entity.setEvents(events);
         // convert from configuration to JSON
         if (configuration != null) {
@@ -114,6 +117,7 @@ public class Tournament {
         this.numEventEntries = entity.getNumEventEntries();
         this.maxNumEventEntries = entity.getMaxNumEventEntries();
         this.totalPrizeMoney = entity.getTotalPrizeMoney();
+        this.isReady = entity.isReady();
 //        this.events = entity.getEvents();
 
         configuration = null;

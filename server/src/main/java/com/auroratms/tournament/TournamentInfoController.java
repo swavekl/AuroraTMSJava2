@@ -33,7 +33,9 @@ public class TournamentInfoController {
     private Collection<TournamentInfo> toTournamentInfos (Collection<Tournament> tournaments) {
         Collection<TournamentInfo> tournamentInfos = new ArrayList<>(tournaments.size());
         for (Tournament tournament : tournaments) {
-            tournamentInfos.add(toTournamentInfo(tournament));
+            if (tournament.isReady()) {
+                tournamentInfos.add(toTournamentInfo(tournament));
+            }
         }
         return tournamentInfos;
     }
@@ -72,6 +74,7 @@ public class TournamentInfoController {
             tournamentInfo.setLogo("../assets/images/MissingLogoSmall.png");
         }
         tournamentInfo.setTotalPrizeMoney(tournament.getTotalPrizeMoney());
+        tournamentInfo.setReady(tournament.isReady());
 
         return tournamentInfo;
     }
