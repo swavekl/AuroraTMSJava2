@@ -51,7 +51,7 @@ table.scores-table {
         //border: 1px solid lightgray;
 
         & button.subtract-button {
-          background-color: white;
+          background-color: lighten($primary-color, 40%);
         }
 
         & button.add-button {

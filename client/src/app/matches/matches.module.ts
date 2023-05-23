@@ -9,6 +9,7 @@ import {MatButtonModule} from '@angular/material/button';
 import {MatDialogModule} from '@angular/material/dialog';
 import {MatCheckboxModule} from '@angular/material/checkbox';
 import {MatInputModule} from '@angular/material/input';
+import {MatSnackBarModule} from '@angular/material/snack-bar';
 
 import {EntityDataService, EntityServices} from '@ngrx/data';
 
@@ -50,7 +51,8 @@ import { TieBreakingResultsDialogComponent } from './tie-breaking-results-dialog
         MatCheckboxModule,
         MatInputModule,
         SharedModule,
-        MatToolbarModule
+        MatToolbarModule,
+        MatSnackBarModule
     ]
 })
 export class MatchesModule {

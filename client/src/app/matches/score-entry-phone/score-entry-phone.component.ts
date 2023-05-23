@@ -1,12 +1,23 @@
-import {Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChange, SimpleChanges} from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  EventEmitter,
+  Input,
+  OnChanges,
+  OnInit,
+  Output,
+  SimpleChange,
+  SimpleChanges
+} from '@angular/core';
 import {Match} from '../model/match.model';
+import {MatSnackBar} from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-score-entry-phone',
   templateUrl: './score-entry-phone.component.html',
   styleUrls: ['./score-entry-phone.component.scss']
 })
-export class ScoreEntryPhoneComponent implements OnInit, OnChanges {
+export class ScoreEntryPhoneComponent implements OnInit, OnChanges, AfterViewInit {
 
   @Input()
   // public match: Match;
@@ -28,6 +39,9 @@ export class ScoreEntryPhoneComponent implements OnInit, OnChanges {
   @Input()
   public doubles: boolean;
 
+  @Input()
+  public screenVisited: boolean = false;
+
   @Output()
   public saveMatch: EventEmitter<Match> = new EventEmitter<Match>();
 
@@ -44,7 +58,7 @@ export class ScoreEntryPhoneComponent implements OnInit, OnChanges {
   gameScoreSideA: number;
   gameScoreSideB: number;
 
-  constructor() {
+  constructor(private snackBar: MatSnackBar) {
     this.games = [];
     this.pointsPerGame = 11;
     this.gameToShowIndex = 0;
@@ -278,5 +292,14 @@ export class ScoreEntryPhoneComponent implements OnInit, OnChanges {
   getDoublesPlayerName (playerNames: string, index: number): string {
     const playerNamesArray = playerNames.split('/');
     return playerNamesArray[index].trim();
+  }
+
+  ngAfterViewInit(): void {
+    if (this.screenVisited === false) {
+      const statusText = `Touch name of player who won the game first and then adjust the opponent's score with + / - buttons.`;
+      this.snackBar.open(statusText, "Close", {
+        verticalPosition: 'top'
+      });
+    }
   }
 }

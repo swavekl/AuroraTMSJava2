@@ -7,6 +7,7 @@ import {MatchCardService} from '../service/match-card.service';
 import {createSelector} from '@ngrx/store';
 import {Match} from '../model/match.model';
 import {MatchService} from '../service/match.service';
+import {LocalStorageService} from '../../shared/local-storage.service';
 
 @Component({
   selector: 'app-score-entry-phone-container',
@@ -18,6 +19,7 @@ import {MatchService} from '../service/match.service';
       [numberOfGames]="numberOfGames"
       [pointsPerGame]="pointsPerGame"
       [doubles]="doubles"
+      [screenVisited]="screenVisited"
     (saveMatch)="onSaveMatch($event)"
     (cancelMatch)="onCancelMatch()">
     </app-score-entry-phone>
@@ -39,13 +41,18 @@ export class ScoreEntryPhoneContainerComponent implements OnInit, OnDestroy {
   private returnUrl: string;
 
   public doubles: boolean;
+  public screenVisited: boolean;
+  private SCREEN_VISITED: string = 'visited-score-entry-phone';
+
   private subscriptions: Subscription = new Subscription();
 
   constructor(private activatedRoute: ActivatedRoute,
               private linearProgressBarService: LinearProgressBarService,
               private matchCardService: MatchCardService,
               private matchService: MatchService,
-              private router: Router) {
+              private router: Router,
+              private localStorageService: LocalStorageService
+  ) {
     this.tournamentId = this.activatedRoute.snapshot.params['tournamentId'] || 0;
     const tournamentDay = this.activatedRoute.snapshot.params['tournamentDay'] || 1;
     const tournamentEntryId = this.activatedRoute.snapshot.params['tournamentEntryId'] || 0;
@@ -57,6 +64,7 @@ export class ScoreEntryPhoneContainerComponent implements OnInit, OnDestroy {
     this.numberOfGames = 5;
     this.setupProgressIndicator();
     this.loadMatchInformation(this.matchCardId, this.matchIndex);
+    this.screenVisited = (this.localStorageService.getSavedState(this.SCREEN_VISITED) != null);
   }
 
   ngOnInit(): void {
@@ -117,6 +125,8 @@ export class ScoreEntryPhoneContainerComponent implements OnInit, OnDestroy {
         // reload the match card with this match
         this.matchCardService.getByKey(this.matchCardId);
         this.backToMatchCard();
+        this.localStorageService.setSavedState('true', this.SCREEN_VISITED);
+        this.screenVisited = true;
       });
     this.subscriptions.add(subscription);
   }
