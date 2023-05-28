@@ -80,7 +80,7 @@ dependencies {
 
     // okta APIs
     implementation ("com.okta.sdk:okta-sdk-api:${oktaSdkVersion}")
-    runtimeOnly ("com.okta.sdk:okta-sdk-impl:${oktaSdkVersion}")
+    implementation ("com.okta.sdk:okta-sdk-impl:${oktaSdkVersion}")
     runtimeOnly ("com.okta.sdk:okta-sdk-httpclient:${oktaSdkVersion}")
     implementation("com.okta.authn.sdk:okta-authn-sdk-api:${oktaAuthnSdkVersion}")
     runtimeOnly ("com.okta.authn.sdk:okta-authn-sdk-impl:${oktaAuthnSdkVersion}")

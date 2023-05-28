@@ -6,6 +6,7 @@ import {ActivatedRoute, Router} from '@angular/router';
 import {ProfileFindPopupComponent, ProfileSearchData} from '../profile-find-popup/profile-find-popup.component';
 import {MatDialog} from '@angular/material/dialog';
 import {Subscription} from 'rxjs';
+import {Profile} from '../profile';
 
 @Component({
   selector: 'app-profile-add-by-td',
@@ -15,7 +16,7 @@ import {Subscription} from 'rxjs';
 export class ProfileAddByTDComponent implements OnInit, OnDestroy {
 
   @Output()
-  createProfile: EventEmitter<UsattPlayerRecord> = new EventEmitter();
+  createProfile: EventEmitter<Profile> = new EventEmitter();
 
   @Output()
   useProfile: EventEmitter<string> = new EventEmitter();
@@ -24,6 +25,7 @@ export class ProfileAddByTDComponent implements OnInit, OnDestroy {
 
   firstName: string;
   lastName: string;
+  email: string;
   playerProfileFound: boolean;
   playerRecordFound: boolean;
   playerRecord: UsattPlayerRecord;
@@ -115,10 +117,27 @@ export class ProfileAddByTDComponent implements OnInit, OnDestroy {
   }
 
   onCreateProfile () {
-    this.createProfile.emit(this.playerRecord);
+    const usattPlayerRecord: UsattPlayerRecord = this.playerRecord;
+    const profile: Profile = new Profile();
+    profile.email = this.email;
+    profile.login = this.email;
+    profile.firstName = usattPlayerRecord.firstName;
+    profile.lastName = usattPlayerRecord.lastName;
+    profile.membershipId = usattPlayerRecord.membershipId;
+    profile.state = usattPlayerRecord.state;
+    profile.zipCode = usattPlayerRecord.zip;
+    profile.gender = (usattPlayerRecord.gender === 'F') ? 'Female' : 'Male';
+    profile.dateOfBirth = usattPlayerRecord.dateOfBirth;
+    profile.countryCode = 'US';
+
+    this.createProfile.emit(profile);
   }
 
   onUseProfile () {
     this.useProfile.emit(this.profileId);
+  }
+
+  isEmailRequired() {
+    return this.playerRecordFound && !this.playerProfileFound;
   }
 }

@@ -1,0 +1,43 @@
+@use "src/my-theme" as *;
+
+div.table-container {
+  overflow: auto;
+  height: calc(100vh - 200px);
+  width: 100%;
+  //border: 1px solid greenyellow;
+}
+
+.toolbar-spacer-2 {
+  margin-right: 16px;
+}
+
+.mat-mdc-row:hover {
+  background-color: lighten($primary-color, 40%);
+  cursor: pointer;
+}
+
+.mat-column-firstName {
+  flex: 1;
+}
+
+.mat-column-lastName {
+  flex: 1;
+}
+
+.mat-column-state {
+  flex: 1;
+}
+
+.mat-column-umpireRank {
+  flex: 1;
+}
+
+.mat-column-refereeRank {
+  flex: 1;
+}
+
+.mat-column-actions {
+  flex: 1;
+}
+
+

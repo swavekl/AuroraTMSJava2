@@ -29,6 +29,7 @@ export class ProfileEditContainerComponent implements OnInit, OnDestroy {
   profileId: string;
   playerRecord: UsattPlayerRecord;
   initializingProfile: boolean;
+  addingProfile: boolean;
   onBoarding: boolean;
   newMember: boolean;
   canChangeMembershipId: boolean;
@@ -51,6 +52,7 @@ export class ProfileEditContainerComponent implements OnInit, OnDestroy {
 
     // true during on-boarding
     this.initializingProfile = (history?.state?.initializingProfile === true);
+    this.addingProfile = (history?.state?.addingProfile === true);
     this.onBoarding = this.initializingProfile;
     // using existing member data during on-boarding
     this.playerRecord = history?.state?.playerRecord;
@@ -59,9 +61,9 @@ export class ProfileEditContainerComponent implements OnInit, OnDestroy {
     // if we are coming from registration filling in the first time
     if (this.initializingProfile) {
       this.returnUrl = '/ui/userprofile/onboardcomplete';
+    } else if (this.addingProfile) {
+      this.returnUrl = history?.state?.returnUrl;
     } else {
-      // console.log('player data', this.playerRecord);
-      // this.returnUrl = history?.state?.url;  // for when TD edits profiles
       this.returnUrl = '/ui/home';
     }
     // check if user can change membership id - sometimes it is necessary when they make a mistake
@@ -130,7 +132,9 @@ export class ProfileEditContainerComponent implements OnInit, OnDestroy {
           // console.log ('SAVED profile');
           const membershipIdChanged = profile.membershipId !== this.savedMembershipId;
           if (!membershipIdChanged) {
-            this.authenticationService.makeProfileComplete();
+            if (!this.addingProfile) {
+              this.authenticationService.makeProfileComplete();
+            }
             this.navigateToNextPage(profile);
           } else {
             // console.log ('updating membership id ' + this.savedMembershipId + ' new ' + profile.membershipId);

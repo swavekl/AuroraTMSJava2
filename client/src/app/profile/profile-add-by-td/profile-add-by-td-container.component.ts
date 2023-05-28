@@ -1,10 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, OnDestroy, OnInit} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {ProfileService} from '../profile.service';
 import {UsattPlayerRecord} from '../model/usatt-player-record.model';
 import {Profile} from '../profile';
-import {first, switchMap} from 'rxjs/operators';
+import {first, map, switchMap} from 'rxjs/operators';
 import {AuthenticationService} from '../../user/authentication.service';
+import {Subscription} from 'rxjs';
 
 @Component({
   selector: 'app-profile-add-by-tdcontainer',
@@ -16,55 +17,45 @@ import {AuthenticationService} from '../../user/authentication.service';
   styles: [
   ]
 })
-export class ProfileAddByTdContainerComponent implements OnInit {
+export class ProfileAddByTdContainerComponent implements OnInit, OnDestroy {
 
   private tournamentId: string;
 
+  private subscriptions: Subscription = new Subscription();
+
   constructor(private router: Router,
               private activatedRoute: ActivatedRoute,
-              private profileService: ProfileService,
-              private authenticationService: AuthenticationService) {
+              private profileService: ProfileService) {
     this.tournamentId = this.activatedRoute.snapshot.params['tournamentId'];
   }
 
   ngOnInit(): void {
   }
 
-  onCreateProfile(usattPlayerRecord: UsattPlayerRecord) {
-    // const profile: Profile = new Profile();
-    // profile.firstName = usattPlayerRecord.firstName;
-    // profile.lastName = usattPlayerRecord.lastName;
-    // profile.membershipId = usattPlayerRecord.membershipId;
-    // // profile.userId = usattPlayerRecord.
-    // this.profileService.updateProfile(profile);
-    const tempPassword: string = usattPlayerRecord.firstName + '1234';
-    const email = 'swaveklorenc+' + usattPlayerRecord.firstName.toLowerCase() + '@gmail.com';
-    // const subscription = this.authenticationService.register(
-    //   usattPlayerRecord.firstName, usattPlayerRecord.lastName, email, tempPassword, tempPassword)
-    //   .pipe(
-    //     switchMap((data, index) => {
-    //       // update profile based on USATT record information
-    //       const profileId = '1234rfwser'; // data.profileId;
-    //       this.profileService.getProfile(profileId);
-    //
-    //       // todo
-    //       this.router.navigate(['/ui/userprofile', profileId]);
-    //     }
-    //     // error => {
-    //     //   // console.log('error registering', error);
-    //     //   // const causes = error?.error?.errorCauses || '{}';
-    //     //   // this.message = 'Error was encountered during registration: ' + JSON.stringify(causes);
-    //     //   // this.okMessage = '';
-    //     //   // this.registrationInProgress = false;
-    //     //   // this.linearProgressBarService.setLoading(false);
-    //     // })
-    //   );
-    // this.subscription.add(subscription);
-
-
+  onCreateProfile(profile: Profile) {
+    const subscription = this.profileService.createProfile(profile)
+      .pipe(first())
+      .subscribe((createdProfile: Profile) => {
+        const url = `/ui/userprofile/edit/${createdProfile.userId}`;
+        const extras = {
+          state: {
+            addingProfile: true,
+            returnUrl: `/ui/officials/create/${createdProfile.userId}`
+          }
+        };
+        this.router.navigateByUrl(url, extras);
+      },
+      (error: any) => {
+        console.log('Error creating profile', error);
+      });
+    this.subscriptions.add(subscription);
   }
 
   onUseProfile(profileId: string) {
 
+  }
+
+  ngOnDestroy(): void {
+    this.subscriptions.unsubscribe();
   }
 }

@@ -41,6 +41,9 @@
       <mat-list-item *ngIf="isLinkVisible('/ui/club')" [disabled]="!isProfileComplete()" (click)="closeAndNavigateToRoute('/ui/club/list')" routerLinkActive="active">
         <a matListItemTitle>Clubs</a>
       </mat-list-item>
+      <mat-list-item *ngIf="isLinkVisible('/ui/officials')" [disabled]="!isProfileComplete()" (click)="closeAndNavigateToRoute('/ui/officials')" routerLinkActive="active">
+        <a matListItemTitle>Officials</a>
+      </mat-list-item>
       <mat-list-item *ngIf="isLinkVisible('/ui/clubaffiliation')" [disabled]="!isProfileComplete()" (click)="closeAndNavigateToRoute('/ui/clubaffiliation/list')" routerLinkActive="active">
         <a matListItemTitle>Club Affiliation</a>
       </mat-list-item>

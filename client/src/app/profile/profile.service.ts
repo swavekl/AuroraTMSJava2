@@ -62,6 +62,27 @@ export class ProfileService {
   }
 
   /**
+   * Creates profile
+   * @param profile profile to update
+   */
+  createProfile(profile: Profile): Observable<Profile> {
+    this.setLoading(true);
+    const url = `${this.baseUrl}`;
+    return this.http.post<Profile>(url, profile, {
+      headers: new HttpHeaders({
+        'Content-Type': 'application/json'
+      })
+    }).pipe(
+        tap(() => {
+            this.setLoading(false);
+          },
+          () => {
+            this.setLoading(false);
+          })
+      );
+  }
+
+  /**
    * Updates profile
    * @param profile profile to update
    */

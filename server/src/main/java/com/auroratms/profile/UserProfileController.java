@@ -5,12 +5,14 @@ import com.auroratms.club.ClubEntity;
 import com.auroratms.club.ClubService;
 import com.auroratms.usatt.UsattPlayerRecord;
 import com.auroratms.usatt.UsattPlayerRecordRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -22,6 +24,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("api")
 @PreAuthorize("isAuthenticated()")
+@Slf4j
 public class UserProfileController extends AbstractOktaController {
 
     @Autowired
@@ -99,6 +102,38 @@ public class UserProfileController extends AbstractOktaController {
         }
 
         return new ResponseEntity(HttpStatus.OK);
+    }
+
+    /**
+     * Creates user profile
+     *
+     * @param userProfile
+     * @return
+     */
+    @PostMapping("/profiles")
+    @ResponseBody
+    @PreAuthorize("hasAuthority('Admins') or hasAuthority('USATTMatchOfficialsManagers')")
+    public ResponseEntity<UserProfile> create(@RequestBody UserProfile userProfile) {
+        try {
+            UserProfile createdProfile = userProfileService.createProfile(userProfile);
+            // initial save maybe during registration and is without USATT membership id
+            if (userProfile.getMembershipId() != null) {
+                createdProfile.setMembershipId(userProfile.getMembershipId());
+                // save mapping from Okta user profile id to USATT membership id
+                UserProfileExt userProfileExt = toUserProfileExt(createdProfile);
+                userProfileExtService.save(userProfileExt);
+
+                UsattPlayerRecord usattPlayerRecord = playerRecordRepository.getFirstByMembershipId(userProfile.getMembershipId());
+                if (usattPlayerRecord != null) {
+                    usattPlayerRecord.setState(userProfile.getState());
+                    playerRecordRepository.save(usattPlayerRecord);
+                }
+            }
+            return new ResponseEntity<UserProfile> (createdProfile, HttpStatus.CREATED);
+        } catch (Exception e) {
+            log.error("Error creating profile", e);
+            return new ResponseEntity(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
     }
 
     @GetMapping("/profiles")

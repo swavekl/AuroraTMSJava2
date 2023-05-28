@@ -3,6 +3,7 @@ package com.auroratms.profile;
 import com.okta.sdk.authc.credentials.TokenClientCredentials;
 import com.okta.sdk.client.Client;
 import com.okta.sdk.client.Clients;
+import com.okta.sdk.impl.resource.DefaultUserBuilder;
 import com.okta.sdk.resource.group.Group;
 import com.okta.sdk.resource.group.GroupList;
 import com.okta.sdk.resource.user.User;
@@ -17,10 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 @Service
 @CacheConfig(cacheNames = {"profiles"})
@@ -71,6 +69,36 @@ public class UserProfileService {
             this.sidService.updateSid(userProfile.getLogin(), userProfile.getEmail());
         }
         return fromOktaUser (updatedOktaUser);
+    }
+
+    @CachePut(key = "#result.userId")
+    public UserProfile createProfile(UserProfile userProfile) {
+        Client client = getClient();
+
+        String password = userProfile.getFirstName() + "1234$";
+        Map<String, Object> properties = new HashMap<>();
+        properties.put("state", userProfile.getState());
+        properties.put("zipCode", userProfile.getZipCode());
+        properties.put("countryCode", userProfile.getCountryCode() != null ? userProfile.getCountryCode() : "US");
+        properties.put("gender", userProfile.getGender() != null ? userProfile.getGender() : "M");
+        Date dateOfBirth = userProfile.getDateOfBirth();
+        if (dateOfBirth != null) {
+            SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
+            properties.put("birthdate", dateFormat.format(dateOfBirth));
+        }
+
+        User user = new DefaultUserBuilder()
+                .setFirstName(userProfile.getFirstName())
+                .setLastName(userProfile.getLastName())
+                .setEmail(userProfile.getEmail())
+                .setLogin(userProfile.getLogin())
+                .setPassword(password.toCharArray())
+                .setSecurityQuestion("What is the food you least liked as a child?")
+                .setSecurityQuestionAnswer("spinach")
+                .setProfileProperties(properties)
+                .buildAndCreate(client);
+
+        return fromOktaUser(user);
     }
 
     /**

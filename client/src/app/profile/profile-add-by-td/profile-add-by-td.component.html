@@ -18,7 +18,7 @@
       <span fxFlex></span>
       <button mat-raised-button (click)="onFindPlayerById()">Find by Id</button>
     </div>
-    <div *ngIf="playerRecordFound || playerProfileFound">
+    <div *ngIf="playerRecordFound || playerProfileFound" style="padding: 10px">
       Found Player Information:
       <table class="player-data-table">
         <tbody>
@@ -27,8 +27,16 @@
           <td class="row-value">{{firstName}} {{lastName}}</td>
         </tr>
         <tr>
+          <td class="row-title">Gender</td>
+          <td class="row-value">{{ playerRecord?.gender === 'F' ? 'Female' : 'Male' }}</td>
+        </tr>
+        <tr>
           <td class="row-title">State</td>
           <td class="row-value">{{ playerRecord?.state }}</td>
+        </tr>
+        <tr>
+          <td class="row-title">Zip Code</td>
+          <td class="row-value">{{ playerRecord?.zip }}</td>
         </tr>
         <tr>
           <td class="row-title">Membership Id</td>
@@ -45,8 +53,17 @@
         </tbody>
       </table>
     </div>
+    <form style="width: 300px; padding: 10px 0;" [hidden]="!isEmailRequired()">
+      <div fxLayout="row">
+          <mat-form-field fxFlexFill>
+            <mat-label>Email</mat-label>
+            <input matInput type="email" name="email" [(ngModel)]="email" email required>
+            <mat-error>Invalid email address</mat-error>
+          </mat-form-field>
+      </div>
+    </form>
     <div *ngIf="!playerProfileFound && playerRecordFound">
-       <button type="button" mat-raised-button>Create Profile</button>
+       <button type="button" mat-raised-button (click)="onCreateProfile()">Create Profile</button>
     </div>
     <div *ngIf="playerProfileFound">
        <button type="button" mat-raised-button>Use Profile</button>

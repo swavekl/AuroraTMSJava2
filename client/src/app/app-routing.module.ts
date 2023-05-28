@@ -139,6 +139,11 @@ const routes: Routes = [
     data: {
       roles: [UserRoles.ROLE_ADMINS]
     }
+  },
+  { path: 'ui/officials', loadChildren: () => import('./officials/officials.module').then(m => m.OfficialsModule),
+    data: {
+      roles: [UserRoles.ROLE_EVERYONE]
+    }
   }
 ];
 

@@ -1,0 +1,63 @@
+<div class="mat-headline-6" style="padding-left: 8px">Match Officials</div>
+<mat-toolbar fxLayout="row" fxLayoutGap="10">
+  <form>
+    <button type="button" mat-raised-button color="" [routerLink]="[createUrl]"
+            [hidden]="!canAddOfficial()">
+      <mat-icon matListItemIcon>add</mat-icon>
+      Add Official
+    </button>
+    <span class="toolbar-spacer-2"></span>
+    <mat-form-field>
+      <mat-label>Filter by Name</mat-label>
+      <input matInput name="filterNameCtrl" type="text" [ngModel]="filterName" #filterNameCtrl="ngModel">
+    </mat-form-field>
+  </form>
+</mat-toolbar>
+<div class="table-container">
+  <mat-table matSort aria-label="Officials">
+    <ng-container matColumnDef="firstName">
+      <mat-header-cell *matHeaderCellDef>First Name</mat-header-cell>
+      <mat-cell *matCellDef="let official" [routerLink]="[editUrl, official.id]">{{ official.firstName }}</mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="lastName">
+      <mat-header-cell *matHeaderCellDef>Last Name</mat-header-cell>
+      <mat-cell *matCellDef="let official" [routerLink]="[editUrl, official.id]">{{ official.lastName }}</mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="state">
+      <mat-header-cell *matHeaderCellDef>State</mat-header-cell>
+      <mat-cell *matCellDef="let official" [routerLink]="[editUrl, official.id]">{{ official.state }}</mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="umpireRank">
+      <mat-header-cell *matHeaderCellDef>Umpire Rank</mat-header-cell>
+      <mat-cell *matCellDef="let official" [routerLink]="[editUrl, official.id]">{{ official.umpireRank }}</mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="refereeRank">
+      <mat-header-cell *matHeaderCellDef>Referee Rank</mat-header-cell>
+      <mat-cell *matCellDef="let official" [routerLink]="[editUrl, official.id]">{{ official.refereeRank }}</mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="actions">
+      <mat-header-cell *matHeaderCellDef>Actions</mat-header-cell>
+      <mat-cell *matCellDef="let official">
+        <button mat-icon-button (click)="onDeleteOfficial(official)"
+                matTooltip="Delete" style="margin-right: 20px">
+          <mat-icon matListItemIcon>delete</mat-icon>
+        </button>
+      </mat-cell>
+    </ng-container>
+    <mat-header-row *matHeaderRowDef="displayColumns; sticky: true"></mat-header-row>
+    <mat-row *matRowDef="let row; columns: displayColumns"></mat-row>
+  </mat-table>
+  <mat-paginator #paginator
+                 [length]="dataSource.total$ | async"
+                 [pageIndex]="0"
+                 [pageSize]="10"
+                 [pageSizeOptions]="[5, 10, 20]"
+                 aria-label="Select page">
+  </mat-paginator>
+</div>
+

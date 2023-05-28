@@ -75,6 +75,11 @@ const entityMetadata: EntityMetadataMap = {
     additionalCollectionState: {
       total: 0
     }
+  },
+  Official: {
+    additionalCollectionState: {
+      total: 0
+    }
   }
 };
 
