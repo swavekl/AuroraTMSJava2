@@ -1,4 +1,7 @@
-import { Component } from '@angular/core';
+import {Component, EventEmitter, Input, Output} from '@angular/core';
+import {Official} from '../model/official.model';
+import {UmpireRank} from '../model/umpire-rank.enum';
+import {Ranks} from '../model/ranks';
 
 @Component({
   selector: 'app-official-edit',
@@ -7,4 +10,29 @@ import { Component } from '@angular/core';
 })
 export class OfficialEditComponent {
 
+  @Input()
+  official: Official;
+
+  @Output()
+  save: EventEmitter<Official> = new EventEmitter<Official>();
+
+  @Output()
+  cancel: EventEmitter<any> = new EventEmitter<any>();
+
+  umpireRanks: any[] = [];
+  refereeRanks: any[] = [];
+
+
+  constructor() {
+    this.umpireRanks = Ranks.getUmpireRanks();
+    this.refereeRanks = Ranks.getRefereeRanks();
+  }
+
+  onSave(value: any) {
+    this.save.emit(value);
+  }
+
+  onCancel() {
+    this.cancel.emit(null);
+  }
 }

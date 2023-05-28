@@ -17,6 +17,7 @@ import {OfficialsRoutingModule} from './officials-routing.module';
 import {OfficialsListComponent} from './officials-list/officials-list.component';
 import {OfficialEditComponent} from './official-edit/official-edit.component';
 import { OfficialEditContainerComponent } from './official-edit/official-edit-container.component';
+import {MatSelectModule} from '@angular/material/select';
 
 
 @NgModule({
@@ -25,21 +26,22 @@ import { OfficialEditContainerComponent } from './official-edit/official-edit-co
     OfficialEditComponent,
     OfficialEditContainerComponent
   ],
-  imports: [
-    CommonModule,
-    OfficialsRoutingModule,
-    MatTableModule,
-    MatPaginatorModule,
-    MatSortModule,
-    FlexLayoutModule,
-    MatButtonModule,
-    MatListModule,
-    MatInputModule,
-    MatTooltipModule,
-    MatToolbarModule,
-    FormsModule,
-    MatIconModule
-  ]
+    imports: [
+        CommonModule,
+        OfficialsRoutingModule,
+        MatTableModule,
+        MatPaginatorModule,
+        MatSortModule,
+        FlexLayoutModule,
+        MatButtonModule,
+        MatListModule,
+        MatInputModule,
+        MatTooltipModule,
+        MatToolbarModule,
+        FormsModule,
+        MatIconModule,
+        MatSelectModule
+    ]
 })
 export class OfficialsModule {
 }
