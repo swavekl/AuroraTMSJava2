@@ -32,7 +32,6 @@ export class OfficialsListComponent implements AfterViewInit, OnDestroy {
   displayColumns = ['firstName', 'lastName', 'state', 'umpireRank', 'refereeRank', 'actions'];
 
   editUrl: string = '/ui/officials/edit';
-  createUrl: string = '/ui/userprofile/addbytd/0';
 
   private subscriptions: Subscription = new Subscription();
 
@@ -67,8 +66,13 @@ export class OfficialsListComponent implements AfterViewInit, OnDestroy {
       });
   }
 
-  newOfficial() {
-    this.router.navigateByUrl(`${this.editUrl}/0`);
+  addOfficial() {
+    const extras = {
+      state: {
+        returnUrl: '/ui/officials'
+      }
+    };
+    this.router.navigateByUrl('/ui/userprofile/addbytd/0', extras);
   }
 
   editOfficial(id: number) {

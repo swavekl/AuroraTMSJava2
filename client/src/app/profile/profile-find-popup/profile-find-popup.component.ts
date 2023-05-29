@@ -55,7 +55,8 @@ export class ProfileFindPopupComponent implements OnInit {
       zipCode: profile.zipCode,
       gender: profile.gender,
       membershipExpirationDate: profile.membershipExpirationDate,
-      membershipId: profile.membershipId
+      membershipId: profile.membershipId,
+      email: profile.email
     };
     this.dialogRef.close({action: 'ok', selectedPlayerRecord: selectedPlayerData});
   }

@@ -11,7 +11,8 @@ import {Subscription} from 'rxjs';
   selector: 'app-profile-add-by-tdcontainer',
   template: `
     <app-profile-add-by-td (createProfile)="onCreateProfile($event)"
-    (useProfile)="onUseProfile($event)">
+    (useProfile)="onUseProfile($event)"
+    (cancel)="onCancel($event)">
     </app-profile-add-by-td>
   `,
   styles: [
@@ -20,6 +21,7 @@ import {Subscription} from 'rxjs';
 export class ProfileAddByTdContainerComponent implements OnInit, OnDestroy {
 
   private tournamentId: string;
+  private returnUrl: string;
 
   private subscriptions: Subscription = new Subscription();
 
@@ -27,9 +29,14 @@ export class ProfileAddByTdContainerComponent implements OnInit, OnDestroy {
               private activatedRoute: ActivatedRoute,
               private profileService: ProfileService) {
     this.tournamentId = this.activatedRoute.snapshot.params['tournamentId'];
+    this.returnUrl = history?.state?.returnUrl;
   }
 
   ngOnInit(): void {
+  }
+
+  onCancel($event: any) {
+    this.router.navigateByUrl(this.returnUrl);
   }
 
   onCreateProfile(profile: Profile) {

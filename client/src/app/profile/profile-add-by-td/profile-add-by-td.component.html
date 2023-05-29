@@ -1,73 +1,95 @@
-<!--<app-centered-panel [noTopGap]="true">-->
-<div style="padding: 12px">
-  <div class="mat-headline-5">
-    Find or create player profile
-  </div>
-  <div fxLayout="column" fxLayoutAlign="center start">
-    <div style="margin: 8px">
-      Find existing profile by first and last name.
-    </div>
-    <div fxLayout="row" fxFlexAlign="start center">
-      <button mat-raised-button (click)="findPlayerProfile()">Find Player Profile</button>
-    </div>
-    <div style="margin: 8px">
-      If profile doesn't exist, find player USATT record by first and last name or by membership id.
-    </div>
-    <div fxLayout="row" fxFlexAlign="start center" fxLayoutGap="10px">
-      <button mat-raised-button (click)="onFindPlayerByName()">Find by Name</button>
-      <span fxFlex></span>
-      <button mat-raised-button (click)="onFindPlayerById()">Find by Id</button>
-    </div>
-    <div *ngIf="playerRecordFound || playerProfileFound" style="padding: 10px">
-      Found Player Information:
-      <table class="player-data-table">
-        <tbody>
-        <tr>
-          <td class="row-title">Name</td>
-          <td class="row-value">{{firstName}} {{lastName}}</td>
-        </tr>
-        <tr>
-          <td class="row-title">Gender</td>
-          <td class="row-value">{{ playerRecord?.gender === 'F' ? 'Female' : 'Male' }}</td>
-        </tr>
-        <tr>
-          <td class="row-title">State</td>
-          <td class="row-value">{{ playerRecord?.state }}</td>
-        </tr>
-        <tr>
-          <td class="row-title">Zip Code</td>
-          <td class="row-value">{{ playerRecord?.zip }}</td>
-        </tr>
-        <tr>
-          <td class="row-title">Membership Id</td>
-          <td class="row-value">{{ playerRecord?.membershipId }}</td>
-        </tr>
-        <tr>
-          <td class="row-title">Expiration Date</td>
-          <td class="row-value">{{ playerRecord?.membershipExpirationDate | date }}</td>
-        </tr>
-        <tr>
-          <td class="row-title">Rating</td>
-          <td class="row-value">{{ playerRecord?.tournamentRating }}</td>
-        </tr>
-        </tbody>
-      </table>
-    </div>
-    <form style="width: 300px; padding: 10px 0;" [hidden]="!isEmailRequired()">
-      <div fxLayout="row">
-          <mat-form-field fxFlexFill>
-            <mat-label>Email</mat-label>
-            <input matInput type="email" name="email" [(ngModel)]="email" email required>
-            <mat-error>Invalid email address</mat-error>
-          </mat-form-field>
-      </div>
+<div fxLayout="row">
+  <div fxFlex></div>
+  <div fxFlex="30%" fxFlex.lt-md="100%" fxFlex.lt-lg="50%">
+    <form name="form" #f="ngForm" novalidate>
+    <mat-card>
+      <mat-card-title>
+        <div class="mat-headline-5" style="padding-left: 10px">
+          Find or Create Profile
+        </div>
+      </mat-card-title>
+      <mat-card-content>
+        <div>
+          <div fxLayout="column" fxLayoutAlign="center start">
+            <div style="margin: 0 0 8px 0">
+              Find existing profile by first and last name.
+            </div>
+            <div fxLayout="row" fxFlexAlign="start center">
+              <button mat-raised-button (click)="findPlayerProfile()">Find Profile</button>
+            </div>
+            <div style="margin: 24px 0 8px 0">
+              If profile doesn't exist, find player USATT record by first and last name or by membership id.
+            </div>
+            <div fxLayout="row" fxFlexAlign="start center" fxLayoutGap="10px">
+              <button mat-raised-button (click)="onFindPlayerByName()">Find by Name</button>
+              <span fxFlex></span>
+              <button mat-raised-button (click)="onFindPlayerById()">Find by Id</button>
+            </div>
+            <div style="padding: 24px 10px 10px 10px">
+              Found Player Information:
+              <table class="player-data-table">
+                <tbody>
+                <tr>
+                  <td class="row-title">Name</td>
+                  <td class="row-value">{{firstName}} {{lastName}}</td>
+                </tr>
+                <tr>
+                  <td class="row-title">Gender</td>
+                  <td class="row-value">{{ playerRecord?.gender === 'F' ? 'Female' : 'Male' }}</td>
+                </tr>
+                <tr>
+                  <td class="row-title">State</td>
+                  <td class="row-value">{{ playerRecord?.state }}</td>
+                </tr>
+                <tr>
+                  <td class="row-title">Zip Code</td>
+                  <td class="row-value">{{ playerRecord?.zip }}</td>
+                </tr>
+                <tr>
+                  <td class="row-title">Membership Id</td>
+                  <td class="row-value">{{ playerRecord?.membershipId }}</td>
+                </tr>
+                <tr>
+                  <td class="row-title">Expiration Date</td>
+                  <td class="row-value">{{ playerRecord?.membershipExpirationDate | date }}</td>
+                </tr>
+                <tr>
+                  <td class="row-title">Rating</td>
+                  <td class="row-value">{{ playerRecord?.tournamentRating }}</td>
+                </tr>
+                </tbody>
+              </table>
+            </div>
+              <div fxLayout="row" style="width: 300px; padding-top: 10px;">
+                <mat-form-field fxFlexFill>
+                  <mat-label>Email</mat-label>
+                  <input matInput type="email" name="email" [(ngModel)]="email" email required>
+                  <mat-error>Invalid email address</mat-error>
+                </mat-form-field>
+              </div>
+          </div>
+        </div>
+      </mat-card-content>
+      <mat-card-actions fxLayout="row">
+        <div>
+          <button type="button" mat-raised-button (click)="onCancel()">Cancel</button>
+        </div>
+        <span fxFlex></span>
+        <div>
+          <button type="button" mat-raised-button color="primary" (click)="onCreateProfile()"
+                  [disabled]="f.invalid || (firstName == null)"
+                  [hidden]="!isCreatingProfile()"
+          >Create Profile</button>
+        </div>
+        <div>
+          <button type="button" mat-raised-button color="primary" (click)="onUseProfile()"
+                  [disabled]="f.invalid || (firstName == null)"
+                  [hidden]="isCreatingProfile()"
+          >Use Profile</button>
+        </div>
+      </mat-card-actions>
+    </mat-card>
     </form>
-    <div *ngIf="!playerProfileFound && playerRecordFound">
-       <button type="button" mat-raised-button (click)="onCreateProfile()">Create Profile</button>
-    </div>
-    <div *ngIf="playerProfileFound">
-       <button type="button" mat-raised-button (click)="onUseProfile()">Use Profile</button>
-    </div>
   </div>
+  <div fxFlex></div>
 </div>
-<!--</app-centered-panel>-->

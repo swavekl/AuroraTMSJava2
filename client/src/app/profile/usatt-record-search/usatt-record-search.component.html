@@ -46,19 +46,21 @@
 <!--    <mat-divider style="width: 100%; padding: 8px 0;"></mat-divider>-->
   <div fxFlexFill>
     <div fxLayout="row" fxLayoutAlign="start center" fxFlexFill [fxHide]="searchingByMembershipId"
-         style="margin: 16px 0">
+         style="padding-bottom: 10px; border: 0px solid blue;">
       <button mat-raised-button type="button" (click)="onPreviousPage(f.value)" [disabled]="pageNum === 0">Prev Page
       </button>
       <span fxFlex></span>
       <button mat-raised-button type="button" (click)="onNextPage(f.value)">Next Page</button>
     </div>
-    <mat-list>
-      <mat-list-item *ngFor="let foundPlayer of foundPlayers$ | async"
-                     (click)="onSelection(foundPlayer)">
-        <h2 matListItemTitle>{{foundPlayer.firstName}} {{foundPlayer.lastName}} ({{foundPlayer.tournamentRating}})</h2>
-        <h3 matListItemLine>{{foundPlayer.city}} {{foundPlayer.state}}</h3>
-        <mat-divider></mat-divider>
-      </mat-list-item>
-    </mat-list>
+    <div style="overflow: auto; height: 230px; border: 0px solid green;">
+      <mat-list>
+        <mat-list-item *ngFor="let foundPlayer of foundPlayers$ | async"
+                       (click)="onSelection(foundPlayer)">
+          <h2 matListItemTitle>{{foundPlayer.firstName}} {{foundPlayer.lastName}} ({{foundPlayer.tournamentRating}})</h2>
+          <h3 matListItemLine>{{foundPlayer.city}} {{foundPlayer.state}}</h3>
+          <mat-divider></mat-divider>
+        </mat-list-item>
+      </mat-list>
+    </div>
   </div>
 </div>

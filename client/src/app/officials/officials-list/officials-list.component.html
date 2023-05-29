@@ -1,7 +1,7 @@
 <div class="mat-headline-6" style="padding-left: 8px">Match Officials</div>
 <mat-toolbar fxLayout="row" fxLayoutGap="10">
   <form>
-    <button type="button" mat-raised-button color="" [routerLink]="[createUrl]"
+    <button type="button" mat-raised-button color="" (click)="addOfficial()"
             [hidden]="!canAddOfficial()">
       <mat-icon matListItemIcon>add</mat-icon>
       Add Official

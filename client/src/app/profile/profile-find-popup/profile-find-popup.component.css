@@ -3,7 +3,11 @@
 }
 
 .profile-search-result-list {
-  height: 200px;
+  height: 225px;
   overflow-y: auto;
   padding-bottom: 8px;
+}
+
+div button {
+  margin: 0 8px;
 }

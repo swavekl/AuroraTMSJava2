@@ -120,8 +120,10 @@ public class UserProfileController extends AbstractOktaController {
             if (userProfile.getMembershipId() != null) {
                 createdProfile.setMembershipId(userProfile.getMembershipId());
                 // save mapping from Okta user profile id to USATT membership id
-                UserProfileExt userProfileExt = toUserProfileExt(createdProfile);
-                userProfileExtService.save(userProfileExt);
+                if (!userProfileExtService.existsByMembershipId(userProfile.getMembershipId())) {
+                    UserProfileExt userProfileExt = toUserProfileExt(createdProfile);
+                    userProfileExtService.save(userProfileExt);
+                }
 
                 UsattPlayerRecord usattPlayerRecord = playerRecordRepository.getFirstByMembershipId(userProfile.getMembershipId());
                 if (usattPlayerRecord != null) {

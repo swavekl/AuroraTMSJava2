@@ -21,13 +21,16 @@ export class ProfileAddByTDComponent implements OnInit, OnDestroy {
   @Output()
   useProfile: EventEmitter<string> = new EventEmitter();
 
+  @Output()
+  cancel: EventEmitter<any> = new EventEmitter();
+
   private subscriptions: Subscription = new Subscription();
 
   firstName: string;
   lastName: string;
   email: string;
-  playerProfileFound: boolean;
-  playerRecordFound: boolean;
+  playerProfileFound: boolean = false;
+  playerRecordFound: boolean = false;
   playerRecord: UsattPlayerRecord;
   private tournamentId: string;
   private profileId: string;
@@ -73,7 +76,9 @@ export class ProfileAddByTDComponent implements OnInit, OnDestroy {
     me.playerRecord = selectedPlayerRecord;
     me.firstName = selectedPlayerRecord.firstName;
     me.lastName = selectedPlayerRecord.lastName;
+    me.email = null;
     me.playerRecordFound = true;
+    me.playerProfileFound = false;
   }
 
   findPlayerProfile () {
@@ -89,11 +94,13 @@ export class ProfileAddByTDComponent implements OnInit, OnDestroy {
     const subscription = dialogRef.afterClosed().subscribe(result => {
       if (result?.action === 'ok') {
         this.playerProfileFound = true;
+        this.playerRecordFound = false;
         const playerData = result.selectedPlayerRecord;
         // console.log('selected player data ', playerData);
         this.profileId = playerData.id;
         this.firstName = playerData.firstName;
         this.lastName = playerData.lastName;
+        this.email = playerData.email;
         this.playerRecord = {
           membershipId: playerData.membershipId,
           membershipExpirationDate: playerData.membershipExpirationDate,
@@ -111,7 +118,6 @@ export class ProfileAddByTDComponent implements OnInit, OnDestroy {
           lastLeaguePlayedDate: null
         };
         // console.log('playerRecord from profile ', this.playerRecord);
-        this.playerRecordFound = true;
 
       }
     });
@@ -141,5 +147,13 @@ export class ProfileAddByTDComponent implements OnInit, OnDestroy {
 
   isEmailRequired() {
     return this.playerRecordFound && !this.playerProfileFound;
+  }
+
+  onCancel() {
+    this.cancel.emit(null);
+  }
+
+  isCreatingProfile() {
+    return !this.playerProfileFound && this.playerRecordFound;
   }
 }
