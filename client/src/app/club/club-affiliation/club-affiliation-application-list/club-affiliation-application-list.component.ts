@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, ViewChild} from '@angular/core';
+import {AfterViewInit, Component, OnDestroy, ViewChild} from '@angular/core';
 import {Router} from '@angular/router';
 import {UntypedFormControl} from '@angular/forms';
 import {MatPaginator} from '@angular/material/paginator';
@@ -6,17 +6,19 @@ import {MatSort} from '@angular/material/sort';
 import {MatTable} from '@angular/material/table';
 import {MatDialog} from '@angular/material/dialog';
 import {debounceTime, distinctUntilChanged, skip} from 'rxjs/operators';
+import {Subscription} from 'rxjs';
 import {ClubAffiliationApplicationListDataSource} from './club-affiliation-application-list-datasource';
 import {ClubAffiliationApplication} from '../model/club-affiliation-application.model';
 import {ClubAffiliationApplicationService} from '../service/club-affiliation-application.service';
 import {ConfirmationPopupComponent} from '../../../shared/confirmation-popup/confirmation-popup.component';
+import {LinearProgressBarService} from '../../../shared/linear-progress-bar/linear-progress-bar.service';
 
 @Component({
   selector: 'app-club-affiliation-application-list',
   templateUrl: './club-affiliation-application-list.component.html',
   styleUrls: ['./club-affiliation-application-list.component.scss']
 })
-export class ClubAffiliationApplicationListComponent implements AfterViewInit {
+export class ClubAffiliationApplicationListComponent implements AfterViewInit, OnDestroy {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
   @ViewChild(MatTable) table!: MatTable<ClubAffiliationApplication>;
@@ -28,10 +30,21 @@ export class ClubAffiliationApplicationListComponent implements AfterViewInit {
   /** Columns displayed in the table. Columns IDs can be added, removed, or reordered. */
   displayedColumns = ['name', 'cityState', 'affiliation_expiration_date', 'status', 'actions'];
 
+  private subscriptions: Subscription = new Subscription();
+
   constructor(private clubAffiliationApplicationService: ClubAffiliationApplicationService,
+              private linearProgressBarService: LinearProgressBarService,
               private router: Router,
               private dialog: MatDialog) {
     this.dataSource = new ClubAffiliationApplicationListDataSource(clubAffiliationApplicationService);
+    this.setupProgressIndicator();
+  }
+
+  private setupProgressIndicator() {
+    const loadingSubscription = this.clubAffiliationApplicationService.loading$.subscribe((loading: boolean) => {
+      this.linearProgressBarService.setLoading(loading);
+    });
+    this.subscriptions.add(loadingSubscription);
   }
 
   ngAfterViewInit(): void {
@@ -69,5 +82,9 @@ export class ClubAffiliationApplicationListComponent implements AfterViewInit {
         this.dataSource.deleteApplication(applicationId);
       }
     });
+  }
+
+  ngOnDestroy(): void {
+    this.subscriptions.unsubscribe();
   }
 }

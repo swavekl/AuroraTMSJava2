@@ -1,7 +1,8 @@
 import {Router} from '@angular/router';
 import {UntypedFormControl} from '@angular/forms';
-import {AfterViewInit, Component, ViewChild} from '@angular/core';
+import {AfterViewInit, Component, OnDestroy, ViewChild} from '@angular/core';
 import {debounceTime, distinctUntilChanged, skip} from 'rxjs/operators';
+import {Subscription} from 'rxjs';
 import {MatPaginator} from '@angular/material/paginator';
 import {MatSort} from '@angular/material/sort';
 import {MatTable} from '@angular/material/table';
@@ -10,13 +11,14 @@ import {ConfirmationPopupComponent} from '../../shared/confirmation-popup/confir
 import {SanctionRequestListDataSource} from './sanction-request-list-data-source';
 import {SanctionRequestService} from '../service/sanction-request.service';
 import {SanctionRequest} from '../model/sanction-request.model';
+import {LinearProgressBarService} from '../../shared/linear-progress-bar/linear-progress-bar.service';
 
 @Component({
   selector: 'app-sanction-list',
   templateUrl: './sanction-request-list.component.html',
   styleUrls: ['./sanction-request-list.component.scss']
 })
-export class SanctionRequestListComponent implements AfterViewInit {
+export class SanctionRequestListComponent implements AfterViewInit, OnDestroy {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
   @ViewChild(MatTable) table!: MatTable<SanctionRequest>;
@@ -27,10 +29,21 @@ export class SanctionRequestListComponent implements AfterViewInit {
   /** Columns displayed in the table. Columns IDs can be added, removed, or reordered. */
   displayColumns = ['tournamentName', 'startDate', 'status', 'actions'];
 
+  private subscriptions: Subscription = new Subscription();
+
   constructor(private sanctionRequestService: SanctionRequestService,
+              private linearProgressBarService: LinearProgressBarService,
               private router: Router,
               private dialog: MatDialog) {
     this.dataSource = new SanctionRequestListDataSource(sanctionRequestService);
+    this.setupProgressIndicator();
+  }
+
+  private setupProgressIndicator() {
+    const loadingSubscription = this.sanctionRequestService.loading$.subscribe((loading: boolean) => {
+      this.linearProgressBarService.setLoading(loading);
+    });
+    this.subscriptions.add(loadingSubscription);
   }
 
   ngAfterViewInit(): void {
@@ -66,4 +79,7 @@ export class SanctionRequestListComponent implements AfterViewInit {
     });
   }
 
+  ngOnDestroy(): void {
+    this.subscriptions.unsubscribe();
+  }
 }
