@@ -72,7 +72,8 @@ export class OfficialEditContainerComponent {
         if (!official) {
           this.officialService.getByKey(this.officialId);
         } else {
-          this.official$ = of(official);
+          const officialToEdit = JSON.parse(JSON.stringify(official));
+          this.official$ = of(officialToEdit);
         }
       });
 
@@ -90,7 +91,7 @@ export class OfficialEditContainerComponent {
       .pipe(first())
       .subscribe(
         (savedOfficial: Official) => {
-          console.log('saved official', official);
+          // console.log('saved official', official);
           this.router.navigateByUrl('/ui/officials');
         },
         (error: any) => {
@@ -116,16 +117,18 @@ export class OfficialEditContainerComponent {
               umpireNumber: null,
               umpireRank: null,
               wheelchair: null,
-              membershipId: profile.membershipId
+              membershipId: profile.membershipId,
+              state: profile.state
             };
-            // console.log('creating official from profile');
+            // console.log('creating official from profile', official);
             this.officialService.upsert(official)
               .pipe(
                 first(),
               ).subscribe(
               (official: Official) => {
                 // console.log('Got official', official);
-                this.official$ = of(official);
+                const officialToEdit = JSON.parse(JSON.stringify(official));
+                this.official$ = of(officialToEdit);
               }, (error) => {
                 console.error(error);
               }

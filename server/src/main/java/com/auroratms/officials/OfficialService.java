@@ -33,7 +33,7 @@ public class OfficialService {
     }
 
     public Page<Official> findByFirstNameLikeOrLastNameLike(String firstNameLike, String lastNameLike, Pageable pageable) {
-        Page<Official> page = repository.findAllByFirstNameLikeIgnoreCaseOrLastNameLikeIgnoreCase(firstNameLike, lastNameLike, pageable);
+        Page<Official> page = repository.findAllByFirstNameContainsIgnoreCaseOrLastNameContainsIgnoreCase(firstNameLike, lastNameLike, pageable);
         fillMembershipIds(page.getContent());
         return page;
     }
@@ -61,14 +61,18 @@ public class OfficialService {
                 UserProfileExt userProfileExt = profileExtMap.get(official.getProfileId());
                 if (userProfileExt != null) {
                     official.setMembershipId(userProfileExt.getMembershipId());
-                    for (UserProfile userProfile : userProfiles) {
-                        if (userProfile.getUserId().equals(official.getProfileId())) {
-                            official.setState(userProfile.getState());
-                            break;
-                        }
+                }
+                for (UserProfile userProfile : userProfiles) {
+                    if (userProfile.getUserId().equals(official.getProfileId())) {
+                        official.setState(userProfile.getState());
+                        break;
                     }
                 }
             }
         }
+    }
+
+    public void delete(Long officialId) {
+        this.repository.deleteById(officialId);
     }
 }

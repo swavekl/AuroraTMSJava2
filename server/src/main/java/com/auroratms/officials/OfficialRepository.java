@@ -11,6 +11,6 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 @RepositoryRestResource
 public interface OfficialRepository extends JpaRepository<Official, Long> {
 
-    Page<Official> findAllByFirstNameLikeIgnoreCaseOrLastNameLikeIgnoreCase(String firstNameLike, String lastNameLike, Pageable pageable);
+    Page<Official> findAllByFirstNameContainsIgnoreCaseOrLastNameContainsIgnoreCase(String firstNameLike, String lastNameLike, Pageable pageable);
 
 }

@@ -12,6 +12,8 @@ import {OfficialService} from '../service/official.service';
 import {ConfirmationPopupComponent} from '../../shared/confirmation-popup/confirmation-popup.component';
 import {UserRoles} from '../../user/user-roles.enum';
 import {AuthenticationService} from '../../user/authentication.service';
+import {LinearProgressBarService} from '../../shared/linear-progress-bar/linear-progress-bar.service';
+import {Subscription} from 'rxjs';
 
 @Component({
   selector: 'app-officials-list',
@@ -32,11 +34,22 @@ export class OfficialsListComponent implements AfterViewInit {
   editUrl: string = '/ui/officials/edit';
   createUrl: string = '/ui/userprofile/addbytd/0';
 
-  constructor(private OfficialService: OfficialService,
+  private subscriptions: Subscription = new Subscription();
+
+  constructor(private officialService: OfficialService,
               private authenticationService: AuthenticationService,
+              private linearProgressBarService: LinearProgressBarService,
               private router: Router,
               private dialog: MatDialog) {
-    this.dataSource = new OfficialsListDataSource(OfficialService);
+    this.dataSource = new OfficialsListDataSource(officialService);
+    this.setupProgressIndicator();
+  }
+
+  private setupProgressIndicator() {
+    const loadingSubscription = this.officialService.loading$.subscribe((loading: boolean) => {
+      this.linearProgressBarService.setLoading(loading);
+    });
+    this.subscriptions.add(loadingSubscription);
   }
 
   ngAfterViewInit(): void {
@@ -68,7 +81,7 @@ export class OfficialsListComponent implements AfterViewInit {
 
   onDeleteOfficial(official: Official) {
     const config = {
-      width: '450px', height: '230px', data: {
+      width: '450px', height: '200px', data: {
         message: `Are you sure you want to delete official '${official.firstName} ${official.lastName}'?`,
       }
     };

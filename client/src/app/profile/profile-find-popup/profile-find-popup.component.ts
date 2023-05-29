@@ -2,6 +2,7 @@ import {Component, Inject, OnInit} from '@angular/core';
 import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
 import {Observable} from 'rxjs';
 import {ProfileService} from '../profile.service';
+import {Profile} from '../profile';
 
 /**
  * Popup for searching player profiles in OKTA
@@ -44,9 +45,17 @@ export class ProfileFindPopupComponent implements OnInit {
     this.foundPlayers$ = this.profileService.findProfiles(searchCriteria);
   }
 
-  onSelection(userId: number, firstName: string, lastName: string, tournamentRating: number) {
+  onSelection(profile: Profile) {
     const selectedPlayerData = {
-      firstName: firstName, lastName: lastName, id: userId, rating: tournamentRating
+      firstName: profile.firstName,
+      lastName: profile.lastName,
+      id: profile.userId,
+      rating: profile.tournamentRating,
+      state: profile.state,
+      zipCode: profile.zipCode,
+      gender: profile.gender,
+      membershipExpirationDate: profile.membershipExpirationDate,
+      membershipId: profile.membershipId
     };
     this.dialogRef.close({action: 'ok', selectedPlayerRecord: selectedPlayerData});
   }

@@ -52,7 +52,8 @@ export class ProfileAddByTdContainerComponent implements OnInit, OnDestroy {
   }
 
   onUseProfile(profileId: string) {
-
+    const url = `/ui/officials/create/${profileId}`
+    this.router.navigateByUrl(url);
   }
 
   ngOnDestroy(): void {

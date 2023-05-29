@@ -78,4 +78,16 @@ public class OfficialController {
             return ResponseEntity.notFound().build();
         }
     }
+
+    @DeleteMapping("/official/{officialId}")
+    @PreAuthorize("hasAuthority('Admins') or hasAuthority('USATTMatchOfficialsManagers')")
+    public ResponseEntity<Void> update(@PathVariable Long officialId) {
+        try {
+            officialService.delete(officialId);
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            return ResponseEntity.notFound().build();
+        }
+    }
 }

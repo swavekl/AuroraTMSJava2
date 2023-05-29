@@ -12,14 +12,14 @@ import {Official} from '../model/official.model';
 export class OfficialsListDataSource extends DataSource<Official> {
   officials$: Observable<Official[]>;
   total$: Observable<number>;
-  Officials: Official [];
+  officials: Official [];
   filterByName$: BehaviorSubject<string> = new BehaviorSubject<string>('');
   paginator: MatPaginator | undefined;
   sort: MatSort | undefined;
 
   constructor(private officialService: OfficialService) {
     super();
-    this.Officials = [];
+    this.officials = [];
     // select Official entities from cache
     this.officials$ = this.officialService.store.select(
       this.officialService.selectors.selectEntities);
@@ -49,7 +49,7 @@ export class OfficialsListDataSource extends DataSource<Official> {
               // next/previous page requested or sort change, request new page
               this.loadPage(resetToPageOne);
               // return current page for now
-              return this.Officials;
+              return this.officials;
             }
           })
         );
@@ -82,7 +82,7 @@ export class OfficialsListDataSource extends DataSource<Official> {
     this.officialService.clearCache();
     this.officialService.getWithQuery(query)
       .pipe(tap((Officials: Official[]) => {
-        this.Officials = Officials;
+        this.officials = Officials;
       }));
   }
 

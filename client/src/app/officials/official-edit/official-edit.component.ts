@@ -29,7 +29,7 @@ export class OfficialEditComponent {
   }
 
   onSave(value: any) {
-    this.save.emit(value);
+    this.save.emit(this.official);
   }
 
   onCancel() {

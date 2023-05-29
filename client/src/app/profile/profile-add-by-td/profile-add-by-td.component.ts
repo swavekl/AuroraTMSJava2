@@ -89,26 +89,28 @@ export class ProfileAddByTDComponent implements OnInit, OnDestroy {
     const subscription = dialogRef.afterClosed().subscribe(result => {
       if (result?.action === 'ok') {
         this.playerProfileFound = true;
-        console.log('profile ', result.selectedPlayerRecord);
-        this.profileId = result.selectedPlayerRecord.id;
-        this.firstName = result.selectedPlayerRecord.firstName;
-        this.lastName = result.selectedPlayerRecord.lastName;
+        const playerData = result.selectedPlayerRecord;
+        // console.log('selected player data ', playerData);
+        this.profileId = playerData.id;
+        this.firstName = playerData.firstName;
+        this.lastName = playerData.lastName;
         this.playerRecord = {
-          membershipId: null,
-          membershipExpirationDate: null,
-          firstName: result.selectedPlayerRecord.firstName,
-          lastName: result.selectedPlayerRecord.lastName,
-          dateOfBirth: null,
-          gender: null,
+          membershipId: playerData.membershipId,
+          membershipExpirationDate: playerData.membershipExpirationDate,
+          firstName: playerData.firstName,
+          lastName: playerData.lastName,
+          dateOfBirth: playerData.dateOfBirth,
+          gender: playerData.gender,
           city: null,
-          state: null,
-          zip: null,
+          state: playerData.state,
+          zip: playerData.zipCode,
           homeClub: null,
-          tournamentRating: result.selectedPlayerRecord.rating,
+          tournamentRating: playerData.rating,
           lastTournamentPlayedDate: null,
           leagueRating: null,
           lastLeaguePlayedDate: null
         };
+        // console.log('playerRecord from profile ', this.playerRecord);
         this.playerRecordFound = true;
 
       }

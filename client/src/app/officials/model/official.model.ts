@@ -7,9 +7,6 @@ export class Official {
   firstName: string;
   lastName: string;
 
-  // USATT membership id of this official, fetched from userprofileext
-  membershipId: number;
-
   // Okta profile id
   profileId: string;
 
@@ -23,5 +20,10 @@ export class Official {
 
   // wheelchair certification ? e.g. IPTTC or number
   wheelchair: string;
+
+  // USATT membership id of this official, fetched from userprofileext
+  membershipId: number;
+
+  state: string;
 
 }
