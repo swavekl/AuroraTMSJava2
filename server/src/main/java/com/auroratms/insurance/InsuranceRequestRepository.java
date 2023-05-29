@@ -10,7 +10,7 @@ public interface InsuranceRequestRepository extends JpaRepository<InsuranceReque
     @Query(nativeQuery = true,
             value = "SELECT *" +
                     " FROM insurance_request" +
-                    " WHERE insurance_request.org_name LIKE :nameContains" +
+                    " WHERE insurance_request.event_name LIKE :nameContains" +
                     " AND insurance_request.id in (" +
                     "    SELECT acl_object_identity.object_id_identity AS obj_id" +
                     "    FROM acl_object_identity," +
@@ -32,7 +32,7 @@ public interface InsuranceRequestRepository extends JpaRepository<InsuranceReque
                     ")",
             countQuery = "SELECT count(*)" +
                     " FROM insurance_request" +
-                    " WHERE insurance_request.org_name LIKE :nameContains" +
+                    " WHERE insurance_request.event_name LIKE :nameContains" +
                     " AND insurance_request.id in (" +
                     "    SELECT acl_object_identity.object_id_identity AS obj_id" +
                     "    FROM acl_object_identity," +

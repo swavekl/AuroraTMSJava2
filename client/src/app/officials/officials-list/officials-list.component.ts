@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, ViewChild} from '@angular/core';
+import {AfterViewInit, Component, OnDestroy, ViewChild} from '@angular/core';
 import {MatPaginator} from '@angular/material/paginator';
 import {MatSort} from '@angular/material/sort';
 import {MatTable} from '@angular/material/table';
@@ -6,6 +6,7 @@ import {UntypedFormControl} from '@angular/forms';
 import {MatDialog} from '@angular/material/dialog';
 import {Router} from '@angular/router';
 import {debounceTime, distinctUntilChanged, skip} from 'rxjs/operators';
+import {Subscription} from 'rxjs';
 import {Official} from '../model/official.model';
 import {OfficialsListDataSource} from './officials-list-data-source';
 import {OfficialService} from '../service/official.service';
@@ -13,14 +14,13 @@ import {ConfirmationPopupComponent} from '../../shared/confirmation-popup/confir
 import {UserRoles} from '../../user/user-roles.enum';
 import {AuthenticationService} from '../../user/authentication.service';
 import {LinearProgressBarService} from '../../shared/linear-progress-bar/linear-progress-bar.service';
-import {Subscription} from 'rxjs';
 
 @Component({
   selector: 'app-officials-list',
   templateUrl: './officials-list.component.html',
   styleUrls: ['./officials-list.component.scss']
 })
-export class OfficialsListComponent implements AfterViewInit {
+export class OfficialsListComponent implements AfterViewInit, OnDestroy {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
   @ViewChild(MatTable) table!: MatTable<Official>;
@@ -91,5 +91,9 @@ export class OfficialsListComponent implements AfterViewInit {
         this.dataSource.delete(official.id);
       }
     });
+  }
+
+  ngOnDestroy(): void {
+    this.subscriptions.unsubscribe();
   }
 }
