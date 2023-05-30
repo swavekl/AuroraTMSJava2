@@ -27,10 +27,16 @@ public class OfficialController {
     public ResponseEntity<Page<Official>> listOfficials(@RequestParam Map<String, String> params, Pageable pageable) {
         try {
             String nameContains = params.get("nameContains");
-            nameContains = (!StringUtils.isEmpty(nameContains)) ? nameContains : "";
+            String state = params.get("state");
             Page<Official> page = null;
-            if (!StringUtils.isEmpty(nameContains)) {
-                page = officialService.findByFirstNameLikeOrLastNameLike(nameContains, nameContains, pageable);
+            if (StringUtils.isNotEmpty(nameContains)) {
+                if (StringUtils.isEmpty(state)) {
+                    page = officialService.findByFirstNameLikeOrLastNameLike(nameContains, nameContains, pageable);
+                } else {
+                    page = officialService.findByFirstNameLikeOrLastNameLikeAndState(nameContains, nameContains, state, pageable);
+                }
+            } else if (StringUtils.isNotEmpty(state)) {
+                page = officialService.findByState(state, pageable);
             } else {
                 page = officialService.list(pageable);
             }

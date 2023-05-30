@@ -23,9 +23,6 @@ public class OfficialService {
     @Autowired
     private UserProfileExtService userProfileExtService;
 
-    @Autowired
-    private UserProfileService userProfileService;
-
     Page<Official> list(Pageable pageable) {
         Page<Official> page = repository.findAll(pageable);
         fillMembershipIds(page.getContent());
@@ -34,6 +31,18 @@ public class OfficialService {
 
     public Page<Official> findByFirstNameLikeOrLastNameLike(String firstNameLike, String lastNameLike, Pageable pageable) {
         Page<Official> page = repository.findAllByFirstNameContainsIgnoreCaseOrLastNameContainsIgnoreCase(firstNameLike, lastNameLike, pageable);
+        fillMembershipIds(page.getContent());
+        return page;
+    }
+
+    public Page<Official> findByFirstNameLikeOrLastNameLikeAndState(String firstNameLike, String lastNameLike, String state, Pageable pageable) {
+        Page<Official> page = repository.findAllByFirstNameContainsIgnoreCaseOrLastNameContainsIgnoreCaseAndState(firstNameLike, lastNameLike, state, pageable);
+        fillMembershipIds(page.getContent());
+        return page;
+    }
+
+    public Page<Official> findByState(String state, Pageable pageable) {
+        Page<Official> page = repository.findAllByState(state, pageable);
         fillMembershipIds(page.getContent());
         return page;
     }
@@ -56,17 +65,10 @@ public class OfficialService {
                 profileIds.add(official.getProfileId());
             }
             Map<String, UserProfileExt> profileExtMap = userProfileExtService.findByProfileIds(profileIds);
-            Collection<UserProfile> userProfiles = userProfileService.listByProfileIds(profileIds);
             for (Official official : officialsList) {
                 UserProfileExt userProfileExt = profileExtMap.get(official.getProfileId());
                 if (userProfileExt != null) {
                     official.setMembershipId(userProfileExt.getMembershipId());
-                }
-                for (UserProfile userProfile : userProfiles) {
-                    if (userProfile.getUserId().equals(official.getProfileId())) {
-                        official.setState(userProfile.getState());
-                        break;
-                    }
                 }
             }
         }
@@ -75,4 +77,5 @@ public class OfficialService {
     public void delete(Long officialId) {
         this.repository.deleteById(officialId);
     }
+
 }

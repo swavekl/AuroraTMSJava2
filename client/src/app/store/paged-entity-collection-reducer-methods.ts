@@ -15,6 +15,8 @@ export class PagedEntityCollectionReducerMethods<T> extends EntityCollectionRedu
     if ((action.payload as any).total) {
       // save the foo property from action.payload to entityCollection instance
       (ec as any).total = (action.payload as any).total;
+    } else {
+      (ec as any).total = 0;
     }
     return ec;
   }

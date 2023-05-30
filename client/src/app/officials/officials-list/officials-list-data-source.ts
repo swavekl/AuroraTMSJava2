@@ -14,6 +14,7 @@ export class OfficialsListDataSource extends DataSource<Official> {
   total$: Observable<number>;
   officials: Official [];
   filterByName$: BehaviorSubject<string> = new BehaviorSubject<string>('');
+  filterByState$: BehaviorSubject<string> = new BehaviorSubject<string>('');
   paginator: MatPaginator | undefined;
   sort: MatSort | undefined;
 
@@ -38,7 +39,8 @@ export class OfficialsListDataSource extends DataSource<Official> {
       this.loadPage(false);
       // when results arrive or next page or sort order changes
       return merge(this.officials$,
-        this.paginator.page, this.sort.sortChange, this.filterByName$.asObservable())
+        this.paginator.page, this.sort.sortChange,
+        this.filterByName$.asObservable(), this.filterByState$.asObservable())
         .pipe(
           map((value: any, index: number) => {
             if (Array.isArray(value)) {
@@ -76,8 +78,12 @@ export class OfficialsListDataSource extends DataSource<Official> {
       query += `&sort=${this.sort?.active},${this.sort?.direction}`;
     }
     const filterValue = this.filterByName$.value;
-    if (filterValue !== '') {
+    if (filterValue != null && filterValue !== '') {
       query += `&nameContains=${filterValue}`;
+    }
+    const filterByStateValue = this.filterByState$.value;
+    if (filterByStateValue !== '') {
+      query += `&state=${filterByStateValue}`;
     }
     this.officialService.clearCache();
     this.officialService.getWithQuery(query)

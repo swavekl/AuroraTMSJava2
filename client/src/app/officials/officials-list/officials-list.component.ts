@@ -14,6 +14,7 @@ import {ConfirmationPopupComponent} from '../../shared/confirmation-popup/confir
 import {UserRoles} from '../../user/user-roles.enum';
 import {AuthenticationService} from '../../user/authentication.service';
 import {LinearProgressBarService} from '../../shared/linear-progress-bar/linear-progress-bar.service';
+import {StatesList} from '../../shared/states/states-list';
 
 @Component({
   selector: 'app-officials-list',
@@ -25,13 +26,17 @@ export class OfficialsListComponent implements AfterViewInit, OnDestroy {
   @ViewChild(MatSort) sort!: MatSort;
   @ViewChild(MatTable) table!: MatTable<Official>;
   @ViewChild('filterNameCtrl') filterNameCtrl: UntypedFormControl;
+  @ViewChild('filterStateCtrl') filterStateCtrl: UntypedFormControl;
   dataSource: OfficialsListDataSource;
   filterName: string;
+  filterState: string;
 
   /** Columns displayed in the table. Columns IDs can be added, removed, or reordered. */
   displayColumns = ['firstName', 'lastName', 'state', 'umpireRank', 'refereeRank', 'actions'];
 
   editUrl: string = '/ui/officials/edit';
+
+  statesList: any[] = [];
 
   private subscriptions: Subscription = new Subscription();
 
@@ -41,6 +46,7 @@ export class OfficialsListComponent implements AfterViewInit, OnDestroy {
               private router: Router,
               private dialog: MatDialog) {
     this.dataSource = new OfficialsListDataSource(officialService);
+    this.statesList = StatesList.getCountryStatesList('US');
     this.setupProgressIndicator();
   }
 
@@ -63,6 +69,13 @@ export class OfficialsListComponent implements AfterViewInit, OnDestroy {
       )
       .subscribe((value) => {
         this.dataSource.filterByName$.next(value);
+      });
+    this.filterStateCtrl.valueChanges
+      .pipe(distinctUntilChanged())
+      .subscribe((state) => {
+        if (state != undefined) {
+          this.dataSource.filterByState$.next(state);
+        }
       });
   }
 

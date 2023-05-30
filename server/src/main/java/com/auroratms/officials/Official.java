@@ -43,7 +43,6 @@ public class Official {
     private long membershipId;
 
     // state of residence
-    @Transient
     private String state;
 
 

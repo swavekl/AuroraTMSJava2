@@ -1,10 +1,19 @@
 @use "src/my-theme" as *;
 
+mat-toolbar.tall-toolbar {
+  height: 90px;
+}
+
 div.table-container {
   overflow: auto;
-  height: calc(100vh - 200px);
+  height: calc(100vh - 226px);
   width: 100%;
   //border: 1px solid greenyellow;
+}
+
+.no-rows-found {
+  width: 100%;
+  text-align: center;
 }
 
 .toolbar-spacer-2 {

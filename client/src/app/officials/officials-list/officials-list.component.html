@@ -1,18 +1,28 @@
 <div class="mat-headline-6" style="padding-left: 8px">Match Officials</div>
-<mat-toolbar fxLayout="row" fxLayoutGap="10">
-  <form>
+<form>
+  <mat-toolbar fxLayout="row" fxLayoutGap="10" class="tall-toolbar">
     <button type="button" mat-raised-button color="" (click)="addOfficial()"
             [hidden]="!canAddOfficial()">
       <mat-icon matListItemIcon>add</mat-icon>
       Add Official
     </button>
     <span class="toolbar-spacer-2"></span>
+    <span>Filter by: </span>
     <mat-form-field>
-      <mat-label>Filter by Last Name</mat-label>
+      <mat-label>Last Name</mat-label>
       <input matInput name="filterNameCtrl" type="text" [ngModel]="filterName" #filterNameCtrl="ngModel">
     </mat-form-field>
-  </form>
-</mat-toolbar>
+    <mat-form-field fxFlex="20%">
+      <mat-label>State</mat-label>
+      <mat-select matInput type="text" name="filterStateCtrl" #filterStateCtrl="ngModel"
+                  [ngModel]="filterState">
+        <mat-option value="">(None)</mat-option>
+        <mat-option *ngFor="let state of statesList" value="{{state.abbreviation}}">{{state.abbreviation}}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+  </mat-toolbar>
+</form>
 <div class="table-container">
   <mat-table matSort aria-label="Officials">
     <ng-container matColumnDef="firstName">
@@ -32,12 +42,14 @@
 
     <ng-container matColumnDef="umpireRank">
       <mat-header-cell *matHeaderCellDef>Umpire Rank</mat-header-cell>
-      <mat-cell *matCellDef="let official" [routerLink]="[editUrl, official.id]">{{ official.umpireRank | umpireRank: 'name' }}</mat-cell>
+      <mat-cell *matCellDef="let official"
+                [routerLink]="[editUrl, official.id]">{{ official.umpireRank | umpireRank: 'name' }}</mat-cell>
     </ng-container>
 
     <ng-container matColumnDef="refereeRank">
       <mat-header-cell *matHeaderCellDef>Referee Rank</mat-header-cell>
-      <mat-cell *matCellDef="let official" [routerLink]="[editUrl, official.id]">{{ official.refereeRank | refereeRank: 'name' }}</mat-cell>
+      <mat-cell *matCellDef="let official"
+                [routerLink]="[editUrl, official.id]">{{ official.refereeRank | refereeRank: 'name' }}</mat-cell>
     </ng-container>
 
     <ng-container matColumnDef="actions">
@@ -52,12 +64,16 @@
     <mat-header-row *matHeaderRowDef="displayColumns; sticky: true"></mat-header-row>
     <mat-row *matRowDef="let row; columns: displayColumns"></mat-row>
   </mat-table>
-  <mat-paginator #paginator
-                 [length]="dataSource.total$ | async"
-                 [pageIndex]="0"
-                 [pageSize]="10"
-                 [pageSizeOptions]="[5, 10, 20]"
-                 aria-label="Select page">
-  </mat-paginator>
+    <mat-paginator #paginator
+                   [length]="dataSource.total$ | async"
+                   [pageIndex]="0"
+                   [pageSize]="10"
+                   [pageSizeOptions]="[5, 10, 20]"
+                   [style.display]="((dataSource.total$ | async) === 0) ? 'none' : 'block'"
+                   aria-label="Select page">
+    </mat-paginator>
+  <div *ngIf="(dataSource.total$ | async) === 0" class="no-rows-found">
+    <span class="mat-h2">No rows found</span>
+  </div>
 </div>
 
