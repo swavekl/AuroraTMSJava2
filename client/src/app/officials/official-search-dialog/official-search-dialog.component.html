@@ -1,0 +1,38 @@
+<h2 mat-dialog-title style="padding: 0 10px 10px 20px;">Find {{title}}</h2>
+<mat-dialog-content style="height: 400px; border: 0px solid red;">
+  <div fxLayout="col" fxLayoutAlign="start start">
+    <div fxLayout="row" fxLayoutGap="10px" fxFlexAlign="start start"
+         style="border: 0px solid blue; width: 100%;">
+      <mat-form-field fxFlex="70%">
+        <mat-label>Last name</mat-label>
+        <input matInput type="text" name="filterName" [(ngModel)]="filterName" #filterNameCtrl="ngModel">
+      </mat-form-field>
+      <mat-form-field fxFlex="30%">
+        <mat-label>State</mat-label>
+        <mat-select matInput type="text" name="filterStateCtrl" #filterStateCtrl="ngModel"
+                    [ngModel]="filterState">
+          <mat-option value="">(None)</mat-option>
+          <mat-option *ngFor="let state of statesList" value="{{state.abbreviation}}">{{state.abbreviation}}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+  </div>
+  <div style="overflow: auto; height: 300px; border: 0px solid green;">
+    <mat-list>
+      <mat-list-item *ngFor="let official of officials$ | async"
+                     (click)="onSelectOfficial(official)">
+        <h2 matListItemTitle>{{official.firstName}} {{official.lastName}}</h2>
+        <h3 matListItemLine>{{official.state}}, {{official.umpireRank | umpireRank }} / {{official.refereeRank | refereeRank }}</h3>
+        <mat-divider></mat-divider>
+      </mat-list-item>
+    </mat-list>
+  </div>
+</mat-dialog-content>
+<mat-dialog-actions>
+  <div fxLayout="row" fxLayoutAlign="space-between start" fxLayoutGap="10px" style="width: 100%; padding: 10px" >
+    <button mat-raised-button type="button" (click)="onCancel()">Cancel</button>
+    <span fxFlex></span>
+    <button mat-raised-button color="primary" type="button" (click)="performSearch()">Search</button>
+  </div>
+</mat-dialog-actions>

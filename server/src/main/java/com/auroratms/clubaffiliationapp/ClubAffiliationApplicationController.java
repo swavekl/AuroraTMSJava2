@@ -95,7 +95,14 @@ public class ClubAffiliationApplicationController {
         try {
             String nameContains = params.get("nameContains");
             nameContains = (StringUtils.isNotEmpty(nameContains)) ? nameContains : "";
-            Page<ClubAffiliationApplication> page = this.service.findByName(nameContains, pageable);
+            String strLatest = params.get("latest");
+            boolean latest = strLatest != null && Boolean.parseBoolean(strLatest);
+            Page<ClubAffiliationApplication> page = null;
+            if (!latest) {
+                page = this.service.findByName(nameContains, pageable);
+            } else {
+                page = this.service.findByNameAndLatest(nameContains, pageable);
+            }
             return ResponseEntity.ok(page);
         } catch (Exception e) {
             logger.error(e.getMessage());

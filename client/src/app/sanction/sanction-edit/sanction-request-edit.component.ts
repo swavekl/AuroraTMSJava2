@@ -1,4 +1,17 @@
-import {Component, ElementRef, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChange, SimpleChanges, ViewChild} from '@angular/core';
+import {
+  AfterViewInit,
+  ChangeDetectorRef,
+  Component,
+  ElementRef,
+  EventEmitter,
+  Input,
+  OnChanges,
+  OnInit,
+  Output,
+  SimpleChange,
+  SimpleChanges,
+  ViewChild
+} from '@angular/core';
 import {SanctionCategory, SanctionRequest, SanctionRequestStatus} from '../model/sanction-request.model';
 import {MatDialog} from '@angular/material/dialog';
 import {StatesList} from '../../shared/states/states-list';
@@ -9,13 +22,26 @@ import {UserRoles} from '../../user/user-roles.enum';
 import {PaymentRefund} from '../../account/model/payment-refund.model';
 import {PaymentRefundStatus} from '../../account/model/payment-refund-status.enum';
 import {SanctionRequestAndPayment} from './sanction-request-edit-container.component';
+import {MatAutocompleteSelectedEvent} from '@angular/material/autocomplete';
+import {debounceTime, distinctUntilChanged, filter, skip, switchMap} from 'rxjs/operators';
+import {Observable, Subscription} from 'rxjs';
+import {UntypedFormControl} from '@angular/forms';
+import {ClubAffiliationApplicationService} from '../../club/club-affiliation/service/club-affiliation-application.service';
+import {ClubAffiliationApplication} from '../../club/club-affiliation/model/club-affiliation-application.model';
+import {DateUtils} from '../../shared/date-utils';
+import {OfficialSearchDialogComponent} from '../../officials/official-search-dialog/official-search-dialog.component';
+import {Official} from '../../officials/model/official.model';
+import {UmpireRankPipe} from '../../officials/pipes/umpire-rank.pipe';
+import {RefereeRankPipe} from '../../officials/pipes/referee-rank.pipe';
+// import {UmpireRankPipe} from '../../officials/pipes/umpire-rank.pipe';
+// import {RefereeRankPipe} from '../../officials/pipes/referee-rank.pipe';
 
 @Component({
   selector: 'app-sanction-request-edit',
   templateUrl: './sanction-request-edit.component.html',
   styleUrls: ['./sanction-request-edit.component.scss']
 })
-export class SanctionRequestEditComponent implements OnInit, OnChanges {
+export class SanctionRequestEditComponent implements OnInit, OnChanges, AfterViewInit {
   @ViewChild('ESD') ESD: ElementRef;
 
   // this is what we edit
@@ -58,8 +84,17 @@ export class SanctionRequestEditComponent implements OnInit, OnChanges {
   // level for which tournament qualifies
   qualifiedStarLevel: number;
 
+  @ViewChild('clubName')
+  private clubNameCtrl: UntypedFormControl;
+
+  filteredClubs: any[] = [];
+
+  private subscriptions: Subscription = new Subscription();
+
   constructor(private messageDialog: MatDialog,
-              private authenticationService: AuthenticationService) {
+              private authenticationService: AuthenticationService,
+              private cdr: ChangeDetectorRef,
+              private clubAffiliationApplicationService: ClubAffiliationApplicationService) {
     this.currentCategory = 0;
     this.totalPoints = 0;
     this.statesList = StatesList.getList();
@@ -103,9 +138,9 @@ export class SanctionRequestEditComponent implements OnInit, OnChanges {
 
   onEnableAltEndDate(date: Date) {
     this.altEndDateEnabled = true;
-    this.minAltEndDate = new Date(this.sanctionRequest.requestContents.alternateStartDate.getTime());
+    this.minAltEndDate = new Date(this.sanctionRequest.alternateStartDate.getTime());
     this.minAltEndDate.setDate(this.minAltEndDate.getDate() + 1);
-    this.maxAltEndDate = new Date(this.sanctionRequest.requestContents.alternateStartDate.getTime());
+    this.maxAltEndDate = new Date(this.sanctionRequest.alternateStartDate.getTime());
     this.maxAltEndDate.setDate(this.maxAltEndDate.getDate() + 7);
   }
 
@@ -131,7 +166,7 @@ export class SanctionRequestEditComponent implements OnInit, OnChanges {
   }
 
   notLastCategory(index: number) {
-    const totalCategories = this.sanctionRequest.requestContents.categories.length;
+    const totalCategories = this.sanctionRequest.categories.length;
     return (index !== (totalCategories - 1));
   }
 
@@ -143,6 +178,7 @@ export class SanctionRequestEditComponent implements OnInit, OnChanges {
    * transfers values from form object to SanctionRequest object
    */
   makeSanctionRequest (formValues: any): SanctionRequest {
+    // console.log('formValues', formValues);
     // copy changed values into this new object
     const sanctionRequestToSave: SanctionRequest = new SanctionRequest();
     sanctionRequestToSave.applyChanges (formValues);
@@ -154,8 +190,9 @@ export class SanctionRequestEditComponent implements OnInit, OnChanges {
    */
   save(formValues: any, payFee: boolean) {
 //    console.log ('formValues ', formValues);
-    const sanctionRequestToSave: SanctionRequest = this.makeSanctionRequest (formValues);
-//    console.log("Saving sanction request....", sanctionRequestToSave);
+    const sanctionRequestToSave: SanctionRequest = this.sanctionRequest;
+    // const sanctionRequestToSave: SanctionRequest = this.makeSanctionRequest (formValues);
+   console.log("Saving sanction request....", sanctionRequestToSave);
     const sanctionRequestAndPayment: SanctionRequestAndPayment = {
       sanctionRequest: sanctionRequestToSave,
       payFee: payFee
@@ -169,7 +206,8 @@ export class SanctionRequestEditComponent implements OnInit, OnChanges {
 
   // save and submit for sanction
   onSubmitApplication (formValues: any) {
-    const sanctionRequestToSave: SanctionRequest = this.makeSanctionRequest (formValues);
+    // const sanctionRequestToSave: SanctionRequest = this.makeSanctionRequest (formValues);
+    const sanctionRequestToSave: SanctionRequest = this.sanctionRequest;
 
     // find coordinator who will receive this request and set it in the request.
     // translate long name to short state name
@@ -322,7 +360,7 @@ export class SanctionRequestEditComponent implements OnInit, OnChanges {
   calculateTotal () {
     let total = 0;
     if (this.sanctionRequest) {
-      const categories = this.sanctionRequest.requestContents.categories;
+      const categories = this.sanctionRequest.categories;
       for (let i = 0; i < categories.length; i++) {
         const category: SanctionCategory = categories[i];
         total += category.getSubTotal();
@@ -402,5 +440,97 @@ export class SanctionRequestEditComponent implements OnInit, OnChanges {
     }
     console.log('starLevel ' + starLevel + ' => sanctionFee: ' + sanctionFee);
     return sanctionFee;
+  }
+
+  ngAfterViewInit(): void {
+    this.initClubFilter();
+  }
+
+  initClubFilter() {
+    if (this.clubNameCtrl) {
+      // whenever the home club name changes reload the list of clubs matching this string
+      // for auto completion
+      const subscription = this.clubNameCtrl.valueChanges
+        .pipe(
+          distinctUntilChanged(),
+          debounceTime(250),
+          skip(1), // skip form initialization phase - to save one trip to the server
+          filter(clubName => {
+            // don't query until you have a few characters
+            return clubName && clubName.length >= 3;
+          }),
+          switchMap((clubName): Observable<ClubAffiliationApplication []> => {
+            const params = `?nameContains=${clubName}&sort=name,ASC&latest=true`;
+            return this.clubAffiliationApplicationService.getWithQuery(params);
+          })
+        ).subscribe((clubAffiliationApplications: ClubAffiliationApplication []) => {
+          this.filteredClubs = clubAffiliationApplications.map((clubAffiliationApplication: ClubAffiliationApplication) => {
+            return {
+              clubName: clubAffiliationApplication.name,
+              affiliationExpirationDate: clubAffiliationApplication.affiliationExpirationDate
+            }
+          });
+          // refresh the drop down contents and show it
+          this.cdr.markForCheck();
+        });
+      this.subscriptions.add(subscription);
+    }
+  }
+
+  clearClubName() {
+    this.updateClubName(null, null);
+  }
+
+  onClubSuggestionSelected($event: MatAutocompleteSelectedEvent) {
+    const clubName: string = $event.option.value;
+    let expirationDate = null;
+    for (let i = 0; i < this.filteredClubs.length; i++) {
+      const filteredClub = this.filteredClubs[i];
+      if (filteredClub.clubName === clubName) {
+        expirationDate = new DateUtils().convertFromString(filteredClub.affiliationExpirationDate);
+        break;
+      }
+    }
+    this.updateClubName(clubName, expirationDate);
+  }
+
+  private updateClubName(clubName: string, expirationDate: Date) {
+    const cloneSanctionRequest: SanctionRequest = new SanctionRequest();
+    cloneSanctionRequest.clone(this.sanctionRequest);
+    cloneSanctionRequest.clubName = clubName;
+    cloneSanctionRequest.clubAffiliationExpiration = expirationDate;
+    this.sanctionRequest = cloneSanctionRequest;
+  }
+
+  showRefereeSearchDialog() {
+    const dialogRef = this.messageDialog.open(OfficialSearchDialogComponent, {
+      width: '400px',
+      data: {officialType: 'referee'}
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result.action === 'ok') {
+        const official: Official = result.official;
+        const cloneSanctionRequest: SanctionRequest = new SanctionRequest();
+        cloneSanctionRequest.clone(this.sanctionRequest);
+        cloneSanctionRequest.tournamentRefereeName = official.firstName + ' ' + official.lastName;
+        cloneSanctionRequest.tournamentRefereeRank = this.getRefereeRank(official);
+        this.sanctionRequest = cloneSanctionRequest;
+      }
+    });
+  }
+
+  private getRefereeRank(official: Official): string {
+    const strUmpireRank: string = (official.umpireRank != null) ? new UmpireRankPipe().transform(official.umpireRank) : '';
+    const strRefereeRank: string = (official.refereeRank != null) ? new RefereeRankPipe().transform(official.refereeRank) : '';
+    let combinedRank = '';
+    if (strUmpireRank != '' && strRefereeRank != '') {
+      combinedRank = `${strUmpireRank} / ${strRefereeRank}`;
+    } else if (strUmpireRank != '') {
+      combinedRank = strUmpireRank;
+    } else if (strRefereeRank != '') {
+      combinedRank = strRefereeRank;
+    }
+    return combinedRank;
   }
 }

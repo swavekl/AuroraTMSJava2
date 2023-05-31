@@ -14,7 +14,7 @@ public interface ClubAffiliationApplicationRepository extends JpaRepository<Club
     @Query(nativeQuery = true,
             value = "SELECT *" +
                     " FROM clubaffiliationapplication" +
-                    " WHERE clubaffiliationapplication.name LIKE :nameContains" +
+                    " WHERE LOWER(clubaffiliationapplication.name) LIKE LOWER(:nameContains)" +
                     " AND clubaffiliationapplication.id in (" +
                     "    SELECT acl_object_identity.object_id_identity AS obj_id" +
                     "    FROM acl_object_identity," +
@@ -36,7 +36,7 @@ public interface ClubAffiliationApplicationRepository extends JpaRepository<Club
                     ")",
             countQuery = "SELECT count(*)" +
                     " FROM clubaffiliationapplication" +
-                    " WHERE clubaffiliationapplication.name LIKE :nameContains" +
+                    " WHERE LOWER(clubaffiliationapplication.name) LIKE LOWER(:nameContains)" +
                     " AND clubaffiliationapplication.id in (" +
                     "    SELECT acl_object_identity.object_id_identity AS obj_id" +
                     "    FROM acl_object_identity," +
@@ -63,4 +63,24 @@ public interface ClubAffiliationApplicationRepository extends JpaRepository<Club
             @Param("authority") String authority,
             @Param("permission") Integer permission,
             Pageable pageable);
+
+    @Query(nativeQuery = true,
+            value =
+                    "SELECT *" +
+                    " FROM clubaffiliationapplication," +
+                    "     (SELECT name AS maxname, MAX(affiliation_expiration_date) AS maxexpdate" +
+                    "      FROM clubaffiliationapplication" +
+                    "      WHERE LOWER(name) LIKE LOWER(:nameContains)" +
+                    "      GROUP BY name) caa" +
+                    " WHERE name = caa.maxname and affiliation_expiration_date = caa.maxexpdate",
+            countQuery =
+                    "SELECT count(*)" +
+                    " FROM clubaffiliationapplication," +
+                    "     (SELECT name AS maxname, MAX(affiliation_expiration_date) AS maxexpdate" +
+                    "      FROM clubaffiliationapplication" +
+                    "      WHERE LOWER(name) LIKE LOWER(:nameContains)" +
+                    "      GROUP BY name) caa" +
+                    " WHERE name = caa.maxname and affiliation_expiration_date = caa.maxexpdate"
+    )
+    Page<ClubAffiliationApplicationEntity> findAllByNameLikeIgnoreCaseAndMostRecentExpirationDate(String nameContains, Pageable pageable);
 }

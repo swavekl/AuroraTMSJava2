@@ -12,12 +12,14 @@ import {MatTooltipModule} from '@angular/material/tooltip';
 import {MatToolbarModule} from '@angular/material/toolbar';
 import {MatIconModule} from '@angular/material/icon';
 import {MatSelectModule} from '@angular/material/select';
+import {MatDialogModule} from '@angular/material/dialog';
 import {FlexLayoutModule} from '@angular/flex-layout';
 
 import {OfficialsRoutingModule} from './officials-routing.module';
 import {OfficialsListComponent} from './officials-list/officials-list.component';
 import {OfficialEditComponent} from './official-edit/official-edit.component';
 import {OfficialEditContainerComponent} from './official-edit/official-edit-container.component';
+import { OfficialSearchDialogComponent } from './official-search-dialog/official-search-dialog.component';
 import {UmpireRankPipe} from './pipes/umpire-rank.pipe';
 import {RefereeRankPipe} from './pipes/referee-rank.pipe';
 
@@ -28,24 +30,26 @@ import {RefereeRankPipe} from './pipes/referee-rank.pipe';
     OfficialEditComponent,
     OfficialEditContainerComponent,
     UmpireRankPipe,
-    RefereeRankPipe
+    RefereeRankPipe,
+    OfficialSearchDialogComponent
   ],
-  imports: [
-    CommonModule,
-    OfficialsRoutingModule,
-    MatTableModule,
-    MatPaginatorModule,
-    MatSortModule,
-    FlexLayoutModule,
-    MatButtonModule,
-    MatListModule,
-    MatInputModule,
-    MatTooltipModule,
-    MatToolbarModule,
-    FormsModule,
-    MatIconModule,
-    MatSelectModule
-  ],
+    imports: [
+        CommonModule,
+        OfficialsRoutingModule,
+        MatTableModule,
+        MatPaginatorModule,
+        MatSortModule,
+        FlexLayoutModule,
+        MatButtonModule,
+        MatListModule,
+        MatInputModule,
+        MatTooltipModule,
+        MatToolbarModule,
+        FormsModule,
+        MatIconModule,
+        MatSelectModule,
+        MatDialogModule
+    ],
   exports: [
     UmpireRankPipe,
     RefereeRankPipe

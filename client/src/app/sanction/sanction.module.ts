@@ -25,6 +25,7 @@ import {SanctionRequestListComponent} from './sanction-request-list/sanction-req
 import {SanctionRequestEditComponent} from './sanction-edit/sanction-request-edit.component';
 import {SanctionRequestEditContainerComponent} from './sanction-edit/sanction-request-edit-container.component';
 import {AccountModule} from '../account/account.module';
+import {MatAutocompleteModule} from '@angular/material/autocomplete';
 
 
 @NgModule({
@@ -33,29 +34,30 @@ import {AccountModule} from '../account/account.module';
     SanctionRequestEditComponent,
     SanctionRequestEditContainerComponent
   ],
-  imports: [
-    CommonModule,
-    SanctionRoutingModule,
-    MatTableModule,
-    MatPaginatorModule,
-    MatSortModule,
-    MatCardModule,
-    FormsModule,
-    MatStepperModule,
-    FlexModule,
-    MatDatepickerModule,
-    MatNativeDateModule,
-    MatInputModule,
-    MatSelectModule,
-    MatExpansionModule,
-    MatRadioModule,
-    MatCheckboxModule,
-    MatButtonModule,
-    MatIconModule,
-    MatTooltipModule,
-    MatListModule,
-    MatToolbarModule,
-    AccountModule
-  ]
+    imports: [
+        CommonModule,
+        SanctionRoutingModule,
+        MatTableModule,
+        MatPaginatorModule,
+        MatSortModule,
+        MatCardModule,
+        FormsModule,
+        MatStepperModule,
+        FlexModule,
+        MatDatepickerModule,
+        MatNativeDateModule,
+        MatInputModule,
+        MatSelectModule,
+        MatExpansionModule,
+        MatRadioModule,
+        MatCheckboxModule,
+        MatButtonModule,
+        MatIconModule,
+        MatTooltipModule,
+        MatListModule,
+        MatToolbarModule,
+        AccountModule,
+        MatAutocompleteModule
+    ]
 })
 export class SanctionModule { }

@@ -20,8 +20,7 @@ import org.springframework.security.acls.domain.GrantedAuthoritySid;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 
 @Service
@@ -43,6 +42,7 @@ public class ClubAffiliationApplicationService {
 
     /**
      * Finds applicaitions by name
+     *
      * @param nameLike
      * @param pageable
      * @return
@@ -71,6 +71,31 @@ public class ClubAffiliationApplicationService {
             throw e;
         }
         return applicationPage;
+    }
+
+    /**
+     * Finds latest approved applications with name filter
+     * @param nameLike
+     * @param pageable
+     * @return
+     */
+    public Page<ClubAffiliationApplication> findByNameAndLatest(String nameLike, Pageable pageable) {
+        try {
+            String containsName = (StringUtils.isNotEmpty(nameLike)) ? "%" + nameLike + "%" : "%";
+            Page<ClubAffiliationApplicationEntity> page = this.repository.findAllByNameLikeIgnoreCaseAndMostRecentExpirationDate(
+                    containsName, pageable);
+            List<ClubAffiliationApplicationEntity> entities = page.getContent();
+            List<ClubAffiliationApplication> applications = new ArrayList<>(entities.size());
+            for (ClubAffiliationApplicationEntity entity : entities) {
+                ClubAffiliationApplication application = new ClubAffiliationApplication();
+                application.convertFromEntity(entity);
+                applications.add(application);
+            }
+            return new PageImpl<>(applications, pageable, page.getTotalElements());
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        }
     }
 
     @Cacheable(key = "#id")

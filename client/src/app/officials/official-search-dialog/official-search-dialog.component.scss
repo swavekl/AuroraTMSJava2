@@ -1,0 +1,6 @@
+@use "src/my-theme" as *;
+
+mat-list-item:hover {
+  background-color: lighten($primary-color, 40%);;
+  cursor: pointer;
+}

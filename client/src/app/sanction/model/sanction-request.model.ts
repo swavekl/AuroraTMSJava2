@@ -132,11 +132,25 @@ export class SanctionCategory {
   }
 }
 
-/**
- * we are not likely to query on these items so let's store them as JSON string in the database so if
- * something is changed we don't have to change DB schema.
- */
-export class SanctionRequestContents {
+export class SanctionRequest {
+
+  id: number;
+  tournamentName: string;
+  startDate: Date;
+  endDate: Date;
+  requestDate: Date;
+  status: SanctionRequestStatus;
+
+  // 0 - 5 stars
+  starLevel: number;
+
+  // regional or national coordinator
+  coordinatorFirstName: string;
+  coordinatorLastName: string;
+
+  // email retrieved from frontend table
+  coordinatorEmail: string;
+
   alternateStartDate: Date;
   alternateEndDate: Date;
 
@@ -172,12 +186,14 @@ export class SanctionRequestContents {
   approvalRejectionNotes: string;
 
   constructor () {
-    // make categories
-    this.makeCategories ();
+    this.tournamentName = '';
+    // this.requestContents = new SanctionRequestContents();
+    this.status = SanctionRequestStatus.New;
+    this.makeCategories();
   }
 
   // constructs default categories
-  makeCategories () {
+  private makeCategories () {
     const lighting: SanctionCategory = new SanctionCategory ().setValues (
       'Light Strength as measured on table playing surface', 'lighting', true);
     const lightCriteria: SanctionCategoryCriteria [] = [
@@ -314,103 +330,13 @@ export class SanctionRequestContents {
     ];
   }
 
-  // transfers values from the object created by the html form into this object
-  // selected rating criteria are in properties like 'lighting', 'amenities0'
-  applyChanges (formValues: any) {
-    // apply new values to this object
-    // Object.assign (this, formValues);
-    this.copySimpleProperties(formValues);
-
-    // now set the criteria
-    for (let i = 0; i < this.categories.length; i++) {
-      const category: SanctionCategory = this.categories[i];
-      category.applyChanges(formValues);
-    }
-  }
-
-  // fills requestContents from generic object which doesn't have methods on this class
-  // this generic object has categories and criteria object arrays but they are again plain typescript objects not the ones with methods
-  fillSettings (settings: any) {
-    this.copySimpleProperties(settings);
-
-    // now set the criteria
-    for (let i = 0; i < this.categories.length; i++) {
-      const category: SanctionCategory = this.categories[i];
-      const sourceCategory: any = (settings.categories && settings.categories.length > i) ? settings.categories[i] : null;
-      if (sourceCategory && sourceCategory.name === category.name) {
-        category.fillFromSource(sourceCategory);
-      }
-    }
-  }
-
-  // copied only selected items without copying categories selection criteria
-  copySimpleProperties (formValues: any) {
-    this.alternateStartDate                  = formValues.alternateStartDate                ;
-    this.alternateEndDate                    = formValues.alternateEndDate                  ;
-    this.webLinkURL                          = formValues.webLinkURL                        ;
-    this.venueStreetAddress                  = formValues.venueStreetAddress                ;
-    this.venueCity                           = formValues.venueCity                         ;
-    this.venueState                          = formValues.venueState                        ;
-    this.venueZipCode                        = formValues.venueZipCode                      ;
-    this.clubName                            = formValues.clubName                          ;
-    this.clubAffiliationExpiration           = formValues.clubAffiliationExpiration         ;
-    this.contactPersonName                   = formValues.contactPersonName                 ;
-    this.contactPersonPhone                  = formValues.contactPersonPhone                ;
-    this.contactPersonEmail                  = formValues.contactPersonEmail                ;
-    this.contactPersonStreetAddress          = formValues.contactPersonStreetAddress        ;
-    this.contactPersonCity                   = formValues.contactPersonCity                 ;
-    this.contactPersonState                  = formValues.contactPersonState                ;
-    this.contactPersonZip                    = formValues.contactPersonZip                  ;
-    this.tournamentRefereeName               = formValues.tournamentRefereeName             ;
-    this.tournamentRefereeRank               = formValues.tournamentRefereeRank             ;
-    this.tournamentDirectorName              = formValues.tournamentDirectorName            ;
-    this.totalPrizeMoney                     = formValues.totalPrizeMoney                   ;
-    this.sanctionFee                         = formValues.sanctionFee                       ;
-    this.tournamentRefereeMembershipExpires  = formValues.tournamentRefereeMembershipExpires;
-  }
-
-  //
-  makeSanctionCategoryCriteria (name: string, points: number, requiredForStarLevel: string, selected?: boolean) {
+  private makeSanctionCategoryCriteria (name: string, points: number, requiredForStarLevel: string, selected?: boolean) {
     const sanctionCategoryCriteria: SanctionCategoryCriteria = new SanctionCategoryCriteria();
     sanctionCategoryCriteria.name = name;
     sanctionCategoryCriteria.points = points;
     sanctionCategoryCriteria.selected = selected;
     sanctionCategoryCriteria.requiredForStarLevel = requiredForStarLevel;
     return sanctionCategoryCriteria;
-  }
-
-}
-
-
-export class SanctionRequest {
-
-  id: number;
-  tournamentName: string;
-  startDate: Date;
-  endDate: Date;
-  requestDate: Date;
-  status: SanctionRequestStatus;
-
-  // 0 - 5 stars
-  starLevel: number;
-
-  // regional or national coordinator
-  coordinatorFirstName: string;
-  coordinatorLastName: string;
-
-  // email retrieved from frontend table
-  coordinatorEmail: string;
-
-  // contents of the request as JSON string
-  requestContentsJSON: string;
-
-  // contents of the request as object
-  requestContents: SanctionRequestContents;
-
-  constructor () {
-    this.tournamentName = '';
-    this.requestContents = new SanctionRequestContents();
-    this.status = SanctionRequestStatus.New;
   }
 
   // apply changes from form and perform various conversions
@@ -433,10 +359,34 @@ export class SanctionRequest {
     // apply rating criteria
     this.starLevel = formValues.starLevel;
 
-    this.requestContents.applyChanges(formValues);
-    this.requestContentsJSON = JSON.stringify (this.requestContents);
-//    console.log ('JSON length ', this.requestContentsJSON.length);
-    this.requestContents = null;
+    this.alternateStartDate                  = formValues.alternateStartDate                ;
+    this.alternateEndDate                    = formValues.alternateEndDate                  ;
+    this.webLinkURL                          = formValues.webLinkURL                        ;
+    this.venueStreetAddress                  = formValues.venueStreetAddress                ;
+    this.venueCity                           = formValues.venueCity                         ;
+    this.venueState                          = formValues.venueState                        ;
+    this.venueZipCode                        = formValues.venueZipCode                      ;
+    this.clubName                            = formValues.clubName                          ;
+    this.clubAffiliationExpiration           = formValues.clubAffiliationExpiration         ;
+    this.contactPersonName                   = formValues.contactPersonName                 ;
+    this.contactPersonPhone                  = formValues.contactPersonPhone                ;
+    this.contactPersonEmail                  = formValues.contactPersonEmail                ;
+    this.contactPersonStreetAddress          = formValues.contactPersonStreetAddress        ;
+    this.contactPersonCity                   = formValues.contactPersonCity                 ;
+    this.contactPersonState                  = formValues.contactPersonState                ;
+    this.contactPersonZip                    = formValues.contactPersonZip                  ;
+    this.tournamentRefereeName               = formValues.tournamentRefereeName             ;
+    this.tournamentRefereeRank               = formValues.tournamentRefereeRank             ;
+    this.tournamentDirectorName              = formValues.tournamentDirectorName            ;
+    this.totalPrizeMoney                     = formValues.totalPrizeMoney                   ;
+    this.sanctionFee                         = formValues.sanctionFee                       ;
+    this.tournamentRefereeMembershipExpires  = formValues.tournamentRefereeMembershipExpires;
+
+    // now set the criteria
+    for (let i = 0; i < this.categories.length; i++) {
+      const category: SanctionCategory = this.categories[i];
+      category.applyChanges(formValues);
+    }
   }
 
   clone (other: SanctionRequest) {
@@ -453,14 +403,35 @@ export class SanctionRequest {
     this.endDate = dateUtils.convertFromUTCToLocalDate (other.endDate);
     this.requestDate = dateUtils.convertFromUTCToLocalDate (other.requestDate);
 
-    if (other.requestContentsJSON != null) {
-      const settings: any = JSON.parse (other.requestContentsJSON);
-      this.requestContents = new SanctionRequestContents();
-      this.requestContents.fillSettings(settings);
-      this.requestContentsJSON = null;
-    } else {
-      this.requestContents = new SanctionRequestContents();
-      this.requestContentsJSON = null;
+    this.alternateStartDate                  = other.alternateStartDate                ;
+    this.alternateEndDate                    = other.alternateEndDate                  ;
+    this.webLinkURL                          = other.webLinkURL                        ;
+    this.venueStreetAddress                  = other.venueStreetAddress                ;
+    this.venueCity                           = other.venueCity                         ;
+    this.venueState                          = other.venueState                        ;
+    this.venueZipCode                        = other.venueZipCode                      ;
+    this.clubName                            = other.clubName                          ;
+    this.clubAffiliationExpiration           = other.clubAffiliationExpiration         ;
+    this.contactPersonName                   = other.contactPersonName                 ;
+    this.contactPersonPhone                  = other.contactPersonPhone                ;
+    this.contactPersonEmail                  = other.contactPersonEmail                ;
+    this.contactPersonStreetAddress          = other.contactPersonStreetAddress        ;
+    this.contactPersonCity                   = other.contactPersonCity                 ;
+    this.contactPersonState                  = other.contactPersonState                ;
+    this.contactPersonZip                    = other.contactPersonZip                  ;
+    this.tournamentRefereeName               = other.tournamentRefereeName             ;
+    this.tournamentRefereeRank               = other.tournamentRefereeRank             ;
+    this.tournamentDirectorName              = other.tournamentDirectorName            ;
+    this.totalPrizeMoney                     = other.totalPrizeMoney                   ;
+    this.sanctionFee                         = other.sanctionFee                       ;
+    this.tournamentRefereeMembershipExpires  = other.tournamentRefereeMembershipExpires;
+
+    for (let i = 0; i < this.categories.length; i++) {
+      const category: SanctionCategory = this.categories[i];
+      const sourceCategory: any = (other.categories && other.categories.length > i) ? other.categories[i] : null;
+      if (sourceCategory && sourceCategory.name === category.name) {
+        category.fillFromSource(sourceCategory);
+      }
     }
   }
 }

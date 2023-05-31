@@ -26,7 +26,7 @@
 
                   <mat-form-field fxFlex="50%">
                     <mat-label>Tournament website URL</mat-label>
-                    <input matInput type="text" placeholder="Tournament website URL" name="webLinkURL" [(ngModel)]="sanctionRequest.requestContents.webLinkURL">
+                    <input matInput type="text" placeholder="Tournament website URL" name="webLinkURL" [(ngModel)]="sanctionRequest.webLinkURL">
                   </mat-form-field>
                 </div>
 
@@ -48,14 +48,14 @@
 
                   <mat-form-field fxFlex="24%">
                     <mat-label>Alternate Start Date</mat-label>
-                    <input matInput [matDatepicker]="pickerAltSD" placeholder="Alternate Start Date" name="altStartDate" [min]="minStartDate" [max]="maxStartDate" [(ngModel)]="sanctionRequest.requestContents.alternateStartDate" (dateChange)="onEnableAltEndDate($event.target.value)" (input)="onEnableAltEndDate($event.target.value)" disabled>
+                    <input matInput [matDatepicker]="pickerAltSD" placeholder="Alternate Start Date" name="altStartDate" [min]="minStartDate" [max]="maxStartDate" [(ngModel)]="sanctionRequest.alternateStartDate" (dateChange)="onEnableAltEndDate($event.target.value)" (input)="onEnableAltEndDate($event.target.value)" disabled>
                     <mat-datepicker-toggle matSuffix [for]="pickerAltSD"></mat-datepicker-toggle>
                     <mat-datepicker #pickerAltSD disabled="false"></mat-datepicker>
                   </mat-form-field>
 
                   <mat-form-field fxFlex="24%">
                     <mat-label>Alternate End Date</mat-label>
-                    <input matInput [matDatepicker]="pickerAltED" placeholder="Alternate End Date" name="altEndDate" [min]="minAltEndDate" [max]="maxAltEndDate" [(ngModel)]="sanctionRequest.requestContents.alternateEndDate" disabled>
+                    <input matInput [matDatepicker]="pickerAltED" placeholder="Alternate End Date" name="altEndDate" [min]="minAltEndDate" [max]="maxAltEndDate" [(ngModel)]="sanctionRequest.alternateEndDate" disabled>
                     <mat-datepicker-toggle matSuffix [for]="pickerAltED"></mat-datepicker-toggle>
                     <mat-datepicker #pickerAltED [disabled]="!altEndDateEnabled"></mat-datepicker>
                   </mat-form-field>
@@ -65,42 +65,56 @@
                 <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="10px">
                   <mat-form-field fxFlex="50%">
                     <mat-label>Street Address</mat-label>
-                    <input matInput type="text" placeholder="Street Address" name="venueStreetAddress" [(ngModel)]="sanctionRequest.requestContents.venueStreetAddress" required>
+                    <input matInput type="text" placeholder="Street Address" name="venueStreetAddress" [(ngModel)]="sanctionRequest.venueStreetAddress" required>
                   </mat-form-field>
                   <mat-form-field fxFlex="30%">
                     <mat-label>City</mat-label>
-                    <input matInput type="text" placeholder="City" name="venueCity" [(ngModel)]="sanctionRequest.requestContents.venueCity" required>
+                    <input matInput type="text" placeholder="City" name="venueCity" [(ngModel)]="sanctionRequest.venueCity" required>
                     <mat-error>This field is required</mat-error>
                   </mat-form-field>
                   <mat-form-field fxFlex="10%">
                     <mat-label>State</mat-label>
-                    <mat-select matInput type="text" placeholder="State" name="venueState" [(ngModel)]="sanctionRequest.requestContents.venueState" (selectionChange)="onVenueStateChange($event)">
+                    <mat-select matInput type="text" placeholder="State" name="venueState" [(ngModel)]="sanctionRequest.venueState" (selectionChange)="onVenueStateChange($event)">
                       <mat-option *ngFor="let state of statesList" value="{{state.abbreviation}}">{{state.abbreviation}}</mat-option>
                     </mat-select>
                   </mat-form-field>
                   <mat-form-field fxFlex="10%">
                     <mat-label>Zip Code</mat-label>
-                    <input matInput type="text" placeholder="Zip Code" name="venueZipCode" [(ngModel)]="sanctionRequest.requestContents.venueZipCode" required  pattern="^[1-9][0-9]{4}" maxlength="6">
+                    <input matInput type="text" placeholder="Zip Code" name="venueZipCode" [(ngModel)]="sanctionRequest.venueZipCode" required  pattern="^[1-9][0-9]{4}" maxlength="6">
                     <mat-error>This field is required</mat-error>
                   </mat-form-field>
                 </div>
 
                 <!-- Club information -->
                 <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="10px">
-                  <mat-form-field fxFlex="40%">
+                  <mat-form-field fxFlex="50%">
                     <mat-label>Club Name</mat-label>
-                    <input matInput type="text" placeholder="Club Name" name="clubName" [(ngModel)]="sanctionRequest.requestContents.clubName" required>
+                    <input matInput type="text" placeholder="Club Name" name="clubName"
+                           #clubName="ngModel"
+                           [matAutocomplete]="auto" [appClubName]="filteredClubs"
+                           [(ngModel)]="sanctionRequest.clubName" required>
+                    <button *ngIf="sanctionRequest.clubName" matSuffix mat-icon-button aria-label="Clear" (click)="clearClubName()">
+                      <mat-icon>close</mat-icon>
+                    </button>
                     <mat-error>This field is required</mat-error>
+                    <mat-autocomplete #auto="matAutocomplete" (optionSelected)="onClubSuggestionSelected($event)">
+                      <mat-option *ngFor="let club of filteredClubs" [value]="club.clubName">
+                        {{club.clubName}}
+                      </mat-option>
+                    </mat-autocomplete>
                   </mat-form-field>
 
-                  <mat-form-field fxFlex="30%">
-                    <mat-label>Club's USATT Affiliation Expiration Date</mat-label>
-                    <input matInput type="text" placeholder="Club's USATT Affiliation Expiration Date" name="clubAffiliationExpiration" [(ngModel)]="sanctionRequest.requestContents.clubAffiliationExpiration">
+                  <mat-form-field fxFlex="35%">
+                    <mat-label>Club's Affiliation Expiration Date</mat-label>
+                    <input matInput [matDatepicker]="pickerAffilationED" placeholder="Club's Affiliation Expiration Date"
+                           name="clubAffiliationExpiration" [(ngModel)]="sanctionRequest.clubAffiliationExpiration">
+                    <mat-datepicker-toggle matSuffix [for]="pickerAffilationED"></mat-datepicker-toggle>
+                    <mat-datepicker #pickerAffilationED></mat-datepicker>
                   </mat-form-field>
 
-                  <mat-form-field fxFlex="30%">
+                  <mat-form-field fxFlex="15%">
                     <mat-label>Total Prize Money</mat-label>
-                    <input matInput type="text" placeholder="Total Prize Money" name="totalPrizeMoney" [(ngModel)]="sanctionRequest.requestContents.totalPrizeMoney">
+                    <input matInput type="text" placeholder="Total Prize Money" name="totalPrizeMoney" [(ngModel)]="sanctionRequest.totalPrizeMoney">
                   </mat-form-field>
                 </div>
 
@@ -111,37 +125,37 @@
               <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="10px">
                 <mat-form-field fxFlex="40%">
                   <mat-label>Name</mat-label>
-                  <input matInput type="text" placeholder="Contact Person Name" name="contactPersonName" [(ngModel)]="sanctionRequest.requestContents.contactPersonName">
+                  <input matInput type="text" placeholder="Contact Person Name" name="contactPersonName" [(ngModel)]="sanctionRequest.contactPersonName">
                 </mat-form-field>
                 <mat-form-field fxFlex="20%">
                   <mat-label>Phone</mat-label>
-                  <input matInput type="tel" placeholder="Contact Phone" name="contactPersonPhone" [(ngModel)]="sanctionRequest.requestContents.contactPersonPhone">
+                  <input matInput type="tel" placeholder="Contact Phone" name="contactPersonPhone" [(ngModel)]="sanctionRequest.contactPersonPhone">
                 </mat-form-field>
                 <mat-form-field fxFlex="40%">
                   <mat-label>Email</mat-label>
-                  <input matInput type="email" placeholder="Contact Email" name="contactPersonEmail" [(ngModel)]="sanctionRequest.requestContents.contactPersonEmail" required>
+                  <input matInput type="email" placeholder="Contact Email" name="contactPersonEmail" [(ngModel)]="sanctionRequest.contactPersonEmail" required>
                 </mat-form-field>
               </div>
               <!-- Contact person address -->
               <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="10px">
                 <mat-form-field fxFlex="50%">
                   <mat-label>Street Address</mat-label>
-                  <input matInput type="text" placeholder="Street Address" name="contactPersonStreetAddress" [(ngModel)]="sanctionRequest.requestContents.contactPersonStreetAddress" required>
+                  <input matInput type="text" placeholder="Street Address" name="contactPersonStreetAddress" [(ngModel)]="sanctionRequest.contactPersonStreetAddress" required>
                 </mat-form-field>
                 <mat-form-field fxFlex="30%">
                   <mat-label>City</mat-label>
-                  <input matInput type="text" placeholder="City" name="contactPersonCity" [(ngModel)]="sanctionRequest.requestContents.contactPersonCity" required>
+                  <input matInput type="text" placeholder="City" name="contactPersonCity" [(ngModel)]="sanctionRequest.contactPersonCity" required>
                   <mat-error>This field is required</mat-error>
                 </mat-form-field>
                 <mat-form-field fxFlex="10%">
                   <mat-label>State</mat-label>
-                  <mat-select matInput type="text" placeholder="State" name="contactPersonState" [(ngModel)]="sanctionRequest.requestContents.contactPersonState">
+                  <mat-select matInput type="text" placeholder="State" name="contactPersonState" [(ngModel)]="sanctionRequest.contactPersonState">
                     <mat-option *ngFor="let state of statesList" value="{{state.abbreviation}}">{{state.abbreviation}}</mat-option>
                   </mat-select>
                 </mat-form-field>
                 <mat-form-field fxFlex="10%">
                   <mat-label>Zip Code</mat-label>
-                  <input matInput type="text" placeholder="Zip Code" name="contactPersonZip" [(ngModel)]="sanctionRequest.requestContents.contactPersonZip" required  pattern="^[1-9][0-9]{4}" maxlength="6">
+                  <input matInput type="text" placeholder="Zip Code" name="contactPersonZip" [(ngModel)]="sanctionRequest.contactPersonZip" required  pattern="^[1-9][0-9]{4}" maxlength="6">
                   <mat-error>This field is required</mat-error>
                 </mat-form-field>
               </div>
@@ -150,19 +164,22 @@
               <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="10px">
                 <mat-form-field fxFlex="30%">
                   <mat-label>Tournament Referee Name</mat-label>
-                  <input matInput type="text" placeholder="Tournament Referee Name" name="tournamentRefereeName" [(ngModel)]="sanctionRequest.requestContents.tournamentRefereeName">
+                  <input matInput type="text" placeholder="Tournament Referee Name" name="tournamentRefereeName" [(ngModel)]="sanctionRequest.tournamentRefereeName">
+                  <button matSuffix type="button" mat-icon-button aria-label="Search" (click)="showRefereeSearchDialog()">
+                    <mat-icon>search</mat-icon>
+                  </button>
                 </mat-form-field>
                 <mat-form-field fxFlex="20%">
                   <mat-label>Referee/Umpire Rank</mat-label>
-                  <input matInput type="tel" placeholder="Referee/Umpire Rank" name="tournamentRefereeRank" [(ngModel)]="sanctionRequest.requestContents.tournamentRefereeRank">
+                  <input matInput type="tel" placeholder="Referee/Umpire Rank" name="tournamentRefereeRank" [(ngModel)]="sanctionRequest.tournamentRefereeRank">
                 </mat-form-field>
                 <mat-form-field fxFlex="20%">
                   <mat-label>Referee USATT Membership Expires</mat-label>
-                  <input matInput type="email" placeholder="Referee USATT Membership Expires" name="tournamentRefereeMembershipExpires" [(ngModel)]="sanctionRequest.requestContents.tournamentRefereeMembershipExpires" required>
+                  <input matInput type="email" placeholder="Referee USATT Membership Expires" name="tournamentRefereeMembershipExpires" [(ngModel)]="sanctionRequest.tournamentRefereeMembershipExpires" required>
                 </mat-form-field>
                 <mat-form-field fxFlex="30%">
                   <mat-label>Tournament Director</mat-label>
-                  <input matInput type="text" placeholder="Tournament Director" name="tournamentDirectorName" [(ngModel)]="sanctionRequest.requestContents.tournamentDirectorName">
+                  <input matInput type="text" placeholder="Tournament Director" name="tournamentDirectorName" [(ngModel)]="sanctionRequest.tournamentDirectorName">
                 </mat-form-field>
               </div>
 
@@ -172,7 +189,7 @@
             </mat-step>
             <mat-step label="Star Rating Criteria">
               <mat-accordion class="example-headers-align">
-                <div *ngFor="let category of sanctionRequest.requestContents.categories; index as catIndex">
+                <div *ngFor="let category of sanctionRequest.categories; index as catIndex">
                   <mat-expansion-panel [expanded]="isCurrentCategory(catIndex)" (opened)="setCategory(catIndex)" hideToggle="true">
                     <mat-expansion-panel-header>
                       <mat-panel-title>
@@ -287,7 +304,7 @@
                 <mat-form-field fxFlex="100%">
                   <mat-label>Approval/Rejection Notes</mat-label>
                   <textarea rows="5" matInput type="text" name="approvalRejectionNotes" maxlength="500"
-                            [(ngModel)]="sanctionRequest.requestContents.approvalRejectionNotes"
+                            [(ngModel)]="sanctionRequest.approvalRejectionNotes"
                             [disabled]="!isApproveRejectEnabled()">
                     </textarea>
                 </mat-form-field>
