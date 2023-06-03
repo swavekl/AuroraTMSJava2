@@ -10,6 +10,21 @@ mat-tab-group {
 
 .personnel-card {
   height: calc(100vh - 290px);
+
+  div.personnel-list {
+    overflow: auto;
+    height: 350px;
+
+    div.personnel-row {
+      padding-right: 10px;
+      margin: 10px 20px 0 0;
+
+      div.delete-personnel-button {
+        cursor:pointer;
+        color: black;
+      }
+    }
+  }
 }
 
 button.personnel-toolbar-button {

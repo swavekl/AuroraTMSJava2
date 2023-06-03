@@ -10,7 +10,7 @@ import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
       </div>
     </mat-dialog-content>
     <mat-dialog-actions>
-      <div fxFlex="row" fxLayoutAlign="end start" style="width: 100%">
+      <div fxFlex="row" fxLayoutAlign="end start" style="width: 100%; padding-right: 10px;">
         <button mat-raised-button cdkFocusInitial type="button" (click)="onClose()" color="primary">Close</button>
       </div>
     </mat-dialog-actions>

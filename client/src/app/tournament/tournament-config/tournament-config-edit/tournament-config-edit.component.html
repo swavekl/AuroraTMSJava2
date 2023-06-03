@@ -266,7 +266,6 @@
               <button class="personnel-toolbar-button" mat-raised-button type="button" (click)="onAddReferee()">Add Referee</button>
               <button class="personnel-toolbar-button" mat-raised-button type="button" (click)="onAddUmpire()">Add Umpire</button>
               <button class="personnel-toolbar-button" mat-raised-button type="button" (click)="onAddDataEntryClerk()">Add Data Entry Clerk</button>
-              <button class="personnel-toolbar-button" mat-raised-button type="button" (click)="onCreateUser()">Create Login</button>
             </mat-toolbar-row>
           </mat-toolbar>
           <mat-card appearance="outlined" class="personnel-card">
@@ -274,34 +273,40 @@
               <div fxLayout="row" fxFlex>
                 <div fxFlex="33%">
                   <mat-card-subtitle class="mat-headline-6">Referees</mat-card-subtitle>
-                  <div style="padding-bottom: 10px;" *ngFor="let referee of refereeList; let idx = index">
-                    <div fxFlex="row" fxLayoutGap="10px">
-                      <input fxFlex="80%" matInput type="text" [ngModel]="referee.name" [name]="'referee_' + idx"/>
-                      <button mat-icon-button type="button" (click)="onRemovePersonnel(referee.profileId)">
-                        <mat-icon matListItemIcon>delete</mat-icon>
-                      </button>
+                  <div class="personnel-list">
+                    <div *ngFor="let referee of refereeList">
+                      <div fxFlex="row" fxLayoutAlign="stretch start" class="personnel-row">
+                        <div class="mat-body-1" fxFlex>{{referee.name}}</div>
+                        <div class="delete-personnel-button" (click)="onRemovePersonnel(referee.profileId)">
+                          <mat-icon matListItemIcon>delete</mat-icon>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
                 <div fxFlex="33%">
                   <mat-card-subtitle class="mat-headline-6">Umpires</mat-card-subtitle>
-                  <div style="padding-bottom: 10px;" *ngFor="let umpire of umpireList; let idx = index">
-                    <div fxFlex="row" fxLayoutGap="10px">
-                      <input fxFlex="80%" matInput type="text" [ngModel]="umpire.name" [name]="'umpire_' + idx"/>
-                      <button mat-icon-button type="button" (click)="onRemovePersonnel(umpire.profileId)">
-                        <mat-icon matListItemIcon>delete</mat-icon>
-                      </button>
+                  <div class="personnel-list">
+                    <div *ngFor="let umpire of umpireList">
+                      <div fxFlex="row" fxLayoutAlign="stretch start" class="personnel-row">
+                        <div class="mat-body-1" fxFlex>{{umpire.name}}</div>
+                        <div class="delete-personnel-button" (click)="onRemovePersonnel(umpire.profileId)">
+                          <mat-icon matListItemIcon>delete</mat-icon>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
                 <div fxFlex="33%">
                   <mat-card-subtitle class="mat-headline-6">Data Entry Clerks</mat-card-subtitle>
-                  <div style="padding-bottom: 10px;" *ngFor="let dataEntryClerk of dataEntryClerksList; let idx = index">
-                    <div fxFlex="row" fxLayoutGap="10px">
-                      <input fxFlex matInput type="text" [ngModel]="dataEntryClerk.name" [name]="'dataEntryClerk_' + idx"/>
-                      <button  mat-icon-button type="button" (click)="onRemovePersonnel(dataEntryClerk.profileId)">
-                        <mat-icon matListItemIcon>delete</mat-icon>
-                      </button>
+                  <div class="personnel-list">
+                    <div *ngFor="let dataEntryClerk of dataEntryClerksList">
+                      <div fxFlex="row" fxLayoutAlign="stretch start" class="personnel-row">
+                        <div class="mat-body-1" fxFlex>{{dataEntryClerk.name}}</div>
+                        <div class="delete-personnel-button" (click)="onRemovePersonnel(dataEntryClerk.profileId)">
+                          <mat-icon matListItemIcon>delete</mat-icon>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>

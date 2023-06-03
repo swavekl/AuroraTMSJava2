@@ -1,17 +1,26 @@
 import {ChangeDetectorRef, Component, EventEmitter, Input, OnChanges, Output, SimpleChange, SimpleChanges, ViewChild} from '@angular/core';
+import {UntypedFormControl} from '@angular/forms';
+import {Router} from '@angular/router';
+import {MatTabGroup} from '@angular/material/tabs';
+import {MatDialog} from '@angular/material/dialog';
+
 import {Tournament} from '../tournament.model';
 import {StatesList} from '../../../shared/states/states-list';
-import {MatTabGroup} from '@angular/material/tabs';
 import {PricingMethod} from '../../model/pricing-method.enum';
 import {UserRoles} from '../../../user/user-roles.enum';
 import {ProfileFindPopupComponent, ProfileSearchData} from '../../../profile/profile-find-popup/profile-find-popup.component';
-import {MatDialog} from '@angular/material/dialog';
 import {Subscription} from 'rxjs';
 import {Personnel} from '../model/personnel.model';
 import {CheckInType} from '../../model/check-in-type.enum';
 // tslint:disable-next-line:max-line-length
-import {TournamentEventConfigListContainerComponent} from '../tournament-event-config-list/tournament-event-config-list-container.component';
-import {UntypedFormControl} from '@angular/forms';
+import {
+  TournamentEventConfigListContainerComponent
+} from '../tournament-event-config-list/tournament-event-config-list-container.component';
+import {
+  OfficialSearchDialogComponent,
+  OfficialSearchOptions
+} from '../../../officials/official-search-dialog/official-search-dialog.component';
+import {ErrorMessagePopupService} from '../../../shared/error-message-dialog/error-message-popup.service';
 
 @Component({
   selector: 'app-tournament-config-edit',
@@ -47,7 +56,9 @@ export class TournamentConfigEditComponent implements OnChanges {
   subscriptions: Subscription = new Subscription();
 
   constructor(private dialog: MatDialog,
-              private changeDetectorRef: ChangeDetectorRef) {
+              private changeDetectorRef: ChangeDetectorRef,
+              private errorMessagePopupService: ErrorMessagePopupService,
+              private router: Router) {
     this.statesList = StatesList.getList();
     this.tournamentTypes = [];
     this.tournamentTypes.push({name: 'Ratings Restricted', value: 'RatingsRestricted'});
@@ -154,11 +165,11 @@ export class TournamentConfigEditComponent implements OnChanges {
   }
 
   onAddReferee() {
-    this.onAddPersonnel(UserRoles.ROLE_REFEREES);
+    this.onAddOfficial(UserRoles.ROLE_REFEREES);
   }
 
   onAddUmpire() {
-    this.onAddPersonnel(UserRoles.ROLE_UMPIRES);
+    this.onAddOfficial(UserRoles.ROLE_UMPIRES);
   }
 
   onAddDataEntryClerk() {
@@ -196,8 +207,8 @@ export class TournamentConfigEditComponent implements OnChanges {
         // make sure this person is not already in the list
         const profileId = result.selectedPlayerRecord.id;
         const index = personnelList.findIndex((personnel: Personnel) => personnel.profileId === profileId );
+        const personName = result.selectedPlayerRecord.lastName + ', ' + result.selectedPlayerRecord.firstName;
         if (index === -1) {
-          const personName = result.selectedPlayerRecord.lastName + ', ' + result.selectedPlayerRecord.firstName;
           const newPersonnel: Personnel = {
             name: personName,
             role: role,
@@ -208,7 +219,51 @@ export class TournamentConfigEditComponent implements OnChanges {
           this.tournament.configuration.personnelList = updatedPersonnelList;
           this.changeDetectorRef.markForCheck();
         } else {
-          console.log ('Person is already in the role');
+          const strRole = (role === UserRoles.ROLE_DATA_ENTRY_CLERKS) ? 'data entry clerk' :
+            ((role === UserRoles.ROLE_MONITORS) ? 'monitor' : 'digital score board');
+          this.errorMessagePopupService.showError(`${personName} is already a ${strRole} in this tournament`,
+          '350px', '200px');
+        }
+      }
+    });
+    this.subscriptions.add(subscription);
+  }
+
+  /**
+   * Adds a new person into the role
+   * @param role
+   */
+  onAddOfficial(role: UserRoles) {
+    // show Profile selection dialog
+    const strRole = (role === UserRoles.ROLE_REFEREES) ? 'referee' : 'umpire';
+    const data: OfficialSearchOptions = {
+      officialType: strRole
+    };
+    const config = {
+      width: '400px', data: data
+    };
+
+    const personnelList = this.tournament.configuration.personnelList ?? [];
+    const dialogRef = this.dialog.open(OfficialSearchDialogComponent, config);
+    const subscription = dialogRef.afterClosed().subscribe(result => {
+      if (result?.action === 'ok') {
+        // make sure this person is not already in the list
+        const profileId = result.official.profileId;
+        const personName = result.official.lastName + ', ' + result.official.firstName;
+        const index = personnelList.findIndex((personnel: Personnel) => personnel.profileId === profileId );
+        if (index === -1) {
+          const newPersonnel: Personnel = {
+            name: personName,
+            role: role,
+            profileId: profileId
+          };
+          const updatedPersonnelList = [...personnelList, newPersonnel];
+          this.splitPersonnelList(updatedPersonnelList);
+          this.tournament.configuration.personnelList = updatedPersonnelList;
+          this.changeDetectorRef.markForCheck();
+        } else {
+          this.errorMessagePopupService.showError(`${personName} is already a ${strRole} in this tournament`,
+            '350px', '200px');
         }
       }
     });
@@ -230,10 +285,6 @@ export class TournamentConfigEditComponent implements OnChanges {
         break;
       }
     }
-  }
-
-  onCreateUser() {
-    // create user profile for new user e.g. data entry clerk
   }
 
   getMonitorUser() {
