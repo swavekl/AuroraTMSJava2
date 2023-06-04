@@ -359,15 +359,15 @@ export class SanctionRequest {
     // apply rating criteria
     this.starLevel = formValues.starLevel;
 
-    this.alternateStartDate                  = formValues.alternateStartDate                ;
-    this.alternateEndDate                    = formValues.alternateEndDate                  ;
+    this.alternateStartDate                  = dateUtils.convertFromLocalToUTCDate (formValues.alternateStartDate);
+    this.alternateEndDate                    = dateUtils.convertFromLocalToUTCDate (formValues.alternateEndDate);
     this.webLinkURL                          = formValues.webLinkURL                        ;
     this.venueStreetAddress                  = formValues.venueStreetAddress                ;
     this.venueCity                           = formValues.venueCity                         ;
     this.venueState                          = formValues.venueState                        ;
     this.venueZipCode                        = formValues.venueZipCode                      ;
     this.clubName                            = formValues.clubName                          ;
-    this.clubAffiliationExpiration           = formValues.clubAffiliationExpiration         ;
+    this.clubAffiliationExpiration           = dateUtils.convertFromLocalToUTCDate (formValues.clubAffiliationExpiration);
     this.contactPersonName                   = formValues.contactPersonName                 ;
     this.contactPersonPhone                  = formValues.contactPersonPhone                ;
     this.contactPersonEmail                  = formValues.contactPersonEmail                ;
@@ -380,7 +380,7 @@ export class SanctionRequest {
     this.tournamentDirectorName              = formValues.tournamentDirectorName            ;
     this.totalPrizeMoney                     = formValues.totalPrizeMoney                   ;
     this.sanctionFee                         = formValues.sanctionFee                       ;
-    this.tournamentRefereeMembershipExpires  = formValues.tournamentRefereeMembershipExpires;
+    this.tournamentRefereeMembershipExpires  = dateUtils.convertFromLocalToUTCDate (formValues.tournamentRefereeMembershipExpires);
 
     // now set the criteria
     for (let i = 0; i < this.categories.length; i++) {
@@ -403,15 +403,15 @@ export class SanctionRequest {
     this.endDate = dateUtils.convertFromUTCToLocalDate (other.endDate);
     this.requestDate = dateUtils.convertFromUTCToLocalDate (other.requestDate);
 
-    this.alternateStartDate                  = other.alternateStartDate                ;
-    this.alternateEndDate                    = other.alternateEndDate                  ;
+    this.alternateStartDate                  = dateUtils.convertFromUTCToLocalDate (other.alternateStartDate);
+    this.alternateEndDate                    = dateUtils.convertFromUTCToLocalDate (other.alternateEndDate);
     this.webLinkURL                          = other.webLinkURL                        ;
     this.venueStreetAddress                  = other.venueStreetAddress                ;
     this.venueCity                           = other.venueCity                         ;
     this.venueState                          = other.venueState                        ;
     this.venueZipCode                        = other.venueZipCode                      ;
     this.clubName                            = other.clubName                          ;
-    this.clubAffiliationExpiration           = other.clubAffiliationExpiration         ;
+    this.clubAffiliationExpiration           = dateUtils.convertFromUTCToLocalDate (other.clubAffiliationExpiration);
     this.contactPersonName                   = other.contactPersonName                 ;
     this.contactPersonPhone                  = other.contactPersonPhone                ;
     this.contactPersonEmail                  = other.contactPersonEmail                ;
@@ -424,7 +424,7 @@ export class SanctionRequest {
     this.tournamentDirectorName              = other.tournamentDirectorName            ;
     this.totalPrizeMoney                     = other.totalPrizeMoney                   ;
     this.sanctionFee                         = other.sanctionFee                       ;
-    this.tournamentRefereeMembershipExpires  = other.tournamentRefereeMembershipExpires;
+    this.tournamentRefereeMembershipExpires  = dateUtils.convertFromUTCToLocalDate (other.tournamentRefereeMembershipExpires);
 
     for (let i = 0; i < this.categories.length; i++) {
       const category: SanctionCategory = this.categories[i];

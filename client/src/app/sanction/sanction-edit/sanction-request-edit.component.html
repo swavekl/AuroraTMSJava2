@@ -1,6 +1,6 @@
 <div fxLayout="row">
   <div fxFlex></div>
-  <div fxFlex="70%" fxFlex.lt-md="100%" *ngIf="sanctionRequest != null">
+  <div fxFlex="70%" fxFlex.lt-lg="90%" fxFlex.lt-md="100%" *ngIf="sanctionRequest != null">
     <form name="form" (ngSubmit)="save(f.value, false)" #f="ngForm" novalidate>
       <mat-card appearance="outlined">
         <mat-card-header>
@@ -13,7 +13,7 @@
         </mat-card-actions>
         <mat-card-content class="sanction-form">
           <mat-horizontal-stepper linear>
-            <mat-step label="Tournament Information">
+            <mat-step label="Tournament">
               <mat-card-subtitle class="mat-headline-6">Tournament Information</mat-card-subtitle>
               <div fxLayout="column">
                 <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="10px">
@@ -34,28 +34,40 @@
                 <div fxLayout="row" fxLayoutGap="10px">
                   <mat-form-field fxFlex="24%">
                     <mat-label>Start Date</mat-label>
-                    <input matInput [matDatepicker]="pickerESD" placeholder="Start Date" name="startDate" [min]="minStartDate" [max]="maxStartDate" [(ngModel)]="sanctionRequest.startDate" required (dateChange)="onEnableEndDate($event.target.value)" (input)="onEnableEndDate($event.target.value)" disabled>
+                    <input matInput [matDatepicker]="pickerESD" placeholder="Start Date" name="startDate"
+                           [min]="minStartDate" [max]="maxStartDate"
+                           [(ngModel)]="sanctionRequest.startDate" required
+                           (dateChange)="onEnableEndDate($event.target.value)"
+                           (input)="onEnableEndDate($event.target.value)" readonly>
                     <mat-datepicker-toggle matSuffix [for]="pickerESD"></mat-datepicker-toggle>
                     <mat-datepicker #pickerESD disabled="false"></mat-datepicker>
                   </mat-form-field>
 
                   <mat-form-field fxFlex="24%">
                     <mat-label>End Date</mat-label>
-                    <input matInput [matDatepicker]="pickerEED" placeholder="End Date" name="endDate" [min]="minEndDate" [max]="maxEndDate" [(ngModel)]="sanctionRequest.endDate" disabled>
+                    <input matInput [matDatepicker]="pickerEED" placeholder="End Date" name="endDate"
+                           [min]="minEndDate" [max]="maxEndDate"
+                           [(ngModel)]="sanctionRequest.endDate" readonly>
                     <mat-datepicker-toggle matSuffix [for]="pickerEED"></mat-datepicker-toggle>
                     <mat-datepicker #pickerEED [disabled]="!endDateEnabled"></mat-datepicker>
                   </mat-form-field>
 
                   <mat-form-field fxFlex="24%">
                     <mat-label>Alternate Start Date</mat-label>
-                    <input matInput [matDatepicker]="pickerAltSD" placeholder="Alternate Start Date" name="altStartDate" [min]="minStartDate" [max]="maxStartDate" [(ngModel)]="sanctionRequest.alternateStartDate" (dateChange)="onEnableAltEndDate($event.target.value)" (input)="onEnableAltEndDate($event.target.value)" disabled>
+                    <input matInput [matDatepicker]="pickerAltSD" placeholder="Alternate Start Date"
+                           name="altStartDate" [min]="minStartDate" [max]="maxStartDate"
+                           [(ngModel)]="sanctionRequest.alternateStartDate"
+                           (dateChange)="onEnableAltEndDate($event.target.value)"
+                           (input)="onEnableAltEndDate($event.target.value)" readonly>
                     <mat-datepicker-toggle matSuffix [for]="pickerAltSD"></mat-datepicker-toggle>
                     <mat-datepicker #pickerAltSD disabled="false"></mat-datepicker>
                   </mat-form-field>
 
                   <mat-form-field fxFlex="24%">
                     <mat-label>Alternate End Date</mat-label>
-                    <input matInput [matDatepicker]="pickerAltED" placeholder="Alternate End Date" name="altEndDate" [min]="minAltEndDate" [max]="maxAltEndDate" [(ngModel)]="sanctionRequest.alternateEndDate" disabled>
+                    <input matInput [matDatepicker]="pickerAltED" placeholder="Alternate End Date"
+                           name="altEndDate" [min]="minAltEndDate" [max]="maxAltEndDate"
+                           [(ngModel)]="sanctionRequest.alternateEndDate" readonly>
                     <mat-datepicker-toggle matSuffix [for]="pickerAltED"></mat-datepicker-toggle>
                     <mat-datepicker #pickerAltED [disabled]="!altEndDateEnabled"></mat-datepicker>
                   </mat-form-field>
@@ -90,7 +102,7 @@
                   <mat-form-field fxFlex="50%">
                     <mat-label>Club Name</mat-label>
                     <input matInput type="text" placeholder="Club Name" name="clubName"
-                           #clubName="ngModel"
+                           #clubNameCtrl="ngModel"
                            [matAutocomplete]="auto" [appClubName]="filteredClubs"
                            [(ngModel)]="sanctionRequest.clubName" required>
                     <button *ngIf="sanctionRequest.clubName" matSuffix mat-icon-button aria-label="Clear" (click)="clearClubName()">
@@ -106,20 +118,28 @@
 
                   <mat-form-field fxFlex="35%">
                     <mat-label>Club's Affiliation Expiration Date</mat-label>
-                    <input matInput [matDatepicker]="pickerAffilationED" placeholder="Club's Affiliation Expiration Date"
+                    <input matInput [matDatepicker]="pickerAffilationED" appDateAfter="endDate" readonly
                            name="clubAffiliationExpiration" [(ngModel)]="sanctionRequest.clubAffiliationExpiration">
                     <mat-datepicker-toggle matSuffix [for]="pickerAffilationED"></mat-datepicker-toggle>
-                    <mat-datepicker #pickerAffilationED></mat-datepicker>
+                    <mat-datepicker #pickerAffilationED disabled="true"></mat-datepicker>
+                    <mat-error>Club membership must not be expired on date of tournament</mat-error>
                   </mat-form-field>
-
                   <mat-form-field fxFlex="15%">
                     <mat-label>Total Prize Money</mat-label>
-                    <input matInput type="text" placeholder="Total Prize Money" name="totalPrizeMoney" [(ngModel)]="sanctionRequest.totalPrizeMoney">
+                    <input matInput type="text" placeholder="Total Prize Money" requried
+                           name="totalPrizeMoney" [(ngModel)]="sanctionRequest.totalPrizeMoney"
+                           (change)="onTotalPrizeMoneyChanged($event)" pattern="^(0|[1-9][0-9]{0,6})$" maxlength="7"
+                    >
+                    <mat-error>Enter positive number</mat-error>
                   </mat-form-field>
                 </div>
-
               </div>
 
+              <div fxLayout="row" fxLayoutAlign="end" class="stepper-actions">
+                <button mat-raised-button matStepperNext type="button">Next</button>
+              </div>
+            </mat-step>
+            <mat-step label="Personnel">
               <mat-card-subtitle class="mat-headline-6">Contact Person</mat-card-subtitle>
               <!-- Contact person -->
               <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="10px">
@@ -161,29 +181,46 @@
               </div>
 
               <!-- Tournament Referee and Director -->
+              <mat-card-subtitle class="mat-headline-6">Tournament Referee</mat-card-subtitle>
               <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="10px">
-                <mat-form-field fxFlex="30%">
-                  <mat-label>Tournament Referee Name</mat-label>
-                  <input matInput type="text" placeholder="Tournament Referee Name" name="tournamentRefereeName" [(ngModel)]="sanctionRequest.tournamentRefereeName">
+                <mat-form-field fxFlex="50%">
+                  <mat-label>Referee Name</mat-label>
+                  <input matInput type="text" required placeholder="Tournament Referee Name" name="tournamentRefereeName" [(ngModel)]="sanctionRequest.tournamentRefereeName">
                   <button matSuffix type="button" mat-icon-button aria-label="Search" (click)="showRefereeSearchDialog()">
                     <mat-icon>search</mat-icon>
                   </button>
                 </mat-form-field>
-                <mat-form-field fxFlex="20%">
+                <mat-form-field fxFlex="25%">
                   <mat-label>Referee/Umpire Rank</mat-label>
-                  <input matInput type="tel" placeholder="Referee/Umpire Rank" name="tournamentRefereeRank" [(ngModel)]="sanctionRequest.tournamentRefereeRank">
+                  <input matInput readonly name="tournamentRefereeRank" [ngModel]="sanctionRequest.tournamentRefereeRank">
                 </mat-form-field>
-                <mat-form-field fxFlex="20%">
-                  <mat-label>Referee USATT Membership Expires</mat-label>
-                  <input matInput type="email" placeholder="Referee USATT Membership Expires" name="tournamentRefereeMembershipExpires" [(ngModel)]="sanctionRequest.tournamentRefereeMembershipExpires" required>
+                <mat-form-field fxFlex="25%">
+                  <mat-label>USATT Membership Expires on</mat-label>
+                  <input matInput readonly name="tournamentRefereeMembershipExpires"
+                         [matDatepicker]="pickerRefereeExpiration"
+                         [(ngModel)]="sanctionRequest.tournamentRefereeMembershipExpires"
+                         appDateAfter="endDate" required #tournamentRefereeMembershipExpires="ngModel">
+                  <mat-datepicker-toggle matSuffix [for]="pickerRefereeExpiration"></mat-datepicker-toggle>
+                  <mat-datepicker #pickerRefereeExpiration disabled="true"></mat-datepicker>
+                  <mat-error *ngIf="tournamentRefereeMembershipExpires.control?.hasError('appDateAfter')">Referee membership must be valid on date of tournament</mat-error>
+                  <mat-error *ngIf="tournamentRefereeMembershipExpires.control?.hasError('required')">This field is required</mat-error>
                 </mat-form-field>
-                <mat-form-field fxFlex="30%">
+                <button matSuffix type="button" mat-icon-button aria-label="Search"
+                        (click)="refreshRefereeMembershipExpirationDate()" style="margin-top: 0;"
+                        [disabled]="!this.sanctionRequest?.tournamentRefereeName">
+                  <mat-icon>refresh</mat-icon>
+                </button>
+              </div>
+              <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="10px">
+                <mat-form-field fxFlex="50%">
                   <mat-label>Tournament Director</mat-label>
-                  <input matInput type="text" placeholder="Tournament Director" name="tournamentDirectorName" [(ngModel)]="sanctionRequest.tournamentDirectorName">
+                  <input matInput type="text" required name="tournamentDirectorName" [(ngModel)]="sanctionRequest.tournamentDirectorName">
+                  <mat-error>This field is required</mat-error>
                 </mat-form-field>
               </div>
 
-              <div fxLayout="row" fxLayoutAlign="end">
+              <div fxLayout="row" fxLayoutAlign="space-between start"  class="stepper-actions">
+                <button mat-raised-button matStepperPrevious type="button">Back</button>
                 <button mat-raised-button matStepperNext type="button">Next</button>
               </div>
             </mat-step>
@@ -235,7 +272,7 @@
               <div>
                 <h3>Total Rating Points: <span style="font-weight: bold">{{ totalPoints }}</span> qualify this tournament for <span style="font-weight: bold">{{ qualifiedStarLevel }}</span> star rating </h3>
               </div>
-              <div fxLayout="row" fxLayoutAlign="space-between">
+              <div fxLayout="row" fxLayoutAlign="space-between" class="stepper-actions">
                 <button mat-raised-button matStepperPrevious type="button">Back</button>
                 <button mat-raised-button matStepperNext type="button">Next</button>
               </div>
@@ -249,12 +286,10 @@
                       <td>Total Prize Money</td><td>Sanction Fee</td>
                       </thead>
                       <tbody>
-                      <tr><td>$0</td><td>Waived</td></tr>
-                      <tr><td>$0 - $400</td><td>$40</td></tr>
-                      <tr><td>$401 - $1000</td><td>$80</td></tr>
-                      <tr><td>$1001 - $3000</td><td>$150</td></tr>
-                      <tr><td>$3001 - $6000</td><td>$300</td></tr>
-                      <tr><td>$6001 +</td><td>$400</td></tr>
+                      <tr *ngFor="let feeSchedule of sanctionFeeSchedule">
+                        <td>{{'$' + feeSchedule.low }} - {{(feeSchedule.high == null)  ? '' : ('$' + feeSchedule.high)}}</td>
+                        <td>{{feeSchedule.sanctionFee == 0 ? 'Waived' : ('$' + feeSchedule.sanctionFee)}}</td>
+                      </tr>
                       </tbody>
                     </table>
                   </div>
@@ -323,7 +358,7 @@
                         [disabled]="!isPaymentEnabled()">Pay {{sanctionFee | currency: associationCurrency}}
                 </button>
               </div>
-              <div fxLayout="row" fxLayoutAlign="start" style="margin-top: 16px">
+              <div fxLayout="row" fxLayoutAlign="start" class="stepper-actions">
                 <button mat-raised-button matStepperPrevious type="button">Back</button>
               </div>
             </mat-step>

@@ -26,6 +26,7 @@ import {SanctionRequestEditComponent} from './sanction-edit/sanction-request-edi
 import {SanctionRequestEditContainerComponent} from './sanction-edit/sanction-request-edit-container.component';
 import {AccountModule} from '../account/account.module';
 import {MatAutocompleteModule} from '@angular/material/autocomplete';
+import {SharedModule} from '../shared/shared.module';
 
 
 @NgModule({
@@ -57,7 +58,8 @@ import {MatAutocompleteModule} from '@angular/material/autocomplete';
         MatListModule,
         MatToolbarModule,
         AccountModule,
-        MatAutocompleteModule
+        MatAutocompleteModule,
+        SharedModule
     ]
 })
 export class SanctionModule { }

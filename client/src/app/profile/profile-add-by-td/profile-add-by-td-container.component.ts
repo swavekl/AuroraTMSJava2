@@ -6,6 +6,7 @@ import {Profile} from '../profile';
 import {first, map, switchMap} from 'rxjs/operators';
 import {AuthenticationService} from '../../user/authentication.service';
 import {Subscription} from 'rxjs';
+import {ErrorMessagePopupService} from '../../shared/error-message-dialog/error-message-popup.service';
 
 @Component({
   selector: 'app-profile-add-by-tdcontainer',
@@ -27,7 +28,8 @@ export class ProfileAddByTdContainerComponent implements OnInit, OnDestroy {
 
   constructor(private router: Router,
               private activatedRoute: ActivatedRoute,
-              private profileService: ProfileService) {
+              private profileService: ProfileService,
+              private errorMessagePopupService: ErrorMessagePopupService) {
     this.tournamentId = this.activatedRoute.snapshot.params['tournamentId'];
     this.returnUrl = history?.state?.returnUrl;
   }
@@ -53,7 +55,8 @@ export class ProfileAddByTdContainerComponent implements OnInit, OnDestroy {
         this.router.navigateByUrl(url, extras);
       },
       (error: any) => {
-        console.log('Error creating profile', error);
+        const message = `Error creating profile\n Error ${error.error}`;
+        this.errorMessagePopupService.showError(message, "400px", "250px");
       });
     this.subscriptions.add(subscription);
   }

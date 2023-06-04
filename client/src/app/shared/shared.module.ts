@@ -27,12 +27,14 @@ import {UploadButtonComponent} from './upload-button/upload-button.component';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 import {DownloadButtonComponent} from './download-file/download-button.component';
 import {getSaver, SAVER} from './download-service/saver.provider';
+import {DateAfterDirective} from './directives/date-after.directive';
 
 
 @NgModule({
   declarations: [
     LinearProgressBarComponent,
     DateBeforeDirective,
+    DateAfterDirective,
     ConfirmationPopupComponent,
     StartTimePipe,
     EventDayPipePipe,
@@ -52,6 +54,7 @@ import {getSaver, SAVER} from './download-service/saver.provider';
   exports: [
     LinearProgressBarComponent,
     DateBeforeDirective,
+    DateAfterDirective,
     ConfirmationPopupComponent,
     StartTimePipe,
     EventDayPipePipe,

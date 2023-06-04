@@ -5,7 +5,7 @@ import {
   ElementRef,
   EventEmitter,
   Input,
-  OnChanges,
+  OnChanges, OnDestroy,
   OnInit,
   Output,
   SimpleChange,
@@ -23,7 +23,7 @@ import {PaymentRefund} from '../../account/model/payment-refund.model';
 import {PaymentRefundStatus} from '../../account/model/payment-refund-status.enum';
 import {SanctionRequestAndPayment} from './sanction-request-edit-container.component';
 import {MatAutocompleteSelectedEvent} from '@angular/material/autocomplete';
-import {debounceTime, distinctUntilChanged, filter, skip, switchMap} from 'rxjs/operators';
+import {debounceTime, distinctUntilChanged, filter, first, map, skip, switchMap, tap} from 'rxjs/operators';
 import {Observable, Subscription} from 'rxjs';
 import {UntypedFormControl} from '@angular/forms';
 import {ClubAffiliationApplicationService} from '../../club/club-affiliation/service/club-affiliation-application.service';
@@ -33,15 +33,16 @@ import {OfficialSearchDialogComponent} from '../../officials/official-search-dia
 import {Official} from '../../officials/model/official.model';
 import {UmpireRankPipe} from '../../officials/pipes/umpire-rank.pipe';
 import {RefereeRankPipe} from '../../officials/pipes/referee-rank.pipe';
-// import {UmpireRankPipe} from '../../officials/pipes/umpire-rank.pipe';
-// import {RefereeRankPipe} from '../../officials/pipes/referee-rank.pipe';
+import {UsattPlayerRecordService} from '../../profile/service/usatt-player-record.service';
+import {UsattPlayerRecord} from '../../profile/model/usatt-player-record.model';
+import {ErrorMessagePopupService} from '../../shared/error-message-dialog/error-message-popup.service';
 
 @Component({
   selector: 'app-sanction-request-edit',
   templateUrl: './sanction-request-edit.component.html',
   styleUrls: ['./sanction-request-edit.component.scss']
 })
-export class SanctionRequestEditComponent implements OnInit, OnChanges, AfterViewInit {
+export class SanctionRequestEditComponent implements OnInit, OnChanges, AfterViewInit, OnDestroy {
   @ViewChild('ESD') ESD: ElementRef;
 
   // this is what we edit
@@ -84,17 +85,36 @@ export class SanctionRequestEditComponent implements OnInit, OnChanges, AfterVie
   // level for which tournament qualifies
   qualifiedStarLevel: number;
 
-  @ViewChild('clubName')
+  @ViewChild('clubNameCtrl')
   private clubNameCtrl: UntypedFormControl;
 
   filteredClubs: any[] = [];
+
+  sanctionFeeSchedule: any [] = [
+    {low: 0, high: null, starLevel: 0, sanctionFee: 0},
+    {low: 0, high: 400, starLevel: 1, sanctionFee: 40},
+    {low: 401, high: 1000, starLevel: 2, sanctionFee: 80},
+    {low: 1001, high: 3000, starLevel: 3, sanctionFee: 150},
+    {low: 3001, high: 6000, starLevel: 3, sanctionFee: 300},
+    {low: 6001, high: null, fee: 400, starLevel: 4, sanctionFee: 400},
+  ];
+
+  // sanctionFeeSchedule = [
+  //   {starLevel: 0, sanctionFee: 0},
+  //   {starLevel: 1, sanctionFee: 40},
+  //   {starLevel: 2, sanctionFee: 80},
+  //   {starLevel: 3, sanctionFee: 150},
+  //   {starLevel: 4, sanctionFee: 400}
+  // ];
 
   private subscriptions: Subscription = new Subscription();
 
   constructor(private messageDialog: MatDialog,
               private authenticationService: AuthenticationService,
               private cdr: ChangeDetectorRef,
-              private clubAffiliationApplicationService: ClubAffiliationApplicationService) {
+              private clubAffiliationApplicationService: ClubAffiliationApplicationService,
+              private usattPlayerRecordService: UsattPlayerRecordService,
+              private errorMessagePopupService: ErrorMessagePopupService) {
     this.currentCategory = 0;
     this.totalPoints = 0;
     this.statesList = StatesList.getList();
@@ -110,6 +130,10 @@ export class SanctionRequestEditComponent implements OnInit, OnChanges, AfterVie
   ngOnInit() {
   }
 
+  ngOnDestroy() {
+    this.subscriptions.unsubscribe();
+  }
+
   // called after Input changes
   ngOnChanges (simpleChanges: SimpleChanges) {
     if (simpleChanges.sanctionRequest != null) {
@@ -123,7 +147,10 @@ export class SanctionRequestEditComponent implements OnInit, OnChanges, AfterVie
 
         this.calculateTotalAndQualifiedStarLevel();
 
-        this.sanctionFee = this.determineSanctionFee(sanctionRequest.starLevel);
+        this.sanctionFee = this.determineSanctionFee(sanctionRequest.starLevel, sanctionRequest.totalPrizeMoney);
+
+        this.onEnableEndDate(sanctionRequest.startDate);
+        this.onEnableAltEndDate(sanctionRequest.alternateStartDate);
       }
     }
   }
@@ -131,7 +158,7 @@ export class SanctionRequestEditComponent implements OnInit, OnChanges, AfterVie
   onEnableEndDate(date: Date) {
     this.endDateEnabled = true;
     this.minEndDate = new Date(this.sanctionRequest.startDate.getTime());
-    this.minEndDate.setDate(this.minEndDate.getDate() + 1);
+    this.minEndDate.setDate(this.minEndDate.getDate());
     this.maxEndDate = new Date(this.sanctionRequest.startDate.getTime());
     this.maxEndDate.setDate(this.maxEndDate.getDate() + 7);
   }
@@ -139,7 +166,7 @@ export class SanctionRequestEditComponent implements OnInit, OnChanges, AfterVie
   onEnableAltEndDate(date: Date) {
     this.altEndDateEnabled = true;
     this.minAltEndDate = new Date(this.sanctionRequest.alternateStartDate.getTime());
-    this.minAltEndDate.setDate(this.minAltEndDate.getDate() + 1);
+    this.minAltEndDate.setDate(this.minAltEndDate.getDate());
     this.maxAltEndDate = new Date(this.sanctionRequest.alternateStartDate.getTime());
     this.maxAltEndDate.setDate(this.maxAltEndDate.getDate() + 7);
   }
@@ -175,24 +202,10 @@ export class SanctionRequestEditComponent implements OnInit, OnChanges, AfterVie
   }
 
   /**
-   * transfers values from form object to SanctionRequest object
-   */
-  makeSanctionRequest (formValues: any): SanctionRequest {
-    // console.log('formValues', formValues);
-    // copy changed values into this new object
-    const sanctionRequestToSave: SanctionRequest = new SanctionRequest();
-    sanctionRequestToSave.applyChanges (formValues);
-    return sanctionRequestToSave;
-  }
-
-  /**
    * Save the sanction request
    */
   save(formValues: any, payFee: boolean) {
-//    console.log ('formValues ', formValues);
     const sanctionRequestToSave: SanctionRequest = this.sanctionRequest;
-    // const sanctionRequestToSave: SanctionRequest = this.makeSanctionRequest (formValues);
-   console.log("Saving sanction request....", sanctionRequestToSave);
     const sanctionRequestAndPayment: SanctionRequestAndPayment = {
       sanctionRequest: sanctionRequestToSave,
       payFee: payFee
@@ -206,7 +219,6 @@ export class SanctionRequestEditComponent implements OnInit, OnChanges, AfterVie
 
   // save and submit for sanction
   onSubmitApplication (formValues: any) {
-    // const sanctionRequestToSave: SanctionRequest = this.makeSanctionRequest (formValues);
     const sanctionRequestToSave: SanctionRequest = this.sanctionRequest;
 
     // find coordinator who will receive this request and set it in the request.
@@ -219,26 +231,37 @@ export class SanctionRequestEditComponent implements OnInit, OnChanges, AfterVie
     let message = '';
     if (coordinatorInfo != null) {
       sanctionRequestToSave.starLevel = starLevel;
+      sanctionRequestToSave.sanctionFee = this.determineSanctionFee(starLevel, sanctionRequestToSave.totalPrizeMoney);
       sanctionRequestToSave.coordinatorFirstName = coordinatorInfo.firstName;
       sanctionRequestToSave.coordinatorLastName = coordinatorInfo.lastName;
       sanctionRequestToSave.coordinatorEmail = coordinatorInfo.email;
-      message += 'Your request has been submitted to ';
+
+      message += 'Your request will be submitted to ';
       message += coordinatorInfo.firstName + ' ' + coordinatorInfo.lastName;
       message += ' who is the ' + coordinatorInfo.region + ' region Sanction Coordinator.';
       message += ' You may follow up with him by phone ' + coordinatorInfo.phone;
       message += ' or email ' + coordinatorInfo.email;
+
+      const dialogRef = this.messageDialog.open(ConfirmationPopupComponent, {
+        width: '450px', height: '240px',
+        data: { message: message, title: 'Submission Information', contentAreaHeight: 200 }
+      });
+
+      dialogRef.afterClosed().subscribe(result => {
+        if (result == 'ok') {
+          sanctionRequestToSave.status = SanctionRequestStatus.Submitted;
+          const sanctionRequestAndPayment: SanctionRequestAndPayment = {
+            sanctionRequest: sanctionRequestToSave,
+            payFee: false
+          };
+
+          // mark it a submitted and save
+          this.saved.emit (sanctionRequestAndPayment);
+        }
+      });
+    } else {
+      this.errorMessagePopupService.showError(`Unable to find Sanctioning Coordinator for state ${longStateName}`);
     }
-
-    // mark it a submitted
-    sanctionRequestToSave.status = SanctionRequestStatus.Submitted;
-    const sanctionRequestAndPayment: SanctionRequestAndPayment = {
-      sanctionRequest: sanctionRequestToSave,
-      payFee: true
-    };
-    this.saved.emit (sanctionRequestAndPayment);
-
-    // show who will get it
-    this.openDialog (message);
   }
 
   onApproveApplication(formValues: any) {
@@ -324,17 +347,6 @@ export class SanctionRequestEditComponent implements OnInit, OnChanges, AfterVie
     return coordinatorInfo;
   }
 
-  openDialog(message: string): void {
-    const dialogRef = this.messageDialog.open(ConfirmationPopupComponent, {
-      width: '450px',
-      data: { message: message, title: 'Request Submitted'} // , showCancelButton: true }
-    });
-
-    dialogRef.afterClosed().subscribe(result => {
-//        console.log('The dialog was closed with result ', result);
-    });
-  }
-
   isApprovingCoordinator () {
     // check if the current user is a sanction coordinator
     // if not don't show the approve/reject step
@@ -403,7 +415,7 @@ export class SanctionRequestEditComponent implements OnInit, OnChanges, AfterVie
     const longStateName = this.translateStateName(stateName);
     const coordinatorInfo: CoordinatorInfo = this.findCoordinator(longStateName, starLevel);
 //      console.log ('coordinatorInfo ', coordinatorInfo);
-    this.sanctionFee = this.determineSanctionFee(starLevel);
+    this.sanctionFee = this.determineSanctionFee(starLevel, this.sanctionRequest.totalPrizeMoney);
   }
 
   getPaymentsRefundsTotal(): number {
@@ -421,24 +433,20 @@ export class SanctionRequestEditComponent implements OnInit, OnChanges, AfterVie
     return paymentsRefundsTotal;
   }
 
-  private determineSanctionFee(strStarLevel: any) {
+  private determineSanctionFee(strStarLevel: any, totalPrizeMoney: any) {
     const starLevel = Number(strStarLevel);
-    const sanctionFeeSchedule = [
-      {starLevel: 0, sanctionFee: 0},
-      {starLevel: 1, sanctionFee: 40},
-      {starLevel: 2, sanctionFee: 80},
-      {starLevel: 3, sanctionFee: 150},
-      {starLevel: 4, sanctionFee: 400}
-    ];
     let sanctionFee = 0;
-    for (let i = 0; i < sanctionFeeSchedule.length; i++) {
-      const sanctionFeeScheduleElement = sanctionFeeSchedule[i];
-      if (sanctionFeeScheduleElement.starLevel === starLevel) {
-        sanctionFee = sanctionFeeScheduleElement.sanctionFee;
-        break;
+    if (totalPrizeMoney != null) {
+      for (let i = 0; i < this.sanctionFeeSchedule.length; i++) {
+        const sanctionFeeScheduleElement = this.sanctionFeeSchedule[i];
+        if (sanctionFeeScheduleElement.low <= totalPrizeMoney &&
+          totalPrizeMoney <= sanctionFeeScheduleElement.high) {
+          sanctionFee = sanctionFeeScheduleElement.sanctionFee;
+          break;
+        }
       }
     }
-    console.log('starLevel ' + starLevel + ' => sanctionFee: ' + sanctionFee);
+    // console.log('starLevel ' + starLevel + ' => sanctionFee: ' + sanctionFee);
     return sanctionFee;
   }
 
@@ -447,7 +455,7 @@ export class SanctionRequestEditComponent implements OnInit, OnChanges, AfterVie
   }
 
   initClubFilter() {
-    if (this.clubNameCtrl) {
+    if (this.clubNameCtrl != null) {
       // whenever the home club name changes reload the list of clubs matching this string
       // for auto completion
       const subscription = this.clubNameCtrl.valueChanges
@@ -470,8 +478,9 @@ export class SanctionRequestEditComponent implements OnInit, OnChanges, AfterVie
               affiliationExpirationDate: clubAffiliationApplication.affiliationExpirationDate
             }
           });
-          // refresh the drop down contents and show it
-          this.cdr.markForCheck();
+          console.log('got filtered clubs', this.filteredClubs);
+          // // refresh the drop down contents and show it
+          // this.cdr.markForCheck();
         });
       this.subscriptions.add(subscription);
     }
@@ -500,6 +509,7 @@ export class SanctionRequestEditComponent implements OnInit, OnChanges, AfterVie
     cloneSanctionRequest.clubName = clubName;
     cloneSanctionRequest.clubAffiliationExpiration = expirationDate;
     this.sanctionRequest = cloneSanctionRequest;
+    this.cdr.markForCheck();
   }
 
   showRefereeSearchDialog() {
@@ -511,11 +521,20 @@ export class SanctionRequestEditComponent implements OnInit, OnChanges, AfterVie
     dialogRef.afterClosed().subscribe(result => {
       if (result.action === 'ok') {
         const official: Official = result.official;
-        const cloneSanctionRequest: SanctionRequest = new SanctionRequest();
-        cloneSanctionRequest.clone(this.sanctionRequest);
-        cloneSanctionRequest.tournamentRefereeName = official.firstName + ' ' + official.lastName;
-        cloneSanctionRequest.tournamentRefereeRank = this.getRefereeRank(official);
-        this.sanctionRequest = cloneSanctionRequest;
+        let subscription = this.getRefereeMembershipExpirationDate (official.membershipId, official.firstName, official.lastName)
+          .pipe(first()).subscribe((membershipExpirationDate: Date) => {
+          const cloneSanctionRequest: SanctionRequest = new SanctionRequest();
+          cloneSanctionRequest.clone(this.sanctionRequest);
+          cloneSanctionRequest.tournamentRefereeName = official.firstName + ' ' + official.lastName;
+          cloneSanctionRequest.tournamentRefereeRank = this.getRefereeRank(official);
+          cloneSanctionRequest.tournamentRefereeMembershipExpires = membershipExpirationDate;
+          this.sanctionRequest = cloneSanctionRequest;
+        }, error => {
+            const message: string = `Unable to find membership expiration date for
+            ${official.firstName} ${official.lastName} with membership id ${official.membershipId}.\nError: ${error}`;
+           this.errorMessagePopupService.showError(message, "400px", "200px");
+          });
+        this.subscriptions.add(subscription);
       }
     });
   }
@@ -532,5 +551,82 @@ export class SanctionRequestEditComponent implements OnInit, OnChanges, AfterVie
       combinedRank = strRefereeRank;
     }
     return combinedRank;
+  }
+
+  private getRefereeMembershipExpirationDate(membershipId: number, firstName: string, lastName: string): Observable<Date> {
+    if (membershipId != 0) {
+      return this.usattPlayerRecordService.getByMembershipId(membershipId)
+        .pipe(first(),
+          map((playerRecord: UsattPlayerRecord) => {
+            return new DateUtils().convertFromString(playerRecord.membershipExpirationDate);
+          }));
+    } else {
+      return this.usattPlayerRecordService.getByNames(firstName, lastName)
+        .pipe(first(),
+          map((playerRecord: UsattPlayerRecord) => {
+            return (playerRecord != null) ? new DateUtils().convertFromString(playerRecord.membershipExpirationDate) : null;
+          }));
+    }
+  }
+
+  refreshRefereeMembershipExpirationDate() {
+    if (this.sanctionRequest?.tournamentRefereeName != null) {
+      const nameParts = this.sanctionRequest.tournamentRefereeName.split(" ");
+      if (nameParts.length >= 2) {
+        const firstName = nameParts[0];
+        const lastName = nameParts[1];
+        const subscription = this.getRefereeMembershipExpirationDate(0, firstName, lastName)
+          .subscribe((membershipExpirationDate: Date) => {
+            if (membershipExpirationDate != null) {
+              const cloneSanctionRequest: SanctionRequest = new SanctionRequest();
+              cloneSanctionRequest.clone(this.sanctionRequest);
+              cloneSanctionRequest.tournamentRefereeMembershipExpires = membershipExpirationDate;
+              this.sanctionRequest = cloneSanctionRequest;
+            } else {
+              const message: string = `Unable to find membership expiration date for
+              ${firstName} ${lastName} referee.\nPlayer record not found`;
+              this.errorMessagePopupService.showError(message, "400px", "200px");
+            }
+          }, error => {
+            const message: string = `Unable to find membership expiration date for
+              ${firstName} ${lastName} referee.\nError: ${error}`;
+            this.errorMessagePopupService.showError(message, "400px", "200px");
+          });
+        this.subscriptions.add(subscription);
+      }
+    }
+  }
+
+  onTotalPrizeMoneyChanged($event: any) {
+    const totalPrizeMoney = $event?.target?.value;
+    if (this.sanctionRequest != null && totalPrizeMoney!= null && totalPrizeMoney >= 0) {
+      const categories: SanctionCategory [] = this.sanctionRequest.categories;
+      for (let i = 0; i < categories.length; i++) {
+        const category: SanctionCategory = categories[i];
+        if (category.name === 'prizeMoney') {
+          let points = 0;
+          if (totalPrizeMoney >= 100 && totalPrizeMoney <= 400) {
+            points = 1;
+          } else if (totalPrizeMoney >= 401 && totalPrizeMoney <= 1000) {
+            points = 3;
+          } else if (totalPrizeMoney >= 1001 && totalPrizeMoney <= 3000) {
+            points = 5;
+          } else if (totalPrizeMoney >= 3001 && totalPrizeMoney <= 6000) {
+            points = 7;
+          } else if (totalPrizeMoney >= 6001 && totalPrizeMoney <= 10000) {
+            points = 10;
+          } else {
+            points = 15;
+          }
+          if (points != category.selectedValue) {
+            const cloneSanctionRequest: SanctionRequest = new SanctionRequest();
+            cloneSanctionRequest.clone(this.sanctionRequest);
+            cloneSanctionRequest.categories[i].selectedValue = points;
+            this.sanctionRequest = cloneSanctionRequest;
+          }
+          break;
+        }
+      }
+    }
   }
 }

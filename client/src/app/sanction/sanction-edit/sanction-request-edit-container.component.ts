@@ -162,8 +162,7 @@ export class SanctionRequestEditContainerComponent implements OnInit, OnDestroy 
 
   public showPaymentDialog(sanctionRequest: SanctionRequest) {
     const currencyOfPayment = 'USD';
-    // todo - determine amount to pay
-    const amount: number = 75 * 100;
+    const amount: number = sanctionRequest.sanctionFee * 100;
     const amountInAccountCurrency: number = amount;
     const currentUserProfile: Profile = this.authenticationService.getCurrentUser().profile;
     const fullName = currentUserProfile.firstName + ' ' + currentUserProfile.lastName;
