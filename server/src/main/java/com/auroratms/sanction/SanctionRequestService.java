@@ -83,8 +83,10 @@ public class SanctionRequestService {
         }
 
         // send email about payment completed, approval/rejection etc. if status changed
-        SanctionRequest convertedSanctionRequest = new SanctionRequest().convertFromEntity(savedSanctionRequest);
-        eventPublisher.publishEvent(convertedSanctionRequest, oldStatus);
+        if (oldStatus != sanctionRequest.getStatus()) {
+            SanctionRequest convertedSanctionRequest = new SanctionRequest().convertFromEntity(savedSanctionRequest);
+            eventPublisher.publishEvent(convertedSanctionRequest, oldStatus);
+        }
 
         return savedSanctionRequest;
     }

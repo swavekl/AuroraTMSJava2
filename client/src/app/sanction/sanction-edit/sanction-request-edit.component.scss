@@ -39,11 +39,13 @@ div.stepper-actions {
 }
 
 table.summary-table {
-  width: 100%;
+  width: 45%;
 
   & tr {
     th {
       padding-top: 4px;
+      font-size: 18px;
+      font-weight: bold;
 
       &:first-child {
         width: 80%;

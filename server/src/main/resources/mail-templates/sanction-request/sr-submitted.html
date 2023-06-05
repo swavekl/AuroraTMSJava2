@@ -5,10 +5,13 @@
     <title></title>
 </head>
 <body>
-Hello <span th:text="${associationAdminFirstName}"></span>,
+Hello <span th:text="${sanctionCoordinatorFirstName}"></span>,
 
 <p>
-    A new tournament sanction request has been submitted.  It can be viewed <a th:href="${sanctionRequestUrl}">here</a>.
+    A new tournament sanction request has been submitted for '<span th:text="${tournamentName}"></span>'
+    to be held on <span th:text="${#dates.format(tournamentDate,'E, MMMM dd, yyyy')}"></span>.
+
+    It can be viewed <a th:href="${sanctionRequestUrl}">here</a>.
 </p>
 
 Sincerely,

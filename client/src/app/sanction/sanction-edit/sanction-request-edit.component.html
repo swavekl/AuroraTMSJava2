@@ -338,7 +338,7 @@
                 </table>
                 <mat-form-field fxFlex="100%">
                   <mat-label>Approval/Rejection Notes</mat-label>
-                  <textarea rows="5" matInput type="text" name="approvalRejectionNotes" maxlength="500"
+                  <textarea rows="5" matInput name="approvalRejectionNotes" maxlength="500"
                             [(ngModel)]="sanctionRequest.approvalRejectionNotes"
                             [disabled]="!isApproveRejectEnabled()">
                     </textarea>

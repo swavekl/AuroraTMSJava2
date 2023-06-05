@@ -6,16 +6,16 @@
 <body>
 Hello <span th:text="${clubAdminName}"></span>,
 <p>
-    Your tournament sanction request has been rejected.
+    Your tournament sanction request for '<span th:text="${tournamentName}"></span>' has been rejected.
 </p>
-<p th:if="${reason != null}">
-   The following comments were added: <span th:text="${reason}"></span>
+<p th:if="${approvalRejectionNotes != null}">
+   The following comments were added: <span th:text="${approvalRejectionNotes}"></span>
 </p>
 <p>
     Please visit <a th:href="${sanctionRequestUrl}">this link</a> to correct the issues and submit again.
 </p>
 Thank you,
-<div th:text="${associationAdminName}"></div>
-<div th:text="${associationAdminEmail}"></div>
+<div th:text="${sanctionCoordinatorName}"></div>
+<div th:text="${sanctionCoordinatorEmail}"></div>
 </body>
 </html>

@@ -275,7 +275,8 @@ export class SanctionRequestEditComponent implements OnInit, OnChanges, AfterVie
   }
 
   isSubmitEnabled() {
-    return this.sanctionRequest.status === SanctionRequestStatus.New;
+    return this.sanctionRequest.status === SanctionRequestStatus.New ||
+      this.sanctionRequest.status === SanctionRequestStatus.Rejected;
   }
 
   isApproveRejectEnabled() {

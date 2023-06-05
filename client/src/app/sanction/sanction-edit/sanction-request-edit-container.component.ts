@@ -110,6 +110,9 @@ export class SanctionRequestEditContainerComponent implements OnInit, OnDestroy 
             sanctionRequestToEdit.requestDate = new Date();
           }
           this.sanctionRequest$ = of(sanctionRequestToEdit);
+          if (sanctionRequestToEdit.status === SanctionRequestStatus.Completed) {
+            this.loadPayments();
+          }
         }
       });
 
@@ -149,7 +152,7 @@ export class SanctionRequestEditContainerComponent implements OnInit, OnDestroy 
 
   private loadPayments() {
     if (this.sanctionRequestId !== 0 && !this.creating) {
-      const subscription = this.paymentRefundService.listPaymentsRefunds(PaymentRefundFor.CLUB_AFFILIATION_FEE, this.sanctionRequestId)
+      const subscription = this.paymentRefundService.listPaymentsRefunds(PaymentRefundFor.TOURNAMENT_SANCTION_FEE, this.sanctionRequestId)
         .pipe(first())
         .subscribe((paymentsRefunds: PaymentRefund[]) => {
           this.paymentsRefunds$ = of(paymentsRefunds);
