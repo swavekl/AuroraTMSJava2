@@ -5,7 +5,8 @@ import {
   ElementRef,
   EventEmitter,
   Input,
-  OnChanges, OnDestroy,
+  OnChanges,
+  OnDestroy,
   OnInit,
   Output,
   SimpleChange,
@@ -23,7 +24,7 @@ import {PaymentRefund} from '../../account/model/payment-refund.model';
 import {PaymentRefundStatus} from '../../account/model/payment-refund-status.enum';
 import {SanctionRequestAndPayment} from './sanction-request-edit-container.component';
 import {MatAutocompleteSelectedEvent} from '@angular/material/autocomplete';
-import {debounceTime, distinctUntilChanged, filter, first, map, skip, switchMap, tap} from 'rxjs/operators';
+import {debounceTime, distinctUntilChanged, filter, first, map, skip, switchMap} from 'rxjs/operators';
 import {Observable, Subscription} from 'rxjs';
 import {UntypedFormControl} from '@angular/forms';
 import {ClubAffiliationApplicationService} from '../../club/club-affiliation/service/club-affiliation-application.service';
@@ -629,5 +630,20 @@ export class SanctionRequestEditComponent implements OnInit, OnChanges, AfterVie
         }
       }
     }
+  }
+
+  isUploadDisabled(): boolean {
+    return this.sanctionRequest?.status != SanctionRequestStatus.New
+      && this.sanctionRequest?.status != SanctionRequestStatus.Rejected;
+  }
+
+  onUploadFinished(downloadUrl: string) {
+    this.sanctionRequest.blankEntryFormUrl = downloadUrl;
+  }
+
+  getStoragePath() {
+    return (this.sanctionRequest?.id != null)
+      ? `sanction_request/${this.sanctionRequest.id}/blankentryform`
+      : null;
   }
 }

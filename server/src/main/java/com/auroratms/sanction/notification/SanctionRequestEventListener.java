@@ -37,12 +37,13 @@ public class SanctionRequestEventListener {
     @TransactionalEventListener(phase= TransactionPhase.AFTER_COMMIT)
     public void handleEvent(SanctionRequestEvent sanctionRequestEvent) {
         try {
+            logger.info("Processing SanctionRequestEvent status: " + sanctionRequestEvent.getSanctionRequest().getStatus());
             SanctionRequest sanctionRequest = sanctionRequestEvent.getSanctionRequest();
             SanctionRequestStatus status = sanctionRequest.getStatus();
             String venueState = sanctionRequest.getVenueState();
             int starLevel = sanctionRequest.getStarLevel();
-            String region = usattPersonnelService.getSanctionCoordinatorRegion(starLevel, venueState);
-            UserProfile sanctionCoordinator = this.usattPersonnelService.getSanctionCoordinator(region);
+            String sanctionCoordinatorRegion = usattPersonnelService.getSanctionCoordinatorRegion(starLevel, venueState);
+            UserProfile sanctionCoordinator = this.usattPersonnelService.getSanctionCoordinator(sanctionCoordinatorRegion);
             Map<String, Object> templateModel = new HashMap<>();
             String sanctionCoordiantorEmail = null;
             if (sanctionCoordinator != null) {

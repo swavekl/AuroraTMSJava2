@@ -60,6 +60,7 @@ public class SanctionRequest {
     private List<SanctionCategory> categories;
 
     private String approvalRejectionNotes;
+    private String blankEntryFormUrl;
 
 
     public SanctionRequestEntity convertToEntity() {

@@ -5,6 +5,7 @@ import com.auroratms.sanction.notification.SanctionRequestEventPublisher;
 import com.auroratms.users.UserRoles;
 import com.auroratms.users.UserRolesHelper;
 import com.auroratms.utils.SecurityService;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheConfig;
@@ -22,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @CacheConfig(cacheNames = {"sanctionrequest"})
 @Transactional
+@Slf4j
 @PreAuthorize("hasAuthority('TournamentDirectors') or hasAuthority('Admins') or hasAuthority('USATTSanctionCoordinators')")
 public class SanctionRequestService {
     
@@ -83,6 +85,7 @@ public class SanctionRequestService {
         }
 
         // send email about payment completed, approval/rejection etc. if status changed
+        log.info("oldStatus: " + oldStatus + " newStatus: " + sanctionRequest.getStatus());
         if (oldStatus != sanctionRequest.getStatus()) {
             SanctionRequest convertedSanctionRequest = new SanctionRequest().convertFromEntity(savedSanctionRequest);
             eventPublisher.publishEvent(convertedSanctionRequest, oldStatus);
@@ -135,8 +138,14 @@ public class SanctionRequestService {
      */
     public void updateStatus(Long id, SanctionRequestStatus status) {
         SanctionRequestEntity sanctionRequest = this.findById(id);
+        SanctionRequestStatus oldStatus = sanctionRequest.getStatus();
         sanctionRequest.setStatus(status);
-        this.save(sanctionRequest);
+        SanctionRequestEntity savedSanctionRequest = this.repository.save(sanctionRequest);
+        log.info("in updateStatus oldStatus: " + oldStatus + " newStatus: " + status);
+        if (oldStatus != status) {
+            SanctionRequest convertedSanctionRequest = new SanctionRequest().convertFromEntity(savedSanctionRequest);
+            eventPublisher.publishEvent(convertedSanctionRequest, oldStatus);
+        }
     }
 
 }

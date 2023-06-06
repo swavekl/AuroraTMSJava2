@@ -185,6 +185,8 @@ export class SanctionRequest {
 
   approvalRejectionNotes: string;
 
+  blankEntryFormUrl: string;
+
   constructor () {
     this.tournamentName = '';
     // this.requestContents = new SanctionRequestContents();
@@ -381,6 +383,8 @@ export class SanctionRequest {
     this.totalPrizeMoney                     = formValues.totalPrizeMoney                   ;
     this.sanctionFee                         = formValues.sanctionFee                       ;
     this.tournamentRefereeMembershipExpires  = dateUtils.convertFromLocalToUTCDate (formValues.tournamentRefereeMembershipExpires);
+    this.blankEntryFormUrl                   = formValues.blankEntryFormUrl;
+    this.approvalRejectionNotes              = formValues.approvalRejectionNotes;
 
     // now set the criteria
     for (let i = 0; i < this.categories.length; i++) {
@@ -425,6 +429,8 @@ export class SanctionRequest {
     this.totalPrizeMoney                     = other.totalPrizeMoney                   ;
     this.sanctionFee                         = other.sanctionFee                       ;
     this.tournamentRefereeMembershipExpires  = dateUtils.convertFromUTCToLocalDate (other.tournamentRefereeMembershipExpires);
+    this.approvalRejectionNotes              = other.approvalRejectionNotes;
+    this.blankEntryFormUrl                   = other.blankEntryFormUrl;
 
     for (let i = 0; i < this.categories.length; i++) {
       const category: SanctionCategory = this.categories[i];

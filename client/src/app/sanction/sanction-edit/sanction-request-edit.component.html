@@ -12,7 +12,7 @@
           <button mat-raised-button type="submit" color="primary">Save</button>
         </mat-card-actions>
         <mat-card-content class="sanction-form">
-          <mat-horizontal-stepper linear>
+          <mat-horizontal-stepper>
             <mat-step label="Tournament">
               <mat-card-subtitle class="mat-headline-6">Tournament Information</mat-card-subtitle>
               <div fxLayout="column">
@@ -134,11 +134,25 @@
                   </mat-form-field>
                 </div>
               </div>
-
+<!--              blank entry form upload &download-->
+              <mat-card-subtitle class="mat-headline-6">Blank Entry Form</mat-card-subtitle>
+              <div fxLayout="row" fxLayoutAlign="start start" fxLayoutGap="10px" >
+                <app-upload-file-component
+                  [disabledBtn]="isUploadDisabled()"
+                  [uploadButtonLabel]="'Upload'"
+                  (uploadFinished)="onUploadFinished($event)"
+                  [storagePath]="getStoragePath()">
+                </app-upload-file-component>
+                <app-download-file [buttonLabel]="'Download'"
+                                   [fileUrl]="sanctionRequest?.blankEntryFormUrl"
+                                   [disabledBtn]="sanctionRequest?.blankEntryFormUrl === null">
+                </app-download-file>
+              </div>
               <div fxLayout="row" fxLayoutAlign="end" class="stepper-actions">
                 <button mat-raised-button matStepperNext type="button">Next</button>
               </div>
             </mat-step>
+
             <mat-step label="Personnel">
               <mat-card-subtitle class="mat-headline-6">Contact Person</mat-card-subtitle>
               <!-- Contact person -->
