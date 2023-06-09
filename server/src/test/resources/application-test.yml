@@ -1,7 +1,7 @@
-spring.jpa.hibernate.ddl-auto: create
+spring.jpa.hibernate.ddl-auto: update
 spring.datasource:
   driver-class-name: com.mysql.jdbc.Driver
-  url: jdbc:mysql://mysql:3306/auroratmsspring
+  url: jdbc:mysql://mysql:3306/auroratmstest
   username: tester
   password: tester2023$
 
@@ -20,6 +20,13 @@ spring:
     show-sql: true
 #    properties.hibernate.format_sql: true
 
+#logging.level.org.hibernate.SQL: TRACE
+# # trace how many results were returned
+#logging.level.org.hibernate.loader: TRACE
+# show parameter values
+#logging.level.org.hibernate.type: TRACE
+#logging.level.org.hibernate.engine.transaction.internal: DEBUG
+logging.level.org.springframework.security: TRACE
 
 okta:
   oauth2:

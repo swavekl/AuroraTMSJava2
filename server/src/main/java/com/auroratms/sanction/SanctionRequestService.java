@@ -36,7 +36,7 @@ public class SanctionRequestService {
     @Autowired
     private SanctionRequestEventPublisher eventPublisher;
 
-    private static final Class ACL_MANAGED_OBJECT_CLASS = SanctionRequest.class;
+    private static final Class ACL_MANAGED_OBJECT_CLASS = SanctionRequestEntity.class;
 
     /**
      * Finds applicaitions by name
@@ -133,10 +133,13 @@ public class SanctionRequestService {
 
     /**
      * Updates status field
+     *
      * @param id
      * @param status
+     * @return
      */
-    public void updateStatus(Long id, SanctionRequestStatus status) {
+    @CachePut(key = "#result.id")
+    public SanctionRequestEntity updateStatus(Long id, SanctionRequestStatus status) {
         SanctionRequestEntity sanctionRequest = this.findById(id);
         SanctionRequestStatus oldStatus = sanctionRequest.getStatus();
         sanctionRequest.setStatus(status);
@@ -146,6 +149,7 @@ public class SanctionRequestService {
             SanctionRequest convertedSanctionRequest = new SanctionRequest().convertFromEntity(savedSanctionRequest);
             eventPublisher.publishEvent(convertedSanctionRequest, oldStatus);
         }
+        return savedSanctionRequest;
     }
 
 }
