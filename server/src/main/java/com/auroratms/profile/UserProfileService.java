@@ -258,14 +258,30 @@ public class UserProfileService {
         Client client = getClient();
         UserList users = client.listUsers(null, filter, null, null, null);
         Iterator<User> iterator = users.iterator();
-        Collection<UserProfile> userProfiles = new ArrayList<>();
         String profileId = null;
-        while (iterator.hasNext()) {
+        if (iterator.hasNext()) {
             User oktaUser = iterator.next();
             profileId = oktaUser.getId();
-            break;
         }
         return profileId;
+    }
+
+    /**
+     * Gets user profile by login id i.e. email address
+     * @param login
+     * @return
+     */
+    public UserProfile getUserProfileForLoginId(String login) {
+        String filter = "profile.login eq \"" + login + "\"";
+        Client client = getClient();
+        UserList users = client.listUsers(null, filter, null, null, null);
+        Iterator<User> iterator = users.iterator();
+        UserProfile userProfile = null;
+        if (iterator.hasNext()) {
+            User oktaUser = iterator.next();
+            userProfile = fromOktaUser(oktaUser);
+        }
+        return userProfile;
     }
 
     /**

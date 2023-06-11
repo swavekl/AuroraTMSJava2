@@ -19,6 +19,9 @@ public class SanctionRequestEntity {
     SanctionRequestStatus status;
     int starLevel;
 
+    // tournament region e.g. National for 4 star and up or region e.g. Midwest where tournament place for 3 star and lower
+    String coordinatorRegion;
+
     // regional or national coordinator
     String coordinatorFirstName;
     String coordinatorLastName;
@@ -85,6 +88,14 @@ public class SanctionRequestEntity {
 
     public void setStarLevel(int starLevel) {
         this.starLevel = starLevel;
+    }
+
+    public String getCoordinatorRegion() {
+        return coordinatorRegion;
+    }
+
+    public void setCoordinatorRegion(String coordinatorRegion) {
+        this.coordinatorRegion = coordinatorRegion;
     }
 
     public String getCoordinatorFirstName() {

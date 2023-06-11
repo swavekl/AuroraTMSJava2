@@ -144,6 +144,9 @@ export class SanctionRequest {
   // 0 - 5 stars
   starLevel: number;
 
+  // tournament region e.g. National for 4 star and up or region e.g. Midwest where tournament place for 3 star and lower
+  coordinatorRegion: string;
+
   // regional or national coordinator
   coordinatorFirstName: string;
   coordinatorLastName: string;
@@ -398,6 +401,7 @@ export class SanctionRequest {
     this.tournamentName = other.tournamentName;
     this.status = other.status;
     this.starLevel = other.starLevel;
+    this.coordinatorRegion = other.coordinatorRegion;
     this.coordinatorFirstName = other.coordinatorFirstName;
     this.coordinatorLastName = other.coordinatorLastName;
     this.coordinatorEmail = other.coordinatorEmail;

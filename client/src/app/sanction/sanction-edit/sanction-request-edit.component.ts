@@ -207,6 +207,7 @@ export class SanctionRequestEditComponent implements OnInit, OnChanges, AfterVie
    */
   save(formValues: any, payFee: boolean) {
     const sanctionRequestToSave: SanctionRequest = this.sanctionRequest;
+    this.fillSanctionCoordinator(formValues, sanctionRequestToSave)
     const sanctionRequestAndPayment: SanctionRequestAndPayment = {
       sanctionRequest: sanctionRequestToSave,
       payFee: payFee
@@ -222,21 +223,10 @@ export class SanctionRequestEditComponent implements OnInit, OnChanges, AfterVie
   onSubmitApplication (formValues: any) {
     const sanctionRequestToSave: SanctionRequest = this.sanctionRequest;
 
-    // find coordinator who will receive this request and set it in the request.
-    // translate long name to short state name
-    const longStateName = this.translateStateName(formValues.venueState);
-    const starLevel = sanctionRequestToSave.starLevel;
-    const coordinatorInfo: CoordinatorInfo = this.findCoordinator(longStateName, starLevel);
-
     // notify user about who will be getting this request
     let message = '';
+    const coordinatorInfo: CoordinatorInfo = this.fillSanctionCoordinator(formValues, sanctionRequestToSave);
     if (coordinatorInfo != null) {
-      sanctionRequestToSave.starLevel = starLevel;
-      sanctionRequestToSave.sanctionFee = this.determineSanctionFee(starLevel, sanctionRequestToSave.totalPrizeMoney);
-      sanctionRequestToSave.coordinatorFirstName = coordinatorInfo.firstName;
-      sanctionRequestToSave.coordinatorLastName = coordinatorInfo.lastName;
-      sanctionRequestToSave.coordinatorEmail = coordinatorInfo.email;
-
       message += 'Your request will be submitted to ';
       message += coordinatorInfo.firstName + ' ' + coordinatorInfo.lastName;
       message += ' who is the ' + coordinatorInfo.region + ' region Sanction Coordinator.';
@@ -261,8 +251,38 @@ export class SanctionRequestEditComponent implements OnInit, OnChanges, AfterVie
         }
       });
     } else {
-      this.errorMessagePopupService.showError(`Unable to find Sanctioning Coordinator for state ${longStateName}`);
+      this.errorMessagePopupService.showError(`Unable to find Sanctioning Coordinator for state ${formValues.venueState}`);
     }
+  }
+
+  /**
+   *
+   * @param formValues
+   * @param sanctionRequestToSave
+   * @private
+   */
+  private fillSanctionCoordinator(formValues: any, sanctionRequestToSave: SanctionRequest): CoordinatorInfo {
+    // find coordinator who will receive this request and set it in the request.
+    // translate long name to short state name
+    let coordinatorInfo: CoordinatorInfo = null;
+    const starLevel = this.qualifiedStarLevel;
+    if (sanctionRequestToSave.coordinatorRegion == null) {
+      if (formValues.venueState != null && starLevel != null) {
+        const longStateName = this.translateStateName(formValues.venueState);
+        coordinatorInfo = this.findCoordinator(longStateName, starLevel);
+
+        // notify user about who will be getting this request
+        if (coordinatorInfo != null) {
+          sanctionRequestToSave.starLevel = starLevel;
+          sanctionRequestToSave.sanctionFee = this.determineSanctionFee(starLevel, sanctionRequestToSave.totalPrizeMoney);
+          sanctionRequestToSave.coordinatorRegion = coordinatorInfo.region;
+          sanctionRequestToSave.coordinatorFirstName = coordinatorInfo.firstName;
+          sanctionRequestToSave.coordinatorLastName = coordinatorInfo.lastName;
+          sanctionRequestToSave.coordinatorEmail = coordinatorInfo.email;
+        }
+      }
+    }
+    return coordinatorInfo;
   }
 
   onApproveApplication(formValues: any) {
@@ -646,4 +666,5 @@ export class SanctionRequestEditComponent implements OnInit, OnChanges, AfterVie
       ? `sanction_request/${this.sanctionRequest.id}/blankentryform`
       : null;
   }
+
 }

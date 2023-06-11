@@ -1,6 +1,8 @@
 package com.auroratms.sanction;
 
 import com.auroratms.error.ResourceNotFoundException;
+import com.auroratms.profile.UserProfile;
+import com.auroratms.profile.UserProfileService;
 import com.auroratms.sanction.notification.SanctionRequestEventPublisher;
 import com.auroratms.users.UserRoles;
 import com.auroratms.users.UserRolesHelper;
@@ -36,6 +38,9 @@ public class SanctionRequestService {
     @Autowired
     private SanctionRequestEventPublisher eventPublisher;
 
+    @Autowired
+    private UserProfileService userProfileService;
+
     private static final Class ACL_MANAGED_OBJECT_CLASS = SanctionRequestEntity.class;
 
     /**
@@ -52,9 +57,14 @@ public class SanctionRequestService {
                     UserRolesHelper.isUSATTSanctionCoordinator() ? UserRoles.USATTSanctionCoordinators :
                             UserRolesHelper.isTournamentDirector() ? UserRoles.TournamentDirectors :
                                     UserRoles.Everyone;
+            String region = "%";
+            if (UserRolesHelper.isUSATTSanctionCoordinator()) {
+                UserProfile coordinatorUserProfile = userProfileService.getUserProfileForLoginId(currentUserName);
+                region = coordinatorUserProfile.getDivision();
+            }
             String containsName = (StringUtils.isNotEmpty(nameLike)) ? "%" + nameLike + "%" : "%";
             sanctionRequestPage = this.repository.findAllCustom(
-                    containsName, currentUserName, authority, BasePermission.WRITE.getMask(), pageable);
+                    containsName, currentUserName, authority, BasePermission.WRITE.getMask(), region, pageable);
         } catch (Exception e) {
             e.printStackTrace();
             throw e;

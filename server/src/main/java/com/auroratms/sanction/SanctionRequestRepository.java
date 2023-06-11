@@ -12,6 +12,7 @@ public interface SanctionRequestRepository extends JpaRepository<SanctionRequest
             value = "SELECT *" +
                     " FROM sanction_request" +
                     " WHERE sanction_request.tournament_name LIKE :nameContains" +
+                    " AND sanction_request.coordinator_region LIKE :region" +
                     " AND sanction_request.id in (" +
                     "    SELECT acl_object_identity.object_id_identity AS obj_id" +
                     "    FROM acl_object_identity," +
@@ -34,6 +35,7 @@ public interface SanctionRequestRepository extends JpaRepository<SanctionRequest
             countQuery = "SELECT count(*)" +
                     " FROM sanction_request" +
                     " WHERE sanction_request.tournament_name LIKE :nameContains" +
+                    " AND sanction_request.coordinator_region LIKE :region" +
                     " AND sanction_request.id in (" +
                     "    SELECT acl_object_identity.object_id_identity AS obj_id" +
                     "    FROM acl_object_identity," +
@@ -59,6 +61,7 @@ public interface SanctionRequestRepository extends JpaRepository<SanctionRequest
             @Param("owner") String owner,
             @Param("authority") String authority,
             @Param("permission") Integer permission,
+            @Param("region") String region,
             Pageable pageable);
 
 

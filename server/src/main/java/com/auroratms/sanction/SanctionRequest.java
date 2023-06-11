@@ -20,6 +20,9 @@ public class SanctionRequest {
     SanctionRequestStatus status;
     int starLevel;
 
+    // tournament region e.g. National for 4 star and up or region e.g. Midwest where tournament place for 3 star and lower
+    String coordinatorRegion;
+
     // regional or national coordinator
     String coordinatorFirstName;
     String coordinatorLastName;
@@ -72,6 +75,7 @@ public class SanctionRequest {
         sanctionRequestEntity.setRequestDate(this.getRequestDate());
         sanctionRequestEntity.setStatus(this.getStatus());
         sanctionRequestEntity.setStarLevel(this.getStarLevel());
+        sanctionRequestEntity.setCoordinatorRegion(this.getCoordinatorRegion());
         sanctionRequestEntity.setCoordinatorFirstName(this.getCoordinatorFirstName());
         sanctionRequestEntity.setCoordinatorLastName(this.getCoordinatorLastName());
         sanctionRequestEntity.setCoordinatorEmail(this.getCoordinatorEmail());
@@ -91,6 +95,7 @@ public class SanctionRequest {
         this.requestDate = sanctionRequestEntity.getRequestDate();
         this.status = sanctionRequestEntity.getStatus();
         this.starLevel = sanctionRequestEntity.getStarLevel();
+        this.coordinatorRegion = sanctionRequestEntity.getCoordinatorRegion();
         this.coordinatorFirstName = sanctionRequestEntity.getCoordinatorFirstName();
         this.coordinatorLastName = sanctionRequestEntity.getCoordinatorLastName();
         this.coordinatorEmail = sanctionRequestEntity.getCoordinatorEmail();
