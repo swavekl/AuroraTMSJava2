@@ -15,6 +15,8 @@ import {CallbackData} from '../../account/model/callback-data';
 import {PaymentDialogService} from '../../account/service/payment-dialog.service';
 import {AuthenticationService} from '../../user/authentication.service';
 import {PaymentRefundService} from '../../account/service/payment-refund.service';
+import {ErrorMessagePopupService} from '../../shared/error-message-dialog/error-message-popup.service';
+import * as moment from 'moment/moment';
 
 @Component({
   selector: 'app-sanction-edit-container',
@@ -47,6 +49,7 @@ export class SanctionRequestEditContainerComponent implements OnInit, OnDestroy 
               private paymentDialogService: PaymentDialogService,
               private authenticationService: AuthenticationService,
               private paymentRefundService: PaymentRefundService,
+              private errorMessagePopupService: ErrorMessagePopupService
   ) {
     const routePath = this.activatedRoute.snapshot.routeConfig.path;
     this.creating = (routePath.indexOf('create') !== -1);
@@ -97,7 +100,7 @@ export class SanctionRequestEditContainerComponent implements OnInit, OnDestroy 
         });
 
       this.sanctionRequest$ = this.sanctionRequestService.store.select(selector);
-      const subscription = this.sanctionRequest$.subscribe((sanctionRequest: SanctionRequest) => {
+      const subscription = this.sanctionRequest$.subscribe({next: (sanctionRequest: SanctionRequest) => {
         if (!sanctionRequest) {
           this.sanctionRequestService.getByKey(this.sanctionRequestId);
         } else {
@@ -105,16 +108,16 @@ export class SanctionRequestEditContainerComponent implements OnInit, OnDestroy 
           const sanctionRequestToEdit: SanctionRequest = JSON.parse(JSON.stringify(sanctionRequest));
           // if making a copy of existing one
           if (this.creating && this.sanctionRequestId !== 0) {
-            sanctionRequestToEdit.id = null;
-            sanctionRequestToEdit.status = SanctionRequestStatus.New;
-            sanctionRequestToEdit.requestDate = new Date();
+            this.prepareSensibleCopy(sanctionRequestToEdit);
           }
           this.sanctionRequest$ = of(sanctionRequestToEdit);
           if (sanctionRequestToEdit.status === SanctionRequestStatus.Completed) {
             this.loadPayments();
           }
         }
-      });
+      }, error: (error) => {
+        this.errorMessagePopupService.showError(error);
+      }});
 
       this.subscriptions.add(subscription);
 
@@ -137,7 +140,7 @@ export class SanctionRequestEditContainerComponent implements OnInit, OnDestroy 
             }
 
           }, (error: any) => {
-            console.log('error on save', error);
+            this.errorMessagePopupService.showError(error);
           });
     }
 
@@ -221,6 +224,34 @@ export class SanctionRequestEditContainerComponent implements OnInit, OnDestroy 
   onPaymentCanceled(scope: any) {
     this.showingPaymentDialog = false;
     // console.log('in onPaymentCanceled');
+  }
+
+  private prepareSensibleCopy (sanctionRequestToEdit: SanctionRequest) {
+    sanctionRequestToEdit.id = null;
+    sanctionRequestToEdit.status = SanctionRequestStatus.New;
+    sanctionRequestToEdit.requestDate = new Date();
+    sanctionRequestToEdit.blankEntryFormUrl = null;
+    sanctionRequestToEdit.tournamentName = sanctionRequestToEdit.tournamentName + ' Copy';
+
+    const startDate = moment(sanctionRequestToEdit.startDate);
+    const endDate = moment(sanctionRequestToEdit.endDate);
+    const diffDays = endDate.diff(startDate, 'days');
+
+    // move to next year
+    let proposedStartDate = moment(sanctionRequestToEdit.startDate).add(1, 'years');
+    const weekday = proposedStartDate.get('weekday');
+    const addDays = 6 - weekday;  // 6 is saturday
+    proposedStartDate = (addDays < 0) ? proposedStartDate.subtract(addDays, 'days') :
+      ((addDays > 0) ? proposedStartDate.add(addDays, 'days')
+        : proposedStartDate);
+
+    // same number of days long.
+    const proposedEndDate = moment(proposedStartDate).add(diffDays, 'days');
+    const newStartDate = proposedStartDate.toDate();
+    const newEndDate = proposedEndDate.toDate();
+
+    sanctionRequestToEdit.startDate = newStartDate;
+    sanctionRequestToEdit.endDate = newEndDate;
   }
 
 }

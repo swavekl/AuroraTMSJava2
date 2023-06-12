@@ -55,7 +55,7 @@
                   <mat-form-field fxFlex="24%">
                     <mat-label>Alternate Start Date</mat-label>
                     <input matInput [matDatepicker]="pickerAltSD" placeholder="Alternate Start Date"
-                           name="altStartDate" [min]="minStartDate" [max]="maxStartDate"
+                           name="altStartDate"
                            [(ngModel)]="sanctionRequest.alternateStartDate"
                            (dateChange)="onEnableAltEndDate($event.target.value)"
                            (input)="onEnableAltEndDate($event.target.value)" readonly>
@@ -66,7 +66,7 @@
                   <mat-form-field fxFlex="24%">
                     <mat-label>Alternate End Date</mat-label>
                     <input matInput [matDatepicker]="pickerAltED" placeholder="Alternate End Date"
-                           name="altEndDate" [min]="minAltEndDate" [max]="maxAltEndDate"
+                           name="altEndDate"
                            [(ngModel)]="sanctionRequest.alternateEndDate" readonly>
                     <mat-datepicker-toggle matSuffix [for]="pickerAltED"></mat-datepicker-toggle>
                     <mat-datepicker #pickerAltED [disabled]="!altEndDateEnabled"></mat-datepicker>
@@ -143,10 +143,15 @@
                   (uploadFinished)="onUploadFinished($event)"
                   [storagePath]="getStoragePath()">
                 </app-upload-file-component>
-                <app-download-file [buttonLabel]="'Download'"
-                                   [fileUrl]="sanctionRequest?.blankEntryFormUrl"
-                                   [disabledBtn]="sanctionRequest?.blankEntryFormUrl === null">
-                </app-download-file>
+                <ng-container *ngIf="sanctionRequest?.blankEntryFormUrl != null; else blankEntryMissing">
+                  <app-download-file [buttonLabel]="'Download'"
+                                     [fileUrl]="sanctionRequest?.blankEntryFormUrl"
+                                     [disabledBtn]="sanctionRequest?.blankEntryFormUrl === null">
+                  </app-download-file>
+                </ng-container>
+                <ng-template #blankEntryMissing>
+                  <mat-error>Please upload blank entry form</mat-error>
+                </ng-template>
               </div>
               <div fxLayout="row" fxLayoutAlign="end" class="stepper-actions">
                 <button mat-raised-button matStepperNext type="button">Next</button>
@@ -294,19 +299,6 @@
             <mat-step label="Pay and Submit">
               <div fxLayout="column" fxLayoutGap="10px">
                 <div fxLayout="row" fxFlex="100%">
-                  <div fxFlex="40%">
-                    <table class="prizeMoney">
-                      <thead>
-                      <td>Total Prize Money</td><td>Sanction Fee</td>
-                      </thead>
-                      <tbody>
-                      <tr *ngFor="let feeSchedule of sanctionFeeSchedule">
-                        <td>{{'$' + feeSchedule.low }} - {{(feeSchedule.high == null)  ? '' : ('$' + feeSchedule.high)}}</td>
-                        <td>{{feeSchedule.sanctionFee == 0 ? 'Waived' : ('$' + feeSchedule.sanctionFee)}}</td>
-                      </tr>
-                      </tbody>
-                    </table>
-                  </div>
                   <div fxFlex="60%">
                     <h3>Total Rating Points: {{ totalPoints }} qualify this tournament for {{ qualifiedStarLevel }} star rating </h3>
                     <mat-form-field>
@@ -319,6 +311,19 @@
                       {{ sanctionRequest.coordinatorFirstName }} {{ sanctionRequest.coordinatorLastName }}.
                       The coordinator will be notified by email about your submission
                     </h4>
+                  </div>
+                  <div fxFlex="40%">
+                    <table class="prizeMoney">
+                      <thead>
+                      <td>Total Prize Money</td><td>Sanction Fee</td>
+                      </thead>
+                      <tbody>
+                      <tr *ngFor="let feeSchedule of sanctionFeeSchedule">
+                        <td>{{'$' + feeSchedule.low }} - {{(feeSchedule.high == null)  ? '' : ('$' + feeSchedule.high)}}</td>
+                        <td>{{feeSchedule.sanctionFee == 0 ? 'Waived' : ('$' + feeSchedule.sanctionFee)}}</td>
+                      </tr>
+                      </tbody>
+                    </table>
                   </div>
                 </div>
                 <table class="summary-table">

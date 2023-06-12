@@ -38,8 +38,8 @@ export class SanctionRequestListDataSource extends DataSource<SanctionRequest> {
    */
   connect(): Observable<SanctionRequest[]> {
     if (this.paginator && this.sort) {
-      // load first page
-      this.loadPage(false);
+      // load first page TODO: when default sorting is set this is not needed
+      // this.loadPage(false);
       // when results arrive or next page or sort order changes
       return merge(this.sanctionRequests$,
         this.paginator.page, this.sort.sortChange, this.filterByName$.asObservable())

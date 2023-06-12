@@ -92,21 +92,13 @@ export class SanctionRequestEditComponent implements OnInit, OnChanges, AfterVie
   filteredClubs: any[] = [];
 
   sanctionFeeSchedule: any [] = [
-    {low: 0, high: null, starLevel: 0, sanctionFee: 0},
+    {low: 0, high: 0, starLevel: 0, sanctionFee: 0},
     {low: 0, high: 400, starLevel: 1, sanctionFee: 40},
     {low: 401, high: 1000, starLevel: 2, sanctionFee: 80},
     {low: 1001, high: 3000, starLevel: 3, sanctionFee: 150},
     {low: 3001, high: 6000, starLevel: 3, sanctionFee: 300},
     {low: 6001, high: null, fee: 400, starLevel: 4, sanctionFee: 400},
   ];
-
-  // sanctionFeeSchedule = [
-  //   {starLevel: 0, sanctionFee: 0},
-  //   {starLevel: 1, sanctionFee: 40},
-  //   {starLevel: 2, sanctionFee: 80},
-  //   {starLevel: 3, sanctionFee: 150},
-  //   {starLevel: 4, sanctionFee: 400}
-  // ];
 
   private subscriptions: Subscription = new Subscription();
 
@@ -229,7 +221,7 @@ export class SanctionRequestEditComponent implements OnInit, OnChanges, AfterVie
     if (coordinatorInfo != null) {
       message += 'Your request will be submitted to ';
       message += coordinatorInfo.firstName + ' ' + coordinatorInfo.lastName;
-      message += ' who is the ' + coordinatorInfo.region + ' region Sanction Coordinator.';
+      message += ' who is the ' + coordinatorInfo.region + ' Sanction Coordinator.';
       message += ' You may follow up with him by phone ' + coordinatorInfo.phone;
       message += ' or email ' + coordinatorInfo.email;
 
@@ -296,8 +288,13 @@ export class SanctionRequestEditComponent implements OnInit, OnChanges, AfterVie
   }
 
   isSubmitEnabled() {
-    return this.sanctionRequest.status === SanctionRequestStatus.New ||
-      this.sanctionRequest.status === SanctionRequestStatus.Rejected;
+    const currentUserFirstName = this.authenticationService.getCurrentUserFirstName();
+    const currentUserLastName = this.authenticationService.getCurrentUserLastName();
+    const fullName = currentUserFirstName + " " + currentUserLastName;
+    const contactPerson = this.sanctionRequest?.contactPersonName;
+    const isSubmitter = (fullName === contactPerson);
+    return isSubmitter && (this.sanctionRequest.status === SanctionRequestStatus.New ||
+      this.sanctionRequest.status === SanctionRequestStatus.Rejected);
   }
 
   isApproveRejectEnabled() {
@@ -462,13 +459,13 @@ export class SanctionRequestEditComponent implements OnInit, OnChanges, AfterVie
       for (let i = 0; i < this.sanctionFeeSchedule.length; i++) {
         const sanctionFeeScheduleElement = this.sanctionFeeSchedule[i];
         if (sanctionFeeScheduleElement.low <= totalPrizeMoney &&
-          totalPrizeMoney <= sanctionFeeScheduleElement.high) {
+          (totalPrizeMoney <= sanctionFeeScheduleElement.high || sanctionFeeScheduleElement.high == null)) {
           sanctionFee = sanctionFeeScheduleElement.sanctionFee;
           break;
         }
       }
     }
-    // console.log('starLevel ' + starLevel + ' => sanctionFee: ' + sanctionFee);
+    // console.log('totalPrizeMoney ' + totalPrizeMoney + ' => sanctionFee: ' + sanctionFee);
     return sanctionFee;
   }
 
@@ -500,7 +497,7 @@ export class SanctionRequestEditComponent implements OnInit, OnChanges, AfterVie
               affiliationExpirationDate: clubAffiliationApplication.affiliationExpirationDate
             }
           });
-          console.log('got filtered clubs', this.filteredClubs);
+          // console.log('got filtered clubs', this.filteredClubs);
           // // refresh the drop down contents and show it
           // this.cdr.markForCheck();
         });

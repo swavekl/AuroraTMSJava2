@@ -15,13 +15,13 @@
 </mat-toolbar>
 
 <div class="table-container">
-  <mat-table matSort aria-label="Sanction Requests">
+  <mat-table matSort matSortActive="start_date" matSortDirection="desc" aria-label="Sanction Requests">
     <ng-container matColumnDef="tournamentName">
       <mat-header-cell *matHeaderCellDef>Name</mat-header-cell>
       <mat-cell *matCellDef="let sanctionRequest" [routerLink]="['/ui/sanction/edit', sanctionRequest.id]">{{ sanctionRequest.tournamentName }}</mat-cell>
     </ng-container>
     <ng-container matColumnDef="startDate">
-      <mat-header-cell *matHeaderCellDef>Start Date</mat-header-cell>
+      <mat-header-cell *matHeaderCellDef mat-sort-header="start_date">Start Date</mat-header-cell>
       <mat-cell *matCellDef="let sanctionRequest" [routerLink]="['/ui/sanction/edit', sanctionRequest.id]">{{ sanctionRequest.startDate  | date}}</mat-cell>
     </ng-container>
 
@@ -33,7 +33,7 @@
     <ng-container matColumnDef="actions">
       <mat-header-cell *matHeaderCellDef>Actions</mat-header-cell>
       <mat-cell *matCellDef="let sanctionRequest">
-        <button mat-icon-button (click)="onDeleteSanctionRequest(sanctionRequest.id, sanctionRequest.eventName)"
+        <button mat-icon-button (click)="onDeleteSanctionRequest(sanctionRequest.id, sanctionRequest.tournamentName)"
                 matTooltip="Delete" style="margin-right: 20px">
           <mat-icon matListItemIcon>delete</mat-icon>
         </button>
