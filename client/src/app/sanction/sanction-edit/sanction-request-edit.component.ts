@@ -140,7 +140,7 @@ export class SanctionRequestEditComponent implements OnInit, OnChanges, AfterVie
 
         this.calculateTotalAndQualifiedStarLevel();
 
-        this.sanctionFee = this.determineSanctionFee(sanctionRequest.starLevel, sanctionRequest.totalPrizeMoney);
+        this.sanctionFee = this.determineSanctionFee(sanctionRequest.totalPrizeMoney);
 
         this.onEnableEndDate(sanctionRequest.startDate);
         this.onEnableAltEndDate(sanctionRequest.alternateStartDate);
@@ -257,21 +257,21 @@ export class SanctionRequestEditComponent implements OnInit, OnChanges, AfterVie
     // find coordinator who will receive this request and set it in the request.
     // translate long name to short state name
     let coordinatorInfo: CoordinatorInfo = null;
-    const starLevel = this.qualifiedStarLevel;
-    if (sanctionRequestToSave.coordinatorRegion == null) {
-      if (formValues.venueState != null && starLevel != null) {
-        const longStateName = this.translateStateName(formValues.venueState);
-        coordinatorInfo = this.findCoordinator(longStateName, starLevel);
+    const starLevel = (sanctionRequestToSave.starLevel == null) ? this.qualifiedStarLevel : sanctionRequestToSave.starLevel;
+    sanctionRequestToSave.starLevel = starLevel;
+    sanctionRequestToSave.sanctionFee = this.determineSanctionFee(sanctionRequestToSave.totalPrizeMoney);
 
-        // notify user about who will be getting this request
-        if (coordinatorInfo != null) {
-          sanctionRequestToSave.starLevel = starLevel;
-          sanctionRequestToSave.sanctionFee = this.determineSanctionFee(starLevel, sanctionRequestToSave.totalPrizeMoney);
-          sanctionRequestToSave.coordinatorRegion = coordinatorInfo.region;
-          sanctionRequestToSave.coordinatorFirstName = coordinatorInfo.firstName;
-          sanctionRequestToSave.coordinatorLastName = coordinatorInfo.lastName;
-          sanctionRequestToSave.coordinatorEmail = coordinatorInfo.email;
-        }
+    if (formValues.venueState != null && starLevel != null) {
+
+      const longStateName = this.translateStateName(formValues.venueState);
+      coordinatorInfo = this.findCoordinator(longStateName, starLevel);
+
+      // notify user about who will be getting this request
+      if (coordinatorInfo != null) {
+        sanctionRequestToSave.coordinatorRegion = coordinatorInfo.region;
+        sanctionRequestToSave.coordinatorFirstName = coordinatorInfo.firstName;
+        sanctionRequestToSave.coordinatorLastName = coordinatorInfo.lastName;
+        sanctionRequestToSave.coordinatorEmail = coordinatorInfo.email;
       }
     }
     return coordinatorInfo;
@@ -288,11 +288,8 @@ export class SanctionRequestEditComponent implements OnInit, OnChanges, AfterVie
   }
 
   isSubmitEnabled() {
-    const currentUserFirstName = this.authenticationService.getCurrentUserFirstName();
-    const currentUserLastName = this.authenticationService.getCurrentUserLastName();
-    const fullName = currentUserFirstName + " " + currentUserLastName;
-    const contactPerson = this.sanctionRequest?.contactPersonName;
-    const isSubmitter = (fullName === contactPerson);
+    const currentUserProfileId = this.authenticationService.getCurrentUserProfileId();
+    const isSubmitter = (this.sanctionRequest.preparerProfileId === currentUserProfileId);
     return isSubmitter && (this.sanctionRequest.status === SanctionRequestStatus.New ||
       this.sanctionRequest.status === SanctionRequestStatus.Rejected);
   }
@@ -425,16 +422,12 @@ export class SanctionRequestEditComponent implements OnInit, OnChanges, AfterVie
   }
 
   starLevelChanged(event) {
-    console.log ('in starLevelChanged ', event);
-    const starLevel = event.srcElement.value;
-    const stateName = this.venueState;
-//      console.log ('starLevel ', starLevel);
-    //     console.log ('stateName ', stateName);
-    // find coordinator who will receive this request and set it in the request.
-    const longStateName = this.translateStateName(stateName);
-    const coordinatorInfo: CoordinatorInfo = this.findCoordinator(longStateName, starLevel);
-//      console.log ('coordinatorInfo ', coordinatorInfo);
-    this.sanctionFee = this.determineSanctionFee(starLevel, this.sanctionRequest.totalPrizeMoney);
+    const starLevel = Number(event.target.value);
+    this.sanctionFee = this.determineSanctionFee(this.sanctionRequest.totalPrizeMoney);
+    this.fillSanctionCoordinator({
+        starLevel: starLevel, venueState: this.sanctionRequest.venueState
+      },
+      this.sanctionRequest);
   }
 
   getPaymentsRefundsTotal(): number {
@@ -452,8 +445,7 @@ export class SanctionRequestEditComponent implements OnInit, OnChanges, AfterVie
     return paymentsRefundsTotal;
   }
 
-  private determineSanctionFee(strStarLevel: any, totalPrizeMoney: any) {
-    const starLevel = Number(strStarLevel);
+  private determineSanctionFee(totalPrizeMoney: any) {
     let sanctionFee = 0;
     if (totalPrizeMoney != null) {
       for (let i = 0; i < this.sanctionFeeSchedule.length; i++) {
@@ -650,8 +642,9 @@ export class SanctionRequestEditComponent implements OnInit, OnChanges, AfterVie
   }
 
   isUploadDisabled(): boolean {
-    return this.sanctionRequest?.status != SanctionRequestStatus.New
-      && this.sanctionRequest?.status != SanctionRequestStatus.Rejected;
+    return this.sanctionRequest?.id == null &&
+      (this.sanctionRequest?.status != SanctionRequestStatus.New &&
+        this.sanctionRequest?.status != SanctionRequestStatus.Rejected);
   }
 
   onUploadFinished(downloadUrl: string) {

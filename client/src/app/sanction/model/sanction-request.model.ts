@@ -189,6 +189,7 @@ export class SanctionRequest {
   approvalRejectionNotes: string;
 
   blankEntryFormUrl: string;
+  preparerProfileId: string;
 
   constructor () {
     this.tournamentName = '';
@@ -345,56 +346,56 @@ export class SanctionRequest {
   }
 
   // apply changes from form and perform various conversions
-  applyChanges (formValues: any) {
-    // apply new values to this object
-    this.id = formValues.id;
-    this.tournamentName = formValues.tournamentName;
-
-    // convert dates from local to UTC
-    const requestDate: Date = (formValues.requestDate != null) ? new Date (formValues.requestDate) : new Date();
-
-    const dateUtils = new DateUtils();
-    this.startDate = dateUtils.convertFromLocalToUTCDate (formValues.startDate);
-    this.endDate = dateUtils.convertFromLocalToUTCDate(formValues.endDate);
-    this.requestDate = dateUtils.convertFromLocalToUTCDate (requestDate);
-
-    if (this.status == null) {
-      this.status = SanctionRequestStatus.New;
-    }
-    // apply rating criteria
-    this.starLevel = formValues.starLevel;
-
-    this.alternateStartDate                  = dateUtils.convertFromLocalToUTCDate (formValues.alternateStartDate);
-    this.alternateEndDate                    = dateUtils.convertFromLocalToUTCDate (formValues.alternateEndDate);
-    this.webLinkURL                          = formValues.webLinkURL                        ;
-    this.venueStreetAddress                  = formValues.venueStreetAddress                ;
-    this.venueCity                           = formValues.venueCity                         ;
-    this.venueState                          = formValues.venueState                        ;
-    this.venueZipCode                        = formValues.venueZipCode                      ;
-    this.clubName                            = formValues.clubName                          ;
-    this.clubAffiliationExpiration           = dateUtils.convertFromLocalToUTCDate (formValues.clubAffiliationExpiration);
-    this.contactPersonName                   = formValues.contactPersonName                 ;
-    this.contactPersonPhone                  = formValues.contactPersonPhone                ;
-    this.contactPersonEmail                  = formValues.contactPersonEmail                ;
-    this.contactPersonStreetAddress          = formValues.contactPersonStreetAddress        ;
-    this.contactPersonCity                   = formValues.contactPersonCity                 ;
-    this.contactPersonState                  = formValues.contactPersonState                ;
-    this.contactPersonZip                    = formValues.contactPersonZip                  ;
-    this.tournamentRefereeName               = formValues.tournamentRefereeName             ;
-    this.tournamentRefereeRank               = formValues.tournamentRefereeRank             ;
-    this.tournamentDirectorName              = formValues.tournamentDirectorName            ;
-    this.totalPrizeMoney                     = formValues.totalPrizeMoney                   ;
-    this.sanctionFee                         = formValues.sanctionFee                       ;
-    this.tournamentRefereeMembershipExpires  = dateUtils.convertFromLocalToUTCDate (formValues.tournamentRefereeMembershipExpires);
-    this.blankEntryFormUrl                   = formValues.blankEntryFormUrl;
-    this.approvalRejectionNotes              = formValues.approvalRejectionNotes;
-
-    // now set the criteria
-    for (let i = 0; i < this.categories.length; i++) {
-      const category: SanctionCategory = this.categories[i];
-      category.applyChanges(formValues);
-    }
-  }
+  // applyChanges (formValues: any) {
+  //   // apply new values to this object
+  //   this.id = formValues.id;
+  //   this.tournamentName = formValues.tournamentName;
+  //
+  //   // convert dates from local to UTC
+  //   const requestDate: Date = (formValues.requestDate != null) ? new Date (formValues.requestDate) : new Date();
+  //
+  //   const dateUtils = new DateUtils();
+  //   this.startDate = dateUtils.convertFromLocalToUTCDate (formValues.startDate);
+  //   this.endDate = dateUtils.convertFromLocalToUTCDate(formValues.endDate);
+  //   this.requestDate = dateUtils.convertFromLocalToUTCDate (requestDate);
+  //
+  //   if (this.status == null) {
+  //     this.status = SanctionRequestStatus.New;
+  //   }
+  //   // apply rating criteria
+  //   this.starLevel = formValues.starLevel;
+  //
+  //   this.alternateStartDate                  = dateUtils.convertFromLocalToUTCDate (formValues.alternateStartDate);
+  //   this.alternateEndDate                    = dateUtils.convertFromLocalToUTCDate (formValues.alternateEndDate);
+  //   this.webLinkURL                          = formValues.webLinkURL                        ;
+  //   this.venueStreetAddress                  = formValues.venueStreetAddress                ;
+  //   this.venueCity                           = formValues.venueCity                         ;
+  //   this.venueState                          = formValues.venueState                        ;
+  //   this.venueZipCode                        = formValues.venueZipCode                      ;
+  //   this.clubName                            = formValues.clubName                          ;
+  //   this.clubAffiliationExpiration           = dateUtils.convertFromLocalToUTCDate (formValues.clubAffiliationExpiration);
+  //   this.contactPersonName                   = formValues.contactPersonName                 ;
+  //   this.contactPersonPhone                  = formValues.contactPersonPhone                ;
+  //   this.contactPersonEmail                  = formValues.contactPersonEmail                ;
+  //   this.contactPersonStreetAddress          = formValues.contactPersonStreetAddress        ;
+  //   this.contactPersonCity                   = formValues.contactPersonCity                 ;
+  //   this.contactPersonState                  = formValues.contactPersonState                ;
+  //   this.contactPersonZip                    = formValues.contactPersonZip                  ;
+  //   this.tournamentRefereeName               = formValues.tournamentRefereeName             ;
+  //   this.tournamentRefereeRank               = formValues.tournamentRefereeRank             ;
+  //   this.tournamentDirectorName              = formValues.tournamentDirectorName            ;
+  //   this.totalPrizeMoney                     = formValues.totalPrizeMoney                   ;
+  //   this.sanctionFee                         = formValues.sanctionFee                       ;
+  //   this.tournamentRefereeMembershipExpires  = dateUtils.convertFromLocalToUTCDate (formValues.tournamentRefereeMembershipExpires);
+  //   this.blankEntryFormUrl                   = formValues.blankEntryFormUrl;
+  //   this.approvalRejectionNotes              = formValues.approvalRejectionNotes;
+  //
+  //   // now set the criteria
+  //   for (let i = 0; i < this.categories.length; i++) {
+  //     const category: SanctionCategory = this.categories[i];
+  //     category.applyChanges(formValues);
+  //   }
+  // }
 
   clone (other: SanctionRequest) {
     this.id = other.id;
@@ -435,6 +436,7 @@ export class SanctionRequest {
     this.tournamentRefereeMembershipExpires  = dateUtils.convertFromUTCToLocalDate (other.tournamentRefereeMembershipExpires);
     this.approvalRejectionNotes              = other.approvalRejectionNotes;
     this.blankEntryFormUrl                   = other.blankEntryFormUrl;
+    this.preparerProfileId                   = other.preparerProfileId;
 
     for (let i = 0; i < this.categories.length; i++) {
       const category: SanctionCategory = this.categories[i];

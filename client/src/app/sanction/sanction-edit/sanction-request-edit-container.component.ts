@@ -106,7 +106,7 @@ export class SanctionRequestEditContainerComponent implements OnInit, OnDestroy 
         } else {
           // clone it
           const sanctionRequestToEdit: SanctionRequest = JSON.parse(JSON.stringify(sanctionRequest));
-          // if making a copy of existing one
+          // if making a copy of existing one change some values
           if (this.creating && this.sanctionRequestId !== 0) {
             this.prepareSensibleCopy(sanctionRequestToEdit);
           }
@@ -122,7 +122,9 @@ export class SanctionRequestEditContainerComponent implements OnInit, OnDestroy 
       this.subscriptions.add(subscription);
 
     } else {
-      this.sanctionRequest$ = of(new SanctionRequest());
+      const sanctionRequest: SanctionRequest = new SanctionRequest();
+      sanctionRequest.preparerProfileId = this.authenticationService.getCurrentUserProfileId();
+      this.sanctionRequest$ = of(sanctionRequest);
     }
   }
 
@@ -231,6 +233,7 @@ export class SanctionRequestEditContainerComponent implements OnInit, OnDestroy 
     sanctionRequestToEdit.status = SanctionRequestStatus.New;
     sanctionRequestToEdit.requestDate = new Date();
     sanctionRequestToEdit.blankEntryFormUrl = null;
+    sanctionRequestToEdit.approvalRejectionNotes = null;
     sanctionRequestToEdit.tournamentName = sanctionRequestToEdit.tournamentName + ' Copy';
 
     const startDate = moment(sanctionRequestToEdit.startDate);
@@ -252,6 +255,7 @@ export class SanctionRequestEditContainerComponent implements OnInit, OnDestroy 
 
     sanctionRequestToEdit.startDate = newStartDate;
     sanctionRequestToEdit.endDate = newEndDate;
+    sanctionRequestToEdit.preparerProfileId = this.authenticationService.getCurrentUserProfileId();
   }
 
 }

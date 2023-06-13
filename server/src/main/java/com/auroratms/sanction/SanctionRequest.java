@@ -65,6 +65,8 @@ public class SanctionRequest {
     private String approvalRejectionNotes;
     private String blankEntryFormUrl;
 
+    private String preparerProfileId;
+
 
     public SanctionRequestEntity convertToEntity() {
         SanctionRequestEntity sanctionRequestEntity = new SanctionRequestEntity();

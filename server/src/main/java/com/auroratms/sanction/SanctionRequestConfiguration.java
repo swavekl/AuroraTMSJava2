@@ -48,6 +48,8 @@ public class SanctionRequestConfiguration {
 
     private String approvalRejectionNotes;
     private String blankEntryFormUrl;
+    private String preparerProfileId;
+
 
     public String convertToContent(SanctionRequest sanctionRequest) {
         this.setAlternateStartDate(sanctionRequest.getAlternateStartDate());
@@ -75,6 +77,7 @@ public class SanctionRequestConfiguration {
         this.setCategories(sanctionRequest.getCategories());
         this.setApprovalRejectionNotes(sanctionRequest.getApprovalRejectionNotes());
         this.setBlankEntryFormUrl(sanctionRequest.getBlankEntryFormUrl());
+        this.setPreparerProfileId(sanctionRequest.getPreparerProfileId());
         String content = null;
         try {
             StringWriter stringWriter = new StringWriter();
@@ -122,6 +125,7 @@ public class SanctionRequestConfiguration {
                 sanctionRequest.setCategories(configuration.getCategories());
                 sanctionRequest.setApprovalRejectionNotes(configuration.getApprovalRejectionNotes());
                 sanctionRequest.setBlankEntryFormUrl(configuration.getBlankEntryFormUrl());
+                sanctionRequest.setPreparerProfileId(configuration.getPreparerProfileId());
             } catch (IOException e) {
                 e.printStackTrace();
             }
