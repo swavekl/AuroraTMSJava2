@@ -13,7 +13,7 @@
         </mat-card-actions>
         <mat-card-content class="sanction-form">
           <mat-horizontal-stepper>
-            <mat-step label="Tournament">
+            <mat-step label="Tournament" errorMessage="Correct invalid values" [hasError]="hasError(f, 1)">
               <mat-card-subtitle class="mat-headline-6">Tournament Information</mat-card-subtitle>
               <div fxLayout="column">
                 <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="10px">
@@ -55,7 +55,7 @@
                   <mat-form-field fxFlex="24%">
                     <mat-label>Alternate Start Date</mat-label>
                     <input matInput [matDatepicker]="pickerAltSD" placeholder="Alternate Start Date"
-                           name="altStartDate"
+                           name="alternateStartDate"
                            [(ngModel)]="sanctionRequest.alternateStartDate"
                            (dateChange)="onEnableAltEndDate($event.target.value)"
                            (input)="onEnableAltEndDate($event.target.value)" readonly>
@@ -66,7 +66,7 @@
                   <mat-form-field fxFlex="24%">
                     <mat-label>Alternate End Date</mat-label>
                     <input matInput [matDatepicker]="pickerAltED" placeholder="Alternate End Date"
-                           name="altEndDate"
+                           name="alternateEndDate"
                            [(ngModel)]="sanctionRequest.alternateEndDate" readonly>
                     <mat-datepicker-toggle matSuffix [for]="pickerAltED"></mat-datepicker-toggle>
                     <mat-datepicker #pickerAltED [disabled]="!altEndDateEnabled"></mat-datepicker>
@@ -158,43 +158,56 @@
               </div>
             </mat-step>
 
-            <mat-step label="Personnel">
+            <mat-step label="Personnel" errorMessage="Correct invalid values" [hasError]="hasError(f, 2)">
               <mat-card-subtitle class="mat-headline-6">Contact Person</mat-card-subtitle>
               <!-- Contact person -->
               <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="10px">
                 <mat-form-field fxFlex="40%">
                   <mat-label>Name</mat-label>
-                  <input matInput type="text" placeholder="Contact Person Name" name="contactPersonName" [(ngModel)]="sanctionRequest.contactPersonName">
+                  <input matInput type="text" name="contactPersonName"
+                         [(ngModel)]="sanctionRequest.contactPersonName" required>
+                  <mat-error>This field is required</mat-error>
                 </mat-form-field>
                 <mat-form-field fxFlex="20%">
                   <mat-label>Phone</mat-label>
-                  <input matInput type="tel" placeholder="Contact Phone" name="contactPersonPhone" [(ngModel)]="sanctionRequest.contactPersonPhone">
+                  <input matInput type="tel" name="contactPersonPhone"
+                         [(ngModel)]="sanctionRequest.contactPersonPhone" required>
+                  <mat-error>This field is required</mat-error>
                 </mat-form-field>
                 <mat-form-field fxFlex="40%">
                   <mat-label>Email</mat-label>
-                  <input matInput type="email" placeholder="Contact Email" name="contactPersonEmail" [(ngModel)]="sanctionRequest.contactPersonEmail" required>
+                  <input matInput type="email" name="contactPersonEmail"
+                         [(ngModel)]="sanctionRequest.contactPersonEmail" required>
+                  <mat-error>This field is required</mat-error>
                 </mat-form-field>
               </div>
               <!-- Contact person address -->
               <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="10px">
                 <mat-form-field fxFlex="50%">
                   <mat-label>Street Address</mat-label>
-                  <input matInput type="text" placeholder="Street Address" name="contactPersonStreetAddress" [(ngModel)]="sanctionRequest.contactPersonStreetAddress" required>
+                  <input matInput type="text" placeholder="Street Address" name="contactPersonStreetAddress"
+                         [(ngModel)]="sanctionRequest.contactPersonStreetAddress" required>
+                  <mat-error>This field is required</mat-error>
                 </mat-form-field>
                 <mat-form-field fxFlex="30%">
                   <mat-label>City</mat-label>
-                  <input matInput type="text" placeholder="City" name="contactPersonCity" [(ngModel)]="sanctionRequest.contactPersonCity" required>
+                  <input matInput type="text" placeholder="City" name="contactPersonCity"
+                         [(ngModel)]="sanctionRequest.contactPersonCity" required>
                   <mat-error>This field is required</mat-error>
                 </mat-form-field>
                 <mat-form-field fxFlex="10%">
                   <mat-label>State</mat-label>
-                  <mat-select matInput type="text" placeholder="State" name="contactPersonState" [(ngModel)]="sanctionRequest.contactPersonState">
+                  <mat-select matInput type="text" placeholder="State" name="contactPersonState"
+                              [(ngModel)]="sanctionRequest.contactPersonState" required>
                     <mat-option *ngFor="let state of statesList" value="{{state.abbreviation}}">{{state.abbreviation}}</mat-option>
                   </mat-select>
+                  <mat-error>This field is required</mat-error>
                 </mat-form-field>
                 <mat-form-field fxFlex="10%">
                   <mat-label>Zip Code</mat-label>
-                  <input matInput type="text" placeholder="Zip Code" name="contactPersonZip" [(ngModel)]="sanctionRequest.contactPersonZip" required  pattern="^[1-9][0-9]{4}" maxlength="6">
+                  <input matInput type="text" placeholder="Zip Code" name="contactPersonZip"
+                         [(ngModel)]="sanctionRequest.contactPersonZip"
+                         required  pattern="^[1-9][0-9]{4}" maxlength="6">
                   <mat-error>This field is required</mat-error>
                 </mat-form-field>
               </div>
@@ -204,14 +217,18 @@
               <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="10px">
                 <mat-form-field fxFlex="50%">
                   <mat-label>Referee Name</mat-label>
-                  <input matInput type="text" required placeholder="Tournament Referee Name" name="tournamentRefereeName" [(ngModel)]="sanctionRequest.tournamentRefereeName">
+                  <input matInput type="text" required name="tournamentRefereeName"
+                         [(ngModel)]="sanctionRequest.tournamentRefereeName" required>
                   <button matSuffix type="button" mat-icon-button aria-label="Search" (click)="showRefereeSearchDialog()">
                     <mat-icon>search</mat-icon>
                   </button>
+                  <mat-error>This field is required</mat-error>
                 </mat-form-field>
                 <mat-form-field fxFlex="25%">
                   <mat-label>Referee/Umpire Rank</mat-label>
-                  <input matInput readonly name="tournamentRefereeRank" [ngModel]="sanctionRequest.tournamentRefereeRank">
+                  <input matInput readonly name="tournamentRefereeRank"
+                         [ngModel]="sanctionRequest.tournamentRefereeRank" required>
+                  <mat-error>This field is required</mat-error>
                 </mat-form-field>
                 <mat-form-field fxFlex="25%">
                   <mat-label>USATT Membership Expires on</mat-label>
@@ -364,7 +381,7 @@
                 </mat-form-field>
               </div>
               <div fxLayout="row" fxLayoutAlign="start start" fxLayoutGap="10px">
-                <button mat-raised-button color="primary" type="button" (click)="onSubmitApplication(f.value)"
+                <button mat-raised-button color="primary" type="button" (click)="onSubmitApplication(f.value, f.valid)"
                         [disabled]="!isSubmitEnabled()">Submit
                 </button>
                 <button mat-raised-button color="primary" type="button" (click)="onApproveApplication(f.value)"

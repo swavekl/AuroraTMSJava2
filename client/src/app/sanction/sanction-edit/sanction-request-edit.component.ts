@@ -13,8 +13,13 @@ import {
   SimpleChanges,
   ViewChild
 } from '@angular/core';
-import {SanctionCategory, SanctionRequest, SanctionRequestStatus} from '../model/sanction-request.model';
 import {MatDialog} from '@angular/material/dialog';
+import {STEPPER_GLOBAL_OPTIONS} from '@angular/cdk/stepper';
+import {NgForm, UntypedFormControl} from '@angular/forms';
+import {MatAutocompleteSelectedEvent} from '@angular/material/autocomplete';
+import {debounceTime, distinctUntilChanged, filter, first, map, skip, switchMap} from 'rxjs/operators';
+import {Observable, Subscription} from 'rxjs';
+import {SanctionCategory, SanctionRequest, SanctionRequestStatus} from '../model/sanction-request.model';
 import {StatesList} from '../../shared/states/states-list';
 import {CoordinatorInfo, coordinatorList} from '../../shared/coordinator-info';
 import {ConfirmationPopupComponent} from '../../shared/confirmation-popup/confirmation-popup.component';
@@ -23,10 +28,6 @@ import {UserRoles} from '../../user/user-roles.enum';
 import {PaymentRefund} from '../../account/model/payment-refund.model';
 import {PaymentRefundStatus} from '../../account/model/payment-refund-status.enum';
 import {SanctionRequestAndPayment} from './sanction-request-edit-container.component';
-import {MatAutocompleteSelectedEvent} from '@angular/material/autocomplete';
-import {debounceTime, distinctUntilChanged, filter, first, map, skip, switchMap} from 'rxjs/operators';
-import {Observable, Subscription} from 'rxjs';
-import {UntypedFormControl} from '@angular/forms';
 import {ClubAffiliationApplicationService} from '../../club/club-affiliation/service/club-affiliation-application.service';
 import {ClubAffiliationApplication} from '../../club/club-affiliation/model/club-affiliation-application.model';
 import {DateUtils} from '../../shared/date-utils';
@@ -41,8 +42,13 @@ import {ErrorMessagePopupService} from '../../shared/error-message-dialog/error-
 @Component({
   selector: 'app-sanction-request-edit',
   templateUrl: './sanction-request-edit.component.html',
-  styleUrls: ['./sanction-request-edit.component.scss']
-})
+  styleUrls: ['./sanction-request-edit.component.scss'],
+  providers: [
+    {
+      provide: STEPPER_GLOBAL_OPTIONS,
+      useValue: {showError: true},
+    },
+  ],})
 export class SanctionRequestEditComponent implements OnInit, OnChanges, AfterViewInit, OnDestroy {
   @ViewChild('ESD') ESD: ElementRef;
 
@@ -212,38 +218,41 @@ export class SanctionRequestEditComponent implements OnInit, OnChanges, AfterVie
   }
 
   // save and submit for sanction
-  onSubmitApplication (formValues: any) {
-    const sanctionRequestToSave: SanctionRequest = this.sanctionRequest;
+  onSubmitApplication (formValues: any, formValid: boolean) {
+    if (formValid) {
+      const sanctionRequestToSave: SanctionRequest = this.sanctionRequest;
+      // notify user about who will be getting this request
+      let message = '';
+      const coordinatorInfo: CoordinatorInfo = this.fillSanctionCoordinator(formValues, sanctionRequestToSave);
+      if (coordinatorInfo != null) {
+        message += 'Your request will be submitted to ';
+        message += coordinatorInfo.firstName + ' ' + coordinatorInfo.lastName;
+        message += ' who is the ' + coordinatorInfo.region + ' Sanction Coordinator.';
+        message += ' You may follow up with him by phone ' + coordinatorInfo.phone;
+        message += ' or email ' + coordinatorInfo.email;
 
-    // notify user about who will be getting this request
-    let message = '';
-    const coordinatorInfo: CoordinatorInfo = this.fillSanctionCoordinator(formValues, sanctionRequestToSave);
-    if (coordinatorInfo != null) {
-      message += 'Your request will be submitted to ';
-      message += coordinatorInfo.firstName + ' ' + coordinatorInfo.lastName;
-      message += ' who is the ' + coordinatorInfo.region + ' Sanction Coordinator.';
-      message += ' You may follow up with him by phone ' + coordinatorInfo.phone;
-      message += ' or email ' + coordinatorInfo.email;
+        const dialogRef = this.messageDialog.open(ConfirmationPopupComponent, {
+          width: '450px', height: '240px',
+          data: { message: message, title: 'Submission Information', contentAreaHeight: 200 }
+        });
 
-      const dialogRef = this.messageDialog.open(ConfirmationPopupComponent, {
-        width: '450px', height: '240px',
-        data: { message: message, title: 'Submission Information', contentAreaHeight: 200 }
-      });
+        dialogRef.afterClosed().subscribe(result => {
+          if (result == 'ok') {
+            sanctionRequestToSave.status = SanctionRequestStatus.Submitted;
+            const sanctionRequestAndPayment: SanctionRequestAndPayment = {
+              sanctionRequest: sanctionRequestToSave,
+              payFee: false
+            };
 
-      dialogRef.afterClosed().subscribe(result => {
-        if (result == 'ok') {
-          sanctionRequestToSave.status = SanctionRequestStatus.Submitted;
-          const sanctionRequestAndPayment: SanctionRequestAndPayment = {
-            sanctionRequest: sanctionRequestToSave,
-            payFee: false
-          };
-
-          // mark it a submitted and save
-          this.saved.emit (sanctionRequestAndPayment);
-        }
-      });
+            // mark it a submitted and save
+            this.saved.emit (sanctionRequestAndPayment);
+          }
+        });
+      } else {
+        this.errorMessagePopupService.showError(`Unable to find Sanctioning Coordinator for state ${formValues.venueState}`);
+      }
     } else {
-      this.errorMessagePopupService.showError(`Unable to find Sanctioning Coordinator for state ${formValues.venueState}`);
+      this.errorMessagePopupService.showError(`Please correct invalid / missing values before submitting.`);
     }
   }
 
@@ -657,4 +666,41 @@ export class SanctionRequestEditComponent implements OnInit, OnChanges, AfterVie
       : null;
   }
 
+  getErrorMessage(invalid: boolean): string {
+    const currentUserProfileId = this.authenticationService.getCurrentUserProfileId();
+    const isSubmitter = (this.sanctionRequest.preparerProfileId === currentUserProfileId);
+    if (isSubmitter) {
+      return invalid ? "Correct invalid values" : null;
+    } else {
+      return null;
+    }
+  }
+
+  hasError(form: NgForm, pageNum: number) {
+    const page1Controls: string [] = ['tournamentName', 'startDate', 'endDate', 'alternateStartDate', 'alternateEndDate',
+      'venueStreetAddress', 'venueCity', 'venueState', 'venueZipCode', 'clubName', 'clubAffiliationExpiration',
+      'totalPrizeMoney'];
+    const page2Controls: string [] = ['contactPersonName', 'contactPersonPhone', 'contactPersonEmail',
+      'contactPersonStreetAddress', 'contactPersonCity', 'contactPersonState', 'contactPersonZip',
+      'tournamentRefereeName', 'tournamentRefereeRank', 'tournamentRefereeMembershipExpires',
+      'tournamentDirectorName'];
+
+    // console.log('---------- page ', pageNum);
+    const pageControls = (pageNum === 1) ? page1Controls : ((pageNum === 2) ? page2Controls : []);
+    let pageValid = true;
+    for (let i = 0; i < pageControls.length; i++) {
+      const controlName = pageControls[i];
+      const status = form.controls[controlName]?.status;
+      const value = form.controls[controlName]?.value;
+      // console.log('control ' + controlName + ' -> ' + status + ' value: ' + value);
+      if (status != undefined) {
+        pageValid = pageValid && status === 'VALID';
+      }
+    }
+    if (pageNum === 1) {
+      pageValid = pageValid && (this.sanctionRequest.blankEntryFormUrl != null);
+    }
+    // console.log('pageValid', pageValid);
+    return !pageValid;
+  }
 }
