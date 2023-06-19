@@ -9,7 +9,8 @@
         <mat-card-actions>
           <button mat-raised-button type="button" (click)="onCancel()" style="margin-left: 10px">Cancel</button>
           <span fxFlex></span>
-          <button mat-raised-button type="submit" color="primary">Save</button>
+          <button mat-raised-button type="button" color="primary" *ngIf="sanctionRequest?.status === 'Completed'" (click)="onCancel()">Close</button>
+          <button mat-raised-button type="submit" color="primary" *ngIf="sanctionRequest?.status !== 'Completed'">Save</button>
         </mat-card-actions>
         <mat-card-content class="sanction-form">
           <mat-horizontal-stepper>
@@ -144,10 +145,12 @@
                   [storagePath]="getStoragePath()">
                 </app-upload-file-component>
                 <ng-container *ngIf="sanctionRequest?.blankEntryFormUrl != null; else blankEntryMissing">
-                  <app-download-file [buttonLabel]="'Download'"
-                                     [fileUrl]="sanctionRequest?.blankEntryFormUrl"
-                                     [disabledBtn]="sanctionRequest?.blankEntryFormUrl === null">
-                  </app-download-file>
+<!--                  <app-download-file [buttonLabel]="'Download'"-->
+<!--                                     [fileUrl]="sanctionRequest?.blankEntryFormUrl"-->
+<!--                                     [disabledBtn]="sanctionRequest?.blankEntryFormUrl === null">-->
+<!--                  </app-download-file>-->
+                  <a *ngIf="sanctionRequest?.blankEntryFormUrl != null" href=""
+                     (click)="onDownloadDFile(sanctionRequest?.blankEntryFormUrl)">Download</a>
                 </ng-container>
                 <ng-template #blankEntryMissing>
                   <mat-error>Please upload blank entry form</mat-error>

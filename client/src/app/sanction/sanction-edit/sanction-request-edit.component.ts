@@ -38,6 +38,7 @@ import {RefereeRankPipe} from '../../officials/pipes/referee-rank.pipe';
 import {UsattPlayerRecordService} from '../../profile/service/usatt-player-record.service';
 import {UsattPlayerRecord} from '../../profile/model/usatt-player-record.model';
 import {ErrorMessagePopupService} from '../../shared/error-message-dialog/error-message-popup.service';
+import {FileRepositoryService} from '../../shared/upload-button/file-repository.service';
 
 @Component({
   selector: 'app-sanction-request-edit',
@@ -113,6 +114,7 @@ export class SanctionRequestEditComponent implements OnInit, OnChanges, AfterVie
               private cdr: ChangeDetectorRef,
               private clubAffiliationApplicationService: ClubAffiliationApplicationService,
               private usattPlayerRecordService: UsattPlayerRecordService,
+              private fileRepositoryService: FileRepositoryService,
               private errorMessagePopupService: ErrorMessagePopupService) {
     this.currentCategory = 0;
     this.totalPoints = 0;
@@ -702,5 +704,10 @@ export class SanctionRequestEditComponent implements OnInit, OnChanges, AfterVie
     }
     // console.log('pageValid', pageValid);
     return !pageValid;
+  }
+
+  onDownloadDFile(fileUrl: string): boolean {
+    this.fileRepositoryService.download(fileUrl);
+    return false;
   }
 }

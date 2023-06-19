@@ -4,6 +4,7 @@ import {SanctionRequestListComponent} from './sanction-request-list/sanction-req
 import {SanctionRequestEditContainerComponent} from './sanction-edit/sanction-request-edit-container.component';
 import {AuthGuard} from '../guards/auth.guard';
 import {UserRoles} from '../user/user-roles.enum';
+import {SanctionRequestCreateComponent} from './sanction-request-create/sanction-request-create.component';
 
 const routes: Routes = [
   {
@@ -14,7 +15,7 @@ const routes: Routes = [
     }
   },
   {
-    path: 'create/:id', component: SanctionRequestEditContainerComponent,
+    path: 'create/:id', component: SanctionRequestCreateComponent,
     canActivate: [AuthGuard],
     data: {
       roles: [UserRoles.ROLE_ADMINS, UserRoles.ROLE_USATT_SANCTION_COORDINATORS, UserRoles.ROLE_TOURNAMENT_DIRECTORS]

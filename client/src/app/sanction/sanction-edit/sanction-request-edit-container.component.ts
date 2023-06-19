@@ -16,7 +16,6 @@ import {PaymentDialogService} from '../../account/service/payment-dialog.service
 import {AuthenticationService} from '../../user/authentication.service';
 import {PaymentRefundService} from '../../account/service/payment-refund.service';
 import {ErrorMessagePopupService} from '../../shared/error-message-dialog/error-message-popup.service';
-import * as moment from 'moment/moment';
 
 @Component({
   selector: 'app-sanction-edit-container',
@@ -51,8 +50,6 @@ export class SanctionRequestEditContainerComponent implements OnInit, OnDestroy 
               private paymentRefundService: PaymentRefundService,
               private errorMessagePopupService: ErrorMessagePopupService
   ) {
-    const routePath = this.activatedRoute.snapshot.routeConfig.path;
-    this.creating = (routePath.indexOf('create') !== -1);
     const strId = this.activatedRoute.snapshot.params['id'] || 0;
     this.sanctionRequestId = Number(strId);
     this.setupProgressIndicator();
@@ -106,10 +103,6 @@ export class SanctionRequestEditContainerComponent implements OnInit, OnDestroy 
         } else {
           // clone it
           const sanctionRequestToEdit: SanctionRequest = JSON.parse(JSON.stringify(sanctionRequest));
-          // if making a copy of existing one change some values
-          if (this.creating && this.sanctionRequestId !== 0) {
-            this.prepareSensibleCopy(sanctionRequestToEdit);
-          }
           this.sanctionRequest$ = of(sanctionRequestToEdit);
           if (sanctionRequestToEdit.status === SanctionRequestStatus.Completed) {
             this.loadPayments();
@@ -120,11 +113,6 @@ export class SanctionRequestEditContainerComponent implements OnInit, OnDestroy 
       }});
 
       this.subscriptions.add(subscription);
-
-    } else {
-      const sanctionRequest: SanctionRequest = new SanctionRequest();
-      sanctionRequest.preparerProfileId = this.authenticationService.getCurrentUserProfileId();
-      this.sanctionRequest$ = of(sanctionRequest);
     }
   }
 
@@ -225,39 +213,7 @@ export class SanctionRequestEditContainerComponent implements OnInit, OnDestroy 
    */
   onPaymentCanceled(scope: any) {
     this.showingPaymentDialog = false;
-    // console.log('in onPaymentCanceled');
   }
-
-  private prepareSensibleCopy (sanctionRequestToEdit: SanctionRequest) {
-    sanctionRequestToEdit.id = null;
-    sanctionRequestToEdit.status = SanctionRequestStatus.New;
-    sanctionRequestToEdit.requestDate = new Date();
-    sanctionRequestToEdit.blankEntryFormUrl = null;
-    sanctionRequestToEdit.approvalRejectionNotes = null;
-    sanctionRequestToEdit.tournamentName = sanctionRequestToEdit.tournamentName + ' Copy';
-
-    const startDate = moment(sanctionRequestToEdit.startDate);
-    const endDate = moment(sanctionRequestToEdit.endDate);
-    const diffDays = endDate.diff(startDate, 'days');
-
-    // move to next year
-    let proposedStartDate = moment(sanctionRequestToEdit.startDate).add(1, 'years');
-    const weekday = proposedStartDate.get('weekday');
-    const addDays = 6 - weekday;  // 6 is saturday
-    proposedStartDate = (addDays < 0) ? proposedStartDate.subtract(addDays, 'days') :
-      ((addDays > 0) ? proposedStartDate.add(addDays, 'days')
-        : proposedStartDate);
-
-    // same number of days long.
-    const proposedEndDate = moment(proposedStartDate).add(diffDays, 'days');
-    const newStartDate = proposedStartDate.toDate();
-    const newEndDate = proposedEndDate.toDate();
-
-    sanctionRequestToEdit.startDate = newStartDate;
-    sanctionRequestToEdit.endDate = newEndDate;
-    sanctionRequestToEdit.preparerProfileId = this.authenticationService.getCurrentUserProfileId();
-  }
-
 }
 
 export interface SanctionRequestAndPayment {

@@ -27,13 +27,15 @@ import {SanctionRequestEditContainerComponent} from './sanction-edit/sanction-re
 import {AccountModule} from '../account/account.module';
 import {MatAutocompleteModule} from '@angular/material/autocomplete';
 import {SharedModule} from '../shared/shared.module';
+import { SanctionRequestCreateComponent } from './sanction-request-create/sanction-request-create.component';
 
 
 @NgModule({
   declarations: [
     SanctionRequestListComponent,
     SanctionRequestEditComponent,
-    SanctionRequestEditContainerComponent
+    SanctionRequestEditContainerComponent,
+    SanctionRequestCreateComponent
   ],
     imports: [
         CommonModule,
