@@ -1,8 +1,11 @@
 package com.auroratms.tournamententry;
 
 import com.auroratms.error.ResourceNotFoundException;
+import com.auroratms.profile.UserProfile;
+import com.auroratms.profile.UserProfileService;
 import com.auroratms.tournament.Tournament;
 import com.auroratms.tournament.TournamentService;
+import com.auroratms.users.UserRolesHelper;
 import com.auroratms.utils.SecurityService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheConfig;
@@ -28,12 +31,25 @@ public class TournamentEntryService {
     @Autowired
     SecurityService securityService;
 
+    @Autowired
+    private UserProfileService userProfileService;
+
     @CachePut(key = "#result.id")
     public TournamentEntry create(TournamentEntry tournamentEntry) {
         TournamentEntry savedTournamentEntry = repository.save(tournamentEntry);
         securityService.provideAccessToAdmin(savedTournamentEntry.getId(), TournamentEntry.class);
         String ownerId = tournamentService.getTournamentOwner(tournamentEntry.getTournamentFk());
         securityService.provideAccessToTournamentDirector(savedTournamentEntry.getId(), ownerId, TournamentEntry.class);
+
+        // if tournament director is making an entry on behalf of the user then we need to set
+        // the owner of this entry to the player who is registering.
+        String currentUserName = UserRolesHelper.getCurrentUsername();
+        String profileByLoginId = userProfileService.getProfileByLoginId(currentUserName);
+        if (!tournamentEntry.profileId.equals(profileByLoginId)) {
+            UserProfile entrantProfile = userProfileService.getProfile(tournamentEntry.profileId);
+            String entrantLoginId = entrantProfile.getLogin();
+            securityService.changeOwner(savedTournamentEntry.getId(), TournamentEntry.class, entrantLoginId);
+        }
         return savedTournamentEntry;
     }
 

@@ -14,6 +14,7 @@ import {TournamentInfoService} from '../../service/tournament-info.service';
   template: `
     <app-tournament-players-list-big [entryInfos]="entryInfos$ | async"
     [tournamentName]="tournamentName$ | async"
+    [tournamentReady]="tournamentReady$ | async"
     (viewEntry)="onViewEntry($event)"
     (addEntry)="onAddEntry($event)">
     </app-tournament-players-list-big>
@@ -29,6 +30,7 @@ export class TournamentPlayersListBigContainerComponent implements OnInit, OnDes
 
   loading$: Observable<boolean>;
   tournamentName$: Observable<string>;
+  tournamentReady$: Observable<boolean>;
   tournamentId: number;
 
   constructor(private tournamentEntryInfoService: TournamentEntryInfoService,
@@ -87,9 +89,11 @@ export class TournamentPlayersListBigContainerComponent implements OnInit, OnDes
     // tournament view may have passed us the tournament start date
     // but if user navigated to this screen by url then go to the server and get it.
     const tournamentName = history?.state?.tournamentName;
+    const tournamentReady = history?.state?.tournamentReady;
     if (tournamentName != null) {
       // console.log('Tournament name PASSED from previous screen', tournamentName);
       this.tournamentName$ = of(tournamentName);
+      this.tournamentReady$ = of(tournamentReady);
     } else {
       // create a selector for fast lookup in cache
       // console.log('Tournament name NOT PASSED from previous screen');
@@ -106,6 +110,7 @@ export class TournamentPlayersListBigContainerComponent implements OnInit, OnDes
             if (tournamentInfo) {
               // console.log('got tournamentInfo from cache for tournament name');
               this.tournamentName$ = of(tournamentInfo.name);
+              this.tournamentReady$ = of(tournamentInfo.ready);
             } else {
               // console.log('tournamentInfo not in cache. getting from SERVER');
               // not in cache so get it. Since it is an entity collection it will be
@@ -128,7 +133,13 @@ export class TournamentPlayersListBigContainerComponent implements OnInit, OnDes
   }
 
   onAddEntry($event: any) {
-    this.router.navigate(['/ui/userprofile/addbytd', this.tournamentId]);
+    const extras = {
+      state: {
+        returnUrl: `/ui/tournaments/playerlistbig/${this.tournamentId}`,
+        forwardUrl: `/ui/entries/entryadd/${this.tournamentId}`
+      }
+    };
+    this.router.navigate(['/ui/userprofile/addbytd', this.tournamentId], extras);
   }
 }
 

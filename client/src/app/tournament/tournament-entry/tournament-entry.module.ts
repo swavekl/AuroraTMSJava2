@@ -34,6 +34,7 @@ import {AccountModule} from '../../account/account.module';
 import {EntryViewComponent} from './entry-view/entry-view.component';
 import {EntryViewContainerComponent} from './entry-view/entry-view-container.component';
 import { EntrySummaryTableComponent } from './pricecalculator/entry-summary-table/entry-summary-table.component';
+import { AddEntryComponent } from './add-entry/add-entry.component';
 
 @NgModule({
   declarations: [
@@ -47,7 +48,8 @@ import { EntrySummaryTableComponent } from './pricecalculator/entry-summary-tabl
     MaxRatingDirective,
     EntryViewComponent,
     EntryViewContainerComponent,
-    EntrySummaryTableComponent
+    EntrySummaryTableComponent,
+    AddEntryComponent
   ],
   imports: [
     CommonModule,

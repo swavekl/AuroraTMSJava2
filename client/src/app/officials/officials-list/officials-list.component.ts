@@ -82,7 +82,8 @@ export class OfficialsListComponent implements AfterViewInit, OnDestroy {
   addOfficial() {
     const extras = {
       state: {
-        returnUrl: '/ui/officials'
+        returnUrl: '/ui/officials',
+        forwardUrl: '/ui/officials/create'
       }
     };
     this.router.navigateByUrl('/ui/userprofile/addbytd/0', extras);

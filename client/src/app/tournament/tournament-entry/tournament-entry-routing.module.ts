@@ -5,6 +5,7 @@ import {AuthGuard} from '../../guards/auth.guard';
 import {DoublesTeamsContainerComponent} from './doubles-teams/doubles-teams-container.component';
 import {EntryWizardCanDeactivateGuard} from './entry-wizard/entry-wizard-can-deactivate.guard';
 import {EntryViewContainerComponent} from './entry-view/entry-view-container.component';
+import {AddEntryComponent} from './add-entry/add-entry.component';
 
 
 const routes: Routes = [
@@ -23,7 +24,13 @@ const routes: Routes = [
     path: 'entryview/:tournamentId/edit/:entryId',
     component: EntryViewContainerComponent,
     canActivate: [AuthGuard],
-  }
+  },
+  {
+    path: 'entryadd/:tournamentId/:profileId',
+    component: AddEntryComponent,
+    canActivate: [AuthGuard],
+  },
+
 ];
 
 @NgModule({

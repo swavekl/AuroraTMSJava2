@@ -64,6 +64,7 @@ export class EntryWizardContainerComponent implements OnInit, OnDestroy {
 
   entering: boolean = false;
   withdrawing: boolean = false;
+  adding: boolean = false;
 
   constructor(private tournamentEntryService: TournamentEntryService,
               private tournamentConfigService: TournamentConfigService,
@@ -99,6 +100,7 @@ export class EntryWizardContainerComponent implements OnInit, OnDestroy {
     this.tournamentId = this.activatedRoute.snapshot.params['tournamentId'] || 0;
     this.withdrawing = this.activatedRoute.snapshot.queryParamMap.get('withdraw') === 'true';
     this.entering = this.activatedRoute.snapshot.queryParamMap.get('enter') === 'true';
+    this.adding = this.activatedRoute.snapshot.queryParamMap.get('add') === 'true';
     this.selectTournament(this.tournamentId);
     this.selectEntry(this.entryId);
     this.loadEventEntriesInfos(this.entryId);
@@ -256,6 +258,9 @@ export class EntryWizardContainerComponent implements OnInit, OnDestroy {
     let url = `/ui/tournaments/view/${this.tournamentId}`
     if (this.entering || this.withdrawing) {
       url += '?reload=true'
+    }
+    if (this.adding) {
+      url = `/ui/tournaments/playerlistbig/${this.tournamentId}`;
     }
     this.router.navigateByUrl(url);
   }

@@ -81,7 +81,7 @@
                   </button>
                   <button mat-raised-button type="button"
                           [routerLink]="['/ui/tournaments/playerlistbig', tournament.id]"
-                          [state]="{ tournamentName: tournament.name }"
+                          [state]="{ tournamentName: tournament.name, tournamentReady: tournament.ready }"
                           matTooltip="Players list">
                     <mat-icon matListItemIcon>edit_note</mat-icon>
                     Entries

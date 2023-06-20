@@ -77,15 +77,6 @@ export class TournamentViewComponent implements OnInit, OnChanges {
       );
   }
 
-  onEnterPlayer() {
-    // find or create profile of player to enter
-
-    // switch profile ??
-
-    // navigate to entry screen
-
-  }
-
   onView() {
     const url = `ui/entries/entryview/${this.tournament.id}/edit/${this.entryId}`;
     const extras = {

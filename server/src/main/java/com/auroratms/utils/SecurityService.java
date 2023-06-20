@@ -7,9 +7,6 @@ import org.springframework.security.acls.domain.GrantedAuthoritySid;
 import org.springframework.security.acls.domain.ObjectIdentityImpl;
 import org.springframework.security.acls.domain.PrincipalSid;
 import org.springframework.security.acls.model.*;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -118,14 +115,19 @@ public class SecurityService {
     }
 
     /**
-     * Gets current user name
-     *
-     * @return
+     * changes owner of the given object class with an object id to a new owner
+     * @param objectId
+     * @param objectClass
+     * @param loginId
      */
-    public String getCurrentUsername() {
-        SecurityContext context = SecurityContextHolder.getContext();
-        Authentication authentication = context.getAuthentication();
-        return authentication.getName();
+    public void changeOwner(long objectId, Class objectClass, String loginId) {
+        try {
+            MutableAcl acl = (MutableAcl) readAclForObject(objectId, objectClass);
+            PrincipalSid sid = new PrincipalSid(loginId);
+            acl.setOwner(sid);
+            aclService.updateAcl(acl);
+        } catch (NotFoundException e) {
+            throw new RuntimeException("Unable to change object owner for " + objectClass.getSimpleName() + " object id " + objectId, e);
+        }
     }
-
 }

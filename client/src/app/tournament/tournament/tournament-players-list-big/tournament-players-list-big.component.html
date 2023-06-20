@@ -1,7 +1,7 @@
 <div class="list-container">
   <h2>Tournament Players - {{ tournamentName }} - {{ entryInfos != null ? (entryInfos.length + ' entries') : '' }}</h2>
   <mat-toolbar>
-    <button type="button" mat-raised-button (click)="onRegisterPlayer()">
+    <button type="button" mat-raised-button (click)="onRegisterPlayer()" [disabled]="!isTournamentReady()">
       <mat-icon>add</mat-icon>Register Player
     </button>
   </mat-toolbar>

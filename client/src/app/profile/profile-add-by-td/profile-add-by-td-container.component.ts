@@ -23,6 +23,7 @@ export class ProfileAddByTdContainerComponent implements OnInit, OnDestroy {
 
   private tournamentId: string;
   private returnUrl: string;
+  private forwardUrl: string;
 
   private subscriptions: Subscription = new Subscription();
 
@@ -32,6 +33,7 @@ export class ProfileAddByTdContainerComponent implements OnInit, OnDestroy {
               private errorMessagePopupService: ErrorMessagePopupService) {
     this.tournamentId = this.activatedRoute.snapshot.params['tournamentId'];
     this.returnUrl = history?.state?.returnUrl;
+    this.forwardUrl = history?.state?.forwardUrl;
   }
 
   ngOnInit(): void {
@@ -49,7 +51,7 @@ export class ProfileAddByTdContainerComponent implements OnInit, OnDestroy {
         const extras = {
           state: {
             addingProfile: true,
-            returnUrl: `/ui/officials/create/${createdProfile.userId}`
+            returnUrl: `${this.forwardUrl}/${createdProfile.userId}`
           }
         };
         this.router.navigateByUrl(url, extras);
@@ -62,7 +64,7 @@ export class ProfileAddByTdContainerComponent implements OnInit, OnDestroy {
   }
 
   onUseProfile(profileId: string) {
-    const url = `/ui/officials/create/${profileId}`
+    const url = `${this.forwardUrl}/${profileId}`;
     this.router.navigateByUrl(url);
   }
 

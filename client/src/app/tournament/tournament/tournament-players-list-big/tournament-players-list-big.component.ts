@@ -14,6 +14,9 @@ export class TournamentPlayersListBigComponent implements OnChanges {
   @Input()
   public tournamentName: string;
 
+  @Input()
+  public tournamentReady: boolean;
+
   @Output()
   public viewEntry: EventEmitter<TournamentEntryInfo> = new EventEmitter<TournamentEntryInfo>();
 
@@ -68,5 +71,9 @@ export class TournamentPlayersListBigComponent implements OnChanges {
 
   onRegisterPlayer() {
     this.addEntry.emit(null);
+  }
+
+  isTournamentReady() {
+    return this.tournamentReady;
   }
 }
