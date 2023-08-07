@@ -7,20 +7,16 @@ public class MatchUpdateEvent {
     private Match matchBefore;
     private Match matchAfter;
 
-    public MatchUpdateEvent(Match matchBefore, Match matchAfter) {
+    // profile id of user who made the change
+    private String profileId;
+
+    public MatchUpdateEvent(Match matchBefore, Match matchAfter, String profileId) {
         this.matchBefore = matchBefore;
         this.matchAfter = matchAfter;
+        this.profileId = profileId;
     }
 
     public MatchUpdateEvent() {
-    }
-
-    public void setMatchBefore(Match matchBefore) {
-        this.matchBefore = matchBefore;
-    }
-
-    public void setMatchAfter(Match matchAfter) {
-        this.matchAfter = matchAfter;
     }
 
     public Match getMatchBefore() {
@@ -29,5 +25,9 @@ public class MatchUpdateEvent {
 
     public Match getMatchAfter() {
         return matchAfter;
+    }
+
+    public String getProfileId() {
+        return profileId;
     }
 }

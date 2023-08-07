@@ -80,7 +80,8 @@ const entityMetadata: EntityMetadataMap = {
     additionalCollectionState: {
       total: 0
     }
-  }
+  },
+  Audit: {}
 };
 
 // because the plural of "hero" is not "heros"

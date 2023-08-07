@@ -1,7 +1,6 @@
 package com.auroratms.club;
 
 import com.auroratms.error.ResourceNotFoundException;
-import com.auroratms.tournament.TournamentEntity;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
@@ -12,7 +11,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Club service

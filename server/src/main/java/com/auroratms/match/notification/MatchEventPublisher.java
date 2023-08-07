@@ -12,8 +12,8 @@ public class MatchEventPublisher {
     @Autowired
     private ApplicationEventPublisher applicationEventPublisher;
 
-    public void publishMatchEvent(Match matchBefore, Match matchAfter) {
-        MatchUpdateEvent matchUpdateEvent = new MatchUpdateEvent(matchBefore, matchAfter);
+    public void publishMatchEvent(Match matchBefore, Match matchAfter, String profileByLoginId) {
+        MatchUpdateEvent matchUpdateEvent = new MatchUpdateEvent(matchBefore, matchAfter, profileByLoginId);
         this.applicationEventPublisher.publishEvent(matchUpdateEvent);
     }
 }

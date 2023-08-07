@@ -1,0 +1,22 @@
+<h1 mat-dialog-title>Score Audit</h1>
+<mat-dialog-content>
+  <table>
+    <thead>
+      <tr>
+        <th>Date & Time</th>
+        <th>Person</th>
+        <th>Score</th>
+      </tr>
+    </thead>
+    <tbody>
+    <tr *ngFor="let audit of audits$ | async">
+      <td>{{audit.eventTimestamp | date: 'M/d/yy, h:mm:ss a' }}</td>
+      <td>{{lookupName(audit.profileId)}}</td>
+      <td>{{formatScore(audit.detailsJSON)}}</td>
+    </tr>
+    </tbody>
+  </table>
+</mat-dialog-content>
+<mat-dialog-actions fxLayout="row">
+  <button mat-raised-button [mat-dialog-close]="false" (click)="onClose()">Close</button>
+</mat-dialog-actions>

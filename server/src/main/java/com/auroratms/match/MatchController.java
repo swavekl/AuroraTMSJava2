@@ -70,7 +70,7 @@ public class MatchController {
             match.setScoreEnteredByProfileId(profileByLoginId);
             Match matchBeforeUpdate = matchService.getMatch(match.getId());
             Match updatedMatch = matchService.updateMatch(match);
-            this.matchEventPublisher.publishMatchEvent(matchBeforeUpdate, updatedMatch);
+            this.matchEventPublisher.publishMatchEvent(matchBeforeUpdate, updatedMatch, profileByLoginId);
             return new ResponseEntity<>(updatedMatch, HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity(e, HttpStatus.INTERNAL_SERVER_ERROR);

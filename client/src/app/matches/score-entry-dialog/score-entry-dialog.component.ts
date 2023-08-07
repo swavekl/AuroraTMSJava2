@@ -1,10 +1,11 @@
 import {ChangeDetectorRef, Component, ElementRef, Inject, OnInit, QueryList, ViewChildren} from '@angular/core';
 import {MatInput} from '@angular/material/input';
-import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
+import {MAT_DIALOG_DATA, MatDialog, MatDialogRef} from '@angular/material/dialog';
 import {Match} from '../model/match.model';
 import {ScoreEntryDialogData, ScoreEntryDialogResult} from './score-entry-dialog-data';
 import {MatCheckboxChange} from '@angular/material/checkbox';
 import {DrawType} from '../../draws/draws-common/model/draw-type.enum';
+import {ScoreAuditDialogComponent} from '../score-audit-dialog/score-audit-dialog.component';
 
 /**
  * Dialog for entering match score
@@ -66,7 +67,8 @@ export class ScoreEntryDialogComponent implements OnInit {
 
   constructor(public dialogRef: MatDialogRef<ScoreEntryDialogComponent>,
               private cdr: ChangeDetectorRef,
-              @Inject(MAT_DIALOG_DATA) public data: ScoreEntryDialogData) {
+              @Inject(MAT_DIALOG_DATA) public data: ScoreEntryDialogData,
+              private auditDialog: MatDialog) {
     this.initialize(data);
     // buttons 0 - 10
     this.firstRowButtons = Array(11);
@@ -240,6 +242,34 @@ export class ScoreEntryDialogComponent implements OnInit {
 
   getMatchNumberIdentifier (): string {
     return (this.drawType === DrawType.ROUND_ROBIN) ? `Match ${this.match.matchNum}` : '';
+  }
+
+  onAudit() {
+    let playerIdToNameMap: any = {};
+    if (this.match.playerAProfileId.indexOf(';') > 0 && this.match.playerBProfileId.indexOf(';') > 0) {
+      const playerIdsA = this.match.playerAProfileId.split(';')
+      const playerNamesA = this.playerAName.split('/')
+      playerIdToNameMap[playerIdsA[0]] = playerNamesA[0];
+      playerIdToNameMap[playerIdsA[1]] = playerNamesA[1];
+      const playerIdsB = this.match.playerBProfileId.split(';')
+      const playerNamesB = this.playerBName.split('/')
+      playerIdToNameMap[playerIdsB[0]] = playerNamesB[0];
+      playerIdToNameMap[playerIdsB[1]] = playerNamesB[1];
+    } else {
+      playerIdToNameMap[this.match.playerAProfileId] = this.playerAName;
+      playerIdToNameMap[this.match.playerBProfileId] = this.playerBName;
+    }
+    const config = {
+      width: '600px', height: '400px', data: {
+        matchId: this.match.id,
+        numberOfGames: this.numberOfGames,
+        pointsPerGame: this.pointsPerGame,
+        profileIdToNameMap: playerIdToNameMap
+      }
+    };
+    const dialogRef = this.auditDialog.open(ScoreAuditDialogComponent, config);
+    dialogRef.afterClosed().subscribe(result => {
+    });
   }
 }
 

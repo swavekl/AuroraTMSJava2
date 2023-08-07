@@ -26,6 +26,7 @@ import {MatToolbarModule} from '@angular/material/toolbar';
 import { ScoreEntryPhoneComponent } from './score-entry-phone/score-entry-phone.component';
 import { ScoreEntryPhoneContainerComponent } from './score-entry-phone/score-entry-phone-container.component';
 import { TieBreakingResultsDialogComponent } from './tie-breaking-results-dialog/tie-breaking-results-dialog.component';
+import { ScoreAuditDialogComponent } from './score-audit-dialog/score-audit-dialog.component';
 
 
 @NgModule({
@@ -37,7 +38,8 @@ import { TieBreakingResultsDialogComponent } from './tie-breaking-results-dialog
     ScoreEntryDialogComponent,
     ScoreEntryPhoneComponent,
     ScoreEntryPhoneContainerComponent,
-    TieBreakingResultsDialogComponent
+    TieBreakingResultsDialogComponent,
+    ScoreAuditDialogComponent
   ],
     imports: [
         CommonModule,
