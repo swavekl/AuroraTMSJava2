@@ -1,22 +1,26 @@
 <h1 mat-dialog-title>Score Audit</h1>
 <mat-dialog-content>
-  <table>
-    <thead>
+  <div class="scrollable-panel">
+    <table class="audit-table">
+      <thead>
       <tr>
         <th>Date & Time</th>
-        <th>Person</th>
+        <th>Modified by</th>
         <th>Score</th>
       </tr>
-    </thead>
-    <tbody>
-    <tr *ngFor="let audit of audits$ | async">
-      <td>{{audit.eventTimestamp | date: 'M/d/yy, h:mm:ss a' }}</td>
-      <td>{{lookupName(audit.profileId)}}</td>
-      <td>{{formatScore(audit.detailsJSON)}}</td>
-    </tr>
-    </tbody>
-  </table>
+      </thead>
+      <tbody>
+      <tr *ngFor="let audit of audits$ | async">
+        <td>{{audit.eventTimestamp | date: 'M/d/yy, h:mm:ss a' }}</td>
+        <td>{{lookupName(audit.profileId)}}</td>
+        <td>{{formatScore(audit.detailsJSON)}}</td>
+      </tr>
+      </tbody>
+    </table>
+
+    <div *ngIf="(audits$ | async).length === 0" class="no-audits">No Audit Entries</div>
+  </div>
 </mat-dialog-content>
-<mat-dialog-actions fxLayout="row">
-  <button mat-raised-button [mat-dialog-close]="false" (click)="onClose()">Close</button>
+<mat-dialog-actions fxLayout="row" fxLayoutAlign="end start" class="button-toolbar">
+  <button mat-raised-button mat-dialog-close color="primary" (click)="onClose()">Close</button>
 </mat-dialog-actions>

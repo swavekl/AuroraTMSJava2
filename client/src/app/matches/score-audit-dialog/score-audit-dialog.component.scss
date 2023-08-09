@@ -1,0 +1,38 @@
+@use "src/my-theme.scss" as *;
+
+h1 {
+  padding-left: 25px;
+  padding-bottom: 8px;
+}
+
+mat-dialog-content {
+  .scrollable-panel {
+    height: 260px;
+    margin-right: 8px;
+  }
+
+  table.audit-table {
+    width: 100%;
+    scroll-behavior: auto;
+
+    tr {
+      th {
+        background-color: #F5F5F5;
+      }
+      th, td {
+        padding: 4px 8px;
+        border: 1px solid black;
+      }
+    }
+  }
+
+  .no-audits {
+    width: 100%;
+    text-align: center;
+    margin-top: 20px;
+  }
+}
+
+mat-dialog-actions.button-toolbar {
+  margin: 4px 8px 0 0;
+}
