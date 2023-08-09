@@ -43,6 +43,20 @@ public class MatchSchedulingController {
         matchSchedulingService.updateMatches(matchCards);
     }
 
+    @PutMapping("/schedule/{tournamentId}/{day}/regenerate")
+    @ResponseBody
+    public ResponseEntity<List<MatchCard>> regenerateMatchCardSchedules(@PathVariable long tournamentId,
+                                                                        @PathVariable int day,
+                                                                        @RequestBody List<Long> matchCardIds) {
+        try {
+            // gets match cards for events for this day with schedule information filled in
+            List<MatchCard> daysMatchCards = matchSchedulingService.generateScheduleForMatchCards(tournamentId, day, matchCardIds);
+            return new ResponseEntity(daysMatchCards, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity(e, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
     /**
      * Gets schedule for particular tournament
      * @param tournamentId

@@ -10,8 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 /**
  * Service for generating automatic schedule of matches for tournament events
@@ -30,11 +29,14 @@ public class MatchSchedulingService {
     private TournamentService tournamentService;
 
     /**
-     *  @param tournamentId
-     * @param day
-     * @return
+     * Generates schedule for all events for the specified day by assigning tables to all round robin
+     * and single elimination rounds
+     *
+     * @param tournamentId tournament id
+     * @param day          day of the tournament to generate schedule for
+     * @return all match cards for this day with table numbers and starting times assigned
      */
-    public List<MatchCard> generateScheduleForDay (long tournamentId, int day) {
+    public List<MatchCard> generateScheduleForDay(long tournamentId, int day) {
         // make a matrix for marking which time slots are not available as we are filling up the schedule
         Tournament tournament = this.tournamentService.getByKey(tournamentId);
         int totalAvailableTables = tournament.getConfiguration().getNumberOfTables();
@@ -52,7 +54,7 @@ public class MatchSchedulingService {
             if (!event.isSingleElimination()) {
                 startingTableNumber = scheduleRoundRobinMatches(startingTableNumber, totalAvailableTables, event, matrix);
             } else {
-                scheduleSingleEliminationMatches (totalAvailableTables, event, matrix);
+                scheduleSingleEliminationMatches(totalAvailableTables, event, matrix);
             }
         }
 
@@ -61,7 +63,7 @@ public class MatchSchedulingService {
             if (!event.isSingleElimination()) {
                 // if there is a single elimination following round robin
                 if (event.getPlayersToAdvance() > 0) {
-                    scheduleSingleEliminationMatches (totalAvailableTables, event, matrix);
+                    scheduleSingleEliminationMatches(totalAvailableTables, event, matrix);
                 }
             }
         }
@@ -70,12 +72,82 @@ public class MatchSchedulingService {
     }
 
     /**
+     * Generates schedule just for the specified match cards to preserve possibly hand adjusted schedule for all other events
+     * for that day.
      *
-     * @param startingTableNumber
-     * @param totalAvailableTables
-     * @param event
-     * @param matrix
+     * @param tournamentId tournament id
+     * @param day          day in which these events take place
+     * @param matchCardIds match cards to generate schedule for
      * @return
+     */
+    public List<MatchCard> generateScheduleForMatchCards(long tournamentId, int day, List<Long> matchCardIds) {
+        Tournament tournament = this.tournamentService.getByKey(tournamentId);
+        int totalAvailableTables = tournament.getConfiguration().getNumberOfTables();
+        TableAvailabilityMatrix matrix = new TableAvailabilityMatrix(totalAvailableTables);
+
+        // fill the table availability matrix with all other match cards for that day
+        // so that we know which tables are available.
+        List<MatchCard> allTodaysMatchCards = this.matchCardService.findAllForTournamentAndDay(tournamentId, day);
+        Set<Long> eventIdsToFix = new HashSet<>();
+        for (MatchCard matchCard : allTodaysMatchCards) {
+            if (!matchCardIds.contains(matchCard.getId())) {
+                String strAssignedTables = matchCard.getAssignedTables();
+                String[] assignedTables = strAssignedTables.split(",");
+                int duration = matchCard.getDuration();
+                for (int i = 0; i < assignedTables.length; i++) {
+                    Integer assignedTable = Integer.parseInt(assignedTables[i]);
+                    matrix.markTableAsUnavailable(assignedTable, matchCard.getStartTime(), duration);
+                }
+            } else {
+                eventIdsToFix.add(matchCard.getEventFk());
+            }
+        }
+
+        // get list of event definitions that the match cards are for
+        List<TournamentEvent> eventsToFix = new ArrayList<>(eventIdsToFix.size());
+        for (Long eventId : eventIdsToFix) {
+            TournamentEvent tournamentEvent = this.tournamentEventEntityService.get(eventId);
+            eventsToFix.add(tournamentEvent);
+        }
+
+        // schedule all match cards for these events - both RR and SE type
+        int startingTableNumber = 1;
+        double previousEventStartTime = 8.0d;
+        for (TournamentEvent event : eventsToFix) {
+            // start scheduling this event's matches from the 1st table if it is starting later
+            if (event.getStartTime() != previousEventStartTime) {
+                startingTableNumber = 1;
+            }
+            previousEventStartTime = event.getStartTime();
+            if (!event.isSingleElimination()) {
+                startingTableNumber = scheduleRoundRobinMatches(startingTableNumber, totalAvailableTables, event, matrix);
+            } else {
+                scheduleSingleEliminationMatches(totalAvailableTables, event, matrix);
+            }
+        }
+
+        // schedule single elimination round matches after round robin is scheduled and tables are assigned
+        for (TournamentEvent event : eventsToFix) {
+            if (!event.isSingleElimination()) {
+                // if there is a single elimination following round robin
+                if (event.getPlayersToAdvance() > 0) {
+                    scheduleSingleEliminationMatches(totalAvailableTables, event, matrix);
+                }
+            }
+        }
+
+        // get them
+        return this.matchCardService.findAllForTournamentAndDay(tournamentId, day);
+    }
+
+    /**
+     * Schedules all match cards for specified event, taking into account available tables stored in matrix
+     *
+     * @param startingTableNumber  table number to start scheduling from
+     * @param totalAvailableTables total available tables
+     * @param event                event definition
+     * @param matrix               matrix of table availability
+     * @return next available table number
      */
     private int scheduleRoundRobinMatches(int startingTableNumber, int totalAvailableTables, TournamentEvent event, TableAvailabilityMatrix matrix) {
         // calculate number of required tables to play this event if it were completely full
@@ -101,7 +173,7 @@ public class MatchSchedulingService {
                 // calculate duration
                 int numMatchesToPlay = matchCard.getMatches().size();
                 int allMatchesDuration = calculateAllMatchesDuration(event.getNumberOfGames(), numMatchesToPlay, event.getPointsPerGame());
-                int tablesToAssign = getNumTablesToAssign (numTablesPerGroup, numMatchesToPlay, playersPerGroup, playersToAdvance);
+                int tablesToAssign = getNumTablesToAssign(numTablesPerGroup, numMatchesToPlay, playersPerGroup, playersToAdvance);
                 // assign tables and mark them as used - one at a time
                 String assignedTables = "";
                 int durationOnOneTable = Math.floorDiv(allMatchesDuration, tablesToAssign);
@@ -115,9 +187,9 @@ public class MatchSchedulingService {
                 for (int i = 0; i < tablesToAssign; i++) {
                     TableAvailabilityMatrix.AvailableTableInfo availableTable = matrix.findAvailableTable(event.getStartTime(), durationOnOneTable, currentTableNum, mustStartAtStartTime);
                     if (availableTable != null) {
-                        matrix.markTableAsUnavailable (availableTable.tableNum, availableTable.startTime, durationOnOneTable);
+                        matrix.markTableAsUnavailable(availableTable.tableNum, availableTable.startTime, durationOnOneTable);
                         assignedStartTime = availableTable.startTime;
-                        assignedTables += (StringUtils.isEmpty(assignedTables)) ? "": ",";
+                        assignedTables += (StringUtils.isEmpty(assignedTables)) ? "" : ",";
                         assignedTables += (availableTable.tableNum);
 
                         currentTableNum = availableTable.tableNum + 1;
@@ -144,7 +216,6 @@ public class MatchSchedulingService {
     }
 
     /**
-     *
      * @param numTablesPerGroup
      * @param numMatchesToPlay
      * @param playersToAdvance
@@ -170,7 +241,6 @@ public class MatchSchedulingService {
     }
 
     /**
-     *
      * @param numberOfGames
      * @param numMatchesToPlay
      * @param pointsPerGame
@@ -198,6 +268,7 @@ public class MatchSchedulingService {
 
     /**
      * Schedule single elimination round matches
+     *
      * @param totalAvailableTables
      * @param event
      * @param matrix
@@ -260,9 +331,9 @@ public class MatchSchedulingService {
             // all matches in the same round should have the same starting time and duration
             if (matchCard.getRound() != currentRound) {
                 currentRound = matchCard.getRound();
-                double numTimeSlots = Math.ceil((double)previousRoundDuration / (double)TableAvailabilityMatrix.TIME_SLOT_SIZE_INT);
+                double numTimeSlots = Math.ceil((double) previousRoundDuration / (double) TableAvailabilityMatrix.TIME_SLOT_SIZE_INT);
 //                System.out.println("numTimeSlots = " + numTimeSlots);
-                currentRoundStartTime = previousRoundStartTime + ((int)numTimeSlots * TableAvailabilityMatrix.TIME_SLOT_SIZE);
+                currentRoundStartTime = previousRoundStartTime + ((int) numTimeSlots * TableAvailabilityMatrix.TIME_SLOT_SIZE);
                 previousRoundDuration = duration;
                 // try finding a table starting with the first one that this event is played on
                 currentTableNum = eventFirstTableNum;
@@ -296,6 +367,7 @@ public class MatchSchedulingService {
 
     /**
      * Updates existing match card start time and table numbers only
+     *
      * @param matchCards
      */
     public void updateMatches(List<MatchCard> matchCards) {
@@ -310,6 +382,7 @@ public class MatchSchedulingService {
 
     /**
      * Gets matches to be played on a given day at the specified tournament
+     *
      * @param tournamentId
      * @param day
      * @param tableNumber

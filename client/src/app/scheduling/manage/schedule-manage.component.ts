@@ -38,6 +38,9 @@ export class ScheduleManageComponent implements OnInit, OnChanges, OnDestroy {
   public generateScheduleForEvent: EventEmitter<number> = new EventEmitter<number>();
 
   @Output()
+  public fixUnscheduledEvents: EventEmitter<any> = new EventEmitter<any>();
+
+  @Output()
   public updateMatchCardsEvent: EventEmitter<MatchCard[]> = new EventEmitter<MatchCard[]>();
 
   // days
@@ -197,6 +200,7 @@ export class ScheduleManageComponent implements OnInit, OnChanges, OnDestroy {
     let gridsterItems: Array<GridsterItem> = [];
     const numTables = this.tournament?.configuration?.numberOfTables ?? 0;
     const unassignedMatchCards: string [] = [];
+    const unassignedMatchCardIds: number [] = [];
     if (numTables > 0) {
       // fill first column with table numbers
       for (let tableNum = 0; tableNum < numTables; tableNum++) {
@@ -255,6 +259,7 @@ export class ScheduleManageComponent implements OnInit, OnChanges, OnDestroy {
           }
         } else {
           unassignedMatchCards.push(`Event: ${eventName}, round: ${matchCard.round}, group: ${matchCard.groupNum}`);
+          unassignedMatchCardIds.push(matchCard.id);
         }
       });
 
@@ -277,11 +282,18 @@ export class ScheduleManageComponent implements OnInit, OnChanges, OnDestroy {
       const config = {
         width: '450px', height: '450px', data: {
           message: `Some match cards were not scheduled because of insufficient table time. ${str}`,
-          showCancel: false, contentAreaHeight: '300px'
+          showCancel: true, contentAreaHeight: '300px', cancelText: 'Cancel', okText: 'Fix'
         }
       };
       const dialogRef = this.dialog.open(ConfirmationPopupComponent, config);
       dialogRef.afterClosed().subscribe(result => {
+        if (result === 'ok') {
+          const data = {
+            matchCardIds: unassignedMatchCardIds,
+            day: this.selectedDay
+          };
+          this.fixUnscheduledEvents.emit(data);
+        }
       });
 
     }

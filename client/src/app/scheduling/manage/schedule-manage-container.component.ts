@@ -21,6 +21,7 @@ import {MatchSchedulingService} from '../service/match-scheduling.service';
       [matchCards]="matchCards$ | async"
       (dayChangedEvent)="onDayChangedEvent($event)"
       (generateScheduleForEvent)="onGenerateForDay($event)"
+      (fixUnscheduledEvents)="onFixUnscheduledEvents($event)"
       (updateMatchCardsEvent)="onUpdateMatchCards($event)"
     >
     </app-schedule-manage>
@@ -118,6 +119,20 @@ export class ScheduleManageContainerComponent implements OnInit, OnDestroy {
    */
   onGenerateForDay(day: number) {
     const subscription = this.matchSchedulingService.generateScheduleForTournamentAndDay(this.tournamentId, day)
+      .pipe(first())
+      .subscribe(
+        (matchCards: MatchCard[]) => {
+          this.matchCardService.putIntoCache(matchCards);
+        }, (error: any) => {
+          console.log('error ', error);
+        });
+    this.subscriptions.add(subscription);
+  }
+
+  onFixUnscheduledEvents(event: any) {
+    const matchCardIds: number[] = event.matchCardIds;
+    const day: number = event.day;
+    const subscription = this.matchSchedulingService.generateScheduleForMatchCards(this.tournamentId, day, matchCardIds)
       .pipe(first())
       .subscribe(
         (matchCards: MatchCard[]) => {
