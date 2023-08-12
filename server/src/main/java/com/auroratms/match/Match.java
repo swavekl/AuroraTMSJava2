@@ -15,7 +15,7 @@ import java.io.Serializable;
 @Table(name = "matches")  // match is a reserved keyword in SQL so we use plural
 @Data
 @NoArgsConstructor
-public class Match implements Serializable {
+public class Match implements Serializable, Cloneable {
 
     // unique id
     @Id
@@ -326,5 +326,16 @@ public class Match implements Serializable {
         matchResult.setSideADefaulted(this.isSideADefaulted());
         matchResult.setSideBDefaulted(this.isSideBDefaulted());
         return matchResult;
+    }
+
+    @Override
+    public Match clone() {
+        try {
+            Match clone = (Match) super.clone();
+            // TODO: copy mutable state here, so the clone can't change the internals of the original
+            return clone;
+        } catch (CloneNotSupportedException e) {
+            throw new AssertionError();
+        }
     }
 }

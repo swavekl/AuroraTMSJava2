@@ -48,7 +48,7 @@ export class ScoreAuditDialogComponent implements OnInit, OnDestroy {
     const subscription = this.audits$.pipe(first())
       .subscribe(
         (audits: Audit[]) => {
-          console.log ('audits', audits);
+          // console.log ('audits', audits);
           let scoreEntryProfileIds = [];
           for (const audit of audits) {
             const match: Match = JSON.parse(audit.detailsJSON);
@@ -81,29 +81,44 @@ export class ScoreAuditDialogComponent implements OnInit, OnDestroy {
   formatScore(detailsJSON: string) {
     const match: Match = JSON.parse(detailsJSON);
     let result = '';
-    for (let game: number = 1; game <= this.numberOfGames; game++) {
-      switch (game) {
-        case 1:
-          result += this.formatSingleScore(match.game1ScoreSideA, match.game1ScoreSideB, true);
-          break;
-        case 2:
-          result += this.formatSingleScore(match.game2ScoreSideA, match.game2ScoreSideB);
-          break;
-        case 3:
-          result += this.formatSingleScore(match.game3ScoreSideA, match.game3ScoreSideB);
-          break;
-        case 4:
-          result += this.formatSingleScore(match.game4ScoreSideA, match.game4ScoreSideB);
-          break;
-        case 5:
-          result += this.formatSingleScore(match.game5ScoreSideA, match.game5ScoreSideB);
-          break;
-        case 6:
-          result += this.formatSingleScore(match.game6ScoreSideA, match.game6ScoreSideB);
-          break;
-        case 7:
-          result += this.formatSingleScore(match.game7ScoreSideA, match.game7ScoreSideB);
-          break;
+    if (match.sideADefaulted || match.sideBDefaulted) {
+      const profileOfDefaultedPlayer = match.sideADefaulted ? match.playerAProfileId : match.playerBProfileId;
+      let defaultedPlayerName = '';
+      if (profileOfDefaultedPlayer.indexOf(';') > 0) {
+        // doubles match
+        const playerIds = profileOfDefaultedPlayer.split(';');
+        defaultedPlayerName += this.profileIdToNameMap[playerIds[0]] + ' / ';
+        defaultedPlayerName += this.profileIdToNameMap[playerIds[1]];
+      } else {
+        // singles match
+        defaultedPlayerName = this.profileIdToNameMap[profileOfDefaultedPlayer];
+      }
+      result = 'Defaulted: ' + defaultedPlayerName;
+    } else {
+      for (let game: number = 1; game <= this.numberOfGames; game++) {
+        switch (game) {
+          case 1:
+            result += this.formatSingleScore(match.game1ScoreSideA, match.game1ScoreSideB, true);
+            break;
+          case 2:
+            result += this.formatSingleScore(match.game2ScoreSideA, match.game2ScoreSideB);
+            break;
+          case 3:
+            result += this.formatSingleScore(match.game3ScoreSideA, match.game3ScoreSideB);
+            break;
+          case 4:
+            result += this.formatSingleScore(match.game4ScoreSideA, match.game4ScoreSideB);
+            break;
+          case 5:
+            result += this.formatSingleScore(match.game5ScoreSideA, match.game5ScoreSideB);
+            break;
+          case 6:
+            result += this.formatSingleScore(match.game6ScoreSideA, match.game6ScoreSideB);
+            break;
+          case 7:
+            result += this.formatSingleScore(match.game7ScoreSideA, match.game7ScoreSideB);
+            break;
+        }
       }
     }
 

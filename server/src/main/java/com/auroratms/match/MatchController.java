@@ -64,11 +64,16 @@ public class MatchController {
     public ResponseEntity<Match> updateMatch(@RequestBody Match match,
                                              @PathVariable String matchId) {
         try {
-            // record user who made the change
             String currentUserName = UserRolesHelper.getCurrentUsername();
             String profileByLoginId = userProfileService.getProfileByLoginId(currentUserName);
-            match.setScoreEnteredByProfileId(profileByLoginId);
-            Match matchBeforeUpdate = matchService.getMatch(match.getId());
+            Match oldMatch = matchService.getMatch(match.getId());
+            Match matchBeforeUpdate = oldMatch.clone();
+            // if date entry clerk did not clear this match score then record who entered it
+            // i.e. either player via phone or data entry clerk on desktop/laptop
+            if (!(matchBeforeUpdate.getScoreEnteredByProfileId() != null && match.getScoreEnteredByProfileId() == null)) {
+                // record user who made the change
+                match.setScoreEnteredByProfileId(profileByLoginId);
+            }
             Match updatedMatch = matchService.updateMatch(match);
             this.matchEventPublisher.publishMatchEvent(matchBeforeUpdate, updatedMatch, profileByLoginId);
             return new ResponseEntity<>(updatedMatch, HttpStatus.OK);

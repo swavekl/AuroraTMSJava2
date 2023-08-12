@@ -163,6 +163,9 @@ export class MatchesComponent implements OnInit, OnChanges, OnDestroy {
               this.performRankAndAdvance = true;
             }
           );
+      } else if (result.action === 'refresh') {
+        this.matchCardEmitter.emit(this.selectedMatchCardId);
+        this.performRankAndAdvance = true;
       }
     });
     this.subscriptions.add(subscription);

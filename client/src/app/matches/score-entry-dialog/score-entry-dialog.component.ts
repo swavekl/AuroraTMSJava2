@@ -65,6 +65,9 @@ export class ScoreEntryDialogComponent implements OnInit {
   @ViewChildren(MatInput, {read: ElementRef})
   inputFieldsElementRefs: QueryList<ElementRef>;
 
+  // any match change during previous or next navigation will require a refresh
+  private dirty: boolean = false;
+
   constructor(public dialogRef: MatDialogRef<ScoreEntryDialogComponent>,
               private cdr: ChangeDetectorRef,
               @Inject(MAT_DIALOG_DATA) public data: ScoreEntryDialogData,
@@ -81,6 +84,7 @@ export class ScoreEntryDialogComponent implements OnInit {
       this.secondRowButtons[i] = 12 + i;
     }
     this.currentScoreInputName = null;
+    this.dirty = false;
   }
 
   private initialize(data: ScoreEntryDialogData) {
@@ -107,7 +111,7 @@ export class ScoreEntryDialogComponent implements OnInit {
   onClose() {
     const retValue = {
       match: this.match,
-      action: 'cancel'
+      action: (this.dirty) ? 'refresh' : 'cancel'
     };
     this.dialogRef.close(retValue);
   }
@@ -130,6 +134,7 @@ export class ScoreEntryDialogComponent implements OnInit {
     this.match.game7ScoreSideB = 0;
     this.match.sideADefaulted = false;
     this.match.sideBDefaulted = false;
+    this.match.scoreEnteredByProfileId = null;
   }
 
   onSave(formValues: any) {
@@ -184,6 +189,11 @@ export class ScoreEntryDialogComponent implements OnInit {
       // set the score and let the dialog update itself
       const focusedName = this.currentScoreInputName;
       const updatedMatch = this.deepCloneMatch(this.match);
+      const scoreBefore = updatedMatch[focusedName];
+      if (scoreBefore != gameScore) {
+        this.dirty = true;
+        // console.log('set dirty to true');
+      }
       updatedMatch[focusedName] = gameScore;
       this.match = updatedMatch;
 
@@ -225,11 +235,13 @@ export class ScoreEntryDialogComponent implements OnInit {
   }
 
   onScoreValueChange($event: Event) {
-    console.log('onValueChange', $event);
+    // console.log('onValueChange', $event);
+    this.dirty = true;
   }
 
   onDefaultValueChange($event: MatCheckboxChange) {
-    console.log('onDefaultValueChange', $event);
+    // console.log('onDefaultValueChange', $event);
+    this.dirty = true;
   }
 
   isMatchWinner(profileId: string): boolean {
@@ -247,12 +259,12 @@ export class ScoreEntryDialogComponent implements OnInit {
   onAudit() {
     let playerIdToNameMap: any = {};
     if (this.match.playerAProfileId.indexOf(';') > 0 && this.match.playerBProfileId.indexOf(';') > 0) {
-      const playerIdsA = this.match.playerAProfileId.split(';')
-      const playerNamesA = this.playerAName.split('/')
+      const playerIdsA = this.match.playerAProfileId.split(';');
+      const playerNamesA = this.playerAName.split('/');
       playerIdToNameMap[playerIdsA[0]] = playerNamesA[0];
       playerIdToNameMap[playerIdsA[1]] = playerNamesA[1];
-      const playerIdsB = this.match.playerBProfileId.split(';')
-      const playerNamesB = this.playerBName.split('/')
+      const playerIdsB = this.match.playerBProfileId.split(';');
+      const playerNamesB = this.playerBName.split('/');
       playerIdToNameMap[playerIdsB[0]] = playerNamesB[0];
       playerIdToNameMap[playerIdsB[1]] = playerNamesB[1];
     } else {

@@ -10,6 +10,7 @@ import com.auroratms.notification.SystemPrincipalExecutor;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
@@ -57,7 +58,7 @@ public class MatchEventListener {
         Match matchAfter = matchUpdateEvent.getMatchAfter();
         try {
             // record who made a change and the score after the change
-            makeAuditEntry(matchUpdateEvent.getProfileId(), matchCardId, matchAfter);
+            makeAuditEntry(matchUpdateEvent.getProfileId(), matchBefore, matchAfter);
 
             // figure out if time out was taken
             boolean sideARequestedTimeout = !matchBefore.isSideATimeoutTaken() && matchAfter.isSideATimeoutTaken();
@@ -76,21 +77,27 @@ public class MatchEventListener {
         }
     }
 
-    private void makeAuditEntry(String profileId, long matchCardId, Match matchAfter) {
+    private void makeAuditEntry(String profileId, Match matchBefore, Match matchAfter) {
         // Record audit of this event to prevent cheating
+        log.info("makeAuditEntry for match id " + matchAfter.getId());
         GsonBuilder builder = new GsonBuilder();
         builder.setPrettyPrinting();
         builder.setExclusionStrategies(new ExcludeProxiedFields());
         Gson gson = builder.create();
+        String detailsJSONBefore = gson.toJson(matchBefore, Match.class);
         String detailsJSON = gson.toJson(matchAfter, Match.class);
-        String eventIdentifier = String.format("%d", matchAfter.getId());
+        // Previous or Next buttons cause save but if there is no change then don't do it.
+        if (!StringUtils.equals(detailsJSONBefore, detailsJSON)) {
+            log.info("Match changed. Saving audit entry for match id " + matchAfter.getId());
+            String eventIdentifier = String.format("%d", matchAfter.getId());
 
-        AuditEntity auditEntity = new AuditEntity();
-        auditEntity.setEventTimestamp(new Date());
-        auditEntity.setEventType("MATCH_SCORE");
-        auditEntity.setEventIdentifier(eventIdentifier);
-        auditEntity.setProfileId(profileId);
-        auditEntity.setDetailsJSON(detailsJSON);
-        this.auditService.save(auditEntity);
+            AuditEntity auditEntity = new AuditEntity();
+            auditEntity.setEventTimestamp(new Date());
+            auditEntity.setEventType("MATCH_SCORE");
+            auditEntity.setEventIdentifier(eventIdentifier);
+            auditEntity.setProfileId(profileId);
+            auditEntity.setDetailsJSON(detailsJSON);
+            this.auditService.save(auditEntity);
+        }
     }
 }
