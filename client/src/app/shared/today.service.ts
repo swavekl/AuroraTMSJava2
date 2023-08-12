@@ -53,6 +53,7 @@ export class TodayService {
     // const utcMoment = moment([2023, 1, 25, 0, 0, 0]).utc();
     // const utcMoment = moment([2022, 11, 20, 0, 0, 0]).utc();
     // Aurora Cup Real - RR & Single Elimination
+    // const utcMoment = moment([2023, 0, 15, 0, 0, 0]);
     // const utcMoment = moment([2023, 0, 14, 0, 0, 0]);
     // const utcMoment = moment([2023, 0, 13, 0, 0, 0]);
     // Prisco Mini - Single Elimination
