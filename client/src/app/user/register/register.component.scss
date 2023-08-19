@@ -13,8 +13,7 @@ $field-width: 270px;
 }
 
 .password-field {
-  max-width: calc($field-width - 48px)!important;
-  min-width: calc($field-width - 48px)!important;
+  width: $field-width;
 }
 
 .registration-error-message {

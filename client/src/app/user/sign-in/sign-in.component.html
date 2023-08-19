@@ -12,11 +12,8 @@
         <input matInput [type]="!showPassword ? 'password' : 'text'"
                placeholder="Password" name="password" [(ngModel)]="password" required>
         <mat-error>This field is required</mat-error>
+        <mat-icon matSuffix class="material-icons md-dark md-inactive" (click)="toggleShowPassword()" >{{ showPassword ? 'visibility' : 'visibility_off' }}</mat-icon>
       </mat-form-field>
-      <button type="button" mat-mini-fab style="background-color: white; margin-left: 10px;"
-              (click)="toggleShowPassword()" aria-label="Show/hide password">
-        <mat-icon class="material-icons md-dark md-inactive">{{ showPassword ? 'visibility' : 'visibility_off' }}</mat-icon>
-      </button>
     </div>
     <div fxLayout="column" fxLayoutAlign="start center">
       <button mat-raised-button color="primary" style="margin-top: 20px; margin-bottom: 8px; width: calc(100% - 40px)"

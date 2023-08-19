@@ -21,37 +21,33 @@
     <div #fgPasswords="ngModelGroup" ngModelGroup="passwords" appValuesMatch="password,password2"
          fxLayout="column" fxLayoutAlign="start stretch">
       <p class="password-instructions">{{ passwordCriteria.passwordRequirements }}</p>
-      <div fxLayout="row" fxLayoutAlign="start start" fxLayoutGap="10px">
+      <div fxLayout="row" fxLayoutAlign="start start">
         <mat-form-field class="password-field">
           <input [type]="showPassword ? 'text' : 'password'"
                  matInput placeholder="Password" name="password" [(ngModel)]="password"
                  #passwordCtrl="ngModel" required [pattern]="passwordCriteria.passwordPattern"/>
+          <mat-icon matSuffix class="material-icons md-dark md-inactive" (click)="toggleShowPassword()">
+            {{ showPassword ? 'visibility' : 'visibility_off' }}
+          </mat-icon>
           <mat-error *ngIf="passwordCtrl?.errors?.required">Password is required</mat-error>
           <mat-error *ngIf="passwordCtrl?.errors?.pattern">Invalid password</mat-error>
         </mat-form-field>
-        <button type="button" mat-mini-fab style="background-color: white; margin-top: 20px;"
-                (click)="toggleShowPassword()" aria-label="Show/hide password">
-          <mat-icon
-            class="material-icons md-dark md-inactive">{{ showPassword ? 'visibility' : 'visibility_off' }}</mat-icon>
-        </button>
       </div>
-      <div fxLayout="row" fxLayoutAlign="start start" fxLayoutGap="10px">
+      <div fxLayout="row" fxLayoutAlign="start start">
         <mat-form-field class="password-field">
           <input [type]="showPassword2 ? 'text' : 'password'"
                  matInput placeholder="Reenter Password" name="password2" [(ngModel)]="password2"
                  #password2Ctrl="ngModel"
                  required [pattern]="passwordCriteria.passwordPattern"
                  [errorStateMatcher]="crossFieldErrorMatcher"/>
+          <mat-icon matSuffix class="material-icons md-dark md-inactive" (click)="toggleShowPassword2()">
+            {{ showPassword2 ? 'visibility' : 'visibility_off' }}
+          </mat-icon>
           <mat-error *ngIf="password2Ctrl.errors?.required">Password is required</mat-error>
           <mat-error *ngIf="password2Ctrl.errors?.pattern">Invalid password</mat-error>
           <mat-error *ngIf="fgPasswords?.errors?.appValuesMatch && password2Ctrl.touched">Passwords don't match
           </mat-error>
         </mat-form-field>
-        <button type="button" mat-mini-fab style="background-color: white"
-                aria-label="Show/hide password" (click)="toggleShowPassword2()">
-          <mat-icon
-            class="material-icons md-dark md-inactive">{{ showPassword2 ? 'visibility' : 'visibility_off' }}</mat-icon>
-        </button>
       </div>
       <!--        <p>fgPasswords status: {{ fgPasswords.status | json }} </p>-->
       <!--        <p>fgPasswords errors: {{ fgPasswords?.errors | json }}</p>-->

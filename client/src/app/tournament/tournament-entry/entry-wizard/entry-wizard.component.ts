@@ -44,6 +44,7 @@ import {StandardPriceCalculator} from '../pricecalculator/standard-price-calcula
 import {DiscountedPriceCalculator} from '../pricecalculator/discounted-price-calculator';
 import {MembershipUtil} from '../../util/membership-util';
 import {MatStepper} from '@angular/material/stepper';
+import {ConfirmationPopupComponent} from '../../../shared/confirmation-popup/confirmation-popup.component';
 
 @Component({
   selector: 'app-entry-wizard',
@@ -589,7 +590,15 @@ export class EntryWizardComponent implements OnInit, OnChanges, OnDestroy {
             }
           },
           (error: any) => {
-            console.log('Unable to prepare for payment ' + JSON.stringify(error));
+            const config = {
+              width: '450px', height: '220px', data: {
+                contentAreaHeight: '100px',
+                title: 'Error', showCancel: false, okText: 'Close', message: `Payments are not configured for this tournament. ${error.error}`,
+              }
+            };
+            const dialogRef = this.dialog.open(ConfirmationPopupComponent, config);
+            dialogRef.afterClosed().subscribe(result => {
+            });
           });
     }
   }
