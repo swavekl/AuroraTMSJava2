@@ -1,5 +1,5 @@
-import {Injectable} from '@angular/core';
-import {ActivatedRouteSnapshot, CanDeactivate, RouterStateSnapshot, UrlTree} from '@angular/router';
+import {inject, Injectable} from '@angular/core';
+import {ActivatedRouteSnapshot, CanDeactivateFn, RouterStateSnapshot, UrlTree} from '@angular/router';
 import {Observable} from 'rxjs';
 import {ConfirmationPopupComponent} from '../../../shared/confirmation-popup/confirmation-popup.component';
 import {MatDialog} from '@angular/material/dialog';
@@ -8,17 +8,14 @@ import {EntryWizardContainerComponent} from './entry-wizard-container.component'
 @Injectable({
   providedIn: 'root'
 })
-export class EntryWizardCanDeactivateGuard implements CanDeactivate<EntryWizardContainerComponent> {
+export class EntryWizardCanDeactivateGuardService  {
 
 
   constructor(private dialog: MatDialog) {
   }
 
   canDeactivate(
-    component: EntryWizardContainerComponent,
-    currentRoute: ActivatedRouteSnapshot,
-    currentState: RouterStateSnapshot,
-    nextState?: RouterStateSnapshot): Observable<boolean | UrlTree> | Promise<boolean | UrlTree> | boolean | UrlTree {
+    component: EntryWizardContainerComponent): Observable<boolean | UrlTree> | Promise<boolean | UrlTree> | boolean | UrlTree {
     if (component.isDirty()) {
       const config = {
         width: '350px', height: '360px', data: {
@@ -44,4 +41,10 @@ export class EntryWizardCanDeactivateGuard implements CanDeactivate<EntryWizardC
       return true;
     }
   }
+}
+
+export const EntryWizardCanDeactivateGuard: CanDeactivateFn<EntryWizardContainerComponent> =
+    (component: EntryWizardContainerComponent, currentRoute: ActivatedRouteSnapshot, currentState: RouterStateSnapshot, nextState: RouterStateSnapshot):
+        Observable<boolean | UrlTree> | Promise<boolean | UrlTree> | boolean | UrlTree => {
+    return inject(EntryWizardCanDeactivateGuardService).canDeactivate(component);
 }

@@ -1,12 +1,11 @@
-import {Injectable} from '@angular/core';
-import {Router, CanActivate, ActivatedRouteSnapshot, RouterStateSnapshot} from '@angular/router';
-import {Observable} from 'rxjs';
+import {Injectable, inject} from '@angular/core';
+import {Router, ActivatedRouteSnapshot, RouterStateSnapshot, CanActivateFn} from '@angular/router';
 import {AuthenticationService} from '../user/authentication.service';
 
 @Injectable({
   providedIn: 'root'
 })
-export class AuthGuard implements CanActivate {
+export class AuthGuardService  {
   constructor(
     private router: Router,
     private authenticationService: AuthenticationService
@@ -15,7 +14,7 @@ export class AuthGuard implements CanActivate {
 
   canActivate(
     route: ActivatedRouteSnapshot,
-    state: RouterStateSnapshot): Observable<boolean> | Promise<boolean> | boolean {
+    state: RouterStateSnapshot): boolean {
     const currentUser = this.authenticationService.getCurrentUser();
     if (currentUser) {
       // check if route is restricted by role
@@ -26,6 +25,7 @@ export class AuthGuard implements CanActivate {
       }
 
       // authorised so return true
+      // console.log('User is in role to access this page ', route);
       return true;
     } else {
       // not logged in so redirect to login page with the return url
@@ -33,4 +33,8 @@ export class AuthGuard implements CanActivate {
       return false;
     }
   }
+}
+
+export const AuthGuard: CanActivateFn = (next: ActivatedRouteSnapshot, state: RouterStateSnapshot): boolean => {
+  return inject(AuthGuardService).canActivate(next, state);
 }

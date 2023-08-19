@@ -27,7 +27,6 @@ import {EventEntryStatusPipe} from './entry-wizard/pipes/event-entry-status.pipe
 import {AvailabilityStatusPipe} from './entry-wizard/pipes/availability-status.pipe';
 import {DoublesPairDialogComponent} from './doubles-pair-dialog/doubles-pair-dialog.component';
 import {MaxRatingDirective} from './doubles-pair-dialog/max-rating.directive';
-import {EntryWizardCanDeactivateGuard} from './entry-wizard/entry-wizard-can-deactivate.guard';
 import {DoublesTeamsContainerComponent} from './doubles-teams/doubles-teams-container.component';
 import {DoublesTeamsComponent} from './doubles-teams/doubles-teams.component';
 import {AccountModule} from '../../account/account.module';
@@ -75,9 +74,6 @@ import { AddEntryComponent } from './add-entry/add-entry.component';
   ],
   exports: [
     DoublesTeamsContainerComponent
-  ],
-  providers: [
-    EntryWizardCanDeactivateGuard
   ]
 })
 export class TournamentEntryModule {
