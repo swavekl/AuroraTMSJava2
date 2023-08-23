@@ -1,0 +1,40 @@
+<h2 mat-dialog-title class="dialog-title">
+  Record Check or Cash Payment {{ (paymentRequest.amount / 100) | currency: paymentRequest.currencyCode }}
+</h2>
+<form #f="ngForm" name="form">
+  <div mat-dialog-content>
+    <div fxLayout="column" fxLayoutAlign="start stretch">
+      <div style="padding: 20px 10px;">
+        <mat-slide-toggle name="ready" [(ngModel)]="paymentInCash">
+          Payment in Cash
+        </mat-slide-toggle>
+      </div>
+      <div fxLayout="row" fxLayoutAlign="start start" fxLayoutGap="10px">
+        <mat-form-field fxFlex="50%">
+          <mat-label>Check Number</mat-label>
+          <input matInput type="text" name="checkNumber" [(ngModel)]="checkNumber"
+                 [required]="!paymentInCash" [disabled]="paymentInCash">
+          <mat-error>This field is required</mat-error>
+        </mat-form-field>
+        <mat-form-field fxFlex="50%">
+          <mat-label>Amount</mat-label>
+          <input matInput type="text" name="amount"
+                 [(ngModel)]="paidAmount" pattern="[1-9](\d*)(\.\d{2})" maxlength="7" required  #amount=ngModel>
+          <mat-error *ngIf="amount.control?.hasError('required')">This field is required</mat-error>
+          <mat-error *ngIf="amount.control?.hasError('pattern')">Please enter valid decimal number</mat-error>
+        </mat-form-field>
+      </div>
+      <mat-form-field>
+        <mat-label>Notes</mat-label>
+        <input matInput type="text" name="notes" [(ngModel)]="notes">
+      </mat-form-field>
+    </div>
+  </div>
+  <mat-dialog-actions>
+    <div fxLayout="row" fxLayoutAlign="space-between start" style="width: 100%; margin: 0 8px">
+      <button mat-raised-button (click)="onCancel()">Cancel</button>
+      <span fxFlex></span>
+      <button mat-raised-button color="primary" (click)="onRecordPayment()" [disabled]="f.invalid">Save</button>
+    </div>
+  </mat-dialog-actions>
+</form>

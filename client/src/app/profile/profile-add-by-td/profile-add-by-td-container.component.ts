@@ -57,7 +57,9 @@ export class ProfileAddByTdContainerComponent implements OnInit, OnDestroy {
         this.router.navigateByUrl(url, extras);
       },
       (error: any) => {
-        const message = `Error creating profile\n Error ${error.error}`;
+        const errorMsg: string = (error.error != null) ? error.error : error.message;
+        console.error('error creating profile', errorMsg);
+        const message = `Error creating profile\n Error ${errorMsg}`;
         this.errorMessagePopupService.showError(message, "400px", "250px");
       });
     this.subscriptions.add(subscription);

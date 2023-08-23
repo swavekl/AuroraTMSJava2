@@ -54,5 +54,9 @@ public class PaymentRefund {
 
     // if true refund this payment fully
     private boolean refundFully;
+
+    // what form of payment was used credit card, check or cash
+    @Column(columnDefinition = "integer default 0")
+    private PaymentForm paymentForm;
 }
 

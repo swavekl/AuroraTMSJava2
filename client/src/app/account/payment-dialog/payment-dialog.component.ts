@@ -20,6 +20,7 @@ import {PaymentIntentResponse, PaymentRefundService} from '../service/payment-re
 import {PaymentRefund} from '../model/payment-refund.model';
 import {PaymentRequest} from '../model/payment-request.model';
 import {PaymentRefundStatus} from '../model/payment-refund-status.enum';
+import {PaymentForm} from '../model/payment-type.enum';
 
 /**
  * Dialog for collecting information about the credit card and submitting the purchase
@@ -277,6 +278,7 @@ export class PaymentDialogComponent implements OnInit, OnDestroy {
     paymentRefund.paymentRefundFor = this.paymentRequest.paymentRefundFor;
     paymentRefund.status = PaymentRefundStatus.PAYMENT_COMPLETED;
     paymentRefund.transactionDate = new Date();
+    paymentRefund.paymentForm = PaymentForm.CREDIT_CARD;
     const subscription = this.paymentRefundService.recordPaymentComplete(paymentRefund)
       .pipe(first())
       .subscribe(

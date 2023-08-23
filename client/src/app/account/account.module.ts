@@ -4,7 +4,7 @@ import {MatButtonModule} from '@angular/material/button';
 import {MatIconModule} from '@angular/material/icon';
 import {MatCardModule} from '@angular/material/card';
 import {MatInputModule} from '@angular/material/input';
-import {ReactiveFormsModule} from '@angular/forms';
+import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {FlexLayoutModule} from '@angular/flex-layout';
 
 import {AccountRoutingModule} from './account-routing.module';
@@ -23,6 +23,9 @@ import {MatProgressBarModule} from '@angular/material/progress-bar';
 import {RefundDialogComponent} from './refund-dialog/refund-dialog.component';
 import {PaymentDialogService} from './service/payment-dialog.service';
 import {PaymentRefundService} from './service/payment-refund.service';
+import { CheckCashPaymentDialogComponent } from './check-cash-payment-dialog/check-cash-payment-dialog.component';
+import {CheckCashPaymentDialogService} from './service/check-cash-payment-dialog.service';
+import {MatSlideToggleModule} from '@angular/material/slide-toggle';
 
 
 @NgModule({
@@ -33,7 +36,8 @@ import {PaymentRefundService} from './service/payment-refund.service';
     AccountRefreshComponent,
     ConnectWithStripeIconComponent,
     PaymentDialogComponent,
-    RefundDialogComponent
+    RefundDialogComponent,
+    CheckCashPaymentDialogComponent
   ],
   exports: [
     PaymentDialogComponent,
@@ -53,11 +57,14 @@ import {PaymentRefundService} from './service/payment-refund.service';
     SharedModule,
     MatDialogModule,
     MatProgressSpinnerModule,
-    MatProgressBarModule
+    MatProgressBarModule,
+    FormsModule,
+    MatSlideToggleModule
   ],
   providers: [
     PaymentDialogService,
     PaymentRefundService,
+    CheckCashPaymentDialogService,
     StripeFactoryService
   ]
 })

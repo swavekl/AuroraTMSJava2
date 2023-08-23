@@ -20,6 +20,7 @@ import {Tournament} from '../../tournament-config/tournament.model';
 import {PaymentRefundFor} from '../../../account/model/payment-refund-for.enum';
 import {EntryWizardComponent} from './entry-wizard.component';
 import {CartSessionService} from '../../../account/service/cart-session.service';
+import {UserRoles} from '../../../user/user-roles.enum';
 
 @Component({
   selector: 'app-entry-wizard-container',
@@ -30,6 +31,7 @@ import {CartSessionService} from '../../../account/service/cart-session.service'
                       [playerProfile]="playerProfile$ | async"
                       [paymentsRefunds]="paymentsRefunds$ | async"
                       [isWithdrawing]="withdrawing"
+                      [allowPaymentByCheck]="allowPaymentByCheck"
                       (tournamentEntryChanged)="onTournamentEntryChanged($event)"
                       (confirmEntries)="onConfirmEntries($event)"
                       (eventEntryChanged)="onEventEntryChanged($event)"
@@ -65,6 +67,7 @@ export class EntryWizardContainerComponent implements OnInit, OnDestroy {
   entering: boolean = false;
   withdrawing: boolean = false;
   adding: boolean = false;
+  allowPaymentByCheck: boolean = false;
 
   constructor(private tournamentEntryService: TournamentEntryService,
               private tournamentConfigService: TournamentConfigService,
@@ -104,7 +107,6 @@ export class EntryWizardContainerComponent implements OnInit, OnDestroy {
     this.selectTournament(this.tournamentId);
     this.selectEntry(this.entryId);
     this.loadEventEntriesInfos(this.entryId);
-    this.loadPlayerProfile();
     this.loadPaymentRefunds(this.entryId);
     this.startCartSession();
   }
@@ -137,6 +139,8 @@ export class EntryWizardContainerComponent implements OnInit, OnDestroy {
       // editing - check if we had it in cache if not - then fetch it
       if (!next) {
         this.entry$ = this.tournamentEntryService.getByKey(entryId);
+      } else {
+        this.loadPlayerProfile(next.profileId);
       }
     });
     this.subscriptions.add(subscription);
@@ -163,6 +167,11 @@ export class EntryWizardContainerComponent implements OnInit, OnDestroy {
           this.tournamentConfigService.getByKey(tournamentId);
         } else {
           // console.log ('full tournament config ' + JSON.stringify(tournament));
+          const isTD = this.authenticationService.hasCurrentUserRole([UserRoles.ROLE_TOURNAMENT_DIRECTORS]);
+          const fullName = this.authenticationService.getCurrentUserFirstName() + ' ' + this.authenticationService.getCurrentUserLastName();
+          // this.allowPaymentByCheck = (isTD && tournament.contactName === fullName);
+          this.allowPaymentByCheck = isTD;
+          console.log('allowPaymentByCheck', this.allowPaymentByCheck);
         }
       });
     this.subscriptions.add(subscription);
@@ -265,14 +274,12 @@ export class EntryWizardContainerComponent implements OnInit, OnDestroy {
     this.router.navigateByUrl(url);
   }
 
-  private loadPlayerProfile() {
-    const playerProfileId = this.authenticationService.getCurrentUserProfileId();
+  private loadPlayerProfile(playerProfileId: string) {
     this.profileService.getProfile(playerProfileId)
       .pipe(first())
       .subscribe((profile: Profile) => {
         this.playerProfile$ = of(profile);
       });
-
   }
 
   /**

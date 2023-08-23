@@ -112,7 +112,7 @@ public class UserProfileController extends AbstractOktaController {
      */
     @PostMapping("/profiles")
     @ResponseBody
-    @PreAuthorize("hasAuthority('Admins') or hasAuthority('USATTMatchOfficialsManagers')")
+    @PreAuthorize("hasAuthority('Admins') or hasAuthority('USATTMatchOfficialsManagers') or hasAuthority('TournamentDirectors')")
     public ResponseEntity<UserProfile> create(@RequestBody UserProfile userProfile) {
         try {
             UserProfile createdProfile = userProfileService.createProfile(userProfile);

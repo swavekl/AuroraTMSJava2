@@ -1,5 +1,6 @@
 import {PaymentRefundStatus} from './payment-refund-status.enum';
 import {PaymentRefundFor} from './payment-refund-for.enum';
+import {PaymentForm} from './payment-type.enum';
 
 /**
  * Class representing individual payment or refund in our database
@@ -36,4 +37,7 @@ export class PaymentRefund {
 
   // indicates if this is payment or refund
   status: PaymentRefundStatus = PaymentRefundStatus.PAYMENT_COMPLETED;
+
+  // what form of payment was used credit card, check or cash
+  paymentForm: PaymentForm = PaymentForm.CREDIT_CARD;
 }

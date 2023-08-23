@@ -45,6 +45,7 @@ import {DiscountedPriceCalculator} from '../pricecalculator/discounted-price-cal
 import {MembershipUtil} from '../../util/membership-util';
 import {MatStepper} from '@angular/material/stepper';
 import {ConfirmationPopupComponent} from '../../../shared/confirmation-popup/confirmation-popup.component';
+import {CheckCashPaymentDialogService} from '../../../account/service/check-cash-payment-dialog.service';
 
 @Component({
   selector: 'app-entry-wizard',
@@ -76,6 +77,9 @@ export class EntryWizardComponent implements OnInit, OnChanges, OnDestroy {
 
   @Input()
   isWithdrawing: boolean = false;
+
+  @Input()
+  allowPaymentByCheck: boolean = false;
 
   enteredEvents: TournamentEventEntryInfo[] = [];
   availableEvents: TournamentEventEntryInfo[] = [];
@@ -139,7 +143,8 @@ export class EntryWizardComponent implements OnInit, OnChanges, OnDestroy {
               private _change: ChangeDetectorRef,
               private paymentDialogService: PaymentDialogService,
               private refundDialogService: RefundDialogService,
-              private currencyService: CurrencyService) {
+              private currencyService: CurrencyService,
+              private checkCashPaymentDialogService: CheckCashPaymentDialogService) {
     this.paymentsRefunds = [];
     this.tournamentCurrency = 'USD';
     this.playerCurrency = 'USD';
@@ -426,13 +431,18 @@ export class EntryWizardComponent implements OnInit, OnChanges, OnDestroy {
     this.onPayPlayerTotalInCurrency(balanceInPlayerCurrency, balanceInPlayerCurrency, this.tournamentCurrency);
   }
 
+  onPayPlayerTotalByCheck(balanceInPlayerCurrency: number) {
+    this.onPayPlayerTotalInCurrency(balanceInPlayerCurrency, balanceInPlayerCurrency, this.tournamentCurrency, false);
+  }
+
   /**
    * Show payment dialog for amount and currency to pay in
    * @param balanceInPlayerCurrency balance in currency to pay in
    * @param balanceInTournamentCurrency balance in currency to pay in tournament currency
    * @param currencyOfPayment 3 letter currency code of currency to use
+   * @param payByCreditCard if true show payment by credit card, otherwise by check/cash
    */
-  onPayPlayerTotalInCurrency(balanceInPlayerCurrency: number, balanceInTournamentCurrency: number, currencyOfPayment: string) {
+  onPayPlayerTotalInCurrency(balanceInPlayerCurrency: number, balanceInTournamentCurrency: number, currencyOfPayment: string, payByCreditCard: boolean = true) {
     const amount: number = balanceInPlayerCurrency * 100;
     const amountInAccountCurrency: number = balanceInTournamentCurrency * 100;
     const fullName = this.playerProfile.firstName + ' ' + this.playerProfile.lastName;
@@ -462,7 +472,11 @@ export class EntryWizardComponent implements OnInit, OnChanges, OnDestroy {
       cancelCallbackFn: this.onPaymentCanceled,
       callbackScope: this
     };
-    this.paymentDialogService.showPaymentDialog(paymentDialogData, callbackData);
+    if (payByCreditCard == true) {
+      this.paymentDialogService.showPaymentDialog(paymentDialogData, callbackData);
+    } else {
+      this.checkCashPaymentDialogService.showPaymentDialog(paymentDialogData, callbackData);
+    }
   }
 
   /**

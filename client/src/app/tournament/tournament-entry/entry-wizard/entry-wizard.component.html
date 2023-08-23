@@ -6,6 +6,7 @@
       <input type="hidden" [ngModel]="entry.tournamentFk" name="tournamentFk">
       <mat-vertical-stepper linear>
         <mat-step label="USATT Membership">
+          <h3>Entry for: {{playerProfile?.firstName}} {{playerProfile?.lastName}}</h3>
           <h3 [className]="membershipIsExpired ? 'membership-expired' : 'membership-not-expired'">
             Membership expires: {{playerProfile?.membershipExpirationDate | date}}
           </h3>
@@ -193,6 +194,15 @@
               <button *ngSwitchCase="BALANCE_ACTION_PAY"     mat-raised-button color="primary" type="button" (click)="onPayPlayerTotal(getBalance())">Pay {{ getBalance() | currency: tournamentCurrency }}</button>
               <button *ngSwitchCase="BALANCE_ACTION_REFUND"  mat-raised-button color="primary" type="button" (click)="onIssueRefundInTournamentCurrency(getAbsoluteBalance())">Refund {{ getAbsoluteBalance() | currency: tournamentCurrency }}</button>
               <button *ngSwitchCase="BALANCE_ACTION_NOCHANGE" mat-raised-button color="primary" matStepperNext type="submit">Close</button>
+            </ng-container>
+          </div>
+          <div *ngIf="allowPaymentByCheck" class="wizard-button-bar" fxLayout="row">
+            <span fxFlex></span>
+            <ng-container [ngSwitch]="balanceAction()">
+<!--              <button *ngSwitchCase="BALANCE_ACTION_CONFIRM" mat-raised-button color="primary" type="button" (click)="onConfirmWithoutPayment()">Confirm Changes</button>-->
+              <button *ngSwitchCase="BALANCE_ACTION_PAY"     mat-raised-button color="primary" type="button" (click)="onPayPlayerTotalByCheck(getBalance())">Pay By Check {{ getBalance() | currency: tournamentCurrency }}</button>
+<!--              <button *ngSwitchCase="BALANCE_ACTION_REFUND"  mat-raised-button color="primary" type="button" (click)="onIssueRefundInTournamentCurrency(getAbsoluteBalance())">Refund {{ getAbsoluteBalance() | currency: tournamentCurrency }}</button>-->
+<!--              <button *ngSwitchCase="BALANCE_ACTION_NOCHANGE" mat-raised-button color="primary" matStepperNext type="submit">Close</button>-->
             </ng-container>
           </div>
         </mat-step>
