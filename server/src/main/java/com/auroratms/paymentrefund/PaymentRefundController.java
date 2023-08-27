@@ -217,8 +217,29 @@ public class PaymentRefundController {
         try {
             PaymentRefund paymentRefundSaved = this.paymentRefundService.recordPaymentRefund(paymentRefund);
 
-            PaymentEvent event = makePaymentEvent(paymentRefundSaved);
-            eventPublisher.publishPaymentEvent(event);
+            if (PaymentRefundStatus.PAYMENT_COMPLETED == paymentRefund.getStatus()) {
+                PaymentEvent event = makePaymentEvent(paymentRefundSaved);
+                eventPublisher.publishPaymentEvent(event);
+            } else {
+                // check & cash payments need to send out proper email
+                if (paymentRefund.getPaymentForm() != PaymentForm.CREDIT_CARD) {
+                    RefundRequest refundRequest = new RefundRequest();
+                    refundRequest.setPaymentRefundFor(paymentRefund.getPaymentRefundFor());
+                    refundRequest.setAmount(paymentRefund.getAmount());
+                    refundRequest.setTransactionItemId(paymentRefund.getItemId());
+                    refundRequest.setAccountItemId(0L); // not needed for check/cash payments
+                    refundRequest.setCurrencyCode(paymentRefund.getPaidCurrency());
+                    refundRequest.setAmountInAccountCurrency(paymentRefund.getPaidAmount());
+                    refundRequest.setExchangeRate(1.0);
+
+                    List<Long> processedRefundIds = new ArrayList<>();
+                    processedRefundIds.add(paymentRefundSaved.getId());
+
+                    RefundsEvent event = new RefundsEvent(refundRequest, processedRefundIds);
+
+                    eventPublisher.publishRefundEvents(event);
+                }
+            }
 
             return new ResponseEntity(paymentRefundSaved, HttpStatus.CREATED);
         } catch (StripeException e) {
@@ -400,6 +421,7 @@ public class PaymentRefundController {
 
             // record successful refund
             refund.setRefundId(stripeRefund.getId());
+            refund.setPaymentForm(PaymentForm.CREDIT_CARD);
             PaymentRefund savedRefund = this.paymentRefundService.recordPaymentRefund(refund);
             processedRefundIds.add(savedRefund.getId());
         }

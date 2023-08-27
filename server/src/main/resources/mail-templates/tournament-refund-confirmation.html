@@ -5,11 +5,12 @@
 </head>
 <body>
 <p>Hello <span th:text="${playerFirstName}"></span>,</p>
-This is to confirm that we have issued the following refund(s) totaling
-<span th:text="${#numbers.formatDecimal(amount, 1, 2)}">10.00</span> <span th:text="${currency}"></span>
-for your entry modification or withdrawal from the '<span th:text="${tournamentName}"></span>' tournament.</p>
+<p>This is to confirm that we have issued a refund for your entry modification or withdrawal from
+the '<span th:text="${tournamentName}"></span>' tournament.
+The total amount refunded was <span th:text="${#numbers.formatDecimal(amount, 1, 2)}">10.00</span> <span th:text="${currency}">.</span>
+</p>
 <div th:if="${refundItems.size > 1}">
-  <p>The refund consists of the following refunds</p>
+  <p>The following payments were refunded to refund this total amount:</p>
   <table>
     <thead>
     <tr>
@@ -26,7 +27,7 @@ for your entry modification or withdrawal from the '<span th:text="${tournamentN
   </table>
 </div>
 
-<p>Please allow a few days for the funds to be credited to your account.  Certain fees imposed by a Payment Provider are not refunded.</p>
+<p>For credit card refunds, please allow a few days for the funds to be credited to your account.  Certain fees imposed by a Payment Provider are not refunded.</p>
 <p>Thank you,<br><span th:text="${tournamentDirectorName}"></span></p>
 </body>
 </html>

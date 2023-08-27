@@ -1,6 +1,7 @@
 package com.auroratms.paymentrefund.notification;
 
 import com.auroratms.notification.SystemPrincipalExecutor;
+import com.auroratms.paymentrefund.PaymentForm;
 import com.auroratms.paymentrefund.PaymentRefund;
 import com.auroratms.paymentrefund.PaymentRefundFor;
 import com.auroratms.paymentrefund.PaymentRefundService;
@@ -181,12 +182,14 @@ public class PaymentRefundEventListener {
             // get refunds only for this refund action (not previous)
             List<Long> refundItemIds = event.getRefundItemIds();
             List<RefundItem> refundItemList = new ArrayList<>(refundItemIds.size());
+            PaymentForm paymentForm = PaymentForm.CREDIT_CARD;
             List<PaymentRefund> allPaymentRefunds = this.paymentRefundService.getPaymentRefunds(tournamentEntryId, event.getPaymentRefundFor());
             for (PaymentRefund paymentRefund : allPaymentRefunds) {
                 long paymentRefundId = paymentRefund.getId();
                 if (refundItemIds.contains(paymentRefundId)) {
                     double paidAmount = ((double)paymentRefund.getPaidAmount()) / 100;
                     refundItemList.add(new RefundItem(paidAmount, paymentRefund.getPaidCurrency()));
+                    paymentForm = paymentRefund.getPaymentForm();
                 }
             }
 
@@ -194,6 +197,7 @@ public class PaymentRefundEventListener {
             templateModel.put("amount", amount);
             templateModel.put("currency", event.getCurrency());
             templateModel.put("refundItems", refundItemList);
+            templateModel.put("paymentForm", paymentForm);
 
             emailService.sendMessageUsingThymeleafTemplate(toAddress, tournamentDirectorEmail,
                     "Tournament Refund Issued",
