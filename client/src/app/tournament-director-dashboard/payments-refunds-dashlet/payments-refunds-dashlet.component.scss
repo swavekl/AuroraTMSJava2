@@ -1,6 +1,5 @@
 div.payments-refunds-container {
   width: 100%;
-  //border: 1px solid blue;
 }
 
 table.payments-refunds {
@@ -15,8 +14,9 @@ table.payments-refunds {
   }
 
   th, td {
-    padding: 4px 8px;
+    padding: 0 4px;
     //border: 1px solid black;
+    vertical-align: middle;
 
     &.pr-name-column {
       min-width: 350px;
@@ -36,7 +36,18 @@ table.payments-refunds {
 
     &.pr-date-time-column {
       min-width: 170px;
-      text-align: right;
+      text-align: left;
+    }
+
+    &.pr-payment-form-column {
+      min-width: 40px;
+      text-align: center;
+    }
+
+    &.pr-payment-form-icon-cell {
+      min-width: 40px;
+      text-align: center;
+      padding: 8px 8px 0 8px;
     }
   }
 }

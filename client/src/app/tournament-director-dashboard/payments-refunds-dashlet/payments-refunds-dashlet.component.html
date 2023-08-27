@@ -4,13 +4,14 @@
     <tr>
       <th class="pr-name-column">Name</th>
       <th class="pr-amount-column">Amount</th>
+      <th class="pr-payment-form-column">Form</th>
       <th class="pr-date-time-column">Date</th>
     </tr>
     </thead>
     <tbody>
     <ng-container *ngFor="let paymentRefundInfo of paymentRefundInfos">
       <ng-container *ngFor="let paymentRefund of paymentRefundInfo.paymentRefundList; first as first">
-      <tr>
+        <tr>
           <td class="pr-name-column">
             {{first ? paymentRefundInfo.fullName : ''}}
           </td>
@@ -20,27 +21,37 @@
             </ng-container>
             {{ isPayment(paymentRefund) ? '' : '-' }}{{ (paymentRefund.amount / 100) | currency: tournamentCurrency }}
           </td>
+          <td class="pr-payment-form-icon-cell">
+            <ng-container [ngSwitch]="paymentRefund.paymentForm">
+              <mat-icon *ngSwitchCase="'CHECK'">edit_square</mat-icon>
+              <mat-icon *ngSwitchCase="'CASH'">paid</mat-icon>
+              <mat-icon *ngSwitchDefault="'CREDIT_CARD'">credit_card</mat-icon>
+            </ng-container>
+          </td>
           <td class="pr-date-time-column">{{ paymentRefund.transactionDate | date:'short' }}</td>
-      </tr>
+        </tr>
       </ng-container>
     </ng-container>
     </tbody>
     <tfoot>
-      <tr>
-        <td class="pr-name-column">Total Payments</td>
-        <td class="pr-amount-column">{{(totalPayments / 100) | currency: tournamentCurrency}}</td>
-        <td class="pr-date-time-column"></td>
-      </tr>
-      <tr>
-        <td class="pr-name-column">Total Refunds</td>
-        <td class="pr-amount-column">{{(totalRefunds / 100) | currency: tournamentCurrency }}</td>
-        <td class="pr-date-time-column"></td>
-      </tr>
-      <tr>
-        <td class="pr-name-column">Grand Total</td>
-        <td class="pr-amount-column">{{(grandTotal / 100) | currency: tournamentCurrency }}</td>
-        <td class="pr-date-time-column"></td>
-      </tr>
+    <tr>
+      <td class="pr-name-column">Total Payments</td>
+      <td class="pr-amount-column">{{(totalPayments / 100) | currency: tournamentCurrency}}</td>
+      <td class="pr-payment-form-column"></td>
+      <td class="pr-date-time-column"></td>
+    </tr>
+    <tr>
+      <td class="pr-name-column">Total Refunds</td>
+      <td class="pr-amount-column">{{(totalRefunds / 100) | currency: tournamentCurrency }}</td>
+      <td class="pr-payment-form-column"></td>
+      <td class="pr-date-time-column"></td>
+    </tr>
+    <tr>
+      <td class="pr-name-column">Grand Total</td>
+      <td class="pr-amount-column">{{(grandTotal / 100) | currency: tournamentCurrency }}</td>
+      <td class="pr-payment-form-column"></td>
+      <td class="pr-date-time-column"></td>
+    </tr>
     </tfoot>
   </table>
 </div>
