@@ -23,9 +23,9 @@
           </td>
           <td class="pr-payment-form-icon-cell">
             <ng-container [ngSwitch]="paymentRefund.paymentForm">
-              <mat-icon *ngSwitchCase="'CHECK'">edit_square</mat-icon>
-              <mat-icon *ngSwitchCase="'CASH'">paid</mat-icon>
-              <mat-icon *ngSwitchDefault="'CREDIT_CARD'">credit_card</mat-icon>
+              <ng-container *ngSwitchCase="'CHECK'"><mat-icon >edit_square</mat-icon></ng-container>
+              <ng-container *ngSwitchCase="'CASH'"><mat-icon>paid</mat-icon></ng-container>
+              <ng-container *ngSwitchCase="'CREDIT_CARD'"><mat-icon>credit_card</mat-icon></ng-container>
             </ng-container>
           </td>
           <td class="pr-date-time-column">{{ paymentRefund.transactionDate | date:'short' }}</td>
