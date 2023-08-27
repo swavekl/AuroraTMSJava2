@@ -1,6 +1,5 @@
 import {Component, Inject, OnDestroy, OnInit} from '@angular/core';
 import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
-import {PaymentDialogData} from '../payment-dialog/payment-dialog-data';
 import {PaymentRefundService} from '../service/payment-refund.service';
 import {PaymentRefund} from '../model/payment-refund.model';
 import {PaymentRefundStatus} from '../model/payment-refund-status.enum';
@@ -8,6 +7,7 @@ import {Subscription} from 'rxjs';
 import {first} from 'rxjs/operators';
 import {PaymentRequest} from '../model/payment-request.model';
 import {PaymentForm} from '../model/payment-type.enum';
+import {RefundRequest} from '../model/refund-request.model';
 
 @Component({
   selector: 'app-check-cash-payment-dialog',
@@ -17,6 +17,8 @@ import {PaymentForm} from '../model/payment-type.enum';
 export class CheckCashPaymentDialogComponent  implements OnInit, OnDestroy {
 
   paymentRequest: PaymentRequest;
+  refundRequest: RefundRequest;
+  isPayment: boolean = true;
 
   public OK = 'ok';
   public CANCEL = 'cancel';
@@ -28,10 +30,13 @@ export class CheckCashPaymentDialogComponent  implements OnInit, OnDestroy {
   paymentInCash: boolean = false;
 
   constructor(public dialogRef: MatDialogRef<CheckCashPaymentDialogComponent>,
-              @Inject(MAT_DIALOG_DATA) public data: PaymentDialogData,
+              @Inject(MAT_DIALOG_DATA) public data: any,
               private paymentRefundService: PaymentRefundService) {
     this.paymentRequest = data.paymentRequest;
-    this.paidAmount = Number(this.paymentRequest.amount / 100).toFixed(2);
+    this.refundRequest = data.refundRequest;
+    this.isPayment = data.isPayment;
+    const amount = (this.isPayment) ? this.paymentRequest.amount : this.refundRequest.amount;
+    this.paidAmount = Number(amount / 100).toFixed(2);
   }
 
   ngOnDestroy(): void {
@@ -40,16 +45,28 @@ export class CheckCashPaymentDialogComponent  implements OnInit, OnDestroy {
   ngOnInit(): void {
   }
 
-  private recordPaymentComplete() {
+  private recordPaymentRefundComplete() {
     const paymentRefund: PaymentRefund = new PaymentRefund();
-    paymentRefund.paidAmount = this.paymentRequest.amount;
-    paymentRefund.paidCurrency = this.paymentRequest.currencyCode;
-    // record the original amount in case we need to refund.  we will need this to calculate refund at today's rates ?
-    paymentRefund.amount = this.paymentRequest.amountInAccountCurrency;
-    paymentRefund.itemId = this.paymentRequest.transactionItemId;
-    paymentRefund.paymentIntentId = 'n/a';
-    paymentRefund.paymentRefundFor = this.paymentRequest.paymentRefundFor;
-    paymentRefund.status = PaymentRefundStatus.PAYMENT_COMPLETED;
+    if (this.isPayment) {
+      paymentRefund.paidAmount = this.paymentRequest.amount;
+      paymentRefund.paidCurrency = this.paymentRequest.currencyCode;
+      // record the original amount in case we need to refund.  we will need this to calculate refund at today's rates ?
+      paymentRefund.amount = this.paymentRequest.amountInAccountCurrency;
+      paymentRefund.itemId = this.paymentRequest.transactionItemId;
+      paymentRefund.paymentIntentId = 'n/a';
+      paymentRefund.paymentRefundFor = this.paymentRequest.paymentRefundFor;
+      paymentRefund.status = PaymentRefundStatus.PAYMENT_COMPLETED;
+    } else {
+      // is refund
+      paymentRefund.paidAmount = this.refundRequest.amount;
+      paymentRefund.paidCurrency = this.refundRequest.currencyCode;
+      paymentRefund.amount = this.refundRequest.amountInAccountCurrency;
+      paymentRefund.itemId = this.refundRequest.transactionItemId;
+      paymentRefund.paymentIntentId = 'n/a';
+      paymentRefund.paymentRefundFor = this.refundRequest.paymentRefundFor;
+      paymentRefund.refundId = 'n/a';
+      paymentRefund.status = PaymentRefundStatus.REFUND_COMPLETED;
+    }
     paymentRefund.transactionDate = new Date();
     paymentRefund.paymentForm = (this.paymentInCash) ? PaymentForm.CASH : PaymentForm.CHECK;
     paymentRefund.checkNumber = (this.paymentInCash) ? 0 : this.checkNumber;
@@ -58,20 +75,16 @@ export class CheckCashPaymentDialogComponent  implements OnInit, OnDestroy {
       .pipe(first())
       .subscribe(
         () => {
-          // this.paymentComplete = true;
-          // this.errorMessage = 'Success';
-          // this.setPaymentInProgress(false);
         },
         (error: any) => {
           console.log('error during recording of payment complete' + JSON.stringify(error));
-          // this.errorMessage = error;
         }
       );
     this.subscriptions.add(subscription);
   }
 
-  onRecordPayment() {
-    this.recordPaymentComplete();
+  onRecordPaymentRefund() {
+    this.recordPaymentRefundComplete();
     this.dialogRef.close(this.OK);
   }
 

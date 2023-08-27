@@ -1,5 +1,5 @@
 <h2 mat-dialog-title class="dialog-title">
-  Record Check or Cash Payment {{ (paymentRequest.amount / 100) | currency: paymentRequest.currencyCode }}
+  Record Check or Cash {{ isPayment ? 'Payment' : 'Refund' }}
 </h2>
 <form #f="ngForm" name="form">
   <div mat-dialog-content>
@@ -35,7 +35,7 @@
     <div fxLayout="row" fxLayoutAlign="space-between start" style="width: 100%; margin: 0 8px">
       <button mat-raised-button (click)="onCancel()">Cancel</button>
       <span fxFlex></span>
-      <button mat-raised-button color="primary" (click)="onRecordPayment()" [disabled]="f.invalid">Save</button>
+      <button mat-raised-button color="primary" (click)="onRecordPaymentRefund()" [disabled]="f.invalid">Save</button>
     </div>
   </mat-dialog-actions>
 </form>

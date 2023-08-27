@@ -510,10 +510,14 @@ export class EntryWizardComponent implements OnInit, OnChanges, OnDestroy {
     this.onIssueRefund(refundAmountInTournamentCurrency, refundAmountInTournamentCurrency, this.tournamentCurrency);
   }
 
+  onIssueRefundByCheck(refundAmountInTournamentCurrency: number) {
+    this.onIssueRefund(refundAmountInTournamentCurrency, refundAmountInTournamentCurrency, this.tournamentCurrency, false);
+  }
+
   /**
    * Issues a refund
    */
-  onIssueRefund(refundAmountInPlayerCurrency: number, refundAmountInTournamentCurrency: number, refundCurrency: string) {
+  onIssueRefund(refundAmountInPlayerCurrency: number, refundAmountInTournamentCurrency: number, refundCurrency: string, refundByCreditCard: boolean = true) {
     const amount: number = refundAmountInPlayerCurrency * 100;
     const amountInAccountCurrency: number = refundAmountInTournamentCurrency * 100;
     const refundRequest: RefundRequest = {
@@ -530,7 +534,11 @@ export class EntryWizardComponent implements OnInit, OnChanges, OnDestroy {
       cancelCallbackFn: this.onRefundCanceled,
       callbackScope: this
     };
-    this.refundDialogService.showRefundDialog(refundRequest, callbackData);
+    if (refundByCreditCard) {
+      this.refundDialogService.showRefundDialog(refundRequest, callbackData);
+    } else {
+      this.checkCashPaymentDialogService.showRefundDialog(refundRequest, callbackData)
+    }
   }
 
   public onRefundSuccessful(scope: any): void {

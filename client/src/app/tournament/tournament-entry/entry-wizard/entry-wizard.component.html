@@ -199,10 +199,8 @@
           <div *ngIf="allowPaymentByCheck" class="wizard-button-bar" fxLayout="row">
             <span fxFlex></span>
             <ng-container [ngSwitch]="balanceAction()">
-<!--              <button *ngSwitchCase="BALANCE_ACTION_CONFIRM" mat-raised-button color="primary" type="button" (click)="onConfirmWithoutPayment()">Confirm Changes</button>-->
-              <button *ngSwitchCase="BALANCE_ACTION_PAY"     mat-raised-button color="primary" type="button" (click)="onPayPlayerTotalByCheck(getBalance())">Pay By Check {{ getBalance() | currency: tournamentCurrency }}</button>
-<!--              <button *ngSwitchCase="BALANCE_ACTION_REFUND"  mat-raised-button color="primary" type="button" (click)="onIssueRefundInTournamentCurrency(getAbsoluteBalance())">Refund {{ getAbsoluteBalance() | currency: tournamentCurrency }}</button>-->
-<!--              <button *ngSwitchCase="BALANCE_ACTION_NOCHANGE" mat-raised-button color="primary" matStepperNext type="submit">Close</button>-->
+              <button *ngSwitchCase="BALANCE_ACTION_PAY"     mat-raised-button color="primary" type="button" (click)="onPayPlayerTotalByCheck(getBalance())">Pay By Check/Cash {{ getBalance() | currency: tournamentCurrency }}</button>
+              <button *ngSwitchCase="BALANCE_ACTION_REFUND"  mat-raised-button color="primary" type="button" (click)="onIssueRefundByCheck(getAbsoluteBalance())">Refund By Check/Cash {{ getAbsoluteBalance() | currency: tournamentCurrency }}</button>
             </ng-container>
           </div>
         </mat-step>
