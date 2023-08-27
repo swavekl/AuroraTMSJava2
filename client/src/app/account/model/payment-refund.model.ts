@@ -40,4 +40,10 @@ export class PaymentRefund {
 
   // what form of payment was used credit card, check or cash
   paymentForm: PaymentForm = PaymentForm.CREDIT_CARD;
+
+  // check number
+  checkNumber: number;
+
+  // check/cash payment note
+  note: string;
 }

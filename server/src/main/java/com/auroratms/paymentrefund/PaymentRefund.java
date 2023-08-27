@@ -58,5 +58,11 @@ public class PaymentRefund {
     // what form of payment was used credit card, check or cash
     @Column(columnDefinition = "integer default 0")
     private PaymentForm paymentForm;
+
+    // check number
+    private int checkNumber;
+
+    // check/cash payment note
+    private String note;
 }
 

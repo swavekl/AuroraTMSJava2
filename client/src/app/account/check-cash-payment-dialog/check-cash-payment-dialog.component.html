@@ -12,9 +12,10 @@
       <div fxLayout="row" fxLayoutAlign="start start" fxLayoutGap="10px">
         <mat-form-field fxFlex="50%">
           <mat-label>Check Number</mat-label>
-          <input matInput type="text" name="checkNumber" [(ngModel)]="checkNumber"
-                 [required]="!paymentInCash" [disabled]="paymentInCash">
-          <mat-error>This field is required</mat-error>
+          <input matInput type="text" name="checkNumber" [(ngModel)]="checkNumber" #checkNumberCtrl="ngModel"
+                 [required]="!paymentInCash" [disabled]="paymentInCash" pattern="\d*">
+          <mat-error *ngIf="checkNumberCtrl.control?.hasError('required')">This field is required</mat-error>
+          <mat-error *ngIf="checkNumberCtrl.control?.hasError('pattern')">Enter valid number</mat-error>
         </mat-form-field>
         <mat-form-field fxFlex="50%">
           <mat-label>Amount</mat-label>

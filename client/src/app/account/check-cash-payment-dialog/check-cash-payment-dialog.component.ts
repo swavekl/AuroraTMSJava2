@@ -22,7 +22,7 @@ export class CheckCashPaymentDialogComponent  implements OnInit, OnDestroy {
   public CANCEL = 'cancel';
 
   private subscriptions: Subscription = new Subscription();
-  checkNumber: string;
+  checkNumber: number;
   paidAmount: string;
   notes: string;
   paymentInCash: boolean = false;
@@ -52,6 +52,8 @@ export class CheckCashPaymentDialogComponent  implements OnInit, OnDestroy {
     paymentRefund.status = PaymentRefundStatus.PAYMENT_COMPLETED;
     paymentRefund.transactionDate = new Date();
     paymentRefund.paymentForm = (this.paymentInCash) ? PaymentForm.CASH : PaymentForm.CHECK;
+    paymentRefund.checkNumber = (this.paymentInCash) ? 0 : this.checkNumber;
+    paymentRefund.note = this.notes;
     const subscription = this.paymentRefundService.recordPaymentComplete(paymentRefund)
       .pipe(first())
       .subscribe(
