@@ -8,15 +8,18 @@
 Hello <span th:text="${playerFirstName}"></span>,
 <p>
 We wanted to let you know that your entry into "<span th:text="${tournamentName}"></span>" tournament was not finalized
-and the following event entries were removed by the system:
-<ul>
+and <span th:if="${removedTournamentEntry == true}">was removed by the system.</span>
+    <span th:if="${removedTournamentEntry == false}">the following event entries were removed by the system:</span>
+</p>
+<ul th:if="${removedTournamentEntry == false}">
     <li th:each="event: ${removedEvents}">
         <span th:text="${event.name}">*</span>
     </li>
 </ul>
+<p>
 Entries must be finalized by payment, refund or confirmation of changes if the changes don't result in balance.
 The entry must be finalized within 30 minutes of starting entry modification.
-If you intended to make these changes please go back to your entry, make the changes again and finalize as described above.
+If you intended to make these changes, find your entry or create a new one, make the changes and finalize them.
 </p>
 <p>
 We apologize for any inconvenience this may caused you.
