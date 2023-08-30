@@ -3,9 +3,8 @@ package com.auroratms.jobs;
 
 import com.auroratms.event.TournamentEvent;
 import com.auroratms.event.TournamentEventEntityService;
-import com.auroratms.paymentrefund.CartSession;
-import com.auroratms.paymentrefund.CartSessionService;
-import com.auroratms.paymentrefund.PaymentRefundFor;
+import com.auroratms.notification.SystemPrincipalExecutor;
+import com.auroratms.paymentrefund.*;
 import com.auroratms.profile.UserProfile;
 import com.auroratms.profile.UserProfileService;
 import com.auroratms.tournament.Tournament;
@@ -21,6 +20,7 @@ import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -56,14 +56,24 @@ public class CleanupExpiredCartSessionJob implements Job {
     @Autowired
     private EmailService emailService;
 
+    @Autowired
+    private PaymentRefundService paymentRefundService;
+
     @Override
     public void execute(JobExecutionContext context) throws JobExecutionException {
-        log.info("CleanupExpiredCartSessionJob - BEGIN");
-        List<CartSession> expiredSessions = cartSessionService.findExpiredSessions(PaymentRefundFor.TOURNAMENT_ENTRY);
-        for (CartSession expiredSession : expiredSessions) {
-            cleanupExpiredCartSession(expiredSession);
-        }
-        log.info("CleanupExpiredCartSessionJob - END");
+        SystemPrincipalExecutor task = new SystemPrincipalExecutor() {
+            @Override
+            @Transactional
+            protected void taskBody() {
+                log.info("CleanupExpiredCartSessionJob - BEGIN");
+                List<CartSession> expiredSessions = cartSessionService.findExpiredSessions(PaymentRefundFor.TOURNAMENT_ENTRY);
+                for (CartSession expiredSession : expiredSessions) {
+                    cleanupExpiredCartSession(expiredSession);
+                }
+                log.info("CleanupExpiredCartSessionJob - END");
+            }
+        };
+        task.execute();
     }
 
     private void cleanupExpiredCartSession(CartSession expiredSession) {
@@ -100,6 +110,25 @@ public class CleanupExpiredCartSessionJob implements Job {
                 // get events information from which player was dropped
                 List<TournamentEvent> deletedTournamentEvents = tournamentEventEntityService.findAllById(playerEventsToDelete);
 
+                // remove tournament entry if player didn't attempt to pay
+                boolean removedTournamentEntry = false;
+                List<TournamentEventEntry> tournamentEventEntries = tournamentEventEntryService.listAllForTournamentEntry(tournamentEntryId);
+                if (tournamentEventEntries.isEmpty()) {
+                    List<PaymentRefund> paymentRefunds = paymentRefundService.getPaymentRefunds(tournamentEntryId, PaymentRefundFor.TOURNAMENT_ENTRY);
+                    if (paymentRefunds.isEmpty()) {
+                        log.info("Deleting unfinished tournament entry without payments " + tournamentEntryId);
+                        removedTournamentEntry = true;
+                        tournamentEntryService.delete(tournamentEntryId);
+                        int numEntries = tournament.getNumEntries() - 1;
+                        numEntries = Math.max(numEntries, 0);
+                        int numEventEntries = tournament.getNumEventEntries() - playerEventsToDelete.size();
+                        numEventEntries = Math.max(numEventEntries, 0);
+                        tournament.setNumEntries(numEntries);
+                        tournament.setNumEventEntries(numEventEntries);
+                        tournamentService.updateTournament(tournament);
+                    }
+                }
+
                 // send email to player and cc TD
                 Map<String, Object> templateModel = new HashMap<>();
                 templateModel.put("playerFirstName", playerFirstName);
@@ -109,7 +138,8 @@ public class CleanupExpiredCartSessionJob implements Job {
                 templateModel.put("tournamentDirectorPhone", contactPhone);
                 templateModel.put("tournamentDirectorEmail", contactEmail);
                 templateModel.put("removedEvents", deletedTournamentEvents);
-                String emailSubject = String.format("Your unconfirmed '%s' entries", tournamentName );
+                templateModel.put("removedTournamentEntry", removedTournamentEntry);
+                String emailSubject = String.format("Unfinished entry into '%s'", tournamentName );
 
                 log.info("Sending email to " + playerEmail + " about entries for " + tournamentName);
                 emailService.sendMessageUsingThymeleafTemplate(playerEmail, contactEmail, emailSubject,

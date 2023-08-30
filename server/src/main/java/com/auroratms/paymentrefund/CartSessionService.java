@@ -18,7 +18,8 @@ public class CartSessionService {
     CartSessionRepository cartSessionRepository;
 
     // Sessions expire in 30 minutes if they are not completed
-    private static final int EXPIRED_SESSION_TIMEOUT = 30;
+    private static final int EXPIRED_SESSION_TIMEOUT = 10;
+//    private static final int EXPIRED_SESSION_TIMEOUT = 30;
 
     /**
      * start a session with a start timestamp of now
