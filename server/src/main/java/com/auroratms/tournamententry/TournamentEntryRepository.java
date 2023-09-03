@@ -1,6 +1,7 @@
 package com.auroratms.tournamententry;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
 
@@ -42,4 +43,8 @@ public interface TournamentEntryRepository extends JpaRepository<TournamentEntry
      * @return
      */
     int countTournamentEntryByTournamentFkEquals(long tournamentId);
+
+    @Query("select te.id from TournamentEntry te " +
+            "where te.tournamentFk = ?1 order by te.id")
+    List<Long> findAllEntryIds(long tournamentId);
 }

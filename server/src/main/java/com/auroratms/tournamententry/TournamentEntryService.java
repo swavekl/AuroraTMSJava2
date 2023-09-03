@@ -142,4 +142,8 @@ public class TournamentEntryService {
     public int getCountOfEntries(long tournamentId) {
         return repository.countTournamentEntryByTournamentFkEquals(tournamentId);
     }
+
+    public List<Long> findAllEntryIds (long tournamentId) {
+        return repository.findAllEntryIds(tournamentId);
+    }
 }

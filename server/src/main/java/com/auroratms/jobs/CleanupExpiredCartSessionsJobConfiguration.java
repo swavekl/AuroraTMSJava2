@@ -2,6 +2,7 @@ package com.auroratms.jobs;
 
 import org.quartz.JobDetail;
 import org.quartz.SimpleTrigger;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -14,17 +15,19 @@ import java.util.Date;
 @Configuration
 public class CleanupExpiredCartSessionsJobConfiguration {
 
-    @Bean
+    @Bean(name = "cleanupExpiredCartSessionJobDetail")
     public JobDetailFactoryBean cleanupExpiredCartSessionJobDetail() {
         JobDetailFactoryBean jobDetailFactory = new JobDetailFactoryBean();
         jobDetailFactory.setJobClass(CleanupExpiredCartSessionJob.class);
+        jobDetailFactory.setName("CleanupExpiredCartSessionJob");
         jobDetailFactory.setDescription("Invoke Cleanup Expired Cart Session Job...");
         jobDetailFactory.setDurability(true);
         return jobDetailFactory;
     }
 
-    @Bean
-    public SimpleTriggerFactoryBean cleanupExpiredCartSessionTrigger(JobDetail job) {
+    @Bean (name = "cleanupExpiredCartSessionTrigger")
+    public SimpleTriggerFactoryBean cleanupExpiredCartSessionTrigger(
+            @Qualifier("cleanupExpiredCartSessionJobDetail") JobDetail job) {
         SimpleTriggerFactoryBean trigger = new SimpleTriggerFactoryBean();
         trigger.setJobDetail(job);
         trigger.setRepeatInterval(10 * 60 * 1000);  // every 10 minutes

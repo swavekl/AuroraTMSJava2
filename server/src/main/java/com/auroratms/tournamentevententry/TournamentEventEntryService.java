@@ -138,4 +138,13 @@ public class TournamentEventEntryService {
     public List<TournamentEventEntry> findAllEntriesByTournamentFkWithWaitingListEntries(Long tournamentId) {
         return repository.findAllEntriesByTournamentFkWithEventStatus(tournamentId, EventEntryStatus.ENTERED_WAITING_LIST);
     }
+
+    /**
+     * Finds all tournament entry ids corresponding to tournament event entries
+     * @param tournamentId
+     * @return
+     */
+    public List<Long> findAllTournamentEntryIds(Long tournamentId) {
+        return repository.findAllTournamentEntryIds(tournamentId);
+    }
 }

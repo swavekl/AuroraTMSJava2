@@ -197,6 +197,13 @@ public class UserProfileController extends AbstractOktaController {
                             break;
                         }
                     }
+                } else {
+                    UsattPlayerRecord playerRecord = this.playerRecordRepository.getFirstByFirstNameAndLastName(userProfile.getFirstName(), userProfile.getLastName());
+                    if (playerRecord != null) {
+                        userProfile.setMembershipId(playerRecord.getMembershipId());
+                        userProfile.setTournamentRating(playerRecord.getTournamentRating());
+                        userProfile.setMembershipExpirationDate(playerRecord.getMembershipExpirationDate());
+                    }
                 }
             }
         }

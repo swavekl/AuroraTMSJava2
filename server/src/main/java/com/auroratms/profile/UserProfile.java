@@ -32,5 +32,6 @@ public class UserProfile {
     private Integer tournamentRating;
     private Long homeClubId;
     private String homeClubName;
+    // region of regional coordinator
     private String division;
 }

@@ -3,7 +3,6 @@ package com.auroratms.usatt;
 import com.auroratms.profile.UserProfile;
 import com.auroratms.profile.UserProfileService;
 import com.auroratms.users.UserRoles;
-import org.apache.commons.collections4.MapUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -11,7 +10,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Stream;
 
 /**
  * Service for getting various USATT officials and employees

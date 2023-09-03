@@ -9,6 +9,8 @@ import com.auroratms.tournamentevententry.TournamentEventEntry;
 import com.auroratms.tournamentevententry.TournamentEventEntryService;
 import com.auroratms.usatt.UsattDataService;
 import com.auroratms.usatt.UsattPlayerRecord;
+import com.auroratms.usatt.UsattPlayerRecordRepository;
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,17 +29,20 @@ public class TournamentEntryInfoService {
     private final UserProfileService userProfileService;
 
     private final UsattDataService usattDataService;
+    private final UsattPlayerRecordRepository usattPlayerRecordRepository;
 
     public TournamentEntryInfoService(TournamentEntryService tournamentEntryService,
                                       TournamentEventEntryService tournamentEventEntryService,
                                       UserProfileExtService userProfileExtService,
                                       UsattDataService usattDataService,
-                                      UserProfileService userProfileService) {
+                                      UserProfileService userProfileService,
+                                      UsattPlayerRecordRepository usattPlayerRecordRepository) {
         this.tournamentEntryService = tournamentEntryService;
         this.tournamentEventEntryService = tournamentEventEntryService;
         this.userProfileExtService = userProfileExtService;
         this.usattDataService = usattDataService;
         this.userProfileService = userProfileService;
+        this.usattPlayerRecordRepository = usattPlayerRecordRepository;
     }
 
     /**
@@ -95,6 +100,26 @@ public class TournamentEntryInfoService {
                 }
             } else {
                 System.out.println("didn't find profile id for membership " + membershipId);
+            }
+        }
+
+        if (profileIdsSet.size() != playerRecords.size()) {
+            Set<String> foundProfileIds = userProfileExtMap.keySet();
+            List<String> missingProfileIds = new ArrayList<>(CollectionUtils.removeAll(profileIdsSet, foundProfileIds));
+            Collection<UserProfile> userProfiles = userProfileService.listByProfileIds(missingProfileIds);
+            for (UserProfile userProfile : userProfiles) {
+                TournamentEntryInfo tournamentEntryInfo = mapProfileIdToInfo.get(userProfile.getUserId());
+                if (tournamentEntryInfo != null) {
+                    tournamentEntryInfo.setFirstName(userProfile.getFirstName());
+                    tournamentEntryInfo.setLastName(userProfile.getLastName());
+                    // find rating if it is missing
+                    UsattPlayerRecord playerRecord = usattPlayerRecordRepository.getFirstByFirstNameAndLastName(
+                                    userProfile.getFirstName(), userProfile.getLastName());
+                    if (playerRecord != null) {
+                        tournamentEntryInfo.setSeedRating(playerRecord.getTournamentRating());
+                        tournamentEntryInfo.setEligibilityRating(playerRecord.getTournamentRating());
+                    }
+                }
             }
         }
 
