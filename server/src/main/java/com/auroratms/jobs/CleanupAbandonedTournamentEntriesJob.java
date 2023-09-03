@@ -23,6 +23,10 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
+/**
+ * Job which removes abandoned tournament entries without any event entries
+ * and payments or refunds.
+ */
 @Component
 @Slf4j
 public class CleanupAbandonedTournamentEntriesJob implements Job {
