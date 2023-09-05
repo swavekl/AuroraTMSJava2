@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns="http://www.w3.org/1999/html">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <title></title>
+</head>
+<body>
+Hello <span th:text="${playerFirstName}"></span>,
+<p>
+    The eligibility date for '<span th:text="${tournamentName}"></span>' tournament is <span
+        th:if="${eligibilityDate != null}" th:text="${#dates.format(eligibilityDate,'MM/dd/yyyy')}"></span>.
+
+    <span th:if="${beforeEligibilityDate == false}">
+We wanted to let you know, that your eligibility rating has changed and on that date it was <span th:text="${eligibilityRating}"></span>.
+</span>
+    <span th:if="${beforeEligibilityDate == true}">
+We wanted to let you know, that your rating has changed and is now <span th:text="${eligibilityRating}"></span>.
+</span>
+    Unfortunately this rating disqualifies you from participating in the following event(s):
+</p>
+<ul>
+    <li th:each="eventName: ${eventNames}">
+        <span th:text="${eventName}">*</span>
+    </li>
+</ul>
+<p>
+    Please withdraw from these events and if you like, enter other events for which you are qualified.
+    This may result in a refund or an additional payment, so please complete these changes as soon as possible to bring your balance to 0.
+</p>
+Sincerely,<br>
+TTAurora Admin
+</body>
+</html>

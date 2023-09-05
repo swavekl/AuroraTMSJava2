@@ -1,5 +1,6 @@
 package com.auroratms.ratingsprocessing;
 
+import com.auroratms.ratingsprocessing.notification.RatingsProcessingEventPublisher;
 import com.auroratms.usatt.UsattDataService;
 import com.auroratms.usatt.UsattPlayerRecord;
 import com.auroratms.utils.filerepo.FileInfo;
@@ -37,6 +38,9 @@ public class RatingsProcessingController {
 
     @Autowired
     private FileRepositoryFactory fileRepositoryFactory;
+
+    @Autowired
+    private RatingsProcessingEventPublisher ratingsProcessingEventPublisher;
 
     private Runnable processingTask;
 
@@ -87,8 +91,6 @@ public class RatingsProcessingController {
                         }
                         ratingsProcessorStatus.phase = "Ratings updated";
 
-                        // todo: Update ratings history table
-
                         // clean up
                         outputFile.delete();
                         fileRepository.deleteByURL(ratingsFile);
@@ -99,6 +101,9 @@ public class RatingsProcessingController {
                     } finally {
                         ratingsProcessorStatus.endTime = System.currentTimeMillis();
                         processingTask = null;
+
+                        // initiate updates to seed and eligibility ratings in all future tournaments
+                        ratingsProcessingEventPublisher.publishRatingsProcessingEndEvent();
                     }
                 }
             };

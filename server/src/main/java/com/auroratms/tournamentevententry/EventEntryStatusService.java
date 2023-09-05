@@ -446,6 +446,7 @@ public class EventEntryStatusService {
         return makeBreakDoublesPairsEvent;
     }
 
+    @Transactional
     public void discard(Long tournamentEntryId, String cartSessionId, Boolean withdrawing) {
         List<TournamentEventEntry> allEntries = tournamentEventEntryService.getEntries(tournamentEntryId);
         for (TournamentEventEntry eventEntry : allEntries) {
