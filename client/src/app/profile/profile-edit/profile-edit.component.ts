@@ -86,10 +86,12 @@ export class ProfileEditComponent implements OnInit, OnChanges, AfterViewInit, O
     this.initClubFilter();
   }
 
-  onSave(formValues: any) {
-    const profile: Profile = new Profile();
-    profile.fromFormValues(formValues);
-    this.saved.emit(profile);
+  onSave(formValues: any, valid: boolean) {
+    if (valid) {
+      const profile: Profile = new Profile();
+      profile.fromFormValues(formValues);
+      this.saved.emit(profile);
+    }
   }
 
   onCancel() {

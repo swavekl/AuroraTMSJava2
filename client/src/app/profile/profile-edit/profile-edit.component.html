@@ -1,7 +1,7 @@
 <div fxLayout="row">
   <div fxFlex></div>
   <div fxFlex.lt-md="100%" fxFlex="55%" >
-    <form name="form" (ngSubmit)="onSave(f.value)" #f="ngForm" novalidate>
+    <form name="form" (ngSubmit)="onSave(f.value, f.form.valid)" #f="ngForm">
       <mat-card appearance="outlined">
         <mat-card-header>
           <mat-card-title>Player Profile</mat-card-title>
@@ -9,7 +9,7 @@
         <mat-card-actions>
             <button mat-raised-button type="button" (click)="onCancel()">Cancel</button>
             <span fxFlex></span>
-            <button mat-raised-button color="primary" type="submit" [disabled]="!f.form.valid">Save</button>
+            <button mat-raised-button color="primary" type="submit" >Save</button>
 <!--          <p>Form values: {{ f.value | json }} </p>-->
           <!--<p>Form status: {{ f.status | json }} </p>-->
           <!--<p>Zip code ALL errors: {{ zipCode.control?.errors | json }} </p>-->
