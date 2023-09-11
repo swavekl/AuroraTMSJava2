@@ -18,6 +18,7 @@ export class ClubListDataSource extends DataSource<Club> {
   paginator: MatPaginator | undefined;
   sort: MatSort | undefined;
   filterByName$: BehaviorSubject<string> = new BehaviorSubject<string>('');
+  filterByState$: BehaviorSubject<string> = new BehaviorSubject<string>('');
 
   constructor(private clubService: ClubService) {
     super();
@@ -37,7 +38,8 @@ export class ClubListDataSource extends DataSource<Club> {
       // load first page
       this.loadPage(false);
       // when results arrive or next page or sort order changes
-      return merge(this.clubs$, this.paginator.page, this.sort.sortChange, this.filterByName$.asObservable())
+      return merge(this.clubs$, this.paginator.page, this.sort.sortChange,
+        this.filterByName$.asObservable(), this.filterByState$.asObservable())
         .pipe(
           map((value: any, index: number) => {
             // console.log('value', value);
@@ -82,6 +84,11 @@ export class ClubListDataSource extends DataSource<Club> {
     if (filterValue !== '') {
       query += `&nameContains=${filterValue}`;
     }
+    const filterStateValue = this.filterByState$.value;
+    if (filterStateValue !== '') {
+      query += `&state=${filterStateValue}`;
+    }
+
     this.clubService.clearCache();
     this.clubService.getWithQuery(query)
       .pipe(tap((clubs: Club[]) => {

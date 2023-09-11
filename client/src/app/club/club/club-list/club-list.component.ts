@@ -10,6 +10,7 @@ import {UserRoles} from '../../../user/user-roles.enum';
 import {UntypedFormControl} from '@angular/forms';
 import {debounceTime, distinctUntilChanged, first, skip} from 'rxjs/operators';
 import {ClubEditCallbackData, ClubEditPopupService} from '../service/club-edit-popup.service';
+import {StatesList} from '../../../shared/states/states-list';
 
 @Component({
   selector: 'app-club-list',
@@ -21,17 +22,24 @@ export class ClubListComponent implements AfterViewInit {
   @ViewChild(MatSort) sort!: MatSort;
   @ViewChild(MatTable) table!: MatTable<Club>;
   @ViewChild('filterClubNameCtrl') filterClubNameCtrl: UntypedFormControl;
+  @ViewChild('filterStateCtrl') filterStateCtrl: UntypedFormControl;
   dataSource: ClubListDataSource;
   filterClubName: string;
+  filterState: string;
 
   /** Columns displayed in the table. Columns IDs can be added, removed, or reordered. */
   displayedColumns = ['clubName', 'city', 'state'];
+
+  statesList: any[] = [];
 
   constructor(private clubService: ClubService,
               private authenticationService: AuthenticationService,
               private clubEditPopupService: ClubEditPopupService) {
     this.dataSource = new ClubListDataSource(clubService);
     this.filterClubName = '';
+    this.statesList = [{'': ''}];
+    this.statesList = this.statesList.concat(StatesList.getCountryStatesList('US'));
+    this.filterState = '';
   }
 
   ngAfterViewInit(): void {
@@ -45,6 +53,15 @@ export class ClubListComponent implements AfterViewInit {
       )
       .subscribe((value) => {
       this.dataSource.filterByName$.next(value);
+    });
+    this.filterStateCtrl.valueChanges
+      .pipe(
+        skip(1),
+        distinctUntilChanged(),
+        debounceTime(500)
+      )
+      .subscribe((value) => {
+      this.dataSource.filterByState$.next(value);
     });
     this.table.dataSource = this.dataSource;
   }

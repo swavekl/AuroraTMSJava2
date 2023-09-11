@@ -50,6 +50,10 @@ public class ClubService {
         return this.clubRepository.findAllByClubNameContainsOrAlternateClubNamesContains(nameContains, nameContains, pageable);
     }
 
+    public Page<ClubEntity> findByNameLikeAndState(String nameContains, String state, Pageable pageable) {
+        return this.clubRepository.findAllByClubNameContainsAndStateEquals(nameContains, state, pageable);
+    }
+
     public List<ClubEntity> findByNameAndState(String clubName, String state) {
         return this.clubRepository.findAllByClubNameAndState(clubName, state);
     }

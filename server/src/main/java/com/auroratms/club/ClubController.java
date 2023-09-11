@@ -25,7 +25,14 @@ public class ClubController {
     public ResponseEntity<Page<ClubEntity>> listClubs(@RequestParam Map<String, String> params, Pageable pageable) {
         String nameContains = params.get("nameContains");
         nameContains = (!StringUtils.isEmpty(nameContains)) ? nameContains : "";
-        Page<ClubEntity> page = clubService.findByNameLike(nameContains, pageable);
+        String state = params.get("state");
+        state = (!StringUtils.isEmpty(state)) ? state : "";
+        Page<ClubEntity> page = null;
+        if (StringUtils.isEmpty(state)) {
+            page = clubService.findByNameLike(nameContains, pageable);
+        } else {
+            page = clubService.findByNameLikeAndState(nameContains, state, pageable);
+        }
         return new ResponseEntity<Page<ClubEntity>>(page, HttpStatus.OK);
     }
 
