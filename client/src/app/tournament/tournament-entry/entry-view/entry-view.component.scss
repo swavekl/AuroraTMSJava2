@@ -20,6 +20,23 @@ span.no-events-warning {
   padding: 8px;
 }
 
+table.player-info-table {
+  border-top: 1px solid blueviolet;
+  border-bottom: 1px solid blueviolet;
+  width: 100%;
+  margin: 8px 0;
+
+  tbody {
+    tr td {
+      text-align: end;
+
+      &.info-field {
+        text-align: start;
+      }
+    }
+  }
+}
+
 table.table-events-status {
   width: 100%;
   margin-top: 10px;

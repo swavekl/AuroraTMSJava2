@@ -52,6 +52,7 @@ export class EntryViewComponent implements OnInit, OnChanges, OnDestroy {
 
   private subscriptions = new Subscription ();
 
+  playerAge: number;
   constructor(private todayService: TodayService,
               private messageDialog: MatDialog) {
     this.membershipUtil = new MembershipUtil();
@@ -86,6 +87,7 @@ export class EntryViewComponent implements OnInit, OnChanges, OnDestroy {
       this.priceCalculator = this.initPricingCalculator(this.tournament.configuration.pricingMethod);
       this.entryTotal = this.getTotal();
       this.summaryReportItems = this.getSummaryReportItems();
+      this.playerAge = this.getPlayerAge();
     }
   }
 
@@ -219,5 +221,14 @@ export class EntryViewComponent implements OnInit, OnChanges, OnDestroy {
 
   onBack() {
     this.action.emit('back');
+  }
+
+  getPlayerAge() {
+    const dateOfBirth = this.playerProfile?.dateOfBirth;
+    let age = 0;
+    if (dateOfBirth != null && this.tournamentStartDate != null) {
+      age = new DateUtils().getAgeOnDate(dateOfBirth, this.tournamentStartDate);
+    }
+    return age;
   }
 }

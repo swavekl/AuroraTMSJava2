@@ -7,6 +7,26 @@
         <mat-card-subtitle>{{ playerProfile.lastName }}, {{playerProfile.firstName}}</mat-card-subtitle>
       </mat-card-title-group>
       <mat-card-content>
+        <table class="player-info-table">
+          <tbody>
+          <tr>
+            <td class="info-field">Elig./Seed Rating</td>
+            <td>{{entry.eligibilityRating}} / {{ entry.seedRating}}</td>
+          </tr>
+          <tr>
+            <td class="info-field">Phone</td>
+            <td>{{playerProfile.mobilePhone}}</td>
+          </tr>
+          <tr>
+            <td class="info-field">Email</td>
+            <td>{{playerProfile.email}}</td>
+          </tr>
+          <tr>
+            <td class="info-field">Age</td>
+            <td>{{ playerAge }}</td>
+          </tr>
+          </tbody>
+        </table>
         <ng-container *ngIf="enteredEvents?.length === 0; else showEntriesTable">
           <div class="no-events-warning">You are not entered in any events or withdrew from this tournament.</div>
         </ng-container>
