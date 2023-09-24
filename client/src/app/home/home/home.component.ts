@@ -14,6 +14,7 @@ import {createSelector} from '@ngrx/store';
 import {TournamentInfo} from '../../tournament/model/tournament-info.model';
 import {TournamentInfoService} from '../../tournament/service/tournament-info.service';
 import {NavigateUtil} from '../../shared/navigate-util';
+import {LocalStorageService} from '../../shared/local-storage.service';
 
 @Component({
   selector: 'app-home',
@@ -42,6 +43,9 @@ export class HomeComponent implements OnInit, OnDestroy {
   // today's tournament full information
   tournamentInfo: TournamentInfo;
 
+  screenVisited: boolean = false;
+  private SCREEN_VISITED: string = 'visited-home';
+
   private loading$: Observable<boolean>;
 
   /**
@@ -60,7 +64,8 @@ export class HomeComponent implements OnInit, OnDestroy {
               private tournamentEntryService: TournamentEntryService,
               private tournamentInfoService: TournamentInfoService,
               private todayService: TodayService,
-              private linearProgressBarService: LinearProgressBarService) {
+              private linearProgressBarService: LinearProgressBarService,
+              private localStorageService: LocalStorageService) {
     this.playerRating = '...';
     this.membershipExpirationDate = new Date();
     this.membershipExpired = false;
@@ -71,6 +76,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.setupProgressIndicator();
     this.loadUsattPlayerRecord();
     this.loadTodaysTournamentEntry();
+    this.screenVisited = (this.localStorageService.getSavedState(this.SCREEN_VISITED) != null);
   }
 
   private subscriptions: Subscription = new Subscription();
@@ -80,6 +86,8 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.subscriptions.unsubscribe();
+    this.localStorageService.setSavedState('true', this.SCREEN_VISITED);
+    this.screenVisited = true;
   }
 
   /**
