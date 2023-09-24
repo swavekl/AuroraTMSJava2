@@ -71,6 +71,22 @@
               {{ tournament.numEntries }} ({{percentFull | percent}} full)
             </td>
           </tr>
+          <tr *ngIf="tournament.configuration.blankEntryUrl != null">
+            <td></td>
+            <td class="heading mat-body-1">Blank Entry Form</td>
+          </tr>
+          <tr *ngIf="tournament.configuration.blankEntryUrl != null">
+            <td class="icon-column">
+              <button mat-fab color="primary">
+                <a [href]="tournament.configuration.blankEntryUrl" target="_blank">
+                  <mat-icon class="button-icon">description</mat-icon>
+                </a>
+              </button>
+            </td>
+            <td class="text-column">
+              <a [href]="tournament.configuration.blankEntryUrl" target="_blank">Download</a>
+            </td>
+          </tr>
           <tr>
             <td></td>
             <td class="heading mat-body-1">Key dates</td>
@@ -91,7 +107,7 @@
                   <td class="date-value">{{tournament.configuration.refundDate | date}}</td>
                 </tr>
                 <tr *ngIf="tournament.configuration.lateEntryFee > 0">
-                  <td class="date-name">Late Entry</td>
+                  <td class="date-name">Late Entry {{ tournament.configuration.lateEntryFee | currency }}</td>
                   <td class="date-value">{{tournament.configuration.lateEntryDate | date}}</td>
                 </tr>
                 <tr>
