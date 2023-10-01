@@ -10,6 +10,7 @@
           Group: {{group.groupNum}} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
           {{selectedEvent?.startTime | startTime}}
         </th>
+        <th>&nbsp;</th>
       </tr>
       </thead>
       <tbody cdkDropList
@@ -25,10 +26,10 @@
           [cdkDragDisabled]="editMode === false || drawItem.placeInGroup === 1">
         <ng-container *ngIf="drawItem.rating >= 0; else fakeItem;">
           <td class="rating-column">{{drawItem.rating}}</td>
-          <td class="player-column"
-              [matTooltip]="getTooltipText(drawItem)"
-              matTooltipClass="additional-info-tooltip"
-              matTooltipPosition="after">
+<!--              [matTooltip]="getTooltipText(drawItem)"-->
+<!--          matTooltipClass="additional-info-tooltip"-->
+<!--          matTooltipPosition="after">-->
+          <td class="player-column">
             <div>{{drawItem.playerName}}</div>
             <div class="additional-info" *ngIf="expandedView">
               {{drawItem.state ? drawItem.state : 'N/A'}}, {{drawItem.clubName ? drawItem.clubName : 'N/A'}}
@@ -43,6 +44,9 @@
                 </div>
               </div>
             </div>
+          </td>
+          <td>
+            <div class="conflict-indicator" [ngClass]="getConflictClass(drawItem)" [matTooltip]="getConflictTooltipText(drawItem)">&nbsp;</div>
           </td>
         </ng-container>
         <!-- element shown when there is no player in this place in the group -->
@@ -59,6 +63,9 @@
                 <div class="additional-info" *ngIf="expandedView">&nbsp;</div>
               </div>
             </div>
+          </td>
+          <td>
+            <div class="conflict-indicator"></div>
           </td>
         </ng-template>
       </tr>

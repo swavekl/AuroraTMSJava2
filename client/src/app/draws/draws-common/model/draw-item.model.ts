@@ -2,6 +2,7 @@
  * Represents a single player in a group draw
  */
 import {DrawType} from './draw-type.enum';
+import {ConflictType} from './conflict-type.enum';
 
 export interface DrawItem {
   id: number;
@@ -31,8 +32,8 @@ export interface DrawItem {
   // id of the player (Okta) for fetching state, club etc.
   playerId: string;
 
-  // list of conflicts - possibly null or list like 1, 2, 5 representing conflict types
-  conflicts: string;
+  // type of draw conflict if any
+  conflictType: ConflictType;
 
   // seed rating at a time of making the draws
   rating: number;

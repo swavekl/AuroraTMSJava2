@@ -2,6 +2,7 @@ package com.auroratms.draw;
 
 import com.auroratms.club.ClubEntity;
 import com.auroratms.club.ClubService;
+import com.auroratms.draw.conflicts.ConflictFinder;
 import com.auroratms.draw.generation.PlayerDrawInfo;
 import com.auroratms.draw.generation.singleelim.SingleEliminationEntriesConverter;
 import com.auroratms.event.TournamentEvent;
@@ -265,77 +266,9 @@ public class DrawController {
 
             long tournamentFk = thisEvent.getTournamentFk();
 
-            // get all players who entered tournament
-            List<TournamentEntry> tournamentEntries = this.entryService.listForTournament(tournamentFk);
-            Map<String, PlayerDrawInfo> profileIdToPlayerDrawInfo = new HashMap<>();
-            Map<Long, PlayerDrawInfo> entryIdToPlayerDrawInfo = new HashMap<>();
-            for (TournamentEntry tournamentEntry : tournamentEntries) {
-                PlayerDrawInfo playerDrawInfo = new PlayerDrawInfo();
-                playerDrawInfo.setProfileId(tournamentEntry.getProfileId());
-                playerDrawInfo.setRating(tournamentEntry.getSeedRating());
-                profileIdToPlayerDrawInfo.put(playerDrawInfo.getProfileId(), playerDrawInfo);
-                entryIdToPlayerDrawInfo.put(tournamentEntry.getId(), playerDrawInfo);
-            }
+            Map<Long, PlayerDrawInfo> entryIdToPlayerDrawInfo = getPlayerDrawInfo(tournamentFk);
 
-            // get additional player information - club id
-            Set<Long> clubIdsSet = new HashSet<>();
-
-            List<String> profileIds = new ArrayList<>(profileIdToPlayerDrawInfo.keySet());
-            Map<String, UserProfileExt> userProfileExtMap = userProfileExtService.findByProfileIds(profileIds);
-            Map<Long, PlayerDrawInfo> membershipIdToPlayerDrawInfo = new HashMap<>();
-            for (UserProfileExt userProfileExt : userProfileExtMap.values()) {
-                String profileId = userProfileExt.getProfileId();
-                PlayerDrawInfo playerDrawInfo = profileIdToPlayerDrawInfo.get(profileId);
-                if (playerDrawInfo != null) {
-                    if (userProfileExt.getClubFk() != null) {
-                        playerDrawInfo.setClubId(userProfileExt.getClubFk());
-                        // collect club ids for quick name lookup
-                        clubIdsSet.add(userProfileExt.getClubFk());
-                    }
-                    membershipIdToPlayerDrawInfo.put(userProfileExt.getMembershipId(), playerDrawInfo);
-                }
-            }
-
-            // get all club names into a map of club id to club name
-            List<ClubEntity> clubList = this.clubService.findAllByIdIn(new ArrayList<Long>(clubIdsSet));
-            Map<Long, String> clubIdToClubNameMap = new HashMap<>();
-            for (ClubEntity clubEntity : clubList) {
-                clubIdToClubNameMap.put(clubEntity.getId(), clubEntity.getClubName());
-            }
-            for (PlayerDrawInfo playerDrawInfo : profileIdToPlayerDrawInfo.values()) {
-                Long clubId = playerDrawInfo.getClubId();
-                if (clubId != null) {
-                    String clubName = clubIdToClubNameMap.get(clubId);
-                    playerDrawInfo.setClubName(clubName);
-                }
-            }
-
-            // todo make this better
-            // get the state from player record - instead of going to Okta
-            // get state and name
-            List<Long> membershipIds = new ArrayList<>(membershipIdToPlayerDrawInfo.keySet());
-            List<UsattPlayerRecord> usattPlayerRecordList = this.usattDataService.findAllByMembershipIdIn(membershipIds);
-            for (UsattPlayerRecord usattPlayerRecord : usattPlayerRecordList) {
-                Long membershipId = usattPlayerRecord.getMembershipId();
-                PlayerDrawInfo playerDrawInfo = membershipIdToPlayerDrawInfo.get(membershipId);
-                if (playerDrawInfo != null) {
-                    playerDrawInfo.setState(usattPlayerRecord.getState());
-                    String fullName = usattPlayerRecord.getLastName() + ", " + usattPlayerRecord.getFirstName();
-                    playerDrawInfo.setPlayerName(fullName);
-                }
-            }
-
-            // get list of other event entries
-            List<Long> otherEventIds = new ArrayList<>();
-            Collection<TournamentEvent> tournamentEventEntities = this.eventService.list(tournamentFk, Pageable.unpaged());
-            for (TournamentEvent event : tournamentEventEntities) {
-                if (!event.getId().equals(thisEvent.getId())) {
-                    otherEventIds.add(event.getId());
-                }
-            }
-
-            // get draws for these other events so we can find and mitigate conflicts
-            List<DrawItem> existingDrawItems = this.drawService.listAllDrawsForTournament(otherEventIds);
+            List<DrawItem> existingDrawItems = getOtherEventDrawItems(tournamentFk, thisEvent);
 
             // finally make the draws and save them
             List<DrawItem> drawItems = this.drawService.generateDraws(thisEvent, drawType, eventEntries,
@@ -357,6 +290,89 @@ public class DrawController {
         } catch (Exception e) {
             return new ResponseEntity<List<DrawItem>>(Collections.EMPTY_LIST, HttpStatus.BAD_REQUEST);
         }
+    }
+
+    private List<DrawItem> getOtherEventDrawItems(long tournamentFk, TournamentEvent thisEvent) {
+        // get list of other event entries
+        List<Long> otherEventIds = new ArrayList<>();
+        Collection<TournamentEvent> tournamentEventEntities = this.eventService.list(tournamentFk, Pageable.unpaged());
+        for (TournamentEvent event : tournamentEventEntities) {
+            if (!event.getId().equals(thisEvent.getId())) {
+                otherEventIds.add(event.getId());
+            }
+        }
+
+        // get draws for these other events so we can find and mitigate conflicts
+        List<DrawItem> existingDrawItems = this.drawService.listAllDrawsForTournament(otherEventIds);
+        return existingDrawItems;
+    }
+
+    /**
+     *
+     * @param tournamentFk
+     * @return
+     */
+    private Map<Long, PlayerDrawInfo> getPlayerDrawInfo(long tournamentFk) {
+        // get all players who entered tournament
+        List<TournamentEntry> tournamentEntries = this.entryService.listForTournament(tournamentFk);
+        Map<String, PlayerDrawInfo> profileIdToPlayerDrawInfo = new HashMap<>();
+        Map<Long, PlayerDrawInfo> entryIdToPlayerDrawInfo = new HashMap<>();
+        for (TournamentEntry tournamentEntry : tournamentEntries) {
+            PlayerDrawInfo playerDrawInfo = new PlayerDrawInfo();
+            playerDrawInfo.setProfileId(tournamentEntry.getProfileId());
+            playerDrawInfo.setRating(tournamentEntry.getSeedRating());
+            profileIdToPlayerDrawInfo.put(playerDrawInfo.getProfileId(), playerDrawInfo);
+            entryIdToPlayerDrawInfo.put(tournamentEntry.getId(), playerDrawInfo);
+        }
+
+        // get additional player information - club id
+        Set<Long> clubIdsSet = new HashSet<>();
+
+        List<String> profileIds = new ArrayList<>(profileIdToPlayerDrawInfo.keySet());
+        Map<String, UserProfileExt> userProfileExtMap = userProfileExtService.findByProfileIds(profileIds);
+        Map<Long, PlayerDrawInfo> membershipIdToPlayerDrawInfo = new HashMap<>();
+        for (UserProfileExt userProfileExt : userProfileExtMap.values()) {
+            String profileId = userProfileExt.getProfileId();
+            PlayerDrawInfo playerDrawInfo = profileIdToPlayerDrawInfo.get(profileId);
+            if (playerDrawInfo != null) {
+                if (userProfileExt.getClubFk() != null) {
+                    playerDrawInfo.setClubId(userProfileExt.getClubFk());
+                    // collect club ids for quick name lookup
+                    clubIdsSet.add(userProfileExt.getClubFk());
+                }
+                membershipIdToPlayerDrawInfo.put(userProfileExt.getMembershipId(), playerDrawInfo);
+            }
+        }
+
+        // get all club names into a map of club id to club name
+        List<ClubEntity> clubList = this.clubService.findAllByIdIn(new ArrayList<Long>(clubIdsSet));
+        Map<Long, String> clubIdToClubNameMap = new HashMap<>();
+        for (ClubEntity clubEntity : clubList) {
+            clubIdToClubNameMap.put(clubEntity.getId(), clubEntity.getClubName());
+        }
+        for (PlayerDrawInfo playerDrawInfo : profileIdToPlayerDrawInfo.values()) {
+            Long clubId = playerDrawInfo.getClubId();
+            if (clubId != null) {
+                String clubName = clubIdToClubNameMap.get(clubId);
+                playerDrawInfo.setClubName(clubName);
+            }
+        }
+
+        // todo make this better
+        // get the state from player record - instead of going to Okta
+        // get state and name
+        List<Long> membershipIds = new ArrayList<>(membershipIdToPlayerDrawInfo.keySet());
+        List<UsattPlayerRecord> usattPlayerRecordList = this.usattDataService.findAllByMembershipIdIn(membershipIds);
+        for (UsattPlayerRecord usattPlayerRecord : usattPlayerRecordList) {
+            Long membershipId = usattPlayerRecord.getMembershipId();
+            PlayerDrawInfo playerDrawInfo = membershipIdToPlayerDrawInfo.get(membershipId);
+            if (playerDrawInfo != null) {
+                playerDrawInfo.setState(usattPlayerRecord.getState());
+                String fullName = usattPlayerRecord.getLastName() + ", " + usattPlayerRecord.getFirstName();
+                playerDrawInfo.setPlayerName(fullName);
+            }
+        }
+        return entryIdToPlayerDrawInfo;
     }
 
     /**
@@ -405,7 +421,82 @@ public class DrawController {
     @PutMapping("")
     @PreAuthorize("hasAuthority('TournamentDirectors') or hasAuthority('Admins') or hasAuthority('Referees')")
     public void update(@RequestBody List<DrawItem> drawItemsList) {
-        this.drawService.updateDraws(drawItemsList);
+
+        if (!drawItemsList.isEmpty()) {
+            DrawItem drawItem = drawItemsList.get(0);
+
+            List<TournamentEventEntry> thisEventEntries = eventEntryService.listAllForEvent(drawItem.getEventFk());
+            // only two items were exchanged, but we need to get the full groups to determine conflicts
+            List<DrawItem> groupsDrawItems = getFullGroupDrawItems(drawItemsList, thisEventEntries);
+
+            TournamentEvent thisEvent = this.eventService.get(drawItem.getEventFk());
+
+            long tournamentFk = thisEvent.getTournamentFk();
+
+            Map<Long, PlayerDrawInfo> entryIdToPlayerDrawInfo = getPlayerDrawInfo(tournamentFk);
+
+            List<DrawItem> existingDrawItems = getOtherEventDrawItems(tournamentFk, thisEvent);
+
+            ConflictFinder conflictFinder = new ConflictFinder(drawItem.getDrawType(),
+                    entryIdToPlayerDrawInfo, existingDrawItems, thisEvent);
+            conflictFinder.identifyConflicts(groupsDrawItems);
+
+            // update all groups draw items since their conflicts may have changed
+            this.drawService.updateDraws(groupsDrawItems);
+        }
+    }
+
+    /**
+     * Gets the draw items for both groups which have been updated
+     *
+     * @param drawItemsList    updated draw items
+     * @param thisEventEntries
+     * @return group draw items
+     */
+    private List<DrawItem> getFullGroupDrawItems(List<DrawItem> drawItemsList, List<TournamentEventEntry> thisEventEntries) {
+        DrawItem drawItem = drawItemsList.get(0);
+        // get which group numbers were affected by this change
+        Set<Integer> groupNumbers = new HashSet<>();
+        Set<Long> updatedDrawItemsIds = new HashSet<>();
+        for (DrawItem item : drawItemsList) {
+            groupNumbers.add(item.getGroupNum());
+            updatedDrawItemsIds.add(item.getId());
+        }
+
+        // get all draw items and filter out those which are not in these groups or the updated ones
+        List<DrawItem> otherDrawItemsInEvent = drawService.list(drawItem.getEventFk(), drawItem.getDrawType());
+        List<DrawItem> groupsDrawItems = new ArrayList<>();
+        for (DrawItem otherDrawItem : otherDrawItemsInEvent) {
+            if (groupNumbers.contains(otherDrawItem.getGroupNum())) {
+                if (!updatedDrawItemsIds.contains(otherDrawItem.getId())) {
+                    groupsDrawItems.add(otherDrawItem);
+                }
+            }
+        }
+
+        // add the updated ones and sort them
+        groupsDrawItems.addAll(drawItemsList);
+        groupsDrawItems.sort(Comparator.comparing(DrawItem::getGroupNum)
+                .thenComparing(DrawItem::getPlaceInGroup));
+
+        // fill in the tournament entry ids
+        List<Long> tournamentEntryFkList = new ArrayList<>(groupsDrawItems.size());
+        for (TournamentEventEntry eventEntry : thisEventEntries) {
+            tournamentEntryFkList.add(eventEntry.getTournamentEntryFk());
+        }
+
+        List<TournamentEntry> tournamentEntries = entryService.listEntries(tournamentEntryFkList);
+        for (TournamentEntry tournamentEntry : tournamentEntries) {
+            String profileId = tournamentEntry.getProfileId();
+            for (DrawItem groupsDrawItem : groupsDrawItems) {
+                if (groupsDrawItem.getPlayerId().equals(profileId)) {
+                    groupsDrawItem.setEntryId(tournamentEntry.getId());
+                    break;
+                }
+            }
+        }
+
+        return groupsDrawItems;
     }
 
     /**

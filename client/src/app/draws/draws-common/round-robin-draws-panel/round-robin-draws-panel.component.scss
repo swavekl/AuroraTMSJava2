@@ -19,6 +19,7 @@ table {
   thead tr th {
     background-color: #d7c8f5;
     padding: 8px 0;
+    cursor: default;
 
     &.group-num-column {
       text-align: start;
@@ -51,6 +52,51 @@ table {
       vertical-align: top;
       width: 17%;
       padding-right: 8px;
+    }
+
+    div {
+      &.conflict-indicator {
+        width: 6px;
+        height: 16px;
+        cursor: default;
+        border-radius: 3px;
+      }
+
+      &.no-conflict {
+        background-color: white;
+        border: 1px solid white;
+      }
+
+      &.no-conflict {
+        background-color: white;
+        border: 1px solid white;
+      }
+
+      &.scores-entered {
+        background-color: lightskyblue;
+        border: 1px solid lightskyblue;
+      }
+
+      &.lives-nearby {
+        background-color: greenyellow;
+        border: 1px solid greenyellow;
+      }
+
+      &.same-club-first-round {
+        background-color: red;
+        border: 1px solid red;
+      }
+
+      &.same-club-second-round {
+        background-color: yellow;
+        border: 1px solid yellow;
+      }
+
+      &.plays-in-other-event {
+        background-color: purple;
+        border: 1px solid purple;
+      }
+
     }
   }
 }

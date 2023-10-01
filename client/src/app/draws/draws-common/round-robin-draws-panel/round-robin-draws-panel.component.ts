@@ -1,4 +1,4 @@
-import {Component, EventEmitter, Input, OnChanges, Output, SimpleChange, SimpleChanges} from '@angular/core';
+import {Component, EventEmitter, Input, OnChanges, Output, SimpleChanges} from '@angular/core';
 import {CdkDrag, CdkDragDrop, CdkDropList, transferArrayItem} from '@angular/cdk/drag-drop';
 import {MatDialog} from '@angular/material/dialog';
 import {TournamentEvent} from '../../../tournament/tournament-config/tournament-event.model';
@@ -8,6 +8,7 @@ import {DrawType} from '../model/draw-type.enum';
 import {UndoMemento} from '../model/undo-memento';
 import {DrawAction, DrawActionType} from '../../draws-config/draws/draw-action';
 import {ConfirmationPopupComponent} from '../../../shared/confirmation-popup/confirmation-popup.component';
+import {ConflictType} from '../model/conflict-type.enum';
 
 @Component({
   selector: 'app-round-robin-draws-panel',
@@ -112,7 +113,7 @@ export class RoundRobinDrawsPanelComponent implements OnChanges {
               placeInGroup: i,
               drawType: DrawType.ROUND_ROBIN,
               playerId: 'N/A',
-              conflicts: null,
+              conflictType: ConflictType.NO_CONFLICT,
               rating: -1,
               playerName: ' ',
               state: ' ',
@@ -211,7 +212,9 @@ export class RoundRobinDrawsPanelComponent implements OnChanges {
         drawGroup.drawItems.forEach((drawItem: DrawItem, index: number) => {
           // find the moved item that is not a fake (empty) that has wrong group after move
           if (index === rowIndex && drawItem.id !== -1) {
-            const movedItem = {...drawItem, groupNum: groupNum};
+              const newGroupNum = (drawItem.groupNum === groupNum1) ? groupNum2 : groupNum1;
+              // console.log('groupNum: ' + groupNum +' newGroupNum: ' + newGroupNum);
+            const movedItem = {...drawItem, groupNum: newGroupNum};
             movedDrawItems.push(movedItem);
           }
         });
@@ -222,7 +225,7 @@ export class RoundRobinDrawsPanelComponent implements OnChanges {
     const action: DrawAction = {
       actionType: DrawActionType.DRAW_ACTION_UPDATE,
       eventId: this.selectedEvent.id,
-      payload: {movedDrawItems: movedDrawItems}
+      payload: {movedDrawItems: movedDrawItems, drawType: DrawType.ROUND_ROBIN}
     };
     this.drawsAction.emit(action);
   }
@@ -271,7 +274,7 @@ export class RoundRobinDrawsPanelComponent implements OnChanges {
   }
 
   hasUndoItems(): boolean {
-    console.log('this.undoStack?.length', this.undoStack?.length);
+    // console.log('this.undoStack?.length', this.undoStack?.length);
     return this.undoStack?.length > 0;
   }
 
@@ -306,4 +309,69 @@ export class RoundRobinDrawsPanelComponent implements OnChanges {
   clearUndoStack() {
     this.undoStack = [];
   }
+
+  getConflictClass(drawItem: DrawItem) {
+    let conflictClass = 'no-conflict';
+    if (drawItem.conflictType != null) {
+      switch (drawItem.conflictType) {
+        case ConflictType.NO_CONFLICT:
+          conflictClass = 'no-conflict';
+          break;
+
+        case ConflictType.LIVES_NEARBY:
+          conflictClass = 'lives-nearby';
+          break;
+
+        case ConflictType.SAME_CLUB_FIRST_ROUND:
+          conflictClass = 'same-club-first-round';
+          break;
+
+        case ConflictType.SAME_CLUB_SECOND_ROUND:
+          conflictClass = 'same-club-second-round';
+          break;
+
+        case ConflictType.PLAYS_IN_OTHER_EVENT_FIRST_ROUND:
+          conflictClass = 'plays-in-other-event';
+          break;
+
+        case ConflictType.SCORES_ENTERED:
+          conflictClass = 'scores-entered';
+          break;
+      }
+    }
+    return conflictClass;
+  }
+
+  getConflictTooltipText(drawItem: DrawItem) {
+    let tooltipText = '';
+    if (drawItem.conflictType != null) {
+      switch (drawItem.conflictType) {
+        case ConflictType.NO_CONFLICT:
+          tooltipText = '';
+          break;
+
+        case ConflictType.LIVES_NEARBY:
+          tooltipText = 'This player lives near the other player in this group';  // green
+          break;
+
+        case ConflictType.SAME_CLUB_FIRST_ROUND:
+          tooltipText = 'This player and another player in this group are from the same club';  // red
+          break;
+
+        case ConflictType.SAME_CLUB_SECOND_ROUND:
+          tooltipText = 'This player and another player from the same club may meet in second round';  // yellow
+          break;
+
+        case ConflictType.PLAYS_IN_OTHER_EVENT_FIRST_ROUND:
+          tooltipText = 'The players are in a first round match with each other in some other event';  // purpple
+          break;
+
+        case ConflictType.SCORES_ENTERED:
+          tooltipText = 'Winner of the group'; // blue
+          break;
+      }
+    }
+    return tooltipText;
+  }
 }
+

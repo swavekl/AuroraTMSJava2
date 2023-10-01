@@ -8,6 +8,7 @@ import {TournamentEvent} from '../../tournament/tournament-config/tournament-eve
 import {PlayerResults} from '../model/player-results';
 import {NgttRound, NgttTournament} from 'ng-tournament-tree/lib/declarations/interfaces';
 import {MatchResult} from '../model/match-result';
+import {ConflictType} from '../../draws/draws-common/model/conflict-type.enum';
 
 @Component({
   selector: 'app-tournament-result-details',
@@ -57,7 +58,7 @@ export class TournamentResultDetailsComponent implements OnInit, OnChanges {
             clubName: null,
             eventFk: this.event.id,
             byeNum: playerResult.byeNumber,
-            conflicts: null,
+            conflictType: ConflictType.NO_CONFLICT,
             groupNum: eventResults.groupNumber,
             placeInGroup: 1, // todo
             playerId: playerResult.profileId,

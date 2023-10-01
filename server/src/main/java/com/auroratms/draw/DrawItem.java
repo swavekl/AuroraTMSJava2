@@ -1,5 +1,6 @@
 package com.auroratms.draw;
 
+import com.auroratms.draw.conflicts.ConflictType;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
@@ -52,8 +53,9 @@ public class DrawItem {
     // constant indicating that player id is to be determined
     public static final String TBD_PROFILE_ID = "TBD";
 
-    // list of conflicts - possibly null or list like 1, 2, 5 representing conflict types
-    private String conflicts;
+    // type of conflict
+    @Column(columnDefinition = "integer default 0")
+    private ConflictType conflictType = ConflictType.NO_CONFLICT;
 
     // seed rating at a time of making the draws
     private int rating;

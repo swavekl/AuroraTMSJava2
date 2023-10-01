@@ -1,5 +1,6 @@
 package com.auroratms.draw;
 
+import com.auroratms.draw.conflicts.ConflictFinder;
 import com.auroratms.draw.generation.*;
 import com.auroratms.draw.notification.DrawsEventPublisher;
 import com.auroratms.draw.notification.event.DrawAction;
@@ -65,9 +66,14 @@ public class DrawService {
                     }
                 }
                 drawItemList = generator.generateDraws(eventEntries, entryIdToPlayerDrawInfo, existingDrawItems);
+
+                // find the conflicts and record them in draw items
+                ConflictFinder conflictFinder = new ConflictFinder(drawType,
+                        entryIdToPlayerDrawInfo, existingDrawItems, tournamentEvent);
+                conflictFinder.identifyConflicts(drawItemList);
             }
             // save the list
-            if (drawItemList.size() > 0) {
+            if (!drawItemList.isEmpty()) {
                 this.drawRepository.saveAll(drawItemList);
             }
         } catch (Exception e) {

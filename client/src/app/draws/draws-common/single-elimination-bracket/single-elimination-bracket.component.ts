@@ -3,9 +3,9 @@ import {NgttRound, NgttTournament} from 'ng-tournament-tree/lib/declarations/int
 import {DrawRound} from '../model/draw-round.model';
 import {DrawItem} from '../model/draw-item.model';
 import {Match} from '../model/match.model';
-import {DrawGroup} from '../model/draw-group.model';
 import {DrawType} from '../model/draw-type.enum';
 import {TournamentEvent} from '../../../tournament/tournament-config/tournament-event.model';
+import {ConflictType} from '../model/conflict-type.enum';
 
 @Component({
   selector: 'app-single-elimination-bracket',
@@ -101,8 +101,8 @@ export class SingleEliminationBracketComponent implements OnInit, OnChanges {
           if (drawItem == null) {
             drawItem = {
               id: 0, eventFk: eventFK, drawType: DrawType.SINGLE_ELIMINATION, groupNum: groupNum, placeInGroup: placeInGroup,
-              state: null, rating: 0, clubName: null, playerName: null, playerId: this.TBD_PROFILE_ID, conflicts: null, byeNum: 0,
-              round: drawRound.round, seSeedNumber: 0
+              state: null, rating: 0, clubName: null, playerName: null, playerId: this.TBD_PROFILE_ID, conflictType: ConflictType.NO_CONFLICT,
+              byeNum: 0, round: drawRound.round, seSeedNumber: 0
             };
             drawRound.drawItems.push(drawItem);
           }
@@ -116,8 +116,8 @@ export class SingleEliminationBracketComponent implements OnInit, OnChanges {
             if (drawItem == null) {
               drawItem = {
                 id: 0, eventFk: eventFK, drawType: DrawType.SINGLE_ELIMINATION, groupNum: groupNum, placeInGroup: placeInGroup,
-                state: null, rating: 0, clubName: null, playerName: null, playerId: this.TBD_PROFILE_ID, conflicts: null, byeNum: 0,
-                round: 2, seSeedNumber: 0
+                state: null, rating: 0, clubName: null, playerName: null, playerId: this.TBD_PROFILE_ID, conflictType: ConflictType.NO_CONFLICT,
+                byeNum: 0, round: 2, seSeedNumber: 0
               };
               drawRound.drawItems.push(drawItem);
             }
