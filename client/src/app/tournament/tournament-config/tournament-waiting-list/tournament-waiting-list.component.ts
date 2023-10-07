@@ -16,6 +16,9 @@ export class TournamentWaitingListComponent implements OnInit, OnChanges {
   @Input()
   tournamentEvents: TournamentEvent[];
 
+  @Input()
+  standaloneScreen: boolean = true;
+
   // map of event id to event object for faster lookup
   private eventIdToEventMap: any;
 

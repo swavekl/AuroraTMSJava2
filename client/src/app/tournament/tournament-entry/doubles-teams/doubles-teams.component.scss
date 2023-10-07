@@ -1,5 +1,9 @@
 @use "src/my-theme.scss" as *;
 
+.toolbar-spacer-2 {
+  margin-right: 16px;
+}
+
 .not-selected {
   background-color: white;
 }

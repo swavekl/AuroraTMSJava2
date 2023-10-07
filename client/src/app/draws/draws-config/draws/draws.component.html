@@ -12,6 +12,8 @@
     <div fxFlex>
       <mat-toolbar>
         <mat-toolbar-row>
+          <button mat-raised-button type="button" [routerLink]="['/ui/tournamentsconfig']" >Back</button>
+          <span class="toolbar-spacer-2"></span>
           <button type="button" color="primary" mat-raised-button (click)="generateDraw()"
                   [disabled]="selectedEvent == null">
             <mat-icon matListItemIcon>assignment</mat-icon>
@@ -35,7 +37,7 @@
           <span class="mat-h2" style="padding-top: 12px;">{{tournamentName}}</span>
         </mat-toolbar-row>
       </mat-toolbar>
-      <div class="all-draws-panel-edit" *ngIf="selectedEvent != null">
+      <div class="all-draws-panel-edit" *ngIf="selectedEvent != null; else noselection">
         <app-tabbed-draws-panel [editMode]="true"
                                 [allowDrawChanges]="allowDrawChanges"
                                 [selectedEvent]="selectedEvent"
@@ -44,6 +46,9 @@
                                 (updateFlagEE)="updateFlag()">
         </app-tabbed-draws-panel>
       </div>
+      <ng-template #noselection>
+          <app-centered-panel>No event selected</app-centered-panel>
+      </ng-template>
     </div>
   </form>
 </div>

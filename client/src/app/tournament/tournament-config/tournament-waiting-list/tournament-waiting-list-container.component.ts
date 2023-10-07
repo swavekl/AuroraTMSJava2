@@ -13,7 +13,8 @@ import {LinearProgressBarService} from '../../../shared/linear-progress-bar/line
   template: `
     <app-tournament-waiting-list
       [tournamentEntryInfos]="tournamentEntryInfos$ | async"
-      [tournamentEvents]="tournamentEvents$ | async">
+      [tournamentEvents]="tournamentEvents$ | async"
+      [standaloneScreen]="standaloneScreen">
     </app-tournament-waiting-list>
   `,
   styles: []
@@ -26,10 +27,13 @@ export class TournamentWaitingListContainerComponent implements OnInit, OnDestro
   private subscriptions: Subscription = new Subscription();
   loading$: Observable<boolean>;
 
+  public standaloneScreen: boolean = true;
+
   constructor(private tournamentEntryInfoService: TournamentEntryInfoService,
               private tournamentEventConfigService: TournamentEventConfigService,
               private activatedRoute: ActivatedRoute,
               private linearProgressBarService: LinearProgressBarService) {
+    this.standaloneScreen = (this.activatedRoute.outlet === 'primary')
   }
 
   ngOnDestroy(): void {

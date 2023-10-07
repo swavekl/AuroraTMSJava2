@@ -1,5 +1,10 @@
 <div fxLayout="column" fxLayoutAlign="start start" class="page-container">
-  <h2>Waiting List Players</h2>
+  <ng-container *ngIf="standaloneScreen">
+    <h2 >Waiting List Players</h2>
+    <mat-toolbar>
+      <button mat-raised-button type="button" [routerLink]="['/ui/tournamentsconfig']" >Back</button>
+    </mat-toolbar>
+  </ng-container>
   <div style="padding: 0 0 16px 0; width: 100%;" fxLayout="row" fxLayoutAlign="center center">
     <mat-button-toggle-group name="sortBy" aria-label="Sort By" [value]="sortBy">
       <mat-button-toggle value="name" (click)="onSortByName()">Sort by Player Name</mat-button-toggle>

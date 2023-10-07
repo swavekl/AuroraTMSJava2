@@ -1,7 +1,10 @@
 <div class="grid-container">
   <div class="mat-h2 dashboard-title">Tournament Director Dashboard - {{tournamentName}}</div>
+  <mat-toolbar>
+    <button mat-raised-button type="button" [routerLink]="['/ui/tournamentsconfig']" >Back</button>
+  </mat-toolbar>
   <div class="dashlet-container">
-    <mat-grid-list cols="2" rowHeight="400px">
+    <mat-grid-list cols="2" rowHeight="370px">
       <mat-grid-tile *ngFor="let card of cards | async" [colspan]="card.cols" [rowspan]="card.rows">
         <mat-card appearance="outlined" class="dashboard-card">
           <mat-card-header>
