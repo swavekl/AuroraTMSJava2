@@ -14,7 +14,7 @@ div.round-header-container {
 div.round-header {
 
   div {
-    min-width: 259px;
+    min-width: 269px;  // this is related to $ngtt-match-wrapper-width in my-theme.scss
     //border-left: 1px solid white;
     border-right: 1px solid white;
     text-align: center;

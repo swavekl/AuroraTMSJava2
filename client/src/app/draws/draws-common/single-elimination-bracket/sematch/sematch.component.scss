@@ -2,8 +2,8 @@ $match-box-color: #d7c8f5;
 
 .match-box {
   border: 2px solid $match-box-color;
-  width: 225px;
-  max-width: 225px;
+  width: 235px;  // // this is related to $ngtt-match-wrapper-width in my-theme.scss
+  max-width: 235px;
 }
 
 .player-line {
@@ -17,6 +17,10 @@ $match-box-color: #d7c8f5;
   white-space: nowrap;
 }
 
+.draggable {
+  cursor: grab;
+}
+
 .match-winner {
   font-weight: bold;
 }
@@ -27,16 +31,70 @@ $match-box-color: #d7c8f5;
   background-color: #a27bee;
   text-align: center;
   font-size: 14px;
-  cursor: grab;
 }
 
 .time-and-table {
   text-align: center;
   width: 200px;
   font-size: 14px;
+  //border: 1px solid red;
 }
 
 .additional-info-tooltip {
   font-size: 12px;
   background-color: #FFFFFF;
 }
+
+div.conflict-indicator-container {
+  border: 1px solid $match-box-color;
+  background-color: $match-box-color;
+  font-size: 14px;
+  vertical-align: middle;
+  padding: 5px 0;
+}
+
+div.conflict-indicator-separator {
+  text-align: center;
+  width: 8px;
+  height: 20px;
+}
+
+div {
+  &.conflict-indicator {
+    width: 6px;
+    height: 14px;
+    cursor: default;
+    border-radius: 3px;
+  }
+
+  &.no-conflict {
+    background-color: $match-box-color;
+    border: 1px solid $match-box-color;
+  }
+
+  &.scores-entered {
+    background-color: lightskyblue;
+    border: 1px solid lightskyblue;
+  }
+
+  &.lives-nearby {
+    background-color: greenyellow;
+    border: 1px solid greenyellow;
+  }
+
+  &.same-club-first-round {
+    background-color: red;
+    border: 1px solid red;
+  }
+
+  &.same-club-second-round {
+    background-color: yellow;
+    border: 1px solid yellow;
+  }
+
+  &.plays-in-other-event {
+    background-color: purple;
+    border: 1px solid purple;
+  }
+}
+

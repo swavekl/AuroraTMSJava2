@@ -69,7 +69,8 @@ public class ConflictFinder {
         for (String key : keySet) {
             List<DrawItem> groupDrawItems = thisEventDraws.get(key);
             int playersDrawnIntoGroup = groupDrawItems.size();
-            if (groupDrawItems.size() > 1) {
+            // if this is a RR group with seeded 1 player then skip it.  Otherwise, find conflicts
+            if ((drawType == DrawType.ROUND_ROBIN && groupDrawItems.size() > 1) || drawType == DrawType.SINGLE_ELIMINATION) {
 //                System.out.println("----------------------- group num: " + groupDrawItems.get(0).getGroupNum());
                 // get a list of matches to be played so we can check all combinations of opponents for each player
                 List<MatchOpponents> matchesInOrder = MatchOrderGenerator.generateOrderOfMatches(playersDrawnIntoGroup, playersToAdvance);
@@ -122,11 +123,9 @@ public class ConflictFinder {
                                 playerAConflictInfo.setPlaysInTheSameClub(playsInTheSameClub);
                                 playerBConflictInfo.setPlaysInTheSameClub(playsInTheSameClub);
 
-                                if (drawType == DrawType.ROUND_ROBIN) {
-                                    boolean playsOtherPlayerInAnotherEventRR = checkOtherEventsRR(playerAProfileId, playerBProfileId);
-                                    playerAConflictInfo.setPlaysInOtherEvent(playsOtherPlayerInAnotherEventRR);
-                                    playerBConflictInfo.setPlaysInOtherEvent(playsOtherPlayerInAnotherEventRR);
-                                }
+                                boolean playsOtherPlayerInAnotherEventRR = checkOtherEventsRR(playerAProfileId, playerBProfileId);
+                                playerAConflictInfo.setPlaysInOtherEvent(playsOtherPlayerInAnotherEventRR);
+                                playerBConflictInfo.setPlaysInOtherEvent(playsOtherPlayerInAnotherEventRR);
                             } else {
                                 if (playerADrawInfo == null) {
                                     System.out.println("not found player info for player (A) id = " + playerAProfileId);

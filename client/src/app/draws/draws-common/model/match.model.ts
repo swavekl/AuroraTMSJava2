@@ -24,6 +24,9 @@ export class Match {
   // if true the match template should show seed number
   showSeedNumber: boolean;
 
+  // if true neither item in this match is draggable
+  dragDisabled: boolean;
+
   getTooltipTextA() {
     return this.getTooltipTextFor(this.opponentA);
   }

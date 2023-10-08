@@ -9,6 +9,7 @@ import {UndoMemento} from '../model/undo-memento';
 import {DrawAction, DrawActionType} from '../../draws-config/draws/draw-action';
 import {ConfirmationPopupComponent} from '../../../shared/confirmation-popup/confirmation-popup.component';
 import {ConflictType} from '../model/conflict-type.enum';
+import {ConflictRendererHelper} from '../model/conflict-renderer-helper.model';
 
 @Component({
   selector: 'app-round-robin-draws-panel',
@@ -311,67 +312,11 @@ export class RoundRobinDrawsPanelComponent implements OnChanges {
   }
 
   getConflictClass(drawItem: DrawItem) {
-    let conflictClass = 'no-conflict';
-    if (drawItem.conflictType != null) {
-      switch (drawItem.conflictType) {
-        case ConflictType.NO_CONFLICT:
-          conflictClass = 'no-conflict';
-          break;
-
-        case ConflictType.LIVES_NEARBY:
-          conflictClass = 'lives-nearby';
-          break;
-
-        case ConflictType.SAME_CLUB_FIRST_ROUND:
-          conflictClass = 'same-club-first-round';
-          break;
-
-        case ConflictType.SAME_CLUB_SECOND_ROUND:
-          conflictClass = 'same-club-second-round';
-          break;
-
-        case ConflictType.PLAYS_IN_OTHER_EVENT_FIRST_ROUND:
-          conflictClass = 'plays-in-other-event';
-          break;
-
-        case ConflictType.SCORES_ENTERED:
-          conflictClass = 'scores-entered';
-          break;
-      }
-    }
-    return conflictClass;
+    return ConflictRendererHelper.getConflictClass(drawItem.conflictType);
   }
 
   getConflictTooltipText(drawItem: DrawItem) {
-    let tooltipText = '';
-    if (drawItem.conflictType != null) {
-      switch (drawItem.conflictType) {
-        case ConflictType.NO_CONFLICT:
-          tooltipText = '';
-          break;
-
-        case ConflictType.LIVES_NEARBY:
-          tooltipText = 'This player lives near the other player in this group';  // green
-          break;
-
-        case ConflictType.SAME_CLUB_FIRST_ROUND:
-          tooltipText = 'This player and another player in this group are from the same club';  // red
-          break;
-
-        case ConflictType.SAME_CLUB_SECOND_ROUND:
-          tooltipText = 'This player and another player from the same club may meet in second round';  // yellow
-          break;
-
-        case ConflictType.PLAYS_IN_OTHER_EVENT_FIRST_ROUND:
-          tooltipText = 'The players are in a first round match with each other in some other event';  // purpple
-          break;
-
-        case ConflictType.SCORES_ENTERED:
-          tooltipText = 'Winner of the group'; // blue
-          break;
-      }
-    }
-    return tooltipText;
+    return ConflictRendererHelper.getConflictTooltipText(drawItem.conflictType);
   }
 }
 

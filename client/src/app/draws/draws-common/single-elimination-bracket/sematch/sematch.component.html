@@ -9,7 +9,10 @@
       <div class="player-line" [ngClass]="(match.result != null && match.opponentAWon && match.opponentB.byeNum === 0) ? 'match-winner' : ''"
            *ngIf="match.opponentA.byeNum === 0"
            [matTooltip]="match.getTooltipTextA()" matTooltipClass="additional-info-tooltip"
-           matTooltipPosition="after">
+           matTooltipPosition="after"
+           cdkDrag
+           [cdkDragData]="match.opponentA"
+           [cdkDragDisabled]="match.dragDisabled">
         <span *ngIf="match.showSeedNumber">{{match.opponentA.rating}}</span>
         {{(match.opponentA.playerName != null) ? match.opponentA.playerName : 'TBD'}}
       </div>
@@ -19,11 +22,23 @@
       <div class="player-line" [ngClass]="(match.result != null && !match.opponentAWon && match.opponentA.byeNum === 0) ? 'match-winner' : ''"
            *ngIf="match.opponentB.byeNum === 0"
            [matTooltip]="match.getTooltipTextB()" matTooltipClass="additional-info-tooltip"
-           matTooltipPosition="after">
+           matTooltipPosition="after"
+           cdkDrag
+           [cdkDragData]="match.opponentB"
+           [cdkDragDisabled]="match.dragDisabled">
         <span *ngIf="match.showSeedNumber">{{match.opponentB.rating}}</span>
         {{(match.opponentB.playerName != null) ? match.opponentB.playerName : 'TBD'}}
       </div>
       <div class="player-line" *ngIf="match.opponentB.byeNum > 0"  >Bye</div>
+    </div>
+    <div>
+      <div class="conflict-indicator-container">
+        <div class="conflict-indicator" [ngClass]="getConflictClass(match.opponentA)">&nbsp;</div>
+      </div>
+      <div class="conflict-indicator-separator">&nbsp;</div>
+      <div class="conflict-indicator-container">
+        <div class="conflict-indicator" [ngClass]="getConflictClass(match.opponentB)">&nbsp;</div>
+      </div>
     </div>
   </div>
 </div>

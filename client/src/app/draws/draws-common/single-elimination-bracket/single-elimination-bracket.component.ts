@@ -6,6 +6,7 @@ import {Match} from '../model/match.model';
 import {DrawType} from '../model/draw-type.enum';
 import {TournamentEvent} from '../../../tournament/tournament-config/tournament-event.model';
 import {ConflictType} from '../model/conflict-type.enum';
+import {CdkDrag, CdkDragDrop, CdkDropList, transferArrayItem} from '@angular/cdk/drag-drop';
 
 @Component({
   selector: 'app-single-elimination-bracket',
@@ -38,6 +39,9 @@ export class SingleEliminationBracketComponent implements OnInit, OnChanges {
 
   // to be determined player profile id same as matches/match.model.ts
   public readonly TBD_PROFILE_ID = 'TBD';
+
+  // data needed by callbacks
+  dropListData: any;
 
   constructor() {
   }
@@ -183,6 +187,10 @@ export class SingleEliminationBracketComponent implements OnInit, OnChanges {
           match.result = null;
           match.opponentAWon = false;
           match.showSeedNumber = (i === 0); // show seed number for first round only
+          // only first round matches can be rearanged
+          match.dragDisabled = (drawRound.round != roundNumbers[0])
+            || (drawItemLeft.seSeedNumber === 1)
+            || (drawItemRight.seSeedNumber === 2);
 
           roundMatches.push(match);
           j += 2;
@@ -192,14 +200,21 @@ export class SingleEliminationBracketComponent implements OnInit, OnChanges {
         rounds.push(round);
       }
     }
+
+    let dropListDrawItems: DrawItem[] = [];
     if (rounds.length > 0) {
       this.tournament = {
         rounds: rounds
       };
+      dropListDrawItems = this.makeDropList(rounds[0]);
     } else {
       this.tournament = null;
     }
     this.roundNumbers = roundNumbers;
+    this.dropListData = {
+      firstRound: roundNumbers[0],
+      dropListDrawItems: dropListDrawItems
+    };
   }
 
   /**
@@ -218,5 +233,46 @@ export class SingleEliminationBracketComponent implements OnInit, OnChanges {
       }
     }
     return null;
+  }
+
+  makeDropList(firstRound: NgttRound) {
+    const matches: Match [] = firstRound.matches;
+    let dropList: DrawItem[] = [];
+    for (let i = 0; i < matches.length; i++) {
+      const match = matches[i];
+      if (match.opponentA.byeNum === 0) {
+        dropList.push(match.opponentA);
+      }
+      if (match.opponentB.byeNum === 0) {
+        dropList.push(match.opponentB);
+      }
+    }
+    return dropList;
+  }
+
+  onDrawItemDrop(event: CdkDragDrop<DrawItem[]>) {
+    // console.log('in onDrawItemDrop', event);
+  }
+
+  /**
+   * Called to find out if an item can be moved
+   * @param item item to be moved
+   */
+  canMoveDrawItem(item: CdkDrag<DrawItem>) {
+    console.log('in canMoveDrawItem', item?.data);
+    return item?.data.byeNum === 0;  // only non-bye items can be moved
+  }
+
+  /**
+   * Prevents users from dropping in a different row - players can only be moved within a row.
+   * We are taking advantage of sorting capability
+   * @param index index where the item is dropped (0 based)
+   * @param item item being dropped
+   * @param cdkDropList data passed to drag and drop functionality
+   */
+  canDropPredicate(index: number, item: CdkDrag<DrawItem>, cdkDropList: CdkDropList) {
+    const dropListData = cdkDropList.data;
+    const topSeeds = item?.data.seSeedNumber <= 2;
+    return item?.data.byeNum === 0 && dropListData.firstRound === item?.data.round;
   }
 }

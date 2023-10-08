@@ -7,7 +7,12 @@
     </div>
   </div>
   <div class="se-bracket-panel" [style.height]="bracketsHeight" *ngIf="tournament" fxLayout="row">
-    <div>
+    <div cdkDropList
+         cdkDropListOrientation="vertical"
+         (cdkDropListDropped)="onDrawItemDrop($event)"
+         [cdkDropListData]="dropListData"
+         [cdkDropListSortPredicate]="canDropPredicate"
+         [cdkDropListEnterPredicate]="canMoveDrawItem">
       <ngtt-single-elimination-tree
         [tournament]="tournament"
         [matchTemplate]="myMatchTemplate">
