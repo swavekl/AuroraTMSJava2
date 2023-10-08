@@ -6,14 +6,20 @@
     <p>Select Tournament to Enter scores for</p>
     <mat-list>
       <mat-list-item *ngFor="let tournament of tournaments">
-        <h3 matListItemTitle>{{tournament.name}}</h3>
-        <h3 matListItemLine>{{tournament.startDate | date }} - {{tournament.endDate | date }}</h3>
-        <h4 matListItemLine>{{ tournament.city }}, {{tournament.state}} </h4>
-        <button mat-raised-button type="button" style="margin-left: 20px;"
-                [routerLink]="['/ui/matches/scoreentry/', tournament.id]">
-          Select
-        </button>
-        <mat-divider></mat-divider>
+        <div fxLayout="row" fxLayoutAlign="space-between start">
+          <div>
+            <h3 matListItemTitle>{{tournament.name}}</h3>
+            <h3 matListItemLine>{{tournament.startDate | date }} - {{tournament.endDate | date }}</h3>
+            <h4 matListItemLine>{{ tournament.city }}, {{tournament.state}} </h4>
+          </div>
+          <div>
+            <button mat-raised-button type="button" style="margin-left: 20px;"
+                    [routerLink]="['/ui/matches/scoreentry/', tournament.id]">
+              Select
+            </button>
+          </div>
+          <mat-divider></mat-divider>
+        </div>
       </mat-list-item>
     </mat-list>
   </ng-template>
