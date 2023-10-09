@@ -217,9 +217,15 @@ public class ConflictFinder {
                         conflictType = ConflictType.SAME_CLUB_SECOND_ROUND;
                     }
                 } else if (playsInOtherEvent) {
-                    conflictType = ConflictType.PLAYS_IN_OTHER_EVENT_FIRST_ROUND;
+                    if ((drawType == DrawType.ROUND_ROBIN && drawMethod == DrawMethod.SNAKE)
+                            || drawType == DrawType.SINGLE_ELIMINATION) {
+                        conflictType = ConflictType.PLAYS_IN_OTHER_EVENT_FIRST_ROUND;
+                    }
                 } else if (livesNearby) {
-                    conflictType = ConflictType.LIVES_NEARBY;
+                    if ((drawType == DrawType.ROUND_ROBIN && drawMethod == DrawMethod.SNAKE)
+                            || drawType == DrawType.SINGLE_ELIMINATION) {
+                        conflictType = ConflictType.LIVES_NEARBY;
+                    }
                 }
             } else {
                 if (playsInTheSameClub) {
