@@ -6,7 +6,7 @@
       <div class="group-num-column" *ngIf="match.showSeedNumber">{{(match.opponentB.byeNum === 0) ? match.opponentB.seSeedNumber : '&nbsp;'}}</div>
     </div>
     <div [fxFlex]="match.showSeedNumber ? '200px' : '225px'">
-      <div class="player-line" [ngClass]="(match.result != null && match.opponentAWon && match.opponentB.byeNum === 0) ? 'match-winner' : ''"
+      <div class="player-line" [ngClass]="(match.result != null && match.opponentAWon && match.opponentB.byeNum === 0) ? 'match-winner' : (match.dragDisabled ? '' : 'draggable')"
            *ngIf="match.opponentA.byeNum === 0"
            [matTooltip]="match.getTooltipTextA()" matTooltipClass="additional-info-tooltip"
            matTooltipPosition="after"
@@ -19,7 +19,7 @@
       <div class="player-line" *ngIf="match.opponentA.byeNum > 0"  >Bye</div>
       <div class="time-and-table" *ngIf="match.time !== 0">{{match.time | startTime }} Table {{match.tableNum}}</div>
       <div class="time-and-table" *ngIf="match.result != null">&nbsp; {{match.result.join(', ')}}</div>
-      <div class="player-line" [ngClass]="(match.result != null && !match.opponentAWon && match.opponentA.byeNum === 0) ? 'match-winner' : ''"
+      <div class="player-line" [ngClass]="(match.result != null && !match.opponentAWon && match.opponentA.byeNum === 0) ? 'match-winner' :  (match.dragDisabled ? '' : 'draggable')"
            *ngIf="match.opponentB.byeNum === 0"
            [matTooltip]="match.getTooltipTextB()" matTooltipClass="additional-info-tooltip"
            matTooltipPosition="after"

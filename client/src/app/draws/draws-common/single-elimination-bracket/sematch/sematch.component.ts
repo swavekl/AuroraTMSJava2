@@ -26,8 +26,7 @@ export class SEMatchComponent implements OnInit {
   }
 
   getConflictClass(drawItem: DrawItem) {
-    return ConflictRendererHelper.getConflictClass(ConflictType.SAME_CLUB_SECOND_ROUND);
-    // return ConflictRendererHelper.getConflictClass(drawItem.conflictType);
+    return ConflictRendererHelper.getConflictClass(drawItem.conflictType);
   }
 
   getConflictTooltipText(drawItem: DrawItem) {
