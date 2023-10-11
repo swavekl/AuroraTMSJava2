@@ -77,7 +77,7 @@ public class CleanupAbandonedTournamentEntriesJob implements Job {
                     log.info("Found " + allEntryIds.size() + " which didn't have any event entries.");
                     List<TournamentEntry> tournamentEntriesWithoutEvents = tournamentEntryService.listEntries(allEntryIds);
                     // check if this entry is new and perhaps was just started.
-                    log.info("Checking if entries are older than 1 day i.e. dateEntered < " + dateFormatter.format(dateTimeLimit));
+                    log.info("Checking if entries are older than 1 hour i.e. dateEntered < " + dateFormatter.format(dateTimeLimit));
                     int removedEntries = 0;
                     for (TournamentEntry tournamentEntry : tournamentEntriesWithoutEvents) {
                         Date dateEntered = tournamentEntry.getDateEntered();
@@ -100,6 +100,15 @@ public class CleanupAbandonedTournamentEntriesJob implements Job {
                         log.info("Removed " + removedEntries + " abandoned entries for tournament '" + tournament.getName() + "'. Updating count of entries to " + numEntries);
                         tournament.setNumEntries(numEntries);
                         tournamentService.updateTournament(tournament);
+                    } else {
+                        int numEntriesWithEvents = entriesWithEventsIds.size();
+                        if (numEntriesWithEvents != tournament.getNumEntries()) {
+                            log.info("Count of entries saved in tournament " + tournament.getNumEntries() +
+                                    " is different from count of entries with events " + numEntriesWithEvents + ". Updating count to " +
+                                    numEntriesWithEvents);
+                            tournament.setNumEntries(numEntriesWithEvents);
+                            tournamentService.updateTournament(tournament);
+                        }
                     }
                 } else {
                     log.info ("No entries to remove for tournament " + tournament.getName());

@@ -90,6 +90,14 @@ public class CleanupExpiredCartSessionJob implements Job {
                     log.info("Deleting unfinished tournamentEventEntry = " + tournamentEventEntry.getId());
                     playerEventsToDelete.add(tournamentEventEntry.getTournamentEventFk());
                     tournamentEventEntryService.delete(tournamentEventEntry.getId());
+
+                    // update count of entries in event
+                    TournamentEvent tournamentEvent = tournamentEventEntityService.get(tournamentEventEntry.getTournamentEventFk());
+                    long countValidEntriesInEvent = tournamentEventEntryService.getCountValidEntriesInEvent(tournamentEventEntry.getTournamentEventFk());
+                    int numEntries = tournamentEvent.getNumEntries() - 1;
+                    log.info("Updating count of entries in " + tournamentEvent.getName() + " event to " + numEntries + ".  Count of valid entries is " + countValidEntriesInEvent);
+                    tournamentEvent.setNumEntries(numEntries);
+                    tournamentEventEntityService.update(tournamentEvent);
                 }
                 // find out who was removed
                 TournamentEntry tournamentEntry = tournamentEntryService.get(tournamentEntryId);
