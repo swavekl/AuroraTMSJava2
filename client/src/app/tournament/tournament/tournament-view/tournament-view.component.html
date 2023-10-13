@@ -16,17 +16,17 @@
         <table class="tournament-info-table">
           <tbody>
           <tr>
-            <td></td>
-            <td class="heading mat-body-1">Venue</td>
-          </tr>
-          <tr>
-            <td class="icon-column">
+            <td class="icon-column" rowspan="2">
               <button mat-fab color="primary">
                 <a [href]="getDirectionsURL()">
                   <mat-icon class="button-icon">assistant_direction</mat-icon>
                 </a>
               </button>
+              <div class="fab-button-text">Navigate</div>
             </td>
+            <td class="heading mat-body-1">Venue</td>
+          </tr>
+          <tr>
             <td class="text-column">
               {{ tournament.venueName }}<br>
               {{ tournament.streetAddress }}<br>
@@ -34,17 +34,17 @@
             </td>
           </tr>
           <tr>
-            <td></td>
+            <td class="icon-column" rowspan="2">
+              <button mat-fab color="primary">
+                <a href="tel:{{tournament.phone}}">
+                  <mat-icon class="button-icon">call</mat-icon>
+                </a>
+              </button>
+              <div class="fab-button-text">Call&nbsp;&nbsp;&nbsp;</div>
+            </td>
             <td class="heading mat-body-1">Tournament Director</td>
           </tr>
           <tr>
-            <td class="icon-column">
-              <button mat-fab color="primary">
-              <a href="tel:{{tournament.phone}}">
-                <mat-icon class="button-icon">call</mat-icon>
-              </a>
-              </button>
-            </td>
             <td class="text-column">
               <div>{{tournament.contactName}}</div>
               <div>{{tournament.phone}}</div>
@@ -56,35 +56,41 @@
             </td>
           </tr>
           <tr>
-            <td></td>
+            <td class="icon-column" rowspan="2">
+              <button mat-fab color="primary">
+                <a (click)="showPlayers()">
+                  <mat-icon class="button-icon">groups</mat-icon>
+                </a>
+              </button>
+              <div class="fab-button-text">Players</div>
+            </td>
             <td class="heading mat-body-1">Players Entered</td>
           </tr>
           <tr>
-            <td class="icon-column">
-              <button mat-fab color="primary">
-              <a (click)="showPlayers()">
-                <mat-icon class="button-icon">groups</mat-icon>
-              </a>
-              </button>
-            </td>
             <td class="text-column mat-headline-6">
-              {{ tournament.numEntries }} ({{percentFull | percent}} full)
+              <a [routerLink]="['/ui/tournaments/playerlist', tournament.id]"
+                 [state]="{ tournamentStartDate: this.tournament.startDate}">
+                <span class="mat-headline-6">{{ tournament.numEntries }} ({{percentFull | percent}} full)</span>
+              </a>
+              <div>&nbsp;</div>
             </td>
           </tr>
           <tr *ngIf="tournament.configuration.blankEntryUrl != null">
-            <td></td>
+            <td class="icon-column" rowspan="2">
+              <button mat-fab color="primary">
+                <a [href]="tournament.configuration.blankEntryUrl" target="_blank">
+                  <mat-icon class="button-icon">download</mat-icon>
+                </a>
+              </button>
+              <div class="fab-button-text">Download</div>
+            </td>
             <td class="heading mat-body-1">Blank Entry Form</td>
           </tr>
           <tr *ngIf="tournament.configuration.blankEntryUrl != null">
-            <td class="icon-column">
-              <button mat-fab color="primary">
-                <a [href]="tournament.configuration.blankEntryUrl" target="_blank">
-                  <mat-icon class="button-icon">description</mat-icon>
-                </a>
-              </button>
-            </td>
             <td class="text-column">
               <a [href]="tournament.configuration.blankEntryUrl" target="_blank">Download</a>
+              <div>&nbsp;</div>
+              <div>&nbsp;</div>
             </td>
           </tr>
           <tr>
@@ -123,6 +129,7 @@
       </mat-card-content>
       <mat-card-actions>
           <div fxLayout="row" fxLayoutGap="10px" fxLayoutAlign="space-between start" style="width: 100%">
+            <button  mat-raised-button type="button" routerLink="/ui/tournaments">Back</button>
             <button [disabled]="!resultsAvailable()" mat-raised-button type="button" [routerLink]="['/ui/results', tournament.id]">Results</button>
             <button *ngIf="canEnter()" mat-raised-button type="button" color="primary" (click)="onEnter()">Enter</button>
             <button *ngIf="canView()" mat-raised-button type="button" color="primary" (click)="onView()">View Entry</button>

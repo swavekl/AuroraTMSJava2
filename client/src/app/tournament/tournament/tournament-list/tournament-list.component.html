@@ -35,6 +35,10 @@
                     <div class="mat-body">{{ [tournament.startDate, tournament.endDate] | dateRange }}</div>
                     <div class="mat-body">{{ tournament.city }}, {{tournament.state}}</div>
                   </div>
+                  <div fxFlex="32px" style="padding-top: 12px; cursor: pointer;"
+                       [routerLink]="['view', tournament.id]">
+                    <mat-icon matListItemIcon>chevron_right</mat-icon>
+                  </div>
                 </div>
               </mat-card-content>
             </mat-card>
