@@ -95,20 +95,11 @@ public class CleanupAbandonedTournamentEntriesJob implements Job {
                         }
                     }
                     if (removedEntries > 0) {
-                        int numEntries = tournament.getNumEntries();
-                        numEntries = Math.max(0, numEntries - removedEntries);
+                        int numEntries = entriesWithEventsIds.size() - removedEntries;
+                        numEntries = Math.max(0, numEntries);
                         log.info("Removed " + removedEntries + " abandoned entries for tournament '" + tournament.getName() + "'. Updating count of entries to " + numEntries);
                         tournament.setNumEntries(numEntries);
                         tournamentService.updateTournament(tournament);
-                    } else {
-                        int numEntriesWithEvents = entriesWithEventsIds.size();
-                        if (numEntriesWithEvents != tournament.getNumEntries()) {
-                            log.info("Count of entries saved in tournament " + tournament.getNumEntries() +
-                                    " is different from count of entries with events " + numEntriesWithEvents + ". Updating count to " +
-                                    numEntriesWithEvents);
-                            tournament.setNumEntries(numEntriesWithEvents);
-                            tournamentService.updateTournament(tournament);
-                        }
                     }
                 } else {
                     log.info ("No entries to remove for tournament " + tournament.getName());
