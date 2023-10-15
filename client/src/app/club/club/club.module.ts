@@ -20,13 +20,16 @@ import {ClubEditComponent} from './club-edit/club-edit.component';
 import {ClubNameValidatorDirective} from './club-name-validator.directive';
 import {ClubListComponent} from './club-list/club-list.component';
 import {ClubEditPopupService} from './service/club-edit-popup.service';
+import {ClubSearchDialogComponent} from './club-search-dialog/club-search-dialog.component';
+import {ClubSearchPopupService} from './service/club-search-popup.service';
 
 
 @NgModule({
   declarations: [
     ClubEditComponent,
     ClubNameValidatorDirective,
-    ClubListComponent
+    ClubListComponent,
+    ClubSearchDialogComponent
   ],
   exports: [
     ClubNameValidatorDirective
@@ -48,7 +51,8 @@ import {ClubEditPopupService} from './service/club-edit-popup.service';
     FlexModule
   ],
   providers: [
-    ClubEditPopupService
+    ClubEditPopupService,
+    ClubSearchPopupService
   ]
 })
 export class ClubModule {

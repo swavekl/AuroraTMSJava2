@@ -1,0 +1,41 @@
+<form #f="ngForm" name="form" fxFlexFill>
+  <h2 mat-dialog-title>Find Club</h2>
+  <mat-dialog-content>
+    <div fxLayout="column" fxLayoutAlign="start stretch">
+      <mat-form-field>
+        <mat-label>Club Name or Acronym</mat-label>
+        <input matInput type="text" name="searchNameOrAcronym" [(ngModel)]="searchNameOrAcronym">
+      </mat-form-field>
+        <mat-form-field style="width: 100px">
+          <mat-label>State</mat-label>
+          <mat-select type="text" name="state" [(ngModel)]="state" required>
+            <mat-option *ngFor="let state of statesList" value="{{state.abbreviation}}">{{state.abbreviation}}
+            </mat-option>
+          </mat-select>
+          <mat-error>This field is required</mat-error>
+        </mat-form-field>
+      <div>Search Results</div>
+      <div class="clubs-results-list">
+        <mat-list *ngIf="(foundClubs$ | async)?.length > 0; else noresults">
+          <mat-list-item *ngFor="let club of foundClubs$ | async"
+                         (click)="onSelection(club.clubName, club.id)">
+            <div matListItemTitle>{{ club.clubName }}</div>
+            <div matListItemLine>{{ club.city != null ? club.city : 'Unknown City'}}, {{ club.state }}</div>
+<!--            <div matListItemLine>{{ club.streetAddress?.length > 0 ? club.streetAddress : 'Street address: N/A' }}</div>-->
+            <mat-divider></mat-divider>
+          </mat-list-item>
+        </mat-list>
+        <ng-template #noresults>
+          <div *ngIf="!(loading$ | async)" class="no-clubs-found">No clubs found</div>
+        </ng-template>
+      </div>
+    </div>
+  </mat-dialog-content>
+  <mat-dialog-actions>
+    <div fxLayout="row" fxLayoutAlign="space-between start" style="width: 100%; margin: 0 8px" fxLayoutGap="10px">
+      <button type="button" mat-raised-button (click)="onCancel()">Cancel</button>
+<!--      <span fxFlex></span>-->
+      <button type="button" mat-raised-button color="primary" (click)="onSearch()">Search</button>
+    </div>
+  </mat-dialog-actions>
+</form>

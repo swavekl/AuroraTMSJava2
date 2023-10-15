@@ -26,6 +26,7 @@ import {UntypedFormControl} from '@angular/forms';
 import {debounceTime, distinctUntilChanged, filter, first, skip, switchMap} from 'rxjs/operators';
 import {MatAutocompleteSelectedEvent} from '@angular/material/autocomplete';
 import {ClubEditCallbackData, ClubEditPopupService} from '../../club/club/service/club-edit-popup.service';
+import {ClubSearchCallbackData, ClubSearchData, ClubSearchPopupService} from '../../club/club/service/club-search-popup.service';
 
 @Component({
   selector: 'app-profile-edit',
@@ -67,7 +68,8 @@ export class ProfileEditComponent implements OnInit, OnChanges, AfterViewInit, O
   constructor(private usattRecordSearchPopupService: UsattRecordSearchPopupService,
               private clubService: ClubService,
               private clubEditPopupService: ClubEditPopupService,
-              private cdr: ChangeDetectorRef) {
+              private cdr: ChangeDetectorRef,
+              private clubSearchService: ClubSearchPopupService) {
     this.profile = new Profile();
     this.maxDateOfBirth = new Date();
     this.countries = CountriesList.getList();
@@ -252,6 +254,19 @@ export class ProfileEditComponent implements OnInit, OnChanges, AfterViewInit, O
     };
     const newClub: Club = new Club();
     this.clubEditPopupService.showPopup(newClub, callbackParams);
+  }
+
+  onFindClub() {
+    const callbackParams: ClubSearchCallbackData = {
+      successCallbackFn: this.onAddClubOKCallback,
+      cancelCallbackFn: null,
+      callbackScope: this
+    };
+    const clubSearchData: ClubSearchData = {
+      state: this.profile.state,
+      countryCode: this.profile.countryCode
+    }
+    this.clubSearchService.showPopup(clubSearchData, callbackParams);
   }
 
   onAddClubOKCallback(scope: any, club: Club) {

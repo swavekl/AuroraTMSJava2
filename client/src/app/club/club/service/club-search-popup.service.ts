@@ -1,11 +1,13 @@
 import {Injectable, OnDestroy} from '@angular/core';
+import {Club} from '../model/club.model';
 import {Subscription} from 'rxjs';
 import {MatDialog} from '@angular/material/dialog';
-import {Club} from '../model/club.model';
-import {ClubEditComponent} from '../club-edit/club-edit.component';
+import {ClubSearchDialogComponent} from '../club-search-dialog/club-search-dialog.component';
 
-@Injectable()
-export class ClubEditPopupService implements OnDestroy {
+@Injectable({
+  providedIn: 'root'
+})
+export class ClubSearchPopupService implements OnDestroy {
 
   private subscriptions: Subscription = new Subscription();
 
@@ -15,16 +17,17 @@ export class ClubEditPopupService implements OnDestroy {
     this.subscriptions.unsubscribe();
   }
 
-  showPopup(clubToEdit: Club, callbackData: ClubEditCallbackData) {
+  showPopup (clubSearchData: ClubSearchData, callbackData: ClubSearchCallbackData) {
     const config = {
-      width: '500px', height: '380px', data: clubToEdit
+      width: '400px', height: '600px', data: clubSearchData
+
     };
     const callbackScope = callbackData.callbackScope;
-    const dialogRef = this.dialog.open(ClubEditComponent, config);
+    const dialogRef = this.dialog.open(ClubSearchDialogComponent, config);
     const subscription = dialogRef.afterClosed().subscribe(result => {
       if (result.action === 'ok') {
         if (callbackData.successCallbackFn != null) {
-          callbackData.successCallbackFn(callbackScope, result.club);
+          callbackData.successCallbackFn(callbackScope, result.selectedClub);
         }
       } else {
         if (callbackData.cancelCallbackFn != null) {
@@ -33,15 +36,23 @@ export class ClubEditPopupService implements OnDestroy {
       }
     });
     this.subscriptions.add(subscription);
+
   }
 }
 
-export class ClubEditCallbackData {
+export class ClubSearchCallbackData {
   // success and failure callbacks
   successCallbackFn: (scope: any, clubData: Club) => void;
   cancelCallbackFn: (scope: any) => void;
 
   // object who has the callback functions
   callbackScope: any;
+
+}
+
+export class ClubSearchData {
+  state: string;
+
+  countryCode: string;
 }
 
