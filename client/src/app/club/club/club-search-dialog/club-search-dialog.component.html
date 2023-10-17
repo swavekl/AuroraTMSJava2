@@ -6,6 +6,7 @@
         <mat-label>Club Name or Acronym</mat-label>
         <input matInput type="text" name="searchNameOrAcronym" [(ngModel)]="searchNameOrAcronym">
       </mat-form-field>
+      <div fxLayout="row" fxLayoutAlign="space-between start">
         <mat-form-field style="width: 100px">
           <mat-label>State</mat-label>
           <mat-select type="text" name="state" [(ngModel)]="state" required>
@@ -14,14 +15,22 @@
           </mat-select>
           <mat-error>This field is required</mat-error>
         </mat-form-field>
+        <button type="button" mat-raised-button color="primary" (click)="onSearch()">Search</button>
+      </div>
+      <div class="linear-progress-indicator-search">
+        <mat-progress-bar *ngIf="loading$ | async; else elseblock" mode="indeterminate" color="accent"
+                          style="height: 8px; width: 100%;"></mat-progress-bar>
+        <ng-template #elseblock>
+          <div style="height: 8px; width: 100%; background-color: white;"></div>
+        </ng-template>
+      </div>
       <div>Search Results</div>
       <div class="clubs-results-list">
         <mat-list *ngIf="(foundClubs$ | async)?.length > 0; else noresults">
           <mat-list-item *ngFor="let club of foundClubs$ | async"
-                         (click)="onSelection(club.clubName, club.id)">
+                         (click)="onSelection(club)">
             <div matListItemTitle>{{ club.clubName }}</div>
             <div matListItemLine>{{ club.city != null ? club.city : 'Unknown City'}}, {{ club.state }}</div>
-<!--            <div matListItemLine>{{ club.streetAddress?.length > 0 ? club.streetAddress : 'Street address: N/A' }}</div>-->
             <mat-divider></mat-divider>
           </mat-list-item>
         </mat-list>
@@ -34,8 +43,7 @@
   <mat-dialog-actions>
     <div fxLayout="row" fxLayoutAlign="space-between start" style="width: 100%; margin: 0 8px" fxLayoutGap="10px">
       <button type="button" mat-raised-button (click)="onCancel()">Cancel</button>
-<!--      <span fxFlex></span>-->
-      <button type="button" mat-raised-button color="primary" (click)="onSearch()">Search</button>
+      <span fxFlex></span>
     </div>
   </mat-dialog-actions>
 </form>

@@ -127,7 +127,7 @@
               <input matInput name="homeClubName" #homeClubName="ngModel"
                      [ngModel]="profile?.homeClubName" required
                      [matAutocomplete]="auto" [appClubName]="filteredClubs"
-                     placeholder="Start typing and select it or add new club">
+                     placeholder="Find or add new club">
               <button *ngIf="profile?.homeClubName" matSuffix mat-icon-button aria-label="Clear" (click)="clearClubName()">
                 <mat-icon>close</mat-icon>
               </button>

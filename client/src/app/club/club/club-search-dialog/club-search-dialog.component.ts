@@ -48,8 +48,7 @@ export class ClubSearchDialogComponent implements OnInit {
     this.foundClubs$ = this.clubService.loadWithQuery(query);
   }
 
-  onSelection(clubName: string, clubId: number) {
-    const club = {clubName: clubName, clubId: clubId};
+  onSelection(club: Club) {
     this.dialogRef.close({action: 'ok', selectedClub: club});
   }
 

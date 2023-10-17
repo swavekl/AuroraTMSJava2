@@ -53,13 +53,16 @@ export class ProfileEditComponent implements OnInit, OnChanges, AfterViewInit, O
 
   maxDateOfBirth: Date;
 
-  private readonly USA_ZIP_CODE_PATTERN = /^\d{5}(?:[-\s]\d{4})?$/;
+  private readonly USA_ZIP_CODE_PATTERN = /^\d{5}(?:[\-\s]\d{4})?$/;
   private readonly CAN_ZIP_CODE_PATTERN = /^[ABCEGHJ-NPRSTVXY][0-9][ABCEGHJ-NPRSTV-Z] [0-9][ABCEGHJ-NPRSTV-Z][0-9]$/;
   public zipCodePattern;
   public zipCodeLength: number;
 
   private subscriptions: Subscription = new Subscription();
   public filteredClubs: Club [] = [];
+
+  // flag indicating if we should skip querying for clubs when value of home club changes
+  private skipFilteringClubs: boolean;
 
   // control showing home club name for autocompletion loading of clubs
   @ViewChild('homeClubName')
@@ -74,6 +77,7 @@ export class ProfileEditComponent implements OnInit, OnChanges, AfterViewInit, O
     this.maxDateOfBirth = new Date();
     this.countries = CountriesList.getList();
     this.filteredClubs = [];
+    this.skipFilteringClubs = true;
     this.setZipCodeOptions ('US');
   }
 
@@ -117,20 +121,12 @@ export class ProfileEditComponent implements OnInit, OnChanges, AfterViewInit, O
       if (this.profile?.homeClubId !== null && this.profile?.homeClubName != null) {
         // make a fake result of query to be able to validate without
         // going to the server for just one club name
-        const currentClub: Club = {
-          id: this.profile.homeClubId,
-          clubName: this.profile.homeClubName,
-          alternateClubNames: null,
-          streetAddress: null,
-          city: null,
-          state: null,
-          zipCode: null,
-          countryCode: null
-        };
+        const currentClub = this.makeClubObject(this.profile.homeClubId, this.profile.homeClubName);
         this.filteredClubs = [currentClub];
       }
     }
   }
+
 
   onCountryChange(countryCode: any) {
     this.setZipCodeOptions(countryCode);
@@ -200,7 +196,9 @@ export class ProfileEditComponent implements OnInit, OnChanges, AfterViewInit, O
           skip(1), // skip form initialization phase - to save one trip to the server
           filter(homeClubName => {
             // don't query until you have a few characters
-            return homeClubName && homeClubName.length >= 3;
+            const shouldFilter = homeClubName && homeClubName.length >= 3 && !this.skipFilteringClubs;
+            this.skipFilteringClubs = false;
+            return shouldFilter;
           }),
           switchMap((homeClubName): Observable<Club []> => {
             const params = `?nameContains=${homeClubName}&sort=clubName,ASC`;
@@ -241,8 +239,14 @@ export class ProfileEditComponent implements OnInit, OnChanges, AfterViewInit, O
     updatedProfile.clone(this.profile);
     updatedProfile.homeClubId = clubId;
     updatedProfile.homeClubName = clubName;
+    this.skipFilteringClubs = true;
     this.profile = updatedProfile;
-    this.filteredClubs = [];
+    if (clubName != null) {
+      const club: Club = this.makeClubObject(clubId, clubName);
+      this.filteredClubs = [club];
+    } else {
+      this.filteredClubs = [];
+    }
     this.cdr.markForCheck();
   }
 
@@ -256,9 +260,18 @@ export class ProfileEditComponent implements OnInit, OnChanges, AfterViewInit, O
     this.clubEditPopupService.showPopup(newClub, callbackParams);
   }
 
+  onAddClubOKCallback(scope: any, club: Club) {
+    const me = scope;
+    me.clubService.upsert(club)
+      .pipe(first())
+      .subscribe((savedClub: Club) => {
+        me.updateClubInfoAndRefresh(savedClub.clubName, savedClub.id);
+      });
+  }
+
   onFindClub() {
     const callbackParams: ClubSearchCallbackData = {
-      successCallbackFn: this.onAddClubOKCallback,
+      successCallbackFn: this.onFindClubOKCallback,
       cancelCallbackFn: null,
       callbackScope: this
     };
@@ -269,12 +282,21 @@ export class ProfileEditComponent implements OnInit, OnChanges, AfterViewInit, O
     this.clubSearchService.showPopup(clubSearchData, callbackParams);
   }
 
-  onAddClubOKCallback(scope: any, club: Club) {
+  onFindClubOKCallback(scope: any, club: Club) {
     const me = scope;
-    me.clubService.upsert(club)
-      .pipe(first())
-      .subscribe((savedClub: Club) => {
-        me.updateClubInfoAndRefresh(savedClub.clubName, savedClub.id);
-      });
+    me.updateClubInfoAndRefresh(club.clubName, club.id);
+  }
+
+  private makeClubObject(clubId: number, clubName: string): Club {
+    return {
+      id: clubId,
+      clubName: clubName,
+      alternateClubNames: null,
+      streetAddress: null,
+      city: null,
+      state: null,
+      zipCode: null,
+      countryCode: null
+    };
   }
 }

@@ -22,6 +22,7 @@ import {ClubListComponent} from './club-list/club-list.component';
 import {ClubEditPopupService} from './service/club-edit-popup.service';
 import {ClubSearchDialogComponent} from './club-search-dialog/club-search-dialog.component';
 import {ClubSearchPopupService} from './service/club-search-popup.service';
+import {MatProgressBarModule} from '@angular/material/progress-bar';
 
 
 @NgModule({
@@ -34,22 +35,23 @@ import {ClubSearchPopupService} from './service/club-search-popup.service';
   exports: [
     ClubNameValidatorDirective
   ],
-  imports: [
-    CommonModule,
-    FormsModule,
-    ClubRoutingModule,
-    MatTableModule,
-    MatPaginatorModule,
-    MatSortModule,
-    MatToolbarModule,
-    MatIconModule,
-    MatButtonModule,
-    MatListModule,
-    MatSelectModule,
-    MatInputModule,
-    MatDialogModule,
-    FlexModule
-  ],
+    imports: [
+        CommonModule,
+        FormsModule,
+        ClubRoutingModule,
+        MatTableModule,
+        MatPaginatorModule,
+        MatSortModule,
+        MatToolbarModule,
+        MatIconModule,
+        MatButtonModule,
+        MatListModule,
+        MatSelectModule,
+        MatInputModule,
+        MatDialogModule,
+        FlexModule,
+        MatProgressBarModule
+    ],
   providers: [
     ClubEditPopupService,
     ClubSearchPopupService

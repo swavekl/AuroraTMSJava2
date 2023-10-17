@@ -1,11 +1,11 @@
 
 mat-dialog-content {
-  height: 485px;
+  height: 480px;
   //border: 1px solid red;
 }
 
 div.clubs-results-list {
-  height: 280px;
+  height: 262px;
   overflow: auto;
   //border: 1px solid green;
 }
@@ -16,3 +16,6 @@ div.no-clubs-found {
   padding-top: 24px;
 }
 
+.linear-progress-indicator-search {
+  padding-bottom: 8px;
+}
