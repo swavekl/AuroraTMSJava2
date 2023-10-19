@@ -2,8 +2,8 @@
   <tbody>
   <ng-container *ngFor="let summaryReportItem of summaryReportItems">
     <tr *ngIf="summaryReportItem.isHeader; else nonHeader;">
-      <th>{{summaryReportItem.itemText}}</th>
-      <th>{{summaryReportItem.rightColumnText}}</th>
+      <th style="font-weight: bold">{{summaryReportItem.itemText}}</th>
+      <th style="font-weight: bold">{{summaryReportItem.rightColumnText}}</th>
     </tr>
     <ng-template #nonHeader>
       <tr>

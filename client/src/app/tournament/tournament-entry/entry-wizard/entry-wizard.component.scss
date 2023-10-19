@@ -99,3 +99,18 @@ table.ratings-table {
 button.event-button {
   background-color: lighten($primary-color, 30%);
 }
+
+div.event-button-label {
+  font-size: 14px;
+  padding-top: 4px;
+  //border: 1px solid red;
+  text-align: center;
+}
+
+.purple-bold-subheader {
+  font-weight: bold;
+  padding-top: 10px;
+  border-bottom: 1px solid $primary-color;
+}
+
+

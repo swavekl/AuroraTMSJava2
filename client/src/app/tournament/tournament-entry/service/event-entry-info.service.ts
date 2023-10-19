@@ -3,6 +3,7 @@ import {BehaviorSubject, Observable, of, Subject} from 'rxjs';
 import {distinctUntilChanged, first, map, switchMap, tap} from 'rxjs/operators';
 import {HttpClient} from '@angular/common/http';
 import {TournamentEventEntryInfo} from '../model/tournament-event-entry-info-model';
+import {OriginalEntryInfo} from '../model/original-entry-info';
 
 /**
  * Plain service whose results are not going to be cached by ngrx
@@ -108,10 +109,10 @@ export class EventEntryInfoService {
    * @param cartSessionId
    * @param withdrawing
    */
-  public discardChanges(tournamentEntryId: number, cartSessionId: string, withdrawing: boolean): Observable<boolean> {
+  public discardChanges(discardChangesInfo: OriginalEntryInfo): Observable<boolean> {
     this.setLoading(true);
-    const url = `/api/tournamententry/${tournamentEntryId}/eventstatus/discard/${cartSessionId}?withdrawing=${withdrawing}`;
-    return this.http.put(url, {})
+    const url = `/api/tournamententry/${discardChangesInfo.entryId}/eventstatus/discard`;
+    return this.http.put(url, discardChangesInfo)
       .pipe(
         tap(() => {
             this.setLoading(false);

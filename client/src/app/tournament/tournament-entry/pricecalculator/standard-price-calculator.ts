@@ -28,13 +28,26 @@ export class StandardPriceCalculator extends AbstractPriceCalculator implements 
       }
     }
 
-    // waited events
-    this.addWaitedEventsHeader();
+    // check if there are any waiting list entries so we can skip it if necessary
+    let hasWaitedEvents: boolean = false;
     for (let i = 0; i < enteredEvents.length; i++) {
       const enteredEvent = enteredEvents[i];
       if (enteredEvent.status === EventEntryStatus.ENTERED_WAITING_LIST ||
         enteredEvent.status === EventEntryStatus.PENDING_WAITING_LIST) {
-        this.addWaitedEvent(enteredEvent);
+        hasWaitedEvents = true;
+        break;
+      }
+    }
+
+    if (hasWaitedEvents) {
+      // waited events
+      this.addWaitedEventsHeader();
+      for (let i = 0; i < enteredEvents.length; i++) {
+        const enteredEvent = enteredEvents[i];
+        if (enteredEvent.status === EventEntryStatus.ENTERED_WAITING_LIST ||
+          enteredEvent.status === EventEntryStatus.PENDING_WAITING_LIST) {
+          this.addWaitedEvent(enteredEvent);
+        }
       }
     }
 

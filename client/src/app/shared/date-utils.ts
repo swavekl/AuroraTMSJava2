@@ -87,7 +87,7 @@ export class DateUtils {
    */
   isDateInRange(dateToTest: Date, rangeStart: Date, rangeEnd: Date): boolean {
     const inRange: boolean = moment(dateToTest).isBetween(rangeStart, rangeEnd, 'day', '[]');
-    console.log(`isDateInRange ${dateToTest} in range (${rangeStart}, ${rangeEnd}) = ${inRange}`);
+    // console.log(`isDateInRange ${dateToTest} in range (${rangeStart}, ${rangeEnd}) = ${inRange}`);
     return inRange;
   }
 

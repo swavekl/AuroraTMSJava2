@@ -21,6 +21,7 @@ import {PaymentRefundFor} from '../../../account/model/payment-refund-for.enum';
 import {EntryWizardComponent} from './entry-wizard.component';
 import {CartSessionService} from '../../../account/service/cart-session.service';
 import {UserRoles} from '../../../user/user-roles.enum';
+import {OriginalEntryInfo} from '../model/original-entry-info';
 
 @Component({
   selector: 'app-entry-wizard-container',
@@ -35,7 +36,8 @@ import {UserRoles} from '../../../user/user-roles.enum';
                       (tournamentEntryChanged)="onTournamentEntryChanged($event)"
                       (confirmEntries)="onConfirmEntries($event)"
                       (eventEntryChanged)="onEventEntryChanged($event)"
-                      (finish)="onFinish($event)">
+                      (finish)="onFinish($event)"
+                      (discard)="discardChanges()">
     </app-entry-wizard>
   `,
   styles: []
@@ -68,6 +70,9 @@ export class EntryWizardContainerComponent implements OnInit, OnDestroy {
   withdrawing: boolean = false;
   adding: boolean = false;
   allowPaymentByCheck: boolean = false;
+
+  discardChangesInfo: OriginalEntryInfo;
+  playerProfileId: string;
 
   constructor(private tournamentEntryService: TournamentEntryService,
               private tournamentConfigService: TournamentConfigService,
@@ -104,6 +109,7 @@ export class EntryWizardContainerComponent implements OnInit, OnDestroy {
     this.withdrawing = this.activatedRoute.snapshot.queryParamMap.get('withdraw') === 'true';
     this.entering = this.activatedRoute.snapshot.queryParamMap.get('enter') === 'true';
     this.adding = this.activatedRoute.snapshot.queryParamMap.get('add') === 'true';
+    this.playerProfileId = null;
     this.selectTournament(this.tournamentId);
     this.selectEntry(this.entryId);
     this.loadEventEntriesInfos(this.entryId);
@@ -135,12 +141,15 @@ export class EntryWizardContainerComponent implements OnInit, OnDestroy {
       });
     this.entry$ = this.tournamentEntryService.store.select(selectedEntrySelector);
     const subscription = this.entry$.subscribe((next: TournamentEntry) => {
-      // console.log('got tournament entry', next);
       // editing - check if we had it in cache if not - then fetch it
       if (!next) {
-        this.entry$ = this.tournamentEntryService.getByKey(entryId);
+        this.tournamentEntryService.getByKey(entryId);
       } else {
-        this.loadPlayerProfile(next.profileId);
+        this.makeDiscardChangeInfo(next);
+        if (this.playerProfileId != next.profileId) {
+          this.playerProfileId = next.profileId;
+          this.loadPlayerProfile(next.profileId);
+        }
       }
     });
     this.subscriptions.add(subscription);
@@ -171,7 +180,7 @@ export class EntryWizardContainerComponent implements OnInit, OnDestroy {
           const fullName = this.authenticationService.getCurrentUserFirstName() + ' ' + this.authenticationService.getCurrentUserLastName();
           // this.allowPaymentByCheck = (isTD && tournament.contactName === fullName);
           this.allowPaymentByCheck = isTD;
-          console.log('allowPaymentByCheck', this.allowPaymentByCheck);
+          // console.log('allowPaymentByCheck', this.allowPaymentByCheck);
         }
       });
     this.subscriptions.add(subscription);
@@ -233,7 +242,7 @@ export class EntryWizardContainerComponent implements OnInit, OnDestroy {
       this.eventEntryInfoService.confirmEntries(this.entryId, this.cartSessionId, this.withdrawing)
         .pipe(first())
         .subscribe((success: boolean) => {
-          console.log('confirmed all - success', success);
+          // console.log('confirmed all - success', success);
           // reload them after
           this.eventEntryInfoService.getEventEntryInfos(this.entryId);
 
@@ -252,7 +261,7 @@ export class EntryWizardContainerComponent implements OnInit, OnDestroy {
       .pipe(first())
       .subscribe(
         (value: TournamentEntry) => {
-          console.log('updated successfully tournament entry');
+          // console.log('updated successfully tournament entry', value);
         },
         (error: any) => {
           console.log('error updating entry', error);
@@ -319,11 +328,30 @@ export class EntryWizardContainerComponent implements OnInit, OnDestroy {
   }
 
   public discardChanges () {
-    this.eventEntryInfoService.discardChanges(this.entryId, this.cartSessionId, this.withdrawing)
-    .pipe(first())
-      .subscribe((success: boolean) => {
-        this.entryWizardComponent.clean();
-        this.onFinish(null);
-      });
+    if (this.discardChangesInfo) {
+      this.discardChangesInfo.entryId = this.entryId;
+      this.discardChangesInfo.withdrawing = this.withdrawing;
+      this.discardChangesInfo.cartSessionId = this.cartSessionId;
+
+      this.eventEntryInfoService.discardChanges(this.discardChangesInfo)
+        .pipe(first())
+        .subscribe((success: boolean) => {
+          this.entryWizardComponent.clean();
+          // reload the entry after changes
+          this.tournamentEntryService.getByKey(this.entryId);
+          this.onFinish(null);
+        });
+    }
+  }
+
+  makeDiscardChangeInfo (tournamentEntry: TournamentEntry) {
+    // save only first time
+    if (this.discardChangesInfo == null) {
+      this.discardChangesInfo = new OriginalEntryInfo();
+      this.discardChangesInfo.entryId = tournamentEntry.id;
+      this.discardChangesInfo.usattDonation = tournamentEntry.usattDonation;
+      this.discardChangesInfo.membershipType = tournamentEntry.membershipOption;
+      this.discardChangesInfo.withdrawing = this.withdrawing;
+    }
   }
 }

@@ -97,6 +97,9 @@ export class EntryWizardComponent implements OnInit, OnChanges, OnDestroy {
   @Output()
   finish: EventEmitter<any> = new EventEmitter<any>();
 
+  @Output()
+  discard: EventEmitter<any> = new EventEmitter<any>();
+
   columnsToDisplay: string[] = ['name', 'action'];
 
   tournamentStartDate: Date;
@@ -262,7 +265,7 @@ export class EntryWizardComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   onChange(form: UntypedFormGroup) {
-    console.log('in onChange');
+    // console.log('in onChange');
     if (this.entry != null) {
       const updatedEntry = {
         ...this.entry,
@@ -542,7 +545,7 @@ export class EntryWizardComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   public onRefundSuccessful(scope: any): void {
-    console.log('refund successful');
+    // console.log('refund successful');
     if (scope != null) {
       scope.confirmEntry();
     }
@@ -655,13 +658,13 @@ export class EntryWizardComponent implements OnInit, OnChanges, OnDestroy {
       case EventEntryCommand.ENTER:
         return 'Enter';
       case EventEntryCommand.ENTER_WAITING_LIST:
-        return 'Enter W.L.';
+        return 'Wait List';
       case EventEntryCommand.DROP:
         return 'Drop';
       case EventEntryCommand.DROP_WAITING_LIST:
         return 'Drop W.L.';
       case EventEntryCommand.REVERT_DROP:
-        return 'Revert Drop';
+        return 'Revert';
     }
   }
 
@@ -793,5 +796,19 @@ export class EntryWizardComponent implements OnInit, OnChanges, OnDestroy {
 
   showNoEventsError (): boolean {
     return this.visitedEvents && this.hasEventsError();
+  }
+
+  discardChanges() {
+    const dialogRef = this.dialog.open(ConfirmationPopupComponent, {
+      width: '300px', height: '200px',
+      data: { message: "Discard changes?", title: 'Confirmation', showCancelButton: true, cancelText: 'No', okText: 'Yes' }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result === 'ok') {
+        // tell them what to expect in dialog
+        this.discard.emit(null);
+      }
+    });
   }
 }

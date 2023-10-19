@@ -447,7 +447,9 @@ public class EventEntryStatusService {
     }
 
     @Transactional
-    public void discard(Long tournamentEntryId, String cartSessionId, Boolean withdrawing) {
+    public void discard(OriginalEntryInfo originalEntryInfo) {
+        long tournamentEntryId = originalEntryInfo.getEntryId();
+        String cartSessionId = originalEntryInfo.getCartSessionId();
         List<TournamentEventEntry> allEntries = tournamentEventEntryService.getEntries(tournamentEntryId);
         for (TournamentEventEntry eventEntry : allEntries) {
             EventEntryStatus status = eventEntry.getStatus();
@@ -465,6 +467,15 @@ public class EventEntryStatusService {
                 // update count of entries in this event now that status has changed
                 updateNumEntriesInEvent(eventEntry.getTournamentEventFk());
             }
+        }
+
+        // restore tournament entry to its original state
+        TournamentEntry tournamentEntry = tournamentEntryService.get(tournamentEntryId);
+        if (tournamentEntry.getMembershipOption() != originalEntryInfo.getMembershipType() ||
+            tournamentEntry.getUsattDonation() != originalEntryInfo.getUsattDonation()) {
+            tournamentEntry.setMembershipOption(originalEntryInfo.getMembershipType());
+            tournamentEntry.setUsattDonation(originalEntryInfo.getUsattDonation());
+            tournamentEntryService.update(tournamentEntry);
         }
     }
 }
