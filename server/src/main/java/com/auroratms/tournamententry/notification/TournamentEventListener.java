@@ -194,6 +194,8 @@ public class TournamentEventListener {
         templateModel.put("playerLastName", userProfile.getLastName());
         templateModel.put("city", userProfile.getCity());
         templateModel.put("state", userProfile.getState());
+        templateModel.put("email", userProfile.getEmail());
+        templateModel.put("phone", userProfile.getMobilePhone());
         return userProfile;
     }
 
