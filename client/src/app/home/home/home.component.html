@@ -2,7 +2,7 @@
   <div class="mat-headline-4 salutation">Hi,</div>
   <div class="mat-headline-4 salutation">{{ playerFirstName }}</div>
   <div *ngIf="!isProfileComplete(); else completedProfile" class="mat-body-1">
-    <p>Your on-boarding process was not completed successfully.</p>
+    <p>Your on-boarding process was not completed.</p>
     <p style="margin-bottom: 20px">You must fill out your profile before you will be allowed to proceed further.</p>
     <button mat-raised-button color="primary" (click)="goToProfileStart()">Complete On-boarding</button>
   </div>

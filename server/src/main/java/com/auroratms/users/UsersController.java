@@ -162,6 +162,7 @@ public class UsersController extends AbstractOktaController {
                     new TypeReference<Map<String, Object>>() {
                     });
             String userId = (String) jsonMap.get("id");
+            String status = (String) jsonMap.get("status");
             Object profile = jsonMap.get("profile");
             String tokenFromURL = "";
             if (profile != null) {
@@ -170,11 +171,15 @@ public class UsersController extends AbstractOktaController {
 
             // check that the activation token is OK and only then unsuspend
             if (token.equals(tokenFromURL)) {
-                logger.info("Unsuspending user with userId " + userId);
-                unsuspendUser(userId);
                 String firstName = (String) ((Map<String, Object>) profile).get("firstName");
                 String lastName = (String) ((Map<String, Object>) profile).get("lastName");
-                logger.info("Email " + userRegistration.getEmail() + " validated successfully for user " + userId + " named " + lastName + ", " + firstName);
+                if ("SUSPENDED".equals(status)) {
+                    logger.info("Unsuspending user with userId " + userId);
+                    unsuspendUser(userId);
+                    logger.info(String.format("Email %s was validated successfully for user %s named %s, %s.  Current user status is %s", userRegistration.getEmail(), userId, lastName, firstName, status));
+                } else {
+                    logger.info(String.format("Email %s was already validated for user %s named %s, %s.  Current user status is %s", userRegistration.getEmail(), userId, lastName, firstName, status));
+                }
             } else {
                 logger.info("Token from url: " + tokenFromURL + " different from token from email: " + token);
                 return new ResponseEntity<String>("{\"status\":\"Activation failed\"}", HttpStatus.BAD_REQUEST);
