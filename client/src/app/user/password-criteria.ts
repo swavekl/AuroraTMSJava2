@@ -4,8 +4,8 @@ export class PasswordCriteria {
   public readonly passwordPattern: RegExp =
     /^(?=[a-zA-Z0-9!$^*-?#@~&%+]{8,}$)(?=.*?[a-z])(?=.*?[A-Z])(?=.*?[0-9])(?=.*?[!$^*-?#@~&%+]).*/;
   public readonly passwordRequirements: string =
-    'Password must contain at least one upper and lower case letter, digit, special character ~!@#$%^&*-+? and be at least 8 characters long';
-
+    'Password requirements: at least 8 characters, a lowercase letter, an uppercase letter, a number, a symbol ~!@#$%^&*-+?, no parts of your username.';
+  // 'Password must contain at least one upper and lower case letter, digit, special character ~!@#$%^&*-+? and be at least 8 characters long';
   // public passwordCheck(): ValidatorFn {
   //   return (c: AbstractControl): ValidationErrors | null => {
   //     if (c.parent) {

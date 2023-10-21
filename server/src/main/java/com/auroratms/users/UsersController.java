@@ -384,7 +384,12 @@ public class UsersController extends AbstractOktaController {
             logger.info("Reset password status " + status);
         } catch (Exception e) {
             logger.error("Error resetting password", e);
-            return String.format("{ \"status\": \"ERROR\" , \"errorMessage\": \"%s\"}", e.getMessage());
+            String message = e.getMessage();
+            int summaryIdx =  message.indexOf("error message ");
+            if (summaryIdx != -1) {
+                message = message.substring(summaryIdx + "error message ".length() + 1, message.length() - 1);
+            }
+            return String.format("{ \"status\": \"ERROR\" , \"errorMessage\": \"%s\"}", message);
         }
         return String.format("{ \"status\" : \"%s\" }", status);
     }

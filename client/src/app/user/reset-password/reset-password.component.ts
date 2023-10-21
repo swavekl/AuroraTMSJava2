@@ -20,6 +20,8 @@ export class ResetPasswordComponent implements OnInit {
   showPassword: boolean = false;
   showPassword2: boolean = false;
 
+  errorMessage: string = null;
+
   constructor(private activatedRoute: ActivatedRoute,
               private router: Router,
               private authenticationService: AuthenticationService) {
@@ -30,18 +32,36 @@ export class ResetPasswordComponent implements OnInit {
   }
 
   resetPassword() {
+    this.errorMessage = null;
     this.authenticationService.resetPassword(this.resetPasswordToken, this.password)
       .subscribe(
       data => {
         // console.log ('reset password data', data);
         const succeeded: boolean = (data && data?.status === 'SUCCESS');
-        this.router.navigate(['/ui/resetpasswordresult/', succeeded]);
+        if (data?.status === 'ERROR') {
+          this.errorMessage = data?.errorMessage;
+        } else {
+          this.router.navigate(['/ui/resetpasswordresult/', succeeded]);
+        }
       },
       error => {
-        const url = `/ui/resetpasswordresult/false`;
-        this.router.navigate([url]);
+        try {
+          const msg = JSON.parse(error.error.text);
+          this.errorMessage = msg.errorSummary;
+        } catch (e) {
+          this.errorMessage = error.error;
+        }
       }
     );
+  }
+
+  startOver() {
+    const url = `/ui/resetpasswordstart`;
+    this.router.navigate([url]);
+  }
+
+  clearServerErrorMessage() {
+    this.errorMessage = null;
   }
 
   toggleShowPassword() {

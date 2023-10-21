@@ -2,6 +2,7 @@ package com.auroratms;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.*;
 import com.okta.sdk.authc.credentials.TokenClientCredentials;
 import com.okta.sdk.client.Client;
 import com.okta.sdk.client.Clients;
@@ -143,9 +144,51 @@ public class AbstractOktaController {
         conn.disconnect();
 
         String error = textBuilder.toString();
+        error = extractErrorDetails(error);
+
         throw new RuntimeException("Failed : HTTP error code : " + conn.getResponseCode()
                 + "\nresponse message " + responseMessage
                 + "\nerror message " + error);
+    }
+
+    /**
+     * Extrancts more informative error details
+     * @param fullError
+     * @return
+     */
+    private String extractErrorDetails (String fullError) {
+        String error = fullError;
+        try {
+//            System.out.println("error = " + fullError);
+            JsonElement parser = JsonParser.parseString(fullError);
+            JsonObject errorJsonObject = parser.getAsJsonObject();
+            if (errorJsonObject != null) {
+                Object errorSummary = errorJsonObject.get("errorSummary");
+                Object errorDescription = errorJsonObject.get("error_description");
+                if (errorSummary != null) {
+                    error = errorSummary.toString();
+                } else if (errorDescription != null) {
+                    error = errorDescription.toString();
+                }
+                // check if there is more detailed error summary
+                JsonArray errorCauses = errorJsonObject.getAsJsonArray("errorCauses");
+                if (errorCauses != null) {
+                    for (int i = 0; i < errorCauses.size(); i++) {
+                        JsonElement jsonElement = errorCauses.get(i);
+                        JsonObject jsonObject = jsonElement.getAsJsonObject();
+                        if (jsonObject != null) {
+                            JsonElement errorSummaryJsonElement = jsonObject.get("errorSummary");
+                            if (errorSummaryJsonElement != null) {
+                                error = errorSummaryJsonElement.toString();
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (JsonIOException | JsonSyntaxException e) {
+            System.out.println("error parsing error message: " + e);
+        }
+        return error;
     }
 
     protected String getAuthorizationHeaderValue() {
