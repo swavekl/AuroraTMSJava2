@@ -13,6 +13,7 @@ import com.auroratms.tournamententry.notification.TournamentEventPublisher;
 import com.auroratms.tournamentevententry.doubles.notification.DoublesEventPublisher;
 import com.auroratms.tournamentevententry.doubles.notification.event.MakeBreakDoublesPairsEvent;
 import com.auroratms.tournamentevententry.policy.PolicyApplicator;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -20,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 
+@Slf4j
 @Service
 public class EventEntryStatusService {
 
@@ -448,6 +450,7 @@ public class EventEntryStatusService {
 
     @Transactional
     public void discard(OriginalEntryInfo originalEntryInfo) {
+        log.info("Discarding entry with id: " + originalEntryInfo.getEntryId());
         long tournamentEntryId = originalEntryInfo.getEntryId();
         String cartSessionId = originalEntryInfo.getCartSessionId();
         List<TournamentEventEntry> allEntries = tournamentEventEntryService.getEntries(tournamentEntryId);

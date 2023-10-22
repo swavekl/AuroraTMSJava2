@@ -93,7 +93,7 @@ public class UsattDataService {
             userProfileExt.setClubFk(oldUserProfileExt.getClubFk());
             userProfileExtService.delete(oldUserProfileExt.getProfileId());
         }
-        System.out.println("Saving userProfileExt = " + userProfileExt);
+        logger.info("Saving userProfileExt = " + userProfileExt);
         userProfileExtService.save(userProfileExt);
 
         return recordToReturn;
