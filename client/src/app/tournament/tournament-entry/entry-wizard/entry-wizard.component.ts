@@ -116,6 +116,8 @@ export class EntryWizardComponent implements OnInit, OnChanges, OnDestroy {
   private currencyExchangeRate: number;
   // currency symbol in current locale
   tournamentCurrencySymbol: string;
+  // if true rate was retrieved successfully
+  currencyRateRetrieved: boolean;
 
   // calculator for calculating total
   public priceCalculator: PriceCalculator;
@@ -152,6 +154,7 @@ export class EntryWizardComponent implements OnInit, OnChanges, OnDestroy {
     this.tournamentCurrency = 'USD';
     this.playerCurrency = 'USD';
     this.currencyExchangeRate = 1.0;
+    this.currencyRateRetrieved = false;
     this.dirty = false;
     this.visitedEvents = false;
     this.subscriptions = new Subscription ();
@@ -642,9 +645,11 @@ export class EntryWizardComponent implements OnInit, OnChanges, OnDestroy {
         (exchangeRate: number) => {
           // console.log('got currency exchange rate from ' + tournamentCurrency + ' to ' + playerCurrency + ' = ' + exchangeRate);
           this.currencyExchangeRate = exchangeRate;
+          this.currencyRateRetrieved = true;
         },
         (error: any) => {
           console.log('Unable to get currency exchange rate for player' + JSON.stringify(error));
+          this.currencyRateRetrieved = false;
         }
       );
   }

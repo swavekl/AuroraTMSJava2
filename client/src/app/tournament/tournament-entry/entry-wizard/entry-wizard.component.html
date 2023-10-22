@@ -162,7 +162,7 @@
               <td><h1>{{ getAbsoluteBalance() | currency: tournamentCurrency }}</h1>
               </td>
             </tr>
-            <tr *ngIf="tournamentCurrency != playerCurrency">
+            <tr *ngIf="(tournamentCurrency != playerCurrency) && currencyRateRetrieved">
               <ng-container *ngIf="balanceAction() === BALANCE_ACTION_PAY">
                 <td><h2>Pay in {{playerCurrency}}</h2></td>
                 <td>
