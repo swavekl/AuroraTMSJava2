@@ -1,5 +1,8 @@
 import {Component, EventEmitter, Input, OnChanges, Output, SimpleChange, SimpleChanges} from '@angular/core';
 import {TournamentEntryInfo} from '../../model/tournament-entry-info.model';
+import {state} from '@angular/animations';
+import {RecordSearchData} from '../../../profile/usatt-record-search-popup/usatt-record-search-popup.component';
+import {UsattRecordSearchCallbackData} from '../../../profile/service/usatt-record-search-popup.service';
 
 @Component({
   selector: 'app-tournament-players-list-big',
@@ -15,6 +18,9 @@ export class TournamentPlayersListBigComponent implements OnChanges {
   public tournamentName: string;
 
   @Input()
+  public tournamentId: number;
+
+  @Input()
   public tournamentReady: boolean;
 
   @Output()
@@ -22,6 +28,9 @@ export class TournamentPlayersListBigComponent implements OnChanges {
 
   @Output()
   public addEntry: EventEmitter<any> = new EventEmitter<any>();
+
+  @Output()
+  public findPlayer: EventEmitter<any> = new EventEmitter<any>();
 
   // list of entries divided by
   alphabeticalEntryInfos: Map<string, TournamentEntryInfo[]> = null;
@@ -76,4 +85,20 @@ export class TournamentPlayersListBigComponent implements OnChanges {
   isTournamentReady() {
     return this.tournamentReady;
   }
+
+  showPlayerTooltip(firstName: string, lastName: string): boolean {
+    const fullName = this.getPlayerTooltipText(firstName, lastName);
+    return fullName.length > 24;
+  }
+
+  getPlayerTooltipText(firstName: string, lastName: string): string {
+     return `${lastName}, ${firstName}`;
+  }
+
+    protected readonly state = state;
+
+  onFindPlayer() {
+    this.findPlayer.emit(null);
+  }
 }
+

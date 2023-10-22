@@ -54,7 +54,7 @@ export class RegisterComponent implements OnInit, OnDestroy {
       .subscribe(
         data => {
           this.message = '';
-          this.okMessage = 'Email was sent to your email account.  Please follow instruction in the email to continue...';
+          this.okMessage = 'Email was sent to your email account.  Please follow instruction in the email to continue.  If you cannot find the email, please check your Spam folder.' ;
           this.registrationInProgress = false;
           this.registrationCompleted = true;
           this.linearProgressBarService.setLoading(false);

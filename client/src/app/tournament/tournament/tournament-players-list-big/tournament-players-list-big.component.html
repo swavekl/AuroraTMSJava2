@@ -6,14 +6,30 @@
     <button type="button" mat-raised-button (click)="onRegisterPlayer()" [disabled]="!isTournamentReady()">
       <mat-icon>add</mat-icon>Register Player
     </button>
+    <span class="toolbar-spacer-2"></span>
+    <button type="button" mat-raised-button (click)="onFindPlayer()">
+      <mat-icon>search</mat-icon>Find Player by Name
+    </button>
   </mat-toolbar>
   <div *ngIf="alphabeticalEntryInfos != null" class="inner-list-container" fxLayout="row wrap" fxLayoutAlign="start start" fxLayoutGap="20px">
     <ng-container *ngFor="let letterEntries of alphabeticalEntryInfos | keyvalue">
       <h2 class="letter-divider">{{ letterEntries.key }}</h2>
       <mat-card *ngFor="let entryInfo of letterEntries.value">
-        <mat-card-content (click)="onViewEntry(entryInfo)">
-          <div class="name-line" [matTooltip]="entryInfo.lastName + ', ' + entryInfo.firstName">{{ entryInfo.lastName }}, {{ entryInfo.firstName }}</div>
-          <div>({{ (entryInfo.seedRating > 0) ? entryInfo.seedRating : 'N/R'}})</div>
+        <mat-card-content>
+          <div fxLayout="row" fxLayoutAlign="space-between start">
+            <div fxLayout="column" fxLayoutAlign="start start"
+                 [routerLink]="['/ui/userprofile/edit', entryInfo.profileId]"
+            [state]="{addingProfile: true, returnUrl: '/ui/tournaments/playerlistbig/' + tournamentId}">
+              <div class="name-line"
+                   [matTooltip]="showPlayerTooltip(entryInfo.firstName, entryInfo.lastName)
+                   ? getPlayerTooltipText(entryInfo.firstName, entryInfo.lastName) : ''"
+              >{{ entryInfo.lastName }}, {{ entryInfo.firstName }}</div>
+              <div>({{ (entryInfo.seedRating > 0) ? entryInfo.seedRating : 'N/R'}})</div>
+            </div>
+            <div  (click)="onViewEntry(entryInfo)">
+              <mat-icon matListItemIcon>chevron_right</mat-icon>
+            </div>
+          </div>
         </mat-card-content>
       </mat-card>
     </ng-container>

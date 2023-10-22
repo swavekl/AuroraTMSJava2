@@ -8,15 +8,21 @@ import {TournamentEntryInfo} from '../../model/tournament-entry-info.model';
 import {createSelector} from '@ngrx/store';
 import {TournamentInfo} from '../../model/tournament-info.model';
 import {TournamentInfoService} from '../../service/tournament-info.service';
+import {UsattRecordSearchCallbackData, UsattRecordSearchPopupService} from '../../../profile/service/usatt-record-search-popup.service';
+import {RecordSearchData} from '../../../profile/usatt-record-search-popup/usatt-record-search-popup.component';
+import {MatDialog} from '@angular/material/dialog';
+import {ConfirmationPopupComponent} from '../../../shared/confirmation-popup/confirmation-popup.component';
 
 @Component({
   selector: 'app-tournament-players-list-big-container',
   template: `
     <app-tournament-players-list-big [entryInfos]="entryInfos$ | async"
     [tournamentName]="tournamentName$ | async"
+    [tournamentId]="tournamentId"
     [tournamentReady]="tournamentReady$ | async"
     (viewEntry)="onViewEntry($event)"
-    (addEntry)="onAddEntry($event)">
+    (addEntry)="onAddEntry($event)"
+    (findPlayer)="onFindPlayer($event)">
     </app-tournament-players-list-big>
   `,
   styles: [
@@ -37,6 +43,8 @@ export class TournamentPlayersListBigContainerComponent implements OnInit, OnDes
               private tournamentInfoService: TournamentInfoService,
               private router: Router,
               private activatedRoute: ActivatedRoute,
+              private playerFindPopupService: UsattRecordSearchPopupService,
+              private dialog: MatDialog,
               private linearProgressBarService: LinearProgressBarService) {
     this.setupProgressIndicator();
   }
@@ -140,6 +148,34 @@ export class TournamentPlayersListBigContainerComponent implements OnInit, OnDes
       }
     };
     this.router.navigate(['/ui/userprofile/addbytd', this.tournamentId], extras);
+  }
+
+  onFindPlayer($event: any) {
+    const data: RecordSearchData = {
+      firstName: null,
+      lastName: null,
+      searchingByMembershipId: null
+    };
+    const callbackParams: UsattRecordSearchCallbackData = {
+      successCallbackFn: this.findPlayerSuccessCallback,
+      cancelCallbackFn: null,
+      callbackScope: this
+    };
+    this.playerFindPopupService.showPopup(data, callbackParams);
+  }
+
+  findPlayerSuccessCallback (scope: any, result: any) {
+    const me = scope;
+    let playerInfo = JSON.stringify(result, null, 2);
+    const config = {
+      width: '500px', height: '350px', data: {
+        message: playerInfo, showCancel: false, okText: 'Close', contentAreaHeight: '200px', title: 'Player USATT Record'
+      }
+    };
+    const dialogRef = me.dialog.open(ConfirmationPopupComponent, config);
+    const subscription = dialogRef.afterClosed().subscribe(result => {
+    });
+    me.subscriptions.add(subscription);
   }
 }
 

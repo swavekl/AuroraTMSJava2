@@ -57,8 +57,9 @@ public class UsersController extends AbstractOktaController {
             suspendUser(userId);
             logger.info("Temporarily suspended user " + userId + " until email is validated");
         } catch (Exception e) {
+            logger.error("Error registering user " + userRegistration.getEmail(), e);
             String message = e.getMessage();
-            message = message.substring(message.indexOf("{"));
+            message = (message != null && message.indexOf("{") > 0) ? message.substring(message.indexOf("{")) : message;
             return new ResponseEntity<>(message, HttpStatus.BAD_REQUEST);
         }
 
