@@ -61,8 +61,7 @@ export class RegisterComponent implements OnInit, OnDestroy {
         },
         error => {
             // console.log('error registering', error);
-            const causes = error?.error?.errorCauses || '{}';
-            this.message = 'Error was encountered during registration: ' + JSON.stringify(causes);
+            this.message = error.error;
             this.okMessage = '';
           this.registrationInProgress = false;
           this.linearProgressBarService.setLoading(false);

@@ -59,7 +59,6 @@ public class UsersController extends AbstractOktaController {
         } catch (Exception e) {
             logger.error("Error registering user " + userRegistration.getEmail(), e);
             String message = e.getMessage();
-            message = (message != null && message.indexOf("{") > 0) ? message.substring(message.indexOf("{")) : message;
             return new ResponseEntity<>(message, HttpStatus.BAD_REQUEST);
         }
 
@@ -273,6 +272,7 @@ public class UsersController extends AbstractOktaController {
         try {
             // authenticate using refresh token
             String refreshToken = parameters.get("refreshToken");
+//refreshToken = "A" + refreshToken.substring(1);  // make invalid token
             String requestBody = "grant_type=refresh_token"
                     + "&scope=" + URLEncoder.encode("openid offline_access", StandardCharsets.UTF_8.name())
                     + "&client_id=" + URLEncoder.encode(this.clientId, StandardCharsets.UTF_8.name())
@@ -282,25 +282,10 @@ public class UsersController extends AbstractOktaController {
 
             String email = parameters.get("email");
             String combinedResponse = fetchUser(loginResponse, email);
-//return new ResponseEntity<String>("{\"message\": \"Quiet login failed\"}", HttpStatus.BAD_REQUEST);
             return new ResponseEntity<String>(combinedResponse, HttpStatus.OK);
         } catch (Exception e) {
-//            Failed : HTTP error code : 400
-//            response message Bad Request
-//            error message {"error":"invalid_grant","error_description":"The refresh token is invalid or expired."}
-            String pattern = "\\w* : HTTP error code : (\\d{3})\\n[\\w\\s]*\\nerror message (\\{[\\\":\\w\\d,\\.\\s]*\\})";
-            Pattern r = Pattern.compile(pattern);
-            // Now create matcher object.
-            String error = e.getMessage();
-            Matcher m = r.matcher(error);
-            String body = "{\"message\": \"Quiet login failed\"}";
-            HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
-            if (m.find( )) {
-                String status = m.group(1);
-                body = m.group(2);
-                httpStatus = HttpStatus.valueOf(400);
-            }
-            return new ResponseEntity<String>(body, httpStatus);
+            logger.error("Quiet login error", e);
+            return new ResponseEntity<String>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -391,10 +376,6 @@ public class UsersController extends AbstractOktaController {
         } catch (Exception e) {
             logger.error("Error resetting password", e);
             String message = e.getMessage();
-            int summaryIdx =  message.indexOf("error message ");
-            if (summaryIdx != -1) {
-                message = message.substring(summaryIdx + "error message ".length() + 1, message.length() - 1);
-            }
             return String.format("{ \"status\": \"ERROR\" , \"errorMessage\": \"%s\"}", message);
         }
         return String.format("{ \"status\" : \"%s\" }", status);

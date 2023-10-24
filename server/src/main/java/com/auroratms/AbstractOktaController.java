@@ -146,9 +146,7 @@ public class AbstractOktaController {
         String error = textBuilder.toString();
         error = extractErrorDetails(error);
 
-        throw new RuntimeException("Failed : HTTP error code : " + conn.getResponseCode()
-                + "\nresponse message " + responseMessage
-                + "\nerror message " + error);
+        throw new RuntimeException(error);
     }
 
     /**
@@ -184,6 +182,14 @@ public class AbstractOktaController {
                         }
                     }
                 }
+            }
+
+            // remove starting and ending double quotes
+            if (error != null && error.startsWith("\"")) {
+                error = error.substring(1);
+            }
+            if (error != null && error.endsWith("\"")) {
+                error = error.substring(0, error.length() - 1);
             }
         } catch (JsonIOException | JsonSyntaxException e) {
             System.out.println("error parsing error message: " + e);
