@@ -68,7 +68,7 @@ export class ProfileEditStartComponent implements OnInit {
 
   private findPlayer(searchById: boolean) {
     const data: RecordSearchData = {
-      firstName: this.firstName,
+      firstName: null, // this.firstName,
       lastName: this.lastName,
       searchingByMembershipId: searchById
     };
@@ -86,5 +86,10 @@ export class ProfileEditStartComponent implements OnInit {
     me.firstName = selectedPlayerRecord.firstName;
     me.lastName = selectedPlayerRecord.lastName;
     me.playerRecordFound = true;
+  }
+
+  clearUsattRecord() {
+    this.playerRecordFound = false;
+    this.playerRecord = null;
   }
 }

@@ -1,6 +1,6 @@
 <app-centered-panel [noTopGap]="true">
       <div *ngIf="playerRecordFound" class="info-container" >
-        <h3>Yeay! We found your USATT (USA Table Tennis) player record</h3>
+        <h3>We found this USATT (USA Table Tennis) player record using your first and last name.</h3>
             <table class="usatt-info">
               <tbody>
               <tr>
@@ -25,27 +25,31 @@
               </tr>
               </tbody>
             </table>
+        <h3>If this is <span style="font-weight: bold">not</span> your record, let's see if we can find it using different spelling of your name or by membership id.</h3>
+        <div fxLayout="row" style="margin: 0 8px;">
+          <button mat-raised-button (click)="onFindPlayerByName()">Find by Name</button>
+          <span fxFlex></span>
+          <button mat-raised-button (click)="onFindPlayerById()">Find by Id</button>
+        </div>
+        <div style="width: 100%; padding-top: 16px;"></div>
         <h3>If this is your record, let's proceed to filling remaining information in your profile.
         </h3>
         <div fxLayout="row" fxLayoutAlign="end start" style="width: 100%;">
           <button mat-raised-button color="primary" (click)="onProfileEditStart(true, playerRecord)">Go to Profile</button>
         </div>
-        <div style="width: 100%; padding-top: 16px;"></div>
-        <h3>If this is not your record, let's see if we can find it using different spelling of your name or by membership id.</h3>
       </div>
       <div *ngIf="!playerRecordFound" class="info-container">
         <h3>We didn't find your USATT (USA Table Tennis) membership record using your first and last name.</h3>
+        <h3>If you are a member, let's see if we can find your record using different spelling of your name or by membership id.</h3>
+        <div fxLayout="row" style="margin: 0 8px;">
+          <button mat-raised-button (click)="onFindPlayerByName()">Find by Name</button>
+          <span fxFlex></span>
+          <button mat-raised-button (click)="onFindPlayerById()">Find by Id</button>
+        </div>
+        <div style="width: 100%; padding-top: 16px;"></div>
         <h3>If you are not a member yet, let's get started on filling your profile </h3>
         <div fxLayout="row" fxLayoutAlign="end start" style="width: 100%;">
           <button mat-raised-button color="primary" (click)="onProfileEditStart(true, playerRecord)">Go to Profile</button>
         </div>
-        <div style="width: 100%; padding-top: 16px;"></div>
-        <h3>If you are a member, let's see if we can find your record using different spelling of your name or by membership id.</h3>
-      </div>
-
-      <div fxLayout="row" style="margin: 0 8px;">
-        <button mat-raised-button (click)="onFindPlayerByName()">Find by Name</button>
-        <span fxFlex></span>
-        <button mat-raised-button (click)="onFindPlayerById()">Find by Id</button>
       </div>
 </app-centered-panel>

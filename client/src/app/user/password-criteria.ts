@@ -2,9 +2,9 @@ import {AbstractControl, ValidationErrors, ValidatorFn} from '@angular/forms';
 
 export class PasswordCriteria {
   public readonly passwordPattern: RegExp =
-    /^(?=[a-zA-Z0-9!$^*-?#@~&%+]{8,}$)(?=.*?[a-z])(?=.*?[A-Z])(?=.*?[0-9])(?=.*?[!$^*-?#@~&%+]).*/;
+    /(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[~!@#\$%\^&\*\-+\?]).{8,}/;
   public readonly passwordRequirements: string =
-    'Password requirements: at least 8 characters, a lowercase letter, an uppercase letter, a number, a symbol ~!@#$%^&*-+?, no parts of your username.';
+    'Password requirements: at least 8 characters, a lowercase letter, an uppercase letter, a number, a symbol ~!@#$%^&*-+? and no parts of your email.';
   // 'Password must contain at least one upper and lower case letter, digit, special character ~!@#$%^&*-+? and be at least 8 characters long';
   // public passwordCheck(): ValidatorFn {
   //   return (c: AbstractControl): ValidationErrors | null => {
