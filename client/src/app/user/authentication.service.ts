@@ -241,8 +241,17 @@ export class AuthenticationService {
     this.membershipExpirationDate = membershipExpirationDate;
   }
 
-  getCurrentUserMembershipBirthDate() {
+  getCurrentUserBirthDate() {
     return this.currentUser?.profile?.birthdate;
+  }
+
+  setCurrentUserBirthDate(birthdate: Date) {
+    if (this.currentUser?.profile != null) {
+      this.currentUser.profile = {
+        ...this.currentUser.profile,
+        birthdate: birthdate
+      };
+    }
   }
 
   getCurrentUserProfileId() {
@@ -261,7 +270,6 @@ export class AuthenticationService {
 
   makeProfileComplete() {
     if (this.currentUser != null && this.currentUser.profile != null && !this.currentUser.profile.isProfileComplete) {
-      // console.log('Making profile complete');
       this.currentUser.profile = {
         ...this.currentUser.profile,
         isProfileComplete: true

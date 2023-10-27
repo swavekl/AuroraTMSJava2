@@ -20,7 +20,7 @@
     </div>
     <div #fgPasswords="ngModelGroup" ngModelGroup="passwords" appValuesMatch="password,password2"
          fxLayout="column" fxLayoutAlign="start stretch">
-      <p class="password-instructions">{{ passwordCriteria.passwordRequirements }}</p>
+      <p class="password-instructions mat-body-1">{{ passwordCriteria.passwordRequirements }}</p>
       <div fxLayout="row" fxLayoutAlign="start start">
         <mat-form-field class="password-field">
           <input [type]="showPassword ? 'text' : 'password'"

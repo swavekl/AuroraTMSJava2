@@ -59,14 +59,9 @@ export class MembershipUtil {
     if (membershipExpirationDate != null) {
       membershipExpired = new DateUtils().isDateBefore(membershipExpirationDate, tournamentStartDate);
     }
-    const isJunior = this.isPlayerAJunior(dateOfBirth, tournamentStartDate);
     if (membershipExpired) {
-      if (isJunior) {
-        membershipType = MembershipType.TOURNAMENT_PASS_JUNIOR;
-      } else {
-        membershipType = ((tournamentStarLevel >= 0 && tournamentStarLevel <= 4)) ?
+        membershipType =  ((tournamentStarLevel >= 0 && tournamentStarLevel <= 4)) ?
           MembershipType.BASIC_PLAN : MembershipType.PRO_PLAN;
-      }
     }
     return membershipType;
   }

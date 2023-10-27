@@ -20,7 +20,7 @@ export class LoginUniqueValidator implements AsyncValidator{
     return this.authenticationService.isUserRegistered(email)
       .pipe(
         map(isRegistered => {
-          console.log('isRegistered', isRegistered);
+          // console.log('isRegistered', isRegistered);
           return isRegistered ? {appLoginUnique: false} : null;
         }),
         catchError(() => of(null)));

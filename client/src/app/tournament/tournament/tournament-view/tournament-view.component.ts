@@ -59,7 +59,7 @@ export class TournamentViewComponent implements OnInit, OnChanges {
     entryToEdit.dateEntered = new Date();
     entryToEdit.profileId = this.authService.getCurrentUserProfileId();
     const membershipExpirationDate: Date = this.authService.getCurrentUserMembershipExpiration();
-    const dateOfBirth = this.authService.getCurrentUserMembershipBirthDate();
+    const dateOfBirth = this.authService.getCurrentUserBirthDate();
     entryToEdit.membershipOption = new MembershipUtil().getInitialMembershipOption(
       dateOfBirth, membershipExpirationDate, this.tournamentStartDate, this.tournament.starLevel);
     this.tournamentEntryService.add(entryToEdit, null)

@@ -134,6 +134,8 @@ export class ProfileEditContainerComponent implements OnInit, OnDestroy {
           if (!membershipIdChanged) {
             if (!this.addingProfile) {
               this.authenticationService.makeProfileComplete();
+              this.authenticationService.setCurrentUserBirthDate(profile.dateOfBirth);
+              this.authenticationService.setCurrentUserMembershipExpiration(profile.membershipExpirationDate);
             }
             this.navigateToNextPage(profile);
           } else {
@@ -147,6 +149,9 @@ export class ProfileEditContainerComponent implements OnInit, OnDestroy {
               .pipe(first())
               .subscribe(
                 () => {
+                  if (!this.addingProfile) {
+                    this.authenticationService.setCurrentUserMembershipExpiration(profile.membershipExpirationDate);
+                  }
                   this.navigateToNextPage(profile);
                 },
                 (error: any) => {
