@@ -26,6 +26,7 @@ import {PaymentRefundService} from './service/payment-refund.service';
 import { CheckCashPaymentDialogComponent } from './check-cash-payment-dialog/check-cash-payment-dialog.component';
 import {CheckCashPaymentDialogService} from './service/check-cash-payment-dialog.service';
 import {MatSlideToggleModule} from '@angular/material/slide-toggle';
+import { PaymentsRefundsComponent } from './payments-refunds/payments-refunds.component';
 
 
 @NgModule({
@@ -37,11 +38,13 @@ import {MatSlideToggleModule} from '@angular/material/slide-toggle';
     ConnectWithStripeIconComponent,
     PaymentDialogComponent,
     RefundDialogComponent,
-    CheckCashPaymentDialogComponent
+    CheckCashPaymentDialogComponent,
+    PaymentsRefundsComponent
   ],
   exports: [
     PaymentDialogComponent,
-    RefundDialogComponent
+    RefundDialogComponent,
+    PaymentsRefundsComponent
   ],
   imports: [
     CommonModule,

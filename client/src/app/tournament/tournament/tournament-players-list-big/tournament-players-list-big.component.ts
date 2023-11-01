@@ -35,6 +35,7 @@ export class TournamentPlayersListBigComponent implements OnChanges {
   // list of entries divided by
   alphabeticalEntryInfos: Map<string, TournamentEntryInfo[]> = null;
 
+  validEntriesCount: number;
 
   ngOnChanges(changes: SimpleChanges): void {
     const entryInfoChanges: SimpleChange = changes.entryInfos;
@@ -47,7 +48,14 @@ export class TournamentPlayersListBigComponent implements OnChanges {
           const name2 = entry2.lastName + " " + entry2.firstName;
           return name1.localeCompare(name2);
         });
-        this.entryInfos = entryInfos;
+
+        // count entries which have events - i.e. not withdrawn
+        let count = 0;
+        entryInfos.forEach((entry: TournamentEntryInfo) => {
+          if (entry.eventIds?.length > 0 || entry.waitingListEventIds?.length > 0) {
+            count++;
+          }
+        });
 
         // group entries by letter so it is easier to locate them
         const letterToEntriesMap = new Map<string, TournamentEntryInfo[]>;
@@ -63,12 +71,8 @@ export class TournamentPlayersListBigComponent implements OnChanges {
           }
         });
 
-        // sort the map by letter
-        // const sortedMap = new Map([...letterToEntriesMap]
-        //   .sort(([k1, v1], [k2, v2])=> {
-        //   return k1.localeCompare(k2);
-        // }));
-
+        this.validEntriesCount = count;
+        this.entryInfos = entryInfos;
         this.alphabeticalEntryInfos = letterToEntriesMap;
       }
     }
@@ -99,6 +103,10 @@ export class TournamentPlayersListBigComponent implements OnChanges {
 
   onFindPlayer() {
     this.findPlayer.emit(null);
+  }
+
+  hasEvents(entryInfo: TournamentEntryInfo): boolean {
+    return (entryInfo.eventIds?.length > 0) || (entryInfo.waitingListEventIds?.length > 0);
   }
 }
 

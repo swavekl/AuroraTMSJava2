@@ -1,0 +1,40 @@
+  <table class="payments-refunds-table">
+    <tbody>
+    <tr class="purple-bold-subheader">
+      <th>Previous Payments & Refunds</th>
+      <th>&nbsp;</th>
+    </tr>
+    <ng-container *ngIf="paymentsRefunds?.length > 0; else nopayments">
+    <tr *ngFor="let paymentRefund of paymentsRefunds; last as last">
+      <td>
+        <div>{{ isPayment(paymentRefund) ? 'Payment' : 'Refund' }}</div>
+        <div class="summary-item-second-line">on {{ paymentRefund.transactionDate | date:'medium'}}</div>
+      </td>
+      <td>
+        <ng-container *ngIf="paymentRefund.paidAmount !== paymentRefund.amount">
+          {{ isPayment(paymentRefund) ? '' : '-' }}{{ (paymentRefund.paidAmount / 100) | currency: paymentRefund.paidCurrency }}
+          =
+        </ng-container>
+        {{ isPayment(paymentRefund) ? '' : '-' }}{{ (paymentRefund.amount / 100) | currency: tournamentCurrency }}
+      </td>
+    </tr>
+    </ng-container>
+    <ng-template #nopayments>
+      <tr>
+        <td>None</td>
+        <td></td>
+      </tr>
+    </ng-template>
+    <tr>
+      <td style="border-top: 1px solid black"><h2>Payments & Refunds Total</h2></td>
+      <td style="border-top: 1px solid black"><h2>{{getPaymentsRefundsTotal() | currency: tournamentCurrency}}</h2></td>
+    </tr>
+    </tbody>
+    <tfoot>
+    <tr>
+      <td><h1>BALANCE</h1></td>
+      <td><h1>{{ getBalance() | currency: tournamentCurrency }}</h1>
+      </td>
+    </tr>
+    </tfoot>
+  </table>

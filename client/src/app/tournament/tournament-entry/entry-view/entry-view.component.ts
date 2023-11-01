@@ -15,6 +15,7 @@ import {DiscountedPriceCalculator} from '../pricecalculator/discounted-price-cal
 import {MembershipUtil} from '../../util/membership-util';
 import {Profile} from '../../../profile/profile';
 import {SummaryReportItem} from '../pricecalculator/summary-report.model';
+import {PaymentRefund} from '../../../account/model/payment-refund.model';
 
 @Component({
   selector: 'app-entry-view',
@@ -33,6 +34,9 @@ export class EntryViewComponent implements OnInit, OnChanges, OnDestroy {
 
   @Input()
   playerProfile: Profile;
+
+  @Input()
+  paymentsRefunds: PaymentRefund[];
 
   @Output()
   action: EventEmitter<string> = new EventEmitter<string>();

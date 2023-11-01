@@ -15,6 +15,9 @@ import {first} from 'rxjs/operators';
 import {Profile} from '../../../profile/profile';
 import {AuthenticationService} from '../../../user/authentication.service';
 import {ProfileService} from '../../../profile/profile.service';
+import {PaymentRefundFor} from '../../../account/model/payment-refund-for.enum';
+import {PaymentRefund} from '../../../account/model/payment-refund.model';
+import {PaymentRefundService} from '../../../account/service/payment-refund.service';
 
 @Component({
   selector: 'app-entry-view-container',
@@ -23,6 +26,7 @@ import {ProfileService} from '../../../profile/profile.service';
                     [tournament]="tournament$ | async"
                     [allEventEntryInfos]="allEventEntryInfos$ | async"
                     [playerProfile]="playerProfile$ | async"
+                    [paymentsRefunds]="paymentsRefunds$ | async"
                     (action)="onAction($event)"
     >
     </app-entry-view>
@@ -45,6 +49,8 @@ export class EntryViewContainerComponent implements OnInit, OnDestroy {
   // player profile needed for summary
   playerProfile$: Observable<Profile>;
 
+  paymentsRefunds$: Observable<PaymentRefund[]>;
+
   private returnUrl: string = null;
 
   private subscriptions: Subscription = new Subscription();
@@ -54,6 +60,7 @@ export class EntryViewContainerComponent implements OnInit, OnDestroy {
               private tournamentEventConfigService: TournamentEventConfigService,
               private eventEntryInfoService: EventEntryInfoService,
               private authenticationService: AuthenticationService,
+              private paymentRefundService: PaymentRefundService,
               private profileService: ProfileService,
               private activatedRoute: ActivatedRoute,
               private router: Router,
@@ -70,8 +77,9 @@ export class EntryViewContainerComponent implements OnInit, OnDestroy {
         this.tournamentEntryService.store.select(this.tournamentEntryService.selectors.selectLoading),
         this.tournamentEventConfigService.store.select(this.tournamentEventConfigService.selectors.selectLoading),
         this.profileService.loading$,
-      ], (eventEntryInfosLoading: boolean, tournamentLoading: boolean, entryLoading: boolean, eventConfigLoading: boolean, profileLoading: boolean) => {
-        return eventEntryInfosLoading || tournamentLoading || entryLoading || eventConfigLoading || profileLoading;
+      this.paymentRefundService.loading$,
+      ], (eventEntryInfosLoading: boolean, tournamentLoading: boolean, entryLoading: boolean, eventConfigLoading: boolean, profileLoading: boolean, paymentsRefundsLoading: boolean) => {
+        return eventEntryInfosLoading || tournamentLoading || entryLoading || eventConfigLoading || profileLoading || paymentsRefundsLoading;
       }
     );
 
@@ -93,6 +101,7 @@ export class EntryViewContainerComponent implements OnInit, OnDestroy {
     this.selectTournament(this.tournamentId);
     this.selectEntry(this.entryId);
     this.loadEventEntriesInfos(this.entryId);
+    this.loadPaymentRefunds(this.entryId);
     this.returnUrl = history?.state?.returnUrl;
   }
 
@@ -188,6 +197,20 @@ export class EntryViewContainerComponent implements OnInit, OnDestroy {
       .subscribe((profile: Profile) => {
         this.playerProfile$ = of(profile);
       });
+  }
+
+  private loadPaymentRefunds(tournamentEntryId: number) {
+    // console.log('loading payments refunds for entry ' + tournamentEntryId);
+    this.paymentRefundService.listPaymentsRefunds(PaymentRefundFor.TOURNAMENT_ENTRY, tournamentEntryId)
+      .pipe(first())
+      .subscribe(
+        (paymentsRefunds: PaymentRefund[]) => {
+          this.paymentsRefunds$ = of(paymentsRefunds);
+        },
+        (error: any) => {
+          console.log('error getting payment refunds' + JSON.stringify(error));
+        }
+      );
   }
 
   onAction(action: string) {

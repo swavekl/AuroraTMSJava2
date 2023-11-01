@@ -1,0 +1,50 @@
+@use "src/my-theme.scss" as *;
+
+.purple-bold-subheader {
+  font-weight: bold;
+  padding-top: 10px;
+  border-bottom: 1px solid $primary-color;
+}
+
+div.summary-item-second-line {
+  font-size: 14px;
+}
+
+table.payments-refunds-table {
+  width: 100%;
+  font-size: 16px;
+  //border: 1px solid red;
+
+  tr {
+    th {
+      padding-top: 4px;
+      //border: 1px solid green;
+
+      &:first-child {
+        width: 80%;
+        text-align: left;
+      }
+
+      &:last-child {
+        width: 20%;
+        text-align: right;
+      }
+    }
+
+    td {
+      //border: 1px solid blue;
+
+      &:first-child {
+        width: 80%;
+        text-align: left;
+      }
+
+      &:last-child {
+        width: 20%;
+        text-align: right;
+        vertical-align: text-top;
+      }
+    }
+  }
+}
+

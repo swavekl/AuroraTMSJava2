@@ -36,6 +36,10 @@
                                    [tournamentCurrency]="tournamentCurrency">
           </app-entry-summary-table>
         </ng-template>
+        <app-payments-refunds [paymentsRefunds]="paymentsRefunds"
+                              [tournamentCurrency]="tournamentCurrency"
+                              [entryTotal]="entryTotal">
+        </app-payments-refunds>
       </mat-card-content>
       <mat-card-actions fxLayout="row" fxLayoutAlign="space-between start" style="margin-top: 10px">
         <button mat-raised-button type="button" (click)="onBack()">Back</button>

@@ -35,6 +35,10 @@ div.list-container {
       overflow:hidden;
       white-space:nowrap;
     }
+
+    div.name-no-events {
+      text-decoration: line-through;
+    }
   }
 }
 
