@@ -80,13 +80,13 @@ export class TournamentPlayersListContainerComponent implements OnInit, OnDestro
     // in chunks of 50 every 50 ms.  This way the first 50 can be painted fast while the remaining
     // chunks can be painted later.  This will eliminate the delay in painting, but it will make the scroll bar
     // get shorter as more items arrive and the list needs to be repainted
+    // lazyArray<TournamentEntryInfo>(50, 50)
     const subscription = this.tournamentEntryInfoService.getAll(tournamentId)
       .pipe(
-        first(),
-        lazyArray<TournamentEntryInfo>(50, 50))
+        first()
+      )
       .subscribe(
         (infos: TournamentEntryInfo[]) => {
-          // console.log('returning infos.length ' + infos.length);
           this.entryInfos$ = of(infos);
         },
         (error: any) => {

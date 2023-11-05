@@ -170,16 +170,18 @@ public class MembershipReportService {
             Rectangle pageSize = page.getPageSize();
             PdfCanvas canvas = new PdfCanvas(page);
             for (ReportData reportData : reportDataList) {
-                int appOnPage = (count % 3) + 1;
-                renderMemberInformation (reportData, document, font, contactName, strTournamentDate);
-                renderFrame(canvas, document, pageSize, appOnPage, imageBytes);
+                if (reportData.usattPlayerRecord != null) {
+                    int appOnPage = (count % 3) + 1;
+                    renderMemberInformation (reportData, document, font, contactName, strTournamentDate);
+                    renderFrame(canvas, document, pageSize, appOnPage, imageBytes);
 
-                count++;
-                if (count % 3 == 0) {
-                    pageNumber++;
-                    // page break
-                    page = pdfDocument.addNewPage(pageNumber);
-                    canvas = new PdfCanvas(page);
+                    count++;
+                    if (count % 3 == 0) {
+                        pageNumber++;
+                        // page break
+                        page = pdfDocument.addNewPage(pageNumber);
+                        canvas = new PdfCanvas(page);
+                    }
                 }
             }
 
@@ -402,20 +404,24 @@ public class MembershipReportService {
         UserProfile userProfile = reportData.userProfile;
         UserProfileExt userProfileExt = reportData.userProfileExt;
 
-        Long membershipId = userProfileExt.getMembershipId();
+        if (reportData.userProfileExt != null) {
+            Long membershipId = userProfileExt.getMembershipId();
 
-        String formattedDOB = dateFormat.format(userProfile.getDateOfBirth());
-        String gender = (userProfile.getGender().equals("Male")) ? "M" : "F";
-        String countryCode = userProfile.getCountryCode();
-        String citizenship = countryCode.equals("US") ? "" : "FN";
-        String representingCountry = countryCode.equals("US") ? "" : countryCode;
-        int productId = getProductId(membershipType);
-        int yearCount = getYearCount(membershipType);
+            String formattedDOB = dateFormat.format(userProfile.getDateOfBirth());
+            String gender = (userProfile.getGender().equals("Male")) ? "M" : "F";
+            String countryCode = userProfile.getCountryCode();
+            String citizenship = countryCode.equals("US") ? "" : "FN";
+            String representingCountry = countryCode.equals("US") ? "" : countryCode;
+            int productId = getProductId(membershipType);
+            int yearCount = getYearCount(membershipType);
 
-        return String.format("%d,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%d,%d\n", membershipId,
-                userProfile.getLastName(), userProfile.getFirstName(), formattedDOB, userProfile.getEmail(), gender,
-                userProfile.getStreetAddress(), userProfile.getCity(), userProfile.getState(), userProfile.getZipCode(), userProfile.getMobilePhone(),
-                citizenship, representingCountry, productId, yearCount);
+            return String.format("%d,%s,%s,%s,%s,%s,\"%s\",%s,%s,%s,%s,%s,%s,%d,%d\n", membershipId,
+                    userProfile.getLastName(), userProfile.getFirstName(), formattedDOB, userProfile.getEmail(), gender,
+                    userProfile.getStreetAddress(), userProfile.getCity(), userProfile.getState(), userProfile.getZipCode(), userProfile.getMobilePhone(),
+                    citizenship, representingCountry, productId, yearCount);
+        } else {
+            return "";
+        }
     }
 
     /**
