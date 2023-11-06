@@ -1,3 +1,6 @@
+<mat-toolbar>
+  <button mat-raised-button color="" type="button" (click)="back()">Back</button>
+</mat-toolbar>
 <div>
   <mat-list dense class="event-list-container">
     <div *ngFor="let tournamentEvent of tournamentEvents; let last = last;" (click)="onSelectEvent(tournamentEvent)" class="event-list-item">

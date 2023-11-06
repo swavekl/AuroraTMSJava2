@@ -1,3 +1,7 @@
+<mat-toolbar>
+  <button mat-raised-button color="" type="button" (click)="back()">Back</button>
+</mat-toolbar>
+<div class="results-container">
 <div class="mat-headline-6" style="padding: 16px 0 0 16px;">My Results</div>
 <ng-container *ngIf="tournamentEntry != null && summariesByEvent != null">
   <ng-container *ngIf="summariesByEvent?.length > 0; else resultsNotAvailable">
@@ -91,3 +95,4 @@
     <app-centered-panel>Results are not available yet</app-centered-panel>
   </ng-template>
 </ng-container>
+</div>

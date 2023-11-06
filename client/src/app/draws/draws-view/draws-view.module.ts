@@ -14,6 +14,7 @@ import {DrawsViewEventsComponent} from './draws-view-events/draws-view-events.co
 import {DrawsViewEventsContainerComponent} from './draws-view-events/draws-view-events-container.component';
 import {DrawsViewDetailComponent} from './draws-view-detail/draws-view-detail.component';
 import {DrawsViewDetailContainerComponent} from './draws-view-detail/draws-view-detail-container.component';
+import {MatToolbarModule} from '@angular/material/toolbar';
 
 
 @NgModule({
@@ -23,17 +24,18 @@ import {DrawsViewDetailContainerComponent} from './draws-view-detail/draws-view-
     DrawsViewDetailComponent,
     DrawsViewDetailContainerComponent
   ],
-  imports: [
-    CommonModule,
-    DrawsCommonModule,
-    DrawsViewRoutingModule,
-    MatListModule,
-    MatButtonModule,
-    MatIconModule,
-    FlexModule,
-    SharedModule,
-    MatTabsModule
-  ]
+    imports: [
+        CommonModule,
+        DrawsCommonModule,
+        DrawsViewRoutingModule,
+        MatListModule,
+        MatButtonModule,
+        MatIconModule,
+        FlexModule,
+        SharedModule,
+        MatTabsModule,
+        MatToolbarModule
+    ]
 })
 export class DrawsViewModule {
 }

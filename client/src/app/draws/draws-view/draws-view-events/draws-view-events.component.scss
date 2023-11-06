@@ -1,8 +1,7 @@
 @use "src/my-theme" as *;
 
 .event-list-container {
-  height: calc(100vh - 90px);
-  //border: 1px solid red;
+  height: calc(100vh - 155px);
   overflow: auto;
   max-width: 300px;
 }

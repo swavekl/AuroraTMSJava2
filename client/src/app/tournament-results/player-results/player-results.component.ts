@@ -1,6 +1,7 @@
 import {Component, Input, OnChanges, OnInit, SimpleChange, SimpleChanges} from '@angular/core';
 import {PlayerMatchSummary} from '../model/player-match-summary';
 import {TournamentEntry} from '../../tournament/tournament-entry/model/tournament-entry.model';
+import {Router} from '@angular/router';
 
 @Component({
   selector: 'app-player-results',
@@ -24,7 +25,7 @@ export class PlayerResultsComponent implements OnInit, OnChanges {
   matchesWon: number;
   matchesLost: number;
 
-  constructor() {
+  constructor(private router: Router) {
     this.initialRating = 0;
     this.newRating = 0;
     this.totalPointsExchanged = 0;
@@ -89,5 +90,9 @@ export class PlayerResultsComponent implements OnInit, OnChanges {
     } else {
       return playerNames;
     }
+  }
+
+  back() {
+    this.router.navigateByUrl('/ui/home');
   }
 }

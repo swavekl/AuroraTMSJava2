@@ -2,7 +2,9 @@
 
 .my-schedule-container {
   margin: 10px;
-  //height: calc(100vh - 155px);
+  height: calc(100vh - 155px);
+  //border: 1px solid red;
+  overflow: auto;
 }
 
 .day-header {

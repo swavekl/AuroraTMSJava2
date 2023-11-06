@@ -92,4 +92,8 @@ export class PlayerScheduleComponent implements OnInit, OnChanges {
     };
     this.router.navigateByUrl(url, extras);
   }
+
+  back() {
+    this.router.navigateByUrl('/ui/home');
+  }
 }

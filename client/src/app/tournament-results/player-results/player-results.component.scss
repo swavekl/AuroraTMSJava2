@@ -1,3 +1,8 @@
+.results-container {
+  overflow: auto;
+  height: calc(100vh - 135px);
+}
+
 table.ratings-change-table {
   margin: 0 8px 16px 16px;
 

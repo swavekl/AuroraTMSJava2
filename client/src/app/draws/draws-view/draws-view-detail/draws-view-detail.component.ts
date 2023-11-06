@@ -1,6 +1,7 @@
 import {Component, Input} from '@angular/core';
 import {TournamentEvent} from '../../../tournament/tournament-config/tournament-event.model';
 import {DrawItem} from '../../draws-common/model/draw-item.model';
+import {Router} from '@angular/router';
 
 @Component({
   selector: 'app-draws-view-detail',
@@ -15,10 +16,14 @@ export class DrawsViewDetailComponent {
   @Input()
   draws: DrawItem [] = [];
 
-  constructor() {
+  constructor(private router: Router) {
   }
 
   onRRDrawsAction($event: any) {
     // do nothing
+  }
+
+  back() {
+    this.router.navigateByUrl('/ui/home');
   }
 }

@@ -37,6 +37,14 @@ export class SingleEliminationBracketComponent implements OnInit, OnChanges {
   @Input()
   tournament: NgttTournament;
 
+  // checks if there are any scores entered for the event to prevent any changes to the draw after results are entered
+  @Input()
+  allowDrawChanges: boolean;
+
+  // if true allow editing draws and drag and drop
+  @Input()
+  editMode: boolean = true;
+
   // to be determined player profile id same as matches/match.model.ts
   public readonly TBD_PROFILE_ID = 'TBD';
 

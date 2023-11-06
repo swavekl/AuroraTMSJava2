@@ -18,6 +18,8 @@
           <app-single-elimination-bracket
             [bracketsHeight]="getBracketsHeight()"
             [draws]="draws"
+            [editMode]="editMode"
+            [allowDrawChanges]="allowDrawChanges"
             [selectedEvent]="selectedEvent"
             [doublesEvent]="selectedEvent?.doubles"
           >
@@ -40,6 +42,8 @@
       </ng-container>
       <ng-template #seroundonly>
         <app-single-elimination-bracket
+          [editMode]="editMode"
+          [allowDrawChanges]="allowDrawChanges"
           [bracketsHeight]="getBracketsHeight()"
           [draws]="draws"
           [selectedEvent]="selectedEvent"
