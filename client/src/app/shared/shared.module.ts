@@ -28,6 +28,7 @@ import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 import {DownloadButtonComponent} from './download-file/download-button.component';
 import {getSaver, SAVER} from './download-service/saver.provider';
 import {DateAfterDirective} from './directives/date-after.directive';
+import { PhonePipe } from './pipes/phone.pipe';
 
 
 @NgModule({
@@ -49,7 +50,8 @@ import {DateAfterDirective} from './directives/date-after.directive';
     UploadButtonComponent,
     DownloadButtonComponent,
     SelectionsDifferentDirective,
-    ValuesMatchDirective
+    ValuesMatchDirective,
+    PhonePipe
   ],
   exports: [
     LinearProgressBarComponent,
@@ -68,7 +70,8 @@ import {DateAfterDirective} from './directives/date-after.directive';
     UploadButtonComponent,
     DownloadButtonComponent,
     SelectionsDifferentDirective,
-    ValuesMatchDirective
+    ValuesMatchDirective,
+    PhonePipe
   ],
   imports: [
     CommonModule,

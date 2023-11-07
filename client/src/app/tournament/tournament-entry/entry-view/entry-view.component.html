@@ -15,7 +15,9 @@
           </tr>
           <tr>
             <td class="info-field">Phone</td>
-            <td>{{playerProfile.mobilePhone}}</td>
+            <td><a href="{{playerProfile.mobilePhone | phone : true}}">
+              {{playerProfile.mobilePhone | phone}}</a>
+            </td>
           </tr>
           <tr>
             <td class="info-field">Email</td>
