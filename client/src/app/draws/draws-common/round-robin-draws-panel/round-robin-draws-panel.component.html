@@ -23,7 +23,8 @@
           cdkDrag
           cdkDragBoundary=".rr-draws-panel-inner"
           [cdkDragData]="drawItem"
-          [cdkDragDisabled]="editMode === false || drawItem.placeInGroup === 1">
+          [cdkDragDisabled]="editMode === false || drawItem.placeInGroup === 1"
+          [class]="(editMode === false || drawItem.placeInGroup === 1) ? '' : 'draggable' ">
         <ng-container *ngIf="drawItem.rating >= 0; else fakeItem;">
           <td class="rating-column">{{drawItem.rating}}</td>
 <!--              [matTooltip]="getTooltipText(drawItem)"-->

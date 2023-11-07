@@ -1,4 +1,4 @@
-<div class="mat-headline-6 title-container">{{event?.name}} Results</div>
+<div class="mat-headline-6 title-container">{{eventName}} Results</div>
   <mat-toolbar>
     <button mat-raised-button type="button" [routerLink]="['/ui/results', tournamentId]" >Back</button>
   </mat-toolbar>
@@ -52,6 +52,8 @@
       <div class="se-results-container">
         <app-single-elimination-bracket [roundNumbers]="roundNumbers"
                                         [tournament]="tournament"
+                                        [editMode]="false"
+                                        [allowDrawChanges]="false"
                                         [bracketsHeight]="getBracketsHeight()"
                                         [doublesEvent]="event?.doubles">
         </app-single-elimination-bracket>

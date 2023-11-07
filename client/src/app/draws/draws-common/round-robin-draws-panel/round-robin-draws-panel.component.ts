@@ -312,11 +312,11 @@ export class RoundRobinDrawsPanelComponent implements OnChanges {
   }
 
   getConflictClass(drawItem: DrawItem) {
-    return ConflictRendererHelper.getConflictClass(drawItem.conflictType);
+    return (this.editMode) ? ConflictRendererHelper.getConflictClass(drawItem.conflictType) : "";
   }
 
   getConflictTooltipText(drawItem: DrawItem) {
-    return ConflictRendererHelper.getConflictTooltipText(drawItem.conflictType);
+    return (this.editMode) ? ConflictRendererHelper.getConflictTooltipText(drawItem.conflictType) : "";
   }
 }
 

@@ -24,6 +24,9 @@ export class TournamentResultDetailsComponent implements OnInit, OnChanges {
   event: TournamentEvent;
 
   @Input()
+  eventName: string;
+
+  @Input()
   tournamentId: number;
 
   singleEliminationRounds: DrawRound[] = [];
@@ -120,8 +123,9 @@ export class TournamentResultDetailsComponent implements OnInit, OnChanges {
         match.opponentB = drawItemRight;
         match.time = 0;
         match.tableNum = 0;  // for now
-        this.findMatchResultAndWinner(drawItemLeft.playerId, drawItemRight.playerId, drawRound.round, match);
+        this.findMatchResultAndWinner(drawItemLeft?.playerId, drawItemRight?.playerId, drawRound.round, match);
         match.showSeedNumber = (i === 0); // show seed number for first round only
+        match.dragDisabled = true;
 
         roundMatches.push(match);
         j += 2;

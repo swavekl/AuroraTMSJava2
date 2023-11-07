@@ -13,6 +13,7 @@ import {EventResults} from '../model/event-results';
   template: `
     <app-tournament-result-details
       [event]="event$ | async"
+      [eventName]="eventName"
       [eventResultsList]="eventResultsList$ | async"
     [tournamentId]="tournamentId">
     </app-tournament-result-details>
@@ -27,6 +28,8 @@ export class TournamentResultDetailsContainerComponent implements OnInit, OnDest
   // event information
   event$: Observable<TournamentEvent>;
 
+  eventName: string;
+
   tournamentId: number;
 
   private subscriptions: Subscription = new Subscription();
@@ -39,6 +42,7 @@ export class TournamentResultDetailsContainerComponent implements OnInit, OnDest
     const strTournamentId = this.activatedRoute.snapshot.params['tournamentId'] || 0;
     this.tournamentId = Number(strTournamentId);
     const strEventId = this.activatedRoute.snapshot.params['eventId'] || 0;
+    this.eventName = history?.state?.eventName;
     const eventId = Number(strEventId);
     this.setupProgressIndicator();
     this.loadTournamentEvent(this.tournamentId, eventId);

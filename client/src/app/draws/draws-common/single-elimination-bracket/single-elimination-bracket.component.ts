@@ -198,7 +198,8 @@ export class SingleEliminationBracketComponent implements OnInit, OnChanges {
           // only first round matches can be rearanged
           match.dragDisabled = (drawRound.round != roundNumbers[0])
             || (drawItemLeft.seSeedNumber === 1)
-            || (drawItemRight.seSeedNumber === 2);
+            || (drawItemRight.seSeedNumber === 2)
+            || (this.editMode === false);
 
           roundMatches.push(match);
           j += 2;
@@ -281,6 +282,6 @@ export class SingleEliminationBracketComponent implements OnInit, OnChanges {
   canDropPredicate(index: number, item: CdkDrag<DrawItem>, cdkDropList: CdkDropList) {
     const dropListData = cdkDropList.data;
     const topSeeds = item?.data.seSeedNumber <= 2;
-    return item?.data.byeNum === 0 && dropListData.firstRound === item?.data.round;
+    return item?.data.byeNum === 0 && dropListData?.firstRound === item?.data.round;
   }
 }

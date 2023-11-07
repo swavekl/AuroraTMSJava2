@@ -26,7 +26,7 @@ table {
     }
   }
 
-  tr:not(:first-child) {
+  tr.draggable {
     cursor: grab;
   }
 
