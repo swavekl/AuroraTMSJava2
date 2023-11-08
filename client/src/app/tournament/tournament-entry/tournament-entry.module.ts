@@ -34,6 +34,7 @@ import {EntryViewComponent} from './entry-view/entry-view.component';
 import {EntryViewContainerComponent} from './entry-view/entry-view-container.component';
 import { EntrySummaryTableComponent } from './pricecalculator/entry-summary-table/entry-summary-table.component';
 import { AddEntryComponent } from './add-entry/add-entry.component';
+import { ChangeRatingDialogComponent } from './change-rating-dialog/change-rating-dialog.component';
 
 @NgModule({
   declarations: [
@@ -48,30 +49,31 @@ import { AddEntryComponent } from './add-entry/add-entry.component';
     EntryViewComponent,
     EntryViewContainerComponent,
     EntrySummaryTableComponent,
-    AddEntryComponent
+    AddEntryComponent,
+    ChangeRatingDialogComponent
   ],
-  imports: [
-    CommonModule,
-    TournamentEntryRoutingModule,
-    SharedModule,
-    FormsModule,
-    MatStepperModule,
-    MatButtonModule,
-    MatRadioModule,
-    FlexLayoutModule,
-    MatListModule,
-    MatGridListModule,
-    MatIconModule,
-    MatTableModule,
-    MatToolbarModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatDialogModule,
-    MatSelectModule,
-    MatCardModule,
-    ProfileModule,
-    AccountModule
-  ],
+    imports: [
+        CommonModule,
+        TournamentEntryRoutingModule,
+        SharedModule,
+        FormsModule,
+        MatStepperModule,
+        MatButtonModule,
+        MatRadioModule,
+        FlexLayoutModule,
+        MatListModule,
+        MatGridListModule,
+        MatIconModule,
+        MatTableModule,
+        MatToolbarModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatDialogModule,
+        MatSelectModule,
+        MatCardModule,
+        ProfileModule,
+        AccountModule
+    ],
   exports: [
     DoublesTeamsContainerComponent
   ]

@@ -1,8 +1,6 @@
 import {Component, EventEmitter, Input, OnChanges, Output, SimpleChange, SimpleChanges} from '@angular/core';
 import {TournamentEntryInfo} from '../../model/tournament-entry-info.model';
 import {state} from '@angular/animations';
-import {RecordSearchData} from '../../../profile/usatt-record-search-popup/usatt-record-search-popup.component';
-import {UsattRecordSearchCallbackData} from '../../../profile/service/usatt-record-search-popup.service';
 
 @Component({
   selector: 'app-tournament-players-list-big',

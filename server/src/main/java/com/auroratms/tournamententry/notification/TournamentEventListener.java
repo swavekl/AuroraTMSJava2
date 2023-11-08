@@ -112,6 +112,7 @@ public class TournamentEventListener {
                     "Player Entered Tournament",
                     "tournament-entry-started.html",
                     templateModel);
+            logger.info("Player " + userProfile.getLastName() + ", " + userProfile.getFirstName() + " entered tournament " + tournament.getName() );
         } catch (MessagingException e) {
             logger.error("Unable to send email ", e);
         }
@@ -137,12 +138,14 @@ public class TournamentEventListener {
                         "Tournament Registration Confirmation",
                         "tournament-entry-completed.html",
                         templateModel);
+                logger.info("Player " + userProfile.getLastName() + ", " + userProfile.getFirstName() + " confirmed entry into tournament " + tournament.getName() );
             } else {
                 // no, so it is a withdrawal
                 emailService.sendMessageUsingThymeleafTemplate(userProfile.getEmail(), tournament.getEmail(),
                         "Tournament Withdrawal Confirmation",
                         "tournament-withdrawal-completed.html",
                         templateModel);
+                logger.info("Player " + userProfile.getLastName() + ", " + userProfile.getFirstName() + " withdrew from tournament " + tournament.getName() );
             }
         } catch (MessagingException e) {
             logger.error("Unable to send email ", e);

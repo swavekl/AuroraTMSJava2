@@ -94,6 +94,9 @@ public class UserProfileController extends AbstractOktaController {
                 UsattPlayerRecord usattPlayerRecord = playerRecordRepository.getFirstByMembershipId(userProfile.getMembershipId());
                 if (usattPlayerRecord != null) {
                     usattPlayerRecord.setState(userProfile.getState());
+                    if (usattPlayerRecord.getTournamentRating() != userProfile.getTournamentRating()) {
+                        usattPlayerRecord.setTournamentRating(userProfile.getTournamentRating());
+                    }
                     playerRecordRepository.save(usattPlayerRecord);
                 }
             }

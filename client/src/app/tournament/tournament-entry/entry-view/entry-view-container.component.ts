@@ -27,7 +27,9 @@ import {PaymentRefundService} from '../../../account/service/payment-refund.serv
                     [allEventEntryInfos]="allEventEntryInfos$ | async"
                     [playerProfile]="playerProfile$ | async"
                     [paymentsRefunds]="paymentsRefunds$ | async"
+                    [canChangeRating]="canChangeRating"
                     (action)="onAction($event)"
+                    (updateEntry)="onUpdateTournamentEntry($event)"
     >
     </app-entry-view>
   `,
@@ -52,6 +54,8 @@ export class EntryViewContainerComponent implements OnInit, OnDestroy {
   paymentsRefunds$: Observable<PaymentRefund[]>;
 
   private returnUrl: string = null;
+
+  canChangeRating: boolean = false;
 
   private subscriptions: Subscription = new Subscription();
 
@@ -103,6 +107,7 @@ export class EntryViewContainerComponent implements OnInit, OnDestroy {
     this.loadEventEntriesInfos(this.entryId);
     this.loadPaymentRefunds(this.entryId);
     this.returnUrl = history?.state?.returnUrl;
+    this.canChangeRating = history?.state?.canChangeRating || false;
   }
 
   /**
@@ -224,5 +229,22 @@ export class EntryViewContainerComponent implements OnInit, OnDestroy {
       const url = (this.returnUrl == null) ? `ui/tournaments/view/${this.tournamentId}` : this.returnUrl;
       this.router.navigateByUrl(url);
     }
+  }
+
+  onUpdateTournamentEntry(tournamentEntry: TournamentEntry) {
+    this.tournamentEntryService.update(tournamentEntry)
+      .pipe(first())
+      .subscribe(
+        (updatedTournamentEntry: TournamentEntry) => {
+          // console.log('updated successfully tournament entry', updatedTournamentEntry);
+          this.entry$ = of(updatedTournamentEntry);
+        },
+        (error: any) => {
+          console.log('error updating entry', error);
+        },
+        () => {
+          // console.log ('completed');
+        }
+      );
   }
 }

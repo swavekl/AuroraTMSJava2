@@ -10,13 +10,15 @@
         <table class="player-info-table">
           <tbody>
           <tr>
-            <td class="info-field">Elig./Seed Rating</td>
-            <td>{{entry.eligibilityRating}} / {{ entry.seedRating}}</td>
+            <td class="info-field">Elig./Seed Rating
+            </td>
+            <td>{{entry.eligibilityRating}} / {{ entry.seedRating}}
+              <a *ngIf="canChangeRating" style="cursor: pointer; color: blue;" (click)="this.showChangeRatingDialog()">[Edit]</a></td>
           </tr>
           <tr>
             <td class="info-field">Phone</td>
-            <td><a href="{{playerProfile.mobilePhone | phone : true}}">
-              {{playerProfile.mobilePhone | phone}}</a>
+            <td><a href="{{ playerProfile.mobilePhone | phone : true }}">
+              {{ playerProfile.mobilePhone | phone: false }}</a>
             </td>
           </tr>
           <tr>

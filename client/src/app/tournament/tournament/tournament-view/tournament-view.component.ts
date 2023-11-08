@@ -81,7 +81,8 @@ export class TournamentViewComponent implements OnInit, OnChanges {
     const url = `ui/entries/entryview/${this.tournament.id}/edit/${this.entryId}`;
     const extras = {
       state: {
-        returnUrl: window.location.pathname
+        returnUrl: window.location.pathname,
+        canChangeRating: false
       }
     };
     this.router.navigateByUrl(url, extras);

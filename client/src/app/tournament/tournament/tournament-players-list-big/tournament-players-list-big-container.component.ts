@@ -134,7 +134,8 @@ export class TournamentPlayersListBigContainerComponent implements OnInit, OnDes
     const url = `ui/entries/entryview/${this.tournamentId}/edit/${tournamentEntryInfo.entryId}`;
     const extras = {
       state: {
-        returnUrl: window.location.pathname
+        returnUrl: window.location.pathname,
+        canChangeRating: true
       }
     };
     this.router.navigateByUrl(url, extras);

@@ -1,0 +1,32 @@
+<h2 mat-dialog-title class="dialog-title">
+  Change rating
+</h2>
+<form #f="ngForm" name="form">
+  <div mat-dialog-content>
+    <div fxLayout="column" fxLayoutAlign="start stretch">
+      <div fxLayout="row" fxLayoutAlign="start start" fxLayoutGap="10px">
+        <mat-form-field fxFlex="50%">
+          <mat-label>Eligibility Rating</mat-label>
+          <input matInput type="text" name="eligibilityRating" [(ngModel)]="eligibilityRating" #eligibilityRatingCtrl="ngModel"
+                 pattern="^(0|[1-2]?[0-9]{0,3})$" maxlength="4" required>
+          <mat-error *ngIf="eligibilityRatingCtrl.control?.hasError('required')">This field is required</mat-error>
+          <mat-error *ngIf="eligibilityRatingCtrl.control?.hasError('pattern')">Enter valid number (0 - 2999)</mat-error>
+        </mat-form-field>
+        <mat-form-field fxFlex="50%">
+          <mat-label>Seed Rating</mat-label>
+          <input matInput type="text" name="seedRating" [(ngModel)]="seedRating" #seedRatingCtrl="ngModel"
+                 pattern="^(0|[1-2]?[0-9]{0,3})$" maxlength="4" required>
+          <mat-error *ngIf="seedRatingCtrl.control?.hasError('required')">This field is required</mat-error>
+          <mat-error *ngIf="seedRatingCtrl.control?.hasError('pattern')">Enter valid number (0 - 2999)</mat-error>
+        </mat-form-field>
+      </div>
+    </div>
+  </div>
+  <mat-dialog-actions>
+    <div fxLayout="row" fxLayoutAlign="space-between start" style="width: 100%; margin: 0 8px">
+      <button mat-raised-button (click)="onCancel()">Cancel</button>
+      <span fxFlex></span>
+      <button mat-raised-button color="primary" (click)="onSave()" [disabled]="f.invalid">Save</button>
+    </div>
+  </mat-dialog-actions>
+</form>

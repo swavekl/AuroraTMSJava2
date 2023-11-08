@@ -30,7 +30,7 @@ export class InsuranceComponent implements OnInit {
 
   constructor() {
     this.statesList = StatesList.getList();
-    this.minStartDate.setDate(this.minStartDate.getDate() + 30);
+    this.minStartDate.setDate(this.minStartDate.getDate());
     this.maxStartDate.setDate(this.maxStartDate.getDate() + 365);
   }
 

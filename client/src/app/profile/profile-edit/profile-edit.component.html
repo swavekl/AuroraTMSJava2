@@ -114,7 +114,7 @@
             </mat-form-field>
             <mat-form-field fxFlex="25%" fxFlex.lt-md="45%">
               <mat-label>Rating</mat-label>
-              <input matInput type="text" name="tournamentRating" [ngModel]="profile?.tournamentRating" readonly>
+              <input matInput type="text" name="tournamentRating" [ngModel]="profile?.tournamentRating" [readonly]="!canChangeMembershipId">
             </mat-form-field>
           </div>
           <div style="margin-bottom: 16px">

@@ -16,6 +16,7 @@ import {MembershipUtil} from '../../util/membership-util';
 import {Profile} from '../../../profile/profile';
 import {SummaryReportItem} from '../pricecalculator/summary-report.model';
 import {PaymentRefund} from '../../../account/model/payment-refund.model';
+import {ChangeRatingDialogComponent} from '../change-rating-dialog/change-rating-dialog.component';
 
 @Component({
   selector: 'app-entry-view',
@@ -38,8 +39,14 @@ export class EntryViewComponent implements OnInit, OnChanges, OnDestroy {
   @Input()
   paymentsRefunds: PaymentRefund[];
 
+  @Input()
+  canChangeRating: boolean;
+
   @Output()
   action: EventEmitter<string> = new EventEmitter<string>();
+
+  @Output()
+  updateEntry: EventEmitter<TournamentEntry> = new EventEmitter<TournamentEntry>();
 
   enteredEvents: TournamentEventEntryInfo[] = [];
 
@@ -234,5 +241,23 @@ export class EntryViewComponent implements OnInit, OnChanges, OnDestroy {
       age = new DateUtils().getAgeOnDate(dateOfBirth, this.tournamentStartDate);
     }
     return age;
+  }
+
+  showChangeRatingDialog() {
+    const dialogRef = this.messageDialog.open(ChangeRatingDialogComponent, {
+      width: '350px', height: '230px',
+      data: { eligibilityRating: this.entry.eligibilityRating, seedRating: this.entry.seedRating }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result.action === 'ok') {
+        const updatedEntry: TournamentEntry = {...this.entry,
+          eligibilityRating: result.eligibilityRating,
+          seedRating: result.seedRating
+        };
+        // tell them what to expect in dialog
+        this.updateEntry.emit(updatedEntry);
+      }
+    });
   }
 }
