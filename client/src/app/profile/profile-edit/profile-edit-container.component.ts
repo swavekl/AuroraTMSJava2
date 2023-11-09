@@ -103,7 +103,7 @@ export class ProfileEditContainerComponent implements OnInit, OnDestroy {
                 .pipe(
                   first(),
                   switchMap ((playerRecord: UsattPlayerRecord) => {
-                    console.log('got new USATT id', JSON.stringify(playerRecord));
+                    // console.log('got new USATT id', JSON.stringify(playerRecord));
                     profile.membershipId = playerRecord.membershipId;
                     profile.membershipExpirationDate = playerRecord.membershipExpirationDate;
                     profile.tournamentRating = playerRecord.tournamentRating;
