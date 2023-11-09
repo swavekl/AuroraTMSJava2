@@ -75,6 +75,8 @@ public class UsattDataService {
             membershipId = this.playerRecordRepository.assignNext();
             usattPlayerRecord.setMembershipId(membershipId);
             usattPlayerRecord.setMembershipExpirationDate(expired);
+            usattPlayerRecord.setTournamentRating(0);
+            logger.info("Created new membership ID: " + membershipId);
 
             // save a record with this new membership id
             recordToReturn = this.playerRecordRepository.save(usattPlayerRecord);

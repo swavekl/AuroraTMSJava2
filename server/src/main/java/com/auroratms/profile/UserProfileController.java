@@ -66,6 +66,8 @@ public class UserProfileController extends AbstractOktaController {
                         ClubEntity club = this.clubService.findById(userProfile.getHomeClubId());
                         userProfile.setHomeClubName(club.getClubName());
                     }
+                } else {
+                    userProfile.setTournamentRating(0);
                 }
             }
             return new ResponseEntity<UserProfile>(userProfile, HttpStatus.OK);
