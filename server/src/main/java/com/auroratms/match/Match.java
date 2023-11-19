@@ -199,6 +199,10 @@ public class Match implements Serializable, Cloneable {
                 this.isMatchWinner(this.playerBProfileId, numberOfGames, pointsPerGame);
     }
 
+    public boolean isMatchDoubleDefaulted() {
+        return this.sideADefaulted && this.sideBDefaulted;
+    }
+
     /**
      *
      * @return

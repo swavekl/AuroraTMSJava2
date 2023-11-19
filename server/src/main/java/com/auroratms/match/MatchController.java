@@ -81,4 +81,21 @@ public class MatchController {
             return new ResponseEntity(e, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    /**
+     * Locks the match allowing only one player to enter the score
+     * @param matchId
+     * @param profileId
+     * @return
+     */
+    @PutMapping("/match/lock/{matchId}/{profileId}")
+    public ResponseEntity<Boolean> lockMatch(@PathVariable Long matchId,
+                                             @PathVariable String profileId) {
+        try {
+            boolean success = matchService.lockMatch(matchId, profileId);
+            return new ResponseEntity<>(success, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity(e, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 }

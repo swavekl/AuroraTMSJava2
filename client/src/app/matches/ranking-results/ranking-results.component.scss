@@ -1,0 +1,40 @@
+.ranking-table-container {
+  width: 100%;
+  max-width: 340px;
+  padding: 10px 10px;
+}
+
+table.ranking {
+  width: 100%;
+
+  tr {
+    th {
+      border: 1px solid black;
+      background-color: #F5F5F5;
+      padding: 8px;
+    }
+    td {
+      border: 1px solid black;
+      padding: 8px;
+
+      &.rank-column {
+        text-align: center;
+        width: 18px;
+      }
+
+      &.player-code-column {
+        text-align: center;
+        width: 12px;
+      }
+
+      &.player-name-column {
+        //min-width: 230px;
+        text-overflow: ellipsis;
+      }
+    }
+  }
+}
+
+mat-toolbar div {
+  width: 100%;
+}

@@ -1,4 +1,4 @@
-import {Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChange, SimpleChanges} from '@angular/core';
+import {Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChange, SimpleChanges, ViewChild} from '@angular/core';
 import {MatDialog, MatDialogRef} from '@angular/material/dialog';
 import {Subscription} from 'rxjs';
 import {first, switchMap} from 'rxjs/operators';
@@ -8,10 +8,8 @@ import {Match} from '../model/match.model';
 import {ScoreEntryDialogComponent} from '../score-entry-dialog/score-entry-dialog.component';
 import {ScoreEntryDialogData, ScoreEntryDialogResult} from '../score-entry-dialog/score-entry-dialog-data';
 import {MatchService} from '../service/match.service';
-import {TieBreakingService} from '../service/tie-breaking.service';
-import {GroupTieBreakingInfo} from '../model/tie-breaking/group-tie-breaking-info.model';
 import {DrawType} from '../../draws/draws-common/model/draw-type.enum';
-import {TieBreakingResultsDialogComponent} from '../tie-breaking-results-dialog/tie-breaking-results-dialog.component';
+import {RankingResultsComponent} from '../ranking-results/ranking-results.component';
 
 @Component({
   selector: 'app-matches',
@@ -56,9 +54,11 @@ export class MatchesComponent implements OnInit, OnChanges, OnDestroy {
 
   private performRankAndAdvance = false;
 
+  @ViewChild(RankingResultsComponent)
+  private rankingResultsComponent: RankingResultsComponent = null;
+
   constructor(private dialog: MatDialog,
-              private matchService: MatchService,
-              private tieBreakingService: TieBreakingService) {
+              private matchService: MatchService) {
     this.games = [];
     this.subscriptions = new Subscription();
   }
@@ -88,19 +88,7 @@ export class MatchesComponent implements OnInit, OnChanges, OnDestroy {
       const te = tournamentEventsChanges.currentValue;
       // console.log('DrawsComponent got tournament events of length ' + te.length);
     }
-    const selectedMatchCardChange: SimpleChange = changes.selectedMatchCard;
-    if (selectedMatchCardChange) {
-      const selectedMatchCard: MatchCard = selectedMatchCardChange.currentValue;
-      if (selectedMatchCard) {
-        this.rankedPlayerInfos = this.makeRankedPlayerInfos(selectedMatchCard);
-        if (this.performRankAndAdvance) {
-          this.performRankAndAdvance = false;
-          if (this.isSelectedMatchCardCompleted()) {
-            this.rankAndAdvance();
-          }
-        }
-      }
-    }
+
     const matchCardsChange: SimpleChange = changes.matchCards;
     if (matchCardsChange) {
       const matchCards: MatchCard [] = matchCardsChange.currentValue;
@@ -125,6 +113,14 @@ export class MatchesComponent implements OnInit, OnChanges, OnDestroy {
             }
           }
         } );
+      }
+    }
+
+    if (this.rankingResultsComponent != null && this.selectedMatchCard != null) {
+      if (this.performRankAndAdvance || this.selectedMatchCard.playerRankings == null) {
+        if (this.isSelectedMatchCardCompleted()) {
+          this.rankAndAdvance();
+        }
       }
     }
   }
@@ -158,14 +154,14 @@ export class MatchesComponent implements OnInit, OnChanges, OnDestroy {
           .pipe(first())
           .subscribe(
             (updatedMatch: Match) => {
-              this.matchCardEmitter.emit(this.selectedMatchCardId);
               // after updated match card is loaded we need to rank and advance if ready
               this.performRankAndAdvance = true;
+              this.matchCardEmitter.emit(this.selectedMatchCardId);
             }
           );
       } else if (result.action === 'refresh') {
-        this.matchCardEmitter.emit(this.selectedMatchCardId);
         this.performRankAndAdvance = true;
+        this.matchCardEmitter.emit(this.selectedMatchCardId);
       }
     });
     this.subscriptions.add(subscription);
@@ -245,82 +241,10 @@ export class MatchesComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   public rankAndAdvance() {
-    const subscription = this.tieBreakingService.rankAndAdvance(this.selectedMatchCardId)
-      .subscribe((groupTieBreakingInfo: GroupTieBreakingInfo) => {
-        this.rankedPlayerInfos = this.processTieBreakingInfo(groupTieBreakingInfo);
-      });
-    this.subscriptions.add(subscription);
-  }
-
-  /**
-   * Processes incoming rankings information
-   * @param groupTieBreakingInfo
-   * @private
-   */
-  private processTieBreakingInfo(groupTieBreakingInfo: GroupTieBreakingInfo) {
-    const playerTieBreakingInfoList = groupTieBreakingInfo.playerTieBreakingInfoList ?? [];
-    const rankedPlayerInfos = [];
-    for (let i = 0; i < playerTieBreakingInfoList.length; i++) {
-      const playerTieBreakingInfo = playerTieBreakingInfoList[i];
-      const playerName = groupTieBreakingInfo.profileIdToNameMap[playerTieBreakingInfo.playerProfileId];
-      rankedPlayerInfos.push({
-        rank: playerTieBreakingInfo.rank,
-        playerCode: playerTieBreakingInfo.playerCode,
-        playerName: playerName
-      });
+    if (this.rankingResultsComponent != null) {
+      this.rankingResultsComponent.rankAndAdvance(this.selectedMatchCardId);
+      this.performRankAndAdvance = false;
     }
-    return this.sortRankedPlayerInfos(rankedPlayerInfos);
-  }
-
-  /**
-   * Makes ranking information from data saved in match card
-   * @param selectedMatchCard
-   * @private
-   */
-  private makeRankedPlayerInfos(selectedMatchCard: MatchCard): any[] {
-    const rankedPlayerInfos = [];
-    // make map of player profile id to letter code A, B, C ...
-    const matches = selectedMatchCard?.matches;
-    const profileIdToPlayerLetterMap = {};
-    matches.forEach((match: Match) => {
-      profileIdToPlayerLetterMap[match.playerAProfileId] = match.playerALetter;
-      profileIdToPlayerLetterMap[match.playerBProfileId] = match.playerBLetter;
-    });
-
-    // build ranking table information
-    const playerRankingsJSON = selectedMatchCard?.playerRankings;
-    if (playerRankingsJSON && playerRankingsJSON?.length > 0) {
-      const playerRankings = JSON.parse(playerRankingsJSON);
-      if (Object.keys(playerRankings).length > 0) {
-        const profileIdToNameMap = selectedMatchCard?.profileIdToNameMap;
-        for (const [rank, playerProfileId] of Object.entries(playerRankings)) {
-          const playerCode = profileIdToPlayerLetterMap[playerProfileId as string];
-          const playerName = profileIdToNameMap[playerProfileId as string];
-          rankedPlayerInfos.push({
-            rank: rank,
-            playerCode: playerCode,
-            playerName: playerName
-          });
-        }
-      }
-    }
-
-    return this.sortRankedPlayerInfos(rankedPlayerInfos);
-  }
-
-  private sortRankedPlayerInfos(rankedPlayerInfos) {
-    rankedPlayerInfos.sort((player1: any, player2: any) => {
-      return (player1.rank > player2.rank) ? 1 : ((player1.rank < player2.rank) ? -1 : 0);
-    });
-    return rankedPlayerInfos;
-  }
-
-  /**
-   * Checks if Rank and Advance button should be disabled i.e. when not all matches are entered
-   */
-  isRankAndAdvanceDisabled(): boolean {
-    return !(this.isSelectedMatchCardCompleted() &&
-      (this.selectedMatchCard.drawType === DrawType.ROUND_ROBIN));
   }
 
   /**
@@ -339,31 +263,4 @@ export class MatchesComponent implements OnInit, OnChanges, OnDestroy {
     return match.playerBProfileId !== Match.TBD_PROFILE_ID && match.playerAProfileId !== Match.TBD_PROFILE_ID;
   }
 
-  explainRanking() {
-    const subscription = this.tieBreakingService.rankAndAdvance(this.selectedMatchCardId)
-      .subscribe((groupTieBreakingInfo: GroupTieBreakingInfo) => {
-        const numPlayers = groupTieBreakingInfo.playerTieBreakingInfoList.length;
-        let width = (numPlayers + 2) * 75;
-        width = Math.max(width, 520);
-        width = Math.min(width, window.innerWidth - 100);
-        let height = (numPlayers * 50) + 180;
-        if (groupTieBreakingInfo.nwayTieBreakingInfosMap != null) {
-          for (const [title, playerTieBreakingInfoList] of Object.entries(groupTieBreakingInfo.nwayTieBreakingInfosMap)) {
-            height += (playerTieBreakingInfoList.length * 50) + 75;
-          }
-        }
-        height = Math.max (height, 400);
-        height = Math.min (height, window.innerHeight - 100);
-        const strHeight = height + 'px';
-        const strWidth = width + 'px';
-        // console.log('strWidth', strWidth);
-        // console.log('strHeight', strHeight);
-        const config = {
-          width: strWidth, height: strHeight, data: groupTieBreakingInfo
-        };
-
-        this.dialog.open(TieBreakingResultsDialogComponent, config);
-      });
-    this.subscriptions.add(subscription);
-  }
 }

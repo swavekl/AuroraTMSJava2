@@ -8,6 +8,7 @@ import {createSelector} from '@ngrx/store';
 import {Match} from '../model/match.model';
 import {MatchService} from '../service/match.service';
 import {LocalStorageService} from '../../shared/local-storage.service';
+import {switchMap} from 'rxjs/operators';
 
 @Component({
   selector: 'app-score-entry-phone-container',
@@ -102,12 +103,12 @@ export class ScoreEntryPhoneContainerComponent implements OnInit, OnDestroy {
         // get from the server if not cached yet
         this.matchCardService.getByKey(matchCardId);
       } else {
-        // console.log('get match card from cache');
+        // console.log('got match card from cache', matchCard);
         const allMatches = matchCard.matches;
         if (this.matchIndex < allMatches.length) {
           const match = allMatches[matchIndex];
           // console.log('cloning match');
-          const cloneOfMatch = JSON.parse(JSON.stringify(match));
+          const cloneOfMatch: Match = JSON.parse(JSON.stringify(match));
           this.match$ = of(cloneOfMatch);
           // console.log('match is', match);
           this.playerAName$ = of(matchCard.profileIdToNameMap[match.playerAProfileId]);
@@ -119,16 +120,25 @@ export class ScoreEntryPhoneContainerComponent implements OnInit, OnDestroy {
     this.subscriptions.add(subscription);
   }
 
-  onSaveMatch(updatedMatch: Match) {
-    const subscription: Subscription = this.matchService.update(updatedMatch)
-      .subscribe((match: Match) => {
-        // reload the match card with this match
-        this.matchCardService.getByKey(this.matchCardId);
-        this.backToMatchCard();
+  onSaveMatch(event: any) {
+    const updatedMatch: Match = event.updatedMatch;
+    const backToMatchCard: boolean = event.backToMatchCard;
+    this.matchService.update(updatedMatch)
+      .pipe(
+        switchMap((match: Match) => {
+          // console.log('reloading match card');
+          return this.matchCardService.getByKey(this.matchCardId);
+      })).subscribe(
+        ()=> {},
+      () => {},
+      () => {
+        // console.log('match card reloaded - backtoMatchCard is ', backToMatchCard);
         this.localStorageService.setSavedState('true', this.SCREEN_VISITED);
         this.screenVisited = true;
+        if (backToMatchCard) {
+          this.backToMatchCard();
+        }
       });
-    this.subscriptions.add(subscription);
   }
 
   onCancelMatch() {

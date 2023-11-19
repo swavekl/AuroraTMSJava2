@@ -1,9 +1,19 @@
 <div fxLayout="row" fxFlexAlign="center center">
   <div fxHide.xs="true" fxFlex.gt-xs="50%">&nbsp;</div>
   <div fxFlexFill fxFlex.gt-xs="400px">
-    <mat-toolbar>
+    <mat-toolbar fxLayout="row" fxLayoutAlign="space-between start" style="width: 100%; padding-top: 10px;" fxLayoutGap="10px">
       <button mat-raised-button (click)="onBack()">Back</button>
+      <button mat-raised-button (click)="onRefresh()">Refresh</button>
+      <span fxFlex></span>
+      <button mat-raised-button (click)="onViewRankings()" [disabled]="!rankingsAvailable">Rankings</button>
     </mat-toolbar>
+    <div class="mat-subtitle-1" style="margin-left: 10px;" *ngIf="matchCard">
+      <div>{{ tournamentEvent?.name }}</div>
+      <div>
+        <span>{{ matchCard?.round | roundName: matchCard?.groupNum }}</span>
+        <span *ngIf="matchCard?.round === 0">, Group: {{matchCard?.groupNum}}</span>
+      </div>
+    </div>
     <mat-accordion *ngIf="matchCard">
       <mat-expansion-panel *ngFor="let match of matchCard.matches; index as matchIndex"
                            [expanded]="isMatchExpanded(matchIndex)" (opened)="expandMatch(matchIndex)">

@@ -108,8 +108,11 @@ export class Match {
         numGamesWonByB++;
       }
     }
-    // console.log('A defaulted', this.sideADefaulted);
-    // console.log('B defaulted', this.sideBDefaulted);
+    // console.log('-------------------------------- match #', match.matchNum);
+    // console.log('A defaulted', match.sideADefaulted);
+    // console.log('B defaulted', match.sideBDefaulted);
+    // console.log('numGamesWonByA', numGamesWonByA);
+    // console.log('numGamesWonByB', numGamesWonByB);
     // in best of 3 need to win 2 gaems, best of 5 need to win 3, best of 7 need to win 4
     const minimumNumberOfGamesToWin = (numberOfGames === 3) ? 2 : ((numberOfGames === 5) ? 3 : 4);
     if (profileId === match.playerAProfileId) {

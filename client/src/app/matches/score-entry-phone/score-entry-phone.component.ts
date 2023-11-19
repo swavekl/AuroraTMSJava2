@@ -20,13 +20,11 @@ import {MatSnackBar} from '@angular/material/snack-bar';
 export class ScoreEntryPhoneComponent implements OnInit, OnChanges, AfterViewInit {
 
   @Input()
-  // public match: Match;
-
-  // copy of this match with games saved
   public match: Match;
 
   @Input()
   public playerAName: string;
+
   @Input()
   public playerBName: string;
 
@@ -43,7 +41,7 @@ export class ScoreEntryPhoneComponent implements OnInit, OnChanges, AfterViewIni
   public screenVisited: boolean = false;
 
   @Output()
-  public saveMatch: EventEmitter<Match> = new EventEmitter<Match>();
+  public saveMatch: EventEmitter<any> = new EventEmitter<any>();
 
   @Output()
   public cancelMatch: EventEmitter<any> = new EventEmitter<any>();
@@ -58,6 +56,8 @@ export class ScoreEntryPhoneComponent implements OnInit, OnChanges, AfterViewIni
   gameScoreSideA: number;
   gameScoreSideB: number;
 
+  dirty: boolean;
+
   constructor(private snackBar: MatSnackBar) {
     this.games = [];
     this.pointsPerGame = 11;
@@ -65,6 +65,7 @@ export class ScoreEntryPhoneComponent implements OnInit, OnChanges, AfterViewIni
     this.numberOfGames = 5;
     this.gameScoreSideA = 0;
     this.gameScoreSideB = 0;
+    this.dirty = false;
   }
 
   ngOnInit(): void {
@@ -82,7 +83,6 @@ export class ScoreEntryPhoneComponent implements OnInit, OnChanges, AfterViewIni
     if (matchChanges) {
       const match: Match = matchChanges.currentValue;
       if (match) {
-        // this.match = JSON.parse(JSON.stringify(match));
         this.gameToShowIndex = this.getNextGameIndex(this.match);
         this.getGameScore();
       }
@@ -91,6 +91,10 @@ export class ScoreEntryPhoneComponent implements OnInit, OnChanges, AfterViewIni
 
   previousGame() {
     this.saveGameScore();
+    if (this.dirty) {
+      this.saveMatch.emit({updatedMatch: this.match, backToMatchCard: false});
+      this.dirty = false;
+    }
     this.gameToShowIndex--;
     this.getGameScore();
   }
@@ -101,6 +105,10 @@ export class ScoreEntryPhoneComponent implements OnInit, OnChanges, AfterViewIni
 
   nextGame() {
     this.saveGameScore();
+    if (this.dirty) {
+      this.saveMatch.emit({updatedMatch: this.match, backToMatchCard: false});
+      this.dirty = false;
+    }
     this.gameToShowIndex++;
     this.getGameScore();
   }
@@ -136,6 +144,7 @@ export class ScoreEntryPhoneComponent implements OnInit, OnChanges, AfterViewIni
     } else {
       this.gameScoreSideB -= (this.gameScoreSideB > 0) ? 1 : 0;
     }
+    this.dirty = true;
   }
 
   addPoint(playerIndex: number) {
@@ -153,6 +162,7 @@ export class ScoreEntryPhoneComponent implements OnInit, OnChanges, AfterViewIni
           this.gameScoreSideA = this.gameScoreSideB - 2;
         }
       }
+      this.dirty = true;
     }
   }
 
@@ -165,6 +175,7 @@ export class ScoreEntryPhoneComponent implements OnInit, OnChanges, AfterViewIni
       this.gameScoreSideB = this.pointsPerGame;
     }
     this.saveGameScore();
+    this.dirty = true;
   }
 
   private getNextGameIndex(match: Match): number {
@@ -224,32 +235,46 @@ export class ScoreEntryPhoneComponent implements OnInit, OnChanges, AfterViewIni
   saveGameScore() {
     switch (this.gameToShowIndex) {
       case 0:
-        this.match.game1ScoreSideA = this.gameScoreSideA;
-        this.match.game1ScoreSideB = this.gameScoreSideB;
+        this.match = {...this.match,
+          game1ScoreSideA: this.gameScoreSideA,
+          game1ScoreSideB: this.gameScoreSideB
+        };
         break;
       case 1:
-        this.match.game2ScoreSideA = this.gameScoreSideA;
-        this.match.game2ScoreSideB = this.gameScoreSideB;
+        this.match = {...this.match,
+          game2ScoreSideA: this.gameScoreSideA,
+          game2ScoreSideB: this.gameScoreSideB
+        };
         break;
       case 2:
-        this.match.game3ScoreSideA = this.gameScoreSideA;
-        this.match.game3ScoreSideB = this.gameScoreSideB;
+        this.match = {...this.match,
+          game3ScoreSideA: this.gameScoreSideA,
+          game3ScoreSideB: this.gameScoreSideB
+        };
         break;
       case 3:
-        this.match.game4ScoreSideA = this.gameScoreSideA;
-        this.match.game4ScoreSideB = this.gameScoreSideB;
+        this.match = {...this.match,
+          game4ScoreSideA: this.gameScoreSideA,
+          game4ScoreSideB: this.gameScoreSideB
+        };
         break;
       case 4:
-        this.match.game5ScoreSideA = this.gameScoreSideA;
-        this.match.game5ScoreSideB = this.gameScoreSideB;
+        this.match = {...this.match,
+          game5ScoreSideA: this.gameScoreSideA,
+          game5ScoreSideB: this.gameScoreSideB
+        };
         break;
       case 5:
-        this.match.game6ScoreSideA = this.gameScoreSideA;
-        this.match.game6ScoreSideB = this.gameScoreSideB;
+        this.match = {...this.match,
+          game6ScoreSideA: this.gameScoreSideA,
+          game6ScoreSideB: this.gameScoreSideB
+        };
         break;
       case 6:
-        this.match.game7ScoreSideA = this.gameScoreSideA;
-        this.match.game7ScoreSideB = this.gameScoreSideB;
+        this.match = {...this.match,
+          game7ScoreSideA: this.gameScoreSideA,
+          game7ScoreSideB: this.gameScoreSideB
+        };
         break;
     }
   }
@@ -259,16 +284,18 @@ export class ScoreEntryPhoneComponent implements OnInit, OnChanges, AfterViewIni
   }
 
   reset() {
+    this.dirty = (this.gameScoreSideA > 0 || this.gameScoreSideB > 0);
     this.gameScoreSideA = 0;
     this.gameScoreSideB = 0;
     this.saveGameScore();
   }
 
   save() {
-    if (this.isScoreValid()) {
-      this.saveGameScore();
-      this.saveMatch.emit(this.match);
-    }
+      if (this.isScoreValid()) {
+        this.saveGameScore();
+        this.saveMatch.emit({updatedMatch: this.match, backToMatchCard: true});
+        this.dirty = false;
+      }
   }
 
   isScoreValid(): boolean {

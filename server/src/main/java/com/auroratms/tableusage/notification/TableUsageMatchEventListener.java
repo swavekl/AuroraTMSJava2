@@ -101,7 +101,9 @@ public class TableUsageMatchEventListener {
     private int getNumCompletedMatches(List<Match> matches, int numberOfGames, int pointsPerGame) {
         int numCompleted = 0;
         for (Match match : matches) {
-            numCompleted += match.isMatchFinished(numberOfGames, pointsPerGame) ? 1 : 0;
+            boolean completedOrDefaulted = match.isMatchDoubleDefaulted() ||
+                    match.isMatchFinished(numberOfGames, pointsPerGame);
+            numCompleted += completedOrDefaulted ? 1 : 0;
         }
         return numCompleted;
     }

@@ -17,6 +17,7 @@ import {ConfirmationPopupComponent} from '../../shared/confirmation-popup/confir
 import {MatDialog} from '@angular/material/dialog';
 import {MatCheckbox} from '@angular/material/checkbox';
 import {MatchCardStatus} from '../model/match-card-status.enum';
+import {TournamentEvent} from '../../tournament/tournament-config/tournament-event.model';
 
 @Component({
   selector: 'app-player-matches',
@@ -27,6 +28,9 @@ export class PlayerMatchesComponent implements OnInit, OnChanges {
 
   @Input()
   public matchCard: MatchCard;
+
+  @Input()
+  public tournamentEvent: TournamentEvent;
 
   @Input()
   public tournamentId: number;
@@ -51,11 +55,19 @@ export class PlayerMatchesComponent implements OnInit, OnChanges {
   @Output()
   public updateMatch: EventEmitter<Match> = new EventEmitter<Match>();
 
+  @Output()
+  public rankings: EventEmitter<any> = new EventEmitter<any>();
+
+  @Output()
+  public refresh: EventEmitter<any> = new EventEmitter<any>();
+
   // array so we can use iteration in the template
   games: number [];
 
   @ViewChildren(MatCheckbox)
   defaultCheckboxElementRefs: QueryList<MatCheckbox>;
+
+  rankingsAvailable: boolean = false;
 
   constructor(private authenticationService: AuthenticationService,
               private dialog: MatDialog) {
@@ -76,6 +88,15 @@ export class PlayerMatchesComponent implements OnInit, OnChanges {
         const numGames = matchCard.numberOfGames === 0 ? 5 : matchCard.numberOfGames;
         this.games = Array(numGames);
       }
+    }
+
+    const tournamentEventChanges: SimpleChange = changes.tournamentEvent;
+    if (tournamentEventChanges) {
+      this.tournamentEvent = tournamentEventChanges.currentValue;
+    }
+
+    if (this.tournamentEvent != null && this.matchCard != null) {
+      this.rankingsAvailable = MatchCard.isMatchCardCompleted(this.matchCard, this.tournamentEvent);
     }
   }
 
@@ -120,6 +141,13 @@ export class PlayerMatchesComponent implements OnInit, OnChanges {
 
   onBack() {
     this.back.emit(null);
+  }
+  onRefresh() {
+    this.refresh.emit(null);
+  }
+
+  onViewRankings() {
+    this.rankings.emit(null);
   }
 
   getCheckboxId(matchIndex: number, playerIndex: number): string {
@@ -240,7 +268,7 @@ export class PlayerMatchesComponent implements OnInit, OnChanges {
   public onEnterScore(matchIndex: number) {
     const match = this.matchCard?.matches[matchIndex];
     if (this.canChangeScore(match)) {
-      this.enterMatchScore.emit({matchIndex: matchIndex});
+      this.enterMatchScore.emit({matchIndex: matchIndex, matchId: match.id});
     }
   }
 

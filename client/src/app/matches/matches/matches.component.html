@@ -22,7 +22,7 @@
       </mat-list-item>
     </mat-list>
   </div>
-  <div fxFlex class="match-card-section" *ngIf="selectedMatchCard != null">
+  <div fxFlex class="match-card-section">
     <div fxLayout="column">
       <div>
 <!--        <mat-toolbar>-->
@@ -35,7 +35,7 @@
 <!--        </mat-toolbar>-->
       </div>
       <div fxFlex fxLayout="row">
-        <div fxFlex>
+        <div fxFlex [hidden]="selectedMatchCard == null">
           <table class="match-card-header">
             <thead>
             <tr>
@@ -66,10 +66,10 @@
                 </ng-template>
               </td>
               <td class="mat-headline-4">
-                {{ selectedMatchCard.assignedTables }}
+                {{ selectedMatchCard?.assignedTables }}
               </td>
               <td class="mat-headline-4">
-                {{ selectedMatchCard.startTime | startTime }}
+                {{ selectedMatchCard?.startTime | startTime }}
               </td>
             </tr>
             </tbody>
@@ -101,7 +101,7 @@
                 <td [rowSpan]="2" class="match-number">{{ match.matchNum }}</td>
                 <td>{{match.playerALetter}}</td>
                 <td class="player-rating">{{match.playerARating}}</td>
-                <td [ngClass]="isMatchWinner(match.playerAProfileId, match) ? 'match-winner' : 'not-match-winner'">{{selectedMatchCard.profileIdToNameMap[match.playerAProfileId]}}</td>
+                <td [ngClass]="isMatchWinner(match.playerAProfileId, match) ? 'match-winner' : 'not-match-winner'">{{selectedMatchCard?.profileIdToNameMap[match.playerAProfileId]}}</td>
                 <td class="defaulted">{{match.sideADefaulted ? 'Yes' : ''}}</td>
                 <td class="match-game-score" *ngFor="let game of games; let idx = index;">
                   <ng-container  [ngSwitch]="idx">
@@ -121,7 +121,7 @@
               <tr style="border-bottom: 8px solid lightgray">
                 <td>{{match.playerBLetter}}</td>
                 <td class="player-rating">{{match.playerBRating}}</td>
-                <td [ngClass]="isMatchWinner(match.playerBProfileId, match) ? 'match-winner' : 'not-match-winner'">{{selectedMatchCard.profileIdToNameMap[match.playerBProfileId]}}</td>
+                <td [ngClass]="isMatchWinner(match.playerBProfileId, match) ? 'match-winner' : 'not-match-winner'">{{selectedMatchCard?.profileIdToNameMap[match.playerBProfileId]}}</td>
                 <td class="defaulted">{{match.sideBDefaulted ? 'Yes' : ''}}</td>
                 <td class="match-game-score" *ngFor="let game of games; let idx = index;">
                   <ng-container  [ngSwitch]="idx">
@@ -139,33 +139,8 @@
             </tbody>
           </table>
         </div>
-        <div fxFlex *ngIf="rankedPlayerInfos?.length > 0">
-          <table class="ranking">
-            <thead>
-            <tr>
-              <th colspan="3">
-                Ranking within group
-              </th>
-            </tr>
-            <tr>
-              <th>Rank</th>
-              <th>&nbsp;</th>
-              <th>Player Name</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr *ngFor="let info of rankedPlayerInfos">
-              <td class="rank-column">{{ info.rank }}</td>
-              <td class="rank-column">{{ info.playerCode }}</td>
-              <td class="player-name-column">{{ info.playerName }}</td>
-            </tr>
-            <tr>
-              <td colspan="3">
-                <button type="button" mat-button (click)="explainRanking()">Explain</button>
-              </td>
-            </tr>
-            </tbody>
-          </table>
+        <div fxFlex [hidden]="selectedMatchCard == null" class="rankings-panel">
+          <app-ranking-results [matchCard]="selectedMatchCard" #rankingResults></app-ranking-results>
         </div>
       </div>
     </div>

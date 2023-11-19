@@ -198,7 +198,7 @@ public class RatingsProcessingEventListener implements ApplicationListener<Ratin
 
                     // check if this player is still eligible for all events he/she entered, if not notify player and TD
                     if (eligibilityRatingChanged) {
-                        log.info("Eligibility rating for player " + playerFullName + " changed from " + oldEligibilityRating + " to " + eligibilityRating + ". Checking events eligibility...");
+                        log.info("Eligibility rating for player " + playerFullName + " with membership id " + membershipId + " changed from " + oldEligibilityRating + " to " + eligibilityRating + ". Checking events eligibility...");
                         List<TournamentEventEntry> tournamentEventEntries = tournamentEventEntryService.listAllForTournamentEntry(tournamentEntry.getId());
                         for (TournamentEventEntry tournamentEventEntry : tournamentEventEntries) {
                             TournamentEvent tournamentEvent = eventIdToEventMap.get(tournamentEventEntry.getTournamentEventFk());

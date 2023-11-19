@@ -10,6 +10,7 @@ import {MatDialogModule} from '@angular/material/dialog';
 import {MatCheckboxModule} from '@angular/material/checkbox';
 import {MatInputModule} from '@angular/material/input';
 import {MatSnackBarModule} from '@angular/material/snack-bar';
+import {MatToolbarModule} from '@angular/material/toolbar';
 
 import {EntityDataService, EntityServices} from '@ngrx/data';
 
@@ -22,11 +23,12 @@ import {ScoreEntryDialogComponent} from './score-entry-dialog/score-entry-dialog
 import {MatchCardService} from './service/match-card.service';
 import {MatchService} from './service/match.service';
 import {SharedModule} from '../shared/shared.module';
-import {MatToolbarModule} from '@angular/material/toolbar';
-import { ScoreEntryPhoneComponent } from './score-entry-phone/score-entry-phone.component';
-import { ScoreEntryPhoneContainerComponent } from './score-entry-phone/score-entry-phone-container.component';
-import { TieBreakingResultsDialogComponent } from './tie-breaking-results-dialog/tie-breaking-results-dialog.component';
-import { ScoreAuditDialogComponent } from './score-audit-dialog/score-audit-dialog.component';
+import {ScoreEntryPhoneComponent} from './score-entry-phone/score-entry-phone.component';
+import {ScoreEntryPhoneContainerComponent} from './score-entry-phone/score-entry-phone-container.component';
+import {TieBreakingResultsDialogComponent} from './tie-breaking-results-dialog/tie-breaking-results-dialog.component';
+import {ScoreAuditDialogComponent} from './score-audit-dialog/score-audit-dialog.component';
+import {RankingResultsContainerComponent} from './ranking-results/ranking-results-container.component';
+import {RankingResultsComponent} from './ranking-results/ranking-results.component';
 
 
 @NgModule({
@@ -39,7 +41,9 @@ import { ScoreAuditDialogComponent } from './score-audit-dialog/score-audit-dial
     ScoreEntryPhoneComponent,
     ScoreEntryPhoneContainerComponent,
     TieBreakingResultsDialogComponent,
-    ScoreAuditDialogComponent
+    ScoreAuditDialogComponent,
+    RankingResultsComponent,
+    RankingResultsContainerComponent
   ],
     imports: [
         CommonModule,

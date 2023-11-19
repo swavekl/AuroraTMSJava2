@@ -145,27 +145,7 @@ table.match-display {
   }
 }
 
-table.ranking {
-  margin-left: 20px;
-  margin-top: 16px;
-
-  tr {
-    th {
-      border: 1px solid black;
-      background-color: #F5F5F5;
-      padding: 8px;
-    }
-    td {
-      border: 1px solid black;
-      padding: 8px;
-
-      &.rank-column {
-        text-align: center;
-      }
-
-      &.player-name-column {
-        min-width: 250px;
-      }
-    }
-  }
+.rankings-panel {
+  padding-left: 20px;
+  padding-top: 95px;
 }

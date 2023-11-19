@@ -93,6 +93,23 @@ export class ScoreAuditDialogComponent implements OnInit, OnDestroy {
         // singles match
         defaultedPlayerName = this.profileIdToNameMap[profileOfDefaultedPlayer];
       }
+
+      // both defaulted
+      if (match.sideADefaulted && match.sideBDefaulted) {
+        defaultedPlayerName += ' & ';
+        const otherDefaultedPlayerProfileId = (profileOfDefaultedPlayer === match.playerAProfileId)
+          ? match.playerBProfileId : match.playerAProfileId;
+        if (otherDefaultedPlayerProfileId.indexOf(';') > 0) {
+          // doubles match
+          const playerIds = otherDefaultedPlayerProfileId.split(';');
+          defaultedPlayerName += this.profileIdToNameMap[playerIds[0]] + ' / ';
+          defaultedPlayerName += this.profileIdToNameMap[playerIds[1]];
+        } else {
+          // singles match
+          defaultedPlayerName += this.profileIdToNameMap[otherDefaultedPlayerProfileId];
+        }
+      }
+
       result = 'Defaulted: ' + defaultedPlayerName;
     } else {
       for (let game: number = 1; game <= this.numberOfGames; game++) {

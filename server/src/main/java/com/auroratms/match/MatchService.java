@@ -74,4 +74,8 @@ public class MatchService {
     public List<Match> findAllByMatchCardIn(List<MatchCard> matchCardList) {
         return this.matchRepository.findAllByMatchCardIn(matchCardList);
     }
+
+    public boolean lockMatch(long matchId, String profileId) {
+        return this.matchRepository.lockMatch(matchId, profileId) == 1;
+    }
 }

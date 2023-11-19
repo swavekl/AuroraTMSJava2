@@ -128,11 +128,53 @@ export class MatchCard {
       const pointsPerGame = event.pointsPerGame;
       const numberOfGames = matchCard.numberOfGames;
       const matches: Match[] = matchCard.matches;
-      matches.forEach((match: Match) => {
+      matches.forEach((match: Match, index: number) => {
         const isMatchDefaulted = match.sideADefaulted === true || match.sideBDefaulted === true;
-        isCompleted = isCompleted && (Match.isMatchFinished(match, numberOfGames, pointsPerGame) || isMatchDefaulted);
+        const isMatchCompleted = Match.isMatchFinished(match, numberOfGames, pointsPerGame);
+        // console.log('match # ' + (index + 1) + " completed " + isMatchCompleted + ' defaulted ' + isMatchDefaulted);
+        isCompleted = isCompleted && (isMatchCompleted || isMatchDefaulted);
       });
     }
+    // console.log('isMatchCardCompleted', isCompleted);
     return isCompleted;
+  }
+
+  public static isMatchCardCompletedExceptForDefaults(matchCard: MatchCard, event: TournamentEvent): boolean {
+    let hasTwoSidedDefaults = false;
+    if (matchCard && event) {
+      const pointsPerGame = event.pointsPerGame;
+      const numberOfGames = matchCard.numberOfGames;
+      const matches: Match[] = matchCard.matches;
+      // find profile ids of defaulted players
+      let defaultedOpponents = {};
+      matches.forEach((match: Match) => {
+        if (match.sideADefaulted === true) {
+          defaultedOpponents[match.playerAProfileId] = true;
+        }
+        if (match.sideBDefaulted === true) {
+          defaultedOpponents[match.playerBProfileId] = true;
+        }
+      });
+      // console.log('defaultedOpponents', defaultedOpponents);
+      let potentialDefaultCount = 0;
+      let completedMatches = 0;
+      matches.forEach((match: Match) => {
+        const isMatchDefaulted = match.sideADefaulted === true || match.sideBDefaulted === true;
+        const isMatchFinished = Match.isMatchFinished(match, numberOfGames, pointsPerGame);
+        if (!isMatchFinished && !isMatchDefaulted) {
+          // match to be played between opponents who were defaulted in previous matches
+          if ((defaultedOpponents[match.playerAProfileId] === true) &&
+              (defaultedOpponents[match.playerBProfileId] === true)) {
+            potentialDefaultCount++;
+          }
+        } else if (isMatchFinished || isMatchDefaulted) {
+          completedMatches++;
+        }
+      });
+      // console.log('completedMatches', completedMatches);
+      // console.log('potentialDefaultCount', potentialDefaultCount);
+      hasTwoSidedDefaults = matches.length === (completedMatches + potentialDefaultCount);
+    }
+    return hasTwoSidedDefaults;
   }
 }
