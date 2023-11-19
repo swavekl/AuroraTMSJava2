@@ -144,6 +144,11 @@ const routes: Routes = [
     data: {
       roles: [UserRoles.ROLE_EVERYONE]
     }
+  },
+  { path: 'ui/email', loadChildren: () => import('./emails/email.module').then(m => m.EmailModule),
+    data: {
+      roles: [UserRoles.ROLE_TOURNAMENT_DIRECTORS, UserRoles.ROLE_ADMINS]
+    }
   }
 ];
 

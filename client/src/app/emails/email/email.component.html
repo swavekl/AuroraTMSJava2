@@ -1,0 +1,17 @@
+<div class="email-generator-container">
+  <h2 class="title">
+  Send Emails to '{{tournamentName}}' Players
+</h2>
+<mat-toolbar fxLayoutGap="10px">
+  <button mat-raised-button type="button" (click)="back()">Back</button>
+  <button mat-raised-button type="button" (click)="getAllEmails()"
+          matTooltip="Get emails of all tournament players">Email Addresses</button>
+</mat-toolbar>
+<div class="email-generator-container-work">
+  <form name="form" #f="ngForm" novalidate>
+    <label>Email addresses</label>
+    <textarea name="emailAddresses" [(ngModel)]="emailAddresses" rows="20" style="width: 99%">
+    </textarea>
+  </form>
+</div>
+</div>

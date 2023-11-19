@@ -121,6 +121,12 @@
                     <mat-icon matListItemIcon>publish</mat-icon>
                     Submit Results
                   </button>
+                  <button mat-raised-button type="button"
+                          [routerLink]="['/ui/email', tournament.id, tournament.name]"
+                          matTooltip="Send emails to tournament players">
+                    <mat-icon matListItemIcon>email</mat-icon>
+                    Emails
+                  </button>
                   <button mat-raised-button type="button" [routerLink]="['./tournament/create']"
                           [queryParams]="{from: tournament.id}"
                           matTooltip="Make a copy of tournament">

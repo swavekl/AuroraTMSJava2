@@ -29,7 +29,7 @@ const appearance: MatFormFieldDefaultOptions = {
 
 @NgModule({
   declarations: [
-    AppComponent,
+    AppComponent
   ],
     imports: [
         AppRoutingModule,
