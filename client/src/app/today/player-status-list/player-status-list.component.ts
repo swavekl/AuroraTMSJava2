@@ -93,9 +93,9 @@ export class PlayerStatusListComponent implements OnChanges {
         if (this.playerStatusList != null) {
           for (let i = 0; i < this.playerStatusList.length; i++) {
             const playerStatus: PlayerStatus = this.playerStatusList[i];
-            if (playerStatus.playerProfileId === entryInfo.profileId) {
+            if (playerStatus.playerProfileId === entryInfo.profileId && playerStatus.tournamentId === this.tournamentId) {
               foundPlayerStatus = playerStatus;
-              // console.log('Found player status for ' + entryInfo.lastName + ', ' + entryInfo.firstName + ' -> ' + playerStatus.eventStatusCode);
+              // console.log('Found player status for ' + entryInfo.lastName + ', ' + entryInfo.firstName + ' -> ' + playerStatus.eventStatusCode + ' tournamentid '+ playerStatus.tournamentId);
               break;
             }
           }

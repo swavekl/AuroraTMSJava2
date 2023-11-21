@@ -71,6 +71,7 @@ export class PlayerStatusListContainerComponent implements OnDestroy {
 
   private loadAllPlayersStatus(tournamentId: number) {
     // this is subscribed by template | async
+    this.playerStatusService.clearCache();
     this.playerStatusList$ = this.playerStatusService.entities$;
     let params = `tournamentId=${tournamentId}&tournamentDay=${this.tournamentDay}`;
     this.playerStatusService.loadWithQuery(params);
