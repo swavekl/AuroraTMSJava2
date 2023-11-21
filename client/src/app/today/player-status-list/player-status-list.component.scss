@@ -1,0 +1,45 @@
+div.list-container {
+  padding: 10px;
+  height: calc(100vh - 90px);
+  //border: 1px solid red;
+  overflow: clip;
+
+  .inner-list-container {
+    overflow-y: auto;
+    //border: 1px solid green;
+    //height: 87%;
+    height: calc(100vh - 190px);
+    margin: 0 30px 0 30px;
+    padding-bottom: 10px;
+  }
+
+  .letter-divider {
+    width: 100%;
+    //border-bottom: 2px solid $primary-color;
+    border-bottom: 2px solid blueviolet;
+    margin-bottom: 8px;
+  }
+
+  mat-card {
+    width: 232px;
+    height: 70px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    //border: 1px solid red;
+
+    div.name-line {
+      text-overflow: ellipsis;
+      width: 170px;
+      overflow:hidden;
+      white-space:nowrap;
+    }
+
+    div.name-no-events {
+      text-decoration: line-through;
+    }
+  }
+}
+
+.toolbar-spacer-2 {
+  margin-right: 16px;
+}

@@ -29,6 +29,12 @@ import {MatToolbarModule} from '@angular/material/toolbar';
 import {MatCheckboxModule} from '@angular/material/checkbox';
 import {MatSelectModule} from '@angular/material/select';
 import {MatSnackBarModule} from '@angular/material/snack-bar';
+import { PlayerStatusListComponent } from './player-status-list/player-status-list.component';
+import { PlayerStatusListContainerComponent } from './player-status-list/player-status-list-container.component';
+import {MatTooltipModule} from '@angular/material/tooltip';
+import { PlayerCheckinDialogComponent } from './player-checkin-dialog/player-checkin-dialog.component';
+import {MatDialogModule} from '@angular/material/dialog';
+import { PlayerStatusIndicatorComponent } from './player-status-indicator/player-status-indicator.component';
 
 @NgModule({
   declarations: [
@@ -41,27 +47,33 @@ import {MatSnackBarModule} from '@angular/material/snack-bar';
     PlayerScheduleDetailComponent,
     PlayerScheduleDetailContainerComponent,
     PlayerMatchesComponent,
-    PlayerMatchesContainerComponent
+    PlayerMatchesContainerComponent,
+    PlayerStatusListComponent,
+    PlayerStatusListContainerComponent,
+    PlayerCheckinDialogComponent,
+    PlayerStatusIndicatorComponent
   ],
-    imports: [
-        CommonModule,
-        TodayRoutingModule,
-        MatRadioModule,
-        MatFormFieldModule,
-        MatIconModule,
-        MatButtonModule,
-        MatListModule,
-        FlexLayoutModule,
-        MatInputModule,
-        FormsModule,
-        SharedModule,
-        MatCardModule,
-        MatExpansionModule,
-        MatToolbarModule,
-        MatCheckboxModule,
-        MatSelectModule,
-        MatSnackBarModule
-    ]
+  imports: [
+    CommonModule,
+    TodayRoutingModule,
+    MatRadioModule,
+    MatFormFieldModule,
+    MatIconModule,
+    MatButtonModule,
+    MatListModule,
+    FlexLayoutModule,
+    MatInputModule,
+    FormsModule,
+    SharedModule,
+    MatCardModule,
+    MatExpansionModule,
+    MatToolbarModule,
+    MatCheckboxModule,
+    MatSelectModule,
+    MatSnackBarModule,
+    MatTooltipModule,
+    MatDialogModule
+  ]
 })
 export class TodayModule {  // Inject the service to ensure it registers with EntityServices
   constructor(

@@ -1,0 +1,10 @@
+<div>
+  <app-checkincommunicate [playerStatus]="playerStatus"
+                          [eventName]="eventName"
+                          [playerName]="fullName"
+                          [tournamentDay]="tournamentDay"
+                          (saved)="onPlayerStatusSaved($event)"
+                          (canceled)="onPlayerStatusCanceled($event)"
+  >
+  </app-checkincommunicate>
+</div>

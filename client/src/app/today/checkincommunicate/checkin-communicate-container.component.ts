@@ -11,12 +11,14 @@ import {TodayService} from '../../shared/today.service';
 @Component({
   selector: 'app-checkin-communicate-container-component',
   template: `
-    <app-checkincommunicate [playerStatus]="playerStatus$ | async"
-                            [eventName]="eventName"
-                            [tournamentDay]="tournamentDay"
-                            (saved)="onPlayerStatusSaved($event)"
-                            (canceled)="onPlayerStatusCanceled($event)"
-    ></app-checkincommunicate>
+    <app-centered-panel noTopGap="true">
+      <app-checkincommunicate [playerStatus]="playerStatus$ | async"
+                              [eventName]="eventName"
+                              [tournamentDay]="tournamentDay"
+                              (saved)="onPlayerStatusSaved($event)"
+                              (canceled)="onPlayerStatusCanceled($event)"
+      ></app-checkincommunicate>
+    </app-centered-panel>
   `,
   styles: []
 })

@@ -37,12 +37,8 @@
           <tr
             *ngFor="let playerDetail of playerScheduleItem?.playerDetails; last as last; first as first; index as index"
             [class]="getPlayerRowStyle(playerScheduleItem.doubles, index, last)">
-            <td class="player-status-column">
-              <mat-icon [className]="getStatusIconClass(playerDetail.statusCode)"
-                        (click)="showStatusDetail(playerDetail)">
-                {{getStatusIcon(playerDetail.statusCode)}}
-              </mat-icon>
-
+            <td class="player-status-column" (click)="showStatusDetail(playerDetail)">
+              <app-player-status-indicator [playerStatus]="playerDetail.statusCode"></app-player-status-indicator>
             </td>
             <td class="player-name-column">
               <div>{{playerDetail.playerFullName}}</div>

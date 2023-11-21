@@ -1,0 +1,31 @@
+<div class="list-container">
+  <h2>Players Check In for {{ tournamentName }}</h2>
+  <mat-toolbar>
+    <button mat-raised-button type="button" [routerLink]="['/ui/tournamentsconfig']" >Back</button>
+    <span class="toolbar-spacer-2"></span>
+  </mat-toolbar>
+  <div *ngIf="alphabeticalPlayerStatusMap != null" class="inner-list-container" fxLayout="row wrap" fxLayoutAlign="start start" fxLayoutGap="20px">
+    <ng-container *ngFor="let letterStatuses of alphabeticalPlayerStatusMap | keyvalue">
+      <h2 class="letter-divider">{{ letterStatuses.key }}</h2>
+      <mat-card *ngFor="let enhancedPlayerStatus of letterStatuses.value">
+        <mat-card-content>
+          <div fxLayout="row" fxLayoutAlign="space-between start">
+            <div fxLayout="column" fxLayoutAlign="start start">
+              <div class="name-line" [ngClass]="!(enhancedPlayerStatus) ? 'name-no-events' : ''"
+                   [matTooltip]="showPlayerTooltip(enhancedPlayerStatus.entryInfo.firstName, enhancedPlayerStatus.entryInfo.lastName)
+                   ? getPlayerTooltipText(enhancedPlayerStatus.entryInfo.firstName, enhancedPlayerStatus.entryInfo.lastName) : ''"
+              >{{ enhancedPlayerStatus.entryInfo.lastName }}, {{ enhancedPlayerStatus.entryInfo.firstName }}</div>
+              <div>
+                <app-player-status-indicator [playerStatus]="enhancedPlayerStatus?.playerStatus?.eventStatusCode"></app-player-status-indicator>
+              </div>
+            </div>
+            <div  (click)="onViewStatus(enhancedPlayerStatus)">
+              <mat-icon matListItemIcon>chevron_right</mat-icon>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </ng-container>
+  </div>
+</div>
+

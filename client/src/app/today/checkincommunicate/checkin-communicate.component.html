@@ -1,8 +1,8 @@
-<app-centered-panel noTopGap="true">
 <form name="form" (ngSubmit)="onSave(f.value)" #f="ngForm" novalidate>
   <mat-card appearance="outlined" style="height: 80%">
     <mat-card-header>
       <mat-card-title>Check-In / Communicate</mat-card-title>
+      <mat-card-subtitle *ngIf="playerName != null">{{playerName}}</mat-card-subtitle>
     </mat-card-header>
     <mat-card-actions>
 <!--      <div class="profile-button-bar" fxLayout="row">-->
@@ -39,4 +39,3 @@
     </mat-card-content>
   </mat-card>
 </form>
-</app-centered-panel>

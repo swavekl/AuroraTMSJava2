@@ -5,6 +5,7 @@ import {AuthGuard} from '../guards/auth.guard';
 import {CheckinCommunicateContainerComponent} from './checkincommunicate/checkin-communicate-container.component';
 import {PlayerScheduleContainerComponent} from './playerschedule/player-schedule-container.component';
 import {PlayerScheduleDetailContainerComponent} from './player-schedule-detail/player-schedule-detail-container.component';
+import {PlayerStatusListContainerComponent} from './player-status-list/player-status-list-container.component';
 
 const routes: Routes = [
   {
@@ -15,6 +16,11 @@ const routes: Routes = [
   {
     path: 'checkincommunicate/:tournamentId/:tournamentDay/:eventId',
     component: CheckinCommunicateContainerComponent,
+    canActivate: [AuthGuard]
+  },
+  {
+    path: 'checkincommunicatelist/:tournamentId/:tournamentName',
+    component: PlayerStatusListContainerComponent,
     canActivate: [AuthGuard]
   },
   {
