@@ -1,6 +1,6 @@
 import {Component, OnDestroy} from '@angular/core';
-import {ActivatedRoute, Router} from '@angular/router';
-import {first, map, switchMap, tap} from 'rxjs/operators';
+import {ActivatedRoute} from '@angular/router';
+import {first, switchMap} from 'rxjs/operators';
 import {combineLatest, Observable, of, Subscription} from 'rxjs';
 
 import {LinearProgressBarService} from '../../shared/linear-progress-bar/linear-progress-bar.service';
@@ -9,6 +9,7 @@ import {PlayerStatus} from '../model/player-status.model';
 import {TournamentEntryInfo} from '../../tournament/model/tournament-entry-info.model';
 import {TournamentEntryInfoService} from '../../tournament/service/tournament-entry-info.service';
 import {TodayService} from '../../shared/today.service';
+import {DateUtils} from '../../shared/date-utils';
 
 @Component({
   selector: 'app-player-status-list-container-component',
@@ -45,8 +46,15 @@ export class PlayerStatusListContainerComponent implements OnDestroy {
               private linearProgressBarService: LinearProgressBarService) {
     const strTournamentId = this.activatedRoute.snapshot.params['tournamentId'] || 0;
     this.tournamentId = Number(strTournamentId);
-    this.tournamentName = this.activatedRoute.snapshot.params['tournamentName'] || 'N/A';
-    this.tournamentDay = this.todayService.tournamentDay || 1;
+    this.tournamentName = history?.state?.tournamentName || '';
+    const tournamentStartDate = history?.state?.tournamentStartDate;
+    if (tournamentStartDate != null) {
+      const today = this.todayService.todaysDate;
+      const difference = new DateUtils().daysBetweenDates(tournamentStartDate, today);
+      this.tournamentDay = difference + 1;
+    } else {
+      this.tournamentDay = 1;
+    }
     this.setupProgressIndicator();
     this.loadAllPlayersStatus(this.tournamentId);
     this.loadTournamentEntries(this.tournamentId);

@@ -1,7 +1,7 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 import {combineLatest, Observable, of, Subscription} from 'rxjs';
-import {first} from 'rxjs/operators';
+import {first, switchMap} from 'rxjs/operators';
 import {createSelector} from '@ngrx/store';
 import {TournamentConfigService} from '../../../tournament/tournament-config/tournament-config.service';
 import {Tournament} from '../../../tournament/tournament-config/tournament.model';
@@ -12,6 +12,9 @@ import {DrawAction, DrawActionType} from './draw-action';
 import {DrawService} from '../../draws-common/service/draw.service';
 import {DrawItem} from '../../draws-common/model/draw-item.model';
 import {DrawType} from '../../draws-common/model/draw-type.enum';
+import {MatchCardPrinterService} from '../../../matches/service/match-card-printer.service';
+import {MatchCardService} from '../../../matches/service/match-card.service';
+import {MatchCard} from '../../../matches/model/match-card.model';
 
 @Component({
   selector: 'app-draws-container',
@@ -45,7 +48,9 @@ export class DrawsContainerComponent implements OnInit, OnDestroy {
               private tournamentConfigService: TournamentConfigService,
               private activatedRoute: ActivatedRoute,
               private drawService: DrawService,
-              private linearProgressBarService: LinearProgressBarService) {
+              private linearProgressBarService: LinearProgressBarService,
+              private matchCardPrinterService: MatchCardPrinterService,
+              private matchCardService: MatchCardService) {
     const strTournamentId = this.activatedRoute.snapshot.params['tournamentId'] || 0;
     this.tournamentId = Number(strTournamentId);
     this.setupProgressIndicator();
@@ -64,8 +69,10 @@ export class DrawsContainerComponent implements OnInit, OnDestroy {
       this.tournamentEventConfigService.store.select(this.tournamentEventConfigService.selectors.selectLoading),
       this.tournamentConfigService.store.select(this.tournamentConfigService.selectors.selectLoading),
       this.drawService.store.select(this.drawService.selectors.selectLoading),
-      (eventConfigsLoading: boolean, tournamentLoading, drawsLoading: boolean) => {
-        return eventConfigsLoading || tournamentLoading || drawsLoading;
+      this.matchCardService.store.select(this.matchCardService.selectors.selectLoading),
+      this.matchCardPrinterService.loading$,
+      (eventConfigsLoading: boolean, tournamentLoading, drawsLoading: boolean, matchCardsLoading: boolean, printingMatchCards: boolean) => {
+        return eventConfigsLoading || tournamentLoading || drawsLoading || matchCardsLoading || printingMatchCards;
       }
     );
 
@@ -129,6 +136,9 @@ export class DrawsContainerComponent implements OnInit, OnDestroy {
         break;
       case DrawActionType.DRAW_ACTION_UPDATE:
         this.onUpdateDraw(drawAction.eventId, drawAction.payload.movedDrawItems, drawAction.payload.drawType);
+        break;
+      case DrawActionType.DRAW_ACTION_PRINT:
+        this.onPrintMatchCards(drawAction.eventId, drawAction.payload?.drawType);
         break;
     }
   }
@@ -201,5 +211,23 @@ export class DrawsContainerComponent implements OnInit, OnDestroy {
    */
   private updateEventFlag (eventId: number) {
     this.tournamentEventConfigService.updateOneInCache({id: eventId, matchScoresEntered: false});
+  }
+
+  private onPrintMatchCards(eventId: number, drawType: DrawType) {
+    let subscription = this.matchCardService.loadForEvent(eventId, true)
+      .pipe(
+        switchMap((matchCards: MatchCard[]) => {
+          const roundMatchCards: number [] = [];
+          for (let i = 0; i < matchCards.length; i++) {
+            if (matchCards[i].drawType === drawType) {
+                roundMatchCards.push(matchCards[i].id);
+            }
+          }
+          this.matchCardPrinterService.downloadAndPrint(this.tournamentId, eventId, roundMatchCards);
+          return roundMatchCards;
+        }),
+        first())
+      .subscribe();
+    this.subscriptions.add(subscription);
   }
 }

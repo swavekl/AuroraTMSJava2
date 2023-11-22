@@ -185,4 +185,14 @@ export class DrawsComponent implements OnInit, OnChanges {
       this.tabbedDrawsPanelComponent.setExpandedView(this.expandedView);
     }
   }
+
+  public onPrintMatchCards() {
+    const drawType: DrawType = this.selectedEvent.singleElimination ? DrawType.SINGLE_ELIMINATION : DrawType.ROUND_ROBIN;
+    const action: DrawAction = {
+      actionType: DrawActionType.DRAW_ACTION_PRINT,
+      eventId: this.selectedEvent.id,
+      payload: {drawType: drawType}
+    };
+    this.drawsAction.emit(action);
+  }
 }

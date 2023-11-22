@@ -33,6 +33,11 @@
           <mat-slide-toggle name="expandedView" [(ngModel)]="expandedView" (change)="onExpandedViewChange($event)">
             Expanded View
           </mat-slide-toggle>
+          <span class="toolbar-spacer-2"></span>
+          <button type="button" mat-raised-button (click)="onPrintMatchCards()" [disabled]="selectedEvent == null">
+            <mat-icon matListItemIcon>print</mat-icon>
+            Print RR Match Cards
+          </button>
           <span fxFlex></span>
           <span class="mat-h2" style="padding-top: 12px;">{{tournamentName}}</span>
         </mat-toolbar-row>
