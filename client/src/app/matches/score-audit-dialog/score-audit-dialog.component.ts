@@ -53,15 +53,16 @@ export class ScoreAuditDialogComponent implements OnInit, OnDestroy {
           for (const audit of audits) {
             const match: Match = JSON.parse(audit.detailsJSON);
             if (!scoreEntryProfileIds.hasOwnProperty(match.scoreEnteredByProfileId) &&
-              !this.profileIdToNameMap.hasOwnProperty(match.scoreEnteredByProfileId)) {
-              console.log('Found unknown profile', match.scoreEnteredByProfileId);
+              !this.profileIdToNameMap.hasOwnProperty(match.scoreEnteredByProfileId) &&
+              match.scoreEnteredByProfileId != null) {
+              // console.log('Found unknown profile', match.scoreEnteredByProfileId);
               scoreEntryProfileIds.push(match.scoreEnteredByProfileId);
             }
           }
           if (scoreEntryProfileIds.length > 0) {
             this.profileService.getProfile(scoreEntryProfileIds[0]).pipe(first())
               .subscribe((profile: Profile) => {
-                console.log('got profile ', profile);
+                // console.log('got profile ', profile);
                 let copyOfMap = JSON.parse(JSON.stringify(this.profileIdToNameMap));
                 copyOfMap[profile.userId] = profile.lastName + ', ' + profile.firstName;
                 this.profileIdToNameMap = copyOfMap;
