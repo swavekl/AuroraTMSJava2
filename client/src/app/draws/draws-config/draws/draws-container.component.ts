@@ -15,6 +15,8 @@ import {DrawType} from '../../draws-common/model/draw-type.enum';
 import {MatchCardPrinterService} from '../../../matches/service/match-card-printer.service';
 import {MatchCardService} from '../../../matches/service/match-card.service';
 import {MatchCard} from '../../../matches/model/match-card.model';
+import {ConfirmationPopupComponent} from '../../../shared/confirmation-popup/confirmation-popup.component';
+import {MatDialog} from '@angular/material/dialog';
 
 @Component({
   selector: 'app-draws-container',
@@ -50,7 +52,8 @@ export class DrawsContainerComponent implements OnInit, OnDestroy {
               private drawService: DrawService,
               private linearProgressBarService: LinearProgressBarService,
               private matchCardPrinterService: MatchCardPrinterService,
-              private matchCardService: MatchCardService) {
+              private matchCardService: MatchCardService,
+              private dialog: MatDialog) {
     const strTournamentId = this.activatedRoute.snapshot.params['tournamentId'] || 0;
     this.tournamentId = Number(strTournamentId);
     this.setupProgressIndicator();
@@ -218,12 +221,34 @@ export class DrawsContainerComponent implements OnInit, OnDestroy {
       .pipe(
         switchMap((matchCards: MatchCard[]) => {
           const roundMatchCards: number [] = [];
+          let tablesAssigned: boolean = true;
           for (let i = 0; i < matchCards.length; i++) {
             if (matchCards[i].drawType === drawType) {
                 roundMatchCards.push(matchCards[i].id);
+                if (matchCards[i].assignedTables == null) {
+                  tablesAssigned = false;
+                }
             }
           }
-          this.matchCardPrinterService.downloadAndPrint(this.tournamentId, eventId, roundMatchCards);
+          if (tablesAssigned) {
+            this.matchCardPrinterService.downloadAndPrint(this.tournamentId, eventId, roundMatchCards);
+          } else {
+            const message = "Some match cards don't have assigned table numbers. " +
+              "You can assign tables on the Schedule screen. " +
+              "Press OK to print without table numbers.  Press Cancel to cancel printing.";
+
+            const config = {
+              width: '450px', height: '230px', data: {
+                message: message, contentAreaHeight: '100px'
+              }
+            };
+            const dialogRef = this.dialog.open(ConfirmationPopupComponent, config);
+            dialogRef.afterClosed().subscribe(result => {
+              if (result === 'ok') {
+                this.matchCardPrinterService.downloadAndPrint(this.tournamentId, eventId, roundMatchCards);
+              }
+            });
+          }
           return roundMatchCards;
         }),
         first())

@@ -83,6 +83,9 @@ public class MatchCardPrinterController {
             while ((read = fis.read(bytes)) > -1) {
                 os.write(bytes, 0, read);
             }
+            os.flush();
+            os.close();
+            fis.close();
             renamedFile.delete();
         }
     }

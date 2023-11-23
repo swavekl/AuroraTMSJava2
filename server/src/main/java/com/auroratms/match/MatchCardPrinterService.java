@@ -15,16 +15,18 @@ import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfPage;
 import com.itextpdf.kernel.pdf.PdfReader;
 import com.itextpdf.kernel.pdf.PdfWriter;
+import com.itextpdf.kernel.utils.PdfMerger;
 import com.itextpdf.layout.Document;
 import com.itextpdf.layout.borders.SolidBorder;
 import com.itextpdf.layout.element.AreaBreak;
 import com.itextpdf.layout.element.Cell;
 import com.itextpdf.layout.element.Paragraph;
 import com.itextpdf.layout.element.Table;
-import com.itextpdf.layout.property.HorizontalAlignment;
-import com.itextpdf.layout.property.TextAlignment;
-import com.itextpdf.layout.property.UnitValue;
-import com.itextpdf.layout.property.VerticalAlignment;
+import com.itextpdf.layout.properties.HorizontalAlignment;
+import com.itextpdf.layout.properties.TextAlignment;
+import com.itextpdf.layout.properties.UnitValue;
+import com.itextpdf.layout.properties.VerticalAlignment;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,6 +42,7 @@ import java.util.Map;
 import java.util.stream.Stream;
 
 @Service
+@Slf4j
 public class MatchCardPrinterService {
 
     @Autowired
@@ -72,7 +75,6 @@ public class MatchCardPrinterService {
             String tempDir = System.getenv("TEMP");
             tempDir = (StringUtils.isEmpty(tempDir)) ? System.getenv("TMP") : tempDir;
             File matchCardFile = File.createTempFile("match-card-" + matchCardId + "-", ".pdf", new File(tempDir));
-//            File matchCardFile = new File(tempDir + File.separator + "match-card-" + matchCardId + ".pdf");
             matchCardFilename = matchCardFile.getCanonicalPath();
 
             //Initialize PDF writer
@@ -92,6 +94,8 @@ public class MatchCardPrinterService {
 //            e.printStackTrace();
         } catch (IOException e) {
             throw new MatchCardPrinterException("Error creating match card PDf for match card " + matchCardId, e);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
 
         return matchCardFilename;
@@ -124,24 +128,32 @@ public class MatchCardPrinterService {
             String tempDir = System.getenv("TEMP");
             tempDir = (StringUtils.isEmpty(tempDir)) ? System.getenv("TMP") : tempDir;
             File mergedMatchCardFile = File.createTempFile("event-match-card-" + tournamentId + "-" + eventFk + "-", ".pdf", new File(tempDir));
-//            File mergedMatchCardFile = new File(tempDir + File.separator + "event-match-card-" + tournamentId + "-" + eventFk + ".pdf");
+            log.info("Merging match cards into " + mergedMatchCardFile.getAbsolutePath());
             String mergedFilename = mergedMatchCardFile.getAbsolutePath();
 
             PdfWriter writer = new PdfWriter(mergedMatchCardFile);
 
             PdfDocument mergedPdfDocument = new PdfDocument(writer);
+
+//            PdfMerger pdfMerger = new PdfMerger(mergedPdfDocument);
+//            pdfMerger.setCloseSourceDocuments(true);
+
             Document mergedDocument = new Document(mergedPdfDocument);
             for (String matchCardFileName : matchCardFileNames) {
                 File matchCardFile = new File(matchCardFileName);
                 PdfReader reader = new PdfReader(matchCardFile);
                 PdfDocument pdfDocument = new PdfDocument(reader);
                 int numberOfPages = pdfDocument.getNumberOfPages();
+//                pdfMerger.merge(pdfDocument, 1, numberOfPages);
+
                 pdfDocument.copyPagesTo(1, numberOfPages, mergedPdfDocument);
                 reader.close();
                 pdfDocument.close();
                 matchCardFile.delete();
             }
             mergedDocument.close();
+//            pdfMerger.close();
+            log.info("Done merging match cards into " + mergedMatchCardFile.getAbsolutePath());
             return mergedFilename;
         } catch (IOException e) {
             throw new MatchCardPrinterException("Error merging files", e);
@@ -418,13 +430,20 @@ public class MatchCardPrinterService {
         table.addCell(ratingCell);
 
         Cell playerNameCell = new Cell();
+        int maxNameLen = 27;  // shorten very long names so they don't spill into another line
         if (playerNames != null) {
             if (playerNames.contains("/")) {
                 String[] playerNameArray = playerNames.split("/");
                 for (String playerName : playerNameArray) {
+                    if (playerNames.length() > maxNameLen) {
+                        playerNames = playerNames.substring(0, maxNameLen) + "..";
+                    }
                     playerNameCell.add(new Paragraph(playerName));
                 }
             } else {
+                if (playerNames.length() > maxNameLen) {
+                    playerNames = playerNames.substring(0, maxNameLen) + "..";
+                }
                 playerNameCell.add(new Paragraph(playerNames));
             }
         } else {
