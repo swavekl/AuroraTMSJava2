@@ -186,21 +186,21 @@ export class EntryViewComponent implements OnInit, OnChanges, OnDestroy {
     return hasEntry && isBeforeEntryCutoffDate;
   }
 
-  private isBeforeRefundDate() {
+  private isSameOrBeforeRefundDate() {
     const refundDate = this.tournament?.configuration.refundDate;
     if (refundDate) {
       const today = this.todayService.todaysDate;
-      return (new DateUtils().isDateBefore(today, refundDate));
+      return (new DateUtils().isDateSameOrBefore(today, refundDate));
     } else {
       return false;
     }
   }
 
   canWithdraw() {
-    const isBeforeEntryCutoffDate = this.isBeforeRefundDate();
+    const isSameOrBeforeRefundDate = this.isSameOrBeforeRefundDate();
     const hasEntry = this.entry?.id !== 0;
     const hasEvents = this.enteredEvents?.length > 0;
-    return hasEntry && hasEvents && isBeforeEntryCutoffDate;
+    return hasEntry && hasEvents && isSameOrBeforeRefundDate;
   }
 
   onModify() {

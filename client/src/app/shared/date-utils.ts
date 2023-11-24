@@ -80,6 +80,17 @@ export class DateUtils {
   }
 
   /**
+   * Check if the first date is the before or the same as the second date
+   * @param firstDate
+   * @param secondDate
+   */
+  isDateSameOrBefore(firstDate: Date, secondDate: Date): boolean {
+    const mFirstDate = moment(firstDate).hours(0).minutes(0).seconds(0);
+    const mSecondDate = moment(secondDate).hours(0).minutes(0).seconds(0);
+    return mFirstDate.isSameOrBefore(mSecondDate, 'days');
+  }
+
+  /**
    * Checks if given date is in range between two dates
    * @param dateToTest
    * @param rangeStart
