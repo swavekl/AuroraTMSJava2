@@ -91,13 +91,14 @@ public class EventEntryChangeListener {
         // check if anyone is on the waiting list in this event
         List<TournamentEventEntry> waitingListEntries = tournamentEventEntryService.listWaitingListEntriesForEvent(event.getEventId());
         log.info("There are " + waitingListEntries.size() + " players on the waiting list for event " + event.getEventId());
-        if (waitingListEntries.size() > 0) {
+        if (!waitingListEntries.isEmpty()) {
             // check if there is room in this event
-            List<TournamentEventEntry> confirmedEntries = tournamentEventEntryService.listAllForEvent(event.getEventId());
+            long confirmedEntriesCount = tournamentEventEntryService.getCountValidEntriesInEvent(event.getEventId());
+            log.info(confirmedEntriesCount + " spots are entered, pending confirmation or deletion");
             TournamentEvent tournamentEvent = tournamentEventEntityService.get(event.getEventId());
             int maxEntries = tournamentEvent.getMaxEntries();
-            int availableEventEntries = maxEntries - confirmedEntries.size();
-            log.info(availableEventEntries + " spots are available for people on the waiting list");
+            long availableEventEntries = maxEntries - confirmedEntriesCount;
+            log.info(availableEventEntries + " spots are available for people on the waiting list for event " + tournamentEvent.getName());
             // the first entry is the one we need
             for (int i = 0; i < availableEventEntries && i < waitingListEntries.size(); i++) {
                 TournamentEventEntry waitingListEntry = waitingListEntries.get(i);
@@ -111,14 +112,15 @@ public class EventEntryChangeListener {
                 waitingListEntry.setStatus(EventEntryStatus.PENDING_CONFIRMATION);
 
                 tournamentEventEntryService.update(waitingListEntry);
-                log.info("Moved player from waiting list to event entry pending payment");
 
-                sendEmail (waitingListEntry, futureCartSessionStartDate);
+                String playerFullName = sendEmail (waitingListEntry, futureCartSessionStartDate);
+                log.info(String.format("Moved player %s from waiting list to event entry pending payment", playerFullName));
             }
         }
     }
 
-    private void sendEmail(TournamentEventEntry tournamentEventEntry, Date futureCartSessionStartDate) {
+    private String sendEmail(TournamentEventEntry tournamentEventEntry, Date futureCartSessionStartDate) {
+        String playerFullName = null;
         try {
             // get personal information of a person who was added to the event
             TournamentEntry tournamentEntry = tournamentEntryService.get(tournamentEventEntry.getTournamentEntryFk());
@@ -127,6 +129,7 @@ public class EventEntryChangeListener {
             String playerFirstName = userProfile.getFirstName();
             String playerLastName = userProfile.getLastName();
             String playerEmail = userProfile.getEmail();
+            playerFullName = playerLastName + ", " + playerFirstName;
 
             // get tournament director for this tournament
             long tournamentFk = tournamentEntry.getTournamentFk();
@@ -169,8 +172,9 @@ public class EventEntryChangeListener {
             emailService.sendMessageUsingThymeleafTemplate(playerEmail, contactEmail, emailSubject,
                     "tournament-entry/tournament-entry-waiting-to-pending.html", templateModel);
         } catch (MessagingException e) {
-            log.error("Unable to send email message about adding player from waiting list");
+            log.error("Unable to send email message about adding player from waiting list to " + playerFullName);
         }
+        return playerFullName;
     }
 
     private String getTournamentCurrency (long tournamentId) {
