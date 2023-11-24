@@ -14,7 +14,8 @@ import {LinearProgressBarService} from '../../../shared/linear-progress-bar/line
     <app-tournament-waiting-list
       [tournamentEntryInfos]="tournamentEntryInfos$ | async"
       [tournamentEvents]="tournamentEvents$ | async"
-      [standaloneScreen]="standaloneScreen">
+      [standaloneScreen]="standaloneScreen"
+      [tournamentId]="tournamentId">
     </app-tournament-waiting-list>
   `,
   styles: []
@@ -29,6 +30,8 @@ export class TournamentWaitingListContainerComponent implements OnInit, OnDestro
 
   public standaloneScreen: boolean = true;
 
+  public tournamentId: number;
+
   constructor(private tournamentEntryInfoService: TournamentEntryInfoService,
               private tournamentEventConfigService: TournamentEventConfigService,
               private activatedRoute: ActivatedRoute,
@@ -42,9 +45,9 @@ export class TournamentWaitingListContainerComponent implements OnInit, OnDestro
 
   ngOnInit(): void {
     this.setupProgressIndicator();
-    const tournamentId = this.activatedRoute.snapshot.params['tournamentId'] || 0;
-    this.loadWaitingListEntries(tournamentId);
-    this.loadTournamentEvents(tournamentId);
+    this.tournamentId = this.activatedRoute.snapshot.params['tournamentId'] || 0;
+    this.loadWaitingListEntries(this.tournamentId);
+    this.loadTournamentEvents(this.tournamentId);
   }
 
   /**

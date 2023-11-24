@@ -19,12 +19,17 @@ export class TournamentWaitingListComponent implements OnInit, OnChanges {
   @Input()
   standaloneScreen: boolean = true;
 
+  @Input()
+  tournamentId: number;
+
   // map of event id to event object for faster lookup
   private eventIdToEventMap: any;
 
   eventWithPlayersList: EventWithPlayers [] = [];
 
   sortBy: string;
+
+  returnUrl: string;
 
   constructor() {
     this.sortBy = 'name';
@@ -50,6 +55,7 @@ export class TournamentWaitingListComponent implements OnInit, OnChanges {
     if (this.tournamentEvents != null && this.tournamentEntryInfos != null) {
       this.prepareByEventList();
     }
+    this.returnUrl = window.location.pathname;
   }
 
   /**
@@ -82,6 +88,11 @@ export class TournamentWaitingListComponent implements OnInit, OnChanges {
 
   private prepareByEventList() {
     this.eventWithPlayersList = [];
+    // sort by entry id which is increasing as new event entries are added
+    this.tournamentEntryInfos.sort((tee1: TournamentEntryInfo, tee2: TournamentEntryInfo) => {
+        return tee1.entryId < tee2.entryId ? -1 : 1;
+    });
+
     // transform each player's event entries into list of
     for (let i = 0; i < this.tournamentEntryInfos.length; i++) {
       const tei: TournamentEntryInfo = this.tournamentEntryInfos[i];

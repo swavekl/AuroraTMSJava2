@@ -16,7 +16,8 @@
       <table class="waiting-list-by-player-table">
         <thead>
         <tr>
-          <th class="player-name-column">Player Name</th>
+          <th class="player-name-column">Player Name/Profile</th>
+          <th class="events-column">Entry</th>
           <th class="events-column">Waited Events</th>
           <th class="events-column">Confirmed Events</th>
         </tr>
@@ -24,13 +25,13 @@
         <tbody>
         <tr *ngFor="let entry of tournamentEntryInfos">
           <td class="player-name-column">
-            <a [routerLink]="['/ui/userprofile/edit', entry.profileId]">{{entry.lastName}}, {{entry.firstName}}</a>
-<!--            &nbsp;<a href="tel:'630-251-8860'">-->
-<!--              <mat-icon class="button-icon">call</mat-icon>-->
-<!--            </a>-->
+            <a [routerLink]="['/ui/userprofile/edit', entry.profileId]" [state]="{waitingListReturnUrl: returnUrl}">{{entry.lastName}}, {{entry.firstName}}</a>
           </td>
-          <td class="events-column">{{getPlayerEventList(entry.eventIds)}}</td>
+          <td class="player-name-column">
+            <a [routerLink]="['/ui/entries/entryview', tournamentId, 'edit', entry.entryId]">Entry</a>
+          </td>
           <td class="events-column">{{getPlayerEventList(entry.waitingListEventIds)}}</td>
+          <td class="events-column">{{getPlayerEventList(entry.eventIds)}}</td>
         </tr>
         </tbody>
       </table>

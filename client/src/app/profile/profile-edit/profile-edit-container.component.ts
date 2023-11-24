@@ -53,6 +53,7 @@ export class ProfileEditContainerComponent implements OnInit, OnDestroy {
     // true during on-boarding
     this.initializingProfile = (history?.state?.initializingProfile === true);
     this.addingProfile = (history?.state?.addingProfile === true);
+    const fromWaitingList = (history?.state?.waitingListReturnUrl != null);
     this.onBoarding = this.initializingProfile;
     // using existing member data during on-boarding
     this.playerRecord = history?.state?.playerRecord;
@@ -63,6 +64,8 @@ export class ProfileEditContainerComponent implements OnInit, OnDestroy {
       this.returnUrl = '/ui/userprofile/onboardcomplete';
     } else if (this.addingProfile) {
       this.returnUrl = history?.state?.returnUrl;
+    } else if (fromWaitingList) {
+      this.returnUrl = history?.state?.waitingListReturnUrl;
     } else {
       this.returnUrl = '/ui/home';
     }
