@@ -174,7 +174,7 @@ export class EntryViewComponent implements OnInit, OnChanges, OnDestroy {
     const entryCutoffDate = this.tournament?.configuration.entryCutoffDate;
     if (entryCutoffDate != null) {
       const today = this.todayService.todaysDate;
-      return (new DateUtils().isDateBefore(today, entryCutoffDate));
+      return (new DateUtils().isDateSameOrBefore(today, entryCutoffDate));
     } else {
       return false;
     }
