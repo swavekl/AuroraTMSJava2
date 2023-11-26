@@ -1,6 +1,6 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {combineLatest, Observable, of, Subscription} from 'rxjs';
-import {first, map, tap} from 'rxjs/operators';
+import {first, switchMap, tap} from 'rxjs/operators';
 import {LinearProgressBarService} from '../../shared/linear-progress-bar/linear-progress-bar.service';
 import {Tournament} from '../../tournament/tournament-config/tournament.model';
 import {TournamentConfigService} from '../../tournament/tournament-config/tournament-config.service';
@@ -72,23 +72,27 @@ export class PrizeListContainerComponent implements OnInit, OnDestroy {
   private loadTodaysTournamentEvents() {
     const todaysDate: Date = this.todayService.todaysDate;
     const todaysDateUtc = new DateUtils().convertFromLocalToUTCDate(todaysDate);
-    const subscription = this.tournamentConfigService.getTodaysTournaments(todaysDateUtc)
+    this.tournamentEvents$ = this.tournamentEventConfigService.entities$;
+    let subscription = this.tournamentConfigService.getTodaysTournaments(todaysDateUtc)
       .pipe(
-        first(),
-        map((todaysTournaments: Tournament[]) => {
+        switchMap((todaysTournaments: Tournament[]) => {
             if (todaysTournaments?.length > 0) {
               const tournamentId = todaysTournaments[0].id;
               // this will be subscribed by the template
-              this.tournamentEvents$ = this.tournamentEventConfigService.loadTournamentEvents(tournamentId)
+              return this.tournamentEventConfigService.loadTournamentEvents(tournamentId)
                 .pipe(
+                  first(),
                   tap((events: TournamentEvent[]) => {
                     this.getFinishedRRMatchCards(events);
-                }));
+                })
+                 );
+            } else {
+              console.log('no tournaments today');
             }
           }
         )
       ).subscribe();
-    this.subscriptions.add(subscription);
+      this.subscriptions.add(subscription);
   }
 
   private getFinishedRRMatchCards(events: TournamentEvent[]) {

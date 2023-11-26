@@ -156,30 +156,32 @@ export class PrizeListComponent implements OnInit, OnChanges {
         const rrPrizeData: PrizeData [] = [];
         const prizeInfoList = tournamentEvent.configuration?.prizeInfoList ?? [];
         this.finishedRRMatchCards.forEach((matchCard: MatchCard) => {
-          const playerRankingsJSON = matchCard?.playerRankings;
-          if (playerRankingsJSON && playerRankingsJSON?.length > 0) {
-            const playerRankings = JSON.parse(playerRankingsJSON);
-            if (Object.keys(playerRankings).length > 0) {
-              const groupPrizeInfo = this.getRRGroupPrizeInfo(prizeInfoList, matchCard);
-              const profileIdToNameMap = matchCard?.profileIdToNameMap;
-              for (const [rank, playerProfileId] of Object.entries(playerRankings)) {
-                const playerFullName = profileIdToNameMap[playerProfileId as string];
-                const place = Number(rank);
-                const placePrizeInfoList = groupPrizeInfo.filter((prizeInfo: PrizeInfo) => {
-                  const placeEnd = (prizeInfo.awardedForPlaceRangeEnd === 0)
-                    ? prizeInfo.awardedForPlace : prizeInfo.awardedForPlaceRangeEnd;
-                  return (place >= prizeInfo.awardedForPlace) && (place <= placeEnd);
-                });
-                if (placePrizeInfoList.length > 0) {
-                  const prizeInfo = placePrizeInfoList[0];
-                  const division = this.getRRDivisionName(matchCard);
-                  rrPrizeData.push({
-                    division: division,
-                    place: place,
-                    prizeMoneyAmount: prizeInfo.prizeMoneyAmount,
-                    awardTrophy: prizeInfo.awardTrophy,
-                    playerFullName: playerFullName
+          if (matchCard.eventFk === tournamentEvent.id) {
+            const playerRankingsJSON = matchCard?.playerRankings;
+            if (playerRankingsJSON && playerRankingsJSON?.length > 0) {
+              const playerRankings = JSON.parse(playerRankingsJSON);
+              if (Object.keys(playerRankings).length > 0) {
+                const groupPrizeInfo = this.getRRGroupPrizeInfo(prizeInfoList, matchCard, tournamentEvent);
+                const profileIdToNameMap = matchCard?.profileIdToNameMap;
+                for (const [rank, playerProfileId] of Object.entries(playerRankings)) {
+                  const playerFullName = profileIdToNameMap[playerProfileId as string];
+                  const place = Number(rank);
+                  const placePrizeInfoList = groupPrizeInfo.filter((prizeInfo: PrizeInfo) => {
+                    const placeEnd = (prizeInfo.awardedForPlaceRangeEnd === 0)
+                      ? prizeInfo.awardedForPlace : prizeInfo.awardedForPlaceRangeEnd;
+                    return (place >= prizeInfo.awardedForPlace) && (place <= placeEnd);
                   });
+                  if (placePrizeInfoList.length > 0) {
+                    const prizeInfo = placePrizeInfoList[0];
+                    const division = this.getRRDivisionName(matchCard, tournamentEvent);
+                    rrPrizeData.push({
+                      division: division,
+                      place: place,
+                      prizeMoneyAmount: prizeInfo.prizeMoneyAmount,
+                      awardTrophy: prizeInfo.awardTrophy,
+                      playerFullName: playerFullName
+                    });
+                  }
                 }
               }
             }
@@ -197,8 +199,8 @@ export class PrizeListComponent implements OnInit, OnChanges {
    * @param matchCard
    * @private
    */
-  private getRRGroupPrizeInfo(prizeInfoList: PrizeInfo[], matchCard: MatchCard) {
-    const matchCardDivision = this.getRRDivisionName(matchCard);
+  private getRRGroupPrizeInfo(prizeInfoList: PrizeInfo[], matchCard: MatchCard, tournamentEvent: TournamentEvent) {
+    const matchCardDivision = this.getRRDivisionName(matchCard, tournamentEvent);
     let divisionPrizeInfoList: PrizeInfo [] = prizeInfoList.filter(
       (prizeInfo: PrizeInfo) => {
         return prizeInfo.division === matchCardDivision;
@@ -219,14 +221,38 @@ export class PrizeListComponent implements OnInit, OnChanges {
   }
 
   getRRDivisions(tournamentEvent: TournamentEvent) {
-    const divisions: string [] = [];
+    let divisions: string [] = [];
     if (this.isGiantRREvent(tournamentEvent)) {
-      if (this.finishedRRMatchCards != null && this.finishedRRMatchCards.length > 0) {
-        this.finishedRRMatchCards.forEach((matchCard: MatchCard) => {
-          divisions.push(this.getRRDivisionName(matchCard));
-        });
+      const prizeInfoList = tournamentEvent.configuration.prizeInfoList;
+      if (prizeInfoList && prizeInfoList.length > 0) {
+        divisions = this.getDivisionsNameFromPrizeInfos(tournamentEvent);
+      } else {
+        if (this.finishedRRMatchCards != null && this.finishedRRMatchCards.length > 0) {
+          this.finishedRRMatchCards.forEach((matchCard: MatchCard) => {
+            divisions.push(this.getRRDivisionName(matchCard, tournamentEvent));
+          });
+        }
       }
     }
+    return divisions;
+  }
+
+  /**
+   *
+   * @param tournamentEvent
+   */
+  getDivisionsNameFromPrizeInfos(tournamentEvent: TournamentEvent) {
+    let divisions: string [] = [];
+    const prizeInfoList = tournamentEvent.configuration.prizeInfoList;
+    prizeInfoList.forEach((prizeInfo: PrizeInfo) => {
+      const divisionName = prizeInfo.division;
+      if (divisions.indexOf(divisionName) === -1) {
+        divisions.push(divisionName);
+      }
+    });
+    divisions = divisions.sort((div1: string, div2: string) => {
+      return div1.localeCompare(div2);
+    });
     return divisions;
   }
 
@@ -234,7 +260,7 @@ export class PrizeListComponent implements OnInit, OnChanges {
     let isCompleted = false;
     if (this.finishedRRMatchCards != null && this.finishedRRMatchCards.length > 0) {
       this.finishedRRMatchCards.forEach((matchCard: MatchCard) => {
-        if (this.getRRDivisionName(matchCard) === division) {
+        if (this.getRRDivisionName(matchCard, tournamentEvent) === division) {
           isCompleted = matchCard.playerRankings != null;
         }
       });
@@ -242,9 +268,16 @@ export class PrizeListComponent implements OnInit, OnChanges {
     return isCompleted;
   }
 
-  private getRRDivisionName(matchCard: MatchCard): string {
-    const A = 'A'.charCodeAt(0);
-    return String.fromCharCode(A + (matchCard.groupNum - 1));
+  private getRRDivisionName(matchCard: MatchCard, tournamentEvent: TournamentEvent): string {
+    let firstDivisionName = 'A'.charCodeAt(0)
+    const divisionsNameFromPrizeInfos = this.getDivisionsNameFromPrizeInfos(tournamentEvent);
+    if (divisionsNameFromPrizeInfos && divisionsNameFromPrizeInfos.length > 0) {
+      const strDivisionName = divisionsNameFromPrizeInfos[0];
+      if (strDivisionName?.length > 0) {
+        firstDivisionName = strDivisionName[0].charCodeAt(0);
+      }
+    }
+    return String.fromCharCode(firstDivisionName + (matchCard.groupNum - 1));
   }
 
   getRRDivisionPrizeData(tournamentEvent: TournamentEvent, division: string): PrizeData [] {
