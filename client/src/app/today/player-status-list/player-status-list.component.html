@@ -3,6 +3,13 @@
   <mat-toolbar>
     <button mat-raised-button type="button" [routerLink]="['/ui/tournamentsconfig']" >Back</button>
     <span class="toolbar-spacer-2"></span>
+    <mat-form-field>
+      <mat-label>Filter</mat-label>
+      <input matInput name="filterClubName" type="text" [(ngModel)]="filterName" (ngModelChange)="onFilterChange($event)">
+      <button matSuffix mat-icon-button aria-label="Clear" (click)="clearFilter()">
+        <mat-icon>close</mat-icon>
+      </button>
+    </mat-form-field>
   </mat-toolbar>
   <div *ngIf="alphabeticalPlayerStatusMap != null" class="inner-list-container" fxLayout="row wrap" fxLayoutAlign="start start" fxLayoutGap="20px">
     <ng-container *ngFor="let letterStatuses of alphabeticalPlayerStatusMap | keyvalue">

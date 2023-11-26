@@ -1,4 +1,6 @@
-import {Component, EventEmitter, Input, OnChanges, Output, SimpleChanges} from '@angular/core';
+import {AfterViewInit, Component, EventEmitter, Input, OnChanges, Output, SimpleChanges} from '@angular/core';
+import {debounceTime, distinctUntilChanged, skip} from 'rxjs/operators';
+import {BehaviorSubject} from 'rxjs';
 import {PlayerStatus} from '../model/player-status.model';
 import {TournamentEntryInfo} from '../../tournament/model/tournament-entry-info.model';
 import {MatDialog, MatDialogConfig} from '@angular/material/dialog';
@@ -9,7 +11,7 @@ import {PlayerCheckinDialogComponent} from '../player-checkin-dialog/player-chec
   templateUrl: './player-status-list.component.html',
   styleUrls: ['./player-status-list.component.scss']
 })
-export class PlayerStatusListComponent implements OnChanges {
+export class PlayerStatusListComponent implements OnChanges, AfterViewInit {
 
   @Input()
   tournamentId: number;
@@ -32,8 +34,12 @@ export class PlayerStatusListComponent implements OnChanges {
   // map of letter to enhanced player profile list with players starting with this letter
   public alphabeticalPlayerStatusMap: Map<string, EnhancedPlayerStatus[]> = null;
 
+  filterName: string;
+
+  private subject: BehaviorSubject<string> = new BehaviorSubject<string>('');
 
   constructor(private dialog: MatDialog) {
+    this.filterName = '';
   }
 
   onViewStatus(enhancedPlayerStatus: EnhancedPlayerStatus) {
@@ -113,7 +119,48 @@ export class PlayerStatusListComponent implements OnChanges {
     });
     this.alphabeticalPlayerStatusMap = letterToStatusMap;
   }
+
+  ngAfterViewInit(): void {
+      this.subject
+        .pipe(
+          skip(1),
+          distinctUntilChanged(),
+          debounceTime(500)
+        )
+        .subscribe((filterValue: string) => {
+          this.filterByName(filterValue);
+        });
+  }
+
+  private filterByName(filterValue: string) {
+    if (filterValue?.length > 0) {
+      const letterToStatusMap = new Map<string, EnhancedPlayerStatus[]>;
+      this.alphabeticalPlayerStatusMap.forEach((infosStartingAtLetter: EnhancedPlayerStatus[], firstLetter: string) => {
+        const filteredList = infosStartingAtLetter.filter((enhancedPlayerStatus: EnhancedPlayerStatus) => {
+          return enhancedPlayerStatus.entryInfo.firstName.includes(filterValue, 0) ||
+            enhancedPlayerStatus.entryInfo.lastName.includes(filterValue, 0);
+        });
+        if (filteredList.length > 0) {
+          letterToStatusMap.set(firstLetter, filteredList);
+        }
+      });
+      this.alphabeticalPlayerStatusMap = letterToStatusMap;
+    } else {
+      // reset
+      this.prepareData();
+    }
+  }
+
+  clearFilter() {
+    this.filterName = '';
+    this.onFilterChange(this.filterName);
+  }
+
+  onFilterChange(filterValue: string) {
+    this.subject.next(filterValue);
+  }
 }
+
 export class EnhancedPlayerStatus {
   playerStatus: PlayerStatus;
   entryInfo: TournamentEntryInfo;
