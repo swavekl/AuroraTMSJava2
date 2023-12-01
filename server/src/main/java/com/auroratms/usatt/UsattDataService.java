@@ -4,7 +4,6 @@ import com.auroratms.profile.UserProfileExt;
 import com.auroratms.profile.UserProfileExtService;
 import com.auroratms.ratingsprocessing.RatingsProcessorStatus;
 import com.opencsv.CSVReader;
-import com.opencsv.CSVReaderBuilder;
 import com.opencsv.exceptions.CsvValidationException;
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.internal.StringUtil;
@@ -410,12 +409,21 @@ public class UsattDataService {
 
                     ratingHistoryRecord.setMembershipId(updatedRecord.getMembershipId());
                     ratingHistoryRecord.setInitialRating(0);
-                    long initialRatingDate = updatedRecord.getLastTournamentPlayedDate().getTime();
-                    initialRatingDate -= (1000L * 60 * 60 * 24);  // 1 day before
-                    Timestamp tsInitialRatingDate = new Timestamp(initialRatingDate);
-                    ratingHistoryRecord.setInitialRatingDate(tsInitialRatingDate);
+                    if (updatedRecord.getLastTournamentPlayedDate() != null) {
+                        long initialRatingDate = updatedRecord.getLastTournamentPlayedDate().getTime();
+                        initialRatingDate -= (1000L * 60 * 60 * 24);  // 1 day before
+                        Timestamp tsInitialRatingDate = new Timestamp(initialRatingDate);
+                        ratingHistoryRecord.setInitialRatingDate(tsInitialRatingDate);
+                        ratingHistoryRecord.setFinalRatingDate(updatedRecord.getLastTournamentPlayedDate());
+                    } else {
+                        Date today = new Date();
+                        long initialRatingDate = today.getTime();
+                        initialRatingDate -= (1000L * 60 * 60 * 24);  // 1 day before
+                        Timestamp tsInitialRatingDate = new Timestamp(initialRatingDate);
+                        ratingHistoryRecord.setInitialRatingDate(tsInitialRatingDate);
+                        ratingHistoryRecord.setFinalRatingDate(today);
+                    }
                     ratingHistoryRecord.setFinalRating(updatedRecord.getTournamentRating());
-                    ratingHistoryRecord.setFinalRatingDate(updatedRecord.getLastTournamentPlayedDate());
                 }
             }
 
@@ -424,8 +432,40 @@ public class UsattDataService {
             }
 
             if (newRecords.size() > 0) {
+                logger.info("Looking for new players who have been assigned a permanent membership id");
+                Map<Long, Long> oldToNewMembershipIdMap = new HashMap<>();
+                for (UsattPlayerRecord newRecord : newRecords) {
+                    try {
+                        logger.info("Trying to find player named " + newRecord.getLastName() + ", " + newRecord.getFirstName());
+                        UsattPlayerRecord playerRecord = playerRecordRepository.getFirstByFirstNameAndLastName(newRecord.getFirstName(), newRecord.getLastName());
+                        if (playerRecord != null) {
+                            Long membershipId = playerRecord.getMembershipId();
+                            if (membershipId >= 400000 && membershipId <= 500000) {
+                                logger.info("Found temporary player record with membership id " + membershipId + " to be updated to " + newRecord.getMembershipId() + ". Deleting...");
+                                playerRecordRepository.deleteById(playerRecord.getId());
+                                oldToNewMembershipIdMap.put(membershipId, newRecord.getMembershipId());
+                            }
+                        } else {
+                            logger.warn("Didn't find player named " + newRecord.getLastName() + ", " + newRecord.getFirstName() + ". Fix manually " + newRecord.getMembershipId());
+                        }
+                    } catch (Exception e) {
+                        logger.error("Unable to delete temporary membership id and update profile ext");
+                    }
+                }
+
                 this.playerRecordRepository.saveAllAndFlush(newRecords);
                 ratingsProcessorStatus.newRecords += newRecords.size();
+
+                // now update profile ext linking usatt record to profile
+                for (Long oldMembershipId : oldToNewMembershipIdMap.keySet()) {
+                    if (userProfileExtService.existsByMembershipId(oldMembershipId)) {
+                        Long newMembershipId = oldToNewMembershipIdMap.get(oldMembershipId);
+                        logger.info("Changing ext user profile from temp membership id " + oldMembershipId + " to " + newMembershipId);
+                        UserProfileExt userProfileExt = userProfileExtService.getByMembershipId(oldMembershipId);
+                        userProfileExt.setMembershipId(newMembershipId);
+                        userProfileExtService.save(userProfileExt);
+                    }
+                }
             }
 
             ratingsProcessorStatus.processedRecords = endingIndex;
