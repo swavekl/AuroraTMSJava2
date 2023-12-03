@@ -6,6 +6,7 @@ import com.auroratms.ratingsprocessing.RatingsProcessorStatus;
 import com.opencsv.CSVReader;
 import com.opencsv.exceptions.CsvValidationException;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.time.DateUtils;
 import org.jsoup.internal.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -306,6 +307,7 @@ public class UsattDataService {
         List<Long> batchOfIds = new ArrayList<>(BATCH_SIZE);
         List<UsattPlayerRecord> newRecords = new ArrayList<>();
         long start = System.currentTimeMillis();
+        Date today = new Date();
         logger.info("recordsToImport = " + recordsToImport.size());
         ratingsProcessorStatus.newRecords = 0;
         ratingsProcessorStatus.processedRecords = 0;
@@ -341,17 +343,22 @@ public class UsattDataService {
 
                         // rating or last played date changed
                         if (existingRecord.getTournamentRating() != updatedRecord.getTournamentRating()) {
-
-                            if (!existingRecord.getLastTournamentPlayedDate().equals(updatedRecord.getLastTournamentPlayedDate())) {
+                            if (DateUtils.truncatedCompareTo(existingRecord.getLastTournamentPlayedDate(), updatedRecord.getLastTournamentPlayedDate(), Calendar.DAY_OF_MONTH) != 0) {
                                 // new history record
                                 RatingHistoryRecord ratingHistoryRecord = new RatingHistoryRecord();
-                                ratingHistoryRecordList.add(ratingHistoryRecord);
-
+                                Date initialRatingDate = (existingRecord.getLastTournamentPlayedDate() != null) ? existingRecord.getLastTournamentPlayedDate() : today;
                                 ratingHistoryRecord.setMembershipId(existingRecord.getMembershipId());
                                 ratingHistoryRecord.setInitialRating(existingRecord.getTournamentRating());
-                                ratingHistoryRecord.setInitialRatingDate(existingRecord.getLastTournamentPlayedDate());
+                                ratingHistoryRecord.setInitialRatingDate(initialRatingDate);
                                 ratingHistoryRecord.setFinalRating(updatedRecord.getTournamentRating());
                                 ratingHistoryRecord.setFinalRatingDate(updatedRecord.getLastTournamentPlayedDate());
+                                Optional<RatingHistoryRecord> optExistingRatingHistoryRecord = this.ratingHistoryRecordRepository.findByMembershipIdAndFinalRatingDate(
+                                        ratingHistoryRecord.getMembershipId(), ratingHistoryRecord.getFinalRatingDate());
+                                if (!optExistingRatingHistoryRecord.isPresent()) {
+                                    ratingHistoryRecordList.add(ratingHistoryRecord);
+                                } else {
+                                    logger.warn("Found duplicate new history record" + ratingHistoryRecord);
+                                }
                             } else {
                                 // same last played date means it is a ratings update so we need to update existing record
                                 // there should be few of these
@@ -416,7 +423,6 @@ public class UsattDataService {
                         ratingHistoryRecord.setInitialRatingDate(tsInitialRatingDate);
                         ratingHistoryRecord.setFinalRatingDate(updatedRecord.getLastTournamentPlayedDate());
                     } else {
-                        Date today = new Date();
                         long initialRatingDate = today.getTime();
                         initialRatingDate -= (1000L * 60 * 60 * 24);  // 1 day before
                         Timestamp tsInitialRatingDate = new Timestamp(initialRatingDate);
@@ -472,11 +478,13 @@ public class UsattDataService {
 
             if (ratingHistoryRecordList.size() > 0) {
                 logger.info("Inserting " + ratingHistoryRecordList.size() + " rating history records");
+                logger.info("new rating history records: " + ratingHistoryRecordList);
                 this.ratingHistoryRecordRepository.saveAllAndFlush(ratingHistoryRecordList);
             }
 
             if (updatedRatingHistoryRecordList.size() > 0) {
                 logger.info("Updating " + updatedRatingHistoryRecordList.size() + " rating history records");
+                logger.info("updated rating history records: " + updatedRatingHistoryRecordList);
                 this.ratingHistoryRecordRepository.saveAllAndFlush(updatedRatingHistoryRecordList);
             }
             ratingsProcessorStatus.newHistoryRecords += ratingHistoryRecordList.size();
