@@ -442,7 +442,7 @@ public class UsattDataService {
                 Map<Long, Long> oldToNewMembershipIdMap = new HashMap<>();
                 for (UsattPlayerRecord newRecord : newRecords) {
                     try {
-                        logger.info("Trying to find player named " + newRecord.getLastName() + ", " + newRecord.getFirstName());
+                        logger.info("Trying to find temporary membership record for " + newRecord.getLastName() + ", " + newRecord.getFirstName());
                         UsattPlayerRecord playerRecord = playerRecordRepository.getFirstByFirstNameAndLastName(newRecord.getFirstName(), newRecord.getLastName());
                         if (playerRecord != null) {
                             Long membershipId = playerRecord.getMembershipId();
@@ -450,6 +450,8 @@ public class UsattDataService {
                                 logger.info("Found temporary player record with membership id " + membershipId + " to be updated to " + newRecord.getMembershipId() + ". Deleting...");
                                 playerRecordRepository.deleteById(playerRecord.getId());
                                 oldToNewMembershipIdMap.put(membershipId, newRecord.getMembershipId());
+                            } else {
+                                logger.info ("Temporary membership not found");
                             }
                         } else {
                             logger.warn("Didn't find player named " + newRecord.getLastName() + ", " + newRecord.getFirstName() + ". Fix manually " + newRecord.getMembershipId());
@@ -478,13 +480,13 @@ public class UsattDataService {
 
             if (ratingHistoryRecordList.size() > 0) {
                 logger.info("Inserting " + ratingHistoryRecordList.size() + " rating history records");
-                logger.info("new rating history records: " + ratingHistoryRecordList);
+//                logger.info("new rating history records: " + ratingHistoryRecordList);
                 this.ratingHistoryRecordRepository.saveAllAndFlush(ratingHistoryRecordList);
             }
 
             if (updatedRatingHistoryRecordList.size() > 0) {
                 logger.info("Updating " + updatedRatingHistoryRecordList.size() + " rating history records");
-                logger.info("updated rating history records: " + updatedRatingHistoryRecordList);
+//                logger.info("updated rating history records: " + updatedRatingHistoryRecordList);
                 this.ratingHistoryRecordRepository.saveAllAndFlush(updatedRatingHistoryRecordList);
             }
             ratingsProcessorStatus.newHistoryRecords += ratingHistoryRecordList.size();
