@@ -18,6 +18,7 @@ import {MatDialog} from '@angular/material/dialog';
 import {MatCheckbox} from '@angular/material/checkbox';
 import {MatchCardStatus} from '../model/match-card-status.enum';
 import {TournamentEvent} from '../../tournament/tournament-config/tournament-event.model';
+import {DefaultPlayerPhoneDialogComponent} from '../default-player-phone-dialog/default-player-phone-dialog.component';
 
 @Component({
   selector: 'app-player-matches',
@@ -219,10 +220,8 @@ export class PlayerMatchesComponent implements OnInit, OnChanges {
    * @private
    */
   private proceedWithDefaulting (match: Match, playerIndex: number) {
-    // console.log('match.sideADefaulted', match.sideADefaulted);
-    // console.log('match.sideBDefaulted', match.sideBDefaulted);
-    const sideADefaulted: boolean = (playerIndex === 0) ? !match.sideADefaulted : match.sideADefaulted;
-    const sideBDefaulted: boolean = (playerIndex === 1) ? !match.sideBDefaulted : match.sideBDefaulted;
+    const sideADefaulted: boolean = (playerIndex === 0);
+    const sideBDefaulted: boolean = (playerIndex === 1);
     const updatedMatch: Match = {
       ...match,
       sideADefaulted: sideADefaulted,
@@ -244,7 +243,7 @@ export class PlayerMatchesComponent implements OnInit, OnChanges {
     };
     // console.log('updatedMatch.sideADefaulted', updatedMatch.sideADefaulted);
     // console.log('updatedMatch.sideBDefaulted', updatedMatch.sideBDefaulted);
-    // console.log('updatedMatch', updatedMatch);
+    // console.log('proceedWithDefaulting updatedMatch', updatedMatch);
     this.updateMatch.emit(updatedMatch);
   }
 
@@ -274,5 +273,48 @@ export class PlayerMatchesComponent implements OnInit, OnChanges {
 
   isEventStarted(): boolean {
     return this.matchCard.status === MatchCardStatus.STARTED;
+  }
+
+  onDefaultMatch(matchIndex: number) {
+    const match = this.matchCard?.matches[matchIndex];
+    if (this.canChangeScore(match)) {
+      const playerAName: string = this.matchCard.profileIdToNameMap[match.playerAProfileId];
+      const playerBName: string = this.matchCard.profileIdToNameMap[match.playerBProfileId];
+      const data = {
+        doubles: this.doubles,
+        playerALetter: match.playerALetter,
+        playerBLetter: match.playerBLetter,
+        playerAName: playerAName,
+        playerBName: playerBName
+      };
+
+      const config = {
+        width: '400px', height: '300px', data: data
+      };
+      const dialogRef = this.dialog.open(DefaultPlayerPhoneDialogComponent, config);
+      dialogRef.afterClosed().subscribe(result => {
+        if (result.action === 'save') {
+          const playerIndex = result.defaultedPlayerIndex;
+          if (this.isMatchEntryStarted(match)) {
+            const profileIds = (playerIndex === 0) ? match.playerAProfileId : match.playerBProfileId;
+            const playerNames: string = this.matchCard.profileIdToNameMap[profileIds];
+            const message = `${playerNames} is about to be defaulted. Defaulting will set all game scores to 0 and it can't be undone.  Press \'OK\' to proceed or 'Cancel' to abort.`;
+            const config = {
+              width: '450px', height: '260px', data: {
+                message: message, contentAreaHeight: 140
+              }
+            };
+            const dialogRef = this.dialog.open(ConfirmationPopupComponent, config);
+            dialogRef.afterClosed().subscribe(result => {
+              if (result === 'ok') {
+                this.proceedWithDefaulting(match, playerIndex);
+              }
+            });
+          } else {
+            this.proceedWithDefaulting(match, playerIndex);
+          }
+        }
+      });
+    }
   }
 }

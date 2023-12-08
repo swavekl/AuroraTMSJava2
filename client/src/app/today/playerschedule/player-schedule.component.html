@@ -1,44 +1,44 @@
-<mat-toolbar>
-  <button mat-raised-button color="" type="button" (click)="back()">Back</button>
-</mat-toolbar>
-<div fxLayout="row" fxFlexAlign="center center" class="my-schedule-container">
-  <div fxHide.xs="true" fxFlex.gt-xs="50%">&nbsp;</div>
-  <div fxFlexFill fxFlex.gt-xs="400px">
-  <div *ngIf="playerDaySchedules != null && tournamentInfo != null">
-    <div class="mat-headline-6" style="text-align: center">{{tournamentInfo.name}}</div>
-    <ng-container *ngFor="let daySchedule of playerDaySchedules">
-      <div>
-        <div class="day-header mat-headline-6">
-          <h3>Day {{daySchedule.day}} - {{daySchedule.day | eventDay: tournamentStartDate}}</h3>
-        </div>
-        <mat-list dense>
-          <mat-divider></mat-divider>
-          <mat-list-item *ngFor="let playerScheduleItem of daySchedule.playerScheduleItems; last as last; first as first"
-                          >
-            <div fxLayout="row">
-              <div fxLayout="column" fxFlex="90%">
-                <div matListItemTitle>
-                  <span style="font-weight: bold">{{ playerScheduleItem.startTime | startTime }}</span>&nbsp;&nbsp;
-                  <span
-                    *ngIf="playerScheduleItem.assignedTables">{{ (playerScheduleItem.assignedTables.indexOf(',') !== -1) ? 'Tables:' : 'Table:'}} {{ playerScheduleItem.assignedTables}}</span>
-                </div>
-                <div matListItemLine>{{playerScheduleItem.eventName}}</div>
-                <div matListItemLine>
-                  <span>{{ playerScheduleItem.round | roundName: playerScheduleItem.group }}</span>
-                  <span *ngIf="playerScheduleItem.round === 0">, Group: {{playerScheduleItem.group}}</span>
-                </div>
-              </div>
-              <div fxFlex="10%" style="padding-top: 24px; cursor: pointer"
-                   (click)="showScheduleDetail(playerScheduleItem.matchCardId)">
-                <mat-icon matListItemIcon>chevron_right</mat-icon>
-              </div>
+<div class="outer-schedule-container">
+  <mat-toolbar>
+    <button mat-raised-button color="" type="button" (click)="back()">Back</button>
+  </mat-toolbar>
+  <div fxLayout="row" fxFlexAlign="center center" class="my-schedule-container">
+    <div fxHide.xs="true" fxFlex.gt-xs="50%">&nbsp;</div>
+    <div fxFlexFill fxFlex.gt-xs="400px">
+      <div *ngIf="playerDaySchedules != null && tournamentInfo != null">
+        <div class="mat-headline-6" style="text-align: center">{{tournamentInfo.name}}</div>
+        <ng-container *ngFor="let daySchedule of playerDaySchedules">
+          <div>
+            <div class="day-header mat-headline-6">
+              <h3>Day {{daySchedule.day}} - {{daySchedule.day | eventDay: tournamentStartDate}}</h3>
             </div>
-            <mat-divider></mat-divider>
-          </mat-list-item>
-        </mat-list>
+            <mat-nav-list dense>
+              <mat-list-item
+                *ngFor="let playerScheduleItem of daySchedule.playerScheduleItems; last as last; first as first"
+              >
+                <div fxLayout="row" (click)="showScheduleDetail(playerScheduleItem.matchCardId)">
+                  <div fxLayout="column" fxFlex="90%">
+                    <div matListItemTitle>
+                      <span style="font-weight: bold">{{ playerScheduleItem.startTime | startTime }}</span>&nbsp;&nbsp;
+                      <span
+                        *ngIf="playerScheduleItem.assignedTables">{{ (playerScheduleItem.assignedTables.indexOf(',') !== -1) ? 'Tables:' : 'Table:'}} {{ playerScheduleItem.assignedTables}}</span>
+                    </div>
+                    <div matListItemLine>{{playerScheduleItem.eventName}}</div>
+                    <div matListItemLine>
+                      <span>{{ playerScheduleItem.round | roundName: playerScheduleItem.group }}</span>
+                      <span *ngIf="playerScheduleItem.round === 0">, Group: {{playerScheduleItem.group}}</span>
+                    </div>
+              </div>
+              <div fxFlex="10%" style="padding-top: 24px;">
+                <mat-icon matListItemIcon>chevron_right</mat-icon>
+                  </div>
+                </div>
+              </mat-list-item>
+            </mat-nav-list>
+          </div>
+        </ng-container>
       </div>
-    </ng-container>
+    </div>
+    <div fxHide.xs="true" fxFlex.gt-xs="50%">&nbsp;</div>
   </div>
-  </div>
-  <div fxHide.xs="true" fxFlex.gt-xs="50%">&nbsp;</div>
 </div>

@@ -255,7 +255,7 @@ export class PlayerMatchesContainerComponent implements OnInit, OnDestroy {
    * @param updatedMatch
    */
   public onUpdateMatch(updatedMatch: Match) {
-    this.matchService.update(updatedMatch)
+    const subscription: Subscription = this.matchService.update(updatedMatch)
       .pipe(
         switchMap((match: Match) => {
           return this.matchCardService.getByKey(this.matchCardId)
@@ -264,12 +264,14 @@ export class PlayerMatchesContainerComponent implements OnInit, OnDestroy {
               map((matchCard: MatchCard) => {
                 if (matchCard != null) {
                   this.matchCard = matchCard;
+                  this.matchCard$ = of (matchCard);
                   this.checkIfMatchCardCompleted(matchCard);
                 }
                 return matchCard;
               }) );
 
         })).subscribe();
+    this.subscriptions.add(subscription);
   }
 
   private checkIfMatchCardCompleted(matchCard: MatchCard) {

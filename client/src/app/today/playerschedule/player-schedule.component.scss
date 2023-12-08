@@ -1,15 +1,19 @@
 @use "src/my-theme.scss" as *;
 
+.outer-schedule-container {
+  height: calc(100vh - 110px);
+}
+
 .my-schedule-container {
   margin: 10px;
-  height: calc(100vh - 155px);
+  height: calc(100vh - 175px);
   //border: 1px solid red;
   overflow: auto;
 }
 
 .day-header {
   background-color: #d7c8f5;
-  margin: 10px 0;
+  margin: 10px 0 0 0;
   padding: 20px 0;
   text-align: center;
 }

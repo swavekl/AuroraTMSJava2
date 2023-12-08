@@ -29,6 +29,8 @@ import {TieBreakingResultsDialogComponent} from './tie-breaking-results-dialog/t
 import {ScoreAuditDialogComponent} from './score-audit-dialog/score-audit-dialog.component';
 import {RankingResultsContainerComponent} from './ranking-results/ranking-results-container.component';
 import {RankingResultsComponent} from './ranking-results/ranking-results.component';
+import { DefaultPlayerPhoneDialogComponent } from './default-player-phone-dialog/default-player-phone-dialog.component';
+import {MatRadioModule} from '@angular/material/radio';
 
 
 @NgModule({
@@ -43,23 +45,25 @@ import {RankingResultsComponent} from './ranking-results/ranking-results.compone
     TieBreakingResultsDialogComponent,
     ScoreAuditDialogComponent,
     RankingResultsComponent,
-    RankingResultsContainerComponent
+    RankingResultsContainerComponent,
+    DefaultPlayerPhoneDialogComponent
   ],
-    imports: [
-        CommonModule,
-        FormsModule,
-        MatchesRoutingModule,
-        MatListModule,
-        FlexModule,
-        MatIconModule,
-        MatButtonModule,
-        MatDialogModule,
-        MatCheckboxModule,
-        MatInputModule,
-        SharedModule,
-        MatToolbarModule,
-        MatSnackBarModule
-    ]
+  imports: [
+    CommonModule,
+    FormsModule,
+    MatchesRoutingModule,
+    MatListModule,
+    FlexModule,
+    MatIconModule,
+    MatButtonModule,
+    MatDialogModule,
+    MatCheckboxModule,
+    MatInputModule,
+    SharedModule,
+    MatToolbarModule,
+    MatSnackBarModule,
+    MatRadioModule
+  ]
 })
 export class MatchesModule {
   // Inject the service to ensure it registers with EntityServices
