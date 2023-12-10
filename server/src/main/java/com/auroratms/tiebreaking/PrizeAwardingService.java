@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -63,12 +64,66 @@ public class PrizeAwardingService {
             }
         } else if (tournamentEvent.getDrawMethod() == DrawMethod.DIVISION) {
             // giant round robin has only one round
-            processRoundRobinEvent(tournamentEvent);
+            processRoundRobinEvent(tournamentEvent, prizeInfoList, matchCard);
         }
     }
 
-    private void processRoundRobinEvent(TournamentEvent tournamentEvent) {
-        // todo - finish RR
+    private void processRoundRobinEvent(TournamentEvent tournamentEvent, List<PrizeInfo> prizeInfoList, MatchCard matchCard) {
+        // find unique division names and sort them
+        Map<Integer, String> groupNumToDivisionNameMap = groupNumToDivisionNameMap(prizeInfoList);
+
+        Map<Integer, String> finalPlayerRankings = new HashMap<>();
+        Map<Integer, String> playerRankingsMap = this.getPlayerRankingsMap(matchCard.getPlayerRankings());
+        Map<String, String> profileIdToNameMap = matchCard.getProfileIdToNameMap();
+        if (playerRankingsMap != null && profileIdToNameMap != null) {
+            int groupNum = matchCard.getGroupNum();
+            String division = groupNumToDivisionNameMap.get(groupNum);
+            int maxPlace = getMaxPlaceForDivision(prizeInfoList, division);
+            for (int place = 1; place <= maxPlace; place++) {
+                String strPlace = Integer.toString(place);
+                String profileId = playerRankingsMap.get(strPlace);
+                String playerName = profileIdToNameMap.get(profileId);
+                if (playerName != null) {
+                    finalPlayerRankings.put(place, playerName);
+                }
+            }
+        }
+
+        if (finalPlayerRankings.size() > 0) {
+            tournamentEvent.getConfiguration().setFinalPlayerRankings(finalPlayerRankings);
+            this.tournamentEventEntityService.update(tournamentEvent);
+        }
+    }
+
+    private int getMaxPlaceForDivision(List<PrizeInfo> prizeInfoList, String division) {
+        int maxPlace = 1;
+        List<PrizeInfo> prizeInfosForDivision = prizeInfoList
+                .stream()
+                .filter(c -> c.getDivision().equals(division))
+                .sorted(Comparator.comparing(PrizeInfo::getAwardedForPlace))
+                .collect(Collectors.toList());
+        for (PrizeInfo prizeInfo : prizeInfosForDivision) {
+            maxPlace = Math.max(maxPlace, prizeInfo.getAwardedForPlace());
+            maxPlace = Math.max(maxPlace, prizeInfo.getAwardedForPlaceRangeEnd());
+        }
+        return maxPlace;
+    }
+
+    private Map<Integer, String> groupNumToDivisionNameMap(List<PrizeInfo> prizeInfoList) {
+        SortedSet<String> divisions = new TreeSet<>();
+        for (PrizeInfo prizeInfo : prizeInfoList) {
+            divisions.add(prizeInfo.getDivision());
+        }
+
+        // build map translating group number to division name
+        // assume division A is group 1, B is group 2, etc.
+        Map<Integer, String> groupNumToDivisionNameMap = new HashMap<>();
+        int group = 1;
+        for (String division : divisions) {
+            groupNumToDivisionNameMap.put(group, division);
+            group++;
+        }
+        return groupNumToDivisionNameMap;
     }
 
     /**
