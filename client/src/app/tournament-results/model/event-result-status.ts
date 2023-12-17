@@ -11,4 +11,7 @@ export class EventResultStatus {
 
   // indicates if a match for 3rd and 4th place is to be played
   play3rd4thPlace: boolean;
+
+  // is it giant round robin
+  giantRREvent: boolean;
 }

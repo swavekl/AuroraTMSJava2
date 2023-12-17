@@ -17,4 +17,7 @@ public class EventResultStatus {
 
     // indicates if a match for 3rd and 4th place is to be played
     private boolean play3rd4thPlace;
+
+    // is it giant round robin
+    private boolean giantRREvent;
 }

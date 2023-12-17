@@ -10,19 +10,21 @@
         </mat-card-header>
         <mat-card-content>
           <ng-container *ngIf="eventResultStatus.resultsAvailable; else notAvailable">
-            <div fxLayout="column" fxLayoutAlign="start start">
-              <div class="place-line">1st) {{eventResultStatus.firstPlacePlayer}}</div>
-              <div class="place-line">2nd) {{eventResultStatus.secondPlacePlayer}}</div>
-              <ng-container *ngIf="eventResultStatus.play3rd4thPlace; else thirdFourthNotPlayed">
-                <div class="place-line">3rd) {{eventResultStatus.thirdPlacePlayer}}</div>
-                <div class="place-line">4th) {{eventResultStatus.fourthPlacePlayer}}</div>
-              </ng-container>
-              <ng-template #thirdFourthNotPlayed>
-                <div  class="place-line" *ngIf="eventResultStatus.thirdPlacePlayer != null && eventResultStatus.fourthPlacePlayer != null">
-                  3rd & 4th) {{eventResultStatus.thirdPlacePlayer}}, {{eventResultStatus.fourthPlacePlayer}}
-                </div>
-              </ng-template>
-            </div>
+            <ng-container *ngIf="!eventResultStatus.giantRREvent">
+              <div fxLayout="column" fxLayoutAlign="start start">
+                <div class="place-line">1st) {{eventResultStatus.firstPlacePlayer}}</div>
+                <div class="place-line">2nd) {{eventResultStatus.secondPlacePlayer}}</div>
+                <ng-container *ngIf="eventResultStatus.play3rd4thPlace; else thirdFourthNotPlayed">
+                  <div class="place-line">3rd) {{eventResultStatus.thirdPlacePlayer}}</div>
+                  <div class="place-line">4th) {{eventResultStatus.fourthPlacePlayer}}</div>
+                </ng-container>
+                <ng-template #thirdFourthNotPlayed>
+                  <div  class="place-line" *ngIf="eventResultStatus.thirdPlacePlayer != null && eventResultStatus.fourthPlacePlayer != null">
+                    3rd & 4th) {{eventResultStatus.thirdPlacePlayer}}, {{eventResultStatus.fourthPlacePlayer}}
+                  </div>
+                </ng-template>
+              </div>
+            </ng-container>
           </ng-container>
           <ng-template #notAvailable>
             Results not available

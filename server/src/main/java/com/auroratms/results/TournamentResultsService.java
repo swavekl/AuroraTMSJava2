@@ -71,6 +71,8 @@ public class TournamentResultsService {
             eventResultStatus.setEventName(tournamentEvent.getName());
             boolean play3rd4thPlace = tournamentEvent.isPlay3rd4thPlace();
             eventResultStatus.setPlay3rd4thPlace(play3rd4thPlace);
+            boolean isGiantRREvent = tournamentEvent.getPlayersToAdvance() == 0 && !tournamentEvent.isSingleElimination();
+            eventResultStatus.setGiantRREvent(isGiantRREvent);
             eventResultStatusList.add(eventResultStatus);
             boolean resultsAvailable = (finalPlayerRankings != null && !finalPlayerRankings.isEmpty());
             eventResultStatus.setResultsAvailable(resultsAvailable);

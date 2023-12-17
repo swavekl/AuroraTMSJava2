@@ -48,7 +48,7 @@
       </div>
       <div fxFlex></div>
     </mat-tab>
-    <mat-tab label="Single Elimination">
+    <mat-tab label="Single Elimination" *ngIf="event?.playersToAdvance > 0 || event?.singleElimination">
       <div class="se-results-container">
         <app-single-elimination-bracket [roundNumbers]="roundNumbers"
                                         [tournament]="tournament"

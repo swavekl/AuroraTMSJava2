@@ -6,13 +6,14 @@
 }
 
 .results-container {
-  height: calc(100vh - 122px);
+  height: calc(100vh - 180px);
   width: 100%;
   overflow: auto;
 }
 
 .se-results-container {
   overflow: hidden;
+  height: calc(100vh - 240px);
 }
 
 .rr-results-container {
