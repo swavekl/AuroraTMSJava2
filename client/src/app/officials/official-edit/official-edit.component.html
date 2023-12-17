@@ -36,7 +36,9 @@
           </mat-form-field>
           <mat-form-field fxFlex="50%">
             <mat-label>Umpire Number</mat-label>
-            <input matInput type="text" name="refereeNumber" [(ngModel)]="official.umpireNumber">
+            <input matInput type="text" name="umpireNumber" [(ngModel)]="official.umpireNumber"
+                   pattern="[1-9]\d{1,5}" maxlength="6">
+            <mat-error>Please enter a number</mat-error>
           </mat-form-field>
         </div>
         <div fxLayout.lt-sm="column" fxLayout="row" fxLayoutGap="10px">
@@ -51,8 +53,9 @@
           </mat-form-field>
           <mat-form-field fxFlex="50%">
             <mat-label>Referee Number</mat-label>
-            <input matInput type="text" name="refereeNumber" [(ngModel)]="official.refereeNumber">
-            <mat-error>This field is required</mat-error>
+            <input matInput type="text" name="refereeNumber" [(ngModel)]="official.refereeNumber"
+                   pattern="[1-9]\d{1,5}" maxlength="6">
+            <mat-error>Please enter a number</mat-error>
           </mat-form-field>
         </div>
         <div fxLayout.lt-sm="column" fxLayout="row" fxLayoutGap="10px">
