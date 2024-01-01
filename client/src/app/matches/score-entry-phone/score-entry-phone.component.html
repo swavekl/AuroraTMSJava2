@@ -12,13 +12,15 @@
         <thead>
         <tr>
           <th>
-            <button type="button" mat-fab color="" class="game-prev-next-button" (click)="previousGame()" [disabled]="!hasPreviousGame()"><mat-icon>skip_previous</mat-icon></button>
+<!--            <button type="button" mat-fab color="" class="game-prev-next-button" (click)="previousGame()" [disabled]="!hasPreviousGame()"><mat-icon>skip_previous</mat-icon></button>-->
+            <button type="button" mat-raised-button color="" class="game-prev-next-button" (click)="previousGame()" [disabled]="!hasPreviousGame()">Save & Prev</button>
           </th>
           <th class="mat-headline-6">
             Game: {{gameToShowIndex + 1}}
           </th>
           <th>
-            <button type="button" mat-fab color="" class="game-prev-next-button" (click)="nextGame()" [disabled]="!hasNextGame()"><mat-icon>skip_next</mat-icon></button>
+<!--            <button type="button" mat-fab color="" class="game-prev-next-button" (click)="nextGame()" [disabled]="!hasNextGame()"><mat-icon>skip_next</mat-icon></button>-->
+            <button type="button" mat-raised-button color="" class="game-prev-next-button" (click)="nextGame()" [disabled]="!hasNextGame()">Save & Next</button>
           </th>
         </tr>
         </thead>
@@ -82,6 +84,66 @@
         </tr>
         </tbody>
       </table>
+      <div fxLayout="row" *ngIf="match" class="match-scores-table-container">
+        <div fxFlex="grow">&nbsp;</div>
+        <div>
+          <table class="match-scores-table">
+            <thead>
+            <tr>
+              <th>&nbsp;</th>
+              <ng-container *ngFor="let game of games; let idx = index;">
+                <th [ngClass]="isCurrentGame(idx) ? 'current-game-score-column' : ''">{{ idx + 1 }}</th>
+              </ng-container>
+<!--              <th>6</th>-->
+<!--              <th>7</th>-->
+            </tr>
+            </thead>
+            <tbody>
+            <tr style="border-bottom: 8px solid #F5F5F5">
+              <td class="player-code-column">
+                {{ match.playerALetter }}
+              </td>
+              <ng-container *ngFor="let game of games; let idx = index;">
+                <td class="game-score-column" [ngClass]="isCurrentGame(idx) ? 'current-game-score-column' : ''">
+                  <ng-container [ngSwitch]="idx">
+                    <ng-container *ngSwitchCase="0">{{ match.game1ScoreSideA }}</ng-container>
+                    <ng-container *ngSwitchCase="1">{{ match.game2ScoreSideA }}</ng-container>
+                    <ng-container *ngSwitchCase="2">{{ match.game3ScoreSideA }}</ng-container>
+                    <ng-container *ngSwitchCase="3">{{ match.game4ScoreSideA }}</ng-container>
+                    <ng-container *ngSwitchCase="4">{{ match.game5ScoreSideA }}</ng-container>
+                    <ng-container *ngSwitchCase="5">{{ match.game6ScoreSideA }}</ng-container>
+                    <ng-container *ngSwitchCase="6">{{ match.game7ScoreSideA }}</ng-container>
+                  </ng-container>
+                </td>
+              </ng-container>
+<!--              <td class="game-score-column">0</td>-->
+<!--              <td class="game-score-column">0</td>-->
+            </tr>
+            <tr>
+              <td class="player-code-column">
+                {{ match.playerBLetter }}
+              </td>
+              <ng-container *ngFor="let game of games; let idx = index;">
+                <td class="game-score-column" [ngClass]="isCurrentGame(idx) ? 'current-game-score-column' : ''">
+                  <ng-container [ngSwitch]="idx">
+                    <ng-container *ngSwitchCase="0">{{ match.game1ScoreSideB }}</ng-container>
+                    <ng-container *ngSwitchCase="1">{{ match.game2ScoreSideB }}</ng-container>
+                    <ng-container *ngSwitchCase="2">{{ match.game3ScoreSideB }}</ng-container>
+                    <ng-container *ngSwitchCase="3">{{ match.game4ScoreSideB }}</ng-container>
+                    <ng-container *ngSwitchCase="4">{{ match.game5ScoreSideB }}</ng-container>
+                    <ng-container *ngSwitchCase="5">{{ match.game6ScoreSideB }}</ng-container>
+                    <ng-container *ngSwitchCase="6">{{ match.game7ScoreSideB }}</ng-container>
+                  </ng-container>
+                </td>
+              </ng-container>
+<!--              <td class="game-score-column">0</td>-->
+<!--              <td class="game-score-column">0</td>-->
+            </tr>
+            </tbody>
+          </table>
+        </div>
+        <div fxFlex="grow">&nbsp;</div>
+      </div>
     </div>
     <div>&nbsp;</div>
   </div>

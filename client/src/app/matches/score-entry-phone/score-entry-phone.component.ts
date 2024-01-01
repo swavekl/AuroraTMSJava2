@@ -329,4 +329,8 @@ export class ScoreEntryPhoneComponent implements OnInit, OnChanges, AfterViewIni
       });
     }
   }
+
+  isCurrentGame(gameIndex: number): boolean {
+    return gameIndex === this.gameToShowIndex;
+  }
 }

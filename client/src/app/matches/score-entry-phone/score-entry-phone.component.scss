@@ -1,11 +1,17 @@
 @use "src/my-theme.scss" as *;
 
+$max-screen-width: 400px;
+
+mat-toolbar {
+  max-width: $max-screen-width;
+}
+
 table.scores-table {
   //margin-left: 24px;
   margin-top: 16px;
   //border: 1px solid darkcyan;
   width: 100%;
-  max-width: 400px;
+  max-width: $max-screen-width;
 
   thead tr th {
     padding: 16px 4px;
@@ -76,3 +82,45 @@ table.scores-table {
     }
   }
 }
+
+div.match-scores-table-container {
+  margin-top: 30px;
+  max-width: $max-screen-width;
+}
+
+table.match-scores-table {
+  font-size: 16px;
+
+  thead tr th {
+    padding: 4px 4px;
+    border: 1px solid gray;
+    background-color: #F5F5F5;
+
+    &.current-game-score-column {
+      font-weight: bold;
+      background-color: lighten($primary-color, 30%) !important;
+    }
+  }
+
+  tbody tr {
+    td {
+      border: 1px solid lightgray;
+      padding: 4px 4px;
+
+      &.player-code-column {
+        vertical-align: middle;
+      }
+
+      &.game-score-column {
+        min-width: 25px;
+        width: 25px;
+        text-align: right;
+      }
+
+      &.current-game-score-column {
+        //font-weight: bold;
+      }
+    }
+  }
+}
+
