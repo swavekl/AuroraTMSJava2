@@ -1,7 +1,7 @@
 import {Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChange, SimpleChanges, ViewChild} from '@angular/core';
 import {MatDialog, MatDialogRef} from '@angular/material/dialog';
 import {Subscription} from 'rxjs';
-import {first, switchMap} from 'rxjs/operators';
+import {first, switchMap, tap} from 'rxjs/operators';
 import {TournamentEvent} from '../../tournament/tournament-config/tournament-event.model';
 import {MatchCard} from '../model/match-card.model';
 import {Match} from '../model/match.model';
@@ -188,22 +188,35 @@ export class MatchesComponent implements OnInit, OnChanges, OnDestroy {
     for (let i = 0; i < this.selectedMatchCard.matches.length; i++) {
       const match = this.selectedMatchCard.matches[i];
       if (match.id === currentlyEditedMatch.id) {
-        nextMatchIndex = (action === 'next') ? i + 1 : i - 1;
+        nextMatchIndex = (action === 'next' || action === 'save_next') ? i + 1 : i - 1;
         nextMatchId = this.selectedMatchCard.matches[nextMatchIndex].id;
       }
     }
-    // save match that was edited
-    const subscription: Subscription = this.matchService.update(currentlyEditedMatch)
-      .pipe(switchMap(() => {
-        // load the next match
-        return this.matchService.getByKey(nextMatchId);
-      }))
-      .subscribe((nextMatchToEdit: Match) => {
-        const scoreEntryDialogData: ScoreEntryDialogData = this.makeMatchDialogData(nextMatchToEdit, nextMatchIndex);
-        const dialogComponentInstance = this.scoreEntryDialogRef.componentInstance;
-        dialogComponentInstance.displayMatch(scoreEntryDialogData);
-      });
-    this.subscriptions.add(subscription);
+    if (action === 'save_next' || action === 'save_previous') {
+      // save match that was edited
+      this.matchService.update(currentlyEditedMatch)
+        .pipe(
+          first(),
+          switchMap(() => {
+          // load the next match
+          return this.matchService.getByKey(nextMatchId);
+        }))
+        .subscribe((nextMatchToEdit: Match) => {
+          const scoreEntryDialogData: ScoreEntryDialogData = this.makeMatchDialogData(nextMatchToEdit, nextMatchIndex);
+          const dialogComponentInstance = this.scoreEntryDialogRef.componentInstance;
+          dialogComponentInstance.displayMatch(scoreEntryDialogData);
+        });
+    } else {
+      // just load the next or previous match
+      this.matchService.getByKey(nextMatchId)
+        .pipe(
+          first(),
+          tap((nextMatchToEdit: Match) => {
+          const scoreEntryDialogData: ScoreEntryDialogData = this.makeMatchDialogData(nextMatchToEdit, nextMatchIndex);
+          const dialogComponentInstance = this.scoreEntryDialogRef.componentInstance;
+          dialogComponentInstance.displayMatch(scoreEntryDialogData);
+        })).subscribe();
+    }
   }
 
   /**

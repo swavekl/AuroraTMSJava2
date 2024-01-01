@@ -66,6 +66,9 @@ export class ScoreEntryDialogComponent implements OnInit {
   inputFieldsElementRefs: QueryList<ElementRef>;
 
   // any match change during previous or next navigation will require a refresh
+  private anyMatchChanged: boolean = false;
+
+  // current match dirty state
   private dirty: boolean = false;
 
   constructor(public dialogRef: MatDialogRef<ScoreEntryDialogComponent>,
@@ -85,6 +88,7 @@ export class ScoreEntryDialogComponent implements OnInit {
     }
     this.currentScoreInputName = null;
     this.dirty = false;
+    this.anyMatchChanged = false;
   }
 
   private initialize(data: ScoreEntryDialogData) {
@@ -103,6 +107,7 @@ export class ScoreEntryDialogComponent implements OnInit {
     this.currentScoreInputName = 'game1ScoreSideA';
     this.matchIdentifier = data.matchIdentifier;
     this.drawType = data.drawType;
+    this.dirty = false;
   }
 
   ngOnInit(): void {
@@ -111,13 +116,16 @@ export class ScoreEntryDialogComponent implements OnInit {
   onClose() {
     const retValue = {
       match: this.match,
-      action: (this.dirty) ? 'refresh' : 'cancel'
+      action: (this.anyMatchChanged) ? 'refresh' : 'cancel'
     };
     this.dialogRef.close(retValue);
   }
 
 
   onReset() {
+    this.dirty = (this.match.game1ScoreSideA > 0 || this.match.game1ScoreSideB > 0)
+      || this.match.sideADefaulted || this.match.sideBDefaulted;
+    this.anyMatchChanged = this.anyMatchChanged || this.dirty;
     this.match.game1ScoreSideA = 0;
     this.match.game1ScoreSideB = 0;
     this.match.game2ScoreSideA = 0;
@@ -156,7 +164,7 @@ export class ScoreEntryDialogComponent implements OnInit {
     };
     const retValue = {
       match: updatedMatch,
-      action: 'next'
+      action: (this.dirty) ? 'save_next' : 'next'
     };
     this.callbackFn(this.callbackFnScope, retValue);
   }
@@ -168,7 +176,7 @@ export class ScoreEntryDialogComponent implements OnInit {
     };
     const retValue = {
       match: updatedMatch,
-      action: 'previous'
+      action: (this.dirty) ? 'save_previous' : 'previous'
     };
     this.callbackFn(this.callbackFnScope, retValue);
   }
@@ -192,6 +200,7 @@ export class ScoreEntryDialogComponent implements OnInit {
       const scoreBefore = updatedMatch[focusedName];
       if (scoreBefore != gameScore) {
         this.dirty = true;
+        this.anyMatchChanged = true;
         // console.log('set dirty to true');
       }
       updatedMatch[focusedName] = gameScore;
@@ -237,11 +246,13 @@ export class ScoreEntryDialogComponent implements OnInit {
   onScoreValueChange($event: Event) {
     // console.log('onValueChange', $event);
     this.dirty = true;
+    this.anyMatchChanged = true;
   }
 
   onDefaultValueChange($event: MatCheckboxChange) {
     // console.log('onDefaultValueChange', $event);
     this.dirty = true;
+    this.anyMatchChanged = true;
   }
 
   isMatchWinner(profileId: string): boolean {
