@@ -30,10 +30,10 @@ export class MembershipUtil {
     this.membershipOptions.forEach((membershipOption: any) => {
       switch (membershipOption.value) {
         case MembershipType.TOURNAMENT_PASS_JUNIOR:
-          membershipOption.available = isJunior;
+          membershipOption.available = isJunior && (tournamentStarLevel === 5);
           break;
         case MembershipType.TOURNAMENT_PASS_ADULT:
-          membershipOption.available = !isJunior;
+          membershipOption.available = !isJunior && (tournamentStarLevel === 5);
           break;
         case MembershipType.PRO_PLAN:
           break;
