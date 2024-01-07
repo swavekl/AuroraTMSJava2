@@ -107,7 +107,7 @@ export class PlayerStatusListContainerComponent implements OnDestroy {
 
   onEvent($event: any) {
     if ($event.action === 'ok') {
-      const playerStatus = {...$event.playerStatus, tournamentDay: 1};
+      const playerStatus = {...$event.playerStatus, tournamentDay: this.tournamentDay};
       this.playerStatusService.upsert(playerStatus)
         .pipe(
           switchMap((updatedPlayerStatus: PlayerStatus) => {
