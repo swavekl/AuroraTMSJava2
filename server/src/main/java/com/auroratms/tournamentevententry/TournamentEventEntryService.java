@@ -58,10 +58,11 @@ public class TournamentEventEntryService {
         TournamentEventEntry tournamentEventEntry = this.get(id);
         long tournamentId = tournamentEventEntry.getTournamentFk();
         long tournamentEventId = tournamentEventEntry.getTournamentEventFk();
+        EventEntryStatus status = tournamentEventEntry.getStatus();
 
         repository.deleteById(id);
 
-        this.eventPublisher.publishTournamentEventDeletedEvent(tournamentId, tournamentEventId);
+        this.eventPublisher.publishTournamentEventDeletedEvent(tournamentId, tournamentEventId, status);
     }
 
     /**

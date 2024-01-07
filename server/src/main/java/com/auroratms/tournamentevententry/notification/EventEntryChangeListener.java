@@ -86,16 +86,16 @@ public class EventEntryChangeListener {
      * @param event
      */
     private void handleEventEntryChangedEventInternal(EventEntryChangeEvent event) {
-        log.info("Got tournament entry event of type " + event.getChangeType() + " for event id " + event.getEventId());
+        TournamentEvent tournamentEvent = tournamentEventEntityService.get(event.getEventId());
+        log.info("Got tournament entry event of type " + event.getChangeType() + " for event " + tournamentEvent.getName() + " entry status " + event.getStatus());
 
         // check if anyone is on the waiting list in this event
         List<TournamentEventEntry> waitingListEntries = tournamentEventEntryService.listWaitingListEntriesForEvent(event.getEventId());
-        log.info("There are " + waitingListEntries.size() + " players on the waiting list for event " + event.getEventId());
+        log.info("There are " + waitingListEntries.size() + " players on the waiting list for event id (" + event.getEventId() + ") " + tournamentEvent.getName());
         if (!waitingListEntries.isEmpty()) {
             // check if there is room in this event
             long confirmedEntriesCount = tournamentEventEntryService.getCountValidEntriesInEvent(event.getEventId());
             log.info(confirmedEntriesCount + " spots are entered, pending confirmation or deletion");
-            TournamentEvent tournamentEvent = tournamentEventEntityService.get(event.getEventId());
             int maxEntries = tournamentEvent.getMaxEntries();
             long availableEventEntries = maxEntries - confirmedEntriesCount;
             log.info(availableEventEntries + " spots are available for people on the waiting list for event " + tournamentEvent.getName());

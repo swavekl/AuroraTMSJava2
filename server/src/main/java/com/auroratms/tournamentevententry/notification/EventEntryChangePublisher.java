@@ -1,5 +1,6 @@
 package com.auroratms.tournamentevententry.notification;
 
+import com.auroratms.tournamentevententry.EventEntryStatus;
 import com.auroratms.tournamentevententry.notification.event.ChangeType;
 import com.auroratms.tournamentevententry.notification.event.EventEntryChangeEvent;
 import lombok.RequiredArgsConstructor;
@@ -15,8 +16,8 @@ public class EventEntryChangePublisher {
 
     private final ApplicationEventPublisher applicationEventPublisher;
 
-    public void publishTournamentEventDeletedEvent (long tournamentId, long eventId) {
-        EventEntryChangeEvent eventEntryChangedEvent = new EventEntryChangeEvent(ChangeType.DELETED, tournamentId, eventId);
+    public void publishTournamentEventDeletedEvent (long tournamentId, long eventId, EventEntryStatus status) {
+        EventEntryChangeEvent eventEntryChangedEvent = new EventEntryChangeEvent(ChangeType.DELETED, tournamentId, eventId, status);
         this.applicationEventPublisher.publishEvent(eventEntryChangedEvent);
     }
 }

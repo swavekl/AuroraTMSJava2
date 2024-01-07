@@ -11,6 +11,7 @@ import com.auroratms.tournament.Tournament;
 import com.auroratms.tournament.TournamentService;
 import com.auroratms.tournamententry.TournamentEntry;
 import com.auroratms.tournamententry.TournamentEntryService;
+import com.auroratms.tournamentevententry.EventEntryStatus;
 import com.auroratms.tournamentevententry.TournamentEventEntry;
 import com.auroratms.tournamentevententry.TournamentEventEntryService;
 import com.auroratms.utils.EmailService;
@@ -82,22 +83,26 @@ public class CleanupExpiredCartSessionJob implements Job {
             cartSessionService.finishSession(expiredSession.getSessionUUID());
             List<TournamentEventEntry> unfinishedTournamentEventEntries = tournamentEventEntryService.listAllForCartSession(expiredSession.getSessionUUID());
             log.info("Found " + unfinishedTournamentEventEntries.size() + " entries for expired session");
-            if (unfinishedTournamentEventEntries.size() > 0) {
+            if (!unfinishedTournamentEventEntries.isEmpty()) {
                 long tournamentEntryId = 0L;
                 List<Long> playerEventsToDelete = new ArrayList<>();
                 for (TournamentEventEntry tournamentEventEntry : unfinishedTournamentEventEntries) {
                     tournamentEntryId = tournamentEventEntry.getTournamentEntryFk();
-                    log.info("Deleting unfinished tournamentEventEntry = " + tournamentEventEntry.getId());
+                    log.info("Deleting unfinished event entry " + tournamentEventEntry.getId() + " whose status is " + tournamentEventEntry.getStatus());
                     playerEventsToDelete.add(tournamentEventEntry.getTournamentEventFk());
                     tournamentEventEntryService.delete(tournamentEventEntry.getId());
 
-                    // update count of entries in event
-                    TournamentEvent tournamentEvent = tournamentEventEntityService.get(tournamentEventEntry.getTournamentEventFk());
-                    long countValidEntriesInEvent = tournamentEventEntryService.getCountValidEntriesInEvent(tournamentEventEntry.getTournamentEventFk());
-                    int numEntries = tournamentEvent.getNumEntries() - 1;
-                    log.info("Updating count of entries in " + tournamentEvent.getName() + " event to " + numEntries + ".  Count of valid entries is " + countValidEntriesInEvent);
-                    tournamentEvent.setNumEntries(numEntries);
-                    tournamentEventEntityService.update(tournamentEvent);
+                    if (tournamentEventEntry.getStatus() != EventEntryStatus.PENDING_WAITING_LIST) {
+                        // update count of entries in event
+                        TournamentEvent tournamentEvent = tournamentEventEntityService.get(tournamentEventEntry.getTournamentEventFk());
+                        long countValidEntriesInEvent = tournamentEventEntryService.getCountValidEntriesInEvent(tournamentEventEntry.getTournamentEventFk());
+                        int numEntries = tournamentEvent.getNumEntries() - 1;
+                        log.info("Updating count of entries in " + tournamentEvent.getName() + " event to " + numEntries + ".  Count of valid entries is " + countValidEntriesInEvent);
+                        tournamentEvent.setNumEntries(numEntries);
+                        tournamentEventEntityService.update(tournamentEvent);
+                    } else {
+                        log.info("Not updating tournament event count of entries");
+                    }
                 }
                 // find out who was removed
                 TournamentEntry tournamentEntry = tournamentEntryService.get(tournamentEntryId);

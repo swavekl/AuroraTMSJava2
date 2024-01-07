@@ -1,5 +1,7 @@
 package com.auroratms.tournamentevententry.notification.event;
 
+import com.auroratms.tournamentevententry.EventEntryStatus;
+
 public class EventEntryChangeEvent {
 
     // type of change
@@ -11,10 +13,13 @@ public class EventEntryChangeEvent {
     // in which event
     private long eventId;
 
-    public EventEntryChangeEvent(ChangeType changeType, long tournamentId, long eventId) {
+    private EventEntryStatus status;
+
+    public EventEntryChangeEvent(ChangeType changeType, long tournamentId, long eventId, EventEntryStatus status) {
         this.changeType = changeType;
         this.tournamentId = tournamentId;
         this.eventId = eventId;
+        this.status = status;
     }
 
     public ChangeType getChangeType() {
@@ -27,5 +32,9 @@ public class EventEntryChangeEvent {
 
     public long getEventId() {
         return eventId;
+    }
+
+    public EventEntryStatus getStatus() {
+        return status;
     }
 }
