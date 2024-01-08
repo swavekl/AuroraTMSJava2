@@ -10,9 +10,33 @@
         <mat-icon>close</mat-icon>
       </button>
     </mat-form-field>
+    <span class="toolbar-spacer-2"></span>
+    <ng-container *ngIf="checkInType === 'DAILY' && tournamentDuration > 1">
+      <mat-button-toggle-group name="filterByDay" aria-label="Filter by Day" [value]="filterByDay">
+        <ng-container *ngFor="let day of tournamentDaysArray">
+          <mat-button-toggle [value]="day" (click)="onFilterByDay(day)" *ngIf="day === 0">All
+          </mat-button-toggle>
+          <mat-button-toggle [value]="day" (click)="onFilterByDay(day)" *ngIf="day > 0">Day {{day}}
+          </mat-button-toggle>
+        </ng-container>
+      </mat-button-toggle-group>
+    </ng-container>
+    <ng-container *ngIf="checkInType === 'PEREVENT'">
+      <mat-form-field>
+        <mat-label>Event</mat-label>
+        <mat-select matInput type="number" name="eventId" [ngModel]="filterByEventId" (valueChange)="onFilterByEventId($event)">
+          <mat-option [value]="0" >All events</mat-option>
+          <mat-option *ngFor="let tournamentEvent of tournamentEvents"
+                      [value]="tournamentEvent.id">{{ tournamentEvent.name }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+    </ng-container>
+    <span class="toolbar-spacer-2"></span>
+    <span>Checked In/Total Count: {{checkedInCount}} / {{filteredCount}}</span>
   </mat-toolbar>
-  <div *ngIf="alphabeticalPlayerStatusMap != null" class="inner-list-container" fxLayout="row wrap" fxLayoutAlign="start start" fxLayoutGap="20px">
-    <ng-container *ngFor="let letterStatuses of alphabeticalPlayerStatusMap | keyvalue">
+  <div *ngIf="filteredPlayerStatuses != null" class="inner-list-container" fxLayout="row wrap" fxLayoutAlign="start start" fxLayoutGap="20px">
+    <ng-container *ngFor="let letterStatuses of filteredPlayerStatuses | keyvalue">
       <h2 class="letter-divider">{{ letterStatuses.key }}</h2>
       <mat-card *ngFor="let enhancedPlayerStatus of letterStatuses.value">
         <mat-card-content>

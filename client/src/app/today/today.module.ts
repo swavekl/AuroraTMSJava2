@@ -35,6 +35,7 @@ import {MatTooltipModule} from '@angular/material/tooltip';
 import { PlayerCheckinDialogComponent } from './player-checkin-dialog/player-checkin-dialog.component';
 import {MatDialogModule} from '@angular/material/dialog';
 import { PlayerStatusIndicatorComponent } from './player-status-indicator/player-status-indicator.component';
+import {MatButtonToggleModule} from '@angular/material/button-toggle';
 
 @NgModule({
   declarations: [
@@ -53,27 +54,28 @@ import { PlayerStatusIndicatorComponent } from './player-status-indicator/player
     PlayerCheckinDialogComponent,
     PlayerStatusIndicatorComponent
   ],
-  imports: [
-    CommonModule,
-    TodayRoutingModule,
-    MatRadioModule,
-    MatFormFieldModule,
-    MatIconModule,
-    MatButtonModule,
-    MatListModule,
-    FlexLayoutModule,
-    MatInputModule,
-    FormsModule,
-    SharedModule,
-    MatCardModule,
-    MatExpansionModule,
-    MatToolbarModule,
-    MatCheckboxModule,
-    MatSelectModule,
-    MatSnackBarModule,
-    MatTooltipModule,
-    MatDialogModule
-  ]
+    imports: [
+        CommonModule,
+        TodayRoutingModule,
+        MatRadioModule,
+        MatFormFieldModule,
+        MatIconModule,
+        MatButtonModule,
+        MatListModule,
+        FlexLayoutModule,
+        MatInputModule,
+        FormsModule,
+        SharedModule,
+        MatCardModule,
+        MatExpansionModule,
+        MatToolbarModule,
+        MatCheckboxModule,
+        MatSelectModule,
+        MatSnackBarModule,
+        MatTooltipModule,
+        MatDialogModule,
+        MatButtonToggleModule
+    ]
 })
 export class TodayModule {  // Inject the service to ensure it registers with EntityServices
   constructor(

@@ -88,7 +88,10 @@
                   </button>
                   <button mat-raised-button type="button"
                           [routerLink]="['/ui/today/checkincommunicatelist', tournament.id]"
-                          [state]="{ tournamentName: tournament.name, tournamentStartDate: tournament.startDate }"
+                          [state]="{ tournamentName: tournament.name,
+                          tournamentStartDate: tournament.startDate,
+                          tournamentEndDate: tournament.endDate,
+                          checkInType: tournament.configuration.checkInType }"
                           matTooltip="Player Check in">
                     <mat-icon matListItemIcon>task_alt</mat-icon>
                     Check in

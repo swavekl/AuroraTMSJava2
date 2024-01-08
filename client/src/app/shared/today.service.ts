@@ -61,7 +61,7 @@ export class TodayService {
     // Aurora Fall Open - Giant RR
     // const utcMoment = moment([2025, 4, 10, 0, 0, 0]);
     // 2023 Aurora Spring Open - Giant RR
-    // const utcMoment = moment([2023, 10, 18, 0, 0, 0]);
+    // const utcMoment = moment([2023, 10, 25, 0, 0, 0]);
     // return utcMoment.toDate();
     return new Date();
   }

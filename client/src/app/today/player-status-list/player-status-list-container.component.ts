@@ -10,6 +10,9 @@ import {TournamentEntryInfo} from '../../tournament/model/tournament-entry-info.
 import {TournamentEntryInfoService} from '../../tournament/service/tournament-entry-info.service';
 import {TodayService} from '../../shared/today.service';
 import {DateUtils} from '../../shared/date-utils';
+import {TournamentEventConfigService} from '../../tournament/tournament-config/tournament-event-config.service';
+import {TournamentEvent} from '../../tournament/tournament-config/tournament-event.model';
+import {CheckInType} from '../../tournament/model/check-in-type.enum';
 
 @Component({
   selector: 'app-player-status-list-container-component',
@@ -18,8 +21,11 @@ import {DateUtils} from '../../shared/date-utils';
       [tournamentId]="tournamentId"
       [tournamentName]="tournamentName"
       [tournamentDay]="tournamentDay"
+      [tournamentDuration]="tournamentDuration"
+      [checkInType]="checkInType"
       [playerStatusList]="playerStatusList$ | async"
       [entryInfos]="entryInfos$ | async"
+      [tournamentEvents]="tournamentEvents$ | async"
       (eventEmitter)="onEvent($event)">
     </app-player-status-list>
   `,
@@ -33,8 +39,14 @@ export class PlayerStatusListContainerComponent implements OnDestroy {
 
   tournamentDay: number;
 
+  tournamentDuration: number;
+
   playerStatusList$: Observable<PlayerStatus[]>;
   entryInfos$: Observable<TournamentEntryInfo[]>;
+
+  tournamentEvents$: Observable<TournamentEvent[]>;
+
+  checkInType: CheckInType;
 
   private loading$: Observable<boolean>;
   private subscriptions: Subscription = new Subscription();
@@ -43,11 +55,14 @@ export class PlayerStatusListContainerComponent implements OnDestroy {
               private playerStatusService: PlayerStatusService,
               private tournamentEntryInfoService: TournamentEntryInfoService,
               private todayService: TodayService,
+              private tournamentEventConfigService: TournamentEventConfigService,
               private linearProgressBarService: LinearProgressBarService) {
     const strTournamentId = this.activatedRoute.snapshot.params['tournamentId'] || 0;
     this.tournamentId = Number(strTournamentId);
     this.tournamentName = history?.state?.tournamentName || '';
     const tournamentStartDate = history?.state?.tournamentStartDate;
+    const tournamentEndDate = history?.state?.tournamentEndDate;
+    this.checkInType = history?.state?.checkInType;
     if (tournamentStartDate != null) {
       const today = this.todayService.todaysDate;
       const difference = new DateUtils().daysBetweenDates(tournamentStartDate, today);
@@ -55,9 +70,14 @@ export class PlayerStatusListContainerComponent implements OnDestroy {
     } else {
       this.tournamentDay = 1;
     }
+    this.tournamentDuration = 1;
+    if (tournamentStartDate != null && tournamentEndDate != null) {
+      this.tournamentDuration += new DateUtils().daysBetweenDates(tournamentStartDate, tournamentEndDate);
+    }
     this.setupProgressIndicator();
     this.loadAllPlayersStatus(this.tournamentId);
     this.loadTournamentEntries(this.tournamentId);
+    this.loadTournamentEvents(this.tournamentId);
   }
 
   private setupProgressIndicator() {
@@ -115,6 +135,13 @@ export class PlayerStatusListContainerComponent implements OnDestroy {
             return this.playerStatusService.loadWithQuery(params);
           }));
     }
+  }
+
+  loadTournamentEvents(tournamentId: number) {
+    this.tournamentEvents$ = this.tournamentEventConfigService.store.select(
+      this.tournamentEventConfigService.selectors.selectEntities);
+    // load them - they will surface via this selector
+    this.tournamentEventConfigService.loadTournamentEvents(tournamentId);
   }
 }
 
