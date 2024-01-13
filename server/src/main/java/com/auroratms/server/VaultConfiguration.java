@@ -13,6 +13,6 @@ import org.springframework.vault.repository.configuration.EnableVaultRepositorie
 @PropertySource("file:/usr/local/auroratms/vault.properties")
 @Import(EnvironmentVaultConfiguration.class)
 // enables CRUD repository implementation which connects to Vault
-@EnableVaultRepositories(basePackages = "com.auroratms.account")
+@EnableVaultRepositories(basePackages = {"com.auroratms.account", "com.auroratms.email.config"})
 public class VaultConfiguration {
 }

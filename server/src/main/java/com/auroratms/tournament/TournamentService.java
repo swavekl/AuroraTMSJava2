@@ -148,7 +148,7 @@ public class TournamentService {
      * @param tournament
      */
     @CachePut(key = "#result.id")
-    @PreAuthorize("isAuthenticated")
+    @PreAuthorize("isAuthenticated()")
     public Tournament updateTournament(Tournament tournament) {
         TournamentEntity tournamentEntity = tournament.convertToEntity();
         TournamentEntity savedTournamentEntity = repository.save(tournamentEntity);
