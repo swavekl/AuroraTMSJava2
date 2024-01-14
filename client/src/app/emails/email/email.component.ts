@@ -37,7 +37,7 @@ export class EmailComponent {
 
   configureServer() {
     const config: MatDialogConfig = {
-      width: '460px', height: '320px', data: this.emailServerConfiguration
+      width: '575px', height: '380px', data: this.emailServerConfiguration
     };
     // save the scope because it is wiped out in the component
     // so that it is not sent into the http service

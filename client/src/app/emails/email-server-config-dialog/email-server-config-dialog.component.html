@@ -7,14 +7,14 @@
       <div fxLayout="row" fxLayoutAlign="start start" fxLayoutGap="10px">
         <input type="hidden" name="profileId" [ngModel]="emailServerConfiguration.profileId">
         <mat-form-field fxFlex="50%">
-          <mat-label>SMTP Server host</mat-label>
+          <mat-label>SMTP Server Host</mat-label>
           <input matInput type="text" name="serverHost" [ngModel]="emailServerConfiguration.serverHost" #serverHostCtrl="ngModel"
                  [pattern]="validHostname" required>
           <mat-error *ngIf="serverHostCtrl.control?.hasError('required')">This field is required</mat-error>
           <mat-error *ngIf="serverHostCtrl.control?.hasError('pattern')">Enter valid host name</mat-error>
         </mat-form-field>
         <mat-form-field fxFlex="50%">
-          <mat-label>Server Port</mat-label>
+          <mat-label>SMTP Server Port</mat-label>
           <input matInput type="text" name="serverPort" [ngModel]="emailServerConfiguration.serverPort" #serverPortCtrl="ngModel"
                  pattern="\d{2,5}" maxlength="5" required>
           <mat-error *ngIf="serverPortCtrl.control?.hasError('required')">This field is required</mat-error>
@@ -23,7 +23,7 @@
       </div>
       <div fxLayout="row" fxLayoutAlign="start start" fxLayoutGap="10px">
         <mat-form-field fxFlex="50%">
-          <mat-label>User Id (email)</mat-label>
+          <mat-label>User Id or Email)</mat-label>
           <input matInput type="text" name="userId" [ngModel]="emailServerConfiguration.userId" #userIdCtrl="ngModel"
                  required>
           <mat-error *ngIf="userIdCtrl.control?.hasError('required')">This field is required</mat-error>
@@ -36,12 +36,19 @@
         </mat-form-field>
       </div>
     </div>
+    <ng-container  *ngIf="testing; else not_testing">
+      <mat-progress-bar color="accent" mode="indeterminate"></mat-progress-bar>
+    </ng-container>
+    <ng-template #not_testing>
+      <div style="height: 4px; width: 100%;"></div>
+    </ng-template>
+    <app-message-area [message]="errorMessage" [isError]="isErrorTesting()"></app-message-area>
   </div>
   <mat-dialog-actions>
     <div fxLayout="row" fxLayoutAlign="space-between start" style="width: 100%; margin: 0 8px">
       <button mat-raised-button (click)="onCancel()">Cancel</button>
       <span fxFlex></span>
-      <button mat-raised-button (click)="onSendTestEmail()" [disabled]="f.invalid">Send Test Email</button>
+      <button mat-raised-button (click)="onSendTestEmail(f.value)" [disabled]="f.invalid">Send Test Email</button>
       <span fxFlex></span>
       <button mat-raised-button color="primary" (click)="onSave(f.value)" [disabled]="f.invalid">Save</button>
     </div>

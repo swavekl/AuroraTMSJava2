@@ -13,6 +13,8 @@ import { EmailServerConfigDialogComponent } from './email-server-config-dialog/e
 import {MatDialogModule} from '@angular/material/dialog';
 import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatInputModule} from '@angular/material/input';
+import {SharedModule} from '../shared/shared.module';
+import {MatProgressBarModule} from '@angular/material/progress-bar';
 
 
 @NgModule({
@@ -21,17 +23,19 @@ import {MatInputModule} from '@angular/material/input';
     EmailContainerComponent,
     EmailServerConfigDialogComponent
   ],
-    imports: [
-        CommonModule,
-        EmailRoutingModule,
-        MatToolbarModule,
-        MatButtonModule,
-        FlexLayoutModule,
-        FormsModule,
-        MatTooltipModule,
-        MatDialogModule,
-        MatFormFieldModule,
-        MatInputModule
-    ]
+  imports: [
+    CommonModule,
+    EmailRoutingModule,
+    MatToolbarModule,
+    MatButtonModule,
+    FlexLayoutModule,
+    FormsModule,
+    MatTooltipModule,
+    MatDialogModule,
+    MatFormFieldModule,
+    MatInputModule,
+    SharedModule,
+    MatProgressBarModule
+  ]
 })
 export class EmailModule { }

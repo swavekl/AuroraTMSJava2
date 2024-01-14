@@ -1,7 +1,8 @@
 import {Injectable} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {distinctUntilChanged, tap} from 'rxjs/operators';
-import {BehaviorSubject, Observable, Subject} from 'rxjs';
+import {BehaviorSubject, Observable} from 'rxjs';
+import {EmailServerConfiguration} from '../model/email-server-configuration.model';
 
 @Injectable({
   providedIn: 'root'
@@ -33,5 +34,21 @@ export class EmailService {
           () => {
           })
       );
+  }
+
+  public sendTestEmail(config: EmailServerConfiguration): Observable<string> {
+    // this.setLoading(true);
+    return this.httpClient.post(`/api/email/sendtestemail`, config)
+      .pipe(
+        tap({
+          next: (value: string ) => {
+            // this.setLoading(false);
+          },
+          error: (error: any) => {
+            // this.setLoading(false);
+          },
+          complete: () => {}
+        }
+      ));
   }
 }
