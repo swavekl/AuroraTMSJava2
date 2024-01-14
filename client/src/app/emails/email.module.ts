@@ -9,21 +9,29 @@ import {MatButtonModule} from '@angular/material/button';
 import {FlexLayoutModule} from '@angular/flex-layout';
 import {FormsModule} from '@angular/forms';
 import {MatTooltipModule} from '@angular/material/tooltip';
+import { EmailServerConfigDialogComponent } from './email-server-config-dialog/email-server-config-dialog.component';
+import {MatDialogModule} from '@angular/material/dialog';
+import {MatFormFieldModule} from '@angular/material/form-field';
+import {MatInputModule} from '@angular/material/input';
 
 
 @NgModule({
   declarations: [
     EmailComponent,
-    EmailContainerComponent
+    EmailContainerComponent,
+    EmailServerConfigDialogComponent
   ],
-  imports: [
-    CommonModule,
-    EmailRoutingModule,
-    MatToolbarModule,
-    MatButtonModule,
-    FlexLayoutModule,
-    FormsModule,
-    MatTooltipModule
-  ]
+    imports: [
+        CommonModule,
+        EmailRoutingModule,
+        MatToolbarModule,
+        MatButtonModule,
+        FlexLayoutModule,
+        FormsModule,
+        MatTooltipModule,
+        MatDialogModule,
+        MatFormFieldModule,
+        MatInputModule
+    ]
 })
 export class EmailModule { }

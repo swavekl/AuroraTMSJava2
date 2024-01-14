@@ -81,7 +81,8 @@ const entityMetadata: EntityMetadataMap = {
       total: 0
     }
   },
-  Audit: {}
+  Audit: {},
+  EmailServerConfiguration: {}
 };
 
 // because the plural of "hero" is not "heros"

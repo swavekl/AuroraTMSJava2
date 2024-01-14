@@ -13,7 +13,7 @@ import java.net.URI;
  * Controller for configuring email server connection
  */
 @RestController
-@RequestMapping("api/emailserverconfig")
+@RequestMapping("api/emailserverconfiguration")
 @PreAuthorize("isAuthenticated()")
 @Slf4j
 @Transactional
@@ -27,14 +27,14 @@ public class EmailServerConfigurationController {
     @ResponseBody
     public ResponseEntity<EmailServerConfigurationEntity> create(@RequestBody EmailServerConfigurationEntity emailServerConfigurationEntity) {
         try {
-            boolean creating = !emailServerConfigurationService.existsById(emailServerConfigurationEntity.getProfileId());
+            boolean creating = !emailServerConfigurationService.existsById(emailServerConfigurationEntity.getId());
             EmailServerConfigurationEntity savedEntity = emailServerConfigurationService.save(emailServerConfigurationEntity);
-            URI uri = new URI(String.format("/api/emailserverconfig/%s", savedEntity.getProfileId()));
+            URI uri = new URI(String.format("/api/emailserverconfig/%s", savedEntity.getId()));
             return (creating)
                     ? ResponseEntity.created(uri).body(savedEntity)
                     : ResponseEntity.ok(savedEntity);
         } catch (Exception e) {
-            log.error("Error creating email configuration for profile " + emailServerConfigurationEntity.getProfileId(), e);
+            log.error("Error creating email configuration for profile " + emailServerConfigurationEntity.getId(), e);
             return ResponseEntity.badRequest().build();
         }
     }
@@ -47,8 +47,7 @@ public class EmailServerConfigurationController {
             EmailServerConfigurationEntity emailServerConfigurationEntity = emailServerConfigurationService.findById(profileId);
             return ResponseEntity.ok(emailServerConfigurationEntity);
         } catch (Exception e) {
-            log.error("Error getting email configuration for profile " + profileId, e);
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.notFound().build();
         }
     }
 

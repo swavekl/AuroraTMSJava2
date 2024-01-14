@@ -1,0 +1,49 @@
+<h2 mat-dialog-title class="dialog-title">
+  Email Server Configuration
+</h2>
+<form #f="ngForm" name="form">
+  <div mat-dialog-content>
+    <div fxLayout="column" fxLayoutAlign="start stretch" *ngIf="emailServerConfiguration">
+      <div fxLayout="row" fxLayoutAlign="start start" fxLayoutGap="10px">
+        <input type="hidden" name="id" [ngModel]="emailServerConfiguration.id">
+        <mat-form-field fxFlex="50%">
+          <mat-label>SMTP Server host</mat-label>
+          <input matInput type="text" name="serverHost" [ngModel]="emailServerConfiguration.serverHost" #serverHostCtrl="ngModel"
+                 [pattern]="validHostname" required>
+          <mat-error *ngIf="serverHostCtrl.control?.hasError('required')">This field is required</mat-error>
+          <mat-error *ngIf="serverHostCtrl.control?.hasError('pattern')">Enter valid host name</mat-error>
+        </mat-form-field>
+        <mat-form-field fxFlex="50%">
+          <mat-label>Server Port</mat-label>
+          <input matInput type="text" name="serverPort" [ngModel]="emailServerConfiguration.serverPort" #serverPortCtrl="ngModel"
+                 pattern="\d{2,5}" maxlength="5" required>
+          <mat-error *ngIf="serverPortCtrl.control?.hasError('required')">This field is required</mat-error>
+          <mat-error *ngIf="serverPortCtrl.control?.hasError('pattern')">Enter valid number (1 - 65535)</mat-error>
+        </mat-form-field>
+      </div>
+      <div fxLayout="row" fxLayoutAlign="start start" fxLayoutGap="10px">
+        <mat-form-field fxFlex="50%">
+          <mat-label>User Id (email)</mat-label>
+          <input matInput type="text" name="userId" [ngModel]="emailServerConfiguration.userId" #userIdCtrl="ngModel"
+                 required>
+          <mat-error *ngIf="userIdCtrl.control?.hasError('required')">This field is required</mat-error>
+        </mat-form-field>
+        <mat-form-field fxFlex="50%">
+          <mat-label>Password</mat-label>
+          <input matInput type="text" name="password" [ngModel]="emailServerConfiguration.password" #passwordCtrl="ngModel"
+                 maxlength="30" required>
+          <mat-error *ngIf="passwordCtrl.control?.hasError('required')">This field is required</mat-error>
+        </mat-form-field>
+      </div>
+    </div>
+  </div>
+  <mat-dialog-actions>
+    <div fxLayout="row" fxLayoutAlign="space-between start" style="width: 100%; margin: 0 8px">
+      <button mat-raised-button (click)="onCancel()">Cancel</button>
+      <span fxFlex></span>
+      <button mat-raised-button (click)="onSendTestEmail()" [disabled]="f.invalid">Send Test Email</button>
+      <span fxFlex></span>
+      <button mat-raised-button color="primary" (click)="onSave(f.value)" [disabled]="f.invalid">Save</button>
+    </div>
+  </mat-dialog-actions>
+</form>

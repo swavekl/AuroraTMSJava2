@@ -1,20 +1,26 @@
 import {Component, OnDestroy} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
-import {combineLatest, Observable, Subscription} from 'rxjs';
-import {first} from 'rxjs/operators';
+import {combineLatest, Observable, of, Subscription} from 'rxjs';
+import {first, map, tap} from 'rxjs/operators';
 import {LinearProgressBarService} from '../../shared/linear-progress-bar/linear-progress-bar.service';
 import {EmailService} from '../service/email.service';
+import {EmailServerConfiguration} from '../model/email-server-configuration.model';
+import {EmailServerConfigurationService} from '../service/email-server-configuration.service';
+import {AuthenticationService} from '../../user/authentication.service';
+import {createSelector} from '@ngrx/store';
 
 @Component({
   selector: 'app-email-container',
   template: `
-    <app-email (eventEmitter)="onEvent($event)"
-    [tournamentName]="tournamentName"
-    [emailAddresses]="emailAddresses">
-    </app-email>
+      <app-email
+              [tournamentName]="tournamentName"
+              [emailAddresses]="emailAddresses"
+              [emailServerConfiguration]="emailServerConfiguration$ | async"
+              (eventEmitter)="onEvent($event)"
+              (emailConfigSave)="onEmailConfigSave($event)">
+      </app-email>
   `,
-  styles: [
-  ]
+  styles: []
 })
 export class EmailContainerComponent implements OnDestroy {
 
@@ -22,10 +28,14 @@ export class EmailContainerComponent implements OnDestroy {
   tournamentName: string;
   emailAddresses: string;
 
+  emailServerConfiguration$: Observable<EmailServerConfiguration>;
+
   private loading$: Observable<boolean>;
   private subscriptions: Subscription = new Subscription();
 
   constructor(private emailService: EmailService,
+              private emailServerConfigurationService: EmailServerConfigurationService,
+              private authenticationService: AuthenticationService,
               private activatedRoute: ActivatedRoute,
               private router: Router,
               private linearProgressBarService: LinearProgressBarService) {
@@ -34,15 +44,17 @@ export class EmailContainerComponent implements OnDestroy {
     this.tournamentName = this.activatedRoute.snapshot.params['tournamentName'] || 'N/A';
     this.emailAddresses = '';
     this.setupProgressIndicator();
+    this.loadEmailServerConfiguration();
   }
 
   private setupProgressIndicator() {
     // if any of the service are loading show the loading progress
     this.loading$ = combineLatest([
-        this.emailService.loading$
+        this.emailService.loading$,
+        this.emailServerConfigurationService.store.select(this.emailServerConfigurationService.selectors.selectLoading)
       ],
-      (emailsLoading: boolean) => {
-        return emailsLoading;
+      (emailsLoading: boolean, emailConfigurationLoading: boolean) => {
+        return emailsLoading || emailConfigurationLoading;
       }
     );
 
@@ -57,11 +69,11 @@ export class EmailContainerComponent implements OnDestroy {
       this.emailService.getTournamentEmails(this.tournamentId)
         .pipe(first())
         .subscribe(
-          (emails: string[])=> {
+          (emails: string[]) => {
             const emailsCommaSeparated = emails.join(',');
             // console.log('emails', emailsCommaSeparated);
             this.emailAddresses = emailsCommaSeparated;
-        });
+          });
     } else if ($event === 'back') {
       const returnUrl: string = `/ui/tournamentsconfig`;
       this.router.navigateByUrl(returnUrl);
@@ -70,5 +82,54 @@ export class EmailContainerComponent implements OnDestroy {
 
   ngOnDestroy(): void {
     this.subscriptions.unsubscribe();
+  }
+
+  private loadEmailServerConfiguration() {
+    const userProfileId = this.authenticationService.getCurrentUserProfileId();
+    const selector = createSelector(
+      this.emailServerConfigurationService.selectors.selectEntityMap,
+      (entityMap) => {
+        return entityMap[userProfileId];
+      });
+    const localConfiguration$ = this.emailServerConfigurationService.store.select(selector);
+    const subscription = localConfiguration$.pipe(
+      first(),
+      map((emailServerConfiguration: EmailServerConfiguration): void => {
+          if (emailServerConfiguration == null) {
+            const subscription2 = this.emailServerConfigurationService.getByKey(userProfileId)
+              .subscribe((emailServerConfiguration2: EmailServerConfiguration) => {
+                this.emailServerConfiguration$ = of(emailServerConfiguration2);
+              }, error => {
+                // not found - create new one
+                const newConfiguration: EmailServerConfiguration = {
+                  id: userProfileId,
+                  serverHost: null,
+                  serverPort: 25,
+                  userId: null,
+                  password: null
+                };
+                this.emailServerConfiguration$ = of(newConfiguration);
+              }, () => {
+              });
+            this.subscriptions.add(subscription2);
+          } else {
+            // console.log(`Got email server config in cache`, emailServerConfiguration);
+            this.emailServerConfiguration$ = of(emailServerConfiguration);
+          }
+        }
+      )).subscribe();
+    this.subscriptions.add(subscription);
+  }
+
+  onEmailConfigSave(config: EmailServerConfiguration) {
+    this.emailServerConfigurationService.upsert(config)
+      .pipe(first())
+      .subscribe((savedConfig: EmailServerConfiguration) => {
+        this.emailServerConfiguration$ = of(savedConfig);
+      }, (error) => {
+        console.log('Error saving configuration', error);
+      }, () => {
+        // console.log('Completed save');
+      });
   }
 }

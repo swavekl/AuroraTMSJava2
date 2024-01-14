@@ -19,7 +19,7 @@ public class EmailServerConfigurationService {
         return this.emailServerConfigurationRepository.existsById(userProfileId);
     }
 
-    @CachePut(key = "#result.profileId")
+    @CachePut(key = "#result.id")
     public EmailServerConfigurationEntity save (EmailServerConfigurationEntity emailServerConfigurationEntity) {
         return this.emailServerConfigurationRepository.save(emailServerConfigurationEntity);
 

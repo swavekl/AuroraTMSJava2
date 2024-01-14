@@ -11,7 +11,7 @@ public class EmailServerConfigurationEntity {
 
     // tournament director profile id
     @Id
-    private String profileId;
+    private String id;
 
     // SMTP email server host name
     private String serverHost;

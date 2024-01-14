@@ -6,6 +6,8 @@
   <button mat-raised-button type="button" (click)="back()">Back</button>
   <button mat-raised-button type="button" (click)="getAllEmails()"
           matTooltip="Get emails of all tournament players">Email Addresses</button>
+  <button mat-raised-button type="button" (click)="configureServer()"
+          matTooltip="Configures email server for Tournament Director">Email Server</button>
 </mat-toolbar>
 <div class="email-generator-container-work">
   <form name="form" #f="ngForm" novalidate>
