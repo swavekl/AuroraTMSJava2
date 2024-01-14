@@ -17,7 +17,7 @@ public class EmailServerConfigurationServiceTest extends AbstractServiceTest {
     public void testCRUD () {
         String userProfileId = "mytestprofile";
         EmailServerConfigurationEntity entity = new EmailServerConfigurationEntity();
-        entity.setId(userProfileId);
+        entity.setProfileId(userProfileId);
         entity.setServerHost("mail.yahoo.com");
         entity.setServerPort(587);
         entity.setUserId("someuser@yahoo.com");

@@ -102,7 +102,7 @@ export class EmailContainerComponent implements OnDestroy {
               }, error => {
                 // not found - create new one
                 const newConfiguration: EmailServerConfiguration = {
-                  id: userProfileId,
+                  profileId: userProfileId,
                   serverHost: null,
                   serverPort: 25,
                   userId: null,

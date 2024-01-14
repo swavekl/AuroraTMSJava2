@@ -15,10 +15,7 @@ export class EmailServerConfigDialogComponent {
 
   constructor(private dialogRef: MatDialogRef<EmailServerConfigDialogComponent>,
               @Inject(MAT_DIALOG_DATA) public data: any) {
-    // const clone = (data) ?? {...data};
-    // const clone = (data) ?? JSON.parse(JSON.stringify(data));
     this.emailServerConfiguration = data;
-    console.log('got email configuration for editing', this.emailServerConfiguration);
   }
 
   onCancel() {
@@ -26,8 +23,6 @@ export class EmailServerConfigDialogComponent {
   }
 
   onSave(config: EmailServerConfiguration ) {
-    // const fullConfig: EmailServerConfiguration = {...config, id: this.emailServerConfiguration.id};
-    // this.emailServerConfiguration = fullConfig;
     this.dialogRef.close({action: 'ok', config: config});
   }
 

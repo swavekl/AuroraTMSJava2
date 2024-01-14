@@ -27,14 +27,14 @@ public class EmailServerConfigurationController {
     @ResponseBody
     public ResponseEntity<EmailServerConfigurationEntity> create(@RequestBody EmailServerConfigurationEntity emailServerConfigurationEntity) {
         try {
-            boolean creating = !emailServerConfigurationService.existsById(emailServerConfigurationEntity.getId());
+            boolean creating = !emailServerConfigurationService.existsById(emailServerConfigurationEntity.getProfileId());
             EmailServerConfigurationEntity savedEntity = emailServerConfigurationService.save(emailServerConfigurationEntity);
-            URI uri = new URI(String.format("/api/emailserverconfig/%s", savedEntity.getId()));
+            URI uri = new URI(String.format("/api/emailserverconfig/%s", savedEntity.getProfileId()));
             return (creating)
                     ? ResponseEntity.created(uri).body(savedEntity)
                     : ResponseEntity.ok(savedEntity);
         } catch (Exception e) {
-            log.error("Error creating email configuration for profile " + emailServerConfigurationEntity.getId(), e);
+            log.error("Error creating email configuration for profile " + emailServerConfigurationEntity.getProfileId(), e);
             return ResponseEntity.badRequest().build();
         }
     }

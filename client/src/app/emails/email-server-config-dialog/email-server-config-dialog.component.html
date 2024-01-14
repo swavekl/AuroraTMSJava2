@@ -5,7 +5,7 @@
   <div mat-dialog-content>
     <div fxLayout="column" fxLayoutAlign="start stretch" *ngIf="emailServerConfiguration">
       <div fxLayout="row" fxLayoutAlign="start start" fxLayoutGap="10px">
-        <input type="hidden" name="id" [ngModel]="emailServerConfiguration.id">
+        <input type="hidden" name="profileId" [ngModel]="emailServerConfiguration.profileId">
         <mat-form-field fxFlex="50%">
           <mat-label>SMTP Server host</mat-label>
           <input matInput type="text" name="serverHost" [ngModel]="emailServerConfiguration.serverHost" #serverHostCtrl="ngModel"

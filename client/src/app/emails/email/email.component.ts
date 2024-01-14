@@ -44,7 +44,6 @@ export class EmailComponent {
     // const callbackScope = callbackData.callbackScope;
     const dialogRef = this.dialog.open(EmailServerConfigDialogComponent, config);
     dialogRef.afterClosed().subscribe(result => {
-      console.log('dialog result', result);
       if (result.action === 'ok') {
         this.onEmailConfigSave(result.config);
       } else {
@@ -54,7 +53,6 @@ export class EmailComponent {
   }
 
   onEmailConfigSave(config: EmailServerConfiguration) {
-    console.log('onEmailConfigSave', config);
     this.emailConfigSave.emit(config);
   }
 

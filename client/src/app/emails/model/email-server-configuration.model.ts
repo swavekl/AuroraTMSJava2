@@ -4,7 +4,7 @@
 export class EmailServerConfiguration {
 
   // tournament director profile id
-  id: string;
+  profileId: string;
 
   // SMTP email server host name
   serverHost: string;

@@ -1,6 +1,7 @@
 import {EntityMetadataMap} from '@ngrx/data';
 import {TournamentInfo} from '../tournament/model/tournament-info.model';
 import {DateUtils} from '../shared/date-utils';
+import {EmailServerConfiguration} from '../emails/model/email-server-configuration.model';
 
 const entityMetadata: EntityMetadataMap = {
   Tournament: {},
@@ -82,7 +83,9 @@ const entityMetadata: EntityMetadataMap = {
     }
   },
   Audit: {},
-  EmailServerConfiguration: {}
+  EmailServerConfiguration: {
+    selectId: (emailServerConfiguration: EmailServerConfiguration) => emailServerConfiguration.profileId
+  }
 };
 
 // because the plural of "hero" is not "heros"
