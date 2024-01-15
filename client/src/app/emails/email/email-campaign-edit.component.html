@@ -1,0 +1,52 @@
+<div class="email-generator-container">
+  <h2 class="title">
+    {{ emailCampaign?.id ? 'Edit Email' : 'Create Email' }}
+  </h2>
+  <form name="form" #f="ngForm">
+    <mat-toolbar fxLayoutGap="10px">
+      <button mat-raised-button type="button" (click)="onCancel()">Cancel</button>
+      <button mat-raised-button type="button" color="primary" (click)="onSave()" [disabled]="f.invalid">Save</button>
+      <button mat-raised-button type="button" (click)="onSendEmails()" [disabled]="f.invalid">Send Emails</button>
+    </mat-toolbar>
+    <div class="email-generator-container-work" *ngIf="emailCampaign">
+      <mat-tab-group>
+        <mat-tab label="Email Definition">
+          <div fxLayout="column" fxLayoutAlign="start stretch" fxLayoutGap="10px">
+            <mat-form-field>
+              <mat-label>Email Name</mat-label>
+              <input matInput name="name" type="text" [(ngModel)]="emailCampaign.name" required (focusin)="onUnselect()">
+              <mat-error>This field is required</mat-error>
+            </mat-form-field>
+            <mat-toolbar fxLayoutGap="10px">
+              <span>Insert variables: </span>
+              <button mat-raised-button type="button" (click)="onInsertVariable('first_name')">First Name</button>
+              <button mat-raised-button type="button" (click)="onInsertVariable('last_name')">Last Name</button>
+              <button mat-raised-button type="button" (click)="onInsertVariable('tournament_name')">Tournament Name</button>
+            </mat-toolbar>
+            <mat-form-field>
+              <mat-label>Subject</mat-label>
+              <input matInput name="subject" type="text" #subjectCtrl
+                     placeholder="Enter email subject here..."
+                     [(ngModel)]="emailCampaign.subject" required
+                     (focusin)="onSelectedSubject()">
+              <mat-error>This field is required</mat-error>
+            </mat-form-field>
+            <mat-form-field>
+              <mat-label>Body</mat-label>
+              <textarea matInput name="body" type="text" #bodyCtrl
+                        placeholder="Enter email body here..."
+                        [(ngModel)]="emailCampaign.body" rows="15" required
+                        (focusin)="onSelectedBody()"
+              >
+          </textarea>
+              <mat-error>This field is required</mat-error>
+            </mat-form-field>
+          </div>
+        </mat-tab>
+        <mat-tab label="Recipients">
+          Recipients
+        </mat-tab>
+      </mat-tab-group>
+    </div>
+  </form>
+</div>

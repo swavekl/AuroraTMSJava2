@@ -1,0 +1,57 @@
+<div class="mat-headline-6" style="padding-left: 8px; width: 100%;">Emails</div>
+<mat-toolbar fxLayout="row" fxLayoutGap="10">
+  <form>
+    <button mat-raised-button type="button" (click)="back()">Back</button>
+    <button type="button" mat-raised-button color="" [routerLink]="['/ui/email/emailcampaign/create', 0]">
+      <mat-icon matListItemIcon>add</mat-icon>
+      New
+    </button>
+    <button mat-raised-button type="button" (click)="configureServer()"
+            matTooltip="Configures email server for Tournament Director">Email Server
+    </button>
+
+    <span class="toolbar-spacer-2"></span>
+    <mat-form-field>
+      <mat-label>Filter by Name</mat-label>
+      <input matInput name="filterCampaignName" type="text" [ngModel]="filterCampaignName"
+             #filterCampaignNameCtrl="ngModel">
+    </mat-form-field>
+  </form>
+</mat-toolbar>
+<div class="table-container">
+  <mat-table matSort matSortActive="name" matSortDirection="desc" aria-label="Email Campaigns">
+    <!-- Name Column -->
+    <ng-container matColumnDef="name">
+      <mat-header-cell *matHeaderCellDef>Name</mat-header-cell>
+      <mat-cell *matCellDef="let emailCampaign"
+                [routerLink]="['/ui/email/emailcampaign/edit', emailCampaign.id]"
+                [state]="{ tournamentName: tournamentName }"
+      >{{ emailCampaign.name }}
+      </mat-cell>
+    </ng-container>
+    <ng-container matColumnDef="actions">
+      <mat-header-cell *matHeaderCellDef>Actions</mat-header-cell>
+      <mat-cell *matCellDef="let emailCampaign">
+        <button mat-icon-button (click)="onDelete(emailCampaign.id, emailCampaign.name)"
+                matTooltip="Delete" style="margin-right: 20px">
+          <mat-icon matListItemIcon>delete</mat-icon>
+        </button>
+        <button mat-icon-button [routerLink]="['/ui/email/emailcampaign/create', emailCampaign.id]" matTooltip="Copy"
+                style="margin-right: 20px">
+          <mat-icon matListItemIcon>flip_to_front</mat-icon>
+        </button>
+      </mat-cell>
+    </ng-container>
+
+    <mat-header-row *matHeaderRowDef="displayColumns; sticky: true"></mat-header-row>
+    <mat-row *matRowDef="let row; columns: displayColumns"></mat-row>
+  </mat-table>
+
+  <mat-paginator #paginator
+                 [length]="dataSource?.totalEmailCampaigns$ | async"
+                 [pageIndex]="0"
+                 [pageSize]="10"
+                 [pageSizeOptions]="[5, 10, 20]"
+                 aria-label="Select page">
+  </mat-paginator>
+</div>

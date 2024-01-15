@@ -12,17 +12,17 @@ import {createSelector} from '@ngrx/store';
 @Component({
   selector: 'app-email-container',
   template: `
-      <app-email
+      <app-email-campaign-list
               [tournamentName]="tournamentName"
               [emailAddresses]="emailAddresses"
               [emailServerConfiguration]="emailServerConfiguration$ | async"
               (eventEmitter)="onEvent($event)"
               (emailConfigSave)="onEmailConfigSave($event)">
-      </app-email>
+      </app-email-campaign-list>
   `,
   styles: []
 })
-export class EmailContainerComponent implements OnDestroy {
+export class EmailCampaignListContainerComponent implements OnDestroy {
 
   private tournamentId: number;
   tournamentName: string;
@@ -66,14 +66,14 @@ export class EmailContainerComponent implements OnDestroy {
 
   onEvent($event: string) {
     if ($event === 'getemails') {
-      this.emailService.getTournamentEmails(this.tournamentId)
-        .pipe(first())
-        .subscribe(
-          (emails: string[]) => {
-            const emailsCommaSeparated = emails.join(',');
-            // console.log('emails', emailsCommaSeparated);
-            this.emailAddresses = emailsCommaSeparated;
-          });
+      // this.emailService.getTournamentEmails(this.tournamentId)
+      //   .pipe(first())
+      //   .subscribe(
+      //     (emails: string[]) => {
+      //       const emailsCommaSeparated = emails.join(',');
+      //       // console.log('emails', emailsCommaSeparated);
+      //       this.emailAddresses = emailsCommaSeparated;
+      //     });
     } else if ($event === 'back') {
       const returnUrl: string = `/ui/tournamentsconfig`;
       this.router.navigateByUrl(returnUrl);

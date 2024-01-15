@@ -1,9 +1,12 @@
-import { NgModule } from '@angular/core';
-import { RouterModule, Routes } from '@angular/router';
-import {EmailContainerComponent} from './email/email-container.component';
+import {NgModule} from '@angular/core';
+import {RouterModule, Routes} from '@angular/router';
+import {EmailCampaignListContainerComponent} from './email-campaign-list/email-campaign-list-container.component';
+import {EmailCampaignEditContainerComponent} from './email/email-campaign-edit-container.component';
 
 const routes: Routes = [
-  { path: ':tournamentId/:tournamentName', component: EmailContainerComponent }
+  { path: 'emailcampaign/list/:tournamentId/:tournamentName', component: EmailCampaignListContainerComponent },
+  { path: 'emailcampaign/edit/:emailCampaignId', component: EmailCampaignEditContainerComponent },
+  { path: 'emailcampaign/create/:emailCampaignId', component: EmailCampaignEditContainerComponent }
 ];
 
 @NgModule({

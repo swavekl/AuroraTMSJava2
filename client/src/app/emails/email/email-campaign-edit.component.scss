@@ -11,5 +11,11 @@ div.email-generator-container-work {
   //border: 1px solid red;
   height: calc(100vh - 185px);
   overflow: auto;
+  margin: 0 10px;
+}
+
+textarea {
+  width: 99%;
+  //border: 1px solid blue;
 }
 

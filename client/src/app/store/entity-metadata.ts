@@ -85,6 +85,11 @@ const entityMetadata: EntityMetadataMap = {
   Audit: {},
   EmailServerConfiguration: {
     selectId: (emailServerConfiguration: EmailServerConfiguration) => emailServerConfiguration.profileId
+  },
+  EmailCampaign: {
+    additionalCollectionState: {
+      total: 0
+    }
   }
 };
 
