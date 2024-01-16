@@ -2,7 +2,7 @@
 <mat-toolbar fxLayout="row" fxLayoutGap="10">
   <form>
     <button mat-raised-button type="button" (click)="back()">Back</button>
-    <button type="button" mat-raised-button color="" [routerLink]="['/ui/email/emailcampaign/create', 0]">
+    <button type="button" mat-raised-button color="" [routerLink]="['/ui/email/emailcampaign/create', tournamentId, 0]">
       <mat-icon matListItemIcon>add</mat-icon>
       New
     </button>
@@ -24,7 +24,7 @@
     <ng-container matColumnDef="name">
       <mat-header-cell *matHeaderCellDef>Name</mat-header-cell>
       <mat-cell *matCellDef="let emailCampaign"
-                [routerLink]="['/ui/email/emailcampaign/edit', emailCampaign.id]"
+                [routerLink]="['/ui/email/emailcampaign/edit', tournamentId, emailCampaign.id]"
                 [state]="{ tournamentName: tournamentName }"
       >{{ emailCampaign.name }}
       </mat-cell>
@@ -36,8 +36,9 @@
                 matTooltip="Delete" style="margin-right: 20px">
           <mat-icon matListItemIcon>delete</mat-icon>
         </button>
-        <button mat-icon-button [routerLink]="['/ui/email/emailcampaign/create', emailCampaign.id]" matTooltip="Copy"
-                style="margin-right: 20px">
+        <button mat-icon-button [routerLink]="['/ui/email/emailcampaign/create', tournamentId, emailCampaign.id]"
+                [state]="{ tournamentName: tournamentName }"
+                matTooltip="Copy">
           <mat-icon matListItemIcon>flip_to_front</mat-icon>
         </button>
       </mat-cell>

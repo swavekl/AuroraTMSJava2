@@ -14,6 +14,7 @@ import {createSelector} from '@ngrx/store';
   template: `
       <app-email-campaign-list
               [tournamentName]="tournamentName"
+              [tournamentId]="tournamentId"
               [emailAddresses]="emailAddresses"
               [emailServerConfiguration]="emailServerConfiguration$ | async"
               (eventEmitter)="onEvent($event)"
@@ -24,7 +25,7 @@ import {createSelector} from '@ngrx/store';
 })
 export class EmailCampaignListContainerComponent implements OnDestroy {
 
-  private tournamentId: number;
+  tournamentId: number;
   tournamentName: string;
   emailAddresses: string;
 

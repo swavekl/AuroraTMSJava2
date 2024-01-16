@@ -5,8 +5,8 @@ import {EmailCampaignEditContainerComponent} from './email/email-campaign-edit-c
 
 const routes: Routes = [
   { path: 'emailcampaign/list/:tournamentId/:tournamentName', component: EmailCampaignListContainerComponent },
-  { path: 'emailcampaign/edit/:emailCampaignId', component: EmailCampaignEditContainerComponent },
-  { path: 'emailcampaign/create/:emailCampaignId', component: EmailCampaignEditContainerComponent }
+  { path: 'emailcampaign/edit/:tournamentId/:emailCampaignId', component: EmailCampaignEditContainerComponent },
+  { path: 'emailcampaign/create/:tournamentId/:emailCampaignId', component: EmailCampaignEditContainerComponent }
 ];
 
 @NgModule({

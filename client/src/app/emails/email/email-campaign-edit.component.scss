@@ -10,12 +10,33 @@ h2.title {
 div.email-generator-container-work {
   //border: 1px solid red;
   height: calc(100vh - 185px);
-  overflow: auto;
+  overflow: hidden;
   margin: 0 10px;
 }
 
 textarea {
   width: 99%;
-  //border: 1px solid blue;
+}
+
+
+div.recipients-container {
+  height: 100%;
+  overflow: hidden;
+
+  .event-list {
+    height: calc(100vh - 295px);
+    overflow-y: auto;
+  }
+
+  .buttons-panel {
+    height: calc(100vh - 295px);
+    overflow-y: auto;
+  }
+
+  .recipient-list {
+    height: calc(100vh - 295px);
+    border: 1px solid gray;
+    overflow-y: auto;
+  }
 }
 

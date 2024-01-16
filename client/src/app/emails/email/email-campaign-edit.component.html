@@ -14,14 +14,16 @@
           <div fxLayout="column" fxLayoutAlign="start stretch" fxLayoutGap="10px">
             <mat-form-field>
               <mat-label>Email Name</mat-label>
-              <input matInput name="name" type="text" [(ngModel)]="emailCampaign.name" required (focusin)="onUnselect()">
+              <input matInput name="name" type="text" [(ngModel)]="emailCampaign.name" required
+                     (focusin)="onUnselect()">
               <mat-error>This field is required</mat-error>
             </mat-form-field>
             <mat-toolbar fxLayoutGap="10px">
               <span>Insert variables: </span>
               <button mat-raised-button type="button" (click)="onInsertVariable('first_name')">First Name</button>
               <button mat-raised-button type="button" (click)="onInsertVariable('last_name')">Last Name</button>
-              <button mat-raised-button type="button" (click)="onInsertVariable('tournament_name')">Tournament Name</button>
+              <button mat-raised-button type="button" (click)="onInsertVariable('tournament_name')">Tournament Name
+              </button>
             </mat-toolbar>
             <mat-form-field>
               <mat-label>Subject</mat-label>
@@ -44,7 +46,42 @@
           </div>
         </mat-tab>
         <mat-tab label="Recipients">
-          Recipients
+          <div fxLayout="row" fxLayoutAlign="start stretch" class="recipients-container">
+            <div fxFlex="20%">
+<!--              <mat-form-field>-->
+                <div class="mat-headline-6">Recipient Filters</div>
+                <mat-selection-list matInput name="events_filter" [(ngModel)]="emailCampaign.recipientFilters" class="event-list">
+                  <mat-list-option [value]="0" (click)="onSelectEvent(0)">--All Events--</mat-list-option>
+                  <mat-list-option *ngFor="let event of tournamentEvents" [value]="event.id"  (click)="onSelectEvent(event.id)">
+                    {{ event.name }}
+                  </mat-list-option>
+                </mat-selection-list>
+<!--              </mat-form-field> -->
+            </div>
+            <div fxFlex="35%">
+              <div class="mat-headline-6">Filtered Recipients</div>
+              <mat-list dense class="recipient-list">
+                <mat-list-item *ngFor="let recipient of filteredRecipients">
+                  {{recipient.fullName }} {{recipient.emailAddress}}
+                </mat-list-item>
+              </mat-list>
+            </div>
+            <div fxFlex="10%">
+              <div class="mat-headline-6">&nbsp;</div>
+              <div class="buttons-panel" fxLayout="column" fxLayoutAlign="center center" fxLayoutGap="10px">
+                <button mat-raised-button type="button" (click)="onAddAllRecipients()">Add All >></button>
+                <button mat-raised-button type="button" (click)="onRemoveRecipient()"><< Remove</button>
+              </div>
+            </div>
+            <div fxFlex="35%">
+              <div class="mat-headline-6">Selected Recipients</div>
+              <mat-list dense class="recipient-list">
+                <mat-list-item *ngFor="let recipientInfo of emailCampaign.removedRecipients">
+                  {{recipientInfo.fullName }} ({{recipientInfo.emailAddress }})
+                </mat-list-item>
+              </mat-list>
+            </div>
+          </div>
         </mat-tab>
       </mat-tab-group>
     </div>

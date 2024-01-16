@@ -25,6 +25,9 @@ import {EmailServerConfiguration} from '../model/email-server-configuration.mode
 export class EmailCampaignListComponent implements AfterViewInit, OnDestroy {
 
   @Input()
+  public tournamentId: number;
+
+  @Input()
   public tournamentName: string;
 
   @Input()

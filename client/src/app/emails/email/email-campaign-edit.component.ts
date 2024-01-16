@@ -1,5 +1,6 @@
-import {Component, ElementRef, EventEmitter, Input, Output, ViewChild} from '@angular/core';
-import {EmailCampaign} from '../model/email-campaign.model';
+import {Component, ElementRef, EventEmitter, Input, Output, signal, ViewChild} from '@angular/core';
+import {EmailCampaign, Recipient} from '../model/email-campaign.model';
+import {TournamentEvent} from '../../tournament/tournament-config/tournament-event.model';
 
 @Component({
   selector: 'app-email-campaign-edit',
@@ -14,6 +15,12 @@ export class EmailCampaignEditComponent {
   @Input()
   public tournamentName: string;
 
+  @Input()
+  public tournamentEvents: TournamentEvent[] = [];
+
+  @Input()
+  filteredRecipients!: Recipient[] | null;
+
   @Output()
   private eventEmitter: EventEmitter<any> = new EventEmitter<any>();
 
@@ -22,8 +29,8 @@ export class EmailCampaignEditComponent {
 
   @ViewChild('bodyCtrl')
   private bodyCtrl: ElementRef<HTMLTextAreaElement>;
-
   private selectedFieldName: string;
+
 
   constructor() {
 
@@ -70,5 +77,25 @@ export class EmailCampaignEditComponent {
 
   onUnselect() {
     this.selectedFieldName = null;
+  }
+
+  onSelectEvent(eventId: number) {
+    if (eventId === 0) {
+      this.emailCampaign.recipientFilters = [0];  // event 0 means all players
+    } else {
+      const allIndex: number = this.emailCampaign.recipientFilters.indexOf(0);
+      if (allIndex != -1) {
+        this.emailCampaign.recipientFilters = this.emailCampaign.recipientFilters.filter((e, i) => i !== allIndex);
+      }
+    }
+    this.eventEmitter.emit({action: 'filter', recipientFilters: this.emailCampaign.recipientFilters});
+  }
+
+  onAddAllRecipients() {
+
+  }
+
+  onRemoveRecipient() {
+
   }
 }

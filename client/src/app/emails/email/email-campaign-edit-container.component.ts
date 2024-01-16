@@ -1,13 +1,16 @@
 import {Component, OnDestroy} from '@angular/core';
-import {ActivatedRoute, Router} from '@angular/router';
+import {ActivatedRoute} from '@angular/router';
 import {combineLatest, Observable, of, Subscription} from 'rxjs';
-import {first} from 'rxjs/operators';
+import {first, map, switchMap} from 'rxjs/operators';
 import {createSelector} from '@ngrx/store';
 
 import {LinearProgressBarService} from '../../shared/linear-progress-bar/linear-progress-bar.service';
 import {EmailCampaignService} from '../service/email-campaign.service';
-import {EmailCampaign} from '../model/email-campaign.model';
+import {EmailCampaign, Recipient} from '../model/email-campaign.model';
 import {ErrorMessagePopupService} from '../../shared/error-message-dialog/error-message-popup.service';
+import {TournamentEvent} from '../../tournament/tournament-config/tournament-event.model';
+import {TournamentEventConfigService} from '../../tournament/tournament-config/tournament-event-config.service';
+import {EmailService} from '../service/email.service';
 
 @Component({
   selector: 'app-email-campaign-edit-container',
@@ -15,6 +18,8 @@ import {ErrorMessagePopupService} from '../../shared/error-message-dialog/error-
       <app-email-campaign-edit
               [tournamentName]="tournamentName"
               [emailCampaign]="emailCampaign$ | async"
+              [tournamentEvents]="tournamentEvents$ | async"
+              [filteredRecipients]="filteredRecipients$ | async"
               (eventEmitter)="onEvent($event)">
       </app-email-campaign-edit>
   `,
@@ -23,34 +28,43 @@ import {ErrorMessagePopupService} from '../../shared/error-message-dialog/error-
 export class EmailCampaignEditContainerComponent implements OnDestroy {
 
   private emailCampaignId: number;
-  public emailCampaign$: Observable<EmailCampaign>;
-  tournamentName: string;
-  private creating: boolean;
-  private returnUrl: string;
+  private tournamentId: number;
+  public tournamentName: string;
 
+  public emailCampaign$: Observable<EmailCampaign>;
+  public tournamentEvents$: Observable<TournamentEvent[]>;
+  public filteredRecipients$: Observable<Recipient[]>;
+
+  private creating: boolean;
   private loading$: Observable<boolean>;
   private subscriptions: Subscription = new Subscription();
 
   constructor(private emailCampaignService: EmailCampaignService,
+              private emailService: EmailService,
+              private tournamentEventConfigService: TournamentEventConfigService,
               private activatedRoute: ActivatedRoute,
-              private router: Router,
               private linearProgressBarService: LinearProgressBarService,
               private errorMessagePopupService: ErrorMessagePopupService) {
     const strEmailCampaignId = this.activatedRoute.snapshot.params['emailCampaignId'] || 0;
     this.emailCampaignId = Number(strEmailCampaignId);
+    const strTournamentId = this.activatedRoute.snapshot.params['tournamentId'] || 0;
+    this.tournamentId = Number(strTournamentId);
     const routePath = this.activatedRoute.snapshot.routeConfig.path;
     this.creating = (routePath.indexOf('create') !== -1);
     this.setupProgressIndicator();
     this.loadEmailCampaign();
+    this.loadTournamentEvents(this.tournamentId);
   }
 
   private setupProgressIndicator() {
     // if any of the service are loading show the loading progress
     this.loading$ = combineLatest([
-        this.emailCampaignService.store.select(this.emailCampaignService.selectors.selectLoading)
+        this.emailCampaignService.store.select(this.emailCampaignService.selectors.selectLoading),
+        this.tournamentEventConfigService.store.select(this.tournamentEventConfigService.selectors.selectLoading),
+        this.emailService.loading$
       ],
-      (emailCampaignLoading: boolean) => {
-        return emailCampaignLoading;
+      (emailCampaignLoading: boolean, tournamentEventsLoading: boolean, emailServiceLoading: boolean) => {
+        return emailCampaignLoading || tournamentEventsLoading || emailServiceLoading;
       }
     );
 
@@ -97,6 +111,13 @@ export class EmailCampaignEditContainerComponent implements OnDestroy {
     }
   }
 
+  private loadTournamentEvents(tournamentId: number) {
+    this.tournamentEvents$ = this.tournamentEventConfigService.store.select(
+      this.tournamentEventConfigService.selectors.selectEntities);
+    // load them - they will surface via this selector
+    this.tournamentEventConfigService.loadTournamentEvents(tournamentId);
+  }
+
   onEvent($event: any) {
     const action = $event.action;
     if (action === 'save') {
@@ -110,6 +131,9 @@ export class EmailCampaignEditContainerComponent implements OnDestroy {
           this.errorMessagePopupService.showError(errorMessage, null, null, 'Error Saving Campaign');
         },
         complete: () => {}});
+    } else if (action === 'filter') {
+      // console.log('recipientFilters', $event.recipientFilters);
+      this.loadRecipients($event.recipientFilters);
     } else if (action === 'sendemails') {
       console.log('sending emails...');
       this.back();
@@ -127,4 +151,34 @@ export class EmailCampaignEditContainerComponent implements OnDestroy {
     this.subscriptions.unsubscribe();
   }
 
+  private loadRecipients(recipientFilters: number []) {
+    this.emailService.getTournamentEmails(this.tournamentId)
+      .pipe(
+        switchMap(
+          (emails: string []) => {
+            const recipients: Recipient [] = [];
+            console.log('got emails', emails);
+            for (const email of emails) {
+              const recipient: Recipient = {
+                emailAddress: email,
+                fullName: 'Lorenc, Swavek'
+              };
+              recipients.push(recipient);
+            }
+            return of(recipients);
+          }))
+      .subscribe({
+          next: (filteredRecipients: Recipient[]) => {
+            console.log('filteredREcipients', filteredRecipients);
+            this.filteredRecipients$ = of(filteredRecipients);
+          },
+          error: (error: any) => {
+            console.log('error', error);
+          },
+          complete: () => {
+
+          }
+        }
+      );
+  }
 }
