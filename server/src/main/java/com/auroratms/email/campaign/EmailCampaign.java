@@ -95,8 +95,7 @@ public class EmailCampaign {
         this.subject = emailCampaignEntity.getSubject();
         this.body = emailCampaignEntity.getBody();
         String content = emailCampaignEntity.getFilterContentsJSON();
-        FilterConfiguration filterConfiguration = new FilterConfiguration();
-        filterConfiguration.convertFromJSON(content);
+        FilterConfiguration filterConfiguration = FilterConfiguration.convertFromJSON(content);
         this.recipientFilters = filterConfiguration.getRecipientFilters();
         this.removedRecipients = filterConfiguration.getRemovedRecipients();
 

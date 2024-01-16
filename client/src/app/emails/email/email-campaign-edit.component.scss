@@ -1,42 +1,65 @@
+@use "src/my-theme.scss" as *;
+
 div.email-generator-container {
-  //border: 1px solid green;
-  height: calc(100vh - 75px);
+  //border: 1px solid brown;
+  //height: 100%;
 }
 
-h2.title {
+.title {
   padding-left: 10px;
 }
 
-div.email-generator-container-work {
+.email-generator-container-work {
   //border: 1px solid red;
-  height: calc(100vh - 185px);
+  height: calc(100vh - 190px);
+  //height: 100%;
   overflow: hidden;
   margin: 0 10px;
+}
+
+.email-generator-form {
+  //border: 2px solid green;
+  height: calc(100vh - 125px);
+  //height: 100%;
+  overflow: auto;
 }
 
 textarea {
   width: 99%;
 }
 
+$list-height:  calc(100vh - 300px);
+
+div.email-template-container {
+  //border: 1px solid mediumpurple;
+  height: 100%;
+  overflow: auto;
+}
 
 div.recipients-container {
   height: 100%;
   overflow: hidden;
+  //border: 1px solid deepskyblue;
 
   .event-list {
-    height: calc(100vh - 295px);
+    height: $list-height;
     overflow-y: auto;
   }
 
   .buttons-panel {
-    height: calc(100vh - 295px);
-    overflow-y: auto;
+    height: $list-height;
+    overflow-y: hidden;
   }
 
   .recipient-list {
-    height: calc(100vh - 295px);
+    height: $list-height;
     border: 1px solid gray;
     overflow-y: auto;
   }
+}
+
+mat-list-item:hover {
+  background-color: lighten($primary-color, 40%);
+  cursor: pointer;
 }
 

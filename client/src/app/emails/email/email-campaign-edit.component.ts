@@ -1,4 +1,4 @@
-import {Component, ElementRef, EventEmitter, Input, Output, signal, ViewChild} from '@angular/core';
+import {Component, ElementRef, EventEmitter, Input, Output, SimpleChanges, ViewChild} from '@angular/core';
 import {EmailCampaign, Recipient} from '../model/email-campaign.model';
 import {TournamentEvent} from '../../tournament/tournament-config/tournament-event.model';
 
@@ -7,7 +7,7 @@ import {TournamentEvent} from '../../tournament/tournament-config/tournament-eve
   templateUrl: './email-campaign-edit.component.html',
   styleUrls: ['./email-campaign-edit.component.scss']
 })
-export class EmailCampaignEditComponent {
+export class EmailCampaignEditComponent  {
 
   @Input()
   public emailCampaign: EmailCampaign;
@@ -29,8 +29,12 @@ export class EmailCampaignEditComponent {
 
   @ViewChild('bodyCtrl')
   private bodyCtrl: ElementRef<HTMLTextAreaElement>;
+
+  // which of the two fields (subject or body) currently has focus and should receive inserted variable.
   private selectedFieldName: string;
 
+  private selectedRecipient: Recipient;
+  private removedRecipient: Recipient;
 
   constructor() {
 
@@ -88,14 +92,48 @@ export class EmailCampaignEditComponent {
         this.emailCampaign.recipientFilters = this.emailCampaign.recipientFilters.filter((e, i) => i !== allIndex);
       }
     }
-    this.eventEmitter.emit({action: 'filter', recipientFilters: this.emailCampaign.recipientFilters});
-  }
-
-  onAddAllRecipients() {
-
+    this.eventEmitter.emit({action: 'filter', recipientFilters: this.emailCampaign.recipientFilters, removedRecipients: this.emailCampaign.removedRecipients});
   }
 
   onRemoveRecipient() {
+    if (this.selectedRecipient != null) {
+      this.filteredRecipients = this.filteredRecipients.filter((recipient: Recipient) => {
+        return (recipient.emailAddress != this.selectedRecipient?.emailAddress)
+      });
 
+      let modifiedRecipients: Recipient[] = this.emailCampaign.removedRecipients || [];
+      modifiedRecipients.push(this.selectedRecipient);
+      modifiedRecipients.sort((recipient1: Recipient, recipient2: Recipient) => {
+        return recipient1.emailAddress.localeCompare(recipient2.emailAddress)
+      });
+      this.emailCampaign.removedRecipients = modifiedRecipients;
+      this.selectedRecipient = null;
+    }
+  }
+
+  onRestoreRecipient() {
+    if (this.removedRecipient != null) {
+      // remove from list
+      this.emailCampaign.removedRecipients = this.emailCampaign.removedRecipients.filter((recipient: Recipient) => {
+        return (recipient.emailAddress != this.removedRecipient?.emailAddress)
+      });
+
+      // add to the other list and sort
+      let modifiedRecipients: Recipient[] = this.filteredRecipients || [];
+      modifiedRecipients.push(this.removedRecipient);
+      modifiedRecipients.sort((recipient1: Recipient, recipient2: Recipient) => {
+        return recipient1.emailAddress.localeCompare(recipient2.emailAddress)
+      });
+      this.filteredRecipients = modifiedRecipients;
+      this.removedRecipient = null;
+    }
+  }
+
+  onSelectedRecipientClick(recipient: Recipient) {
+    this.selectedRecipient = recipient;
+  }
+
+  onRemovedRecipientClick(recipient: Recipient) {
+    this.removedRecipient = recipient;
   }
 }

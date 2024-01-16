@@ -102,6 +102,9 @@ export class EmailCampaignEditContainerComponent implements OnDestroy {
               emailCampaignToEdit.name = emailCampaignToEdit.name + " Copy";
             }
             this.emailCampaign$ = of(emailCampaignToEdit);
+            if (emailCampaignToEdit.recipientFilters?.length > 0) {
+              this.loadRecipients(emailCampaignToEdit.recipientFilters, emailCampaignToEdit.removedRecipients);
+            }
           }
         });
       this.subscriptions.add(subscription);
@@ -133,7 +136,7 @@ export class EmailCampaignEditContainerComponent implements OnDestroy {
         complete: () => {}});
     } else if (action === 'filter') {
       // console.log('recipientFilters', $event.recipientFilters);
-      this.loadRecipients($event.recipientFilters);
+      this.loadRecipients($event.recipientFilters, $event.removedRecipients);
     } else if (action === 'sendemails') {
       console.log('sending emails...');
       this.back();
@@ -143,7 +146,6 @@ export class EmailCampaignEditContainerComponent implements OnDestroy {
   }
 
   back() {
-    // this.router.navigateByUrl('/ui/email/')
     history.back();
   }
 
@@ -151,25 +153,36 @@ export class EmailCampaignEditContainerComponent implements OnDestroy {
     this.subscriptions.unsubscribe();
   }
 
-  private loadRecipients(recipientFilters: number []) {
+  private loadRecipients(recipientFilters: number [], removedRecipients: Recipient[]) {
     this.emailService.getTournamentEmails(this.tournamentId)
       .pipe(
         switchMap(
           (emails: string []) => {
             const recipients: Recipient [] = [];
-            console.log('got emails', emails);
             for (const email of emails) {
               const recipient: Recipient = {
                 emailAddress: email,
                 fullName: 'Lorenc, Swavek'
               };
-              recipients.push(recipient);
+              let include = false;
+              for (const removedRecipient of removedRecipients) {
+                if (removedRecipient.emailAddress === recipient.emailAddress) {
+                  include = true;
+                  break;
+                }
+              }
+              if (!include) {
+                recipients.push(recipient);
+              }
             }
+            recipients.sort((recipient1: Recipient, recipient2: Recipient) => {
+              return recipient1.emailAddress.localeCompare(recipient2.emailAddress)
+            });
+
             return of(recipients);
           }))
       .subscribe({
           next: (filteredRecipients: Recipient[]) => {
-            console.log('filteredREcipients', filteredRecipients);
             this.filteredRecipients$ = of(filteredRecipients);
           },
           error: (error: any) => {

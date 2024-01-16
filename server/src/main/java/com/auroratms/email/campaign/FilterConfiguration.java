@@ -53,7 +53,7 @@ public class FilterConfiguration {
         return content;
     }
 
-    public FilterConfiguration convertFromJSON(String content) {
+    public static FilterConfiguration convertFromJSON(String content) {
         if (content != null) {
             try {
                 // convert from JSON to configuration
