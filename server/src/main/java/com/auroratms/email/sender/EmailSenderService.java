@@ -1,15 +1,22 @@
 package com.auroratms.email.sender;
 
+import com.auroratms.email.campaign.EmailCampaign;
 import com.auroratms.email.campaign.FilterConfiguration;
 import com.auroratms.email.config.EmailServerConfigurationEntity;
+import com.auroratms.email.config.EmailServerConfigurationService;
 import com.auroratms.profile.UserProfile;
 import com.auroratms.profile.UserProfileService;
+import com.auroratms.tournament.Tournament;
+import com.auroratms.tournament.TournamentService;
 import com.auroratms.tournamententry.TournamentEntry;
 import com.auroratms.tournamententry.TournamentEntryService;
 import com.auroratms.tournamentevententry.EventEntryStatus;
 import com.auroratms.tournamentevententry.TournamentEventEntry;
 import com.auroratms.tournamentevententry.TournamentEventEntryService;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mail.MailException;
+import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,6 +33,9 @@ import java.util.*;
 public class EmailSenderService {
 
     @Autowired
+    private TournamentService tournamentService;
+
+    @Autowired
     private TournamentEntryService entryService;
 
     @Autowired
@@ -33,6 +43,9 @@ public class EmailSenderService {
 
     @Autowired
     private UserProfileService userProfileService;
+
+    @Autowired
+    private EmailServerConfigurationService emailServerConfigurationService;
 
     public List<FilterConfiguration.Recipient> getFilteredRecipients(long tournamentId, FilterConfiguration filterConfiguration) {
 
@@ -76,11 +89,10 @@ public class EmailSenderService {
         for (UserProfile userProfile : userProfiles) {
             FilterConfiguration.Recipient recipient = new FilterConfiguration.Recipient();
             recipient.setEmailAddress(userProfile.getEmail());
-            recipient.setFullName(String.format("%s, %s", userProfile.getLastName(), userProfile.getFirstName()));
+            recipient.setFirstName(userProfile.getFirstName());
+            recipient.setLastName(userProfile.getLastName());
             if (!removedRecipients.contains(recipient)) {
                 recipients.add(recipient);
-            } else {
-                System.out.println("Skipped recipient " + recipient);
             }
         }
 
@@ -115,10 +127,72 @@ public class EmailSenderService {
         props.put("mail.transport.protocol", "smtp");
         props.put("mail.smtp.auth", "true");
         props.put("mail.smtp.starttls.enable", "true");
-        props.put("mail.debug", "true");
+//        props.put("mail.debug", "true");
         props.put("mail.smtp.connectiontimeout", 5000);
         props.put("mail.smtp.timeout", 5000);
 
         return mailSender;
+    }
+
+    public void sendCampaign(Long tournamentId, EmailCampaign emailCampaign, CampaignSendingStatus campaignSendingStatus, String currentUserName) {
+        campaignSendingStatus.phase = "Getting recipients and variables information";
+
+        // retrieve email server configuration for current user (i.e. Tournament director)
+        String profileByLoginId = userProfileService.getProfileByLoginId(currentUserName);
+        EmailServerConfigurationEntity emailServerConfiguration = emailServerConfigurationService.findById(profileByLoginId);
+
+        JavaMailSenderImpl javaMailSender = getJavaMailSender(emailServerConfiguration);
+
+        // get recipients per
+        FilterConfiguration filterConfiguration = new FilterConfiguration();
+        filterConfiguration.setRecipientFilters(emailCampaign.getRecipientFilters());
+        filterConfiguration.setRemovedRecipients(emailCampaign.getRemovedRecipients());
+        List<FilterConfiguration.Recipient> recipients = getFilteredRecipients(tournamentId, filterConfiguration);
+
+        Tournament tournament = tournamentService.getByKey(tournamentId);
+        String tournamentName = tournament.getName();
+        Map<String, String> variables = new HashMap<>();
+        variables.put("${tournament_name}", tournamentName);
+
+        campaignSendingStatus.phase = String.format("Got %d recipients. Sending emails", recipients.size());
+        campaignSendingStatus.totalSent = 0;
+        campaignSendingStatus.totalErrors = 0;
+
+        for (FilterConfiguration.Recipient recipient : recipients) {
+            try {
+                variables.put("${last_name}", recipient.getLastName());
+                variables.put("${first_name}", recipient.getFirstName());
+
+                String subject = emailCampaign.getSubject();
+                subject = replaceVariables(subject, variables);
+
+                String body = emailCampaign.getBody();
+                body = replaceVariables(body, variables);
+
+                SimpleMailMessage message = new SimpleMailMessage();
+                message.setFrom(emailServerConfiguration.getUserId());
+                message.setTo(recipient.getEmailAddress());
+                message.setSubject(subject);
+                message.setText(body);
+                javaMailSender.send(message);
+                campaignSendingStatus.totalSent++;
+            } catch (MailException e) {
+                campaignSendingStatus.totalErrors++;
+            }
+        }
+        campaignSendingStatus.endTime = System.currentTimeMillis();
+    }
+
+    private String replaceVariables(String text, Map<String, String> variables) {
+        String [] searchList = new String[variables.size()];
+        String [] replacementList = new String[variables.size()];
+        int i = 0;
+        for (String variable : variables.keySet()) {
+            String value = variables.get(variable);
+            searchList[i] = variable;
+            replacementList[i] = value;
+            i++;
+        }
+        return StringUtils.replaceEachRepeatedly(text, searchList, replacementList);
     }
 }

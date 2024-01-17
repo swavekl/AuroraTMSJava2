@@ -3,7 +3,7 @@ import {HttpClient} from '@angular/common/http';
 import {distinctUntilChanged, tap} from 'rxjs/operators';
 import {BehaviorSubject, Observable} from 'rxjs';
 import {EmailServerConfiguration} from '../model/email-server-configuration.model';
-import {Recipient} from '../model/email-campaign.model';
+import {EmailCampaign, Recipient} from '../model/email-campaign.model';
 
 /**
  * Email sending service for various testing and sending mass mailings
@@ -55,6 +55,22 @@ export class EmailSenderService {
    */
   public sendTestEmail(config: EmailServerConfiguration): Observable<string> {
     return this.httpClient.post(`${this.API_BASE_URL}/testemail`, config)
+      .pipe(
+        tap({
+            next: (value: string) => {
+              // this.setLoading(false);
+            },
+            error: (error: any) => {
+              // this.setLoading(false);
+            },
+            complete: () => {
+            }
+          }
+        ));
+  }
+
+  public sendCampaign(tournamentId: number, emailCampaign: EmailCampaign): Observable<string> {
+    return this.httpClient.post(`${this.API_BASE_URL}/sendcampaign/${tournamentId}`, emailCampaign)
       .pipe(
         tap({
             next: (value: string) => {

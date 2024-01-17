@@ -1,7 +1,7 @@
 import {Component, OnDestroy} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 import {combineLatest, Observable, of, Subscription} from 'rxjs';
-import {first, map, switchMap} from 'rxjs/operators';
+import {first, switchMap} from 'rxjs/operators';
 import {createSelector} from '@ngrx/store';
 
 import {LinearProgressBarService} from '../../shared/linear-progress-bar/linear-progress-bar.service';
@@ -138,8 +138,9 @@ export class EmailCampaignEditContainerComponent implements OnDestroy {
       // console.log('recipientFilters', $event.recipientFilters);
       this.loadRecipients($event.recipientFilters, $event.removedRecipients);
     } else if (action === 'sendemails') {
-      console.log('sending emails...');
-      this.back();
+      const emailCampaign: EmailCampaign = $event.value;
+      this.sendEmailCampaign(this.tournamentId, emailCampaign);
+      // this.back();
     } else {
       this.back();
     }
@@ -159,7 +160,9 @@ export class EmailCampaignEditContainerComponent implements OnDestroy {
         switchMap(
           (recipients: Recipient []) => {
             recipients.sort((recipient1: Recipient, recipient2: Recipient) => {
-              return recipient1.fullName.localeCompare(recipient2.fullName)
+              const fullName1 = `${recipient1.lastName}, ${recipient1.firstName}`;
+              const fullName2 = `${recipient2.lastName}, ${recipient2.firstName}`;
+              return fullName1.localeCompare(fullName2)
             });
 
             return of(recipients);
@@ -176,5 +179,22 @@ export class EmailCampaignEditContainerComponent implements OnDestroy {
           }
         }
       );
+  }
+
+  private sendEmailCampaign(tournamentId: number, emailCampaign: EmailCampaign) {
+    this.emailSenderService.sendCampaign(tournamentId, emailCampaign)
+      .pipe(first())
+      .subscribe({
+        next: (statusUUID: string) => {
+          console.log('sent email campaign. status is ', statusUUID);
+        },
+        error: (error: any) => {
+          const errorMessage = error.error?.message ?? error.message;
+          this.errorMessagePopupService.showError(errorMessage, null, null, "Error sending email campaign");
+        },
+        complete: () => {
+
+        }
+      });
   }
 }

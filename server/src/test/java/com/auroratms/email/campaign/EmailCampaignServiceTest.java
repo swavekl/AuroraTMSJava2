@@ -79,10 +79,12 @@ public class EmailCampaignServiceTest extends AbstractServiceTest {
 
         FilterConfiguration.Recipient recipient1 = new FilterConfiguration.Recipient();
         recipient1.setEmailAddress("jtravolta1234@gmail.com");
-        recipient1.setFullName("Travolta, John");
+        recipient1.setFirstName("John");
+        recipient1.setLastName("Travolta");
         FilterConfiguration.Recipient recipient2 = new FilterConfiguration.Recipient();
         recipient2.setEmailAddress("barry.gibbs.@gmail.com");
-        recipient2.setFullName("Gibbs, Barry");
+        recipient2.setFirstName("Barry");
+        recipient2.setLastName("Gibbs");
         emailCampaign.setRecipientFilters(filters);
 
         List<FilterConfiguration.Recipient> removedRecipientsList = new ArrayList<>();

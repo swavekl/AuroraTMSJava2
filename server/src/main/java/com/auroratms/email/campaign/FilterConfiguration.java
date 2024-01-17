@@ -5,6 +5,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import java.io.IOException;
 import java.io.StringWriter;
@@ -73,17 +75,11 @@ public class FilterConfiguration {
      * Email recipient which should be removed after filtering
      */
     public static class Recipient {
-        private String fullName;
+        private String lastName;
+
+        private String firstName;
 
         private String emailAddress;
-
-        public String getFullName() {
-            return fullName;
-        }
-
-        public void setFullName(String fullName) {
-            this.fullName = fullName;
-        }
 
         public String getEmailAddress() {
             return emailAddress;
@@ -91,6 +87,38 @@ public class FilterConfiguration {
 
         public void setEmailAddress(String emailAddress) {
             this.emailAddress = emailAddress;
+        }
+
+        public String getLastName() {
+            return lastName;
+        }
+
+        public void setLastName(String lastName) {
+            this.lastName = lastName;
+        }
+
+        public String getFirstName() {
+            return firstName;
+        }
+
+        public void setFirstName(String firstName) {
+            this.firstName = firstName;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+
+            if (o == null || getClass() != o.getClass()) return false;
+
+            Recipient recipient = (Recipient) o;
+
+            return new EqualsBuilder().append(lastName, recipient.lastName).append(firstName, recipient.firstName).append(emailAddress, recipient.emailAddress).isEquals();
+        }
+
+        @Override
+        public int hashCode() {
+            return new HashCodeBuilder(17, 37).append(lastName).append(firstName).append(emailAddress).toHashCode();
         }
     }
 

@@ -23,7 +23,13 @@ export class EmailCampaign {
  * Email recipient which should be removed after filtering
  */
 export class Recipient {
-  fullName: string;
+  firstName: string;
+
+  lastName: string;
 
   emailAddress: string;
+
+  public getFullName() {
+    return `${this.lastName}, ${this.firstName}`
+  }
 }

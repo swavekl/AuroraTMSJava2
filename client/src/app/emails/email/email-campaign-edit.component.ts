@@ -41,7 +41,7 @@ export class EmailCampaignEditComponent  {
   }
 
   onSendEmails() {
-    this.eventEmitter.emit({action: 'sendemails', value: null});
+    this.eventEmitter.emit({action: 'sendemails', value: this.emailCampaign});
   }
 
   onCancel() {
@@ -104,11 +104,17 @@ export class EmailCampaignEditComponent  {
       let modifiedRecipients: Recipient[] = this.emailCampaign.removedRecipients || [];
       modifiedRecipients.push(this.selectedRecipient);
       modifiedRecipients.sort((recipient1: Recipient, recipient2: Recipient) => {
-        return recipient1.fullName.localeCompare(recipient2.fullName);
+        const fullName1 = this.getFullName(recipient1);
+        const fullName2 = this.getFullName(recipient2);
+        return fullName1.localeCompare(fullName2)
       });
       this.emailCampaign.removedRecipients = modifiedRecipients;
       this.selectedRecipient = null;
     }
+  }
+
+  public getFullName(recipient: Recipient) {
+    return `${recipient.lastName}, ${recipient.firstName}`;
   }
 
   onRestoreRecipient() {
@@ -122,7 +128,9 @@ export class EmailCampaignEditComponent  {
       let modifiedRecipients: Recipient[] = this.filteredRecipients || [];
       modifiedRecipients.push(this.removedRecipient);
       modifiedRecipients.sort((recipient1: Recipient, recipient2: Recipient) => {
-        return recipient1.fullName.localeCompare(recipient2.fullName);
+        const fullName1 = this.getFullName(recipient1);
+        const fullName2 = this.getFullName(recipient2);
+        return fullName1.localeCompare(fullName2)
       });
       this.filteredRecipients = modifiedRecipients;
       this.removedRecipient = null;

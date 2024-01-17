@@ -63,7 +63,7 @@
               <mat-list-item *ngFor="let recipient of filteredRecipients"
                              (click)="onSelectedRecipientClick(recipient)"
                              [matTooltip]="recipient.emailAddress">
-                {{ recipient.fullName }}
+                {{ getFullName(recipient) }}
               </mat-list-item>
             </mat-list>
           </div>
@@ -80,7 +80,7 @@
               <mat-list-item *ngFor="let recipient of emailCampaign.removedRecipients"
                              (click)="onRemovedRecipientClick(recipient)"
                              [matTooltip]="recipient.emailAddress">
-                {{ recipient.fullName }}
+                {{ getFullName(recipient) }}
               </mat-list-item>
             </mat-list>
           </div>

@@ -1,7 +1,10 @@
 package com.auroratms.email.sender;
 
+import com.auroratms.email.campaign.EmailCampaign;
 import com.auroratms.email.campaign.FilterConfiguration;
 import com.auroratms.email.config.EmailServerConfigurationEntity;
+import com.auroratms.users.UserRolesHelper;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -12,6 +15,9 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.mail.MessagingException;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Controller for various email sending related functions
@@ -25,6 +31,8 @@ public class EmailSenderController {
 
     @Autowired
     private EmailSenderService emailSenderService;
+
+    private static Map<String, CampaignSendingStatus> statusPerThread = new ConcurrentHashMap<>();
 
     /**
      * @param tournamentId
@@ -43,12 +51,61 @@ public class EmailSenderController {
     }
 
     /**
-     * Sends a test email from email server owner to the same using configuration
-     *
-     * @param config
+     * @param tournamentId
+     * @param emailCampaign
      * @return
-     * @throws MessagingException
      */
+    @PostMapping("/sendcampaign/{tournamentId}")
+    public @ResponseBody ResponseEntity<String> getRecipients(@PathVariable Long tournamentId,
+                                                              @RequestBody EmailCampaign emailCampaign) {
+        final String currentUserName = UserRolesHelper.getCurrentUsername();
+        CampaignSendingStatus campaignSendingStatus = new CampaignSendingStatus();
+        campaignSendingStatus.phase = String.format("Staring email campaign generation for user %s", currentUserName);
+        campaignSendingStatus.startTime = System.currentTimeMillis();
+        campaignSendingStatus.endTime = campaignSendingStatus.startTime;
+        ObjectIdGenerators.UUIDGenerator uuidGenerator = new ObjectIdGenerators.UUIDGenerator();
+        final UUID uuid = uuidGenerator.generateId(campaignSendingStatus);
+        campaignSendingStatus.id = uuid.toString();
+        log.info(campaignSendingStatus.phase);
+
+        statusPerThread.put(campaignSendingStatus.id, campaignSendingStatus);
+
+        try {
+            Runnable emailSendingTask = new Runnable() {
+                @Override
+                @Transactional
+                public void run() {
+                    emailSenderService.sendCampaign(tournamentId, emailCampaign, campaignSendingStatus, currentUserName);
+                    log.info("Finished campaign for username " + currentUserName);
+                    statusPerThread.remove(campaignSendingStatus.id);
+                }
+            };
+            Thread thread = new Thread(emailSendingTask);
+            thread.start();
+
+            return new ResponseEntity<>(campaignSendingStatus.id, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity(e, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("/sendcampaign/status/{statusid}")
+    public @ResponseBody ResponseEntity<CampaignSendingStatus> getStatus (@PathVariable String statusId) {
+        CampaignSendingStatus campaignSendingStatus = statusPerThread.get(statusId);
+        if (campaignSendingStatus != null) {
+            return ResponseEntity.ok(campaignSendingStatus);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+        /**
+         * Sends a test email from email server owner to the same using configuration
+         *
+         * @param config
+         * @return
+         * @throws MessagingException
+         */
     @PostMapping("/testemail")
     public @ResponseBody ResponseEntity<Boolean> sendTestEmail(@RequestBody EmailServerConfigurationEntity config) throws MessagingException {
         emailSenderService.sendTestEmail(config);
