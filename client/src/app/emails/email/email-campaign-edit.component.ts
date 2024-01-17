@@ -104,7 +104,7 @@ export class EmailCampaignEditComponent  {
       let modifiedRecipients: Recipient[] = this.emailCampaign.removedRecipients || [];
       modifiedRecipients.push(this.selectedRecipient);
       modifiedRecipients.sort((recipient1: Recipient, recipient2: Recipient) => {
-        return recipient1.emailAddress.localeCompare(recipient2.emailAddress)
+        return recipient1.fullName.localeCompare(recipient2.fullName);
       });
       this.emailCampaign.removedRecipients = modifiedRecipients;
       this.selectedRecipient = null;
@@ -122,7 +122,7 @@ export class EmailCampaignEditComponent  {
       let modifiedRecipients: Recipient[] = this.filteredRecipients || [];
       modifiedRecipients.push(this.removedRecipient);
       modifiedRecipients.sort((recipient1: Recipient, recipient2: Recipient) => {
-        return recipient1.emailAddress.localeCompare(recipient2.emailAddress)
+        return recipient1.fullName.localeCompare(recipient2.fullName);
       });
       this.filteredRecipients = modifiedRecipients;
       this.removedRecipient = null;

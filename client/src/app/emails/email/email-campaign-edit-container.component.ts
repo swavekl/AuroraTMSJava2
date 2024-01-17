@@ -10,7 +10,7 @@ import {EmailCampaign, Recipient} from '../model/email-campaign.model';
 import {ErrorMessagePopupService} from '../../shared/error-message-dialog/error-message-popup.service';
 import {TournamentEvent} from '../../tournament/tournament-config/tournament-event.model';
 import {TournamentEventConfigService} from '../../tournament/tournament-config/tournament-event-config.service';
-import {EmailService} from '../service/email.service';
+import {EmailSenderService} from '../service/email-sender.service';
 
 @Component({
   selector: 'app-email-campaign-edit-container',
@@ -40,7 +40,7 @@ export class EmailCampaignEditContainerComponent implements OnDestroy {
   private subscriptions: Subscription = new Subscription();
 
   constructor(private emailCampaignService: EmailCampaignService,
-              private emailService: EmailService,
+              private emailSenderService: EmailSenderService,
               private tournamentEventConfigService: TournamentEventConfigService,
               private activatedRoute: ActivatedRoute,
               private linearProgressBarService: LinearProgressBarService,
@@ -61,7 +61,7 @@ export class EmailCampaignEditContainerComponent implements OnDestroy {
     this.loading$ = combineLatest([
         this.emailCampaignService.store.select(this.emailCampaignService.selectors.selectLoading),
         this.tournamentEventConfigService.store.select(this.tournamentEventConfigService.selectors.selectLoading),
-        this.emailService.loading$
+        this.emailSenderService.loading$
       ],
       (emailCampaignLoading: boolean, tournamentEventsLoading: boolean, emailServiceLoading: boolean) => {
         return emailCampaignLoading || tournamentEventsLoading || emailServiceLoading;
@@ -154,29 +154,12 @@ export class EmailCampaignEditContainerComponent implements OnDestroy {
   }
 
   private loadRecipients(recipientFilters: number [], removedRecipients: Recipient[]) {
-    this.emailService.getTournamentEmails(this.tournamentId)
+    this.emailSenderService.getRecipientEmails(this.tournamentId, recipientFilters, removedRecipients)
       .pipe(
         switchMap(
-          (emails: string []) => {
-            const recipients: Recipient [] = [];
-            for (const email of emails) {
-              const recipient: Recipient = {
-                emailAddress: email,
-                fullName: 'Lorenc, Swavek'
-              };
-              let include = false;
-              for (const removedRecipient of removedRecipients) {
-                if (removedRecipient.emailAddress === recipient.emailAddress) {
-                  include = true;
-                  break;
-                }
-              }
-              if (!include) {
-                recipients.push(recipient);
-              }
-            }
+          (recipients: Recipient []) => {
             recipients.sort((recipient1: Recipient, recipient2: Recipient) => {
-              return recipient1.emailAddress.localeCompare(recipient2.emailAddress)
+              return recipient1.fullName.localeCompare(recipient2.fullName)
             });
 
             return of(recipients);

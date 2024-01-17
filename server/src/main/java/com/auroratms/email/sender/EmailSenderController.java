@@ -1,5 +1,6 @@
-package com.auroratms.email;
+package com.auroratms.email.sender;
 
+import com.auroratms.email.campaign.FilterConfiguration;
 import com.auroratms.email.config.EmailServerConfigurationEntity;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,31 +14,44 @@ import javax.mail.MessagingException;
 import java.util.List;
 
 /**
- * Controller for various email related functions
+ * Controller for various email sending related functions
  */
 @RestController
-@RequestMapping("api/email")
+@RequestMapping("api/emailsender")
 @PreAuthorize("isAuthenticated()")
 @Transactional
 @Slf4j
-public class EmailController {
+public class EmailSenderController {
 
     @Autowired
-    private EmailGenerationService emailGenerationService;
+    private EmailSenderService emailSenderService;
 
-    @GetMapping("/{tournamentId}")
-    public @ResponseBody ResponseEntity<List<String>> getEmailsForTournament(@PathVariable Long tournamentId) {
+    /**
+     * @param tournamentId
+     * @param filterConfiguration
+     * @return
+     */
+    @PostMapping("/{tournamentId}")
+    public @ResponseBody ResponseEntity<List<FilterConfiguration.Recipient>> getRecipients(@PathVariable Long tournamentId,
+                                                                                           @RequestBody FilterConfiguration filterConfiguration) {
         try {
-            List<String> emails = emailGenerationService.listEmailsForTournament(tournamentId);
-            return new ResponseEntity<>(emails, HttpStatus.OK);
+            List<FilterConfiguration.Recipient> recipients = emailSenderService.getFilteredRecipients(tournamentId, filterConfiguration);
+            return new ResponseEntity<>(recipients, HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity(e, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
-    @PostMapping("/sendtestemail")
+    /**
+     * Sends a test email from email server owner to the same using configuration
+     *
+     * @param config
+     * @return
+     * @throws MessagingException
+     */
+    @PostMapping("/testemail")
     public @ResponseBody ResponseEntity<Boolean> sendTestEmail(@RequestBody EmailServerConfigurationEntity config) throws MessagingException {
-        emailGenerationService.sendTestEmail(config);
+        emailSenderService.sendTestEmail(config);
         return new ResponseEntity<>(Boolean.TRUE, HttpStatus.OK);
     }
 

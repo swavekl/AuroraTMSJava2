@@ -3,7 +3,7 @@ import {ActivatedRoute, Router} from '@angular/router';
 import {combineLatest, Observable, of, Subscription} from 'rxjs';
 import {first, map, tap} from 'rxjs/operators';
 import {LinearProgressBarService} from '../../shared/linear-progress-bar/linear-progress-bar.service';
-import {EmailService} from '../service/email.service';
+import {EmailSenderService} from '../service/email-sender.service';
 import {EmailServerConfiguration} from '../model/email-server-configuration.model';
 import {EmailServerConfigurationService} from '../service/email-server-configuration.service';
 import {AuthenticationService} from '../../user/authentication.service';
@@ -34,7 +34,7 @@ export class EmailCampaignListContainerComponent implements OnDestroy {
   private loading$: Observable<boolean>;
   private subscriptions: Subscription = new Subscription();
 
-  constructor(private emailService: EmailService,
+  constructor(private emailService: EmailSenderService,
               private emailServerConfigurationService: EmailServerConfigurationService,
               private authenticationService: AuthenticationService,
               private activatedRoute: ActivatedRoute,

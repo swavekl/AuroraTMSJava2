@@ -1,7 +1,7 @@
 import {Component, Inject} from '@angular/core';
 import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
 import {EmailServerConfiguration} from '../model/email-server-configuration.model';
-import {EmailService} from '../service/email.service';
+import {EmailSenderService} from '../service/email-sender.service';
 import {first} from 'rxjs/operators';
 
 @Component({
@@ -21,7 +21,7 @@ export class EmailServerConfigDialogComponent {
 
   constructor(private dialogRef: MatDialogRef<EmailServerConfigDialogComponent>,
               @Inject(MAT_DIALOG_DATA) public data: any,
-              private emailService: EmailService) {
+              private emailService: EmailSenderService) {
     this.emailServerConfiguration = data;
     this.testing = false;
     this.isError = false;
