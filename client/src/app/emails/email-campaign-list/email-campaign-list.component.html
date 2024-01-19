@@ -76,7 +76,16 @@
     <mat-header-row *matHeaderRowDef="displayColumns; sticky: true"></mat-header-row>
     <mat-row *matRowDef="let row; columns: displayColumns"></mat-row>
   </mat-table>
-
+  <div class="no-data" *ngIf="(dataSource?.totalEmailCampaigns$ | async) === 0 || !isServerConfigured()">
+    <ng-container *ngIf="!isServerConfigured(); else nodata">
+      <p>Your Email Server is not configured</p>
+      <p>You will need to enable 3rd party applications in your email provider account (Gmail, Yahoo Mail) and generate a special password.</p>
+      <p>Then click on Email Server button to configure and send test email.</p>
+    </ng-container>
+    <ng-template #nodata>
+      <div>No data from query</div>
+    </ng-template>
+  </div>
   <mat-paginator #paginator
                  [length]="dataSource?.totalEmailCampaigns$ | async"
                  [pageIndex]="0"

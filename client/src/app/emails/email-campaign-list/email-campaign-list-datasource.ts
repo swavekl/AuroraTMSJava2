@@ -14,14 +14,14 @@ import {EmailCampaignService, selectEmailCampaignsTotal} from '../service/email-
 export class EmailCampaignListDataSource extends DataSource<EmailCampaign> {
   EmailCampaigns$: Observable<EmailCampaign[]>;
   totalEmailCampaigns$: Observable<number>;
-  EmailCampaigns: EmailCampaign [];
+  emailCampaigns: EmailCampaign [];
   filterByName$: BehaviorSubject<string> = new BehaviorSubject<string>('');
   paginator: MatPaginator | undefined;
   sort: MatSort | undefined;
 
   constructor(private emailCampaignService: EmailCampaignService) {
     super();
-    this.EmailCampaigns = [];
+    this.emailCampaigns = [];
     this.EmailCampaigns$ = this.emailCampaignService.store.select(
       this.emailCampaignService.selectors.selectEntities
     );
@@ -52,7 +52,7 @@ export class EmailCampaignListDataSource extends DataSource<EmailCampaign> {
               // next/previous page requested or sort change, request new page
               this.loadPage(resetToPageOne);
               // return current page for now
-              return this.EmailCampaigns;
+              return this.emailCampaigns;
             }
           })
         );
@@ -85,8 +85,8 @@ export class EmailCampaignListDataSource extends DataSource<EmailCampaign> {
     }
     this.emailCampaignService.clearCache();
     this.emailCampaignService.getWithQuery(query)
-      .pipe(tap((EmailCampaigns: EmailCampaign[]) => {
-        this.EmailCampaigns = EmailCampaigns;
+      .pipe(tap((emailCampaigns: EmailCampaign[]) => {
+        this.emailCampaigns = emailCampaigns;
       }));
   }
 
