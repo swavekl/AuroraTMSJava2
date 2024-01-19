@@ -1,5 +1,6 @@
 package com.auroratms.email.campaign;
 
+import java.util.Date;
 import java.util.List;
 
 public class EmailCampaign {
@@ -15,6 +16,15 @@ public class EmailCampaign {
 
     // text of the email body
     private String body;
+
+    // date sent
+    private Date dateSent;
+
+    // name of the tournament for which it was sent out
+    private String tournamentName;
+
+    // number of emails sent
+    private int emailsCount;
 
     // this part will be variable and will be stored as JSON
     private List<Long> recipientFilters;
@@ -58,6 +68,30 @@ public class EmailCampaign {
         this.body = body;
     }
 
+    public Date getDateSent() {
+        return dateSent;
+    }
+
+    public void setDateSent(Date dateSent) {
+        this.dateSent = dateSent;
+    }
+
+    public String getTournamentName() {
+        return tournamentName;
+    }
+
+    public void setTournamentName(String tournamentName) {
+        this.tournamentName = tournamentName;
+    }
+
+    public int getEmailsCount() {
+        return emailsCount;
+    }
+
+    public void setEmailsCount(int emailsCount) {
+        this.emailsCount = emailsCount;
+    }
+
     public List<Long> getRecipientFilters() {
         return recipientFilters;
     }
@@ -80,6 +114,9 @@ public class EmailCampaign {
         emailCampaignEntity.setName(this.getName());
         emailCampaignEntity.setSubject(this.getSubject());
         emailCampaignEntity.setBody(this.getBody());
+        emailCampaignEntity.setDateSent(this.getDateSent());
+        emailCampaignEntity.setTournamentName(this.getTournamentName());
+        emailCampaignEntity.setEmailsCount(this.getEmailsCount());
         FilterConfiguration filterConfiguration = new FilterConfiguration();
         filterConfiguration.setRecipientFilters(this.getRecipientFilters());
         filterConfiguration.setRemovedRecipients(this.getRemovedRecipients());
@@ -94,6 +131,9 @@ public class EmailCampaign {
         this.name = emailCampaignEntity.getName();
         this.subject = emailCampaignEntity.getSubject();
         this.body = emailCampaignEntity.getBody();
+        this.dateSent = emailCampaignEntity.getDateSent();
+        this.tournamentName = emailCampaignEntity.getTournamentName();
+        this.emailsCount = emailCampaignEntity.getEmailsCount();
         String content = emailCampaignEntity.getFilterContentsJSON();
         FilterConfiguration filterConfiguration = FilterConfiguration.convertFromJSON(content);
         this.recipientFilters = filterConfiguration.getRecipientFilters();

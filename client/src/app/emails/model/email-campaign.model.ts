@@ -12,6 +12,15 @@ export class EmailCampaign {
   // text of the email body
   body: string;
 
+  // date sent
+  dateSent: Date;
+
+  // name of the tournament for which it was sent out
+  tournamentName: string;
+
+  // number of emails sent
+  emailsCount: number;
+
   // filters to apply to recipients - by 0 - all or event id.
   recipientFilters: number [];
 

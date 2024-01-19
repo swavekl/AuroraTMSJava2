@@ -1,6 +1,7 @@
 package com.auroratms.email.sender;
 
 import com.auroratms.email.campaign.EmailCampaign;
+import com.auroratms.email.campaign.EmailCampaignService;
 import com.auroratms.email.campaign.FilterConfiguration;
 import com.auroratms.email.config.EmailServerConfigurationEntity;
 import com.auroratms.email.config.EmailServerConfigurationService;
@@ -13,6 +14,7 @@ import com.auroratms.tournamententry.TournamentEntryService;
 import com.auroratms.tournamentevententry.EventEntryStatus;
 import com.auroratms.tournamentevententry.TournamentEventEntry;
 import com.auroratms.tournamentevententry.TournamentEventEntryService;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.MailException;
@@ -29,6 +31,7 @@ import javax.mail.internet.MimeMessage;
 import java.util.*;
 
 @Service
+@Slf4j
 @Transactional
 public class EmailSenderService {
 
@@ -46,6 +49,10 @@ public class EmailSenderService {
 
     @Autowired
     private EmailServerConfigurationService emailServerConfigurationService;
+
+    @Autowired
+    private EmailCampaignService emailCampaignService;
+
 
     public List<FilterConfiguration.Recipient> getFilteredRecipients(long tournamentId, FilterConfiguration filterConfiguration) {
 
@@ -158,6 +165,11 @@ public class EmailSenderService {
         campaignSendingStatus.totalSent = 0;
         campaignSendingStatus.totalErrors = 0;
 
+        emailCampaign.setDateSent(new Date());
+        emailCampaign.setTournamentName(tournamentName);
+        emailCampaign.setEmailsCount(0);
+        this.emailCampaignService.save(emailCampaign);
+
         for (FilterConfiguration.Recipient recipient : recipients) {
             try {
                 variables.put("${last_name}", recipient.getLastName());
@@ -181,6 +193,11 @@ public class EmailSenderService {
             }
         }
         campaignSendingStatus.endTime = System.currentTimeMillis();
+        long duration = campaignSendingStatus.endTime - campaignSendingStatus.startTime;
+        log.info("Finished sending emails in " + duration + " ms.");
+        // update status
+        emailCampaign.setEmailsCount(campaignSendingStatus.totalSent);
+        this.emailCampaignService.save(emailCampaign);
     }
 
     private String replaceVariables(String text, Map<String, String> variables) {

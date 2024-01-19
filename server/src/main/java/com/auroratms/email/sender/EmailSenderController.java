@@ -10,6 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
@@ -70,27 +72,33 @@ public class EmailSenderController {
 
         statusPerThread.put(campaignSendingStatus.id, campaignSendingStatus);
 
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
         try {
             Runnable emailSendingTask = new Runnable() {
                 @Override
                 @Transactional
                 public void run() {
+                    SecurityContextHolder.getContext().setAuthentication(authentication);
+
                     emailSenderService.sendCampaign(tournamentId, emailCampaign, campaignSendingStatus, currentUserName);
                     log.info("Finished campaign for username " + currentUserName);
                     statusPerThread.remove(campaignSendingStatus.id);
                 }
             };
             Thread thread = new Thread(emailSendingTask);
+            thread.setName("email-sending-" + campaignSendingStatus.id);
             thread.start();
 
-            return new ResponseEntity<>(campaignSendingStatus.id, HttpStatus.OK);
+            String responseJson = String.format("{\"campaignJob\": \"%s\"}", campaignSendingStatus.id);
+            return new ResponseEntity<>(responseJson, HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity(e, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     @GetMapping("/sendcampaign/status/{statusid}")
-    public @ResponseBody ResponseEntity<CampaignSendingStatus> getStatus (@PathVariable String statusId) {
+    public @ResponseBody ResponseEntity<CampaignSendingStatus> getStatus(@PathVariable String statusId) {
         CampaignSendingStatus campaignSendingStatus = statusPerThread.get(statusId);
         if (campaignSendingStatus != null) {
             return ResponseEntity.ok(campaignSendingStatus);
@@ -99,13 +107,13 @@ public class EmailSenderController {
         }
     }
 
-        /**
-         * Sends a test email from email server owner to the same using configuration
-         *
-         * @param config
-         * @return
-         * @throws MessagingException
-         */
+    /**
+     * Sends a test email from email server owner to the same using configuration
+     *
+     * @param config
+     * @return
+     * @throws MessagingException
+     */
     @PostMapping("/testemail")
     public @ResponseBody ResponseEntity<Boolean> sendTestEmail(@RequestBody EmailServerConfigurationEntity config) throws MessagingException {
         emailSenderService.sendTestEmail(config);

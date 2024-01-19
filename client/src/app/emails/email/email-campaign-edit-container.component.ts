@@ -11,6 +11,8 @@ import {ErrorMessagePopupService} from '../../shared/error-message-dialog/error-
 import {TournamentEvent} from '../../tournament/tournament-config/tournament-event.model';
 import {TournamentEventConfigService} from '../../tournament/tournament-config/tournament-event-config.service';
 import {EmailSenderService} from '../service/email-sender.service';
+import {ConfirmationPopupComponent} from '../../shared/confirmation-popup/confirmation-popup.component';
+import {MatDialog} from '@angular/material/dialog';
 
 @Component({
   selector: 'app-email-campaign-edit-container',
@@ -44,7 +46,8 @@ export class EmailCampaignEditContainerComponent implements OnDestroy {
               private tournamentEventConfigService: TournamentEventConfigService,
               private activatedRoute: ActivatedRoute,
               private linearProgressBarService: LinearProgressBarService,
-              private errorMessagePopupService: ErrorMessagePopupService) {
+              private errorMessagePopupService: ErrorMessagePopupService,
+              private dialog: MatDialog) {
     const strEmailCampaignId = this.activatedRoute.snapshot.params['emailCampaignId'] || 0;
     this.emailCampaignId = Number(strEmailCampaignId);
     const strTournamentId = this.activatedRoute.snapshot.params['tournamentId'] || 0;
@@ -185,8 +188,19 @@ export class EmailCampaignEditContainerComponent implements OnDestroy {
     this.emailSenderService.sendCampaign(tournamentId, emailCampaign)
       .pipe(first())
       .subscribe({
-        next: (statusUUID: string) => {
-          console.log('sent email campaign. status is ', statusUUID);
+        next: (response: any) => {
+          const config = {
+            width: '450px', height: '190px', data: {
+              contentAreaHeight: 140, showCancel: false, okText: 'Close', title: 'Information',
+              message: `Email sending was initiated successfully.  It will take a while to send emails.`
+            }
+          };
+          const dialogRef = this.dialog.open(ConfirmationPopupComponent, config);
+          dialogRef.afterClosed().subscribe(result => {
+            if (result === 'ok') {
+              this.back();
+            }
+          });
         },
         error: (error: any) => {
           const errorMessage = error.error?.message ?? error.message;

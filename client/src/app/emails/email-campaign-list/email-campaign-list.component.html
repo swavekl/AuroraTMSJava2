@@ -1,6 +1,6 @@
-<div class="mat-headline-6" style="padding-left: 8px; width: 100%;">Emails</div>
-<mat-toolbar fxLayout="row" fxLayoutGap="10">
-  <form>
+<div class="mat-headline-6" style="padding-left: 8px;">Emails</div>
+<form>
+  <mat-toolbar fxLayout="row" fxLayoutGap="10px" style="height: 80px;">
     <button mat-raised-button type="button" (click)="back()">Back</button>
     <button type="button" mat-raised-button color="" [routerLink]="['/ui/email/emailcampaign/create', tournamentId, 0]">
       <mat-icon matListItemIcon>add</mat-icon>
@@ -8,25 +8,53 @@
     </button>
     <button mat-raised-button type="button" (click)="configureServer()"
             matTooltip="Configures email server for Tournament Director">Email Server
+      <mat-icon matListItemIcon>settings</mat-icon>
     </button>
 
     <span class="toolbar-spacer-2"></span>
     <mat-form-field>
       <mat-label>Filter by Name</mat-label>
-      <input matInput name="filterCampaignName" type="text" [ngModel]="filterCampaignName"
+      <input matInput name="filterCampaignName" type="text" [(ngModel)]="filterCampaignName"
              #filterCampaignNameCtrl="ngModel">
+      <button mat-icon-button matSuffix (click)="clearFilter()">
+        <mat-icon>clear</mat-icon>
+      </button>
     </mat-form-field>
-  </form>
-</mat-toolbar>
+  </mat-toolbar>
+</form>
 <div class="table-container">
   <mat-table matSort matSortActive="name" matSortDirection="desc" aria-label="Email Campaigns">
     <!-- Name Column -->
     <ng-container matColumnDef="name">
-      <mat-header-cell *matHeaderCellDef>Name</mat-header-cell>
+      <mat-header-cell *matHeaderCellDef>Template Name</mat-header-cell>
       <mat-cell *matCellDef="let emailCampaign"
                 [routerLink]="['/ui/email/emailcampaign/edit', tournamentId, emailCampaign.id]"
                 [state]="{ tournamentName: tournamentName }"
       >{{ emailCampaign.name }}
+      </mat-cell>
+    </ng-container>
+    <ng-container matColumnDef="tournamentName">
+      <mat-header-cell *matHeaderCellDef>Sent for Tournament</mat-header-cell>
+      <mat-cell *matCellDef="let emailCampaign"
+                [routerLink]="['/ui/email/emailcampaign/edit', tournamentId, emailCampaign.id]"
+                [state]="{ tournamentName: tournamentName }"
+      >{{ emailCampaign.tournamentName }}
+      </mat-cell>
+    </ng-container>
+    <ng-container matColumnDef="dateSent">
+      <mat-header-cell *matHeaderCellDef>Date Sent</mat-header-cell>
+      <mat-cell *matCellDef="let emailCampaign"
+                [routerLink]="['/ui/email/emailcampaign/edit', tournamentId, emailCampaign.id]"
+                [state]="{ tournamentName: tournamentName }"
+      >{{ emailCampaign.dateSent | date:'medium' }}
+      </mat-cell>
+    </ng-container>
+    <ng-container matColumnDef="emailsCount">
+      <mat-header-cell *matHeaderCellDef>Emails Sent</mat-header-cell>
+      <mat-cell *matCellDef="let emailCampaign"
+                [routerLink]="['/ui/email/emailcampaign/edit', tournamentId, emailCampaign.id]"
+                [state]="{ tournamentName: tournamentName }"
+      >{{ (emailCampaign.dateSent != null) ? emailCampaign.emailsCount : '' }}
       </mat-cell>
     </ng-container>
     <ng-container matColumnDef="actions">

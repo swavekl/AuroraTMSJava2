@@ -1,5 +1,4 @@
 import {AfterViewInit, Component, EventEmitter, Input, OnDestroy, Output, ViewChild} from '@angular/core';
-import {UntypedFormControl} from '@angular/forms';
 
 import {Subscription} from 'rxjs';
 import {debounceTime, distinctUntilChanged, skip} from 'rxjs/operators';
@@ -16,6 +15,7 @@ import {EmailCampaignService} from '../service/email-campaign.service';
 import {EmailCampaign} from '../model/email-campaign.model';
 import {EmailServerConfigDialogComponent} from '../email-server-config-dialog/email-server-config-dialog.component';
 import {EmailServerConfiguration} from '../model/email-server-configuration.model';
+import {UntypedFormControl} from '@angular/forms';
 
 @Component({
   selector: 'app-email-campaign-list',
@@ -52,7 +52,7 @@ export class EmailCampaignListComponent implements AfterViewInit, OnDestroy {
   dataSource: EmailCampaignListDataSource;
 
   /** Columns displayed in the table. Columns IDs can be added, removed, or reordered. */
-  displayColumns: string [] = ['name', 'actions'];
+  displayColumns: string [] = ['name', 'tournamentName', 'dateSent', 'emailsCount', 'actions'];
 
   private subscriptions: Subscription = new Subscription();
 
@@ -81,6 +81,10 @@ export class EmailCampaignListComponent implements AfterViewInit, OnDestroy {
       .subscribe((value) => {
         this.dataSource.filterByName$.next(value);
       });
+  }
+
+  clearFilter(): void {
+    this.filterCampaignName = '';
   }
 
   private setupProgressIndicator() {

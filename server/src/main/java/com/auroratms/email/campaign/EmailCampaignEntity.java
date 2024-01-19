@@ -1,6 +1,7 @@
 package com.auroratms.email.campaign;
 
 import javax.persistence.*;
+import java.util.Date;
 
 @Entity
 @Table(name = "email_campaign")
@@ -21,6 +22,15 @@ public class EmailCampaignEntity {
     // text of the email body
     @Column(length = 2000)
     private String body;
+
+    // date sent
+    private Date dateSent;
+
+    // name of the tournament for which it was sent out
+    private String tournamentName;
+
+    // number of emails sent
+    private int emailsCount;
 
     // recipient filters and removed recipients
     @Column(length = 9000)
@@ -56,6 +66,30 @@ public class EmailCampaignEntity {
 
     public void setBody(String body) {
         this.body = body;
+    }
+
+    public Date getDateSent() {
+        return dateSent;
+    }
+
+    public void setDateSent(Date dateSent) {
+        this.dateSent = dateSent;
+    }
+
+    public String getTournamentName() {
+        return tournamentName;
+    }
+
+    public void setTournamentName(String tournamentName) {
+        this.tournamentName = tournamentName;
+    }
+
+    public int getEmailsCount() {
+        return emailsCount;
+    }
+
+    public void setEmailsCount(int emailsCount) {
+        this.emailsCount = emailsCount;
     }
 
     public String getFilterContentsJSON() {
