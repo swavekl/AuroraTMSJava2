@@ -2,7 +2,8 @@
 <form>
   <mat-toolbar fxLayout="row" fxLayoutGap="10px" style="height: 80px;">
     <button mat-raised-button type="button" (click)="back()">Back</button>
-    <button type="button" mat-raised-button color="" [routerLink]="['/ui/email/emailcampaign/create', tournamentId, 0]">
+    <button type="button" mat-raised-button color="" [routerLink]="['/ui/email/emailcampaign/create', tournamentId, 0]"
+    [disabled]="!isServerConfigured()">
       <mat-icon matListItemIcon>add</mat-icon>
       New
     </button>

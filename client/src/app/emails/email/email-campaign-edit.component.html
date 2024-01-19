@@ -1,4 +1,4 @@
-<div class="email-generator-container">
+<div class="email-generator-container" *ngIf="emailCampaign">
   <div class="title mat-headline-6">
     {{ emailCampaign?.id ? 'Edit Email' : 'Create Email' }}
   </div>
@@ -6,9 +6,9 @@
     <mat-toolbar fxLayoutGap="10px">
       <button mat-raised-button type="button" (click)="onCancel()">Cancel</button>
       <button mat-raised-button type="button" color="primary" (click)="onSave()" [disabled]="f.invalid">Save</button>
-      <button mat-raised-button type="button" (click)="onSendEmails()" [disabled]="f.invalid">Send Emails</button>
+      <button mat-raised-button type="button" (click)="onSendEmails()" [disabled]="f.invalid || emailCampaign?.id == null">Send Emails</button>
     </mat-toolbar>
-    <mat-tab-group class="email-generator-container-work" *ngIf="emailCampaign">
+    <mat-tab-group class="email-generator-container-work">
       <mat-tab label="Email Template">
         <div fxLayout="column" fxLayoutAlign="start stretch" fxLayoutGap="10px" class="email-template-container">
           <mat-form-field>

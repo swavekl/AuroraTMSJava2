@@ -136,4 +136,8 @@ export class EmailCampaignListComponent implements AfterViewInit, OnDestroy {
       }
     });
   }
+
+  isServerConfigured() {
+    return this.emailServerConfiguration != null;
+  }
 }
