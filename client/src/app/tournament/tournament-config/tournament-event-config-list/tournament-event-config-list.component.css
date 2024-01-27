@@ -26,15 +26,15 @@ mat-toolbar-row button {
 }
 
 .mat-column-numEntries {
-  flex: 2;
+  flex: 3;
   justify-content: right;
   padding: 0 8px;
 }
 
-.mat-column-maxEntries {
+.mat-column-fee {
   flex: 3;
   justify-content: right;
-  /*padding: 0 8px;*/
+  padding: 0 8px;
 }
 
 .mat-column-actions {

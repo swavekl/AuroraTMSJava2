@@ -32,7 +32,7 @@ export class TournamentEventConfigListComponent implements OnInit, OnChanges {
   @Input()
   tournamentId: number;
 
-  columnsToDisplay: string[] = ['num', 'name', 'day', 'startTime', 'numEntries', 'maxEntries', 'actions'];
+  columnsToDisplay: string[] = ['num', 'name', 'day', 'startTime', 'fee', 'numEntries', 'actions'];
 
   @Output() delete = new EventEmitter();
   @Output() renumber = new EventEmitter();

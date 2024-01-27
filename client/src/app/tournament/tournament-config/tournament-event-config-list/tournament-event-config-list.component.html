@@ -36,14 +36,14 @@
       <mat-cell *matCellDef="let event">{{getStartTime(event.startTime)}}</mat-cell>
     </ng-container>
 
-    <ng-container matColumnDef="numEntries">
-      <mat-header-cell *matHeaderCellDef>Entries</mat-header-cell>
-      <mat-cell *matCellDef="let event">{{ event.numEntries }}</mat-cell>
+    <ng-container matColumnDef="fee">
+      <mat-header-cell *matHeaderCellDef>Fee (Adult/Junior)</mat-header-cell>
+      <mat-cell *matCellDef="let event">{{event.feeAdult | currency}} {{(event.feeAdult != event.feeJunior) ? '/ ' + (event.feeJunior | currency) : ''}} </mat-cell>
     </ng-container>
 
-    <ng-container matColumnDef="maxEntries">
-      <mat-header-cell *matHeaderCellDef>Max Entries</mat-header-cell>
-      <mat-cell *matCellDef="let event">{{ (event.maxEntries === 0) ? 'No limit' : event.maxEntries }}</mat-cell>
+    <ng-container matColumnDef="numEntries">
+      <mat-header-cell *matHeaderCellDef>Entries (Taken/Max)</mat-header-cell>
+      <mat-cell *matCellDef="let event">{{ event.numEntries }} / {{ (event.maxEntries === 0) ? 'No limit' : event.maxEntries }}</mat-cell>
     </ng-container>
 
     <ng-container matColumnDef="actions">
