@@ -9,6 +9,7 @@ import {PrizesRoutingModule} from './prizes-routing.module';
 import {PrizeListComponent} from './prize-list/prize-list.component';
 import {PrizeListContainerComponent} from './prize-list/prize-list-container.component';
 import {OrdinalPipe} from './pipes/ordinal.pipe';
+import {SharedModule} from '../shared/shared.module';
 
 
 @NgModule({
@@ -17,13 +18,14 @@ import {OrdinalPipe} from './pipes/ordinal.pipe';
     PrizeListContainerComponent,
     OrdinalPipe
   ],
-  imports: [
-    CommonModule,
-    PrizesRoutingModule,
-    MatListModule,
-    FlexModule,
-    MatExpansionModule,
-    MatTableModule
-  ]
+    imports: [
+        CommonModule,
+        PrizesRoutingModule,
+        MatListModule,
+        FlexModule,
+        MatExpansionModule,
+        MatTableModule,
+        SharedModule
+    ]
 })
 export class PrizesModule { }

@@ -72,6 +72,7 @@ export class PrizeListContainerComponent implements OnInit, OnDestroy {
   private loadTodaysTournamentEvents() {
     const todaysDate: Date = this.todayService.todaysDate;
     const todaysDateUtc = new DateUtils().convertFromLocalToUTCDate(todaysDate);
+    this.tournamentEventConfigService.clearCache();
     this.tournamentEvents$ = this.tournamentEventConfigService.entities$;
     let subscription = this.tournamentConfigService.getTodaysTournaments(todaysDateUtc)
       .pipe(
@@ -87,7 +88,7 @@ export class PrizeListContainerComponent implements OnInit, OnDestroy {
                 })
                  );
             } else {
-              console.log('no tournaments today');
+              return of([]);
             }
           }
         )
