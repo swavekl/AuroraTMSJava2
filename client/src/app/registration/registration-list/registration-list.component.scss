@@ -1,0 +1,20 @@
+@use "src/my-theme.scss" as *;
+
+.page-title {
+  padding: 0 0 0 8px;
+  //width: 100%;
+}
+
+.registrations-list-container {
+  height: calc(100vh - 120px);
+  //border: 1px solid blue;
+
+  div.separation-header {
+    padding: 8px 16px;
+    background-color: lighten($primary-color, 40%);
+  }
+
+  div.empty-list-panel {
+    margin-top: 80px;
+  }
+}

@@ -66,6 +66,11 @@ public class TournamentService {
         return toTournamentCollection(tournamentEntities);
     }
 
+    public Collection<Tournament> listTournamentsByIds(List<Long> tournamentIds) {
+        List<TournamentEntity> tournamentEntities = repository.findAllById(tournamentIds).stream().collect(Collectors.toList());
+        return toTournamentCollection(tournamentEntities);
+    }
+
     private Collection<Tournament> toTournamentCollection(Collection<TournamentEntity> tournamentEntities) {
         Collection<Tournament> tournaments = new ArrayList<>();
         for (TournamentEntity tournamentEntity : tournamentEntities) {

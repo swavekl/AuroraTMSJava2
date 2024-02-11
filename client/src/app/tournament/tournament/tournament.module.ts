@@ -23,6 +23,7 @@ import {DrawsCommonModule} from '../../draws/draws-common/draws-common.module';
 import { TournamentPlayersListBigComponent } from './tournament-players-list-big/tournament-players-list-big.component';
 import { TournamentPlayersListBigContainerComponent } from './tournament-players-list-big/tournament-players-list-big-container.component';
 import {MatToolbarModule} from '@angular/material/toolbar';
+import {MatTabsModule} from '@angular/material/tabs';
 
 
 @NgModule({
@@ -36,23 +37,24 @@ import {MatToolbarModule} from '@angular/material/toolbar';
     TournamentPlayersListBigComponent,
     TournamentPlayersListBigContainerComponent
   ],
-  imports: [
-    CommonModule,
-    TournamentRoutingModule,
-    MatProgressBarModule,
-    MatDividerModule,
-    MatIconModule,
-    MatCardModule,
-    MatListModule,
-    SharedModule,
-    MatButtonToggleModule,
-    MatTooltipModule,
-    MatButtonModule,
-    FlexLayoutModule,
-    MatMenuModule,
-    DrawsCommonModule,
-    MatToolbarModule
-  ]
+    imports: [
+        CommonModule,
+        TournamentRoutingModule,
+        MatProgressBarModule,
+        MatDividerModule,
+        MatIconModule,
+        MatCardModule,
+        MatListModule,
+        SharedModule,
+        MatButtonToggleModule,
+        MatTooltipModule,
+        MatButtonModule,
+        FlexLayoutModule,
+        MatMenuModule,
+        DrawsCommonModule,
+        MatToolbarModule,
+        MatTabsModule
+    ]
 })
 export class TournamentModule {
 }

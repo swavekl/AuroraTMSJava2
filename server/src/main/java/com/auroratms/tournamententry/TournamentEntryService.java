@@ -76,6 +76,19 @@ public class TournamentEntryService {
     /**
      *
      * @param profileId
+     * @return
+     */
+    public List<TournamentEntry> listForUser(String profileId) {
+        List<TournamentEntry> entries = repository.findAllByProfileId(profileId);
+        if (entries.size() > 0) {
+            cacheIt(entries.get(0));
+        }
+        return entries;
+    }
+
+    /**
+     *
+     * @param profileId
      * @param date
      * @return
      */

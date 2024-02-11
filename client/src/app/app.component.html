@@ -11,6 +11,9 @@
       <mat-list-item *ngIf="(isAuthenticated$ | async)" [disabled]="!isProfileComplete()" (click)="closeAndNavigateToRoute('/ui/tournaments')" routerLinkActive="active">
         <a matListItemTitle>Tournaments</a>
       </mat-list-item>
+      <mat-list-item *ngIf="(isAuthenticated$ | async)" [disabled]="!isProfileComplete()" (click)="closeAndNavigateToRoute('/ui/registrations')" routerLinkActive="active">
+        <a matListItemTitle>My Registrations</a>
+      </mat-list-item>
       <mat-list-item *ngIf="isLinkVisible('/ui/tournamentsconfig')" [disabled]="!isProfileComplete()" (click)="closeAndNavigateToRoute('/ui/tournamentsconfig')" routerLinkActive="active">
         <a matListItemTitle>Tournaments Config</a>
       </mat-list-item>

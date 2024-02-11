@@ -149,7 +149,8 @@ const routes: Routes = [
     data: {
       roles: [UserRoles.ROLE_TOURNAMENT_DIRECTORS, UserRoles.ROLE_ADMINS]
     }
-  }
+  },
+  { path: 'ui/registrations', loadChildren: () => import('./registration/registration.module').then(m => m.RegistrationModule) }
 ];
 
 @NgModule({
