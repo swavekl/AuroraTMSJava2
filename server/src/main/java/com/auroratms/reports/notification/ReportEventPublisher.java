@@ -18,9 +18,10 @@ public class ReportEventPublisher {
     @Autowired
     private ApplicationEventPublisher applicationEventPublisher;
 
-    public void publishGenerateReportsEvent(TournamentProcessingRequest request) {
+    public void publishGenerateReportsEvent(TournamentProcessingRequest request, long detailId) {
         String currentUserName = UserRolesHelper.getCurrentUsername();
         TournamentReportsProcessingEvent event = new TournamentReportsProcessingEvent(request.getId(), currentUserName, EventType.GenerateReports);
+        event.setDetailId(detailId);
         this.applicationEventPublisher.publishEvent(event);
     }
 

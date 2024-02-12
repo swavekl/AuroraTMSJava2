@@ -16,6 +16,7 @@ import java.net.URI;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("api")
@@ -40,11 +41,22 @@ public class TournamentProcessingRequestController {
     ResponseEntity<TournamentProcessingRequest> save (@RequestBody TournamentProcessingRequest tournamentProcessingRequest) {
         try {
             boolean creating = (tournamentProcessingRequest.getId() == null);
+            List<TournamentProcessingRequestDetail> details = tournamentProcessingRequest.getDetails();
+            List<Long> existingIds = details.stream()
+                    .map((TournamentProcessingRequestDetail detail) -> detail.getId())
+                    .filter((Long detailId) -> detailId != null)
+                    .collect(Collectors.toList());
             TournamentProcessingRequest savedTournamentProcessingRequest = service.save(tournamentProcessingRequest);
+            List<TournamentProcessingRequestDetail> savedDetails = savedTournamentProcessingRequest.getDetails();
+            List<Long> newDetailIds = savedDetails.stream()
+                    .map((TournamentProcessingRequestDetail detail) -> detail.getId())
+                    .filter((Long detailId) -> !existingIds.contains(detailId))
+                    .collect(Collectors.toList());
 
-            if (needsToGenerateReports(savedTournamentProcessingRequest)) {
+            long newDetailId = !newDetailIds.isEmpty() ? newDetailIds.get(0) : -1;
+            if (needsToGenerateReports(savedTournamentProcessingRequest, newDetailId) ) {
                 // generate reports asynchronously since it takes time and we need to return quickly
-                eventPublisher.publishGenerateReportsEvent(savedTournamentProcessingRequest);
+                eventPublisher.publishGenerateReportsEvent(savedTournamentProcessingRequest, newDetailId);
             } else if (needsToSendEmail(savedTournamentProcessingRequest)) {
                 eventPublisher.publishSubmitReportsEvent(savedTournamentProcessingRequest);
             }
@@ -72,14 +84,15 @@ public class TournamentProcessingRequestController {
 
     /**
      * @param tournamentProcessingRequest
+     * @param newDetailId
      * @return
      */
-    private boolean needsToGenerateReports(TournamentProcessingRequest tournamentProcessingRequest) {
+    private boolean needsToGenerateReports(TournamentProcessingRequest tournamentProcessingRequest, long newDetailId) {
         boolean createReports = false;
         List<TournamentProcessingRequestDetail> details = tournamentProcessingRequest.getDetails();
         for (TournamentProcessingRequestDetail detail : details) {
-            if (detail.getCreatedOn() == null) {
-                createReports = true;
+            if (detail.getId() == newDetailId) {
+                createReports = (detail.getCreatedOn() == null);
                 break;
             }
         }

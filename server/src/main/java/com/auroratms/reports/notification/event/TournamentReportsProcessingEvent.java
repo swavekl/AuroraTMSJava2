@@ -8,6 +8,9 @@ public class TournamentReportsProcessingEvent {
     // request id in database
     private long tournamentProcessingRequestId;
 
+    // detail id which we are processing
+    private long detailId = -1;
+
     // name of the user who requested report generation
     private String currentUserName;
 
@@ -29,5 +32,13 @@ public class TournamentReportsProcessingEvent {
 
     public EventType getEventType() {
         return eventType;
+    }
+
+    public void setDetailId(long detailId) {
+        this.detailId = detailId;
+    }
+
+    public long getDetailId() {
+        return detailId;
     }
 }

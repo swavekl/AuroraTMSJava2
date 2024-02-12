@@ -40,6 +40,10 @@
               <td class="reports-column">Membership Report</td>
               <td class="links-column"><a *ngIf="detail.pathMembershipList" href="" (click)="onDownloadDFile(detail.pathMembershipList)">Download</a></td>
             </tr>
+            <tr *ngIf="detail.generateDeclarationOfCompliance">
+              <td class="reports-column">Declaration of Compliance</td>
+              <td class="links-column"><a *ngIf="detail.pathDeclarationOfCompliance" href="" (click)="onDownloadDFile(detail.pathDeclarationOfCompliance)">Download</a></td>
+            </tr>
           </table>
         </div>
         <div>

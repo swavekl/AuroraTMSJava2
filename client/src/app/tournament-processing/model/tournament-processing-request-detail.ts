@@ -24,6 +24,7 @@ export class TournamentProcessingRequestDetail {
   pathApplications: string;
   pathMembershipList: string;
   pathMatchResults: string;
+  pathDeclarationOfCompliance: string;
 
   // flags to indicate which reports to generate
   generateTournamentReport: boolean;
@@ -31,6 +32,7 @@ export class TournamentProcessingRequestDetail {
   generatePlayerList: boolean;
   generateMatchResults: boolean;
   generateMembershipList: boolean;
+  generateDeclarationOfCompliance: boolean;
 
   // id of the payment used to pay for this request (i.e. tournament report)
   paymentId: number;

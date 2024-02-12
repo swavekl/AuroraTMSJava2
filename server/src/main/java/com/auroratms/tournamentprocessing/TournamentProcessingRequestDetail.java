@@ -32,6 +32,7 @@ public class TournamentProcessingRequestDetail {
     private String pathApplications;
     private String pathMembershipList;
     private String pathMatchResults;
+    private String pathDeclarationOfCompliance;
 
     // flags to indicate which reports to generate
     private boolean generateTournamentReport;
@@ -39,6 +40,9 @@ public class TournamentProcessingRequestDetail {
     private boolean generatePlayerList;
     private boolean generateMatchResults;
     private boolean generateMembershipList;
+
+    // Tournament Director Declaration of Compliance with USATT Safe Sport Policy
+    private boolean generateDeclarationOfCompliance;
 
     // id of the payment to pay for this request (i.e. tournament report)
     private Long paymentId;
@@ -126,6 +130,14 @@ public class TournamentProcessingRequestDetail {
         this.pathMatchResults = pathMatchResults;
     }
 
+    public String getPathDeclarationOfCompliance() {
+        return pathDeclarationOfCompliance;
+    }
+
+    public void setPathDeclarationOfCompliance(String pathDeclarationOfCompliance) {
+        this.pathDeclarationOfCompliance = pathDeclarationOfCompliance;
+    }
+
     public Long getPaymentId() {
         return paymentId;
     }
@@ -196,5 +208,13 @@ public class TournamentProcessingRequestDetail {
 
     public void setGenerateMembershipList(boolean generateMembershipList) {
         this.generateMembershipList = generateMembershipList;
+    }
+
+    public boolean isGenerateDeclarationOfCompliance() {
+        return generateDeclarationOfCompliance;
+    }
+
+    public void setGenerateDeclarationOfCompliance(boolean generateDeclarationOfCompliance) {
+        this.generateDeclarationOfCompliance = generateDeclarationOfCompliance;
     }
 }

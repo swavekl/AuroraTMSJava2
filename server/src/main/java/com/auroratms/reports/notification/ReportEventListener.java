@@ -60,6 +60,9 @@ public class ReportEventListener {
     private PlayerListReportService playerListReportService;
 
     @Autowired
+    private DeclarationOfComplianceReportService declarationOfComplianceReportService;
+
+    @Autowired
     private FileRepositoryFactory fileRepositoryFactory;
 
     @Autowired
@@ -109,7 +112,7 @@ public class ReportEventListener {
             long start = System.currentTimeMillis();
             TournamentProcessingRequest tournamentProcessingRequest =
                     tournamentProcessingRequestService.findById(event.getTournamentProcessingRequestId());
-            generateReports(tournamentProcessingRequest, event.getCurrentUserName());
+            generateReports(tournamentProcessingRequest, event.getCurrentUserName(), event.getDetailId());
 
             // save request with paths to reports
             tournamentProcessingRequestService.save(tournamentProcessingRequest);
@@ -124,9 +127,10 @@ public class ReportEventListener {
     /**
      * @param tournamentProcessingRequest
      * @param currentUserName
+     * @param detailId
      * @throws ReportGenerationException
      */
-    private void generateReports(TournamentProcessingRequest tournamentProcessingRequest, String currentUserName) throws ReportGenerationException {
+    private void generateReports(TournamentProcessingRequest tournamentProcessingRequest, String currentUserName, long detailId) throws ReportGenerationException {
         String profileByLoginId = userProfileService.getProfileByLoginId(currentUserName);
         UserProfile preparerUserProfile = userProfileService.getProfile(profileByLoginId);
 
@@ -144,7 +148,7 @@ public class ReportEventListener {
         // find the detail that needs filling and save repository URLs in it
         List<TournamentProcessingRequestDetail> details = tournamentProcessingRequest.getDetails();
         for (TournamentProcessingRequestDetail detail : details) {
-            if (detail.getCreatedOn() == null) {
+            if (detail.getId() == detailId) {
                 Date createdOn = new Date();
 
                 // get the common folder name where reports are generated
@@ -190,6 +194,12 @@ public class ReportEventListener {
                     String playerListReportPath = this.playerListReportService.generateReport(tournamentId);
                     String repositoryUrl = copyReportsToRepository(playerListReportPath, repositoryFolder);
                     detail.setPathPlayerList(repositoryUrl);
+                }
+
+                if (detail.isGenerateDeclarationOfCompliance()) {
+                    String path = this.declarationOfComplianceReportService.generateReport(tournamentId);
+                    String repositoryUrl = copyReportsToRepository(path, repositoryFolder);
+                    detail.setPathDeclarationOfCompliance(repositoryUrl);
                 }
 
                 detail.setCreatedOn(createdOn);

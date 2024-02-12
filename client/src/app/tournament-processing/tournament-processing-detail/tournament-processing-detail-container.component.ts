@@ -175,23 +175,32 @@ export class TournamentProcessingDetailContainerComponent implements OnInit, OnD
   private onGenerateReports(event: any) {
     const tournamentProcessingRequest: TournamentProcessingRequest = event.request;
     const detailId = event.detailId;
+    // get the existing detail ids if any
+    const otherRequestDetailIds: number [] = tournamentProcessingRequest.details.map(
+      (requestDetail: TournamentProcessingRequestDetail) => requestDetail.id).filter((detailId: number) => detailId != null);
     const initialDelay = 1000 * this.getNumReportsToGenerate(tournamentProcessingRequest, detailId);
     this.tournamentProcessingService.upsert(tournamentProcessingRequest)
       .pipe(first())
       .subscribe((saved: TournamentProcessingRequest) => {
         this.id = saved.id;
-        this.waitForReportsCompletion(saved.id, initialDelay);
+        // after saving we have a newly requested detail id which is not one of the existing ones, find it.
+        const savedDetailIds: number [] = saved.details.map(
+          (requestDetail: TournamentProcessingRequestDetail) => requestDetail.id).filter((detailId: number) => !otherRequestDetailIds.includes(detailId));
+        const currentDetailId = (savedDetailIds.length === 1) ? savedDetailIds[0] : null;
+        // now we can wait for the right one to complete
+        this.waitForReportsCompletion(saved.id, initialDelay, currentDetailId);
       });
   }
 
 
   private processRequest(event: any) {
     const tournamentProcessingRequest: TournamentProcessingRequest = event.request;
+    const detailId: number = event.detailId;
     this.tournamentProcessingService.upsert(tournamentProcessingRequest)
       .pipe(first())
       .subscribe((saved: TournamentProcessingRequest) => {
         this.id = saved.id;
-        this.waitForReportsCompletion(saved.id, 2000);
+        this.waitForReportsCompletion(saved.id, 2000, detailId);
       });
 
   }
@@ -207,6 +216,7 @@ export class TournamentProcessingDetailContainerComponent implements OnInit, OnD
         count += detail.generateApplications ? 1 : 0;
         count += detail.generateMembershipList ? 1 : 0;
         count += detail.generateMatchResults ? 1 : 0;
+        count += detail.generateDeclarationOfCompliance ? 1 : 0;
       }
     }
     return count;
@@ -216,9 +226,10 @@ export class TournamentProcessingDetailContainerComponent implements OnInit, OnD
    * Issue requests for the report request until the files are generated
    * @param requestId
    * @param initialDelay
+   * @param detailId
    * @private
    */
-  private waitForReportsCompletion(requestId: number, initialDelay: number) {
+  private waitForReportsCompletion(requestId: number, initialDelay: number, detailId: number) {
     this.reportsGenerating$.next(true);
     const subscription = this.tournamentProcessingService.getByKey(requestId).pipe(
       delay(initialDelay),  // initial delay
@@ -227,7 +238,7 @@ export class TournamentProcessingDetailContainerComponent implements OnInit, OnD
         return this.tournamentProcessingService.getByKey(requestId).pipe(delay(1000));  // subsequent delays
       }),
       takeWhile((tpRequest1: TournamentProcessingRequest) => {
-        const reportsReady = this.areReportsReady(tpRequest1);
+        const reportsReady = this.areReportsReady(tpRequest1, detailId);
         if (reportsReady) {
           const tournamentProcessingDataToEdit: TournamentProcessingRequest = JSON.parse(JSON.stringify(tpRequest1));
           this.tournamentProcessingRequest$ = of(tournamentProcessingDataToEdit);
@@ -241,14 +252,17 @@ export class TournamentProcessingDetailContainerComponent implements OnInit, OnD
     this.subscriptions.add(subscription);
   }
 
-  private areReportsReady(tpRequest: TournamentProcessingRequest): boolean {
+  private areReportsReady(tpRequest: TournamentProcessingRequest, detailId: number): boolean {
     let ready = true;
     if (tpRequest != null && tpRequest.details != null) {
+      // sort in descending order of creation with the most recent at the top
       for (let i = 0; i < tpRequest.details.length; i++) {
         const detail = tpRequest.details[i];
-        if (detail.createdOn == null) {
-          ready = false;
-          break;
+        if (detailId === detail.id) {
+          if (detail.createdOn == null) {
+            ready = false;
+            break;
+          }
         }
       }
     }
@@ -262,7 +276,7 @@ export class TournamentProcessingDetailContainerComponent implements OnInit, OnD
     this.tournamentProcessingService.upsert(tournamentProcessingRequest)
       .pipe(first())
       .subscribe((saved: TournamentProcessingRequest) => {
-        this.waitForReportsCompletion(saved.id, initialDelay);
+        this.waitForReportsCompletion(saved.id, initialDelay, detailId);
       });
   }
 

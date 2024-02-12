@@ -23,6 +23,7 @@ export class GenerateReportsDialogComponent implements OnInit {
   public generatePlayerList: boolean;
   public generateMatchResults: boolean;
   public generateMembershipList: boolean;
+  public generateDeclarationOfCompliance: boolean;
 
   constructor(public dialogRef: MatDialogRef<GenerateReportsDialogComponent>) { }
 
@@ -34,7 +35,8 @@ export class GenerateReportsDialogComponent implements OnInit {
       formValues.generateApplications ||
       formValues.generatePlayerList ||
       formValues.generateMatchResults ||
-      formValues.generateMembershipList;
+      formValues.generateMembershipList ||
+      formValues.generateDeclarationOfCompliance;
   }
 
   onOk(formValues): void {
@@ -46,7 +48,8 @@ export class GenerateReportsDialogComponent implements OnInit {
       generateApplications: formValues.generateApplications,
       generatePlayerList: formValues.generatePlayerList,
       generateMatchResults: formValues.generateMatchResults,
-      generateMembershipList: formValues.generateMembershipList
+      generateMembershipList: formValues.generateMembershipList,
+      generateDeclarationOfCompliance: formValues.generateDeclarationOfCompliance
     });
   }
 

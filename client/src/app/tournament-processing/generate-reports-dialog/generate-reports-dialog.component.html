@@ -18,6 +18,9 @@
       <mat-checkbox name="generateMembershipList" [(ngModel)]="generateMembershipList">
         Membership List
       </mat-checkbox>
+      <mat-checkbox name="generateDeclarationOfCompliance" [(ngModel)]="generateDeclarationOfCompliance">
+        Declaration of Compliance
+      </mat-checkbox>
     </div>
     <div fxFlex="60%" fxLayout="column" fxLayoutAlign="start start">
       <mat-form-field fxFlexFill>
@@ -35,7 +38,7 @@
   </form>
 </mat-dialog-content>
 <mat-dialog-actions>
-  <div fxLayout="row" fxLayoutAlign="space-between start" style="width: 100%;">
+  <div fxLayout="row" fxLayoutAlign="space-between start" style="width: 100%; padding: 0 8px;">
     <button mat-button cdkFocusInitial type="button" (click)="onCancel()">Cancel</button>
     <div fxFlex="1"></div>
     <button mat-raised-button color="primary" [disabled]="!(isOkEnabled(f.value) && f.valid)" (click)="onOk(f.value)">OK</button>

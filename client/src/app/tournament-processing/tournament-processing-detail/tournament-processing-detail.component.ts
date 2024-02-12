@@ -118,7 +118,7 @@ export class TournamentProcessingDetailComponent implements OnInit, OnChanges {
 
   generateAllReports() {
     const config = {
-      width: '650px', height: '430px'
+      width: '700px', height: '500px'
     };
     const dialogRef = this.dialog.open(GenerateReportsDialogComponent, config);
     dialogRef.afterClosed().subscribe(result => {
@@ -131,6 +131,7 @@ export class TournamentProcessingDetailComponent implements OnInit, OnChanges {
         detail.generatePlayerList = result.generatePlayerList ;
         detail.generateMatchResults = result.generateMatchResults ;
         detail.generateMembershipList = result.generateMembershipList;
+        detail.generateDeclarationOfCompliance = result.generateDeclarationOfCompliance;
         details.push(detail);
         request.details = details;
         request.remarks = result.remarks;
