@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -47,9 +48,11 @@ public class DeclarationOfComplianceReportService {
             log.info("to " + reportFilename);
 
             Resource resource = resourceLoader.getResource("classpath:pdftemplates/tournament-director-declaration-of-compliance.pdf");
-            String pdfTemplate = resource.getFile().getAbsolutePath();
+            InputStream inputStream = resource.getInputStream();
+            PdfReader pdfReader = new PdfReader(inputStream);
+            PdfWriter pdfWriter = new PdfWriter(reportFilename);
 
-            PdfDocument pdf = new PdfDocument(new PdfReader(pdfTemplate), new PdfWriter(reportFilename));
+            PdfDocument pdf = new PdfDocument(pdfReader, pdfWriter);
 
             PdfAcroForm form = PdfAcroForm.getAcroForm(pdf, true);
             Map<String, PdfFormField> fields = form.getFormFields();
@@ -69,6 +72,8 @@ public class DeclarationOfComplianceReportService {
             fields.get("Address of Tournament Location 3").setValue(tournament.getCity() + ", " + tournament.getState() + ", " + tournament.getZipCode());
 
             pdf.close();
+            pdfReader.close();
+            pdfWriter.close();
 
             log.info("Finished declaration of compliance for " + tournamentId + " tournament");
 
