@@ -114,7 +114,7 @@ export class EntryWizardContainerComponent implements OnInit, OnDestroy {
     this.selectEntry(this.entryId);
     this.loadEventEntriesInfos(this.entryId);
     this.loadPaymentRefunds(this.entryId);
-    this.startCartSession();
+    this.startCartSession(this.entryId);
   }
 
   /**
@@ -314,13 +314,13 @@ export class EntryWizardContainerComponent implements OnInit, OnDestroy {
     return this.entryWizardComponent.isDirty();
   }
 
-  private startCartSession() {
-    const subscription = this.cartSessionService.startSession(PaymentRefundFor.TOURNAMENT_ENTRY)
+  private startCartSession(entryId: number) {
+    const subscription = this.cartSessionService.startSession(PaymentRefundFor.TOURNAMENT_ENTRY, entryId)
       .pipe(
         first(),
         map((cartSessionId: string) => {
           const now = new Date();
-          // console.log(`Started cartSessionId ${cartSessionId} at ${now}`);
+          console.log(`Started cartSessionId ${cartSessionId} at ${now}`);
           this.cartSessionId = cartSessionId;
         })
       ).subscribe();

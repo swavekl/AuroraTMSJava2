@@ -6,7 +6,7 @@ import {MatToolbarModule} from '@angular/material/toolbar';
 import {MatSelectModule} from '@angular/material/select';
 import {FormsModule} from '@angular/forms';
 import {MatButtonModule} from '@angular/material/button';
-import {FlexModule} from '@angular/flex-layout';
+import {FlexLayoutModule} from 'ng-flex-layout';
 
 import {EntityDataService, EntityServices} from '@ngrx/data';
 import {TableUsageRoutingModule} from './table-usage-routing.module';
@@ -33,7 +33,7 @@ import {MatDialogModule} from '@angular/material/dialog';
   imports: [
     CommonModule,
     TableUsageRoutingModule,
-    FlexModule,
+    FlexLayoutModule,
     MatListModule,
     MatTooltipModule,
     MatToolbarModule,

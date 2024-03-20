@@ -38,7 +38,6 @@ export class AccountService {
             this.setLoading(false);
           }),
         map((response: AccountStatus) => {
-            console.log('response ' + JSON.stringify(response));
             return response;
           }
         )

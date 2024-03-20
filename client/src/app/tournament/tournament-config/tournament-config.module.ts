@@ -19,7 +19,7 @@ import {MatCheckboxModule} from '@angular/material/checkbox';
 import {MatDialogModule} from '@angular/material/dialog';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {MatButtonToggleModule} from '@angular/material/button-toggle';
-import {FlexLayoutModule} from '@angular/flex-layout';
+import {FlexLayoutModule} from 'ng-flex-layout';
 
 import {SharedModule} from '../../shared/shared.module';
 import {TournamentConfigRoutingModule} from './tournament-config-routing.module';

@@ -9,7 +9,7 @@ import {MatDialogModule} from '@angular/material/dialog';
 import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatInputModule} from '@angular/material/input';
 import {MatProgressBarModule} from '@angular/material/progress-bar';
-import {FlexLayoutModule} from '@angular/flex-layout';
+import {FlexLayoutModule} from 'ng-flex-layout';
 
 import {SharedModule} from '../shared/shared.module';
 import {EmailRoutingModule} from './email-routing.module';

@@ -124,6 +124,7 @@ public class TournamentEventListener {
      */
     private void sendEntryCompletedEmail(TournamentEntryConfirmedEvent event) {
         try {
+            logger.info("Sending entry completed email for tournament entry " + event.getTournamentEntryId());
             Map<String, Object> templateModel = new HashMap<>();
             TournamentEntry tournamentEntry = addTournamentEntryInformation(templateModel, event.getTournamentEntryId());
 

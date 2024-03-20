@@ -12,6 +12,7 @@ import java.util.Optional;
 public interface CartSessionRepository extends JpaRepository<CartSession, Long> {
 
     Optional<CartSession> findBySessionUUID(String sessionUUID);
+    Optional<CartSession> findByPaymentRefundForAndObjectId(PaymentRefundFor paymentRefundFor, long objectId);
 
     List<CartSession> findAllByPaymentRefundForAndSessionLastUpdateBeforeOrderBySessionLastUpdate(PaymentRefundFor paymentRefundFor, Date cutoffDateTime);
 

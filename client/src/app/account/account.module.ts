@@ -5,7 +5,7 @@ import {MatIconModule} from '@angular/material/icon';
 import {MatCardModule} from '@angular/material/card';
 import {MatInputModule} from '@angular/material/input';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
-import {FlexLayoutModule} from '@angular/flex-layout';
+import {FlexLayoutModule} from 'ng-flex-layout';
 
 import {AccountRoutingModule} from './account-routing.module';
 import {AccountLandingComponent} from './account-landing/account-landing.component';

@@ -3,7 +3,7 @@ import {CommonModule} from '@angular/common';
 import {FormsModule} from '@angular/forms';
 
 import {MatListModule} from '@angular/material/list';
-import {FlexModule} from '@angular/flex-layout';
+import {FlexLayoutModule} from 'ng-flex-layout';
 import {MatIconModule} from '@angular/material/icon';
 import {MatButtonModule} from '@angular/material/button';
 import {MatDialogModule} from '@angular/material/dialog';
@@ -53,7 +53,7 @@ import {MatRadioModule} from '@angular/material/radio';
     FormsModule,
     MatchesRoutingModule,
     MatListModule,
-    FlexModule,
+    FlexLayoutModule,
     MatIconModule,
     MatButtonModule,
     MatDialogModule,

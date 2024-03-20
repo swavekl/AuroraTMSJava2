@@ -9,7 +9,7 @@ import {MatButtonToggleModule} from '@angular/material/button-toggle';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {MatButtonModule} from '@angular/material/button';
 import {MatMenuModule} from '@angular/material/menu';
-import {FlexLayoutModule} from '@angular/flex-layout';
+import {FlexLayoutModule} from 'ng-flex-layout';
 import {SharedModule} from '../../shared/shared.module';
 
 import {TournamentRoutingModule} from './tournament-routing.module';

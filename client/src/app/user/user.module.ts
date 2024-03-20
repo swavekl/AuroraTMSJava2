@@ -8,7 +8,7 @@ import {MatInputModule} from '@angular/material/input';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 import {MatProgressBarModule} from '@angular/material/progress-bar';
 import {FormsModule} from '@angular/forms';
-import {FlexLayoutModule} from '@angular/flex-layout';
+import {FlexLayoutModule} from 'ng-flex-layout';
 import {SharedModule} from '../shared/shared.module';
 import {LoginComponent} from './login/login.component';
 import {SignInComponent} from './sign-in/sign-in.component';

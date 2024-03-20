@@ -11,7 +11,7 @@ import {LocalStorageService} from './local-storage.service';
 import {StartTimePipe} from './pipes/start-time.pipe';
 import {EventDayPipePipe} from './pipes/event-day-pipe.pipe';
 import {CenteredPanelComponent} from './centered-panel/centered-panel.component';
-import {FlexLayoutModule} from '@angular/flex-layout';
+import {FlexLayoutModule} from 'ng-flex-layout';
 import {DebounceClicksDirective} from './directives/debounce-clicks.directive';
 import {SelectionsDifferentDirective} from './directives/selections-different.directive';
 import {ValuesMatchDirective} from './directives/values-match.directive';

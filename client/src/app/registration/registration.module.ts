@@ -7,7 +7,7 @@ import {RegistrationListContainerComponent} from './registration-list/registrati
 import {MatListModule} from '@angular/material/list';
 import {MatIconModule} from '@angular/material/icon';
 import {SharedModule} from '../shared/shared.module';
-import {FlexModule} from '@angular/flex-layout';
+import {FlexLayoutModule} from 'ng-flex-layout';
 
 
 @NgModule({
@@ -21,7 +21,7 @@ import {FlexModule} from '@angular/flex-layout';
         MatListModule,
         MatIconModule,
         SharedModule,
-        FlexModule
+        FlexLayoutModule
     ]
 })
 export class RegistrationModule {

@@ -382,8 +382,13 @@ public class EventEntryStatusService {
      */
     @Transactional
     public void confirmAll(Long tournamentEntryId, String cartSessionId, boolean withdrawing) {
+        log.info(String.format("Confirming all changes for tournament entry Id %d, cart session %s", tournamentEntryId, cartSessionId));
         // confirm entries
         MakeBreakDoublesPairsEvent makeBreakDoublesPairsEvent = confirmAllInternal(tournamentEntryId);
+
+        // each time event is entered or dropped update last time cart session was active
+        // so we can determine which sessions were abandoned
+        cartSessionService.finishSession(cartSessionId);
 
         // if there were any entries or withdrawals from doubles events process them
         if (makeBreakDoublesPairsEvent.getEntryWithdrawalList().size() > 0) {
@@ -392,10 +397,6 @@ public class EventEntryStatusService {
 
         // send email to TD and player confirming entry or withdrawal
         eventPublisher.publishRegistrationCompleteEvent(tournamentEntryId, withdrawing);
-
-        // each time event is entered or dropped update last time cart session was active
-        // so we can determine which sessions were abandoned
-        cartSessionService.finishSession(cartSessionId);
     }
 
     /**
@@ -471,6 +472,8 @@ public class EventEntryStatusService {
                 updateNumEntriesInEvent(eventEntry.getTournamentEventFk());
             }
         }
+
+        cartSessionService.finishSession(cartSessionId);
 
         // restore tournament entry to its original state
         TournamentEntry tournamentEntry = tournamentEntryService.get(tournamentEntryId);

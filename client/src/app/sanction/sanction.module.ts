@@ -1,7 +1,7 @@
 import {NgModule} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormsModule} from '@angular/forms';
-import {FlexModule} from '@angular/flex-layout';
+import {FlexLayoutModule} from 'ng-flex-layout';
 import {MatTableModule} from '@angular/material/table';
 import {MatPaginatorModule} from '@angular/material/paginator';
 import {MatSortModule} from '@angular/material/sort';
@@ -46,7 +46,7 @@ import { SanctionRequestCreateComponent } from './sanction-request-create/sancti
         MatCardModule,
         FormsModule,
         MatStepperModule,
-        FlexModule,
+        FlexLayoutModule,
         MatDatepickerModule,
         MatNativeDateModule,
         MatInputModule,

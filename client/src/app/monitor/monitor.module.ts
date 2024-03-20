@@ -5,7 +5,7 @@ import {MatToolbarModule} from '@angular/material/toolbar';
 import {MatInputModule} from '@angular/material/input';
 import {FormsModule} from '@angular/forms';
 import {MatSelectModule} from '@angular/material/select';
-import {FlexModule} from '@angular/flex-layout';
+import {FlexLayoutModule} from 'ng-flex-layout';
 import {SharedModule} from '../shared/shared.module';
 
 import {MonitorRoutingModule} from './monitor-routing.module';
@@ -29,7 +29,7 @@ import {MatGridListModule} from '@angular/material/grid-list';
         MatToolbarModule,
         MatInputModule,
         FormsModule,
-        FlexModule,
+        FlexLayoutModule,
         MatSelectModule,
         SharedModule,
         MatGridListModule

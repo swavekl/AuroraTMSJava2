@@ -19,7 +19,7 @@ import {MatTooltipModule} from '@angular/material/tooltip';
 import {MatDatepickerModule} from '@angular/material/datepicker';
 import {MatNativeDateModule} from '@angular/material/core';
 
-import {FlexModule} from '@angular/flex-layout';
+import {FlexLayoutModule} from 'ng-flex-layout';
 
 import {AccountModule} from '../../account/account.module';
 import {ClubAffiliationRoutingModule} from './club-affiliation-routing.module';
@@ -55,7 +55,7 @@ import {ClubAffiliationApplicationComponent} from './club-affiliation-applicatio
     MatListModule,
     MatDatepickerModule,
     MatNativeDateModule,
-    FlexModule,
+    FlexLayoutModule,
     ClubAffiliationRoutingModule,
     AccountModule
   ]

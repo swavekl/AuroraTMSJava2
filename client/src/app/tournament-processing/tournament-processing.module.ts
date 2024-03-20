@@ -8,7 +8,7 @@ import {MatToolbarModule} from '@angular/material/toolbar';
 import {FormsModule} from '@angular/forms';
 import {MatInputModule} from '@angular/material/input';
 import {MatIconModule} from '@angular/material/icon';
-import {FlexModule} from '@angular/flex-layout';
+import {FlexLayoutModule} from 'ng-flex-layout';
 import {MatButtonModule} from '@angular/material/button';
 import {MatCardModule} from '@angular/material/card';
 import {MatCheckboxModule} from '@angular/material/checkbox';
@@ -41,7 +41,7 @@ import {AccountModule} from '../account/account.module';
         MatInputModule,
         FormsModule,
         MatIconModule,
-        FlexModule,
+        FlexLayoutModule,
         MatButtonModule,
         MatCardModule,
         MatDialogModule,

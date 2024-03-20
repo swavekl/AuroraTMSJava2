@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
+import java.util.Date;
 
 /**
  * Controller for initiating new session for cart
@@ -27,13 +28,21 @@ public class CartSessionController {
      * @param paymentRefundFor
      * @return
      */
-    @PostMapping("/cartsession/start/{paymentRefundFor}")
+    @PostMapping("/cartsession/start/{paymentRefundFor}/{objectId}")
     public @ResponseBody
-    ResponseEntity<CartSession> startSession(@PathVariable PaymentRefundFor paymentRefundFor) {
+    ResponseEntity<CartSession> startSession(@PathVariable PaymentRefundFor paymentRefundFor,
+                                             @PathVariable long objectId) {
         try {
-            CartSession cartSession = cartSessionService.startSession(paymentRefundFor);
-            URI uri = new URI("/api/cartsession/" + cartSession.getSessionUUID());
-            return ResponseEntity.created(uri).body(cartSession);
+            CartSession existing = cartSessionService.findSessionFor(paymentRefundFor, objectId);
+            if (existing.getSessionUUID() == null) {
+                CartSession cartSession = cartSessionService.startSession(paymentRefundFor, objectId, new Date());
+                URI uri = new URI("/api/cartsession/" + cartSession.getSessionUUID());
+                return ResponseEntity.created(uri).body(cartSession);
+            } else {
+                log.info("Reused existing session with id " + existing.getSessionUUID() + " which was last updated on " + existing.getSessionLastUpdate());
+                CartSession updatedSession = cartSessionService.updateSession(existing.getSessionUUID());
+                return ResponseEntity.ok(updatedSession);
+            }
         } catch (Exception e) {
             log.error(e.getMessage());
             return ResponseEntity.badRequest().build();

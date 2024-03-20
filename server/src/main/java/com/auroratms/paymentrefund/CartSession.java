@@ -30,6 +30,10 @@ public class CartSession {
     @NonNull
     private Date sessionLastUpdate;
 
+    // id of the object for which this is a payment/refund for
+    @NonNull
+    private long objectId;
+
     public long getId() {
         return id;
     }
@@ -60,5 +64,13 @@ public class CartSession {
 
     public void setSessionLastUpdate(Date sessionLastUpdate) {
         this.sessionLastUpdate = sessionLastUpdate;
+    }
+
+    public long getObjectId() {
+        return objectId;
+    }
+
+    public void setObjectId(long objectId) {
+        this.objectId = objectId;
     }
 }

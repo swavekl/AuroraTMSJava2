@@ -21,29 +21,24 @@ public class CartSessionService {
     private static final int EXPIRED_SESSION_TIMEOUT = 30;
 
     /**
-     * start a session with a start timestamp of now
-     *
-     * @return
-     */
-    public CartSession startSession(PaymentRefundFor paymentRefundFor) {
-        return this.startSession(paymentRefundFor, new Date());
-    }
-
-    /**
      * Starts a session with a given start date & time
-     * @param paymentRefundFor
-     * @param startDate
+     *
+     * @param paymentRefundFor what is this payment for
+     * @param objectId tournament entry id or something else that this is a payment for
+     * @param startDate start timestamp of session
      * @return
      */
-    public CartSession startSession(PaymentRefundFor paymentRefundFor, Date startDate) {
+    public CartSession startSession(PaymentRefundFor paymentRefundFor, long objectId, Date startDate) {
         CartSession cartSession = new CartSession();
         cartSession.setPaymentRefundFor(paymentRefundFor);
         ObjectIdGenerators.UUIDGenerator uuidGenerator = new ObjectIdGenerators.UUIDGenerator();
         UUID uuid = uuidGenerator.generateId(cartSession);
         cartSession.setSessionUUID(uuid.toString());
         cartSession.setSessionLastUpdate(startDate);
+        cartSession.setObjectId(objectId);
 
         CartSession savedCartSession = cartSessionRepository.saveAndFlush(cartSession);
+        log.info("Started cart session with id " + savedCartSession.getSessionUUID());
         return savedCartSession;
     }
 
@@ -53,11 +48,11 @@ public class CartSessionService {
      *
      * @param sessionUUID
      */
-    public void updateSession(String sessionUUID) {
+    public CartSession updateSession(String sessionUUID) {
         CartSession cartSession = cartSessionRepository.findBySessionUUID(sessionUUID)
                 .orElseThrow(() -> new ResourceNotFoundException("Unable to find cartSession with id " + sessionUUID));
         cartSession.setSessionLastUpdate(new Date());
-        cartSessionRepository.saveAndFlush(cartSession);
+        return cartSessionRepository.saveAndFlush(cartSession);
     }
 
     /**
@@ -66,6 +61,7 @@ public class CartSessionService {
      * @param sessionUUID
      */
     public void finishSession(String sessionUUID) {
+        log.info("Finishing cart session " + sessionUUID);
         cartSessionRepository.deleteBySessionUUID(sessionUUID);
     }
 
@@ -81,4 +77,9 @@ public class CartSessionService {
         return cartSessionRepository.findAllByPaymentRefundForAndSessionLastUpdateBeforeOrderBySessionLastUpdate(paymentRefundFor, cutoffDateTime);
     }
 
+    public CartSession findSessionFor(PaymentRefundFor paymentRefundFor, long objectId) {
+        log.info("Looking for cart session for " + paymentRefundFor + " for objectId " + objectId);
+        return cartSessionRepository.findByPaymentRefundForAndObjectId(paymentRefundFor, objectId)
+                .orElse(new CartSession());
+    }
 }

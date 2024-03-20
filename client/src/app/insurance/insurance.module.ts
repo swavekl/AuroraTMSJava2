@@ -4,7 +4,7 @@ import {MatTableModule} from '@angular/material/table';
 import {MatPaginatorModule} from '@angular/material/paginator';
 import {MatSortModule} from '@angular/material/sort';
 import {MatCardModule} from '@angular/material/card';
-import {FlexModule} from '@angular/flex-layout';
+import {FlexLayoutModule} from 'ng-flex-layout';
 import {FormsModule} from '@angular/forms';
 import {MatIconModule} from '@angular/material/icon';
 import {MatButtonModule} from '@angular/material/button';
@@ -38,7 +38,7 @@ import {AccountModule} from '../account/account.module';
         MatSortModule,
         MatCardModule,
         MatIconModule,
-        FlexModule,
+        FlexLayoutModule,
         MatButtonModule,
         MatListModule,
         MatDatepickerModule,

@@ -1,6 +1,6 @@
 import {NgModule} from '@angular/core';
 import {CommonModule} from '@angular/common';
-import {FlexLayoutModule, FlexModule} from '@angular/flex-layout';
+import {FlexLayoutModule} from 'ng-flex-layout';
 import {MatCardModule} from '@angular/material/card';
 import {MatButtonModule} from '@angular/material/button';
 import {MatTabsModule} from '@angular/material/tabs';
@@ -29,7 +29,7 @@ import {PlayerResultsContainerComponent} from './player-results/player-results-c
   ],
   imports: [
     CommonModule,
-    FlexModule,
+    // FlexLayoutModule,
     MatCardModule,
     MatButtonModule,
     TournamentResultsRoutingModule,

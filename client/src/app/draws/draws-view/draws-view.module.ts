@@ -2,7 +2,7 @@ import {NgModule} from '@angular/core';
 import {CommonModule} from '@angular/common';
 
 import {MatListModule} from '@angular/material/list';
-import {FlexModule} from '@angular/flex-layout';
+import {FlexLayoutModule} from 'ng-flex-layout';
 import {MatButtonModule} from '@angular/material/button';
 import {MatIconModule} from '@angular/material/icon';
 import {MatTabsModule} from '@angular/material/tabs';
@@ -31,7 +31,7 @@ import {MatToolbarModule} from '@angular/material/toolbar';
         MatListModule,
         MatButtonModule,
         MatIconModule,
-        FlexModule,
+        FlexLayoutModule,
         SharedModule,
         MatTabsModule,
         MatToolbarModule

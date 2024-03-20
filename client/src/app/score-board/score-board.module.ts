@@ -5,7 +5,7 @@ import {FormsModule} from '@angular/forms';
 import {MatToolbarModule} from '@angular/material/toolbar';
 import {MatInputModule} from '@angular/material/input';
 import {MatSelectModule} from '@angular/material/select';
-import {FlexModule} from '@angular/flex-layout';
+import {FlexLayoutModule} from 'ng-flex-layout';
 
 import {SharedModule} from '../shared/shared.module';
 import { ScoreBoardRoutingModule } from './score-board-routing.module';
@@ -31,7 +31,7 @@ import {MatButtonModule} from '@angular/material/button';
     MatFormFieldModule,
     MatSelectModule,
     FormsModule,
-    FlexModule,
+    FlexLayoutModule,
     MatInputModule,
     MatGridListModule,
     MatButtonModule

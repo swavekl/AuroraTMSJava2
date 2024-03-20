@@ -1,6 +1,6 @@
 import {NgModule} from '@angular/core';
 import {CommonModule} from '@angular/common';
-import {FlexModule} from '@angular/flex-layout';
+import {FlexLayoutModule} from 'ng-flex-layout';
 import {MatListModule} from '@angular/material/list';
 import {MatExpansionModule} from '@angular/material/expansion';
 import {MatTableModule} from '@angular/material/table';
@@ -22,7 +22,7 @@ import {SharedModule} from '../shared/shared.module';
         CommonModule,
         PrizesRoutingModule,
         MatListModule,
-        FlexModule,
+        FlexLayoutModule,
         MatExpansionModule,
         MatTableModule,
         SharedModule

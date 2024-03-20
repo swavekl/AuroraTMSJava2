@@ -6,7 +6,7 @@ import {MatInputModule} from '@angular/material/input';
 import {MatListModule} from '@angular/material/list';
 import {MatToolbarModule} from '@angular/material/toolbar';
 import {MatIconModule} from '@angular/material/icon';
-import {FlexLayoutModule} from '@angular/flex-layout';
+import {FlexLayoutModule} from 'ng-flex-layout';
 import {SharedModule} from '../shared/shared.module';
 import {HomeComponent} from './home/home.component';
 import {UserWelcomeComponent} from './user-welcome/user-welcome.component';

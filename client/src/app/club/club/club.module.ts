@@ -13,7 +13,7 @@ import {MatInputModule} from '@angular/material/input';
 import {MatDialogModule} from '@angular/material/dialog';
 import {MatSelectModule} from '@angular/material/select';
 
-import {FlexModule} from '@angular/flex-layout';
+import {FlexLayoutModule} from 'ng-flex-layout';
 
 import {ClubRoutingModule} from './club-routing.module';
 import {ClubEditComponent} from './club-edit/club-edit.component';
@@ -49,7 +49,7 @@ import {MatProgressBarModule} from '@angular/material/progress-bar';
         MatSelectModule,
         MatInputModule,
         MatDialogModule,
-        FlexModule,
+        FlexLayoutModule,
         MatProgressBarModule
     ],
   providers: [

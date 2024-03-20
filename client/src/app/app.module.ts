@@ -48,7 +48,7 @@ const appearance: MatFormFieldDefaultOptions = {
         UserModule,
         LayoutModule,
         AppStoreModule,
-        environment.production ? [] : StoreDevtoolsModule.instrument(),
+        environment.production ? [] : StoreDevtoolsModule.instrument({connectInZone: true}),
         SharedModule
     ],
   providers: [
