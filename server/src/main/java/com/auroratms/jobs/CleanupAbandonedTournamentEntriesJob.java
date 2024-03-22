@@ -101,6 +101,11 @@ public class CleanupAbandonedTournamentEntriesJob implements Job {
                         tournament.setNumEntries(numEntries);
                         tournamentService.updateTournament(tournament);
                     }
+                } else if (tournament.getNumEntries() != entriesWithEventsIds.size()) {
+                    int numEntries = entriesWithEventsIds.size();
+                    log.info("Updating number of tournament entries for tournament '" + tournament.getName() + "'. Updating count of entries from " + tournament.getNumEntries() + " to " + numEntries);
+                    tournament.setNumEntries(numEntries);
+                    tournamentService.updateTournament(tournament);
                 } else {
                     log.info ("No entries to remove for tournament " + tournament.getName());
                 }
