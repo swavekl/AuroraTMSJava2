@@ -42,7 +42,7 @@ public interface TournamentEventEntryRepository extends JpaRepository<Tournament
     )
     List<TournamentEventEntry> findAllEntriesByTournamentFkWithEventStatus(Long tournamentFk, EventEntryStatus status);
 
-    @Query("select tee.tournamentEntryFk from TournamentEventEntry tee " +
+    @Query("select distinct tee.tournamentEntryFk from TournamentEventEntry tee " +
             "where tee.tournamentFk = ?1 order by tee.tournamentEntryFk")
     List<Long> findAllTournamentEntryIds(Long tournamentFk);
 }
