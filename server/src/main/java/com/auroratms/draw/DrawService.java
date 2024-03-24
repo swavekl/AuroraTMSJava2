@@ -6,16 +6,17 @@ import com.auroratms.draw.notification.DrawsEventPublisher;
 import com.auroratms.draw.notification.event.DrawAction;
 import com.auroratms.error.ResourceNotFoundException;
 import com.auroratms.event.TournamentEvent;
+import com.auroratms.profile.UserProfileExt;
+import com.auroratms.profile.UserProfileExtService;
 import com.auroratms.tournamentevententry.TournamentEventEntry;
 import com.auroratms.tournamentevententry.doubles.DoublesPair;
 import com.auroratms.tournamentevententry.doubles.DoublesService;
+import com.auroratms.usatt.UsattDataService;
+import com.auroratms.usatt.UsattPlayerRecord;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Service for draws functions
@@ -30,12 +31,20 @@ public class DrawService {
 
     private DrawsEventPublisher drawsEventPublisher;
 
+    private UsattDataService usattDataService;
+
+    private UserProfileExtService userProfileExtService;
+
     public DrawService(DrawRepository drawRepository,
                        DoublesService doublesService,
-                       DrawsEventPublisher drawsEventPublisher) {
+                       DrawsEventPublisher drawsEventPublisher,
+                       UsattDataService usattDataService,
+                       UserProfileExtService userProfileExtService) {
         this.drawRepository = drawRepository;
         this.doublesService = doublesService;
         this.drawsEventPublisher = drawsEventPublisher;
+        this.usattDataService = usattDataService;
+        this.userProfileExtService = userProfileExtService;
     }
 
     /**
@@ -190,6 +199,7 @@ public class DrawService {
             for (DrawItem drawItem : seDrawItems) {
                 if (drawItem.getRound() == firstSeRoundOf &&
                         drawItem.getGroupNum() == matchGroupNum) {
+                    placeRankNum = getRankOfPlayerToAdvance(tournamentEvent, placeRankNum, rankToProfileIdMap);
                     String playerProfileId = rankToProfileIdMap.get(placeRankNum);
                     int rating = playerProfileToRatingMap.get(playerProfileId);
                     System.out.println("DrawService advancing player " + playerProfileId + " with rating " + rating + " from round robin round of " + drawItem.getRound() + " group " + drawItem.getGroupNum());
@@ -248,6 +258,44 @@ public class DrawService {
                 updateDrawItem(tournamentEvent.getId(), roundOf, losingPlayerProfileId, rating, groupNum, placeInGroup, singleElimLineNumber);
             }
         }
+    }
+
+    /**
+     * Get the rank of the player to advance, skipping unrated players if event is configured not to advance them
+     * @param tournamentEvent
+     * @param placeRankNum
+     * @param rankToProfileIdMap
+     * @return
+     */
+    private int getRankOfPlayerToAdvance(TournamentEvent tournamentEvent, int placeRankNum, Map<Integer, String> rankToProfileIdMap) {
+        if (!tournamentEvent.isAdvanceUnratedWinner()) {
+            boolean isUnrated = false;
+            do {
+                // find the first 'rated' player starting with this rank
+                String playerProfileId = rankToProfileIdMap.get(placeRankNum);
+                isUnrated = isPlayerUnrated(playerProfileId);
+                if (isUnrated) {
+                    // skip to the next player if this one is unrated
+                    placeRankNum++;
+                }
+            } while (isUnrated && placeRankNum < rankToProfileIdMap.size());
+        }
+        return placeRankNum;
+    }
+
+    /**
+     * Finds out if the player is unrated
+     * @param playerProfileId
+     * @return
+     */
+    private boolean isPlayerUnrated(String playerProfileId) {
+        UserProfileExt userProfileExt = userProfileExtService.getByProfileId(playerProfileId);
+        Long membershipId = userProfileExt.getMembershipId();
+        UsattPlayerRecord usattPlayerRecord = usattDataService.getPlayerByMembershipId(membershipId);
+        Date lastTournamentPlayedDate = usattPlayerRecord.getLastTournamentPlayedDate();
+        int tournamentRating = usattPlayerRecord.getTournamentRating();
+
+        return (lastTournamentPlayedDate == null || tournamentRating == 0);
     }
 
     /**
