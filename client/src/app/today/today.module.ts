@@ -38,22 +38,25 @@ import { PlayerStatusIndicatorComponent } from './player-status-indicator/player
 import {MatButtonToggleModule} from '@angular/material/button-toggle';
 
 @NgModule({
-  declarations: [
-    TodayComponent,
-    CheckinCommunicateComponent,
-    CheckinCommunicateContainerComponent,
-    PlayerScheduleContainerComponent,
-    PlayerScheduleComponent,
-    PlayerStatusPipe,
-    PlayerScheduleDetailComponent,
-    PlayerScheduleDetailContainerComponent,
-    PlayerMatchesComponent,
-    PlayerMatchesContainerComponent,
-    PlayerStatusListComponent,
-    PlayerStatusListContainerComponent,
-    PlayerCheckinDialogComponent,
-    PlayerStatusIndicatorComponent
-  ],
+    declarations: [
+        TodayComponent,
+        CheckinCommunicateComponent,
+        CheckinCommunicateContainerComponent,
+        PlayerScheduleContainerComponent,
+        PlayerScheduleComponent,
+        PlayerStatusPipe,
+        PlayerScheduleDetailComponent,
+        PlayerScheduleDetailContainerComponent,
+        PlayerMatchesComponent,
+        PlayerMatchesContainerComponent,
+        PlayerStatusListComponent,
+        PlayerStatusListContainerComponent,
+        PlayerCheckinDialogComponent,
+        PlayerStatusIndicatorComponent
+    ],
+    exports: [
+        PlayerStatusIndicatorComponent
+    ],
     imports: [
         CommonModule,
         TodayRoutingModule,
