@@ -29,13 +29,19 @@ public class PlayerStatusController {
     public ResponseEntity<List<PlayerStatus>> list(@RequestParam Long tournamentId,
                                                    @RequestParam Integer tournamentDay,
                                                    @RequestParam(required = false) String playerProfileId,
-                                                   @RequestParam(required = false) Long eventId) {
+                                                   @RequestParam(required = false) Long eventId,
+                                                   @RequestParam(required = false) Boolean isDailyCheckin) {
         try {
             List<PlayerStatus> playerStatuses = null;
             if (playerProfileId != null) {
                 playerStatuses = playerStatusService.listOnePlayer(playerProfileId, tournamentId, tournamentDay, eventId);
             } else {
-                playerStatuses = playerStatusService.listAllPlayers(tournamentId, tournamentDay);
+                if (eventId == null) {
+                    playerStatuses = playerStatusService.listAllPlayers(tournamentId, tournamentDay);
+                } else {
+                    // for one event
+                    playerStatuses = playerStatusService.listPlayersForEvent(tournamentId, tournamentDay, eventId, isDailyCheckin);
+                }
             }
             return new ResponseEntity<>(playerStatuses, HttpStatus.OK);
         } catch (Exception e) {

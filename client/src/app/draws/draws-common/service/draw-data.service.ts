@@ -13,11 +13,13 @@ export class DrawDataService extends DefaultDataService<DrawItem> {
   // parameters for making calls to server
   private _eventId: number;
   private _drawType: DrawType;
+  private _loadStatus: boolean;
 
   constructor(http: HttpClient,
               httpUrlGenerator: HttpUrlGenerator,
               config?: DefaultDataServiceConfig) {
     super('DrawItem', http, httpUrlGenerator, config);
+    this._loadStatus = false;
   }
 
   public set eventId(value: number) {
@@ -28,11 +30,15 @@ export class DrawDataService extends DefaultDataService<DrawItem> {
     this._drawType = value;
   }
 
+  public set loadStatus(value: boolean) {
+    this._loadStatus = value;
+  }
+
   /**
    * Gets all draws but only for one event (different from base class action)
    */
   getAll(): Observable<DrawItem[]> {
-    const queryParams = `eventId=${this._eventId}&drawType=${this._drawType}`;
+    const queryParams = `eventId=${this._eventId}&loadStatus=${this._loadStatus}&drawType=${this._drawType}`;
     const url = `/api/draws?${queryParams}`;
     return this.execute('GET', url);
   }

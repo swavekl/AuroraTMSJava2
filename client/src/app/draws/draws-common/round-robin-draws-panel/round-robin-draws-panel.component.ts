@@ -10,6 +10,10 @@ import {DrawAction, DrawActionType} from '../../draws-config/draws/draw-action';
 import {ConfirmationPopupComponent} from '../../../shared/confirmation-popup/confirmation-popup.component';
 import {ConflictType} from '../model/conflict-type.enum';
 import {ConflictRendererHelper} from '../model/conflict-renderer-helper.model';
+import {EventStatusCode} from '../../../today/model/event-status-code.enum';
+import {PlayerStatus} from '../../../today/model/player-status.model';
+import {PlayerStatusPipe} from '../../../today/pipe/player-status.pipe';
+import {MatchCard} from '../../../matches/model/match-card.model';
 
 @Component({
   selector: 'app-round-robin-draws-panel',
@@ -21,6 +25,13 @@ export class RoundRobinDrawsPanelComponent implements OnChanges {
   // items for this event
   @Input()
   draws: DrawItem [] = [];
+
+  // player check in status
+  @Input()
+  playerStatusList: PlayerStatus [] = [];
+
+  @Input()
+  matchCards: MatchCard [] = [];
 
   // checks if there are any scores entered for the event to prevent any changes to the draw after results are entered
   @Input()
@@ -46,12 +57,16 @@ export class RoundRobinDrawsPanelComponent implements OnChanges {
   // if true expanded information i.e. state, club of player
   expandedView: boolean;
 
+  // if true show checkin status
+  checkinStatus: boolean;
+
   // information about moved items
   undoStack: UndoMemento [] = [];
 
   constructor(private dialog: MatDialog) {
     this.groups = [];
     this.expandedView = false;
+    this.checkinStatus = false;
     this.allowDrawChanges = true;
     this.undoStack = [];
   }
@@ -307,6 +322,10 @@ export class RoundRobinDrawsPanelComponent implements OnChanges {
     this.expandedView = expandedView;
   }
 
+  setCheckinStatus(checkinStatus: boolean) {
+    this.checkinStatus = checkinStatus;
+  }
+
   clearUndoStack() {
     this.undoStack = [];
   }
@@ -317,6 +336,71 @@ export class RoundRobinDrawsPanelComponent implements OnChanges {
 
   getConflictTooltipText(drawItem: DrawItem) {
     return (this.editMode) ? ConflictRendererHelper.getConflictTooltipText(drawItem.conflictType) : "";
+  }
+
+  getPlayerStatusCode(playerId: string, playerIndex: number): EventStatusCode {
+    const playerStatusObject: PlayerStatus = this.getPlayerStatus(playerId, playerIndex);
+    return (playerStatusObject != null) ? playerStatusObject.eventStatusCode : null;
+  }
+
+  getPlayerStatusReason(playerId: string, playerIndex: number): string {
+    let reason = '';
+    const playerStatusObject: PlayerStatus = this.getPlayerStatus(playerId, playerIndex);
+    if (playerStatusObject != null) {
+      switch (playerStatusObject.eventStatusCode) {
+        case EventStatusCode.WILL_NOT_PLAY:
+          reason = new PlayerStatusPipe().transform(playerStatusObject.eventStatusCode, playerStatusObject.estimatedArrivalTime);
+          reason += '. ' + playerStatusObject.reason;
+          break;
+        case EventStatusCode.WILL_PLAY_BUT_IS_LATE:
+          reason = new PlayerStatusPipe().transform(playerStatusObject.eventStatusCode, playerStatusObject.estimatedArrivalTime);
+          break;
+      }
+    }
+    return reason;
+  }
+
+  private getPlayerStatus(playerId: string, playerIndex: number): PlayerStatus {
+    if (this.playerStatusList?.length > 0) {
+      const foundPlayerStatus: PlayerStatus[] = this.playerStatusList.filter((playerStatus: PlayerStatus) => {
+        if (this.selectedEvent?.doubles) {
+          let playerIds = playerId.split(';');
+          const doublesPlayerId = playerIds[playerIndex];
+          return playerStatus.playerProfileId === doublesPlayerId;
+        } else {
+          return playerStatus.playerProfileId === playerId;
+        }
+      });
+      return (foundPlayerStatus.length > 0) ? foundPlayerStatus[0] : null;
+    } else {
+      return null;
+    }
+  }
+
+  getStartTime(groupNum: number): number {
+    let startTime = this.selectedEvent?.startTime;
+    if (this.matchCards) {
+      const filteredMC : MatchCard [] = this.matchCards.filter((matchCard: MatchCard) => {
+        return (matchCard.groupNum == groupNum && matchCard.drawType === DrawType.ROUND_ROBIN);
+      });
+      if (filteredMC?.length > 0) {
+        startTime = filteredMC[0].startTime;
+      }
+    }
+    return startTime;
+  }
+
+  getAssignedTables(groupNum: number): string {
+    let assignedTables = '';
+    if (this.matchCards) {
+      const filteredMC : MatchCard [] = this.matchCards.filter((matchCard: MatchCard) => {
+        return (matchCard.groupNum == groupNum && matchCard.drawType === DrawType.ROUND_ROBIN);
+      });
+      if (filteredMC?.length > 0) {
+        assignedTables = filteredMC[0].assignedTables;
+      }
+    }
+    return assignedTables != '' ? `Tables: ${assignedTables}` : '';
   }
 }
 

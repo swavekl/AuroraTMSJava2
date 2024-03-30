@@ -93,6 +93,11 @@ table {
       }
 
     }
+
+    &.player-status-column {
+      vertical-align: top;
+      width: 20px;
+    }
   }
 }
 

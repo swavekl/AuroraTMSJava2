@@ -7,6 +7,8 @@ import {DrawType} from '../model/draw-type.enum';
 import {TournamentEvent} from '../../../tournament/tournament-config/tournament-event.model';
 import {ConflictType} from '../model/conflict-type.enum';
 import {CdkDrag, CdkDragDrop, CdkDropList, transferArrayItem} from '@angular/cdk/drag-drop';
+import {PlayerStatus} from '../../../today/model/player-status.model';
+import {MatchCard} from '../../../matches/model/match-card.model';
 
 @Component({
   selector: 'app-single-elimination-bracket',
@@ -20,6 +22,13 @@ export class SingleEliminationBracketComponent implements OnInit, OnChanges {
 
   @Input()
   draws: DrawItem [] = [];
+
+  // player check in status
+  @Input()
+  playerStatusList: PlayerStatus [] = [];
+
+  @Input()
+  matchCards: MatchCard[] = [];
 
   @Input()
   bracketsHeight: string;
@@ -74,6 +83,11 @@ export class SingleEliminationBracketComponent implements OnInit, OnChanges {
 
       this.finishRemainingSERounds();
 
+      this.transformToNgttTournament();
+    }
+
+    const matchCardsSC: SimpleChange = changes.matchCards;
+    if (this.singleEliminationRounds?.length > 0 && matchCardsSC && matchCardsSC.currentValue != null) {
       this.transformToNgttTournament();
     }
   }
@@ -187,11 +201,13 @@ export class SingleEliminationBracketComponent implements OnInit, OnChanges {
         for (let j = 0; j < drawItems.length;) {
           const drawItemLeft: DrawItem = drawItems[j];
           const drawItemRight: DrawItem = drawItems[j + 1];
+          const groupNumber = (j / 2) + 1;
+          const matchCard: MatchCard = this.getMatchCard(drawRound.round, groupNumber);
           const match: Match = new Match();
           match.opponentA = drawItemLeft;
           match.opponentB = drawItemRight;
-          match.time = 10.5;
-          match.tableNum = 6 + j;  // for now
+          match.time = matchCard ? matchCard.startTime : 0;
+          match.tableNum = (matchCard?.assignedTables != null) ? Number(matchCard.assignedTables) : (6 + j);  // for now
           match.result = null;
           match.opponentAWon = false;
           match.showSeedNumber = (i === 0); // show seed number for first round only
@@ -283,5 +299,18 @@ export class SingleEliminationBracketComponent implements OnInit, OnChanges {
     const dropListData = cdkDropList.data;
     const topSeeds = item?.data.seSeedNumber <= 2;
     return item?.data.byeNum === 0 && dropListData?.firstRound === item?.data.round;
+  }
+
+  private getMatchCard(round: number, groupNumber: number): MatchCard {
+    let foundMatchCard: MatchCard = null;
+    if (this.matchCards) {
+      const filtered : MatchCard [] = this.matchCards.filter((matchCard: MatchCard) => {
+        return matchCard.round == round && matchCard.groupNum == groupNumber && matchCard.drawType === DrawType.SINGLE_ELIMINATION;
+      });
+      if (filtered?.length > 0) {
+        foundMatchCard = filtered[0];
+      }
+    }
+    return foundMatchCard;
   }
 }

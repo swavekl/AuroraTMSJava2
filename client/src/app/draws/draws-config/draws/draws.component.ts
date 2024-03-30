@@ -8,6 +8,8 @@ import {DrawItem} from '../../draws-common/model/draw-item.model';
 import {DrawAction, DrawActionType} from './draw-action';
 import {ConfirmationPopupComponent} from '../../../shared/confirmation-popup/confirmation-popup.component';
 import {TabbedDrawsPanelComponent} from '../../draws-common/tabbed-draws-panel/tabbed-draws-panel.component';
+import {PlayerStatus} from '../../../today/model/player-status.model';
+import {MatchCard} from '../../../matches/model/match-card.model';
 
 @Component({
   selector: 'app-draws',
@@ -23,6 +25,12 @@ export class DrawsComponent implements OnInit, OnChanges {
   draws: DrawItem [] = [];
 
   @Input()
+  playerStatusList: PlayerStatus [] = [];
+
+  @Input()
+  matchCards: MatchCard [] = [];
+
+  @Input()
   tournamentName: string;
 
   @Output()
@@ -34,6 +42,9 @@ export class DrawsComponent implements OnInit, OnChanges {
   // if true expanded information i.e. state, club of player
   expandedView: boolean;
 
+  // if true show checkin status
+  checkinStatus: boolean;
+
   // checks if there are any scores entered for the event to prevent any changes to the draw after results are entered
   allowDrawChanges: boolean;
 
@@ -42,6 +53,7 @@ export class DrawsComponent implements OnInit, OnChanges {
 
   constructor(private dialog: MatDialog) {
     this.expandedView = false;
+    this.checkinStatus = false;
     this.allowDrawChanges = true;
   }
 
@@ -67,7 +79,7 @@ export class DrawsComponent implements OnInit, OnChanges {
     const action: DrawAction = {
       actionType: DrawActionType.DRAW_ACTION_LOAD,
       eventId: this.selectedEvent.id,
-      payload: {drawType: drawType}
+      payload: {drawType: drawType, loadStatus: this.checkinStatus, tournamentDay: this.selectedEvent.day}
     };
     this.drawsAction.emit(action);
   }
@@ -183,6 +195,22 @@ export class DrawsComponent implements OnInit, OnChanges {
   onExpandedViewChange($event: MatSlideToggleChange) {
     if (this.tabbedDrawsPanelComponent != null) {
       this.tabbedDrawsPanelComponent.setExpandedView(this.expandedView);
+    }
+  }
+
+  onCheckinStatusChange($event: MatSlideToggleChange) {
+    if (this.tabbedDrawsPanelComponent != null) {
+      this.tabbedDrawsPanelComponent.setCheckinStatus(this.checkinStatus);
+    }
+
+    if (this.checkinStatus) {
+      const drawType: DrawType = this.selectedEvent.singleElimination ? DrawType.SINGLE_ELIMINATION : DrawType.ROUND_ROBIN;
+      const action: DrawAction = {
+        actionType: DrawActionType.DRAW_ACTION_LOAD_STATUS,
+        eventId: this.selectedEvent.id,
+        payload: {drawType: drawType, loadStatus: this.checkinStatus, tournamentDay: this.selectedEvent.day}
+      };
+      this.drawsAction.emit(action);
     }
   }
 

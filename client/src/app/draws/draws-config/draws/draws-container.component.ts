@@ -17,12 +17,18 @@ import {MatchCardService} from '../../../matches/service/match-card.service';
 import {MatchCard} from '../../../matches/model/match-card.model';
 import {ConfirmationPopupComponent} from '../../../shared/confirmation-popup/confirmation-popup.component';
 import {MatDialog} from '@angular/material/dialog';
+import {PlayerStatusService} from '../../../today/service/player-status.service';
+import {PlayerStatus} from '../../../today/model/player-status.model';
+import {TodayService} from '../../../shared/today.service';
+import {CheckInType} from '../../../tournament/model/check-in-type.enum';
 
 @Component({
   selector: 'app-draws-container',
   template: `
       <app-draws [tournamentEvents]="tournamentEvents$ | async"
                  [draws]="draws$ | async"
+                 [playerStatusList]="playerStatusList$ | async"
+                 [matchCards]="matchCards$ | async"
                  [tournamentName]="tournamentName$ | async"
                  (drawsAction)="onDrawsAction($event)">
       </app-draws>
@@ -37,6 +43,11 @@ export class DrawsContainerComponent implements OnInit, OnDestroy {
   // draws for the currently selected event
   draws$: Observable<DrawItem[]>;
 
+  matchCards$: Observable<MatchCard[]>;
+
+  // check in statuses of all players
+  playerStatusList$: Observable<PlayerStatus[]>;
+
   tournamentName$: Observable<string>;
 
   private tournamentId: number;
@@ -44,6 +55,8 @@ export class DrawsContainerComponent implements OnInit, OnDestroy {
   private loading$: Observable<boolean>;
 
   private subscriptions: Subscription = new Subscription();
+
+  private isDailyCheckin: boolean = true;
 
 
   constructor(private tournamentEventConfigService: TournamentEventConfigService,
@@ -53,6 +66,7 @@ export class DrawsContainerComponent implements OnInit, OnDestroy {
               private linearProgressBarService: LinearProgressBarService,
               private matchCardPrinterService: MatchCardPrinterService,
               private matchCardService: MatchCardService,
+              private playerStatusService: PlayerStatusService,
               private dialog: MatDialog) {
     const strTournamentId = this.activatedRoute.snapshot.params['tournamentId'] || 0;
     this.tournamentId = Number(strTournamentId);
@@ -60,6 +74,7 @@ export class DrawsContainerComponent implements OnInit, OnDestroy {
     this.loadTournamentEvents(this.tournamentId);
     this.loadTournamentName(this.tournamentId);
     this.setupDraws();
+    this.setupMatchCards();
   }
 
   /**
@@ -74,8 +89,9 @@ export class DrawsContainerComponent implements OnInit, OnDestroy {
       this.drawService.store.select(this.drawService.selectors.selectLoading),
       this.matchCardService.store.select(this.matchCardService.selectors.selectLoading),
       this.matchCardPrinterService.loading$,
-      (eventConfigsLoading: boolean, tournamentLoading, drawsLoading: boolean, matchCardsLoading: boolean, printingMatchCards: boolean) => {
-        return eventConfigsLoading || tournamentLoading || drawsLoading || matchCardsLoading || printingMatchCards;
+      this.playerStatusService.store.select(this.playerStatusService.selectors.selectLoading),
+      (eventConfigsLoading: boolean, tournamentLoading, drawsLoading: boolean, matchCardsLoading: boolean, printingMatchCards: boolean, playerStatusLoading: boolean) => {
+        return eventConfigsLoading || tournamentLoading || drawsLoading || matchCardsLoading || printingMatchCards || playerStatusLoading;
       }
     );
 
@@ -112,6 +128,7 @@ export class DrawsContainerComponent implements OnInit, OnDestroy {
         this.tournamentConfigService.getByKey(tournamentId);
       } else {
         this.tournamentName$ = of(tournament.name);
+        this.isDailyCheckin = tournament.configuration?.checkInType == CheckInType.DAILY;
       }
     });
     this.subscriptions.add(subscription);
@@ -119,7 +136,14 @@ export class DrawsContainerComponent implements OnInit, OnDestroy {
 
   private setupDraws() {
     // this will be subscribed by the template
+    this.drawService.clearCache();
     this.draws$ = this.drawService.entities$;
+  }
+
+  private setupMatchCards() {
+    this.matchCardService.clearCache();
+    // this will be subscribed by the template
+    this.matchCards$ = this.matchCardService.entities$;
   }
 
   /**
@@ -130,6 +154,10 @@ export class DrawsContainerComponent implements OnInit, OnDestroy {
     switch (drawAction.actionType) {
       case DrawActionType.DRAW_ACTION_LOAD:
         this.onLoadDraw(drawAction.eventId, drawAction.payload?.drawType);
+        if (drawAction.payload?.loadStatus) {
+          this.onLoadStatus(drawAction.eventId, drawAction.payload?.tournamentDay);
+        }
+        this.onLoadMatchCards(drawAction.eventId, drawAction.payload?.drawType);
         break;
       case DrawActionType.DRAW_ACTION_GENERATE:
         this.onGenerateDraw(drawAction.eventId, drawAction.payload?.drawType);
@@ -142,6 +170,9 @@ export class DrawsContainerComponent implements OnInit, OnDestroy {
         break;
       case DrawActionType.DRAW_ACTION_PRINT:
         this.onPrintMatchCards(drawAction.eventId, drawAction.payload?.drawType);
+        break;
+      case DrawActionType.DRAW_ACTION_LOAD_STATUS:
+        this.onLoadStatus(drawAction.eventId, drawAction.payload?.tournamentDay);
         break;
     }
   }
@@ -216,6 +247,10 @@ export class DrawsContainerComponent implements OnInit, OnDestroy {
     this.tournamentEventConfigService.updateOneInCache({id: eventId, matchScoresEntered: false});
   }
 
+  private onLoadMatchCards(eventId: number, drawType: DrawType) {
+    this.matchCardService.loadForEvent(eventId, false);
+  }
+
   private onPrintMatchCards(eventId: number, drawType: DrawType) {
     let subscription = this.matchCardService.loadForEvent(eventId, true)
       .pipe(
@@ -254,5 +289,13 @@ export class DrawsContainerComponent implements OnInit, OnDestroy {
         first())
       .subscribe();
     this.subscriptions.add(subscription);
+  }
+
+  private onLoadStatus(eventId: number, tournamentDay: number) {
+    // this is subscribed by template | async
+    this.playerStatusService.clearCache();
+    this.playerStatusList$ = this.playerStatusService.entities$;
+    let params = `tournamentId=${this.tournamentId}&tournamentDay=${tournamentDay}&eventId=${eventId}&isDailyCheckin=${this.isDailyCheckin}`;
+    this.playerStatusService.loadWithQuery(params);
   }
 }

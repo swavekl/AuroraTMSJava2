@@ -24,6 +24,7 @@ import {SEMatchComponent} from './single-elimination-bracket/sematch/sematch.com
 import {SingleEliminationBracketSmallComponent} from './single-elimination-bracket-small/single-elimination-bracket-small.component';
 import {RoundRobinDrawsPanelComponent} from './round-robin-draws-panel/round-robin-draws-panel.component';
 import {TabbedDrawsPanelComponent} from './tabbed-draws-panel/tabbed-draws-panel.component';
+import {TodayModule} from '../../today/today.module';
 
 /**
  * Module created so we can share some components between screens implementing
@@ -58,7 +59,8 @@ import {TabbedDrawsPanelComponent} from './tabbed-draws-panel/tabbed-draws-panel
     FormsModule,
     MatSlideToggleModule,
     NgttSingleEliminationTreeModule,
-    MatTabsModule
+    MatTabsModule,
+    TodayModule
   ]
 })
 export class DrawsCommonModule {

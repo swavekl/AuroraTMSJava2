@@ -7,7 +7,8 @@ export enum DrawActionType {
   DRAW_ACTION_GENERATE = 'DrawActionGenerate',
   DRAW_ACTION_CLEAR = 'DrawActionClear',
   DRAW_ACTION_UPDATE = 'DrawActionUpdate',
-  DRAW_ACTION_PRINT = 'DrawActionPring'
+  DRAW_ACTION_PRINT = 'DrawActionPrint',
+  DRAW_ACTION_LOAD_STATUS = 'DrawActionLoadStatuses'
 }
 
 export interface DrawAction {

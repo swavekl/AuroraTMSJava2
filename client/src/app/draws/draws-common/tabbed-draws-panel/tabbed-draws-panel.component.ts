@@ -5,6 +5,8 @@ import {RoundRobinDrawsPanelComponent} from '../round-robin-draws-panel/round-ro
 import {Observable} from 'rxjs';
 import {BreakpointObserver, Breakpoints} from '@angular/cdk/layout';
 import {map} from 'rxjs/operators';
+import {PlayerStatus} from '../../../today/model/player-status.model';
+import {MatchCard} from '../../../matches/model/match-card.model';
 
 @Component({
   selector: 'app-tabbed-draws-panel',
@@ -23,6 +25,12 @@ export class TabbedDrawsPanelComponent {
 
   @Input()
   draws: DrawItem [] = [];
+
+  @Input()
+  playerStatusList: PlayerStatus [] = [];
+
+  @Input()
+  matchCards: MatchCard [] = [];
 
   @Output()
   private drawsAction: EventEmitter<any> = new EventEmitter<any>;
@@ -108,6 +116,12 @@ export class TabbedDrawsPanelComponent {
   setExpandedView(expandedView: boolean) {
     if (this.roundRobinDrawsPanelComponent != null) {
       this.roundRobinDrawsPanelComponent.setExpandedView(expandedView);
+    }
+  }
+
+  setCheckinStatus(checkinStatus: boolean) {
+    if (this.roundRobinDrawsPanelComponent != null) {
+      this.roundRobinDrawsPanelComponent.setCheckinStatus(checkinStatus);
     }
   }
 }

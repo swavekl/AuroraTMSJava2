@@ -7,8 +7,8 @@
       <tr>
         <th>&nbsp;</th>
         <th class="group-num-column">
-          Group: {{group.groupNum}} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-          {{selectedEvent?.startTime | startTime}}
+          Group: {{group.groupNum}} &nbsp;&nbsp;
+          {{getStartTime(group.groupNum) | startTime}} &nbsp;&nbsp; {{ getAssignedTables(group.groupNum)}}
         </th>
         <th>&nbsp;</th>
       </tr>
@@ -23,8 +23,8 @@
           cdkDrag
           cdkDragBoundary=".rr-draws-panel-inner"
           [cdkDragData]="drawItem"
-          [cdkDragDisabled]="editMode === false || drawItem.placeInGroup === 1"
-          [class]="(editMode === false || drawItem.placeInGroup === 1) ? '' : 'draggable' ">
+          [cdkDragDisabled]="editMode === false || drawItem.placeInGroup === 1 || checkinStatus === true"
+          [class]="(editMode === false || drawItem.placeInGroup === 1 || checkinStatus === true) ? '' : 'draggable' ">
         <ng-container *ngIf="drawItem.rating >= 0; else fakeItem;">
           <td class="rating-column">{{drawItem.rating}}</td>
 <!--              [matTooltip]="getTooltipText(drawItem)"-->
@@ -46,8 +46,23 @@
               </div>
             </div>
           </td>
-          <td>
+          <td *ngIf="!checkinStatus">
             <div class="conflict-indicator" [ngClass]="getConflictClass(drawItem)" [matTooltip]="getConflictTooltipText(drawItem)">&nbsp;</div>
+          </td>
+          <td *ngIf="checkinStatus" class="player-status-column" >
+            <ng-container *ngIf="!selectedEvent.doubles; else doubles">
+              <div [matTooltip]="getPlayerStatusReason(drawItem.playerId, 0)">
+                <app-player-status-indicator [playerStatus]="getPlayerStatusCode(drawItem.playerId, 0)"></app-player-status-indicator>
+              </div>
+            </ng-container>
+            <ng-template #doubles>
+              <div [matTooltip]="getPlayerStatusReason(drawItem.playerId, 0)">
+                <app-player-status-indicator [playerStatus]="getPlayerStatusCode(drawItem.playerId, 0)"></app-player-status-indicator>
+              </div>
+              <div [matTooltip]="getPlayerStatusReason(drawItem.playerId, 1)">
+                <app-player-status-indicator [playerStatus]="getPlayerStatusCode(drawItem.playerId, 1)"></app-player-status-indicator>
+              </div>
+            </ng-template>
           </td>
         </ng-container>
         <!-- element shown when there is no player in this place in the group -->
@@ -65,9 +80,10 @@
               </div>
             </div>
           </td>
-          <td>
+          <td *ngIf="!checkinStatus">
             <div class="conflict-indicator"></div>
           </td>
+          <td *ngIf="checkinStatus" class="player-status-column"></td>
         </ng-template>
       </tr>
       </tbody>

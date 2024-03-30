@@ -14,6 +14,10 @@ import {EventStatusCode} from '../model/event-status-code.enum';
   `,
   styles: [
     `
+      mat-icon {
+        font-size: 16px;
+      }
+
       mat-icon.will-play {
         color: green;
       }

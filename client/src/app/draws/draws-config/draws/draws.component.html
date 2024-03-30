@@ -34,6 +34,10 @@
             Expanded View
           </mat-slide-toggle>
           <span class="toolbar-spacer-2"></span>
+          <mat-slide-toggle name="checkinStatus" [(ngModel)]="checkinStatus" (change)="onCheckinStatusChange($event)">
+            Status
+          </mat-slide-toggle>
+          <span class="toolbar-spacer-2"></span>
           <button type="button" mat-raised-button (click)="onPrintMatchCards()" [disabled]="selectedEvent == null">
             <mat-icon matListItemIcon>print</mat-icon>
             Print RR Match Cards
@@ -47,6 +51,8 @@
                                 [allowDrawChanges]="allowDrawChanges"
                                 [selectedEvent]="selectedEvent"
                                 [draws]="draws"
+                                [playerStatusList]="playerStatusList"
+                                [matchCards]="matchCards"
                                 (drawsAction)="onRRDrawsAction($event)"
                                 (updateFlagEE)="updateFlag()">
         </app-tabbed-draws-panel>
