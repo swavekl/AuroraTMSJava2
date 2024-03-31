@@ -8,6 +8,8 @@ import {MatListModule} from '@angular/material/list';
 import {MatIconModule} from '@angular/material/icon';
 import {SharedModule} from '../shared/shared.module';
 import {FlexLayoutModule} from 'ng-flex-layout';
+import {MatButton} from '@angular/material/button';
+import {MatToolbar} from '@angular/material/toolbar';
 
 
 @NgModule({
@@ -21,7 +23,9 @@ import {FlexLayoutModule} from 'ng-flex-layout';
         MatListModule,
         MatIconModule,
         SharedModule,
-        FlexLayoutModule
+        FlexLayoutModule,
+        MatButton,
+        MatToolbar
     ]
 })
 export class RegistrationModule {

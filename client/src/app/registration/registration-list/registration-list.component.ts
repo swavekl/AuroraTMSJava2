@@ -2,6 +2,7 @@ import {Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges
 import {Registration} from '../model/registration.model';
 import {TodayService} from '../../shared/today.service';
 import {DateUtils} from '../../shared/date-utils';
+import {Router} from '@angular/router';
 
 @Component({
   selector: 'app-registration-list',
@@ -21,7 +22,8 @@ export class RegistrationListComponent implements OnChanges {
   upcomingRegistrations: Registration [];
   pastRegistrations: Registration [];
 
-  constructor(private todayService: TodayService) {
+  constructor(private todayService: TodayService,
+              private router: Router) {
     this.pastIndex = -1;
   }
 
@@ -40,5 +42,9 @@ export class RegistrationListComponent implements OnChanges {
 
   onView(registration: Registration) {
     this.eventEmitter.emit(registration);
+  }
+
+  back() {
+    this.router.navigateByUrl(`/ui/home`);
   }
 }

@@ -1,5 +1,7 @@
 <div class="mat-headline-6 page-title">My Registrations</div>
-<div fxLayout="row">
+<mat-toolbar fxLayout="row" fxLayoutGap="10" fxLayoutAlign="start center">
+  <button mat-raised-button color="" type="button" (click)="back()">Back</button>
+</mat-toolbar><div fxLayout="row">
   <div fxFlex></div>
   <div class="registrations-list-container" fxFlex.lt-md="100%" fxFlex="30%">
     <ng-container *ngIf="registrations?.length > 0">
