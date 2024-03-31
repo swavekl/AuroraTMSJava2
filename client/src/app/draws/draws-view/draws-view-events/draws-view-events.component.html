@@ -2,20 +2,13 @@
   <button mat-raised-button color="" type="button" (click)="back()">Back</button>
 </mat-toolbar>
 <div>
-  <mat-list dense class="event-list-container">
-    <div *ngFor="let tournamentEvent of tournamentEvents; let last = last;" (click)="onSelectEvent(tournamentEvent)" class="event-list-item">
-      <div fxLayout="row" fxLayoutAlign="space-between center">
-        <div>
-          <h3 matListItemTitle>{{tournamentEvent.name}}</h3>
-          <h3 matListItemLine>{{ tournamentEvent.day | eventDay: tournamentStartDate }} {{ tournamentEvent.startTime | startTime }}</h3>
-        </div>
-        <div style="margin-right: 8px">
-<!--          <button type="button" color="" (click)="onSelectEvent(tournamentEvent)">-->
-            <mat-icon matListItemIcon>navigate_next</mat-icon>
-<!--          </button>-->
-        </div>
+  <mat-nav-list ngClass.lt-sm="event-list-container-small" ngClass.sm="event-list-container-small" ngClass.gt-sm="event-list-container">
+    <mat-list-item *ngFor="let tournamentEvent of tournamentEvents; let last = last;" (click)="onSelectEvent(tournamentEvent)" class="event-list-item">
+      <div matListItemTitle>{{ tournamentEvent.name }}</div>
+      <div matListItemLine>{{ tournamentEvent.day | eventDay: tournamentStartDate }} {{ tournamentEvent.startTime | startTime }}</div>
+      <div matListItemMeta style="padding-top: 12px" (click)="onSelectEvent(tournamentEvent)">
+        <mat-icon matListItemIcon>navigate_next</mat-icon>
       </div>
-      <mat-divider [inset]="false" *ngIf="!last"></mat-divider>
-    </div>
-  </mat-list>
+    </mat-list-item>
+  </mat-nav-list>
 </div>

@@ -24,6 +24,6 @@ export class DrawsViewDetailComponent {
   }
 
   back() {
-    this.router.navigateByUrl('/ui/home');
+    this.router.navigateByUrl(`/ui/drawsview/${this.selectedEvent.tournamentFk}`);
   }
 }

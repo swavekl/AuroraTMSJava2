@@ -1,5 +1,6 @@
-<mat-toolbar>
+<mat-toolbar fxLayout="row" fxLayoutGap="10" fxLayoutAlign="start center">
   <button mat-raised-button color="" type="button" (click)="back()">Back</button>
+  <div>{{selectedEvent?.name}}</div>
 </mat-toolbar>
 <div class="all-draws-panel">
   <app-tabbed-draws-panel

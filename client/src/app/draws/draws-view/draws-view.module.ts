@@ -15,6 +15,7 @@ import {DrawsViewEventsContainerComponent} from './draws-view-events/draws-view-
 import {DrawsViewDetailComponent} from './draws-view-detail/draws-view-detail.component';
 import {DrawsViewDetailContainerComponent} from './draws-view-detail/draws-view-detail-container.component';
 import {MatToolbarModule} from '@angular/material/toolbar';
+import {MatCard} from '@angular/material/card';
 
 
 @NgModule({
@@ -34,7 +35,8 @@ import {MatToolbarModule} from '@angular/material/toolbar';
         FlexLayoutModule,
         SharedModule,
         MatTabsModule,
-        MatToolbarModule
+        MatToolbarModule,
+        MatCard
     ]
 })
 export class DrawsViewModule {

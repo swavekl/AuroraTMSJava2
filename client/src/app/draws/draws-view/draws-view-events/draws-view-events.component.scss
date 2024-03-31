@@ -6,7 +6,12 @@
   max-width: 300px;
 }
 
+.event-list-container-small {
+  height: calc(100vh - 155px);
+  overflow: auto;
+}
+
 .event-list-item {
-  border-bottom: 1px solid gray;
+  //border-bottom: 1px solid gray;
   padding: 0 0 0 8px;
 }
