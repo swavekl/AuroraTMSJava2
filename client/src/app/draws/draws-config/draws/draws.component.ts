@@ -9,7 +9,7 @@ import {DrawAction, DrawActionType} from './draw-action';
 import {ConfirmationPopupComponent} from '../../../shared/confirmation-popup/confirmation-popup.component';
 import {TabbedDrawsPanelComponent} from '../../draws-common/tabbed-draws-panel/tabbed-draws-panel.component';
 import {PlayerStatus} from '../../../today/model/player-status.model';
-import {MatchCard} from '../../../matches/model/match-card.model';
+import {MatchCardInfo} from '../../../matches/model/match-card-info.model';
 
 @Component({
   selector: 'app-draws',
@@ -28,7 +28,7 @@ export class DrawsComponent implements OnInit, OnChanges {
   playerStatusList: PlayerStatus [] = [];
 
   @Input()
-  matchCards: MatchCard [] = [];
+  matchCardInfos: MatchCardInfo [] = [];
 
   @Input()
   tournamentName: string;

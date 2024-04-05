@@ -21,6 +21,8 @@ import {PlayerStatusService} from '../../../today/service/player-status.service'
 import {PlayerStatus} from '../../../today/model/player-status.model';
 import {TodayService} from '../../../shared/today.service';
 import {CheckInType} from '../../../tournament/model/check-in-type.enum';
+import {MatchCardInfoService} from '../../../matches/service/match-card-info.service';
+import {MatchCardInfo} from '../../../matches/model/match-card-info.model';
 
 @Component({
   selector: 'app-draws-container',
@@ -28,7 +30,7 @@ import {CheckInType} from '../../../tournament/model/check-in-type.enum';
       <app-draws [tournamentEvents]="tournamentEvents$ | async"
                  [draws]="draws$ | async"
                  [playerStatusList]="playerStatusList$ | async"
-                 [matchCards]="matchCards$ | async"
+                 [matchCardInfos]="matchCardInfos$ | async"
                  [tournamentName]="tournamentName$ | async"
                  (drawsAction)="onDrawsAction($event)">
       </app-draws>
@@ -43,7 +45,8 @@ export class DrawsContainerComponent implements OnInit, OnDestroy {
   // draws for the currently selected event
   draws$: Observable<DrawItem[]>;
 
-  matchCards$: Observable<MatchCard[]>;
+  // match card information i.e. without matches
+  matchCardInfos$: Observable<MatchCardInfo[]>
 
   // check in statuses of all players
   playerStatusList$: Observable<PlayerStatus[]>;
@@ -66,6 +69,7 @@ export class DrawsContainerComponent implements OnInit, OnDestroy {
               private linearProgressBarService: LinearProgressBarService,
               private matchCardPrinterService: MatchCardPrinterService,
               private matchCardService: MatchCardService,
+              private matchCardInfoService: MatchCardInfoService,
               private playerStatusService: PlayerStatusService,
               private dialog: MatDialog) {
     const strTournamentId = this.activatedRoute.snapshot.params['tournamentId'] || 0;
@@ -89,9 +93,12 @@ export class DrawsContainerComponent implements OnInit, OnDestroy {
       this.drawService.store.select(this.drawService.selectors.selectLoading),
       this.matchCardService.store.select(this.matchCardService.selectors.selectLoading),
       this.matchCardPrinterService.loading$,
+      this.matchCardInfoService.loading$,
       this.playerStatusService.store.select(this.playerStatusService.selectors.selectLoading),
-      (eventConfigsLoading: boolean, tournamentLoading, drawsLoading: boolean, matchCardsLoading: boolean, printingMatchCards: boolean, playerStatusLoading: boolean) => {
-        return eventConfigsLoading || tournamentLoading || drawsLoading || matchCardsLoading || printingMatchCards || playerStatusLoading;
+      (eventConfigsLoading: boolean, tournamentLoading, drawsLoading: boolean, matchCardsLoading: boolean,
+       printingMatchCards: boolean, playerStatusLoading: boolean, matchCardInfosLoading: boolean) => {
+        return eventConfigsLoading || tournamentLoading || drawsLoading || matchCardsLoading
+          || printingMatchCards || playerStatusLoading || matchCardInfosLoading;
       }
     );
 
@@ -142,8 +149,6 @@ export class DrawsContainerComponent implements OnInit, OnDestroy {
 
   private setupMatchCards() {
     this.matchCardService.clearCache();
-    // this will be subscribed by the template
-    this.matchCards$ = this.matchCardService.entities$;
   }
 
   /**
@@ -157,7 +162,7 @@ export class DrawsContainerComponent implements OnInit, OnDestroy {
         if (drawAction.payload?.loadStatus) {
           this.onLoadStatus(drawAction.eventId, drawAction.payload?.tournamentDay);
         }
-        this.onLoadMatchCards(drawAction.eventId, drawAction.payload?.drawType);
+        this.onLoadMatchCardInfos(drawAction.eventId, drawAction.payload?.drawType);
         break;
       case DrawActionType.DRAW_ACTION_GENERATE:
         this.onGenerateDraw(drawAction.eventId, drawAction.payload?.drawType);
@@ -247,8 +252,8 @@ export class DrawsContainerComponent implements OnInit, OnDestroy {
     this.tournamentEventConfigService.updateOneInCache({id: eventId, matchScoresEntered: false});
   }
 
-  private onLoadMatchCards(eventId: number, drawType: DrawType) {
-    this.matchCardService.loadForEvent(eventId, false);
+  private onLoadMatchCardInfos(eventId: number, drawType: DrawType) {
+    this.matchCardInfos$ = this.matchCardInfoService.load(eventId);
   }
 
   private onPrintMatchCards(eventId: number, drawType: DrawType) {

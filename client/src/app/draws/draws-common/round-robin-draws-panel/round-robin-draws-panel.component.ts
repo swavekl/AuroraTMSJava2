@@ -13,7 +13,7 @@ import {ConflictRendererHelper} from '../model/conflict-renderer-helper.model';
 import {EventStatusCode} from '../../../today/model/event-status-code.enum';
 import {PlayerStatus} from '../../../today/model/player-status.model';
 import {PlayerStatusPipe} from '../../../today/pipe/player-status.pipe';
-import {MatchCard} from '../../../matches/model/match-card.model';
+import {MatchCardInfo} from '../../../matches/model/match-card-info.model';
 
 @Component({
   selector: 'app-round-robin-draws-panel',
@@ -31,7 +31,7 @@ export class RoundRobinDrawsPanelComponent implements OnChanges {
   playerStatusList: PlayerStatus [] = [];
 
   @Input()
-  matchCards: MatchCard [] = [];
+  matchCardInfos: MatchCardInfo [] = [];
 
   // checks if there are any scores entered for the event to prevent any changes to the draw after results are entered
   @Input()
@@ -379,9 +379,9 @@ export class RoundRobinDrawsPanelComponent implements OnChanges {
 
   getStartTime(groupNum: number): number {
     let startTime = this.selectedEvent?.startTime;
-    if (this.matchCards) {
-      const filteredMC : MatchCard [] = this.matchCards.filter((matchCard: MatchCard) => {
-        return (matchCard.groupNum == groupNum && matchCard.drawType === DrawType.ROUND_ROBIN);
+    if (this.matchCardInfos) {
+      const filteredMC : MatchCardInfo [] = this.matchCardInfos.filter((matchCardInfo: MatchCardInfo) => {
+        return (matchCardInfo.groupNum == groupNum && matchCardInfo.drawType === DrawType.ROUND_ROBIN);
       });
       if (filteredMC?.length > 0) {
         startTime = filteredMC[0].startTime;
@@ -392,15 +392,18 @@ export class RoundRobinDrawsPanelComponent implements OnChanges {
 
   getAssignedTables(groupNum: number): string {
     let assignedTables = '';
-    if (this.matchCards) {
-      const filteredMC : MatchCard [] = this.matchCards.filter((matchCard: MatchCard) => {
-        return (matchCard.groupNum == groupNum && matchCard.drawType === DrawType.ROUND_ROBIN);
+    let multipleTables = true;
+    if (this.matchCardInfos) {
+      const filteredMC : MatchCardInfo [] = this.matchCardInfos.filter((matchCardInfo: MatchCardInfo) => {
+        return (matchCardInfo.groupNum == groupNum && matchCardInfo.drawType === DrawType.ROUND_ROBIN);
       });
       if (filteredMC?.length > 0) {
         assignedTables = filteredMC[0].assignedTables;
+        multipleTables = assignedTables.indexOf(',') > 0;
       }
     }
-    return assignedTables != '' ? `Tables: ${assignedTables}` : '';
+    const tablesStr = (multipleTables) ? 'Tables' : 'Table'
+    return assignedTables != '' ? `${tablesStr}: ${assignedTables}` : '';
   }
 }
 
