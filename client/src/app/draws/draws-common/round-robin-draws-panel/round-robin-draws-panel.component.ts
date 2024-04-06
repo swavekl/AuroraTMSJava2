@@ -383,7 +383,7 @@ export class RoundRobinDrawsPanelComponent implements OnChanges {
       const filteredMC : MatchCardInfo [] = this.matchCardInfos.filter((matchCardInfo: MatchCardInfo) => {
         return (matchCardInfo.groupNum == groupNum && matchCardInfo.drawType === DrawType.ROUND_ROBIN);
       });
-      if (filteredMC?.length > 0) {
+      if (filteredMC?.length > 0 && filteredMC[0].startTime != null) {
         startTime = filteredMC[0].startTime;
       }
     }
@@ -399,6 +399,7 @@ export class RoundRobinDrawsPanelComponent implements OnChanges {
       });
       if (filteredMC?.length > 0) {
         assignedTables = filteredMC[0].assignedTables;
+        assignedTables = (assignedTables != null) ? assignedTables : '';
         multipleTables = assignedTables.indexOf(',') > 0;
       }
     }
