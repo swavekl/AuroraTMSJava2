@@ -10,6 +10,7 @@ import {LinearProgressBarService} from '../../../shared/linear-progress-bar/line
   template: `
     <app-tournament-config-list [tournaments]="tournaments$ | async"
                                 (add)="onAdd($event)"
+                                (delete)="onDelete($event)"
     ></app-tournament-config-list>
   `,
   styles: [],
@@ -41,5 +42,9 @@ export class TournamentConfigListContainerComponent implements OnInit, OnDestroy
 
   ngOnDestroy(): void {
     this.subscriptions.unsubscribe();
+  }
+
+  onDelete(tournamentId: number) {
+      this.tournamentConfigService.delete(tournamentId);
   }
 }

@@ -102,6 +102,9 @@ public class TournamentService {
         PageRequest pageRequest = PageRequest.of(page, size, Sort.Direction.ASC, "name");
         Page<TournamentEntity> ownedTournaments = repository.findWriteable(currentUser, authority, BasePermission.WRITE.getMask(), pageRequest);
         List<TournamentEntity> tournamentEntities = ownedTournaments.get().collect(Collectors.toList());
+        Comparator<TournamentEntity> comparator = Comparator
+                .comparing(TournamentEntity::getStartDate).reversed();
+        Collections.sort(tournamentEntities, comparator);
         return toTournamentCollection(tournamentEntities);
     }
 
