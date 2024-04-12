@@ -30,7 +30,11 @@ public class PlayerStatusService {
         return playerStatusRepository.save(playerStatus);
     }
 
-    public List<PlayerStatus> listAllPlayers(long tournamentId, int tournamentDay) {
+    public List<PlayerStatus> listAllPlayers(long tournamentId) {
+        return playerStatusRepository.findAllByTournamentId(tournamentId);
+    }
+
+    public List<PlayerStatus> listAllPlayersByDay(long tournamentId, int tournamentDay) {
         return playerStatusRepository.findAllByTournamentIdAndTournamentDay(tournamentId, tournamentDay);
     }
 

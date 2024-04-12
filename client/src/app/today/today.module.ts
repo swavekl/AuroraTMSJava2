@@ -36,6 +36,7 @@ import { PlayerCheckinDialogComponent } from './player-checkin-dialog/player-che
 import {MatDialogModule} from '@angular/material/dialog';
 import { PlayerStatusIndicatorComponent } from './player-status-indicator/player-status-indicator.component';
 import {MatButtonToggleModule} from '@angular/material/button-toggle';
+import {MatProgressSpinner} from '@angular/material/progress-spinner';
 
 @NgModule({
     declarations: [
@@ -77,7 +78,8 @@ import {MatButtonToggleModule} from '@angular/material/button-toggle';
         MatSnackBarModule,
         MatTooltipModule,
         MatDialogModule,
-        MatButtonToggleModule
+        MatButtonToggleModule,
+        MatProgressSpinner
     ]
 })
 export class TodayModule {  // Inject the service to ensure it registers with EntityServices

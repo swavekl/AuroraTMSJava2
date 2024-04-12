@@ -34,6 +34,13 @@
     </ng-container>
     <span class="toolbar-spacer-2"></span>
     <span>Checked In/Total Count: {{checkedInCount}} / {{filteredCount}}</span>
+    <span class="toolbar-spacer-2"></span>
+<!--    <span *ngIf="((isFiltering$ | async) === false)">&nbsp;&nbsp;</span>-->
+<!--    <mat-progress-spinner [style.display]="((isFiltering$ | async) === true) ? 'block' : 'none'"-->
+<!--                          [diameter]="36"-->
+<!--                          mode="indeterminate"-->
+<!--                          strokeWidth="5">-->
+<!--    </mat-progress-spinner>-->
   </mat-toolbar>
   <div *ngIf="filteredPlayerStatuses != null" class="inner-list-container" fxLayout="row wrap" fxLayoutAlign="start start" fxLayoutGap="20px">
     <ng-container *ngFor="let letterStatuses of filteredPlayerStatuses | keyvalue">

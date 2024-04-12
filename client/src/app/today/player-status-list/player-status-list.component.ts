@@ -68,6 +68,8 @@ export class PlayerStatusListComponent implements OnChanges, AfterViewInit {
 
   private subject: BehaviorSubject<string> = new BehaviorSubject<string>('');
 
+  public isFiltering$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
+
   constructor(private dialog: MatDialog) {
     this.filterName = '';
     this.filterByDay = 0;
@@ -205,12 +207,14 @@ export class PlayerStatusListComponent implements OnChanges, AfterViewInit {
    * @private
    */
   private filterByName(filterValue: string) {
+    this.isFiltering$.next(true);
     if (filterValue?.length > 0) {
+      const lcFilterValue = filterValue.toLowerCase();
       const letterToStatusMap = new Map<string, EnhancedPlayerStatus[]>;
       this.filteredPlayerStatuses.forEach((infosStartingAtLetter: EnhancedPlayerStatus[], firstLetter: string) => {
         const filteredList = infosStartingAtLetter.filter((enhancedPlayerStatus: EnhancedPlayerStatus) => {
-          return enhancedPlayerStatus.entryInfo.firstName.includes(filterValue, 0) ||
-            enhancedPlayerStatus.entryInfo.lastName.includes(filterValue, 0);
+          return enhancedPlayerStatus.entryInfo.firstName.toLowerCase().includes(lcFilterValue, 0) ||
+            enhancedPlayerStatus.entryInfo.lastName.toLowerCase().includes(lcFilterValue, 0);
         });
         if (filteredList.length > 0) {
           letterToStatusMap.set(firstLetter, filteredList);
@@ -222,6 +226,7 @@ export class PlayerStatusListComponent implements OnChanges, AfterViewInit {
       this.filteredPlayerStatuses = this.alphabeticalPlayerStatusMap;
     }
     this.countFiltered();
+    this.isFiltering$.next(false);
   }
 
   clearFilter() {
@@ -238,6 +243,7 @@ export class PlayerStatusListComponent implements OnChanges, AfterViewInit {
    * @param tournamentDay either day 1, 2, etc. or 0 for all events
    */
   onFilterByDay(tournamentDay: number) {
+    this.isFiltering$.next(true);
     this.filterByDay = tournamentDay;
     this.filterName = '';
     let filteredPlayerStatuses = new Map<string, EnhancedPlayerStatus[]>;
@@ -265,6 +271,7 @@ export class PlayerStatusListComponent implements OnChanges, AfterViewInit {
       this.filteredPlayerStatuses = filteredPlayerStatuses;
       this.countFiltered();
     }
+    this.isFiltering$.next(false);
   }
 
   /**
@@ -295,6 +302,7 @@ export class PlayerStatusListComponent implements OnChanges, AfterViewInit {
    * Filters by event ID
    */
   onFilterByEventId(eventId: number) {
+    this.isFiltering$.next(true);
     this.filterByEventId = eventId;
     let filteredCount = 0;
     let checkedInCount = 0;
@@ -325,6 +333,7 @@ export class PlayerStatusListComponent implements OnChanges, AfterViewInit {
       this.filteredPlayerStatuses = this.alphabeticalPlayerStatusMap;
       this.countFiltered();
     }
+    this.isFiltering$.next(false);
   }
 }
 

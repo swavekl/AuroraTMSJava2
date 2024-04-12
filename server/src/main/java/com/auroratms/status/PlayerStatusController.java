@@ -37,7 +37,12 @@ public class PlayerStatusController {
                 playerStatuses = playerStatusService.listOnePlayer(playerProfileId, tournamentId, tournamentDay, eventId);
             } else {
                 if (eventId == null) {
-                    playerStatuses = playerStatusService.listAllPlayers(tournamentId, tournamentDay);
+                    if (tournamentDay == 0) {
+                        playerStatuses = playerStatusService.listAllPlayers(tournamentId);
+                    } else {
+                        playerStatuses = playerStatusService.listAllPlayersByDay(tournamentId, tournamentDay);
+
+                    }
                 } else {
                     // for one event
                     playerStatuses = playerStatusService.listPlayersForEvent(tournamentId, tournamentDay, eventId, isDailyCheckin);

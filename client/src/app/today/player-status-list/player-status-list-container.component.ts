@@ -101,7 +101,7 @@ export class PlayerStatusListContainerComponent implements OnDestroy {
     // this is subscribed by template | async
     this.playerStatusService.clearCache();
     this.playerStatusList$ = this.playerStatusService.entities$;
-    let params = `tournamentId=${tournamentId}&tournamentDay=${this.tournamentDay}`;
+    let params = `tournamentId=${tournamentId}&tournamentDay=0`;
     this.playerStatusService.loadWithQuery(params);
   }
 
