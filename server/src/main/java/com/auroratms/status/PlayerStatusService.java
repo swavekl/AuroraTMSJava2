@@ -31,7 +31,7 @@ public class PlayerStatusService {
     }
 
     public List<PlayerStatus> listAllPlayers(long tournamentId) {
-        return playerStatusRepository.findAllByTournamentId(tournamentId);
+        return playerStatusRepository.findAllByTournamentIdOrderByTournamentDay(tournamentId);
     }
 
     public List<PlayerStatus> listAllPlayersByDay(long tournamentId, int tournamentDay) {

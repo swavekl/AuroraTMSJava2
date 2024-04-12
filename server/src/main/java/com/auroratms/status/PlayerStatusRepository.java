@@ -10,7 +10,7 @@ import java.util.List;
 public interface PlayerStatusRepository extends JpaRepository<PlayerStatus, Long> {
 
     // All players for given tournament
-    List<PlayerStatus> findAllByTournamentId(long tournamentId);
+    List<PlayerStatus> findAllByTournamentIdOrderByTournamentDay(long tournamentId);
 
     // All players for given tournament and day
     List<PlayerStatus> findAllByTournamentIdAndTournamentDay(long tournamentId, int tournamentDay);

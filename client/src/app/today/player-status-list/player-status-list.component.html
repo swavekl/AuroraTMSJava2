@@ -54,7 +54,11 @@
                    ? getPlayerTooltipText(enhancedPlayerStatus.entryInfo.firstName, enhancedPlayerStatus.entryInfo.lastName) : ''"
               >{{ enhancedPlayerStatus.entryInfo.lastName }}, {{ enhancedPlayerStatus.entryInfo.firstName }}</div>
               <div>
-                <app-player-status-indicator [playerStatus]="enhancedPlayerStatus?.playerStatus?.eventStatusCode"></app-player-status-indicator>
+                <ng-container *ngFor="let playerStatus of enhancedPlayerStatus.playerStatus">
+                  <span [matTooltip]="getStatusTooltip(playerStatus)">
+                    <app-player-status-indicator [playerStatus]="playerStatus?.eventStatusCode"></app-player-status-indicator>
+                  </span>
+                </ng-container>
               </div>
             </div>
             <div  (click)="onViewStatus(enhancedPlayerStatus)">

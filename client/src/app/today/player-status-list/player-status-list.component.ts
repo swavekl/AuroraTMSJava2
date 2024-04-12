@@ -8,6 +8,7 @@ import {PlayerCheckinDialogComponent} from '../player-checkin-dialog/player-chec
 import {TournamentEvent} from '../../tournament/tournament-config/tournament-event.model';
 import {CheckInType} from '../../tournament/model/check-in-type.enum';
 import {EventStatusCode} from '../model/event-status-code.enum';
+import {PlayerStatusPipe} from '../pipe/player-status.pipe';
 
 @Component({
   selector: 'app-player-status-list',
@@ -81,12 +82,49 @@ export class PlayerStatusListComponent implements OnChanges, AfterViewInit {
 
   onViewStatus(enhancedPlayerStatus: EnhancedPlayerStatus) {
     const fullPlayerName = `${enhancedPlayerStatus.entryInfo.lastName}, ${enhancedPlayerStatus.entryInfo.firstName}`;
+    let playerStatusToEdit = null;
+    let eventName = ''
+    if (this.checkInType === CheckInType.DAILY) {
+      for (const playerStatus of enhancedPlayerStatus.playerStatus) {
+        if (playerStatus.tournamentDay === this.tournamentDay) {
+          playerStatusToEdit = playerStatus;
+          break;
+        }
+      }
+      if (playerStatusToEdit == null) {
+        playerStatusToEdit = new PlayerStatus();
+        playerStatusToEdit.playerProfileId = enhancedPlayerStatus.entryInfo.profileId;
+        playerStatusToEdit.tournamentDay = this.tournamentDay;
+        playerStatusToEdit.tournamentId = this.tournamentId;
+        playerStatusToEdit.eventId = 0;
+      }
+    } else {
+      for (const playerStatus of enhancedPlayerStatus.playerStatus) {
+        if (playerStatus.eventId === this.filterByEventId) {
+          playerStatusToEdit = playerStatus;
+          break;
+        }
+      }
+      if (playerStatusToEdit == null) {
+        playerStatusToEdit = new PlayerStatus();
+        playerStatusToEdit.playerProfileId = enhancedPlayerStatus.entryInfo.profileId;
+        playerStatusToEdit.tournamentDay = this.tournamentDay;
+        playerStatusToEdit.tournamentId = this.tournamentId;
+        playerStatusToEdit.eventId = this.filterByEventId;
+      }
+      for (const tournamentEvent of this.tournamentEvents) {
+        if (tournamentEvent.id === this.filterByEventId) {
+          eventName = tournamentEvent.name;
+          break;
+        }
+      }
+    }
     const config: MatDialogConfig = {
       width: '350px', height: '565px', data: {
-        playerStatus: enhancedPlayerStatus.playerStatus,
+        playerStatus: playerStatusToEdit,
         fullName: fullPlayerName,
         tournamentDay: this.tournamentDay,
-        eventName: ''
+        eventName: eventName
       }
     };
     // save the scope because it is wiped out in the component
@@ -164,6 +202,24 @@ export class PlayerStatusListComponent implements OnChanges, AfterViewInit {
           infosStartingAtLetter = [];
           letterToStatusMap.set(firstLetter, infosStartingAtLetter);
         }
+
+        // find this player status in case he has more checkins
+        let foundEei: EnhancedPlayerStatus = null;
+        for (let j = 0; j < infosStartingAtLetter.length; j++) {
+          const eei: EnhancedPlayerStatus = infosStartingAtLetter[j];
+          if (eei.entryInfo.profileId === entryInfo.profileId) {
+            foundEei = eei;
+            break;
+          }
+        }
+
+        if (foundEei == null) {
+          foundEei = new EnhancedPlayerStatus();
+          foundEei.entryInfo = entryInfo;
+          foundEei.playerStatus = [];
+          infosStartingAtLetter.push(foundEei);
+        }
+
         let foundPlayerStatus = null;
         if (this.playerStatusList != null) {
           for (let i = 0; i < this.playerStatusList.length; i++) {
@@ -171,7 +227,7 @@ export class PlayerStatusListComponent implements OnChanges, AfterViewInit {
             if (playerStatus.playerProfileId === entryInfo.profileId && playerStatus.tournamentId === this.tournamentId) {
               foundPlayerStatus = playerStatus;
               // console.log('Found player status for ' + entryInfo.lastName + ', ' + entryInfo.firstName + ' -> ' + playerStatus.eventStatusCode + ' tournamentid '+ playerStatus.tournamentId);
-              break;
+              foundEei.playerStatus.push(foundPlayerStatus);
             }
           }
         }
@@ -179,11 +235,9 @@ export class PlayerStatusListComponent implements OnChanges, AfterViewInit {
           foundPlayerStatus = new PlayerStatus();
           foundPlayerStatus.playerProfileId = entryInfo.profileId;
           foundPlayerStatus.tournamentId = this.tournamentId;
+          foundPlayerStatus.tournamentDay = 1;
+          foundEei.playerStatus.push(foundPlayerStatus);
         }
-        let eei: EnhancedPlayerStatus = new EnhancedPlayerStatus();
-        eei.entryInfo = entryInfo;
-        eei.playerStatus = foundPlayerStatus;
-        infosStartingAtLetter.push(eei);
       }
     });
     this.alphabeticalPlayerStatusMap = letterToStatusMap;
@@ -225,7 +279,12 @@ export class PlayerStatusListComponent implements OnChanges, AfterViewInit {
       // reset
       this.filteredPlayerStatuses = this.alphabeticalPlayerStatusMap;
     }
-    this.countFiltered();
+
+    if (this.checkInType === CheckInType.DAILY) {
+      this.countFilteredByDay();
+    } else {
+      this.countFilteredByEvent(this.filterByEventId);
+    }
     this.isFiltering$.next(false);
   }
 
@@ -269,7 +328,7 @@ export class PlayerStatusListComponent implements OnChanges, AfterViewInit {
         });
       }
       this.filteredPlayerStatuses = filteredPlayerStatuses;
-      this.countFiltered();
+      this.countFilteredByDay();
     }
     this.isFiltering$.next(false);
   }
@@ -277,7 +336,7 @@ export class PlayerStatusListComponent implements OnChanges, AfterViewInit {
   /**
    * Counts number of filtered entries
    */
-  countFiltered() {
+  countFilteredByDay() {
     let filteredCount = 0;
     let checkedInCount = 0;
     if (this.filteredPlayerStatuses?.size > 0) {
@@ -287,8 +346,11 @@ export class PlayerStatusListComponent implements OnChanges, AfterViewInit {
             if (enhancedPlayerStatus.entryInfo.eventIds?.length > 0) {
               filteredCount++;
             }
-            if (enhancedPlayerStatus.playerStatus.eventStatusCode === EventStatusCode.WILL_PLAY) {
-              checkedInCount++;
+            for (const playerStatus of enhancedPlayerStatus.playerStatus) {
+              if (playerStatus.eventStatusCode === EventStatusCode.WILL_PLAY)
+                if (playerStatus.tournamentDay === this.tournamentDay || this.tournamentDay === 0) {
+                  checkedInCount++;
+              }
             }
           });
         }
@@ -304,8 +366,6 @@ export class PlayerStatusListComponent implements OnChanges, AfterViewInit {
   onFilterByEventId(eventId: number) {
     this.isFiltering$.next(true);
     this.filterByEventId = eventId;
-    let filteredCount = 0;
-    let checkedInCount = 0;
     if (eventId !== 0) {
       let filteredPlayerStatuses = new Map<string, EnhancedPlayerStatus[]>;
       if (this.alphabeticalPlayerStatusMap.size > 0 && this.filterByEventId != null) {
@@ -315,10 +375,6 @@ export class PlayerStatusListComponent implements OnChanges, AfterViewInit {
             const playerEvents: number [] = enhancedPlayerStatus.entryInfo.eventIds;
             if (playerEvents != null && playerEvents.includes(this.filterByEventId, 0)) {
               filteredPlayerStatusForLetter.push(enhancedPlayerStatus);
-              filteredCount++;
-            }
-            if (enhancedPlayerStatus.playerStatus.eventStatusCode === EventStatusCode.WILL_PLAY) {
-              checkedInCount++;
             }
           }
           if (filteredPlayerStatusForLetter.length > 0) {
@@ -327,17 +383,71 @@ export class PlayerStatusListComponent implements OnChanges, AfterViewInit {
         });
       }
       this.filteredPlayerStatuses = filteredPlayerStatuses;
-      this.filteredCount = filteredCount;
-      this.checkedInCount = checkedInCount;
     } else {
       this.filteredPlayerStatuses = this.alphabeticalPlayerStatusMap;
-      this.countFiltered();
     }
+    this.countFilteredByEvent(eventId);
     this.isFiltering$.next(false);
+  }
+
+  private countFilteredByEvent(eventId: number) {
+    let filteredCount = 0;
+    let checkedInCount = 0;
+    if (this.filteredPlayerStatuses?.size > 0) {
+      this.filteredPlayerStatuses.forEach((infosStartingAtLetter: EnhancedPlayerStatus[], firstLetter) => {
+        if (infosStartingAtLetter != null) {
+          infosStartingAtLetter.forEach((enhancedPlayerStatus) => {
+            const playerEvents: number [] = enhancedPlayerStatus.entryInfo.eventIds;
+            if (playerEvents != null && playerEvents.includes(eventId, 0)) {
+              filteredCount++;
+            }
+            for (const playerStatus of enhancedPlayerStatus.playerStatus) {
+              if (playerStatus.eventStatusCode === EventStatusCode.WILL_PLAY && playerStatus.eventId === eventId) {
+                  checkedInCount++;
+              }
+            }
+          });
+        }
+      });
+    }
+    this.filteredCount = filteredCount;
+    this.checkedInCount = checkedInCount;
+  }
+
+  getStatusTooltip(playerStatus: PlayerStatus) {
+    let reason = '';
+      switch (playerStatus.eventStatusCode) {
+        case EventStatusCode.WILL_NOT_PLAY:
+          reason = new PlayerStatusPipe().transform(playerStatus.eventStatusCode, playerStatus.estimatedArrivalTime);
+          reason += '. ' + (playerStatus.reason ? playerStatus.reason : '');
+          break;
+        case EventStatusCode.WILL_PLAY_BUT_IS_LATE:
+          reason = new PlayerStatusPipe().transform(playerStatus.eventStatusCode, playerStatus.estimatedArrivalTime);
+          break;
+
+        case EventStatusCode.WILL_PLAY:
+          reason = new PlayerStatusPipe().transform(playerStatus.eventStatusCode, playerStatus.estimatedArrivalTime);
+          break;
+      }
+      if (this.checkInType == CheckInType.DAILY) {
+        if (playerStatus.eventStatusCode != null) {
+          reason = `Day ${playerStatus.tournamentDay}: ${reason}`;
+        }
+      } else {
+        let eventName = 'Event'
+        for (const tournamentEvent of this.tournamentEvents) {
+          if (playerStatus.eventId === tournamentEvent.id) {
+            eventName = tournamentEvent.name;
+            break;
+          }
+        }
+        reason = `${eventName}: ${reason}`;
+      }
+    return reason;
   }
 }
 
 export class EnhancedPlayerStatus {
-  playerStatus: PlayerStatus;
+  playerStatus: PlayerStatus[];  // statuses for each day or event
   entryInfo: TournamentEntryInfo;
 }

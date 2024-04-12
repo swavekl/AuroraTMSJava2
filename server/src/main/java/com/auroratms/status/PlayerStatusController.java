@@ -65,7 +65,7 @@ public class PlayerStatusController {
         }
     }
 
-    @PutMapping("/playerStatus")
+    @PutMapping("/playerstatus")
     @ResponseBody
     public ResponseEntity<PlayerStatus> update (@RequestBody PlayerStatus playerStatus) {
         try {

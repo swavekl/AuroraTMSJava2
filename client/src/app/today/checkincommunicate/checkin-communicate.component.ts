@@ -72,8 +72,8 @@ export class CheckinCommunicateComponent implements OnInit, OnChanges {
     if ($event.value) {
       this.etaControlDisabled = ($event.value !== 'WILL_PLAY_BUT_IS_LATE');
       this.reasonControlDisabled = ($event.value !== 'WILL_NOT_PLAY');
-      const estimatedArrivalTime = this.etaControlDisabled ? '' : this.playerStatus.estimatedArrivalTime;
-      const reason = this.reasonControlDisabled ? '' : this.playerStatus.reason;
+      const estimatedArrivalTime = this.etaControlDisabled ? '' : this.playerStatus?.estimatedArrivalTime;
+      const reason = this.reasonControlDisabled ? '' : this.playerStatus?.reason;
       this.playerStatus = {
         ...this.playerStatus,
         estimatedArrivalTime: estimatedArrivalTime,
