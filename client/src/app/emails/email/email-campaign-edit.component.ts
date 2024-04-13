@@ -1,6 +1,7 @@
 import {Component, ElementRef, EventEmitter, Input, Output, SimpleChanges, ViewChild} from '@angular/core';
 import {EmailCampaign, Recipient} from '../model/email-campaign.model';
 import {TournamentEvent} from '../../tournament/tournament-config/tournament-event.model';
+import {MatSnackBar} from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-email-campaign-edit',
@@ -36,7 +37,7 @@ export class EmailCampaignEditComponent  {
   private selectedRecipient: Recipient;
   private removedRecipient: Recipient;
 
-  constructor() {
+  constructor(private snackBar: MatSnackBar) {
 
   }
 
@@ -143,5 +144,30 @@ export class EmailCampaignEditComponent  {
 
   onRemovedRecipientClick(recipient: Recipient) {
     this.removedRecipient = recipient;
+  }
+
+  copyRecipients() {
+    if (!navigator.clipboard) {
+      let text = "Your browser doesn't have support for native clipboard.";
+      this.snackBar.open(text, 'Close', {
+        verticalPosition: 'top', duration: 3000
+      });
+    } else {
+      let clipboardText = '';
+      let recipientsCount = 0;
+      if (this.filteredRecipients != null && this.filteredRecipients.length > 0) {
+        for (const recipient of this.filteredRecipients) {
+          clipboardText += `${recipient.firstName}, ${recipient.lastName}, ${recipient.emailAddress}\n`;
+        }
+        recipientsCount = this.filteredRecipients.length;
+      }
+
+      navigator.clipboard.writeText(clipboardText);
+
+      const statusText = `${recipientsCount} were copied to clipboard.`;
+      this.snackBar.open(statusText, 'Close', {
+        verticalPosition: 'top', duration: 2500
+      });
+    }
   }
 }
