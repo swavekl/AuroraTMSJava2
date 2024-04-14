@@ -95,8 +95,8 @@ export class ProfileEditStartComponent implements OnInit {
 
   createNewProfile() {
     const usattPlayerRecord: UsattPlayerRecord = new UsattPlayerRecord();
-    usattPlayerRecord.firstName = this.firstName;
-    usattPlayerRecord.lastName = this.lastName;
+    usattPlayerRecord.firstName = this.authenticationService.getCurrentUserFirstName();
+    usattPlayerRecord.lastName = this.authenticationService.getCurrentUserLastName();
     usattPlayerRecord.gender = 'M';
     this.onProfileEditStart(true, usattPlayerRecord);
     }
