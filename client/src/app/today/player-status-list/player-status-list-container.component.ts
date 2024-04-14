@@ -63,16 +63,19 @@ export class PlayerStatusListContainerComponent implements OnDestroy {
     const tournamentStartDate = history?.state?.tournamentStartDate;
     const tournamentEndDate = history?.state?.tournamentEndDate;
     this.checkInType = history?.state?.checkInType;
+    this.tournamentDuration = 1;
+    if (tournamentStartDate != null && tournamentEndDate != null) {
+      this.tournamentDuration += new DateUtils().daysBetweenDates(tournamentStartDate, tournamentEndDate);
+    }
     if (tournamentStartDate != null) {
       const today = this.todayService.todaysDate;
       const difference = new DateUtils().daysBetweenDates(tournamentStartDate, today);
       this.tournamentDay = difference + 1;
+      if (this.tournamentDay <= 0 || this.tournamentDay > this.tournamentDuration) {
+        this.tournamentDay = 1;
+      }
     } else {
       this.tournamentDay = 1;
-    }
-    this.tournamentDuration = 1;
-    if (tournamentStartDate != null && tournamentEndDate != null) {
-      this.tournamentDuration += new DateUtils().daysBetweenDates(tournamentStartDate, tournamentEndDate);
     }
     this.setupProgressIndicator();
     this.loadAllPlayersStatus(this.tournamentId);

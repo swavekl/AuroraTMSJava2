@@ -59,12 +59,13 @@ export class PlayerStatusListComponent implements OnChanges, AfterViewInit {
   // helper array for producing All, Day 1, Day 2 etc buttons
   tournamentDaysArray: number [];
 
-  // ids of tournaments for a given day
-  tournamentEventsForDay: any [] = [];
+  // ids of tournaments for a given day. At 0 index all tournament events
+  tournamentEventsForDay: number [][] = [];
 
+  // count of entries for a given day or event
   filteredCount: number;
 
-  // count of checked in players in the fitlered entries
+  // count of checked in players in the filtered entries
   checkedInCount: number;
 
   private subject: BehaviorSubject<string> = new BehaviorSubject<string>('');
@@ -154,8 +155,9 @@ export class PlayerStatusListComponent implements OnChanges, AfterViewInit {
     }
     if (this.tournamentDay <= this.tournamentDuration) {
       this.filterByDay = this.tournamentDay;
+    } else {
+      this.filterByDay = 0;  // all days
     }
-
     if (this.entryInfos != null && this.playerStatusList != null) {
       this.prepareData();
       if (this.checkInType === CheckInType.DAILY) {
@@ -171,7 +173,7 @@ export class PlayerStatusListComponent implements OnChanges, AfterViewInit {
         this.tournamentEventsForDay = [];
         for (const tournamentEvent of this.tournamentEvents) {
           // all events at index 0
-          let allEventIds = this.tournamentEventsForDay[0] ?? [];
+          let allEventIds: number [] = this.tournamentEventsForDay[0] ?? [];
           allEventIds.push(tournamentEvent.id);
           this.tournamentEventsForDay[0] = allEventIds;
 
@@ -231,13 +233,13 @@ export class PlayerStatusListComponent implements OnChanges, AfterViewInit {
             }
           }
         }
-        if (foundPlayerStatus == null) {
-          foundPlayerStatus = new PlayerStatus();
-          foundPlayerStatus.playerProfileId = entryInfo.profileId;
-          foundPlayerStatus.tournamentId = this.tournamentId;
-          foundPlayerStatus.tournamentDay = 1;
-          foundEei.playerStatus.push(foundPlayerStatus);
-        }
+        // if (foundPlayerStatus == null) {
+        //   foundPlayerStatus = new PlayerStatus();
+        //   foundPlayerStatus.playerProfileId = entryInfo.profileId;
+        //   foundPlayerStatus.tournamentId = this.tournamentId;
+        //   foundPlayerStatus.tournamentDay = 1;
+        //   foundEei.playerStatus.push(foundPlayerStatus);
+        // }
       }
     });
     this.alphabeticalPlayerStatusMap = letterToStatusMap;
@@ -261,7 +263,7 @@ export class PlayerStatusListComponent implements OnChanges, AfterViewInit {
    * @private
    */
   private filterByName(filterValue: string) {
-    this.isFiltering$.next(true);
+    // this.isFiltering$.next(true);
     if (filterValue?.length > 0) {
       const lcFilterValue = filterValue.toLowerCase();
       const letterToStatusMap = new Map<string, EnhancedPlayerStatus[]>;
@@ -285,7 +287,7 @@ export class PlayerStatusListComponent implements OnChanges, AfterViewInit {
     } else {
       this.countFilteredByEvent(this.filterByEventId);
     }
-    this.isFiltering$.next(false);
+    // this.isFiltering$.next(false);
   }
 
   clearFilter() {
@@ -302,7 +304,7 @@ export class PlayerStatusListComponent implements OnChanges, AfterViewInit {
    * @param tournamentDay either day 1, 2, etc. or 0 for all events
    */
   onFilterByDay(tournamentDay: number) {
-    this.isFiltering$.next(true);
+    // this.isFiltering$.next(true);
     this.filterByDay = tournamentDay;
     this.filterName = '';
     let filteredPlayerStatuses = new Map<string, EnhancedPlayerStatus[]>;
@@ -316,7 +318,11 @@ export class PlayerStatusListComponent implements OnChanges, AfterViewInit {
             if (playerEvents != null) {
               for (const eventId of playerEvents) {
                 if (eventsToSelect.includes(eventId, 0)) {
-                  filteredPlayerStatusForLetter.push(enhancedPlayerStatus);
+                  let playerStatusesForDay = enhancedPlayerStatus.playerStatus.filter((playerStatus: PlayerStatus) => {
+                    return playerStatus.tournamentDay === this.filterByDay || this.filterByDay === 0;
+                  });
+                  const epp: EnhancedPlayerStatus = {...enhancedPlayerStatus, playerStatus: playerStatusesForDay};
+                  filteredPlayerStatusForLetter.push(epp);
                   break;
                 }
               }
@@ -330,7 +336,7 @@ export class PlayerStatusListComponent implements OnChanges, AfterViewInit {
       this.filteredPlayerStatuses = filteredPlayerStatuses;
       this.countFilteredByDay();
     }
-    this.isFiltering$.next(false);
+    // this.isFiltering$.next(false);
   }
 
   /**
@@ -348,7 +354,7 @@ export class PlayerStatusListComponent implements OnChanges, AfterViewInit {
             }
             for (const playerStatus of enhancedPlayerStatus.playerStatus) {
               if (playerStatus.eventStatusCode === EventStatusCode.WILL_PLAY)
-                if (playerStatus.tournamentDay === this.tournamentDay || this.tournamentDay === 0) {
+                if (playerStatus.tournamentDay === this.filterByDay || this.filterByDay === 0) {
                   checkedInCount++;
               }
             }
@@ -364,7 +370,7 @@ export class PlayerStatusListComponent implements OnChanges, AfterViewInit {
    * Filters by event ID
    */
   onFilterByEventId(eventId: number) {
-    this.isFiltering$.next(true);
+    // this.isFiltering$.next(true);
     this.filterByEventId = eventId;
     if (eventId !== 0) {
       let filteredPlayerStatuses = new Map<string, EnhancedPlayerStatus[]>;
@@ -387,7 +393,7 @@ export class PlayerStatusListComponent implements OnChanges, AfterViewInit {
       this.filteredPlayerStatuses = this.alphabeticalPlayerStatusMap;
     }
     this.countFilteredByEvent(eventId);
-    this.isFiltering$.next(false);
+    // this.isFiltering$.next(false);
   }
 
   private countFilteredByEvent(eventId: number) {
