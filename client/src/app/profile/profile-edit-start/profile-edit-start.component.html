@@ -25,11 +25,16 @@
               </tr>
               </tbody>
             </table>
-        <h3>If this is <span style="font-weight: bold">not</span> your record, let's see if we can find it using different spelling of your name or by membership id.</h3>
+        <h3>If this is <span style="font-weight: bold">not</span> your record, let's see if we can find it using different spelling of your name or by USATT membership id.</h3>
         <div fxLayout="row" style="margin: 0 8px;">
           <button mat-raised-button (click)="onFindPlayerByName()">Find by Name</button>
           <span fxFlex></span>
           <button mat-raised-button (click)="onFindPlayerById()">Find by Id</button>
+        </div>
+        <div style="width: 100%; padding-top: 16px;"></div>
+        <h3>If you are <span style="font-weight: bold">not</span> a USATT member, let's just make a new profile</h3>
+        <div fxLayout="row" fxLayoutAlign="end start" style="width: 100%;">
+          <button mat-raised-button color="primary" (click)="createNewProfile()">Make New Profile</button>
         </div>
         <div style="width: 100%; padding-top: 16px;"></div>
         <h3>If this is your record, let's proceed to filling remaining information in your profile.

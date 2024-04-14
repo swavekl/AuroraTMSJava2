@@ -3,7 +3,7 @@ import {AuthenticationService} from '../../user/authentication.service';
 import {UsattPlayerRecordService} from '../service/usatt-player-record.service';
 import {UsattPlayerRecord} from '../model/usatt-player-record.model';
 import {first} from 'rxjs/operators';
-import {ActivatedRoute, Router} from '@angular/router';
+import {Router} from '@angular/router';
 import {UsattRecordSearchCallbackData, UsattRecordSearchPopupService} from '../service/usatt-record-search-popup.service';
 import {RecordSearchData} from '../usatt-record-search-popup/usatt-record-search-popup.component';
 
@@ -92,4 +92,12 @@ export class ProfileEditStartComponent implements OnInit {
     this.playerRecordFound = false;
     this.playerRecord = null;
   }
+
+  createNewProfile() {
+    const usattPlayerRecord: UsattPlayerRecord = new UsattPlayerRecord();
+    usattPlayerRecord.firstName = this.firstName;
+    usattPlayerRecord.lastName = this.lastName;
+    usattPlayerRecord.gender = 'M';
+    this.onProfileEditStart(true, usattPlayerRecord);
+    }
 }
