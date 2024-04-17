@@ -79,7 +79,7 @@ public class CleanupExpiredCartSessionJob implements Job {
 
     private void cleanupExpiredCartSession(CartSession expiredSession) {
         try {
-            log.info("Cleaning up unfinished entries tied to session " + expiredSession.getSessionUUID() + " started at " + expiredSession.getSessionLastUpdate());
+            log.info("Cleaning up unfinished entries tied to session " + expiredSession.getSessionUUID() + " started at " + expiredSession.getSessionLastUpdate() + " for object id " + expiredSession.getObjectId());
             cartSessionService.finishSession(expiredSession.getSessionUUID());
             List<TournamentEventEntry> unfinishedTournamentEventEntries = tournamentEventEntryService.listAllForCartSession(expiredSession.getSessionUUID());
             log.info("Found " + unfinishedTournamentEventEntries.size() + " entries for expired session");

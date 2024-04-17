@@ -311,6 +311,9 @@ public class EventEntryStatusService {
         EventEntryCommand eventEntryCommand = eventEntryInfo.getEventEntryCommand();
         EventEntryStatus currentStatus = (eventEntryInfo.getEventEntryFk() != null) ? eventEntryInfo.getStatus() : EventEntryStatus.NOT_ENTERED;
         EventEntryStatus nextEventEntryStatus = determineNextStatus(currentStatus, eventEntryCommand);
+        log.info(String.format("Changing status for event entry for tournament entry id %d, cart session id %s", tournamentEntryId, eventEntryInfo.getCartSessionId()));
+        log.info(String.format("Event entry with id %d status from %s to %s due to command %s.",
+                eventEntryInfo.getEventEntryFk(), currentStatus, nextEventEntryStatus, eventEntryCommand));
         TournamentEventEntry eventEntry = null;
         switch (eventEntryCommand) {
             case ENTER:
@@ -384,7 +387,7 @@ public class EventEntryStatusService {
     public void confirmAll(Long tournamentEntryId, String cartSessionId, boolean withdrawing) {
         log.info(String.format("Confirming all changes for tournament entry Id %d, cart session %s", tournamentEntryId, cartSessionId));
         // confirm entries
-        MakeBreakDoublesPairsEvent makeBreakDoublesPairsEvent = confirmAllInternal(tournamentEntryId);
+        MakeBreakDoublesPairsEvent makeBreakDoublesPairsEvent = confirmAllInternal(tournamentEntryId, cartSessionId);
 
         // each time event is entered or dropped update last time cart session was active
         // so we can determine which sessions were abandoned
@@ -400,13 +403,14 @@ public class EventEntryStatusService {
     }
 
     /**
-     *
      * @param tournamentEntryId
+     * @param cartSessionId
      * @return
      */
-    private MakeBreakDoublesPairsEvent confirmAllInternal(Long tournamentEntryId) {
-        List<TournamentEventEntry> allEntries = tournamentEventEntryService.getEntries(tournamentEntryId);
-
+    private MakeBreakDoublesPairsEvent confirmAllInternal(Long tournamentEntryId, String cartSessionId) {
+//        List<TournamentEventEntry> allEntries = tournamentEventEntryService.getEntries(tournamentEntryId);
+        List<TournamentEventEntry> allEntries = tournamentEventEntryService.listAllForCartSession(cartSessionId);
+        log.info(String.format("Found %d entries to confirm", allEntries.size()));
         // get a list of doubles event ids in this tournament
         List<Long> doublesEventIds = new ArrayList<>();
         if (allEntries.size() > 0) {
@@ -421,6 +425,8 @@ public class EventEntryStatusService {
         MakeBreakDoublesPairsEvent makeBreakDoublesPairsEvent = new MakeBreakDoublesPairsEvent(tournamentEntryId);
         for (TournamentEventEntry eventEntry : allEntries) {
             EventEntryStatus nextStatus = determineNextStatus(eventEntry.getStatus(), EventEntryCommand.CONFIRM);
+            log.info(String.format("Confirming event entry %d into event %d with current status %s and next status is %s",
+                    eventEntry.getId(), eventEntry.getTournamentEventFk(), eventEntry.getStatus(), nextStatus));
             if (nextStatus == EventEntryStatus.NOT_ENTERED) {
                 // if this is a doubles event record that we are deleting it
                 if (doublesEventIds.contains(eventEntry.getTournamentEventFk())) {
@@ -429,12 +435,14 @@ public class EventEntryStatusService {
                                 eventEntry.getTournamentEventFk(), eventEntry.getId(), eventEntry.getDoublesPartnerProfileId());
                     }
                 }
+                log.info(String.format("Deleting event entry %d", eventEntry.getId()));
                 tournamentEventEntryService.delete(eventEntry.getId());
             } else {
                 eventEntry.setStatus(nextStatus);
                 // session is finished
                 eventEntry.setCartSessionId(null);
                 tournamentEventEntryService.update(eventEntry);
+                log.info(String.format("Updated event entry %d", eventEntry.getId()));
                 // if this is doubles event record that we are in this event
                 if (doublesEventIds.contains(eventEntry.getTournamentEventFk())) {
                     if (eventEntry.getDoublesPartnerProfileId() != null) {
@@ -451,10 +459,11 @@ public class EventEntryStatusService {
 
     @Transactional
     public void discard(OriginalEntryInfo originalEntryInfo) {
-        log.info("Discarding entry with id: " + originalEntryInfo.getEntryId());
         long tournamentEntryId = originalEntryInfo.getEntryId();
         String cartSessionId = originalEntryInfo.getCartSessionId();
+        log.info("Discarding event entries associated with entry id: " + originalEntryInfo.getEntryId() + " for cart session " + cartSessionId);
         List<TournamentEventEntry> allEntries = tournamentEventEntryService.getEntries(tournamentEntryId);
+        log.info(String.format("Found %d entries to discard", allEntries.size()));
         for (TournamentEventEntry eventEntry : allEntries) {
             EventEntryStatus status = eventEntry.getStatus();
             if (cartSessionId.equals(eventEntry.getCartSessionId())) {
@@ -464,8 +473,10 @@ public class EventEntryStatusService {
                     // mark session as finished so it is not acted upon by cleanup process
                     eventEntry.setCartSessionId(null);
                     tournamentEventEntryService.update(eventEntry);
+                    log.info(String.format("Updated event entry %d into event %d", eventEntry.getId(), eventEntry.getTournamentEventFk()));
                 } else if (status.equals(EventEntryStatus.PENDING_WAITING_LIST) ||
                            status.equals(EventEntryStatus.PENDING_CONFIRMATION)) {
+                    log.info(String.format("Deleting event entry %d into event %d", eventEntry.getId(), eventEntry.getTournamentEventFk()));
                     tournamentEventEntryService.delete(eventEntry.getId());
                 }
                 // update count of entries in this event now that status has changed

@@ -112,7 +112,7 @@ public class TournamentEventListener {
                     "Player Entered Tournament",
                     "tournament-entry-started.html",
                     templateModel);
-            logger.info("Player " + userProfile.getLastName() + ", " + userProfile.getFirstName() + " entered tournament " + tournament.getName() );
+            logger.info("Player " + userProfile.getLastName() + ", " + userProfile.getFirstName() + " entered tournament " + tournament.getName() + ". Tournament entry id " + event.getTournamentEntryFk());
         } catch (MessagingException e) {
             logger.error("Unable to send email ", e);
         }
