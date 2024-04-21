@@ -42,7 +42,6 @@ import {Router} from '@angular/router';
           </mat-card>
         </div>
       </app-centered-panel>
-      <app-mat-typography></app-mat-typography>
   `,
   styles: []
 })
