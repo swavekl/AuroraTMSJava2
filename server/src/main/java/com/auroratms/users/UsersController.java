@@ -4,6 +4,7 @@ import com.auroratms.AbstractOktaController;
 import com.auroratms.profile.UserProfileExt;
 import com.auroratms.profile.UserProfileExtService;
 import com.auroratms.profile.UserProfileService;
+import com.auroratms.utils.EmailService;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -22,6 +23,7 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.regex.Matcher;
@@ -35,6 +37,9 @@ public class UsersController extends AbstractOktaController {
 
     @Autowired
     private UserProfileExtService userProfileExtService;
+
+    @Autowired
+    private EmailService emailService;
 
     /**
      * @param userRegistration
@@ -56,6 +61,13 @@ public class UsersController extends AbstractOktaController {
 
             suspendUser(userId);
             logger.info("Temporarily suspended user " + userId + " until email is validated");
+
+            logger.info("Sending email to admin notifying of new user creation.");
+            Map<String, Object> templateModel = new HashMap<>();
+            templateModel.put("playerName", String.format("%s %s", userRegistration.getFirstName(), userRegistration.getLastName()));
+            templateModel.put("playerEmail", userRegistration.getEmail());
+            emailService.sendMessageUsingThymeleafTemplate("swaveklorenc@yahoo.com", null,
+                    "New User Registration", "user-registration/new-user-registration.html", templateModel);
         } catch (Exception e) {
             logger.error("Error registering user " + userRegistration.getEmail(), e);
             String message = e.getMessage();
@@ -251,9 +263,11 @@ public class UsersController extends AbstractOktaController {
                 String combinedResponse = fetchUser(loginResponse, userRegistration.getEmail());
                 return new ResponseEntity<String>(combinedResponse, HttpStatus.OK);
             } else {
+                logger.error(String.format("User %s failed to login because username or password were not provided", userRegistration.getEmail()));
                 return new ResponseEntity<String>("{\"message\": \"Login failed\"}", HttpStatus.UNAUTHORIZED);
             }
-        } catch (IOException e) {
+        } catch (Exception e) {
+            logger.error(String.format("User %s failed to login due to: %s", userRegistration.getEmail(), e.getMessage()));
             return new ResponseEntity<String>("{\"message\": \"Login failed\"}", HttpStatus.UNAUTHORIZED);
         }
     }
