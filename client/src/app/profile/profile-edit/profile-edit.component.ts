@@ -115,6 +115,8 @@ export class ProfileEditComponent implements OnInit, OnChanges, AfterViewInit, O
         const today = new Date();
         if (today.getFullYear() === dateOfBirth.getFullYear()) {
           this.profile.dateOfBirth = null;
+        } else {
+          this.profile.dateOfBirth = new DateUtils().convertFromUTCToLocalDate(dateOfBirth);
         }
       }
       this.setZipCodeOptions(this.profile?.countryCode);

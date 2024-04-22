@@ -38,7 +38,7 @@ export class Profile {
     this.zipCode = formValues.zipCode;
     this.countryCode = formValues.countryCode;
     this.gender = formValues.gender;
-    this.dateOfBirth = formValues.dateOfBirth;
+    this.dateOfBirth = new DateUtils().convertFromLocalToUTCDate(formValues.dateOfBirth);
     this.membershipId = formValues.membershipId;
     this.membershipExpirationDate = new DateUtils().convertFromString(formValues.membershipExpirationDate);
     this.tournamentRating = formValues.tournamentRating;

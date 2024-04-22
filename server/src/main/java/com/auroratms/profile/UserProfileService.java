@@ -238,6 +238,7 @@ public class UserProfileService {
         oktaUserProfile.put("gender", userProfile.getGender());
         SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
         String dateOfBirth = dateFormat.format(userProfile.getDateOfBirth());
+        dateOfBirth = dateOfBirth.substring(0, dateOfBirth.lastIndexOf("T")) + "T00:00:00.000+0000";
         oktaUserProfile.put("birthdate", dateOfBirth);
     }
 
