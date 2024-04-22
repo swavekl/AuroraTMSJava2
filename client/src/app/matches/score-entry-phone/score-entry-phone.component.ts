@@ -144,6 +144,7 @@ export class ScoreEntryPhoneComponent implements OnInit, OnChanges, AfterViewIni
     } else {
       this.gameScoreSideB -= (this.gameScoreSideB > 0) ? 1 : 0;
     }
+    this.saveGameScore();
     this.dirty = true;
   }
 
@@ -162,6 +163,7 @@ export class ScoreEntryPhoneComponent implements OnInit, OnChanges, AfterViewIni
           this.gameScoreSideA = this.gameScoreSideB - 2;
         }
       }
+      this.saveGameScore();
       this.dirty = true;
     }
   }
