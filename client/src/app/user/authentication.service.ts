@@ -49,16 +49,22 @@ export class AuthenticationService {
   /**
    * Register (Sign up a new user)
    */
-  register(firstName: string, lastName: string, email: string, password: string, password2: string): Observable<boolean> {
+  register(firstName: string, lastName: string, email: string, password: string, password2: string, registerByTD: boolean): Observable<string> {
     const requestBody = {firstName: firstName, lastName: lastName, email: email, password: password};
-    return this.http.post(this.getFullUrl('/api/users/register'), requestBody)
+    const url: string = (registerByTD) ? '/api/users/registerbytd' : '/api/users/register';
+    return this.http.post(this.getFullUrl(url), requestBody)
       .pipe(
-        map((response: Response) => {
+        map((response: any) => {
             // console.log('got register response ' + JSON.stringify(response));
-            return (response.status === 200);
+            if (response.status === 'SUCCESS') {
+              return response.profileId;
+            } else {
+              return null;
+            }
           },
           (error: any) => {
             this.showErrorPopup(error);
+            return null;
           })
       );
   }

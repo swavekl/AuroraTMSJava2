@@ -61,7 +61,7 @@ export class ProfileEditContainerComponent implements OnInit, OnDestroy {
 
     // if we are coming from registration filling in the first time
     if (this.initializingProfile) {
-      this.returnUrl = '/ui/userprofile/onboardcomplete';
+      this.returnUrl = (history?.state?.returnUrl) ? history?.state?.returnUrl : '/ui/userprofile/onboardcomplete';
     } else if (this.addingProfile) {
       this.returnUrl = history?.state?.returnUrl;
     } else if (fromWaitingList) {

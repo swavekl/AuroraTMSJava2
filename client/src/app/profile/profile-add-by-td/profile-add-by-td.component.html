@@ -70,23 +70,37 @@
           </div>
         </div>
       </mat-card-content>
-      <mat-card-actions fxLayout="row">
-        <div>
-          <button type="button" mat-raised-button (click)="onCancel()">Cancel</button>
+      <mat-card-actions fxLayout="column" fxLayoutAlign="start start">
+        <div fxLayout="row" fxLayoutGap="10" fxLayoutAlign="space-between" style="width: 100%">
+          <div>
+            <button type="button" mat-raised-button (click)="onCancel()">Cancel</button>
+          </div>
+          <span fxFlex></span>
+          <div>
+            <button type="button" mat-raised-button color="primary" (click)="onCreateProfile()"
+                    [disabled]="f.invalid || (firstName == null)"
+                    [hidden]="!isCreatingProfile()"
+            >Create Profile</button>
+          </div>
+          <div>
+            <button type="button" mat-raised-button color="primary" (click)="onUseProfile()"
+                    [disabled]="f.invalid || (firstName == null)"
+                    [hidden]="isCreatingProfile()"
+            >Use Profile</button>
+          </div>
         </div>
-        <span fxFlex></span>
-        <div>
-          <button type="button" mat-raised-button color="primary" (click)="onCreateProfile()"
-                  [disabled]="f.invalid || (firstName == null)"
-                  [hidden]="!isCreatingProfile()"
-          >Create Profile</button>
+        <div fxLayout="row" style="margin: 24px 0">
+          <div>
+            If the player has neither a profile nor USATT record then create a new profile.
+          </div>
         </div>
-        <div>
-          <button type="button" mat-raised-button color="primary" (click)="onUseProfile()"
-                  [disabled]="f.invalid || (firstName == null)"
-                  [hidden]="isCreatingProfile()"
-          >Use Profile</button>
-        </div>
+        <div fxLayout="row" fxLayoutAlign="end" style="width: 100%">
+          <div>
+            <button type="button" mat-raised-button color="primary" (click)="onCreateNewProfile()"
+                    [hidden]="!isMakingNewProfile()"
+            >Create New Profile</button>
+          </div>
+          </div>
       </mat-card-actions>
     </mat-card>
     </form>

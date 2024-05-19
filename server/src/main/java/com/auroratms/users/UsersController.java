@@ -68,15 +68,35 @@ public class UsersController extends AbstractOktaController {
             templateModel.put("playerEmail", userRegistration.getEmail());
             emailService.sendMessageUsingThymeleafTemplate("swaveklorenc@yahoo.com", null,
                     "New User Registration", "user-registration/new-user-registration.html", templateModel);
+            return new ResponseEntity<String>("{\"status\":\"SUCCESS\", \"profileId\": \"" + userId + "\"}", HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error registering user " + userRegistration.getEmail(), e);
             String message = e.getMessage();
             return new ResponseEntity<>(message, HttpStatus.BAD_REQUEST);
         }
-
-        return new ResponseEntity<String>("{\"status\":\"SUCCESS\"}", HttpStatus.OK);
     }
 
+    @PostMapping("/registerbytd")
+    @ResponseBody
+    public
+    @PreAuthorize("permitAll()")
+//    @PreAuthorize("hasAuthority('TournamentDirectors') or hasAuthority('Admins')")
+    ResponseEntity<String> registerUserByTD(@RequestBody UserRegistration userRegistration) {
+        try {
+            logger.info("Registering new user " + userRegistration.getLastName() + ", " + userRegistration.getFirstName() + " email: " + userRegistration.getEmail() + " by Tournament Director");
+            UUID registrationToken = UUID.randomUUID();
+
+            String userId = createUser(userRegistration, registrationToken.toString());
+
+            activateOktaUser(userId);
+            logger.info("Activated user " + userId);
+            return new ResponseEntity<String>("{\"status\":\"SUCCESS\", \"profileId\": \"" + userId + "\"}", HttpStatus.OK);
+        } catch (Exception e) {
+            logger.error("Error registering user " + userRegistration.getEmail(), e);
+            String message = e.getMessage();
+            return new ResponseEntity<>(message, HttpStatus.BAD_REQUEST);
+        }
+    }
 
     /**
      * @param userRegistration

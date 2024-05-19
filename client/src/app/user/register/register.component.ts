@@ -5,6 +5,7 @@ import {first} from 'rxjs/operators';
 import {Subscription} from 'rxjs';
 import {LinearProgressBarService} from '../../shared/linear-progress-bar/linear-progress-bar.service';
 import {PasswordCriteria} from '../password-criteria';
+import {Router} from '@angular/router';
 
 @Component({
   selector: 'app-register',
@@ -32,10 +33,13 @@ export class RegisterComponent implements OnInit, OnDestroy {
   showPassword: boolean = false;
   showPassword2: boolean = false;
 
+  private registerByTD: boolean = false;
+  private tournamentId: string = null;
 
-  constructor(
-    private authenticationService: AuthenticationService,
-    private linearProgressBarService: LinearProgressBarService) {
+
+  constructor(private authenticationService: AuthenticationService,
+              private linearProgressBarService: LinearProgressBarService,
+              private router: Router) {
   }
 
   ngOnInit() {
@@ -43,21 +47,34 @@ export class RegisterComponent implements OnInit, OnDestroy {
     this.okMessage = '';
     this.registrationInProgress = false;
     this.registrationCompleted = false;
+    this.registerByTD = history?.state?.registerByTD === true;
+    this.tournamentId = history?.state?.tournamentId;
   }
 
   register() {
     this.registrationInProgress = true;
     this.linearProgressBarService.setLoading(true);
 
-    const subscription = this.authenticationService.register(this.firstName, this.lastName, this.email, this.password, this.password2)
+    const subscription = this.authenticationService.register(this.firstName, this.lastName, this.email, this.password, this.password2, this.registerByTD)
       .pipe(first())
       .subscribe(
-        data => {
+        (profileId: string) => {
           this.message = '';
-          this.okMessage = 'Email was sent to your email account.  Please follow instruction in the email to continue.  If you cannot find the email, please check your Spam folder.' ;
           this.registrationInProgress = false;
           this.registrationCompleted = true;
           this.linearProgressBarService.setLoading(false);
+          if (this.registerByTD) {
+            const extras = {
+              state: {
+                initializingProfile: true,
+                forwardUrl: `/ui/tournaments/playerlistbig/${this.tournamentId}`,
+                returnUrl: `/ui/entries/entryadd/${this.tournamentId}/${profileId}`
+              }
+            };
+            this.router.navigateByUrl(`/ui/userprofile/edit/${profileId}`, extras);
+          } else {
+            this.okMessage = `Account activation email was sent to ${this.email ? this.email : 'your'} email account.  If you cannot find the email, please check your Spam or Junk folder.</p><p>Please follow instruction in the email to continue.` ;
+          }
         },
         error => {
             // console.log('error registering', error);

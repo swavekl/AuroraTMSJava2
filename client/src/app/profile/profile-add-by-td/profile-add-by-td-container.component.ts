@@ -1,10 +1,8 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {ProfileService} from '../profile.service';
-import {UsattPlayerRecord} from '../model/usatt-player-record.model';
 import {Profile} from '../profile';
-import {first, map, switchMap} from 'rxjs/operators';
-import {AuthenticationService} from '../../user/authentication.service';
+import {first} from 'rxjs/operators';
 import {Subscription} from 'rxjs';
 import {ErrorMessagePopupService} from '../../shared/error-message-dialog/error-message-popup.service';
 
@@ -13,6 +11,7 @@ import {ErrorMessagePopupService} from '../../shared/error-message-dialog/error-
   template: `
     <app-profile-add-by-td (createProfile)="onCreateProfile($event)"
     (useProfile)="onUseProfile($event)"
+    (createNewProfile)="onCreateNewProfile($event)"
     (cancel)="onCancel($event)">
     </app-profile-add-by-td>
   `,
@@ -68,6 +67,16 @@ export class ProfileAddByTdContainerComponent implements OnInit, OnDestroy {
   onUseProfile(profileId: string) {
     const url = `${this.forwardUrl}/${profileId}`;
     this.router.navigateByUrl(url);
+  }
+
+  onCreateNewProfile ($event) {
+    const extras = {
+      state: {
+        registerByTD: true,
+        tournamentId: this.tournamentId
+      }
+    };
+    this.router.navigateByUrl('/ui/login/register', extras);
   }
 
   ngOnDestroy(): void {

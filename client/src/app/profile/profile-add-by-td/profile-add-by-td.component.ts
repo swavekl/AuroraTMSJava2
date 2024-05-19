@@ -19,6 +19,9 @@ export class ProfileAddByTDComponent implements OnInit, OnDestroy {
   createProfile: EventEmitter<Profile> = new EventEmitter();
 
   @Output()
+  createNewProfile: EventEmitter<any> = new EventEmitter();
+
+  @Output()
   useProfile: EventEmitter<string> = new EventEmitter();
 
   @Output()
@@ -141,6 +144,10 @@ export class ProfileAddByTDComponent implements OnInit, OnDestroy {
     this.createProfile.emit(profile);
   }
 
+  onCreateNewProfile() {
+    this.createNewProfile.emit(null);
+  }
+
   onUseProfile () {
     this.useProfile.emit(this.profileId);
   }
@@ -155,5 +162,9 @@ export class ProfileAddByTDComponent implements OnInit, OnDestroy {
 
   isCreatingProfile() {
     return !this.playerProfileFound && this.playerRecordFound;
+  }
+
+  isMakingNewProfile() {
+    return !this.playerProfileFound && !this.playerRecordFound;
   }
 }
