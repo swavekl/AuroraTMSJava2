@@ -77,13 +77,14 @@ export class EntryViewContainerComponent implements OnInit, OnDestroy {
   private setupProgressIndicator() {
     this.loading$ = combineLatest([
         this.eventEntryInfoService.loading$,
+        this.paymentRefundService.loading$,
         this.tournamentConfigService.store.select(this.tournamentConfigService.selectors.selectLoading),
         this.tournamentEntryService.store.select(this.tournamentEntryService.selectors.selectLoading),
         this.tournamentEventConfigService.store.select(this.tournamentEventConfigService.selectors.selectLoading),
         this.profileService.loading$,
       this.paymentRefundService.loading$,
-      ], (eventEntryInfosLoading: boolean, tournamentLoading: boolean, entryLoading: boolean, eventConfigLoading: boolean, profileLoading: boolean, paymentsRefundsLoading: boolean) => {
-        return eventEntryInfosLoading || tournamentLoading || entryLoading || eventConfigLoading || profileLoading || paymentsRefundsLoading;
+      ], (eventEntryInfosLoading: boolean, paymentRefundLoading: boolean, tournamentLoading: boolean, entryLoading: boolean, eventConfigLoading: boolean, profileLoading: boolean, paymentsRefundsLoading: boolean) => {
+        return eventEntryInfosLoading || paymentRefundLoading || tournamentLoading || entryLoading || eventConfigLoading || profileLoading || paymentsRefundsLoading;
       }
     );
 

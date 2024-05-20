@@ -104,9 +104,16 @@ export class PaymentRefundService {
    * Gets payments refunds for given type of item and item id
    */
   public listPaymentsRefunds(paymentFor: PaymentRefundFor, accountItemId: number): Observable<PaymentRefund[]> {
+    this.setLoading(true);
     const url = `/api/paymentrefund/list/${paymentFor}/${accountItemId}`;
     return this.httpClient.get<PaymentRefund[]>(url)
       .pipe(
+        tap(() => {
+            this.setLoading(false);
+          },
+          (error: any) => {
+            this.setLoading(false);
+          }),
         map((response: PaymentRefund[]) => {
           // console.log ('got payment refunds ' + JSON.stringify(response));
           return response;

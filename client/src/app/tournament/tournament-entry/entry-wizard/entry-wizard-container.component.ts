@@ -89,11 +89,13 @@ export class EntryWizardContainerComponent implements OnInit, OnDestroy {
     // if any of the service are loading show the loading progress
     this.loading$ = combineLatest(
       eventEntryInfoService.loading$,
+      paymentRefundService.loading$,
+      cartSessionService.loading$,
       this.tournamentConfigService.store.select(this.tournamentConfigService.selectors.selectLoading),
       this.tournamentEntryService.store.select(this.tournamentEntryService.selectors.selectLoading),
       this.tournamentEventConfigService.store.select(this.tournamentEventConfigService.selectors.selectLoading),
-      (eventEntryInfosLoading: boolean, tournamentLoading: boolean, entryLoading: boolean, eventConfigLoading: boolean) => {
-        return eventEntryInfosLoading || tournamentLoading || entryLoading || eventConfigLoading;
+      (eventEntryInfosLoading: boolean, paymentRefundLoading: boolean, cartSessionLoading: boolean, tournamentLoading: boolean, entryLoading: boolean, eventConfigLoading: boolean) => {
+        return eventEntryInfosLoading || paymentRefundLoading || cartSessionLoading || tournamentLoading || entryLoading || eventConfigLoading;
       }
     );
 

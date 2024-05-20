@@ -30,11 +30,16 @@ export class TournamentViewComponent implements OnInit, OnChanges {
   tournamentStartDate: Date;
   percentFull: number;
 
+  // flag for disabling Enter or View Entry button when on a slow network
+  // users hit it more than once since the new page doesn't show up quickly
+  enteringOrViewing: boolean;
+
   constructor(private router: Router,
               private authService: AuthenticationService,
               private tournamentEntryService: TournamentEntryService,
               private todayService: TodayService) {
     this.entryId = 0;
+    this.enteringOrViewing = false;
   }
 
   ngOnInit(): void {
@@ -53,6 +58,8 @@ export class TournamentViewComponent implements OnInit, OnChanges {
   }
 
   onEnter() {
+    // prevent double entering on slow network - disables Enter button
+    this.enteringOrViewing = true;
     // create entry
     const entryToEdit = new TournamentEntry();
     entryToEdit.tournamentFk = this.tournament.id;
@@ -78,6 +85,8 @@ export class TournamentViewComponent implements OnInit, OnChanges {
   }
 
   onView() {
+    // prevent double viewing on slow network - disables View Entry button
+    this.enteringOrViewing = true;
     const url = `ui/entries/entryview/${this.tournament.id}/edit/${this.entryId}`;
     const extras = {
       state: {
@@ -140,7 +149,7 @@ export class TournamentViewComponent implements OnInit, OnChanges {
   canEnter() {
     const isBeforeEntryCutoffDate = this.isBeforeEntryCutoffDate();
     const noEntry = this.entryId === 0;
-    return noEntry && isBeforeEntryCutoffDate;
+    return noEntry && isBeforeEntryCutoffDate && !this.enteringOrViewing;
   }
 
   canEnterPlayer() {
@@ -158,8 +167,8 @@ export class TournamentViewComponent implements OnInit, OnChanges {
 
   canView () {
     const isBeforeEntryCutoffDate = this.isBeforeEntryCutoffDate();
-    const hasEntry = this.entryId !== 0;
-    return hasEntry && isBeforeEntryCutoffDate;
+    const hasEntry = this.entryId > 0;
+    return hasEntry && isBeforeEntryCutoffDate && !this.enteringOrViewing;
   }
 
 }
