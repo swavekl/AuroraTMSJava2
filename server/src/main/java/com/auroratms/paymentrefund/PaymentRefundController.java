@@ -18,6 +18,8 @@ import com.stripe.Stripe;
 import com.stripe.exception.StripeException;
 import com.stripe.model.PaymentIntent;
 import com.stripe.model.Refund;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -35,6 +37,7 @@ import java.util.stream.Collectors;
 @Transactional
 public class PaymentRefundController {
 
+    private static final Logger log = LoggerFactory.getLogger(PaymentRefundController.class);
     @Autowired
     private PaymentRefundService paymentRefundService;
 
@@ -214,6 +217,7 @@ public class PaymentRefundController {
     @PostMapping("/recordpayment")
     @ResponseBody
     public ResponseEntity recordPayment(@RequestBody PaymentRefund paymentRefund) {
+        log.info("Recording payment " + paymentRefund);
         try {
             PaymentRefund paymentRefundSaved = this.paymentRefundService.recordPaymentRefund(paymentRefund);
 
@@ -240,10 +244,12 @@ public class PaymentRefundController {
                     eventPublisher.publishRefundEvents(event);
                 }
             }
-
+            log.info("Payment recorded successfully: " + paymentRefund);
             return new ResponseEntity(paymentRefundSaved, HttpStatus.CREATED);
-        } catch (StripeException e) {
-            String errorMessage = String.format("Unable to record payment %s", e.getMessage());
+        } catch (Exception e) {
+            String errorMessage = String.format("Unable to record payment in the amount of %d for %d, due to %s",
+                    paymentRefund.getAmount(), paymentRefund.getItemId(), e.getMessage());
+            log.error(errorMessage, e);
             return new ResponseEntity(errorMessage, HttpStatus.BAD_REQUEST);
         }
     }
@@ -373,6 +379,7 @@ public class PaymentRefundController {
     @PostMapping("/issuerefund")
     @ResponseBody
     public ResponseEntity issueRefund(@RequestBody RefundRequest refundRequest) {
+        log.info("Issuing refund " + refundRequest);
         try {
             // accountItemId could be tournament id for tournament entry fees
             // tournament sanction application id for tournament sanction
@@ -395,9 +402,11 @@ public class PaymentRefundController {
 
             Map<String, Object> resultMap = new HashMap<>();
             resultMap.put("refunds", processedRefundIds);
+            log.info("Refund issued successfully " + refundRequest );
             return new ResponseEntity(resultMap, HttpStatus.CREATED);
         } catch (Exception e) {
             String errorMessage = String.format("Unable to issue full refund %s", e.getMessage());
+            log.error(errorMessage, e);
             return new ResponseEntity(errorMessage, HttpStatus.BAD_REQUEST);
         }
     }

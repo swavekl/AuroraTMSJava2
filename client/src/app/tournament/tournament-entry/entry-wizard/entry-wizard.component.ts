@@ -559,7 +559,6 @@ export class EntryWizardComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   confirmEntry() {
-    console.log('confirming entry');
     const confirmEntry = {
       ...this.entry,
       confirm: true

@@ -1,10 +1,10 @@
 import {Component, Inject, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
 import {UntypedFormBuilder, UntypedFormGroup, Validators} from '@angular/forms';
-import {distinctUntilChanged, first} from 'rxjs/operators';
+import {distinctUntilChanged, first, tap} from 'rxjs/operators';
 import {BehaviorSubject, Observable, Subscription} from 'rxjs';
 import {
-  ConfirmCardPaymentData,
+  ConfirmCardPaymentData, PaymentIntentResult,
   StripeCardCvcElementChangeEvent,
   StripeCardCvcElementOptions,
   StripeCardExpiryElementChangeEvent,
@@ -33,6 +33,9 @@ import {PaymentForm} from '../model/payment-type.enum';
  * 6011111111111117 - Discover
  * 3056930009020004 - Diners club
  * 3566002020360505 - JCB
+ *
+ * Cards with various errors
+ *  https://docs.stripe.com/testing?lang=java&testing-method=card-numbers#use-test-cards
  *
  */
 @Component({
@@ -210,28 +213,32 @@ export class PaymentDialogComponent implements OnInit, OnDestroy {
       };
       // generate direct charge
       this.stripeInstance.confirmCardPayment(this.clientSecret, confirmCardPaymentData)
-        .subscribe(
-          (result) => {
-            if (result.error) {
-              // Show error to your customer (e.g., insufficient funds)
-              console.log(result.error.message);
-              this.errorMessage = result.error.message;
-              this.setPaymentInProgress(false);
-            } else {
-              // The payment has been processed!
-              if (result.paymentIntent.status === 'succeeded') {
-                // Show a success message to your customer
-                // or close the dialog
-                this.errorMessage = '';
-                this.recordPaymentComplete(result.paymentIntent.id);
+        .pipe(
+          first(),
+          tap({
+            next: (result: PaymentIntentResult) => {
+              if (result.error) {
+                // Show error to your customer (e.g., insufficient funds)
+                console.log(result.error.message);
+                this.errorMessage = result.error.message;
+                this.setPaymentInProgress(false);
+              } else {
+                // The payment has been processed!
+                if (result.paymentIntent.status === 'succeeded') {
+                  // Show a success message to your customer
+                  // or close the dialog
+                  this.errorMessage = '';
+                  this.recordPaymentComplete(result.paymentIntent.id);
+                }
               }
+            },
+            error: (error: any) => {
+              console.log('error creating payment intent' + JSON.stringify(error));
+              this.errorMessage = error?.error;
+              this.setPaymentInProgress(false);
             }
-          },
-          (error: any) => {
-            console.log('error creating payment intent' + JSON.stringify(error));
-            this.errorMessage = error?.error;
-            this.setPaymentInProgress(false);
-          });
+        }))
+        .subscribe();
     }
   }
 
@@ -280,18 +287,22 @@ export class PaymentDialogComponent implements OnInit, OnDestroy {
     paymentRefund.transactionDate = new Date();
     paymentRefund.paymentForm = PaymentForm.CREDIT_CARD;
     const subscription = this.paymentRefundService.recordPaymentComplete(paymentRefund)
-      .pipe(first())
-      .subscribe(
-        () => {
-          this.paymentComplete = true;
-          this.errorMessage = 'Success';
-          this.setPaymentInProgress(false);
-        },
-        (error: any) => {
-          console.log('error during recording of payment complete' + JSON.stringify(error));
-          this.errorMessage = error;
-        }
-      );
+      .pipe(
+        first(),
+        tap({
+          next: (paymentRefund: PaymentRefund) => {
+            this.paymentComplete = true;
+            this.errorMessage = 'Success';
+            this.setPaymentInProgress(false);
+          },
+          error: (error: any) => {
+            this.paymentComplete = true;
+            this.setPaymentInProgress(false);
+            console.log('error during recording of payment complete' + JSON.stringify(error));
+            this.errorMessage = error;
+          }
+        })
+      ).subscribe();
     this.subscriptions.add(subscription);
   }
 

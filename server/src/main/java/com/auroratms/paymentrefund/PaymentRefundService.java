@@ -130,7 +130,7 @@ public class PaymentRefundService {
      * @param paymentRefund payment or refund to record
      */
     @Transactional
-    public PaymentRefund recordPaymentRefund(PaymentRefund paymentRefund) throws StripeException {
+    public PaymentRefund recordPaymentRefund(PaymentRefund paymentRefund) {
         return this.paymentRefundRepository.save(paymentRefund);
     }
 

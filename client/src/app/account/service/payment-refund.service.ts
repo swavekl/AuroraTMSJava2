@@ -28,17 +28,18 @@ export class PaymentRefundService {
 
   public createPaymentIntent(paymentRequest: PaymentRequest): Observable<PaymentIntentResponse> {
     const url = `/api/paymentrefund/secret`;
-    this.setLoading(true);
+    // don't set loading flag because it causes the 'Expression has changed after it was checked' error in the console
+    // because it is observed in the entry-wizard to stop/start linear progress bar.
+    // this.setLoading(true);
     return this.httpClient.post<PaymentIntentResponse>(url, paymentRequest)
       .pipe(
-        tap(() => {
-            this.setLoading(false);
-          },
-          (error: any) => {
-            this.setLoading(false);
-          }),
+        // tap(() => {
+        //     this.setLoading(false);
+        //   },
+        //   (error: any) => {
+        //     this.setLoading(false);
+        //   }),
         map((response: PaymentIntentResponse) => {
-          // console.log('got payment intent response ' + JSON.stringify(response));
             return response;
           }
         )
