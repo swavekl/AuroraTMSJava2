@@ -3,6 +3,7 @@ package com.auroratms.match;
 import com.auroratms.draw.DrawType;
 import com.auroratms.event.TournamentEvent;
 import com.auroratms.event.TournamentEventEntityService;
+import com.auroratms.match.exception.MatchSchedulingException;
 import com.auroratms.tournament.Tournament;
 import com.auroratms.tournament.TournamentService;
 import io.micrometer.core.instrument.util.StringUtils;
@@ -12,7 +13,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Service for generating automatic schedule of matches for tournament events
@@ -39,7 +43,7 @@ public class MatchSchedulingService {
      * @param day          day of the tournament to generate schedule for
      * @return all match cards for this day with table numbers and starting times assigned
      */
-    public List<MatchCard> generateScheduleForDay(long tournamentId, int day) {
+    public List<MatchCard> generateScheduleForDay(long tournamentId, int day) throws MatchSchedulingException {
         // make a matrix for marking which time slots are not available as we are filling up the schedule
         Tournament tournament = this.tournamentService.getByKey(tournamentId);
         int totalAvailableTables = tournament.getConfiguration().getNumberOfTables();
@@ -85,7 +89,7 @@ public class MatchSchedulingService {
      * @param matchCardIds match cards to generate schedule for
      * @return
      */
-    public List<MatchCard> generateScheduleForMatchCards(long tournamentId, int day, List<Long> matchCardIds) {
+    public List<MatchCard> generateScheduleForMatchCards(long tournamentId, int day, List<Long> matchCardIds) throws MatchSchedulingException {
         Tournament tournament = this.tournamentService.getByKey(tournamentId);
         int totalAvailableTables = tournament.getConfiguration().getNumberOfTables();
         TableAvailabilityMatrix matrix = new TableAvailabilityMatrix(totalAvailableTables);
@@ -154,7 +158,7 @@ public class MatchSchedulingService {
      * @param matrix               matrix of table availability
      * @return next available table number
      */
-    private int scheduleRoundRobinMatches(int startingTableNumber, int totalAvailableTables, TournamentEvent event, TableAvailabilityMatrix matrix) {
+    private int scheduleRoundRobinMatches(int startingTableNumber, int totalAvailableTables, TournamentEvent event, TableAvailabilityMatrix matrix) throws MatchSchedulingException {
         // calculate number of required tables to play this event if it were completely full
         int numTablesPerGroup = event.getNumTablesPerGroup();
         int maxEntries = event.getMaxEntries();
@@ -204,6 +208,12 @@ public class MatchSchedulingService {
                         if (currentTableNum > totalAvailableTables) {
                             currentTableNum = startingTableNumber;
                         }
+                    } else {
+                        String message = "Unable to assign table number to group " + matchCard.getGroupNum() + " in '"
+                                + event.getName() + "' event round robin round which starts at " + event.getStartTime() +
+                                " due to lack of available table time.  You can assign a later starting time to this event or configure more tables to the prior event so it completes sooner.";
+                        log.warn(message);
+                        throw new MatchSchedulingException(message);
                     }
                 }
                 log.info("group num = " + matchCard.getGroupNum() + " assignedStartTime = " +assignedStartTime+" assignedTables = " + assignedTables);
@@ -299,9 +309,11 @@ public class MatchSchedulingService {
                 String assignedTables = matchCard.getAssignedTables();
                 String[] tableNumbers = assignedTables.split(",");
                 for (String tableNumber : tableNumbers) {
-                    int iTableNumber = Integer.parseInt(tableNumber);
-                    eventFirstTableNum = Math.min(eventFirstTableNum, iTableNumber);
-                    eventLastTableNum = Math.max(eventLastTableNum, iTableNumber);
+                    if (StringUtils.isNotEmpty(tableNumber)) {
+                        int iTableNumber = Integer.parseInt(tableNumber);
+                        eventFirstTableNum = Math.min(eventFirstTableNum, iTableNumber);
+                        eventLastTableNum = Math.max(eventLastTableNum, iTableNumber);
+                    }
                 }
             }
             log.info("RR round firstTableNum = " + eventFirstTableNum + " lastTableNum = " + eventLastTableNum);

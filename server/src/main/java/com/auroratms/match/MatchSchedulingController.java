@@ -1,14 +1,17 @@
 package com.auroratms.match;
 
+import com.auroratms.match.exception.MatchSchedulingException;
+import com.auroratms.server.errorhandling.ApiError;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
-
+import org.springframework.web.context.request.WebRequest;
 import java.util.List;
 
 @RestController
@@ -56,8 +59,12 @@ public class MatchSchedulingController {
         try {
             // gets match cards for events for this day with schedule information filled in
             List<MatchCard> daysMatchCards = matchSchedulingService.generateScheduleForMatchCards(tournamentId, day, matchCardIds);
-            return new ResponseEntity(daysMatchCards, HttpStatus.OK);
+            return ResponseEntity.ok(daysMatchCards);
+        } catch (MatchSchedulingException e) {
+            log.error("Error regenerating match cards schedule", e);
+            throw e;  // handled by exception handler
         } catch (Exception e) {
+            log.error("Error regenerating match cards schedule", e);
             return new ResponseEntity(e, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -80,5 +87,13 @@ public class MatchSchedulingController {
         } catch (Exception e) {
             return new ResponseEntity(e, HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+
+
+    @ExceptionHandler(MatchSchedulingException.class)
+    public ResponseEntity<Object> handleMatchSchedulingException(
+            MatchSchedulingException e, WebRequest request) {
+        ApiError apiError = new ApiError(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage(), "");
+        return new ResponseEntity<Object>(apiError, new HttpHeaders(), apiError.getStatus());
     }
 }

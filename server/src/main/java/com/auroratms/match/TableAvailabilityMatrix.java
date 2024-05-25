@@ -79,7 +79,7 @@ public class TableAvailabilityMatrix {
     public AvailableTableInfo findAvailableTable(double startTime, int duration, int startingTableNumber, boolean mustStartAtStartTime) {
         AvailableTableInfo availableTableInfo = null;
         try {
-            log.info ("find startTime = " + startTime + " duration " + startingTableNumber + " mustStartAtStartTime " + mustStartAtStartTime);
+            log.info ("find table at startTime = " + startTime + " for duration: " + duration + " starting with table #: " + startingTableNumber + " mustStartAtStartTime " + mustStartAtStartTime);
             int timeSlotsNeeded = calculateTimeSlotsNeeded(duration);
             for (int tableIndex = (startingTableNumber - 1); tableIndex < this.availableTableTimeSlotsMatrix.length; tableIndex++) {
                 boolean[] tableTimeSlots = this.availableTableTimeSlotsMatrix[tableIndex];
