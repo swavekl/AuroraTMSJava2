@@ -10,6 +10,7 @@ import {debounceTime} from 'rxjs/operators';
 import {MatDialog} from '@angular/material/dialog';
 import {ConfirmationPopupComponent} from '../../shared/confirmation-popup/confirmation-popup.component';
 import {DrawType} from '../../draws/draws-common/model/draw-type.enum';
+import {RoundNamePipe} from '../../shared/pipes/round-name.pipe';
 
 interface Safe extends GridsterConfig {
   draggable: Draggable;
@@ -201,6 +202,7 @@ export class ScheduleManageComponent implements OnInit, OnChanges, OnDestroy {
     const numTables = this.tournament?.configuration?.numberOfTables ?? 0;
     const unassignedMatchCards: string [] = [];
     const unassignedMatchCardIds: number [] = [];
+    let anyMatchCardsAssigned = false;
     if (numTables > 0) {
       // fill first column with table numbers
       for (let tableNum = 0; tableNum < numTables; tableNum++) {
@@ -257,8 +259,10 @@ export class ScheduleManageComponent implements OnInit, OnChanges, OnDestroy {
           } else {
             SEGridsterItems.push(gridsterItem);
           }
+          anyMatchCardsAssigned = true;
         } else {
-          unassignedMatchCards.push(`Event: ${eventName}, round: ${matchCard.round}, group: ${matchCard.groupNum}`);
+          const roundName = new RoundNamePipe().transform(matchCard.round, matchCard.groupNum);
+          unassignedMatchCards.push(`Event: ${eventName}, round: ${roundName}, group: ${matchCard.groupNum}`);
           unassignedMatchCardIds.push(matchCard.id);
         }
       });
@@ -277,11 +281,15 @@ export class ScheduleManageComponent implements OnInit, OnChanges, OnDestroy {
       gridsterItems = gridsterItems.concat(RRGridsterItems, SEGridsterItems);
     }
 
-    if (unassignedMatchCards.length > 0) {
+    if (unassignedMatchCards.length > 0 && anyMatchCardsAssigned) {
+      unassignedMatchCards.sort((mc1: string, mc2: string) => {
+        return mc1.localeCompare(mc2);
+      });
       const str = unassignedMatchCards.join(', ');
       const config = {
         width: '450px', height: '450px', data: {
-          message: `Some match cards were not scheduled because of insufficient table time. ${str}`,
+          message: `Some match cards don't have table assignment because you either regenerated the draws
+          or because of insufficient table time. The following is the list of these match cards. ${str}`,
           showCancel: true, contentAreaHeight: '300px', cancelText: 'Cancel', okText: 'Fix'
         }
       };

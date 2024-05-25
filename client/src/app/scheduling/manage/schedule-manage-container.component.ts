@@ -143,6 +143,8 @@ export class ScheduleManageContainerComponent implements OnInit, OnDestroy {
           this.matchCardService.putIntoCache(matchCards);
         }, (error: any) => {
           console.log('error ', error);
+          const message = error.error?.message ?? error.message;
+          this.errorMessagePopupService.showError(message);
         });
     this.subscriptions.add(subscription);
   }
