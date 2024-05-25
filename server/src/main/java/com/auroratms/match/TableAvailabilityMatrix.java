@@ -1,5 +1,8 @@
 package com.auroratms.match;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.Arrays;
 
 /**
@@ -8,6 +11,7 @@ import java.util.Arrays;
  */
 public class TableAvailabilityMatrix {
 
+    private static final Logger log = LoggerFactory.getLogger(TableAvailabilityMatrix.class);
     private boolean[][] availableTableTimeSlotsMatrix;
 
     // first time slot is at 8 am, last at 10 pm
@@ -75,7 +79,7 @@ public class TableAvailabilityMatrix {
     public AvailableTableInfo findAvailableTable(double startTime, int duration, int startingTableNumber, boolean mustStartAtStartTime) {
         AvailableTableInfo availableTableInfo = null;
         try {
-//            System.out.println("find startTime = " + startTime + " duration " + startingTableNumber + " mustStartAtStartTime " + mustStartAtStartTime);
+            log.info ("find startTime = " + startTime + " duration " + startingTableNumber + " mustStartAtStartTime " + mustStartAtStartTime);
             int timeSlotsNeeded = calculateTimeSlotsNeeded(duration);
             for (int tableIndex = (startingTableNumber - 1); tableIndex < this.availableTableTimeSlotsMatrix.length; tableIndex++) {
                 boolean[] tableTimeSlots = this.availableTableTimeSlotsMatrix[tableIndex];
@@ -85,7 +89,7 @@ public class TableAvailabilityMatrix {
                     if ((mustStartAtStartTime && foundStartTime == startTime) ||
                         (!mustStartAtStartTime && foundStartTime >= startTime)) {
                         if (availableTableInfo == null) {
-//                            System.out.println("initial foundStartTime = " + foundStartTime);
+                            log.info("initial foundStartTime = " + foundStartTime);
                             availableTableInfo = new AvailableTableInfo();
                             availableTableInfo.tableNum = tableIndex + 1;
                             availableTableInfo.startTime = foundStartTime;
@@ -93,7 +97,7 @@ public class TableAvailabilityMatrix {
                         } else {
                             // if time found is earlier lets use it instead of the later time to compress schedule
                             if (foundStartTime < availableTableInfo.startTime) {
-//                                System.out.println("earlier foundStartTime = " + foundStartTime);
+                                log.info("earlier foundStartTime = " + foundStartTime);
                                 availableTableInfo.tableNum = tableIndex + 1;
                                 availableTableInfo.startTime = foundStartTime;
                             }

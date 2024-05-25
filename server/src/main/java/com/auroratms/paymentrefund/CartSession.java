@@ -32,13 +32,13 @@ public class CartSession {
 
     // id of the object for which this is a payment/refund for
     @NonNull
-    private long objectId;
+    private Long objectId;
 
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 

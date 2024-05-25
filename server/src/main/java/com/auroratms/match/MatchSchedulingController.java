@@ -1,5 +1,7 @@
 package com.auroratms.match;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +17,7 @@ import java.util.List;
 @Transactional
 public class MatchSchedulingController {
 
+    private static final Logger log = LoggerFactory.getLogger(MatchSchedulingController.class);
     @Autowired
     private MatchSchedulingService matchSchedulingService;
 
@@ -26,6 +29,7 @@ public class MatchSchedulingController {
     public ResponseEntity<List<MatchCard>> getMatchCard(@PathVariable long tournamentId,
                                                         @PathVariable int day) {
         try {
+            log.info ("Generating match cards for tournament " + tournamentId + " day " + day);
             // gets match cards for events for this day with schedule information filled in
             List<MatchCard> daysMatchCards = matchSchedulingService.generateScheduleForDay(tournamentId, day);
 //            for (MatchCard matchCard : daysMatchCards) {
@@ -33,6 +37,7 @@ public class MatchSchedulingController {
 //            }
             return new ResponseEntity(daysMatchCards, HttpStatus.OK);
         } catch (Exception e) {
+            log.error("Error generating schedule", e);
             return new ResponseEntity(e, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }

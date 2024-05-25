@@ -6,6 +6,8 @@ import com.auroratms.event.TournamentEventEntityService;
 import com.auroratms.tournament.Tournament;
 import com.auroratms.tournament.TournamentService;
 import io.micrometer.core.instrument.util.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,6 +21,7 @@ import java.util.*;
 @Transactional
 public class MatchSchedulingService {
 
+    private static final Logger log = LoggerFactory.getLogger(MatchSchedulingService.class);
     @Autowired
     private MatchCardService matchCardService;
 
@@ -46,6 +49,7 @@ public class MatchSchedulingService {
         int startingTableNumber = 1;
         double previousEventStartTime = 8.0d;
         for (TournamentEvent event : daysEvents) {
+            log.info ("Scheduling matches for event " + event.getName());
             // start scheduling this event's matches from the 1st table if it is starting later
             if (event.getStartTime() != previousEventStartTime) {
                 startingTableNumber = 1;
@@ -57,7 +61,7 @@ public class MatchSchedulingService {
                 scheduleSingleEliminationMatches(totalAvailableTables, event, matrix);
             }
         }
-
+        log.info("Finished scheduling first round matches");
         // schedule single elimination round matches after round robin is scheduled and tables are assigned
         for (TournamentEvent event : daysEvents) {
             if (!event.isSingleElimination()) {
@@ -67,6 +71,7 @@ public class MatchSchedulingService {
                 }
             }
         }
+        log.info("Finished scheduling second round matches");
         // get them
         return this.matchCardService.findAllForTournamentAndDay(tournamentId, day);
     }
@@ -158,7 +163,8 @@ public class MatchSchedulingService {
         int maxTablesNeeded = maxNumGroups * numTablesPerGroup;
         int playersToAdvance = event.getPlayersToAdvance();
 
-//        System.out.println("++++++ event " + event.getName() + " startTime = " + event.getStartTime());
+        log.info("++++++ event " + event.getName() + " startTime = " + event.getStartTime());
+        log.info("numTablesPerGroup: " + numTablesPerGroup + " playersPerGroup: " + playersPerGroup + " maxNumGroups: " + maxNumGroups + " maxTablesNeeded: " + maxTablesNeeded);
 
         // assign tables to each match card
         int currentTableNum = startingTableNumber;
@@ -174,6 +180,7 @@ public class MatchSchedulingService {
                 int numMatchesToPlay = matchCard.getMatches().size();
                 int allMatchesDuration = calculateAllMatchesDuration(event.getNumberOfGames(), numMatchesToPlay, event.getPointsPerGame());
                 int tablesToAssign = getNumTablesToAssign(numTablesPerGroup, numMatchesToPlay, playersPerGroup, playersToAdvance);
+                log.info ("numMatchesToPlay: " + numMatchesToPlay + " allMatchesDuration: " + allMatchesDuration + " tablesToAssign: " + tablesToAssign);
                 // assign tables and mark them as used - one at a time
                 String assignedTables = "";
                 int durationOnOneTable = Math.floorDiv(allMatchesDuration, tablesToAssign);
@@ -199,7 +206,7 @@ public class MatchSchedulingService {
                         }
                     }
                 }
-//                System.out.println("group num = " + matchCard.getGroupNum() + " assignedStartTime = " +assignedStartTime+" assignedTables = " + assignedTables);
+                log.info("group num = " + matchCard.getGroupNum() + " assignedStartTime = " +assignedStartTime+" assignedTables = " + assignedTables);
 
                 matchCard.setAssignedTables(assignedTables);
                 matchCard.setStartTime(assignedStartTime);
@@ -208,8 +215,9 @@ public class MatchSchedulingService {
 
             matchCard.setDay(event.getDay());
         }
-
+        log.info ("Saving match cards");
         matchCardService.saveAllAndFlush(allForEvent);
+        log.info ("Saved match cards");
 
         // even when all tables are not used 'reserve' them by skipping unused tables
         return startingTableNumber + maxTablesNeeded;
@@ -280,8 +288,7 @@ public class MatchSchedulingService {
         // range of tables the matches are played on in this event.
         int eventFirstTableNum = (!event.isSingleElimination()) ? totalAvailableTables : 1;
         int eventLastTableNum = 1;
-
-//        System.out.println("=============================\nevent.getName() = " + event.getName());
+        log.info("scheduling single elimination matches for " + event.getName());
         // find time when the round robin matches end
         double singleEliminationStartTime = eventStart;
         if (!event.isSingleElimination()) {
@@ -297,14 +304,14 @@ public class MatchSchedulingService {
                     eventLastTableNum = Math.max(eventLastTableNum, iTableNumber);
                 }
             }
-//        System.out.println("RR round firstTableNum = " + eventFirstTableNum + " lastTableNum = " + eventLastTableNum);
-//        System.out.println("maxDuration = " + maxDuration);
+            log.info("RR round firstTableNum = " + eventFirstTableNum + " lastTableNum = " + eventLastTableNum);
+            log.info("maxDuration = " + maxDuration);
 
             // When the round robin round is finished
             singleEliminationStartTime = eventStart + (TableAvailabilityMatrix.TIME_SLOT_SIZE * Math.floorDiv(maxDuration, TableAvailabilityMatrix.TIME_SLOT_SIZE_INT));
             // start single elimination rounds 30 minutes later but only if there were at least 8 groups
             singleEliminationStartTime += (roundRobinMatchCards.size() >= 8) ? TableAvailabilityMatrix.TIME_SLOT_SIZE : 0;
-//        System.out.println("singleEliminationStartTime = " + singleEliminationStartTime);
+            log.info("singleEliminationStartTime = " + singleEliminationStartTime);
         }
 
         // schedule the single elimination round matches on the same tables where the round robin round matches were played
@@ -315,29 +322,28 @@ public class MatchSchedulingService {
         int previousRoundDuration = TableAvailabilityMatrix.TIME_SLOT_SIZE_INT;
         int currentRound = event.getMaxEntries();
         boolean firstMatch = true;
-//        System.out.println("event = " + event.getName());
         for (MatchCard matchCard : singleEliminationMatchCards) {
             int duration = calculateAllMatchesDuration(matchCard.getNumberOfGames(), 1, event.getPointsPerGame());
-//            System.out.println("groupNum = " + matchCard.getGroupNum() + " current assigned tables " + matchCard.getAssignedTables() + " startTime " + matchCard.getStartTime());
-//            System.out.println("match duration = " + duration);
+            log.info("groupNum = " + matchCard.getGroupNum() + " current assigned tables " + matchCard.getAssignedTables() + " startTime " + matchCard.getStartTime());
+            log.info("match duration = " + duration);
             // get the first match round and duration
             if (firstMatch) {
                 firstMatch = false;
                 currentRound = matchCard.getRound();
                 previousRoundDuration = duration;
-//                System.out.println("round = " + currentRound + ", currentRoundStartTime = " + currentRoundStartTime + ", currentTableNum = " + currentTableNum);
+                log.info("round = " + currentRound + ", currentRoundStartTime = " + currentRoundStartTime + ", currentTableNum = " + currentTableNum);
             }
 
             // all matches in the same round should have the same starting time and duration
             if (matchCard.getRound() != currentRound) {
                 currentRound = matchCard.getRound();
                 double numTimeSlots = Math.ceil((double) previousRoundDuration / (double) TableAvailabilityMatrix.TIME_SLOT_SIZE_INT);
-//                System.out.println("numTimeSlots = " + numTimeSlots);
+                log.info("numTimeSlots = " + numTimeSlots);
                 currentRoundStartTime = previousRoundStartTime + ((int) numTimeSlots * TableAvailabilityMatrix.TIME_SLOT_SIZE);
                 previousRoundDuration = duration;
                 // try finding a table starting with the first one that this event is played on
                 currentTableNum = eventFirstTableNum;
-//                System.out.println("round = " + currentRound + ", currentRoundStartTime = " + currentRoundStartTime + ", currentTableNum = " + currentTableNum);
+                log.info("round = " + currentRound + ", currentRoundStartTime = " + currentRoundStartTime + ", currentTableNum = " + currentTableNum);
             }
 
             // find table with one following the last one
@@ -350,19 +356,20 @@ public class MatchSchedulingService {
 
                 // save the latest start number so next round starts after that match
                 previousRoundStartTime = Math.max(previousRoundStartTime, availableTable.startTime);
-//                System.out.println("previousRoundStartTime = " + previousRoundStartTime);
+                log.info("previousRoundStartTime = " + previousRoundStartTime);
 
                 String assignedTables = Integer.toString(availableTable.tableNum);
-//                System.out.println("Assigning startTime = " + availableTable.startTime + ", on table # " + assignedTables + " with duration " + duration);
+                log.info("Assigning startTime = " + availableTable.startTime + ", on table # " + assignedTables + " with duration " + duration);
                 matchCard.setAssignedTables(assignedTables);
                 matchCard.setStartTime(availableTable.startTime);
                 matchCard.setDuration(duration);
             } else {
                 matchCard.setAssignedTables(null);
-                System.out.println("Unable to find table for matchCard = " + matchCard.getGroupNum() + " assigned tables " + matchCard.getAssignedTables() + " startTime " + matchCard.getStartTime());
+                log.info("Unable to find table for matchCard = " + matchCard.getGroupNum() + " assigned tables " + matchCard.getAssignedTables() + " startTime " + matchCard.getStartTime());
             }
         }
         matchCardService.saveAllAndFlush(singleEliminationMatchCards);
+        log.info ("Saved single elimination match cards");
     }
 
     /**

@@ -11,6 +11,7 @@ import {LinearProgressBarService} from '../../shared/linear-progress-bar/linear-
 import {MatchCard} from '../../matches/model/match-card.model';
 import {MatchCardService} from '../../matches/service/match-card.service';
 import {MatchSchedulingService} from '../service/match-scheduling.service';
+import {ErrorMessagePopupService} from '../../shared/error-message-dialog/error-message-popup.service';
 
 @Component({
   selector: 'app-schedule-manage-container',
@@ -50,7 +51,8 @@ export class ScheduleManageContainerComponent implements OnInit, OnDestroy {
               private tournamentEventConfigService: TournamentEventConfigService,
               private matchCardService: MatchCardService,
               private matchSchedulingService: MatchSchedulingService,
-              private linearProgressBarService: LinearProgressBarService) {
+              private linearProgressBarService: LinearProgressBarService,
+              private errorMessagePopupService: ErrorMessagePopupService) {
     const strTournamentId = this.activatedRoute.snapshot.params['tournamentId'] || 0;
     this.tournamentId = Number(strTournamentId);
     this.setupProgressIndicator();
@@ -125,6 +127,8 @@ export class ScheduleManageContainerComponent implements OnInit, OnDestroy {
           this.matchCardService.putIntoCache(matchCards);
         }, (error: any) => {
           console.log('error ', error);
+          const message = error.error?.message ?? error.message;
+          this.errorMessagePopupService.showError(message);
         });
     this.subscriptions.add(subscription);
   }
