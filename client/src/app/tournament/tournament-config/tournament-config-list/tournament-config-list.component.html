@@ -45,7 +45,7 @@
                           [state]="{ tournamentName: tournament.name,
                           tournamentStartDate: tournament.startDate,
                           tournamentEndDate: tournament.endDate,
-                          checkInType: tournament.configuration.checkInType }"
+                          checkInType: tournament?.configuration?.checkInType ?? 'DAILY'}"
                           matTooltip="Player Check in">
                     <mat-icon matListItemIcon>task_alt</mat-icon>
                     Check in

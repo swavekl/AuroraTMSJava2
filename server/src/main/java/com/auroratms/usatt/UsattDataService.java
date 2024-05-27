@@ -2,6 +2,7 @@ package com.auroratms.usatt;
 
 import com.auroratms.profile.UserProfileExt;
 import com.auroratms.profile.UserProfileExtService;
+import com.auroratms.ratingsprocessing.MembershipsProcessorStatus;
 import com.auroratms.ratingsprocessing.RatingsProcessorStatus;
 import com.opencsv.CSVReader;
 import com.opencsv.exceptions.CsvValidationException;
@@ -130,7 +131,7 @@ public class UsattDataService {
      * @return
      */
     public List<UsattPlayerRecord> readAllPlayersFromFile(String filename, RatingsProcessorStatus ratingsProcessorStatus) {
-        List<UsattPlayerRecord> playerInfos = new ArrayList<>(63000);
+        List<UsattPlayerRecord> playerInfos = new ArrayList<>(75000);
 
         try {
             logger.info("Processing ratings file " + filename);
@@ -236,6 +237,126 @@ public class UsattDataService {
         }
         return playerInfos;
     }
+
+    /**
+     * Loads data from the membershps file into a list
+     *
+     * @param filename
+     * @param ratingsProcessorStatus
+     * @return
+     */
+    public List<UsattPlayerRecord> readMembershipFile(String filename, MembershipsProcessorStatus ratingsProcessorStatus) {
+        List<UsattPlayerRecord> playerInfos = new ArrayList<>(15000);
+
+        try {
+            logger.info("Processing memberships file " + filename);
+            try (CSVReader csvReader = new CSVReader(new InputStreamReader(new FileInputStream(filename), "UTF-8"));) {
+                String[] values = null;
+                int rowNumber = 0;
+                int badRecordsNum = 0;
+                int maxLenFirstName = 0;
+                int maxLenLastName = 0;
+                int maxLenZip = 0;
+                int maxLenState = 0;
+                while ((values = csvReader.readNext()) != null) {
+                    rowNumber++;
+                    if (rowNumber == 1) {
+                        continue;
+                    }
+
+                    int columnNum = 0;
+
+                    UsattPlayerRecord usattPlayerInfo = new UsattPlayerRecord();
+//                    if (values.length != 10) {
+//                        String csvValues = StringUtils.joinWith(",", Arrays.stream(values).toArray());
+//                        logger.warn("Insufficient values in record (" + values.length + ") " + csvValues);
+//                        logger.info("Attempting parsing again");
+//                        values = csvValues.split(",");
+//                        if (values.length != 10) {
+//                            badRecordsNum++;
+//                            continue;
+//                        } else {
+//                            logger.info("Parsing succeeded");
+//                        }
+//                    }
+                    // USATT #	Membership Expiration Date	First Name	Last Name	Gender	DOB	State	Zip Code	Rating	Last Played Date
+                    for (String text : values) {
+                        switch (columnNum) {
+                            case 0:
+                                usattPlayerInfo.setMembershipId(Long.parseLong(text));
+                                break;
+                            case 1:
+                                Date membershipExpiration = parseDate(text);
+                                if (membershipExpiration != null) {
+                                    usattPlayerInfo.setMembershipExpirationDate(membershipExpiration);
+                                }
+                                break;
+                            case 2:
+                                maxLenFirstName = Math.max(maxLenFirstName, text.length());
+                                text = cleanupName(text);
+                                usattPlayerInfo.setFirstName(text);
+                                break;
+                            case 3:
+                                maxLenLastName = Math.max(maxLenLastName, text.length());
+                                text = cleanupName(text);
+                                usattPlayerInfo.setLastName(text);
+                                break;
+                            case 4:
+                                String gender = ("female".equals(text)) ? "F" : "M";
+                                usattPlayerInfo.setGender(gender);
+                                break;
+                            case 5:
+                                usattPlayerInfo.setDateOfBirth(parseDate(text));
+                                break;
+                            case 6:
+                                maxLenState = Math.max(maxLenState, text.length());
+                                usattPlayerInfo.setState(text);
+                                if (text.length() > 2) {
+                                    usattPlayerInfo.setCountry(text);
+                                }
+                                break;
+                            case 7:
+                                maxLenZip = Math.max(maxLenZip, text.length());
+                                text = cleanupZipCode(text);
+                                usattPlayerInfo.setZip(text);
+                                break;
+                            case 8:
+                                usattPlayerInfo.setTournamentRating(Integer.parseInt(text));
+                                break;
+                            case 9:
+                                usattPlayerInfo.setLastTournamentPlayedDate(parseDate(text));
+                                break;
+                            default:
+                                break;
+                        }
+                        columnNum++;
+                    }
+                    if (StringUtils.isEmpty(usattPlayerInfo.getFirstName()) ||
+                            StringUtils.isEmpty(usattPlayerInfo.getLastName())) {
+                        String csvValues = StringUtils.joinWith(",", Arrays.stream(values).toArray());
+                        logger.warn("Missing critical values in record " + csvValues);
+
+                        badRecordsNum++;
+                        ratingsProcessorStatus.badRecords = badRecordsNum;
+                        continue;
+                    }
+                    playerInfos.add(usattPlayerInfo);
+                    ratingsProcessorStatus.totalRecords = rowNumber - 1;
+                }
+
+                logger.info("total records = " + rowNumber);
+                logger.info("bad   records = " + badRecordsNum);
+                logger.info("maxLenFirstName = " + maxLenFirstName);
+                logger.info("maxLenLastName  = " + maxLenLastName);
+                logger.info("maxLenState     = " + maxLenState);
+                logger.info("maxLenZip       = " + maxLenZip);
+            }
+        } catch (IOException | CsvValidationException e) {
+            e.printStackTrace();
+        }
+        return playerInfos;
+    }
+
 
     private String cleanupZipCode(String text) {
         // remove .0 from 89456.0
@@ -437,43 +558,9 @@ public class UsattDataService {
                 this.playerRecordRepository.saveAllAndFlush(batchOfExistingRecords);
             }
 
-            if (newRecords.size() > 0) {
-                logger.info("Looking for new players who have been assigned a permanent membership id");
-                Map<Long, Long> oldToNewMembershipIdMap = new HashMap<>();
-                for (UsattPlayerRecord newRecord : newRecords) {
-                    try {
-                        logger.info("Trying to find temporary membership record for " + newRecord.getLastName() + ", " + newRecord.getFirstName());
-                        UsattPlayerRecord playerRecord = playerRecordRepository.getFirstByFirstNameAndLastName(newRecord.getFirstName(), newRecord.getLastName());
-                        if (playerRecord != null) {
-                            Long membershipId = playerRecord.getMembershipId();
-                            if (membershipId >= 400000 && membershipId <= 500000) {
-                                logger.info("Found temporary player record with membership id " + membershipId + " to be updated to " + newRecord.getMembershipId() + ". Deleting...");
-                                playerRecordRepository.deleteById(playerRecord.getId());
-                                oldToNewMembershipIdMap.put(membershipId, newRecord.getMembershipId());
-                            } else {
-                                logger.info ("Temporary membership not found");
-                            }
-                        } else {
-                            logger.warn("Didn't find player named " + newRecord.getLastName() + ", " + newRecord.getFirstName() + ". Fix manually " + newRecord.getMembershipId());
-                        }
-                    } catch (Exception e) {
-                        logger.error("Unable to delete temporary membership id and update profile ext");
-                    }
-                }
-
-                this.playerRecordRepository.saveAllAndFlush(newRecords);
+            if (!newRecords.isEmpty()) {
                 ratingsProcessorStatus.newRecords += newRecords.size();
-
-                // now update profile ext linking usatt record to profile
-                for (Long oldMembershipId : oldToNewMembershipIdMap.keySet()) {
-                    if (userProfileExtService.existsByMembershipId(oldMembershipId)) {
-                        Long newMembershipId = oldToNewMembershipIdMap.get(oldMembershipId);
-                        logger.info("Changing ext user profile from temp membership id " + oldMembershipId + " to " + newMembershipId);
-                        UserProfileExt userProfileExt = userProfileExtService.getByMembershipId(oldMembershipId);
-                        userProfileExt.setMembershipId(newMembershipId);
-                        userProfileExtService.save(userProfileExt);
-                    }
-                }
+                replaceTemporaryMembershipId(newRecords);
             }
 
             ratingsProcessorStatus.processedRecords = endingIndex;
@@ -496,6 +583,114 @@ public class UsattDataService {
 
         long duration = (System.currentTimeMillis() - start) / 1000;
         logger.info("Finished processing " + endingIndex + " records in " + duration + " seconds.");
+    }
+
+    /**
+     * Inserts new records of members who paid to USATT directly and are not in the regular ratings file because they didn't play in a tournament yet.
+     *
+     * @param recordsToImport list of new member records to import
+     * @param membershipsProcessorStatus status object
+     */
+    public void insertNewMembers(List<UsattPlayerRecord> recordsToImport, MembershipsProcessorStatus membershipsProcessorStatus) {
+        int startingIndex = 0;
+        int BATCH_SIZE = 100;
+        int endingIndex = startingIndex;
+        List<Long> batchOfIds = new ArrayList<>(BATCH_SIZE);
+        List<UsattPlayerRecord> newRecords = new ArrayList<>();
+        long start = System.currentTimeMillis();
+        Date today = new Date();
+        logger.info("recordsToImport = " + recordsToImport.size());
+        membershipsProcessorStatus.newRecords = 0;
+        membershipsProcessorStatus.processedRecords = 0;
+        do {
+            batchOfIds.clear();
+            newRecords.clear();
+
+            endingIndex = Math.min((startingIndex + BATCH_SIZE), recordsToImport.size());
+
+            // get a sublist of updated records
+            logger.info("Processing records sublist (" + startingIndex + ", " + endingIndex + ")");
+            List<UsattPlayerRecord> subList = recordsToImport.subList(startingIndex, endingIndex);
+            startingIndex = endingIndex;
+
+            for (UsattPlayerRecord usattPlayerRecord : subList) {
+                Long membershipId = usattPlayerRecord.getMembershipId();
+                if (membershipId != null) {
+                    batchOfIds.add(membershipId);
+                }
+            }
+
+            // fetch records with same membership id from database
+            List<UsattPlayerRecord> batchOfExistingRecords = this.playerRecordRepository.findAllByMembershipIdIn(batchOfIds);
+            List<RatingHistoryRecord> ratingHistoryRecordList = new ArrayList<>(subList.size());
+            List<RatingHistoryRecord> updatedRatingHistoryRecordList = new ArrayList<>(subList.size());
+            for (UsattPlayerRecord updatedRecord : subList) {
+                boolean found = false;
+                for (UsattPlayerRecord existingRecord : batchOfExistingRecords) {
+                    // find existing record in the batch
+                    if (updatedRecord.getMembershipId().equals(existingRecord.getMembershipId())) {
+                        found = true;
+                    }
+                }
+                if (!found) {
+                    newRecords.add(updatedRecord);
+                }
+            }
+
+            if (!newRecords.isEmpty()) {
+                membershipsProcessorStatus.newRecords += newRecords.size();
+                replaceTemporaryMembershipId(newRecords);
+            }
+            membershipsProcessorStatus.processedRecords = endingIndex;
+
+        } while (startingIndex < (recordsToImport.size() - 1));
+
+        long duration = (System.currentTimeMillis() - start) / 1000;
+        logger.info("Finished processing " + endingIndex + " records in " + duration + " seconds.");
+    }
+
+    /**
+     * Finds a temporary USATT record and replace it temporary membership id with a permanent one
+     *
+     * @param newRecords
+     * @return
+     */
+    private void replaceTemporaryMembershipId (List<UsattPlayerRecord> newRecords) {
+        logger.info("Looking for new players who have been assigned a permanent membership id");
+        Map<Long, Long> oldToNewMembershipIdMap = new HashMap<>();
+        for (UsattPlayerRecord newRecord : newRecords) {
+            try {
+                logger.info("Trying to find temporary membership record for " + newRecord.getLastName() + ", " + newRecord.getFirstName());
+                UsattPlayerRecord playerRecord = playerRecordRepository.getFirstByFirstNameAndLastName(newRecord.getFirstName(), newRecord.getLastName());
+                if (playerRecord != null) {
+                    Long membershipId = playerRecord.getMembershipId();
+                    if (membershipId >= 400000 && membershipId <= 500000) {
+                        logger.info("Found temporary player record with membership id " + membershipId + " to be updated to " + newRecord.getMembershipId() + ". Deleting...");
+                        playerRecordRepository.deleteById(playerRecord.getId());
+                        oldToNewMembershipIdMap.put(membershipId, newRecord.getMembershipId());
+                    } else {
+                        logger.info("Temporary membership not found");
+                    }
+                } else {
+                    logger.warn("Didn't find player named " + newRecord.getLastName() + ", " + newRecord.getFirstName() + ". Fix manually " + newRecord.getMembershipId());
+                }
+            } catch (Exception e) {
+                logger.error("Unable to delete temporary membership id and update profile ext");
+            }
+
+            this.playerRecordRepository.saveAllAndFlush(newRecords);
+
+            // now update profile ext linking usatt record to profile
+            for (Long oldMembershipId : oldToNewMembershipIdMap.keySet()) {
+                if (userProfileExtService.existsByMembershipId(oldMembershipId)) {
+                    Long newMembershipId = oldToNewMembershipIdMap.get(oldMembershipId);
+                    logger.info("Changing ext user profile from temp membership id " + oldMembershipId + " to " + newMembershipId);
+                    UserProfileExt userProfileExt = userProfileExtService.getByMembershipId(oldMembershipId);
+                    userProfileExt.setMembershipId(newMembershipId);
+                    userProfileExtService.save(userProfileExt);
+                }
+            }
+        }
     }
 
     /**

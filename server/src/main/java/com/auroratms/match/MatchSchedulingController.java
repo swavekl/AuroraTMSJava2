@@ -39,6 +39,9 @@ public class MatchSchedulingController {
 //                matchCard.setMatches(null);
 //            }
             return new ResponseEntity(daysMatchCards, HttpStatus.OK);
+        } catch (MatchSchedulingException e) {
+            log.error("Error regenerating match cards schedule", e);
+            throw e;  // handled by exception handler
         } catch (Exception e) {
             log.error("Error generating schedule", e);
             return new ResponseEntity(e, HttpStatus.INTERNAL_SERVER_ERROR);

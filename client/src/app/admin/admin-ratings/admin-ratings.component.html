@@ -9,18 +9,43 @@
       (uploadFinished)="onRatingsUploadFinished($event)"
       [storagePath]="getRatingsStoragePath()">
     </app-upload-file-component>
+    <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+    <app-upload-file-component
+      [disabledBtn]="processing"
+      [uploadButtonLabel]="'Process Membership File'"
+      (uploadFinished)="onMembershipsFileUploadFinished($event)"
+      [storagePath]="getMembershipsStoragePath()">
+    </app-upload-file-component>
   </mat-card-actions>
   <mat-card-content>
-    <div class="mat-subtitle-1">
-      <div>Phase: {{ ratingsProcessorStatus.phase }}</div>
-      <div>Total Records: {{ ratingsProcessorStatus.totalRecords }}</div>
-      <div>Processed Records: {{ ratingsProcessorStatus.processedRecords }} ({{ ((ratingsProcessorStatus.processedRecords + ratingsProcessorStatus.badRecords) / ratingsProcessorStatus.totalRecords) | percent }})</div>
-      <div>New Records: {{ ratingsProcessorStatus.newRecords }}</div>
-      <div>Bad Records: {{ ratingsProcessorStatus.badRecords }}</div>
-      <div>New Rating History Records: {{ ratingsProcessorStatus.newHistoryRecords }}</div>
-      <div>Updated Rating History Records: {{ ratingsProcessorStatus.updatedHistoryRecords }}</div>
-      <div>Elapsed time (secs): {{ (!ratingsProcessorStatus.endTime || !ratingsProcessorStatus.startTime)
-        ? 0 : (ratingsProcessorStatus.endTime - ratingsProcessorStatus.startTime) / 1000 }}</div>
+    <div class="mat-subtitle-1" fxLayoutAlign="start start" fxLayout="row">
+      <div fxFlex="24%">
+        <h4 class="bold-heading">Ratings processing status:</h4>
+        <div>Phase: {{ ratingsProcessorStatus.phase }}</div>
+        <div>Total Records: {{ ratingsProcessorStatus.totalRecords }}</div>
+        <div>Processed Records: {{ ratingsProcessorStatus.processedRecords }}
+          ({{ ((ratingsProcessorStatus.processedRecords + ratingsProcessorStatus.badRecords) / ratingsProcessorStatus.totalRecords) | percent }}
+          )
+        </div>
+        <div>New Records: {{ ratingsProcessorStatus.newRecords }}</div>
+        <div>Bad Records: {{ ratingsProcessorStatus.badRecords }}</div>
+        <div>New Rating History Records: {{ ratingsProcessorStatus.newHistoryRecords }}</div>
+        <div>Updated Rating History Records: {{ ratingsProcessorStatus.updatedHistoryRecords }}</div>
+        <div>Elapsed time: {{ formatElapsedTime(ratingsProcessorStatus.startTime, ratingsProcessorStatus.endTime) }}
+        </div>
+      </div>
+      <div fxFlex="25%">
+        <h4 class="bold-heading">Membership processing status:</h4>
+        <div>Phase: {{ membershipsProcessorStatus.phase }}</div>
+        <div>Total Records: {{ membershipsProcessorStatus.totalRecords }}</div>
+        <div>Processed Records: {{ membershipsProcessorStatus.processedRecords }}
+          ({{ ((membershipsProcessorStatus.processedRecords + membershipsProcessorStatus.badRecords) / membershipsProcessorStatus.totalRecords) | percent }}
+          )
+        </div>
+        <div>New Records: {{ membershipsProcessorStatus.newRecords }}</div>
+        <div>Bad Records: {{ membershipsProcessorStatus.badRecords }}</div>
+        <div>Elapsed time: {{ formatElapsedTime(membershipsProcessorStatus.startTime, membershipsProcessorStatus.endTime)}}</div>
+      </div>
     </div>
   </mat-card-content>
 </mat-card>

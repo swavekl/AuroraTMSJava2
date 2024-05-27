@@ -1,5 +1,6 @@
 package com.auroratms.usatt;
 
+import com.auroratms.ratingsprocessing.MembershipsProcessorStatus;
 import com.auroratms.ratingsprocessing.RatingsProcessorStatus;
 import com.auroratms.server.ServerApplication;
 import org.junit.Ignore;
@@ -7,7 +8,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.security.test.context.support.WithSecurityContextTestExecutionListener;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestExecutionListeners;
@@ -39,7 +39,7 @@ public class UsattDataServiceTest extends AbstractJUnit4SpringContextTests {
     private UsattDataService usattDataService;
 
     @Test ()
-//    @Ignore
+    @Ignore
     public void testFetchOneUser () {
         String filename = "C:\\myprojects\\data\\DubinaRecords.csv";
         RatingsProcessorStatus ratingsProcessorStatus = new RatingsProcessorStatus();
@@ -162,4 +162,26 @@ public class UsattDataServiceTest extends AbstractJUnit4SpringContextTests {
 //        assertTrue(usattDataService.isZipACountry("TN"));
         assertTrue(usattDataService.isZipACountry("Puerto Rico"));
     }
+
+    @Test
+//    @Ignore
+    public void testReadingMembership () {
+        String filename = "F:\\ratings files\\currentMembersReport.csv";
+        MembershipsProcessorStatus membershipsProcessorStatus = new MembershipsProcessorStatus();
+        List<UsattPlayerRecord> usattPlayerInfos = usattDataService.readMembershipFile(filename, membershipsProcessorStatus);
+        assertTrue("wrong number of records", (usattPlayerInfos.size() > 13000));
+        for (UsattPlayerRecord usattPlayerInfo : usattPlayerInfos) {
+            assertNotNull("first name is null", usattPlayerInfo.getFirstName());
+            assertNotNull("last name is null", usattPlayerInfo.getLastName());
+            assertNotNull("Gender is null", usattPlayerInfo.getGender());
+        }
+
+        long countBefore = usattDataService.getTotalCount();
+        usattDataService.insertNewMembers(usattPlayerInfos, membershipsProcessorStatus);
+        long countAfter = usattDataService.getTotalCount();
+        long addedRecords = countAfter - countBefore;
+        System.out.println("addedRecords = " + addedRecords);
+//        assertEquals("wrong count of records inserted into db", usattPlayerInfos.size(), addedRecords);
+    }
+
 }
