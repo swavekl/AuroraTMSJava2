@@ -373,4 +373,8 @@ export class AuthenticationService {
       );
 
   }
+
+  isLiveScoreRole() {
+    return this.hasCurrentUserRole(['Monitors', 'DigitalScoreBoards']);
+  }
 }

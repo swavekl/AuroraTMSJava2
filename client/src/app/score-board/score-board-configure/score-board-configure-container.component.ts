@@ -9,6 +9,7 @@ import {Tournament} from '../../tournament/tournament-config/tournament.model';
 import {DateUtils} from '../../shared/date-utils';
 import * as moment from 'moment';
 import {UserRoles} from '../../user/user-roles.enum';
+import {TodayService} from '../../shared/today.service';
 
 @Component({
   selector: 'app-score-board-configure-container',
@@ -35,7 +36,8 @@ export class ScoreBoardConfigureContainerComponent implements OnInit, OnDestroy 
   constructor(private router: Router,
               private linearProgressBarService: LinearProgressBarService,
               private authenticationService: AuthenticationService,
-              private tournamentConfigService: TournamentConfigService) {
+              private tournamentConfigService: TournamentConfigService,
+              private todayService: TodayService) {
     this.setupProgressIndicator();
     this.loadTournamentsForThisScoreBoard();
   }
@@ -64,7 +66,7 @@ export class ScoreBoardConfigureContainerComponent implements OnInit, OnDestroy 
             console.log(`Got ${tournaments.length} tournaments for monitor `, tournaments);
             const filteredTournamentChoices: any [] = [];
             const dateUtils = new DateUtils();
-            const today: Date = new Date();
+            const today: Date = this.todayService.todaysDate
             for (const tournament of tournaments) {
               // allow setup of up to a few days before the tournament
               const daysBefore = 370;
@@ -76,8 +78,6 @@ export class ScoreBoardConfigureContainerComponent implements OnInit, OnDestroy 
                     personnel.role === UserRoles.ROLE_DIGITAL_SCORE_BOARDS) {
                     const difference = new DateUtils().daysBetweenDates(tournament.startDate, today);
                     let tournamentDay = difference + 1;
-// todo - cleanup after testing
-tournamentDay = 1;
                     filteredTournamentChoices.push({
                       id: tournament.id,
                       name: tournament.name,
@@ -103,8 +103,7 @@ tournamentDay = 1;
   }
 
   onTableSelected(selectedTableInfo: any) {
-    console.log('user selected table', selectedTableInfo);
-    const url = `/ui/scoreboard/scoreentry/${selectedTableInfo.tournamentId}/${selectedTableInfo.tournamentDay}/${selectedTableInfo.tableNumber}`;
+    const url = `/ui/scoreboard/selectmatch/${selectedTableInfo.tournamentId}/${selectedTableInfo.tournamentDay}/${selectedTableInfo.tableNumber}`;
     this.router.navigateByUrl(url);
   }
 }

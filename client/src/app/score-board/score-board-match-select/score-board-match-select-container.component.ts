@@ -11,12 +11,13 @@ import {MonitorService} from '../../monitor/service/monitor.service';
   template: `
     <app-score-board [matchCards]="matchCards$ | async"
                      [tournamentId]="tournamentId"
-                     [tableNumber]="tableNumber">
+                     [tableNumber]="tableNumber"
+                     [tournamentDay]="tournamentDay">
     </app-score-board>
   `,
   styles: []
 })
-export class ScoreBoardContainerComponent implements OnInit {
+export class ScoreBoardMatchSelectContainerComponent implements OnInit {
 
   // tournament id at which to umpire matches
   tournamentId: number;

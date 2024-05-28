@@ -591,7 +591,7 @@ public class MatchCardService {
      * @param matches
      * @return
      */
-    private Map<String, String> buildProfileIdToNameMap(List<Match> matches) {
+    public Map<String, String> buildProfileIdToNameMap(List<Match> matches) {
         boolean doublesEvent = false;
         Set<String> playerProfileIds = new HashSet<String>();
         for (Match match : matches) {

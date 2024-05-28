@@ -108,4 +108,8 @@ export class AppComponent implements OnInit {
   isProfileComplete() {
     return this.authenticationService.isProfileComplete();
   }
+
+  isLiveScoreRole(): boolean {
+    return this.authenticationService.isLiveScoreRole();
+  }
 }

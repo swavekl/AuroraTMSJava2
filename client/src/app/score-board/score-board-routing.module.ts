@@ -2,7 +2,8 @@ import {NgModule} from '@angular/core';
 import {RouterModule, Routes} from '@angular/router';
 import {UserRoles} from '../user/user-roles.enum';
 import {ScoreBoardConfigureContainerComponent} from './score-board-configure/score-board-configure-container.component';
-import {ScoreBoardContainerComponent} from './score-board/score-board-container.component';
+import {ScoreBoardMatchSelectContainerComponent} from './score-board-match-select/score-board-match-select-container.component';
+import {ScoreBoardScoreEntryContainerComponent} from './score-board-score-entry/score-board-score-entry-container.component';
 
 const routes: Routes = [
   {
@@ -12,7 +13,13 @@ const routes: Routes = [
     }
   },
   {
-    path: 'scoreentry/:tournamentId/:tournamentDay/:tableNumber', component: ScoreBoardContainerComponent,
+    path: 'selectmatch/:tournamentId/:tournamentDay/:tableNumber', component: ScoreBoardMatchSelectContainerComponent,
+    data: {
+      roles: [UserRoles.ROLE_ADMINS, UserRoles.ROLE_DIGITAL_SCORE_BOARDS]
+    }
+  },
+  {
+    path: 'scoreentry/:tournamentId/:tournamentDay/:tableNumber/:matchCardId/:matchIndex', component: ScoreBoardScoreEntryContainerComponent,
     data: {
       roles: [UserRoles.ROLE_ADMINS, UserRoles.ROLE_DIGITAL_SCORE_BOARDS]
     }

@@ -3,13 +3,14 @@ import {MatchCard} from '../../matches/model/match-card.model';
 import {MonitorService} from '../../monitor/service/monitor.service';
 import {MonitorMessage} from '../../monitor/model/monitor-message.model';
 import {MonitorMessageType} from '../../monitor/model/monitor-message-type';
+import {Router} from '@angular/router';
 
 @Component({
   selector: 'app-score-board',
-  templateUrl: './score-board.component.html',
-  styleUrls: ['./score-board.component.css']
+  templateUrl: './score-board-match-selection.component.html',
+  styleUrls: ['./score-board-match-selection.component.scss']
 })
-export class ScoreBoardComponent implements OnInit {
+export class ScoreBoardMatchSelectionComponent implements OnInit {
 
   @Input()
   matchCards: MatchCard [] = [];
@@ -20,28 +21,30 @@ export class ScoreBoardComponent implements OnInit {
   @Input()
   tableNumber: number;
 
-  constructor(private monitorService: MonitorService) { }
+  @Input()
+  tournamentDay: number;
+
+  constructor(private monitorService: MonitorService,
+              private router: Router) { }
 
   ngOnInit(): void {
-    console.log('match cards', this.matchCards);
   }
 
   getPlayerNames(matchCard: MatchCard, letter: string) {
     if (this.matchCards != null && matchCard.profileIdToNameMap != null) {
       const match = matchCard?.matches[0];
       const profileId = (letter === 'A') ? match.playerAProfileId : match.playerBProfileId;
-      const playerName = matchCard.profileIdToNameMap[profileId];
-      console.log('playerName', playerName);
-      return playerName;
+      return matchCard.profileIdToNameMap[profileId];
     } else {
-      return letter;
+      return `player ${letter}`;
     }
   }
 
   selectedMatch(matchCard: MatchCard) {
+    const matchIndex = 0;
     const monitorMessage: MonitorMessage = {
       messageType: MonitorMessageType.ScoreUpdate,
-      match: matchCard.matches[0],
+      match: matchCard.matches[matchIndex],
       playerAName: this.getPlayerNames(matchCard, 'A'),
       playerBName: this.getPlayerNames(matchCard, 'B'),
       playerAPartnerName: 'X',
@@ -54,5 +57,8 @@ export class ScoreBoardComponent implements OnInit {
     };
     this.monitorService.sendMessage(this.tournamentId, this.tableNumber, monitorMessage);
 
+    const matchCardId = matchCard.id;
+    const url = `/ui/scoreboard/scoreentry/${this.tournamentId}/${this.tournamentDay}/${this.tableNumber}/${matchCardId}/${matchIndex}`;
+    this.router.navigateByUrl(url);
   }
 }

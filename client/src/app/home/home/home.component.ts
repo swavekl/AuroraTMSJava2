@@ -257,7 +257,7 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   isProfileComplete() {
     if (this.authenticationService != null) {
-      return this.authenticationService.isProfileComplete();
+      return this.authenticationService.isProfileComplete() || this.authenticationService.isLiveScoreRole();
     } else {
       return false;
     }

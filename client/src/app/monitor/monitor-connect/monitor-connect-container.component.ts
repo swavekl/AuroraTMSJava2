@@ -10,6 +10,7 @@ import {Tournament} from '../../tournament/tournament-config/tournament.model';
 import {TournamentConfigService} from '../../tournament/tournament-config/tournament-config.service';
 import {LinearProgressBarService} from '../../shared/linear-progress-bar/linear-progress-bar.service';
 import {MonitorService} from '../service/monitor.service';
+import {TodayService} from '../../shared/today.service';
 
 @Component({
   selector: 'app-monitor-connect-container',
@@ -40,7 +41,8 @@ export class MonitorConnectContainerComponent implements OnInit, OnDestroy {
               private router: Router,
               private linearProgressBarService: LinearProgressBarService,
               private authenticationService: AuthenticationService,
-              private tournamentConfigService: TournamentConfigService) {
+              private tournamentConfigService: TournamentConfigService,
+              private todayService: TodayService) {
     this.setupProgressIndicator();
     this.loadTournamentsForThisMonitor();
   }
@@ -66,7 +68,7 @@ export class MonitorConnectContainerComponent implements OnInit, OnDestroy {
             console.log(`Got ${tournaments.length} tournaments for monitor `, tournaments);
             const filteredTournamentChoices: any [] = [];
             const dateUtils = new DateUtils();
-            const today: Date = new Date();
+            const today: Date = this.todayService.todaysDate;
             for (const tournament of tournaments) {
               // allow setup of up to a few days before the tournament
               const daysBefore = 100;

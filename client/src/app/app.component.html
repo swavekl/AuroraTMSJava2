@@ -26,10 +26,10 @@
       <mat-list-item *ngIf="isLinkVisible('/ui/prizes')" [disabled]="!isProfileComplete()" (click)="closeAndNavigateToRoute('/ui/prizes')" routerLinkActive="active">
         <a matListItemTitle>Prizes</a>
       </mat-list-item>
-      <mat-list-item *ngIf="isLinkVisible('/ui/monitor')" [disabled]="!isProfileComplete()" (click)="closeAndNavigateToRoute('/ui/monitor')" routerLinkActive="active">
+      <mat-list-item *ngIf="isLinkVisible('/ui/monitor')" [disabled]="!isLiveScoreRole()" (click)="closeAndNavigateToRoute('/ui/monitor', true)" routerLinkActive="active">
         <a matListItemTitle>Live Scores Display</a>
       </mat-list-item>
-      <mat-list-item *ngIf="isLinkVisible('/ui/scoreboard')" [disabled]="!isProfileComplete()" (click)="closeAndNavigateToRoute('/ui/scoreboard')" routerLinkActive="active">
+      <mat-list-item *ngIf="isLinkVisible('/ui/scoreboard')" [disabled]="!isLiveScoreRole()" (click)="closeAndNavigateToRoute('/ui/scoreboard', true)" routerLinkActive="active">
         <a matListItemTitle>Live Score Entry</a>
       </mat-list-item>
       <mat-list-item *ngIf="isLinkVisible('/ui/account')" [disabled]="!isProfileComplete()" (click)="closeAndNavigateToRoute('/ui/account')" routerLinkActive="active">

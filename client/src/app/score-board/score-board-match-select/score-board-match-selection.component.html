@@ -1,0 +1,12 @@
+<ng-container *ngIf="matchCards">
+  <div>Select a match to be live scored</div>
+  <table>
+    <tr *ngFor="let matchCard of matchCards">
+      <td>{{getPlayerNames(matchCard, 'A')}}</td>
+      <td>vs</td>
+      <td>{{getPlayerNames(matchCard, 'B')}}</td>
+      <td><button type="button" mat-raised-button (click)="selectedMatch(matchCard)">Select</button></td>
+    </tr>
+  </table>
+</ng-container>
+

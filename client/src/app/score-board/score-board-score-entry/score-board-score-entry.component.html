@@ -1,0 +1,90 @@
+<div fxLayout="column" fxFlexAlign="start center" style="height: 100%;">
+  <div fxLayout="row" fxFlexAlign="center center">
+    <div>&nbsp;</div>
+    <div fxFlex>
+      <mat-toolbar fxLayoutGap="10px">
+        <button mat-raised-button (click)="cancel()" style="margin-right: 10px">Cancel</button>
+        <button mat-raised-button (click)="reset()">Reset</button>
+        <span fxFlex></span>
+        <button mat-raised-button color="primary" (click)="save()" debounceClicks [disabled]="!isScoreValid()">Save</button>
+      </mat-toolbar>
+      <table class="scores-table" *ngIf="match">
+        <thead>
+        <tr>
+          <th>
+            <!--            <button type="button" mat-fab color="" class="game-prev-next-button" (click)="previousGame()" [disabled]="!hasPreviousGame()"><mat-icon>skip_previous</mat-icon></button>-->
+            <button type="button" mat-raised-button color="" class="game-prev-next-button" (click)="previousGame()" [disabled]="!hasPreviousGame()">Save & Prev</button>
+          </th>
+          <th class="mat-headline-6">
+            Game: {{gameToShowIndex + 1}}
+          </th>
+          <th>
+            <!--            <button type="button" mat-fab color="" class="game-prev-next-button" (click)="nextGame()" [disabled]="!hasNextGame()"><mat-icon>skip_next</mat-icon></button>-->
+            <button type="button" mat-raised-button color="" class="game-prev-next-button" (click)="nextGame()" [disabled]="!hasNextGame()">Save & Next</button>
+          </th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+          <td colspan="3" class="player-code-and-name-cell">
+            <div fxLayout="row" fxLayoutAlign="start center" (click)="setWinner(0)">
+              <div class="player-code" [ngClass]="isMatchWinner(match.playerAProfileId) ? 'match-winner' : ''">{{match.playerALetter}}</div>
+              <div class="player-name" fxLayout="column" fxLayoutAlign="start stretch" fxLayoutGap="4px">
+                <ng-container *ngIf="doubles; else singlesPlayerAName">
+                  <div>{{getDoublesPlayerName(playerAName, 0)}}</div>
+                  <div>{{getDoublesPlayerName(playerAName, 1)}}</div>
+                </ng-container>
+                <ng-template #singlesPlayerAName>
+                  <div>{{playerAName}}</div>
+                </ng-template>
+              </div>
+            </div>
+          </td>
+        </tr>
+
+        <tr>
+          <td class="button-cell">
+            <button type="button" mat-fab color="" class="subtract-button" (click)="subtractPoint(0)" [disabled]="isSubtractDisabled()"><mat-icon>remove</mat-icon></button>
+          </td>
+          <td class="score-column">
+            {{gameScoreSideA}}
+          </td>
+          <td class="button-cell">
+            <button type="button" mat-fab color="" class="add-button" (click)="addPoint(0)"><mat-icon>add</mat-icon></button>
+          </td>
+        </tr>
+        <tr>
+          <td class="button-cell">
+            <button type="button" mat-fab color="" class="subtract-button" (click)="subtractPoint(1)" [disabled]="isSubtractDisabled()"><mat-icon>remove</mat-icon></button>
+          </td>
+          <td class="score-column">
+            {{gameScoreSideB}}
+          </td>
+          <td class="button-cell">
+            <button type="button" mat-fab color="" class="add-button" (click)="addPoint(1)"><mat-icon>add</mat-icon></button>
+          </td>
+        </tr>
+        <tr>
+          <td colspan="3" class="player-code-and-name-cell">
+            <div fxLayout="row" fxLayoutAlign="start center" (click)="setWinner(1)">
+              <div class="player-code" [ngClass]="isMatchWinner(match.playerBProfileId) ? 'match-winner' : ''">
+                {{match.playerBLetter}}
+              </div>
+              <div class="player-name" fxLayout="column" fxLayoutAlign="start stretch" fxLayoutGap="4px">
+                <ng-container *ngIf="doubles; else singlesPlayerBName">
+                  <div>{{getDoublesPlayerName(playerBName, 0)}}</div>
+                  <div>{{getDoublesPlayerName(playerBName, 1)}}</div>
+                </ng-container>
+                <ng-template #singlesPlayerBName>
+                  <div>{{playerBName}}</div>
+                </ng-template>
+              </div>
+            </div>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+    <div>&nbsp;</div>
+  </div>
+</div>

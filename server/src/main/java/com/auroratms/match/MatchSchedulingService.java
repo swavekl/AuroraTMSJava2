@@ -13,10 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Service for generating automatic schedule of matches for tournament events
@@ -429,6 +426,12 @@ public class MatchSchedulingService {
 
                 }
             }
+        }
+
+        // retrieve player names
+        for (MatchCard matchChard : filteredMatchCards) {
+            Map<String, String> profileIdToNameMap = this.matchCardService.buildProfileIdToNameMap(matchChard.getMatches());
+            matchChard.setProfileIdToNameMap(profileIdToNameMap);
         }
 
         return filteredMatchCards;

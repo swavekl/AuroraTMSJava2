@@ -16,7 +16,8 @@ export class ProfileCompleteService {
               state: RouterStateSnapshot): boolean {
     const currentUser = this.authenticationService.getCurrentUser();
     if (currentUser) {
-      if (!this.authenticationService.isProfileComplete()) {
+      const isLiveScoreRole = this.authenticationService.isLiveScoreRole();
+      if (!this.authenticationService.isProfileComplete() && !isLiveScoreRole) {
         // console.log('User profile is not complete ', route);
         this.router.navigate(['/ui/home'], {queryParams: {returnUrl: state.url}});
         return false;

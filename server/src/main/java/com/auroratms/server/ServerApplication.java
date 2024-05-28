@@ -42,6 +42,9 @@ public class ServerApplication {
     @Value("${spring.security.oauth2.resourceserver.jwt.jwk-set-uri}")
     private String jwkSetUri;
 
+    @Value("${client.host.url}")
+    private String clientHostUrl;
+
     public static void main(String[] args) {
         SpringApplication.run(ServerApplication.class, args);
     }
@@ -51,7 +54,7 @@ public class ServerApplication {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(true);
-        config.setAllowedOrigins(Collections.singletonList("https://swaveklaptop:4200"));
+        config.setAllowedOrigins(Collections.singletonList(clientHostUrl));
         config.setAllowedMethods(Collections.singletonList("*"));
         config.setAllowedHeaders(Collections.singletonList("*"));
         source.registerCorsConfiguration("/**", config);
