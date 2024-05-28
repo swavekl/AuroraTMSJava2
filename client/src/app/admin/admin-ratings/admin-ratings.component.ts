@@ -45,9 +45,9 @@ export class AdminRatingsComponent {
   public formatElapsedTime (start: number, end: number) {
     if (start != null && end != null) {
       // start time and end time
-      const differenceInSecs = Math.round((end - start) / 1000);
-      const minutes: number = Math.round(differenceInSecs / 60);
-      const seconds: number = differenceInSecs - (minutes * 60);
+      const differenceInSecs = Math.floor((end - start) / 1000);
+      const minutes: number = Math.floor(differenceInSecs / 60);
+      const seconds: number = differenceInSecs % 60;
       return (minutes > 0) ? `${minutes} min ${seconds} sec` : `${seconds} sec`;
     } else {
       return '';
