@@ -38,6 +38,7 @@ import {PrizeInfoValidatorDirective} from './tournament-event-config/prize-info-
 import {TournamentWaitingListComponent} from './tournament-waiting-list/tournament-waiting-list.component';
 import {TournamentWaitingListContainerComponent} from './tournament-waiting-list/tournament-waiting-list-container.component';
 import {MatSlideToggleModule} from '@angular/material/slide-toggle';
+import {CdkDrag, CdkDragPlaceholder, CdkDropList} from '@angular/cdk/drag-drop';
 
 @NgModule({
   declarations: [
@@ -55,32 +56,35 @@ import {MatSlideToggleModule} from '@angular/material/slide-toggle';
     TournamentWaitingListComponent,
     TournamentWaitingListContainerComponent
   ],
-    imports: [
-        CommonModule,
-        FormsModule,
-        MatProgressBarModule,
-        MatCardModule,
-        MatListModule,
-        MatIconModule,
-        MatFormFieldModule,
-        MatInputModule,
-        MatSelectModule,
-        MatButtonModule,
-        MatDatepickerModule,
-        MatNativeDateModule,
-        MatTabsModule,
-        MatTableModule,
-        MatToolbarModule,
-        FlexLayoutModule,
-        RouterModule,
-        SharedModule,
-        TournamentConfigRoutingModule,
-        MatCheckboxModule,
-        MatDialogModule,
-        MatTooltipModule,
-        MatButtonToggleModule,
-        MatSlideToggleModule
-    ],
+  imports: [
+    CommonModule,
+    FormsModule,
+    MatProgressBarModule,
+    MatCardModule,
+    MatListModule,
+    MatIconModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    MatButtonModule,
+    MatDatepickerModule,
+    MatNativeDateModule,
+    MatTabsModule,
+    MatTableModule,
+    MatToolbarModule,
+    FlexLayoutModule,
+    RouterModule,
+    SharedModule,
+    TournamentConfigRoutingModule,
+    MatCheckboxModule,
+    MatDialogModule,
+    MatTooltipModule,
+    MatButtonToggleModule,
+    MatSlideToggleModule,
+    CdkDropList,
+    CdkDrag,
+    CdkDragPlaceholder
+  ],
   providers: []
 })
 export class TournamentConfigModule {

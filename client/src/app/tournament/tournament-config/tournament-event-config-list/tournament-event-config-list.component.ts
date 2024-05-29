@@ -4,6 +4,8 @@ import {Router} from '@angular/router';
 import {MatDialog} from '@angular/material/dialog';
 import {SelectEventDialogComponent} from '../select-event-dialog/select-event-dialog.component';
 import {DateUtils} from '../../../shared/date-utils';
+import {CdkDragDrop, moveItemInArray} from '@angular/cdk/drag-drop';
+import {ConfirmationPopupComponent} from '../../../shared/confirmation-popup/confirmation-popup.component';
 
 @Component({
   selector: 'app-tournament-event-config-list',
@@ -77,13 +79,31 @@ export class TournamentEventConfigListComponent implements OnInit, OnChanges {
     return `/ui/tournamentsconfig/tournament/${this.tournamentId}/tournamentevent/edit/${eventId}`;
   }
 
-  editEvent(eventId: number) {
-    const url = this.getEventEditLink(eventId);
-    this.router.navigate([url]);
-  }
-
   deleteEvent(eventId: number) {
-    this.delete.emit(eventId);
+    console.log('delete event ', eventId);
+    // check if has events
+    let hasEntries = false;
+    for (const event of this.events) {
+      if (event.id === eventId) {
+        hasEntries = event.numEntries > 0;
+        break;
+      }
+    }
+
+    const message = (hasEntries)
+      ? 'Warning: There are entries into this event.  You must first remove all entries from this event. Press \'OK\' to close'
+      : 'Are you sure you want to delete this event.  Press \'OK\' to proceed';
+    const config = {
+      width: '450px', height: '250px', data: {
+        message: message, showOk: !hasEntries
+      }
+    };
+    const dialogRef = this.dialog.open(ConfirmationPopupComponent, config);
+    dialogRef.afterClosed().subscribe(result => {
+      if (result === 'ok' && !hasEntries) {
+        this.delete.emit(eventId);
+      }
+    });
   }
 
   getDayOfWeek(day: number) {
@@ -144,5 +164,25 @@ export class TournamentEventConfigListComponent implements OnInit, OnChanges {
       });
     }
     return maxNumEventEntries;
+  }
+
+  drop(dndEvent: CdkDragDrop<string[]>) {
+    moveItemInArray(this.events, dndEvent.previousIndex, dndEvent.currentIndex);
+    const renumberedEvents: TournamentEvent [] = [];
+    const updatedEvents: TournamentEvent [] = [];
+    for (let i = 0; i < this.events.length; i++) {
+      const event: TournamentEvent = this.events[i];
+      const updatedEvent: TournamentEvent = {
+        ...event,
+        ordinalNumber: i + 1
+      };
+      renumberedEvents.push(updatedEvent);
+      if (event.ordinalNumber != updatedEvent.ordinalNumber) {
+        updatedEvents.push(updatedEvent);
+      }
+    }
+
+    this.events = renumberedEvents;
+    this.renumber.emit(updatedEvents);
   }
 }

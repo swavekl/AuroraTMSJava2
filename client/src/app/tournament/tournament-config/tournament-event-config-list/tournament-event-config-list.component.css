@@ -42,3 +42,15 @@ mat-toolbar-row button {
   justify-content: right;
   padding: 0 8px;
 }
+
+.example-drag-cursor {
+  margin-right: 16px;
+  cursor: grab;
+}
+
+.drag-placeholder {
+  background: #ccc;
+  border: dotted 3px #999;
+  min-height: 50px;
+  transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+}

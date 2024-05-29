@@ -2,7 +2,6 @@ import {Component, Input, OnChanges, OnInit, SimpleChanges, ViewChild} from '@an
 import {Observable} from 'rxjs';
 import {TournamentEvent} from '../tournament-event.model';
 import {TournamentEventConfigService} from '../tournament-event-config.service';
-import {ConfirmationPopupComponent} from '../../../shared/confirmation-popup/confirmation-popup.component';
 import {MatDialog} from '@angular/material/dialog';
 import {TournamentEventConfigListComponent} from './tournament-event-config-list.component';
 import {tap} from 'rxjs/operators';
@@ -59,44 +58,21 @@ export class TournamentEventConfigListContainerComponent implements OnInit, OnCh
     if (changes.tournamentId != null) {
       const tournamentId = changes.tournamentId.currentValue;
       if (tournamentId != null) {
+        // subscribed by the template
         this.tournamentEventConfigService.loadTournamentEvents(tournamentId)
           .pipe(tap((events: TournamentEvent[]) => {
-            const eventsWithEntries: number [] = [];
-            for (const event of events) {
-              if (event.numEntries > 0) {
-                eventsWithEntries.push(event.id);
-              }
-            }
-            this.eventsWithEntries = eventsWithEntries;
           }));
       }
     }
   }
 
   onDelete(eventId: number) {
-    const hasEntries = (this.eventsWithEntries.indexOf(eventId) >= 0);
-    const message = (hasEntries)
-      ? 'Warning: There are entries into this event.  You must first remove all entries from this event. Press \'OK\' to close'
-      : 'Are you sure you want to delete this event.  Press \'OK\' to proceed';
-    const config = {
-      width: '450px', height: '250px', data: {
-        message: message, showOk: !hasEntries
-      }
-    };
-    const dialogRef = this.dialog.open(ConfirmationPopupComponent, config);
-    dialogRef.afterClosed().subscribe(result => {
-      if (result === 'ok' && !hasEntries) {
-        this.tournamentEventConfigService.delete(eventId);
-      }
-    });
+    this.tournamentEventConfigService.delete(eventId);
   }
 
   onRenumber(updatedEvents: TournamentEvent[]) {
     for (const updatedEvent of updatedEvents) {
       this.tournamentEventConfigService.upsert(updatedEvent);
-      // .subscribe(next =>
-      // console.log('saved ' + next.name + ' ordinal Number ' + next.ordinalNumber)
-      // );
     }
   }
 
