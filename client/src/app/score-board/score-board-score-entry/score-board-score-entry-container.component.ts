@@ -7,7 +7,7 @@ import {MatchCardService} from '../../matches/service/match-card.service';
 import {MatchService} from '../../matches/service/match.service';
 import {createSelector} from '@ngrx/store';
 import {MatchCard} from '../../matches/model/match-card.model';
-import {switchMap} from 'rxjs/operators';
+import {first, switchMap, tap} from 'rxjs/operators';
 import {MonitorService} from '../../monitor/service/monitor.service';
 import {MonitorMessage} from '../../monitor/model/monitor-message.model';
 import {MonitorMessageType} from '../../monitor/model/monitor-message-type';
@@ -127,17 +127,13 @@ export class ScoreBoardScoreEntryContainerComponent implements OnDestroy {
   onSaveMatch(event: any) {
     const updatedMatch: Match = event.updatedMatch;
     this.matchService.update(updatedMatch)
-      .pipe(
-        switchMap((match: Match) => {
-          // console.log('reloading match card');
-          return this.matchCardService.getByKey(this.matchCardId);
-        })).subscribe(
-      (matchCard: MatchCard)=> {
-        this.sendMonitorUpdate(updatedMatch);
-      },
-      () => {},
-      () => {
-      });
+      .pipe(first(),
+        tap({
+          next: (match: Match) => {
+            this.sendMonitorUpdate(updatedMatch);
+          }
+        })
+      ).subscribe();
   }
 
   onCancelMatch() {
