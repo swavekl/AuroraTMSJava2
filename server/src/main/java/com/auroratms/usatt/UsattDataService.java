@@ -464,10 +464,10 @@ public class UsattDataService {
 
                         // rating or last played date changed
                         if (existingRecord.getTournamentRating() != updatedRecord.getTournamentRating()) {
-                            if (DateUtils.truncatedCompareTo(existingRecord.getLastTournamentPlayedDate(), updatedRecord.getLastTournamentPlayedDate(), Calendar.DAY_OF_MONTH) != 0) {
+                            Date initialRatingDate = (existingRecord.getLastTournamentPlayedDate() != null) ? existingRecord.getLastTournamentPlayedDate() : today;
+                            if (DateUtils.truncatedCompareTo(initialRatingDate, updatedRecord.getLastTournamentPlayedDate(), Calendar.DAY_OF_MONTH) != 0) {
                                 // new history record
                                 RatingHistoryRecord ratingHistoryRecord = new RatingHistoryRecord();
-                                Date initialRatingDate = (existingRecord.getLastTournamentPlayedDate() != null) ? existingRecord.getLastTournamentPlayedDate() : today;
                                 ratingHistoryRecord.setMembershipId(existingRecord.getMembershipId());
                                 ratingHistoryRecord.setInitialRating(existingRecord.getTournamentRating());
                                 ratingHistoryRecord.setInitialRatingDate(initialRatingDate);
