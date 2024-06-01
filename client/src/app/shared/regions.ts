@@ -19,4 +19,15 @@ export class Regions {
   getList() {
     return this.theList;
   }
+
+  lookupRegion(state: String): string {
+    let regionName = null;
+    for (const regionDefinition of this.theList) {
+      if (regionDefinition.states.indexOf(state) !== -1) {
+        regionName = regionDefinition.name;
+        break;
+      }
+    }
+    return regionName;
+  }
 }

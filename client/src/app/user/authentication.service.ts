@@ -235,6 +235,14 @@ export class AuthenticationService {
     return this.currentUser?.profile?.lastName;
   }
 
+  getCurrentUserState() {
+    return this.currentUser?.profile?.state;
+  }
+
+  getCurrentUserCountry() {
+    return this.currentUser?.profile?.countryCode;
+  }
+
   getCurrentUserMembershipId() {
     return this.currentUser?.profile?.membershipId;
   }

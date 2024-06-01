@@ -341,6 +341,8 @@ public class UsersController extends AbstractOktaController {
         slimProfileNode.put("lastName", profileMap.get("lastName").toString());
         slimProfileNode.put("email", profileMap.get("email").toString());
         slimProfileNode.put("birthdate", profileMap.get("birthdate").toString());
+        slimProfileNode.put("state", profileMap.get("state") != null ? profileMap.get("state").toString() : "" );
+        slimProfileNode.put("country", profileMap.get("countryCode") != null ? profileMap.get("countryCode").toString() : "");
         boolean isProfileComplete = this.isProfileComplete(profileMap);
         slimProfileNode.put("isProfileComplete", isProfileComplete);
         loginJsonMap.put("profile", slimProfileNode);

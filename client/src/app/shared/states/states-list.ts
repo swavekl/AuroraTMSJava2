@@ -275,4 +275,14 @@ export class StatesList {
     }
     return this.getList();
   }
+
+  public static isStateInCountry(stateAbbreviation: string, countryCode: string): boolean {
+    const countryStatesList = StatesList.getCountryStatesList(countryCode);
+    for (const state of countryStatesList) {
+      if (state.abbreviation === stateAbbreviation) {
+        return true;
+      }
+    }
+    return false;
+  }
 }

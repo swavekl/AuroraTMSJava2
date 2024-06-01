@@ -57,9 +57,11 @@ public class TournamentInfoController {
         if (tournament.getConfiguration() != null) {
             tournamentInfo.setTournamentType(tournament.getConfiguration().getTournamentType());
             tournamentInfo.setCheckInType(tournament.getConfiguration().getCheckInType());
+            tournamentInfo.setBallType(tournament.getConfiguration().getBallType());
         } else {
             tournamentInfo.setCheckInType(CheckInType.DAILY);
             tournamentInfo.setTournamentType(TournamentType.RatingsRestricted);
+            tournamentInfo.setBallType("N/A");
         }
         tournamentInfo.setNumEntries(tournament.getNumEntries());
         tournamentInfo.setMaxNumEventEntries(tournament.getMaxNumEventEntries());

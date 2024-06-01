@@ -32,6 +32,8 @@ export class TournamentInfo {
   // ready for showing
   ready: boolean;
 
+  ballType: string;
+
   // convert dates from string to date objects
   static convert(tournamentInfo: TournamentInfo): TournamentInfo {
     const dateUtils = new DateUtils();

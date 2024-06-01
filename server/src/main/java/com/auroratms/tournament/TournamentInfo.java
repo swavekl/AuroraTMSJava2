@@ -7,7 +7,7 @@ import lombok.NonNull;
 import java.util.Date;
 
 /**
- * Smaller information used only for viewing / registering for tournaments, where not all tournaemnt
+ * Smaller information used only for viewing / registering for tournaments, where not all tournament
  * configuration information is needed
  */
 @Data
@@ -45,4 +45,6 @@ public class TournamentInfo {
     private int totalPrizeMoney;
 
     private boolean ready;
+
+    private String ballType;
 }

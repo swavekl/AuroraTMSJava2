@@ -39,4 +39,8 @@ public class TournamentConfiguration {
     private CheckInType checkInType;
     // comma separated list of tables that will have monitors e.g. show court tables
     private String monitoredTables;
+    // who can play in the tournament
+    private EligibilityRestriction eligibilityRestriction = EligibilityRestriction.OPEN;
+    // ball type
+    private String ballType;
 }

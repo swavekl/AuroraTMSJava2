@@ -15,15 +15,22 @@
             <mat-card-content>
               <input type="hidden" name="id" [(ngModel)]="tournament.id">
               <div fxLayout.lt-sm="column" fxLayout="row" fxLayoutGap="10px">
-                <mat-form-field fxFlex="65%">
+               <mat-form-field fxFlex="51%">
                   <mat-label>Name</mat-label>
                   <input matInput type="text" name="name" [(ngModel)]="tournament.name" required>
                 </mat-form-field>
-                <mat-form-field fxFlex="15%">
+                <mat-form-field fxFlex="19%">
+                  <mat-label>Player Eligibility</mat-label>
+                  <mat-select matInput type="text" name="eligibilityRestriction" [(ngModel)]="tournament.configuration.eligibilityRestriction" required>
+                    <mat-option *ngFor="let option of eligibilityRestrictionOptions" value="{{option.value}}">{{option.name}}
+                    </mat-option>
+                  </mat-select>
+                </mat-form-field>
+                <mat-form-field fxFlex="12%">
                   <mat-label>Total Prize Money</mat-label>
                   <input matInput type="text" name="totalPrizeMoney" [(ngModel)]="tournament.totalPrizeMoney" readonly>
                 </mat-form-field>
-                <mat-form-field fxFlex="10%">
+                <mat-form-field fxFlex="8%">
                   <mat-label>Star Level</mat-label>
                   <input matInput name="starLevel" [(ngModel)]="tournament.starLevel"
                          required pattern="[0-5]" #starLevel="ngModel">
@@ -173,7 +180,7 @@
                 </mat-form-field>
               </div>
               <div fxLayout.lt-sm="column" fxLayout="row" fxLayoutGap="10px">
-                <mat-form-field fxFlex="50%">
+                <mat-form-field fxFlex="35%">
                   <mat-label>Tournament Type</mat-label>
                   <mat-select name="tournamentType" [(ngModel)]="tournamentType" (valueChange)="onChangeTournamentType($event)">
                     <mat-option *ngFor="let ttOption of tournamentTypes" [value]="ttOption.value">
@@ -181,11 +188,18 @@
                     </mat-option>
                   </mat-select>
                 </mat-form-field>
-                <mat-form-field fxFlex="50%">
+                <mat-form-field fxFlex="35%">
                   <mat-label>Check-In Type</mat-label>
                   <mat-select name="checkInType" [(ngModel)]="checkInType">
                     <mat-option *ngFor="let checkInOption of checkInMethods" [value]="checkInOption.value">
                       {{ checkInOption.name }}
+                    </mat-option>
+                  </mat-select>
+                </mat-form-field>
+                <mat-form-field fxFlex="30%">
+                  <mat-label>Ball Type</mat-label>
+                  <mat-select matInput type="text" name="ballType" [(ngModel)]="tournament.configuration.ballType" required>
+                    <mat-option *ngFor="let ballType of ballTypes" value="{{ballType}}">{{ballType}}
                     </mat-option>
                   </mat-select>
                 </mat-form-field>

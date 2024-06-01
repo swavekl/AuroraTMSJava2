@@ -49,9 +49,10 @@
             <mat-list>
               <mat-list-item>
                 <div matListItemTitle style="margin-left: 56px;">
-                  <div fxFlex="45%">Name / Star Level / Prize Money</div>
-                  <div fxFlex="25%">Dates</div>
-                  <div fxFlex="25%">Location</div>
+                  <div fxFlex="35%">Name / Star Level / Prize Money</div>
+                  <div fxFlex="20%">Dates</div>
+                  <div fxFlex="20%">Location</div>
+                  <div fxFlex="20%">Ball Type</div>
                   <div fxFlex="5%">Info</div>
                   <mat-divider></mat-divider>
                 </div>
@@ -59,15 +60,16 @@
               <mat-list-item *ngFor="let tournament of tournaments; first as first" [routerLink]="['view', tournament.id]">
                 <img matListItemAvatar [src]="tournament.logo" alt=""/>
                 <div matListItemTitle fxLayout="row">
-                  <div fxFlex="45%" fxLayout="column">
+                  <div fxFlex="35%" fxLayout="column">
                     <div>{{tournament.name}}</div>
                     <div fxLayout="row">
                       <app-star-level [numStars]="tournament.starLevel" [compact]="true"></app-star-level>
                       <div *ngIf="tournament.totalPrizeMoney > 0" style="margin-left: 16px;">{{ tournament.totalPrizeMoney | currency : 'USD' : 'symbol' : '1.0-0'}}</div>
                     </div>
                   </div>
-                  <div fxFlex="25%">{{ [tournament.startDate, tournament.endDate] | dateRange }}</div>
-                  <div fxFlex="25%">{{ tournament.city }}, {{tournament.state}}</div>
+                  <div fxFlex="20%">{{ [tournament.startDate, tournament.endDate] | dateRange }}</div>
+                  <div fxFlex="20%">{{ tournament.city }}, {{tournament.state}}</div>
+                  <div fxFlex="20%">{{ tournament.ballType ?? 'N/A' }}</div>
                   <div fxFlex="5%" fxLayout="row" fxFlexAlign="start start">
                     <button fxShow.gt-md="true" fxShow.md="true" fxHide.lt-md="true" mat-icon-button [routerLink]="['view', tournament.id]">
                       <mat-icon>info</mat-icon>

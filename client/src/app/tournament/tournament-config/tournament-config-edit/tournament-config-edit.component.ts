@@ -21,6 +21,7 @@ import {
   OfficialSearchOptions
 } from '../../../officials/official-search-dialog/official-search-dialog.component';
 import {ErrorMessagePopupService} from '../../../shared/error-message-dialog/error-message-popup.service';
+import {EligibilityRestriction} from '../model/tournament-type.enum';
 
 @Component({
   selector: 'app-tournament-config-edit',
@@ -47,6 +48,8 @@ export class TournamentConfigEditComponent implements OnChanges {
   tournamentTypes: any [];
   pricingMethods: any[] = [];
   checkInMethods: any[] = [];
+  eligibilityRestrictionOptions: any [] = [];
+  ballTypes: any [];
 
   // list of personnel is given roles
   refereeList: Personnel[] = [];
@@ -68,6 +71,13 @@ export class TournamentConfigEditComponent implements OnChanges {
     this.checkInMethods = [];
     this.checkInMethods.push({name: 'Daily', value: 'DAILY'});
     this.checkInMethods.push({name: 'Before Each Event', value: 'PEREVENT'});
+
+    this.eligibilityRestrictionOptions = [];
+    this.eligibilityRestrictionOptions.push({value: EligibilityRestriction.OPEN, name: 'Open'});
+    this.eligibilityRestrictionOptions.push({value: EligibilityRestriction.CLOSED_STATE, name: 'State Closed'});
+    this.eligibilityRestrictionOptions.push({value: EligibilityRestriction.CLOSED_REGIONAL, name: 'Regional Closed'});
+    this.eligibilityRestrictionOptions.push({value: EligibilityRestriction.CLOSED_NATIONAL, name: 'National Closed'});
+    this.ballTypes = ["N/A", "Nittaku Premium", "Nittaku Nexel", "Butterfly R40+", "JOOLA Prime", "Stiga Perform"];
   }
 
   ngOnChanges(changes: SimpleChanges): void {

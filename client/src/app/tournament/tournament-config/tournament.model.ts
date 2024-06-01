@@ -4,6 +4,7 @@ import * as moment from 'moment';
 import {PricingMethod} from '../model/pricing-method.enum';
 import {Personnel} from './model/personnel.model';
 import {CheckInType} from '../model/check-in-type.enum';
+import {EligibilityRestriction} from './model/tournament-type.enum';
 
 export class Tournament {
   id: number;
@@ -101,6 +102,8 @@ export class Tournament {
     configuration.lateEntryFee = formValues.lateEntryFee;
     configuration.checkInType = formValues.checkInType;
     configuration.monitoredTables = formValues.monitoredTables;
+    configuration.eligibilityRestriction = formValues.eligibilityRestriction;
+    configuration.ballType = formValues.ballType;
 // console.log ('toTournament', tournament);
     return tournament;
   }
@@ -164,6 +167,8 @@ export class Tournament {
     tournament.configuration.personnelList = [];
     tournament.configuration.checkInType = CheckInType.DAILY;
     tournament.configuration.monitoredTables = null;
+    tournament.configuration.eligibilityRestriction = EligibilityRestriction.OPEN;
+    tournament.configuration.ballType = "N/A";
     tournament.ready = false;
     return tournament;
   }
@@ -243,7 +248,9 @@ export class Tournament {
     const clonedConfiguration: TournamentConfiguration = {
       ...new TournamentConfiguration(),
       ...tournament?.configuration,
-      personnelList: tournament?.configuration?.personnelList ?? []
+      personnelList: tournament?.configuration?.personnelList ?? [],
+      eligibilityRestriction: tournament?.configuration?.eligibilityRestriction ?? EligibilityRestriction.OPEN,
+      ballType: tournament?.configuration?.ballType ?? "N/A"
     };
     const clonedTournament: Tournament = {
       ...tournament,
@@ -286,4 +293,8 @@ export class TournamentConfiguration {
   checkInType: CheckInType;
   // comma separated list of tables that will have monitors e.g. show court tables
   monitoredTables: string;
+  // who can play in the tournament
+  eligibilityRestriction: EligibilityRestriction = EligibilityRestriction.OPEN;
+  // ball type
+  ballType: string;
 }

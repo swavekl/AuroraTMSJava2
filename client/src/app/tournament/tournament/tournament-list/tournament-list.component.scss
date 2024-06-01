@@ -1,0 +1,33 @@
+@use "src/my-theme.scss" as *;
+
+mat-grid-tile {
+  background: lightblue;
+}
+.truncated-list-item {
+  max-width: calc(100vw - 1px);
+}
+
+.results-container {
+  height: calc(100vh - 72px);
+}
+
+.list-container {
+  overflow: auto;
+  height: calc(100vh - 160px);
+}
+
+div.tournament-info-header {
+  font-size: 18px;
+  margin-bottom: 8px;
+  text-overflow: ellipsis;
+}
+
+div.tournament-info-details {
+  font-size: 16px;
+}
+
+mat-list-item:hover {
+  background-color: lighten($primary-color, 40%);
+  cursor: pointer;
+}
+

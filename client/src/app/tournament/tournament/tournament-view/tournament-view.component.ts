@@ -9,8 +9,12 @@ import {DateUtils} from '../../../shared/date-utils';
 import {Tournament} from '../../tournament-config/tournament.model';
 import {NavigateUtil} from '../../../shared/navigate-util';
 import {TodayService} from '../../../shared/today.service';
-import {UserRoles} from '../../../user/user-roles.enum';
 import {MembershipUtil} from '../../util/membership-util';
+import {ConfirmationPopupComponent} from '../../../shared/confirmation-popup/confirmation-popup.component';
+import {MatDialog} from '@angular/material/dialog';
+import {EligibilityRestriction} from '../../tournament-config/model/tournament-type.enum';
+import {Regions} from '../../../shared/regions';
+import {StatesList} from '../../../shared/states/states-list';
 
 @Component({
   selector: 'app-tournament-view',
@@ -37,7 +41,8 @@ export class TournamentViewComponent implements OnInit, OnChanges {
   constructor(private router: Router,
               private authService: AuthenticationService,
               private tournamentEntryService: TournamentEntryService,
-              private todayService: TodayService) {
+              private todayService: TodayService,
+              private dialog: MatDialog) {
     this.entryId = 0;
     this.enteringOrViewing = false;
   }
@@ -57,7 +62,72 @@ export class TournamentViewComponent implements OnInit, OnChanges {
     }
   }
 
+  canEnterClosedTournament(): boolean {
+    let canEnter = true;
+    if (this.tournament.configuration?.eligibilityRestriction !== null) {
+      const currentUserState = this.authService.getCurrentUserState();
+      switch (this.tournament.configuration?.eligibilityRestriction) {
+        case EligibilityRestriction.CLOSED_STATE:
+          canEnter = (currentUserState === this.tournament.state);
+          break;
+
+        case EligibilityRestriction.CLOSED_REGIONAL:
+          const currentUserRegion = new Regions().lookupRegion(currentUserState);
+          const tournamentRegion = new Regions().lookupRegion(this.tournament.state);
+          canEnter = (currentUserRegion === tournamentRegion);
+          break;
+
+        case EligibilityRestriction.CLOSED_NATIONAL:
+          const currentUserCountry = this.authService.getCurrentUserCountry();
+          canEnter = StatesList.isStateInCountry(this.tournament.state, currentUserCountry);
+          break;
+
+        default:
+          break;
+      }
+    }
+    return canEnter;
+  }
+
+  showClosedTournamentWarning(): void {
+    let message = '';
+    switch (this.tournament.configuration?.eligibilityRestriction) {
+      case EligibilityRestriction.CLOSED_STATE:
+        message = `This tournament is open only to players from the state of ${this.tournament?.state}`;
+        break;
+
+      case EligibilityRestriction.CLOSED_REGIONAL:
+        const tournamentRegion = new Regions().lookupRegion(this.tournament.state);
+        message = `This tournament is open only to players from the ${tournamentRegion} region.`;
+        break;
+
+      case EligibilityRestriction.CLOSED_NATIONAL:
+        // todo - get country
+        const tournamentCountry = 'United States';
+        message = `This tournament is open only to players from the ${tournamentCountry}.`;
+        break;
+
+      default:
+        message = `This tournament is restricted by ${this.tournament?.configuration?.eligibilityRestriction} restriction`;
+        break;
+    }
+
+    const config = {
+      width: '450px', height: '230px', data: {
+        message: message,
+        showOk: true, showCancel: false, okText: 'Close'
+      }
+    };
+    const dialogRef = this.dialog.open(ConfirmationPopupComponent, config);
+    dialogRef.afterClosed().pipe(first()).subscribe(result => {
+    });
+  }
+
   onEnter() {
+    if (!this.canEnterClosedTournament()) {
+      this.showClosedTournamentWarning();
+      return;
+    }
     // prevent double entering on slow network - disables Enter button
     this.enteringOrViewing = true;
     // create entry
@@ -97,10 +167,6 @@ export class TournamentViewComponent implements OnInit, OnChanges {
     this.router.navigateByUrl(url, extras);
   }
 
-  onWithdraw() {
-    console.log('warning about withdrawal');
-  }
-
   showPlayers() {
     const url = `ui/tournaments/playerlist/${this.tournament.id}`;
     // get the single piece of information that it needs to properly render event dates
@@ -122,22 +188,11 @@ export class TournamentViewComponent implements OnInit, OnChanges {
     }
   }
 
-  showDirections() {
-    const url = this.getDirectionsURL();
-    window.open(url);
-  }
-
   resultsAvailable() {
     const startDate = this.tournament.startDate;
     const endDate = this.tournament.endDate || startDate;
     const today = this.todayService.todaysDate;
     return !(new DateUtils().isDateBefore(today, endDate));
-  }
-
-  canWithdraw() {
-    const isBeforeEntryCutoffDate = this.isBeforeEntryCutoffDate();
-    const hasEntry = this.entryId !== 0;
-    return hasEntry && isBeforeEntryCutoffDate;
   }
 
   private isBeforeEntryCutoffDate() {
@@ -150,19 +205,6 @@ export class TournamentViewComponent implements OnInit, OnChanges {
     const isBeforeEntryCutoffDate = this.isBeforeEntryCutoffDate();
     const noEntry = this.entryId === 0;
     return noEntry && isBeforeEntryCutoffDate && !this.enteringOrViewing;
-  }
-
-  canEnterPlayer() {
-    // only if you are a tournament director for this tournament can you enter players
-    const profileId = this.authService.getCurrentUserProfileId();
-    const isAllowed = this.authService.hasCurrentUserRole(
-      [UserRoles.ROLE_ADMINS, UserRoles.ROLE_TOURNAMENT_DIRECTORS]);
-    if (isAllowed) {
-      // get list of tournaments owned by this tournament director
-
-      // is this tournament owned by it.
-    }
-    return true;
   }
 
   canView () {
