@@ -34,6 +34,7 @@ export class TournamentPlayersListBigComponent implements OnChanges {
   alphabeticalEntryInfos: Map<string, TournamentEntryInfo[]> = null;
 
   validEntriesCount: number;
+  invalidEntriesCount: number = 0;
 
   ngOnChanges(changes: SimpleChanges): void {
     const entryInfoChanges: SimpleChange = changes.entryInfos;
@@ -70,6 +71,7 @@ export class TournamentPlayersListBigComponent implements OnChanges {
         });
 
         this.validEntriesCount = count;
+        this.invalidEntriesCount = entryInfos.length - count;
         this.entryInfos = entryInfos;
         this.alphabeticalEntryInfos = letterToEntriesMap;
       }

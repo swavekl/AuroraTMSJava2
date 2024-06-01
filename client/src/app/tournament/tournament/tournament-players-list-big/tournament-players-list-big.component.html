@@ -1,5 +1,9 @@
 <div class="list-container">
-  <h2>Tournament Players - {{ tournamentName }} - {{ entryInfos != null ? (validEntriesCount + ' entries') : '' }}</h2>
+  <div fxLayout="row" fxLayoutAlign="space-between start" style="width: 100%">
+    <h2 style="margin-left: 10px">Tournament Players - {{ tournamentName }}</h2>
+    <div></div>
+    <h2 style="margin-right: 40px">{{ (entryInfos != null) ? ('Entries: ' + validEntriesCount + ' / ' + invalidEntriesCount) : '' }}</h2>
+  </div>
   <mat-toolbar>
     <button mat-raised-button type="button" [routerLink]="['/ui/tournamentsconfig']" >Back</button>
     <span class="toolbar-spacer-2"></span>
