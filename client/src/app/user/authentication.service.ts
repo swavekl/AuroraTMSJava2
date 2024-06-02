@@ -247,6 +247,15 @@ export class AuthenticationService {
     return this.currentUser?.profile?.membershipId;
   }
 
+  setCurrentUserMembershipId(membershipId: number) {
+    if (this.currentUser?.profile != null) {
+      this.currentUser.profile = {
+        ...this.currentUser.profile,
+        membershipId: membershipId
+      };
+    }
+  }
+
   getCurrentUserMembershipExpiration() {
     return this.membershipExpirationDate;
   }

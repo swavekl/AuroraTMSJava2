@@ -27,6 +27,7 @@ import {debounceTime, distinctUntilChanged, filter, first, skip, switchMap} from
 import {MatAutocompleteSelectedEvent} from '@angular/material/autocomplete';
 import {ClubEditCallbackData, ClubEditPopupService} from '../../club/club/service/club-edit-popup.service';
 import {ClubSearchCallbackData, ClubSearchData, ClubSearchPopupService} from '../../club/club/service/club-search-popup.service';
+import {AuthenticationService} from '../../user/authentication.service';
 
 @Component({
   selector: 'app-profile-edit',
@@ -72,7 +73,8 @@ export class ProfileEditComponent implements OnInit, OnChanges, AfterViewInit, O
               private clubService: ClubService,
               private clubEditPopupService: ClubEditPopupService,
               private cdr: ChangeDetectorRef,
-              private clubSearchService: ClubSearchPopupService) {
+              private clubSearchService: ClubSearchPopupService,
+              private authenticationService: AuthenticationService) {
     this.profile = new Profile();
     this.maxDateOfBirth = new Date();
     this.countries = CountriesList.getList();

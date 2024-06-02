@@ -155,6 +155,7 @@ export class ProfileEditContainerComponent implements OnInit, OnDestroy {
                 () => {
                   if (!this.addingProfile) {
                     this.authenticationService.setCurrentUserMembershipExpiration(profile.membershipExpirationDate);
+                    this.authenticationService.setCurrentUserMembershipId(profile.membershipId);
                   }
                   this.navigateToNextPage(profile);
                 },

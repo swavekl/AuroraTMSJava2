@@ -7,6 +7,7 @@ import {Router} from '@angular/router';
   selector: 'app-reset-password-start',
   template: `
       <app-centered-panel>
+        <h2 class="mat-headline-5" style="text-align: center">Reset Password</h2>
         <div fxLayout="column" fxLayoutAlign="start center" style="text-align: left;">
           <mat-card>
             <mat-card-content>

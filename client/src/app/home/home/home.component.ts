@@ -152,7 +152,7 @@ export class HomeComponent implements OnInit, OnDestroy {
       this.membershipExpirationDate = record.membershipExpirationDate;
       const rating = record.tournamentRating;
       this.ratedPlayer = (rating != null && rating > 0);
-      this.playerRating = this.ratedPlayer ? ('' + rating) : 'Unrated';
+      this.playerRating = this.ratedPlayer ? ('' + rating) : '0';
     } else {
       this.membershipExpirationDate = today;
     }
