@@ -57,7 +57,7 @@
                   <mat-divider></mat-divider>
                 </div>
               </mat-list-item>
-              <mat-list-item *ngFor="let tournament of tournaments; first as first" [routerLink]="['view', tournament.id]">
+              <mat-list-item *ngFor="let tournament of tournaments; first as first" [routerLink]="['view', tournament.id]" class="tournament-row">
                 <img matListItemAvatar [src]="tournament.logo" alt=""/>
                 <div matListItemTitle fxLayout="row">
                   <div fxFlex="35%" fxLayout="column">
