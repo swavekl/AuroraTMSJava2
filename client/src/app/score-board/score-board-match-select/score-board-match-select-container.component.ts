@@ -1,15 +1,18 @@
 import {Component, OnInit} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
-import {Observable, Subscription} from 'rxjs';
+import {combineLatest, Observable, Subscription} from 'rxjs';
 import {MatchSchedulingService} from '../../scheduling/service/match-scheduling.service';
 import {LinearProgressBarService} from '../../shared/linear-progress-bar/linear-progress-bar.service';
 import {MatchCard} from '../../matches/model/match-card.model';
 import {MonitorService} from '../../monitor/service/monitor.service';
+import {TournamentEventConfigService} from '../../tournament/tournament-config/tournament-event-config.service';
+import {TournamentEvent} from '../../tournament/tournament-config/tournament-event.model';
 
 @Component({
   selector: 'app-score-board-container',
   template: `
     <app-score-board [matchCards]="matchCards$ | async"
+                     [tournamentEvents]="tournamentEvents$ | async"
                      [tournamentId]="tournamentId"
                      [tableNumber]="tableNumber"
                      [tournamentDay]="tournamentDay">
@@ -31,13 +34,18 @@ export class ScoreBoardMatchSelectContainerComponent implements OnInit {
   // match cards for matches to be played at this table today
   matchCards$: Observable<MatchCard []>;
 
+  // tournament event names
+  tournamentEvents$: Observable<TournamentEvent[]>;
+
   private subscriptions: Subscription = new Subscription();
+  private loading$: Observable<boolean>;
 
   constructor(private router: Router,
               private activatedRoute: ActivatedRoute,
               private linearProgressBarService: LinearProgressBarService,
               private matchSchedulingService: MatchSchedulingService,
-              private monitorService: MonitorService) {
+              private monitorService: MonitorService,
+              private tournamentEventConfigService: TournamentEventConfigService) {
     const strTournamentId = this.activatedRoute.snapshot.params['tournamentId'] || 0;
     this.tournamentId = Number(strTournamentId);
     const strTournamentDay = this.activatedRoute.snapshot.params['tournamentDay'] || 1;
@@ -47,11 +55,21 @@ export class ScoreBoardMatchSelectContainerComponent implements OnInit {
 
     this.setupProgressIndicator();
     this.loadMatchesForTable();
+    this.loadTournamentEvents(this.tournamentId);
     this.connectToSocket();
   }
 
   private setupProgressIndicator() {
-    const subscription = this.matchSchedulingService.loading$.subscribe((loading: boolean) => {
+    // if any of the service are loading show the loading progress
+    this.loading$ = combineLatest(
+      this.tournamentEventConfigService.store.select(this.tournamentEventConfigService.selectors.selectLoading),
+      this.matchSchedulingService.loading$,
+      (eventConfigsLoading: boolean, matchListLoading) => {
+        return eventConfigsLoading || matchListLoading;
+      }
+    );
+
+    const subscription = this.loading$.subscribe((loading: boolean) => {
       this.linearProgressBarService.setLoading(loading);
     });
 
@@ -64,6 +82,13 @@ export class ScoreBoardMatchSelectContainerComponent implements OnInit {
   private loadMatchesForTable() {
     this.matchCards$ = this.matchSchedulingService.getScheduleForTournamentDayAndTable(
       this.tournamentId, this.tournamentDay, this.tableNumber);
+  }
+
+  private loadTournamentEvents(tournamentId: number) {
+    this.tournamentEvents$ = this.tournamentEventConfigService.store.select(
+    this.tournamentEventConfigService.selectors.selectEntities);
+    // load them - they will surface via this selector
+    this.tournamentEventConfigService.loadTournamentEvents(tournamentId);
   }
 
   private connectToSocket() {

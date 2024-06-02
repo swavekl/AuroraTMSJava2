@@ -4,6 +4,9 @@ import {MonitorService} from '../../monitor/service/monitor.service';
 import {MonitorMessage} from '../../monitor/model/monitor-message.model';
 import {MonitorMessageType} from '../../monitor/model/monitor-message-type';
 import {Router} from '@angular/router';
+import {Match} from '../../matches/model/match.model';
+import {TournamentEvent} from '../../tournament/tournament-config/tournament-event.model';
+import {StartTimePipe} from '../../shared/pipes/start-time.pipe';
 
 @Component({
   selector: 'app-score-board',
@@ -14,6 +17,9 @@ export class ScoreBoardMatchSelectionComponent implements OnInit {
 
   @Input()
   matchCards: MatchCard [] = [];
+
+  @Input()
+  tournamentEvents: TournamentEvent[] = [];
 
   @Input()
   tournamentId: number;
@@ -40,6 +46,29 @@ export class ScoreBoardMatchSelectionComponent implements OnInit {
     }
   }
 
+  areMatchPlayersDetermined(matchCard: MatchCard): boolean {
+    if (this.matchCards != null && matchCard.profileIdToNameMap != null) {
+      const match = matchCard?.matches[0];
+      return match.playerAProfileId != Match.TBD_PROFILE_ID && match.playerBProfileId != Match.TBD_PROFILE_ID;
+    } else {
+      return false;
+    }
+  }
+
+  getEventName(matchCard: MatchCard) {
+    if (this.tournamentEvents != null && this.tournamentEvents.length > 0) {
+      const events: TournamentEvent[] = this.tournamentEvents.filter(
+        (tournamentEvent: TournamentEvent) => {
+        return tournamentEvent.id === matchCard.eventFk;
+      });
+      if (events?.length > 0) {
+        return events[0].name;
+      }
+    } else {
+      return '';
+    }
+  }
+
   selectedMatch(matchCard: MatchCard) {
     const matchIndex = 0;
     const monitorMessage: MonitorMessage = {
@@ -59,6 +88,11 @@ export class ScoreBoardMatchSelectionComponent implements OnInit {
 
     const matchCardId = matchCard.id;
     const url = `/ui/scoreboard/scoreentry/${this.tournamentId}/${this.tournamentDay}/${this.tableNumber}/${matchCardId}/${matchIndex}`;
+    this.router.navigateByUrl(url);
+  }
+
+  back() {
+    const url = `/ui/scoreboard`
     this.router.navigateByUrl(url);
   }
 }

@@ -1,12 +1,39 @@
+<h2 style="margin-left: 10px">Select a match to be scored on table {{ tableNumber }}</h2>
+<mat-toolbar style="width: 100%">
+  <button mat-raised-button color="" type="button" (click)="back()">Back</button>
+</mat-toolbar>
 <ng-container *ngIf="matchCards">
-  <div>Select a match to be live scored</div>
-  <table>
-    <tr *ngFor="let matchCard of matchCards">
-      <td>{{getPlayerNames(matchCard, 'A')}}</td>
-      <td>vs</td>
-      <td>{{getPlayerNames(matchCard, 'B')}}</td>
-      <td><button type="button" mat-raised-button (click)="selectedMatch(matchCard)">Select</button></td>
-    </tr>
-  </table>
+  <div fxLayout="row" fxLayoutAlign="center start">
+    <div fxFlex="15%"></div>
+    <div fxFlex="70%" class="match-list-panel-container">
+      <div class="match-list-panel">
+        <table>
+          <thead>
+          <tr>
+            <th class="event-column">Event Name</th>
+            <th class="time-column">Time</th>
+            <th class="name-column">Player 1</th>
+            <th>&nbsp;</th>
+            <th class="name-column">Player 2</th>
+            <th></th>
+          </tr>
+          </thead>
+          <tr *ngFor="let matchCard of matchCards">
+            <ng-container *ngIf="areMatchPlayersDetermined(matchCard)">
+              <td>{{ getEventName(matchCard) }}</td>
+              <td>{{ matchCard.startTime | startTime }}</td>
+              <td>{{ getPlayerNames(matchCard, 'A') }}</td>
+              <td>vs</td>
+              <td>{{ getPlayerNames(matchCard, 'B') }}</td>
+              <td>
+                <button type="button" mat-raised-button (click)="selectedMatch(matchCard)">Select</button>
+              </td>
+            </ng-container>
+          </tr>
+        </table>
+      </div>
+    </div>
+    <div fxFlex="15%"></div>
+  </div>
 </ng-container>
 

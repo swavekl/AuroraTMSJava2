@@ -1,5 +1,35 @@
+.match-list-panel-container {
+  height: calc(100vh - 180px);
+  //border: 1px solid red;
+}
+
+.match-list-panel {
+  height: calc(100vh - 180px);
+  overflow-y: auto;
+  //border: 1px solid blue;
+}
+
 table {
   tr {
+    th {
+      font-weight: bold;
+      padding: 10px;
+
+      &.event-column {
+        width: 30%;
+        text-align: left;
+      }
+
+      &.time-column {
+        width: 12%;
+        text-align: center;
+      }
+
+      &.name-column {
+        width: 25%;
+        text-align: left;
+      }
+    }
     td {
       padding: 10px;
     }
