@@ -268,7 +268,7 @@ public class DrawService {
      * @return
      */
     private int getRankOfPlayerToAdvance(TournamentEvent tournamentEvent, int placeRankNum, Map<Integer, String> rankToProfileIdMap) {
-        if (!tournamentEvent.isAdvanceUnratedWinner()) {
+        if (!tournamentEvent.isAdvanceUnratedWinner() && !tournamentEvent.isDoubles()) {
             boolean isUnrated = false;
             do {
                 // find the first 'rated' player starting with this rank
