@@ -146,14 +146,31 @@ export class ScoreBoardScoreEntryContainerComponent implements OnDestroy {
   }
 
   private sendMonitorUpdate(match: Match) {
+    let playerAName: string = this.playerAName;
+    let playerBName: string = this.playerBName;
+    let playerAPartnerName = 'X';
+    let playerBPartnerName = 'Y';
+    if (this.doubles) {
+      const teamAPlayerNames = this.playerAName.split('/');
+      if (teamAPlayerNames.length === 2) {
+        playerAName = teamAPlayerNames[0];
+        playerAPartnerName = teamAPlayerNames[1];
+      }
+      const teamBPlayerNames = playerBName.split('/');
+      if (teamBPlayerNames.length === 2) {
+        playerBName = teamBPlayerNames[0];
+        playerBPartnerName = teamBPlayerNames[1];
+      }
+    }
     const monitorMessage: MonitorMessage = {
       messageType: MonitorMessageType.ScoreUpdate,
       match: match,
-      playerAName: this.playerAName,
-      playerBName: this.playerBName,
-      playerAPartnerName: 'X',
-      playerBPartnerName: 'Y',
-      isDoubles: this.doubles,
+      playerAName: playerAName,
+      playerBName: playerBName,
+      playerAPartnerName: playerAPartnerName,
+      playerBPartnerName: playerBPartnerName,
+      doubles: this.doubles,
+      pointsPerGame: this.pointsPerGame,
       numberOfGames: this.numberOfGames,
       timeoutStarted: this.isTimeoutStarted(match),
       timeoutRequester: this.getTimeoutRequester(match),

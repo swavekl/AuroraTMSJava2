@@ -63,12 +63,30 @@ public class MatchStatusPublisher {
                     MonitorMessage monitorMessage = new MonitorMessage();
                     monitorMessage.setMatch(match);
                     monitorMessage.setNumberOfGames(matchCard.getNumberOfGames());
+                    monitorMessage.setPointsPerGame(tournamentEvent.getPointsPerGame());
+                    monitorMessage.setDoubles(tournamentEvent.isDoubles());
                     Map<String, String> profileIdToNameMap = matchCard.getProfileIdToNameMap();
                     if (profileIdToNameMap != null) {
                         String playerAName = profileIdToNameMap.get(match.getPlayerAProfileId());
                         monitorMessage.setPlayerAName(playerAName);
                         String playerBName = profileIdToNameMap.get(match.getPlayerBProfileId());
                         monitorMessage.setPlayerBName(playerBName);
+                        if (tournamentEvent.isDoubles()) {
+                            int index = playerAName.indexOf("/");                
+                            if (index != -1) {
+                                String playerAPartnerName = playerAName.substring(index + 2);
+                                playerAName = playerAName.substring(0, index - 1);
+                                monitorMessage.setPlayerAName(playerAName);
+                                monitorMessage.setPlayerAPartnerName(playerAPartnerName);
+                            }
+                            index = playerBName.indexOf("/");                
+                            if (index != -1) {
+                                String playerBPartnerName = playerBName.substring(index + 2);
+                                playerBName = playerBName.substring(0, index - 1);
+                                monitorMessage.setPlayerBName(playerBName);
+                                monitorMessage.setPlayerBPartnerName(playerBPartnerName);
+                            }
+                        }
                     }
 
                     if (warmupStarted) {

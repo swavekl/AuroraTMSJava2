@@ -1,12 +1,12 @@
 import {Component, Input, OnInit} from '@angular/core';
+import {Router} from '@angular/router';
+
 import {MatchCard} from '../../matches/model/match-card.model';
 import {MonitorService} from '../../monitor/service/monitor.service';
 import {MonitorMessage} from '../../monitor/model/monitor-message.model';
 import {MonitorMessageType} from '../../monitor/model/monitor-message-type';
-import {Router} from '@angular/router';
 import {Match} from '../../matches/model/match.model';
 import {TournamentEvent} from '../../tournament/tournament-config/tournament-event.model';
-import {StartTimePipe} from '../../shared/pipes/start-time.pipe';
 
 @Component({
   selector: 'app-score-board',
@@ -71,15 +71,37 @@ export class ScoreBoardMatchSelectionComponent implements OnInit {
 
   selectedMatch(matchCard: MatchCard) {
     const matchIndex = 0;
+    const currentMatch: Match = matchCard.matches[matchIndex];
+    const tournamentEvent : TournamentEvent [] = this.tournamentEvents.filter((event:TournamentEvent) => { return event.id === matchCard.eventFk; });
+    const numberOfGames: number = (tournamentEvent?.length > 0) ? tournamentEvent[0].numberOfGames : 5;
+    const doubles: boolean =    (tournamentEvent?.length > 0) ? tournamentEvent[0].doubles : false;
+    const pointsPerGame: number = (tournamentEvent?.length > 0) ? tournamentEvent[0].pointsPerGame : 11;
+    let playerAName: string = this.getPlayerNames(matchCard, currentMatch.playerALetter);
+    let playerBName: string = this.getPlayerNames(matchCard, currentMatch.playerBLetter);
+    let playerAPartnerName = 'X';
+    let playerBPartnerName = 'Y';
+    if (doubles) {
+       const teamAPlayerNames = playerAName.split('/');
+       if (teamAPlayerNames.length === 2) {
+         playerAName = teamAPlayerNames[0];
+         playerAPartnerName = teamAPlayerNames[1];
+       }
+       const teamBPlayerNames = playerBName.split('/');
+       if (teamBPlayerNames.length === 2) {
+         playerBName = teamBPlayerNames[0];
+         playerBPartnerName = teamBPlayerNames[1];
+       }
+    }
     const monitorMessage: MonitorMessage = {
       messageType: MonitorMessageType.ScoreUpdate,
-      match: matchCard.matches[matchIndex],
-      playerAName: this.getPlayerNames(matchCard, 'A'),
-      playerBName: this.getPlayerNames(matchCard, 'B'),
-      playerAPartnerName: 'X',
-      playerBPartnerName: 'Y',
-      isDoubles: true,
-      numberOfGames: 5,
+      match: currentMatch,
+      playerAName: playerAName,
+      playerBName: playerBName,
+      playerAPartnerName: playerAPartnerName,
+      playerBPartnerName: playerBPartnerName,
+      doubles: doubles,
+      numberOfGames: numberOfGames,
+      pointsPerGame: pointsPerGame,
       timeoutStarted: false,
       timeoutRequester: null,
       warmupStarted: false

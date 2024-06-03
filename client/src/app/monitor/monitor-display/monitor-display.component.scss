@@ -1,14 +1,58 @@
+@use "src/my-theme" as *;
+
 table.match-display {
   tr {
-    margin-bottom: 16px;
-    th {
-      border: 1px solid green;
-      padding: 8px;
-    }
     td {
-      border: 1px solid purple;
-      padding: 8px;
-      font-size: 36px;
+      &.name-cell {
+        font-size: 45px;
+        font-weight: bold;
+        text-align: left;
+        padding: 20px;
+        //border: 1px solid green;
+      }
+
+      &.game-score-cell {
+        font-size: 36px;
+        padding: 24px 16px;
+        vertical-align: middle;
+        //border: 1px solid purple;
+      }
+
+      &.current-game-score-small-cell {
+        background-color: #d7c8f5;
+        //background-color: lighten($primary-color, 60%);
+      }
+
+      &.games-won-cell {
+        font-size: 50px;
+        padding: 20px;
+        width: 200px;
+        //border: 2px solid deeppink;
+      }
+
+      &.current-game-score-cell {
+        font-size: 100px;
+        padding: 40px;
+        width: 200px;
+        //border: 1px solid blue;
+      }
+
+      &.align-bottom {
+        vertical-align: bottom;
+        //margin-bottom: 20px;
+      }
+
+      &.align-top {
+        vertical-align: top;
+      }
+
+      &.separator-row {
+        height: 30px;
+      }
     }
   }
+}
+
+div.status-line {
+  margin-top: 160px;
 }

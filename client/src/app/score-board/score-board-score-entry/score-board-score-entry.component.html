@@ -27,7 +27,7 @@
         <tbody>
         <tr>
           <td colspan="3" class="player-code-and-name-cell">
-            <div fxLayout="row" fxLayoutAlign="start center" (click)="setWinner(0)">
+            <div fxLayout="row" fxLayoutAlign="start center">
               <div class="player-code" [ngClass]="isMatchWinner(match.playerAProfileId) ? 'match-winner' : ''">{{match.playerALetter}}</div>
               <div class="player-name" fxLayout="column" fxLayoutAlign="start stretch" fxLayoutGap="4px">
                 <ng-container *ngIf="doubles; else singlesPlayerAName">
@@ -66,7 +66,7 @@
         </tr>
         <tr>
           <td colspan="3" class="player-code-and-name-cell">
-            <div fxLayout="row" fxLayoutAlign="start center" (click)="setWinner(1)">
+            <div fxLayout="row" fxLayoutAlign="start center">
               <div class="player-code" [ngClass]="isMatchWinner(match.playerBProfileId) ? 'match-winner' : ''">
                 {{match.playerBLetter}}
               </div>

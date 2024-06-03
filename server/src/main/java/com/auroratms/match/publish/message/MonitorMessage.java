@@ -22,10 +22,12 @@ public class MonitorMessage implements Serializable {
     String playerAPartnerName;
     String playerBPartnerName;
 
-    boolean isDoubles;
+    boolean doubles;
 
     // best of 3, 5, 7 or 9 games per match in the main round (i.e. round robin)
     int numberOfGames;
+
+    int pointsPerGame;
 
     // started or stopped (maybe prematurely)
     boolean timeoutStarted;
@@ -109,11 +111,11 @@ public class MonitorMessage implements Serializable {
     }
 
     public boolean isDoubles() {
-        return isDoubles;
+        return this.doubles;
     }
 
     public void setDoubles(boolean doubles) {
-        isDoubles = doubles;
+        this.doubles = doubles;
     }
 
     public int getNumberOfGames() {
@@ -122,5 +124,13 @@ public class MonitorMessage implements Serializable {
 
     public void setNumberOfGames(int numberOfGames) {
         this.numberOfGames = numberOfGames;
+    }
+
+    public int getPointsPerGame() {
+        return pointsPerGame;
+    }
+
+    public void setPointsPerGame(int pointsPerGame) {
+        this.pointsPerGame = pointsPerGame;
     }
 }
