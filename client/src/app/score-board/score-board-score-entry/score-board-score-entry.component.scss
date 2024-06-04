@@ -1,6 +1,6 @@
 @use "src/my-theme.scss" as *;
 
-$max-screen-width: 400px;
+$max-screen-width: 500px;
 
 mat-toolbar {
   max-width: $max-screen-width;
@@ -81,4 +81,8 @@ table.scores-table {
       }
     }
   }
+}
+
+div.timer-display {
+  font-size: 60px;
 }

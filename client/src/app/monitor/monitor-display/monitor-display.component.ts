@@ -1,6 +1,8 @@
 import {ChangeDetectorRef, Component, Input, OnChanges, OnInit, SimpleChange, SimpleChanges} from '@angular/core';
 import {MonitorMessage} from '../model/monitor-message.model';
 import {Match} from '../../matches/model/match.model';
+import {takeWhile, timer} from 'rxjs';
+import {finalize, tap} from 'rxjs/operators';
 
 @Component({
   selector: 'app-monitor-display',
@@ -32,6 +34,9 @@ export class MonitorDisplayComponent implements OnInit, OnChanges {
 
   match: Match;
 
+  timerValue: number = 0;
+  timerRunning: boolean = false;
+
   constructor(protected cdr: ChangeDetectorRef) {
     this.games = Array(5);
   }
@@ -51,6 +56,7 @@ export class MonitorDisplayComponent implements OnInit, OnChanges {
         this.getScoreInGames(mm.numberOfGames, mm.pointsPerGame, this.match);
         this.currentGameIndex = this.getCurrentGameIndex(mm.numberOfGames, mm.pointsPerGame);
         this.getCurrentGameScore();
+        this.getTimerData(mm.warmupStarted, mm.timeoutStarted, mm.timeoutRequester);
       }
     }
   }
@@ -92,7 +98,7 @@ export class MonitorDisplayComponent implements OnInit, OnChanges {
     }
   }
 
-  getScoreInGames (numberOfGames: number, pointsPerGame: number, match: Match) {
+  getScoreInGames(numberOfGames: number, pointsPerGame: number, match: Match) {
     let numGamesWonByA = 0;
     let numGamesWonByB = 0;
     for (let i = 0; i < numberOfGames; i++) {
@@ -147,4 +153,40 @@ export class MonitorDisplayComponent implements OnInit, OnChanges {
   }
 
   protected readonly isNaN = isNaN;
+
+  private getTimerData(warmupStarted: boolean, timeoutStarted: boolean, timeoutRequester: string) {
+    if (!this.timerRunning) {
+      if (warmupStarted || timeoutStarted) {
+        const duration: number = (warmupStarted) ? 120 : (timeoutStarted) ? 60 : 0;
+        this.startTimer(duration);
+      }
+    } else {
+      if (!timeoutStarted) {
+        this.stopTimer();
+      }
+    }
+  }
+
+  startTimer(duration: number) {
+    if (!this.timerRunning) {
+      this.timerRunning = true;
+      this.timerValue = duration;
+      timer(1000, 1000)
+        .pipe(
+          takeWhile(() => this.timerValue > 0),
+          tap(() => this.timerValue--),
+          finalize(() => {
+            this.timerRunning = false;
+            this.timerValue = 0;
+          })
+        ).subscribe();
+    }
+  }
+
+  stopTimer() {
+    if (this.timerRunning) {
+      this.timerValue = 0;
+      this.timerRunning = false;
+    }
+  }
 }

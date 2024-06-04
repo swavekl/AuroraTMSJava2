@@ -36,13 +36,13 @@ export class ScoreBoardMatchSelectionComponent implements OnInit {
   ngOnInit(): void {
   }
 
-  getPlayerNames(matchCard: MatchCard, letter: string) {
+  getPlayerNames(matchCard: MatchCard, playerSide: string) {
     if (this.matchCards != null && matchCard.profileIdToNameMap != null) {
       const match = matchCard?.matches[0];
-      const profileId = (letter === 'A') ? match.playerAProfileId : match.playerBProfileId;
+      const profileId = (playerSide === 'A') ? match.playerAProfileId : match.playerBProfileId;
       return matchCard.profileIdToNameMap[profileId];
     } else {
-      return `player ${letter}`;
+      return `player ${playerSide}`;
     }
   }
 
@@ -76,8 +76,8 @@ export class ScoreBoardMatchSelectionComponent implements OnInit {
     const numberOfGames: number = (tournamentEvent?.length > 0) ? tournamentEvent[0].numberOfGames : 5;
     const doubles: boolean =    (tournamentEvent?.length > 0) ? tournamentEvent[0].doubles : false;
     const pointsPerGame: number = (tournamentEvent?.length > 0) ? tournamentEvent[0].pointsPerGame : 11;
-    let playerAName: string = this.getPlayerNames(matchCard, currentMatch.playerALetter);
-    let playerBName: string = this.getPlayerNames(matchCard, currentMatch.playerBLetter);
+    let playerAName: string = this.getPlayerNames(matchCard, 'A');
+    let playerBName: string = this.getPlayerNames(matchCard, 'B');
     let playerAPartnerName = 'X';
     let playerBPartnerName = 'Y';
     if (doubles) {

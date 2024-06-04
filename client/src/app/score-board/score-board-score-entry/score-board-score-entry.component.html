@@ -1,12 +1,26 @@
-<div fxLayout="column" fxFlexAlign="start center" style="height: 100%;">
+<div fxLayout="column" fxFlexAlign="start start" style="height: 100%;">
   <div fxLayout="row" fxFlexAlign="center center">
     <div>&nbsp;</div>
     <div fxFlex>
-      <mat-toolbar fxLayoutGap="10px">
-        <button mat-raised-button (click)="cancel()" style="margin-right: 10px">Cancel</button>
-        <button mat-raised-button (click)="reset()">Reset</button>
-        <span fxFlex></span>
-        <button mat-raised-button color="primary" (click)="save()" debounceClicks [disabled]="!isScoreValid()">Save</button>
+      <mat-toolbar>
+        <mat-toolbar-row fxLayout="row" fxLayoutAlign="start start" fxLayoutGap="10px">
+          <button mat-raised-button (click)="cancel()" style="margin-right: 10px">Cancel</button>
+          <button mat-raised-button (click)="reset()">Reset</button>
+          <span fxFlex></span>
+          <button mat-raised-button color="primary" (click)="save()" debounceClicks [disabled]="!isScoreValid()">Save</button>
+        </mat-toolbar-row>
+        <mat-toolbar-row fxLayout="row" fxLayoutAlign="end start" fxLayoutGap="10px">
+          <span fxFlex></span>
+          <button mat-raised-button [disabled]="!canStartWarmup()" (click)="startWarmup()" style="margin-right: 10px">Start Warmup</button>
+          <button mat-raised-button [disabled]="!canStopWarmup()" (click)="stopWarmup()" style="margin-right: 10px">Stop Warmup</button>
+        </mat-toolbar-row>
+        <mat-toolbar-row fxLayout="row" fxLayoutAlign="start start" fxLayoutGap="10px">
+          <span fxFlex></span>
+          <button mat-raised-button [disabled]="!canStartTimeout('A')" (click)="startTimeout('A')" style="margin-right: 10px">Start Timeout A</button>
+          <button mat-raised-button [disabled]="!canStartTimeout('B')" (click)="startTimeout('B')" style="margin-right: 10px">Start Timeout B</button>
+          <span fxFlex></span>
+          <button mat-raised-button [disabled]="!canStopTimeout()" (click)="stopTimeout()" style="margin-right: 10px">Stop Timeout</button>
+        </mat-toolbar-row>
       </mat-toolbar>
       <table class="scores-table" *ngIf="match">
         <thead>
@@ -87,4 +101,8 @@
     </div>
     <div>&nbsp;</div>
   </div>
+  <div fxLayout="row" fxLayoutAlign="center start" style="margin-top: 50px">
+    <div class="timer-display" *ngIf="timerRunning">{{ timerValue | timerFormatter }}</div>
+  </div>
+
 </div>

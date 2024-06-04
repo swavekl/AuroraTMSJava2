@@ -1,5 +1,7 @@
 import {Component, EventEmitter, Input, Output, SimpleChange, SimpleChanges} from '@angular/core';
 import {Match} from '../../matches/model/match.model';
+import {finalize, tap} from 'rxjs/operators';
+import {takeWhile, timer} from 'rxjs';
 
 @Component({
   selector: 'app-score-board-score-entry',
@@ -31,6 +33,9 @@ export class ScoreBoardScoreEntryComponent {
   @Output()
   public cancelMatch: EventEmitter<any> = new EventEmitter<any>();
 
+  @Output()
+  public timerEvent: EventEmitter<any> = new EventEmitter<any>();
+
   // index of the game to show 0, 1, etc
   public gameToShowIndex: number;
 
@@ -42,6 +47,12 @@ export class ScoreBoardScoreEntryComponent {
   gameScoreSideB: number;
 
   dirty: boolean;
+
+  timerValue: number = 0;
+  timerRunning: boolean = false;
+
+  // timeout started for player A or B
+  timeoutForPlayer: string = null;
 
   constructor() {
     this.games = [];
@@ -308,4 +319,104 @@ export class ScoreBoardScoreEntryComponent {
     return playerNamesArray[index].trim();
   }
 
+  startTimer(duration: number) {
+    if (!this.timerRunning) {
+      this.timerRunning = true;
+      this.timerValue = duration;
+      timer(1000, 1000)
+        .pipe(
+          takeWhile( () => this.timerValue > 0 ),
+          tap(() => this.timerValue--),
+          finalize(() => {
+            this.timerRunning = false;
+            this.timerValue = 0;
+          })
+        ).subscribe( );
+    }
+  }
+
+  stopTimer() {
+    if (this.timerRunning) {
+      this.timerValue = 0;
+    }
+  }
+
+  startWarmup() {
+    this.startTimer(120);
+    this.timerEvent.emit({action: 'startWarmup', timeoutForPlayer: null, updatedMatch: this.match});
+  }
+
+  stopWarmup() {
+    this.stopTimer();
+    this.timerEvent.emit({action: 'stopWarmup', timeoutForPlayer: null, updatedMatch: this.match});
+  }
+
+  canStartWarmup() {
+    if (!this.timerRunning) {
+      return this.isMatchNotStarted();
+    } else {
+      return false;
+    }
+  }
+
+  isMatchNotStarted () {
+    if (this.match != null) {
+      return (this.match.game1ScoreSideA === 0 && this.match.game1ScoreSideB === 0) &&
+        (this.match.game2ScoreSideA === 0 && this.match.game2ScoreSideB === 0) &&
+        (this.match.game3ScoreSideA === 0 && this.match.game3ScoreSideB === 0) &&
+        (this.match.game4ScoreSideA === 0 && this.match.game4ScoreSideB === 0) &&
+        (this.match.game5ScoreSideA === 0 && this.match.game5ScoreSideB === 0) &&
+        (this.match.game6ScoreSideA === 0 && this.match.game6ScoreSideB === 0) &&
+        (this.match.game7ScoreSideA === 0 && this.match.game7ScoreSideB === 0);
+    } else {
+      return false;
+    }
+  }
+
+  canStopWarmup() {
+    return this.canStartWarmup() && this.timerRunning;
+  }
+
+  startTimeout(playerLetter: string) {
+    if (!this.timerRunning) {
+      const sideATimeoutTaken = (playerLetter === 'A') || this.match.sideATimeoutTaken;
+      const sideBTimeoutTaken = (playerLetter === 'B') || this.match.sideBTimeoutTaken;
+      this.timeoutForPlayer = playerLetter;
+      this.match = {
+        ...this.match,
+        sideATimeoutTaken: sideATimeoutTaken,
+        sideBTimeoutTaken: sideBTimeoutTaken
+      };
+      this.timerEvent.emit({action: 'startTimeout', timeoutForPlayer: this.timeoutForPlayer, updatedMatch: this.match});
+      this.startTimer(60);
+    }
+  }
+
+  stopTimeout() {
+    if (this.timerRunning) {
+      this.stopTimer();
+      this.timerEvent.emit({action: 'stopTimeout', timeoutForPlayer: this.timeoutForPlayer, updatedMatch: this.match});
+    }
+  }
+
+  canStartTimeout(playerLetter: string) {
+    if (this.match != null && !this.timerRunning) {
+      const matchStarted = !this.isMatchNotStarted();
+      if (playerLetter === 'A') {
+        return matchStarted && this.match.sideATimeoutTaken === false;
+      } else if (playerLetter === 'B') {
+        return matchStarted && this.match.sideBTimeoutTaken === false;
+      }
+    } else {
+      return false;
+    }
+  }
+
+  canStopTimeout() {
+    if (this.timerRunning) {
+      return this.match?.sideATimeoutTaken || this.match?.sideBTimeoutTaken;
+    } else {
+      return false;
+    }
+  }
 }

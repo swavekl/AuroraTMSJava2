@@ -2,7 +2,7 @@ import {NgModule} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {MatFormFieldModule} from '@angular/material/form-field';
 import {FormsModule} from '@angular/forms';
-import {MatToolbar, MatToolbarModule} from '@angular/material/toolbar';
+import {MatToolbar, MatToolbarModule, MatToolbarRow} from '@angular/material/toolbar';
 import {MatInputModule} from '@angular/material/input';
 import {MatGridListModule} from '@angular/material/grid-list';
 import {MatButtonModule} from '@angular/material/button';
@@ -18,6 +18,7 @@ import {ScoreBoardMatchSelectContainerComponent} from './score-board-match-selec
 import {ScoreBoardScoreEntryComponent} from './score-board-score-entry/score-board-score-entry.component';
 import {ScoreBoardScoreEntryContainerComponent} from './score-board-score-entry/score-board-score-entry-container.component';
 import {MatIcon} from '@angular/material/icon';
+import {TimerFormatterPipe} from '../shared/pipes/timer-formatter.pipe';
 
 
 @NgModule({
@@ -41,7 +42,9 @@ import {MatIcon} from '@angular/material/icon';
     MatGridListModule,
     MatButtonModule,
     MatIcon,
-    MatToolbar
+    MatToolbar,
+    MatToolbarRow,
+    TimerFormatterPipe
   ]
 })
 export class ScoreBoardModule {

@@ -14,6 +14,8 @@ import {MonitorConnectComponent} from './monitor-connect/monitor-connect.compone
 import {MonitorConnectContainerComponent} from './monitor-connect/monitor-connect-container.component';
 import {MonitorDisplayContainerComponent} from './monitor-display/monitor-display-container.component';
 import {MatGridListModule} from '@angular/material/grid-list';
+import {TimerFormatterPipe} from '../shared/pipes/timer-formatter.pipe';
+import {MatIcon} from '@angular/material/icon';
 
 @NgModule({
   declarations: [
@@ -22,18 +24,20 @@ import {MatGridListModule} from '@angular/material/grid-list';
     MonitorConnectContainerComponent,
     MonitorDisplayContainerComponent
   ],
-    imports: [
-        CommonModule,
-        MonitorRoutingModule,
-        MatButtonModule,
-        MatToolbarModule,
-        MatInputModule,
-        FormsModule,
-        FlexLayoutModule,
-        MatSelectModule,
-        SharedModule,
-        MatGridListModule
-    ],
+  imports: [
+    CommonModule,
+    MonitorRoutingModule,
+    MatButtonModule,
+    MatToolbarModule,
+    MatInputModule,
+    FormsModule,
+    FlexLayoutModule,
+    MatSelectModule,
+    SharedModule,
+    MatGridListModule,
+    TimerFormatterPipe,
+    MatIcon
+  ],
   providers: [
   ]
 })

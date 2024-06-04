@@ -7,8 +7,13 @@
           <td class="name-cell" [colSpan]="games.length">
             {{ matchData?.playerAName }}
           </td>
+          <td [rowSpan]="matchData.doubles ? 2 : 1" class="timeout-symbol-cell">
+            <div *ngIf="matchData.match?.sideATimeoutTaken" class="timout-taken-symbol">
+              <mat-icon>timer</mat-icon>
+            </div>
+          </td>
           <td [rowSpan]="matchData.doubles ? 3 : 2" class="games-won-cell align-bottom">
-            {{ numGamesWonByA }}
+            <div>{{ numGamesWonByA }}</div>
           </td>
           <td [rowSpan]="matchData.doubles ? 3 : 2" class="current-game-score-cell align-bottom">
             {{ gameScoreSideA }}
@@ -20,7 +25,8 @@
           </td>
         </tr>
         <tr>
-          <td *ngFor="let game of games; let idx = index;" class="game-score-cell" [ngClass]="(idx === currentGameIndex) ? 'current-game-score-small-cell' : ''">
+          <td *ngFor="let game of games; let idx = index;" class="game-score-cell"
+              [ngClass]="(idx === currentGameIndex) ? 'current-game-score-small-cell' : ''">
             <ng-container [ngSwitch]="idx">
               <ng-container *ngSwitchCase="0">{{ matchData?.match?.game1ScoreSideA }}</ng-container>
               <ng-container *ngSwitchCase="1">{{ matchData?.match?.game2ScoreSideA }}</ng-container>
@@ -31,12 +37,15 @@
               <ng-container *ngSwitchCase="6">{{ matchData?.match?.game7ScoreSideA }}</ng-container>
             </ng-container>
           </td>
+          <td>&nbsp;</td>
         </tr>
         <tr>
-          <td class="separator-row" [colSpan]="games.length + 2">&nbsp;</td>
+<!--          separator -->
+          <td class="separator-row" [colSpan]="games.length + 3">&nbsp;</td>
         </tr>
         <tr>
-          <td *ngFor="let game of games; let idx = index;" class="game-score-cell" [ngClass]="(idx === currentGameIndex) ? 'current-game-score-small-cell' : ''">
+          <td *ngFor="let game of games; let idx = index;" class="game-score-cell"
+              [ngClass]="(idx === currentGameIndex) ? 'current-game-score-small-cell' : ''">
             <ng-container [ngSwitch]="idx">
               <ng-container *ngSwitchCase="0">{{ matchData?.match?.game1ScoreSideB }}</ng-container>
               <ng-container *ngSwitchCase="1">{{ matchData?.match?.game2ScoreSideB }}</ng-container>
@@ -47,8 +56,9 @@
               <ng-container *ngSwitchCase="6">{{ matchData?.match?.game7ScoreSideB }}</ng-container>
             </ng-container>
           </td>
+          <td>&nbsp;</td>
           <td [rowSpan]="matchData.doubles ? 3 : 2" class="games-won-cell align-top">
-            {{ numGamesWonByB }}
+            <div>{{ numGamesWonByB }}</div>
           </td>
           <td [rowSpan]="matchData.doubles ? 3 : 2" class="current-game-score-cell align-top">
             {{ gameScoreSideB }}
@@ -56,18 +66,28 @@
         </tr>
         <tr>
           <td class="name-cell" [colSpan]="games.length">
-            <div>{{ matchData?.playerBName }}</div>
+            {{ matchData?.playerBName }}
+          </td>
+          <td [rowSpan]="matchData.doubles ? 2 : 1" class="timeout-symbol-cell">
+            <div *ngIf="matchData.match?.sideBTimeoutTaken" class="timout-taken-symbol">
+              <mat-icon>timer</mat-icon>
+            </div>
           </td>
         </tr>
         <tr *ngIf="matchData.doubles">
           <td class="name-cell" [colSpan]="games.length">
-            <div>{{ matchData?.playerBPartnerName }}</div>
+            {{ matchData?.playerBPartnerName }}
           </td>
         </tr>
         </tbody>
       </table>
     </div>
   </div>
+  <div fxLayout="row" fxLayoutAlign="center start" style="margin-top: 50px">
+    <div class="timer-display" *ngIf="timerRunning">{{ timerValue | timerFormatter }}</div>
+  </div>
   <div>{{ isNaN(currentGameIndex) ? '' : 'Current game: ' + (currentGameIndex + 1) }}</div>
-  <div class="status-line">Connection to table # {{ tableNumber }}, Status: {{ isConnected ? 'connected' : 'disconnected' }}</div>
+  <div class="status-line">Connection to table # {{ tableNumber }},
+    Status: {{ isConnected ? 'connected' : 'disconnected' }}
+  </div>
 </app-centered-panel>

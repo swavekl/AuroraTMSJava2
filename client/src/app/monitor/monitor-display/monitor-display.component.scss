@@ -23,15 +23,21 @@ table.match-display {
         //background-color: lighten($primary-color, 60%);
       }
 
+      &.timeout-symbol-cell {
+        //border: 3px solid deepskyblue;
+        vertical-align: middle;
+        min-width: 45px;
+      }
+
       &.games-won-cell {
-        font-size: 50px;
+        font-size: 70px;
         padding: 20px;
-        width: 200px;
+        width: 150px;
         //border: 2px solid deeppink;
       }
 
       &.current-game-score-cell {
-        font-size: 100px;
+        font-size: 130px;
         padding: 40px;
         width: 200px;
         //border: 1px solid blue;
@@ -39,7 +45,6 @@ table.match-display {
 
       &.align-bottom {
         vertical-align: bottom;
-        //margin-bottom: 20px;
       }
 
       &.align-top {
@@ -55,4 +60,19 @@ table.match-display {
 
 div.status-line {
   margin-top: 160px;
+}
+
+div.timer-display {
+  font-size: 80px;
+}
+
+div.timout-taken-symbol {
+  margin: 10px 0;
+  //border: 2px solid cyan;
+
+  mat-icon {
+    font-size: 38px;
+    height: 38px;
+    width: 38px;
+  }
 }

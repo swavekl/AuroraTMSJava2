@@ -1,4 +1,4 @@
-import {Component, OnDestroy, OnInit} from '@angular/core';
+import {Component, OnDestroy} from '@angular/core';
 import {Observable, of, Subscription} from 'rxjs';
 import {Match} from '../../matches/model/match.model';
 import {ActivatedRoute, Router} from '@angular/router';
@@ -7,7 +7,7 @@ import {MatchCardService} from '../../matches/service/match-card.service';
 import {MatchService} from '../../matches/service/match.service';
 import {createSelector} from '@ngrx/store';
 import {MatchCard} from '../../matches/model/match-card.model';
-import {first, switchMap, tap} from 'rxjs/operators';
+import {first, tap} from 'rxjs/operators';
 import {MonitorService} from '../../monitor/service/monitor.service';
 import {MonitorMessage} from '../../monitor/model/monitor-message.model';
 import {MonitorMessageType} from '../../monitor/model/monitor-message-type';
@@ -23,7 +23,8 @@ import {MonitorMessageType} from '../../monitor/model/monitor-message-type';
       [pointsPerGame]="pointsPerGame"
       [doubles]="doubles"
       (saveMatch)="onSaveMatch($event)"
-      (cancelMatch)="onCancelMatch()">
+      (cancelMatch)="onCancelMatch()"
+    (timerEvent)="onTimerEvent($event)">
     </app-score-board-score-entry>
   `,
   styles: ``
@@ -129,8 +130,9 @@ export class ScoreBoardScoreEntryContainerComponent implements OnDestroy {
     this.matchService.update(updatedMatch)
       .pipe(first(),
         tap({
-          next: (match: Match) => {
-            this.sendMonitorUpdate(updatedMatch);
+          next: () => {
+            this.saveMatchState(updatedMatch);
+            // this.sendMonitorUpdate(updatedMatch);
           }
         })
       ).subscribe();
@@ -145,7 +147,7 @@ export class ScoreBoardScoreEntryContainerComponent implements OnDestroy {
     this.savedMatch = cloneOfMatch;
   }
 
-  private sendMonitorUpdate(match: Match) {
+  private sendMonitorUpdate(match: Match, action: string) {
     let playerAName: string = this.playerAName;
     let playerBName: string = this.playerBName;
     let playerAPartnerName = 'X';
@@ -162,8 +164,23 @@ export class ScoreBoardScoreEntryContainerComponent implements OnDestroy {
         playerBPartnerName = teamBPlayerNames[1];
       }
     }
+    let messageType: MonitorMessageType = MonitorMessageType.ScoreUpdate;
+    switch(action) {
+      case 'startWarmup':
+        messageType = MonitorMessageType.WarmupStarted;
+        break;
+      case 'stopWarmup':
+        messageType = MonitorMessageType.WarmupStopped;
+        break;
+      case 'startTimeout':
+        messageType = MonitorMessageType.TimeoutStarted;
+        break;
+      case 'stopTimeout':
+        messageType = MonitorMessageType.TimeoutStopped;
+        break;
+    }
     const monitorMessage: MonitorMessage = {
-      messageType: MonitorMessageType.ScoreUpdate,
+      messageType: messageType,
       match: match,
       playerAName: playerAName,
       playerBName: playerBName,
@@ -174,10 +191,9 @@ export class ScoreBoardScoreEntryContainerComponent implements OnDestroy {
       numberOfGames: this.numberOfGames,
       timeoutStarted: this.isTimeoutStarted(match),
       timeoutRequester: this.getTimeoutRequester(match),
-      warmupStarted: false
+      warmupStarted: messageType === MonitorMessageType.WarmupStarted
     };
     this.monitorService.sendMessage(this.tournamentId, this.tableNumber, monitorMessage);
-
   }
 
   private isTimeoutStarted(match: Match) {
@@ -193,5 +209,24 @@ export class ScoreBoardScoreEntryContainerComponent implements OnDestroy {
       taken = this.playerBName;
     }
     return taken;
+  }
+
+  onTimerEvent(event: any) {
+    const updatedMatch: Match = event.updatedMatch;
+    const action: string = event.action;
+    if (action === 'startWarmup' || action === 'stopWarmup') {
+      // just send a message there is nothing to record
+      this.sendMonitorUpdate(updatedMatch, action);
+    } else {
+      this.matchService.update(updatedMatch)
+        .pipe(first(),
+          tap({
+            next: () => {
+              // this.sendMonitorUpdate(updatedMatch, action);
+              this.saveMatchState(updatedMatch);
+            }
+          })
+        ).subscribe();
+    }
   }
 }
