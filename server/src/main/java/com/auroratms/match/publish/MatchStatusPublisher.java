@@ -91,8 +91,10 @@ public class MatchStatusPublisher {
 
                     if (warmupStarted) {
                         monitorMessage.setMessageType(MonitorMessageType.WarmupStarted);
+                        monitorMessage.setWarmupStarted(true);
                     } else if (timeoutStarted) {
                         monitorMessage.setMessageType(MonitorMessageType.TimeoutStarted);
+                        monitorMessage.setTimeoutStarted(true);
                         monitorMessage.setTimeoutRequester(timeoutRequester);
                     }
                     this.createTopicAndSend(monitorMessage, tournamentFk, tableNumber);

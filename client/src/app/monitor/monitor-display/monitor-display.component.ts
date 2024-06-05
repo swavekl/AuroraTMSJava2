@@ -37,6 +37,8 @@ export class MonitorDisplayComponent implements OnInit, OnChanges {
   timerValue: number = 0;
   timerRunning: boolean = false;
 
+  timerLabel: string;
+
   constructor(protected cdr: ChangeDetectorRef) {
     this.games = Array(5);
   }
@@ -158,7 +160,8 @@ export class MonitorDisplayComponent implements OnInit, OnChanges {
     if (!this.timerRunning) {
       if (warmupStarted || timeoutStarted) {
         const duration: number = (warmupStarted) ? 120 : (timeoutStarted) ? 60 : 0;
-        this.startTimer(duration);
+        const label = (warmupStarted) ? 'Warmup' : 'Timeout';
+        this.startTimer(duration, label);
       }
     } else {
       if (!timeoutStarted) {
@@ -167,10 +170,11 @@ export class MonitorDisplayComponent implements OnInit, OnChanges {
     }
   }
 
-  startTimer(duration: number) {
+  startTimer(duration: number, label: string) {
     if (!this.timerRunning) {
       this.timerRunning = true;
       this.timerValue = duration;
+      this.timerLabel = label;
       timer(1000, 1000)
         .pipe(
           takeWhile(() => this.timerValue > 0),
@@ -178,6 +182,7 @@ export class MonitorDisplayComponent implements OnInit, OnChanges {
           finalize(() => {
             this.timerRunning = false;
             this.timerValue = 0;
+            this.timerLabel = null;
           })
         ).subscribe();
     }

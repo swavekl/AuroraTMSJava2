@@ -67,18 +67,18 @@ export class AppComponent implements OnInit {
   /**
    * on mobile devices the menu is opened and when you click on menu item it should close before navigating to this item
    */
-  closeAndNavigateToRoute(routerLink, skipProfileCheck: boolean = false) {
+  closeAndNavigateToRoute(routerLink, skipProfileCheck: boolean = false, forceCloseDrawer: boolean = false) {
     if (!skipProfileCheck) {
       if (!this.isProfileComplete()) {
         return;
       }
     }
-    this.closeDrawerOnMobile();
+    this.closeDrawerOnMobile(forceCloseDrawer);
     this.router.navigate([routerLink]);
   }
 
-  private closeDrawerOnMobile() {
-    if (this.drawer && this.drawer.opened && this.isMobile) {
+  private closeDrawerOnMobile(forceCloseDrawer: boolean = false) {
+    if (this.drawer && this.drawer.opened && (this.isMobile || forceCloseDrawer)) {
       this.drawer.close();
     }
   }
