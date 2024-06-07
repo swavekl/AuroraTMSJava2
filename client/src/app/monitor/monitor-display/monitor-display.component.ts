@@ -137,15 +137,23 @@ export class MonitorDisplayComponent implements OnInit, OnChanges {
           break;
       }
 
-      if (playerAGameScore >= pointsPerGame && playerBGameScore < playerAGameScore) {
+      if (this.isGameWon(playerAGameScore, playerBGameScore, pointsPerGame)) {
         numGamesWonByA++;
-      } else if (playerBGameScore >= pointsPerGame && playerAGameScore < playerBGameScore) {
+      } else if (this.isGameWon(playerBGameScore, playerAGameScore, pointsPerGame)) {
         numGamesWonByB++;
       }
     }
 
     this.numGamesWonByA = numGamesWonByA;
     this.numGamesWonByB = numGamesWonByB;
+  }
+
+  private isGameWon(player1GameScore: number, player2GameScore: number, pointsPerGame: number) {
+    if (player1GameScore >= pointsPerGame) {
+      return (player1GameScore > player2GameScore && ((player1GameScore - player2GameScore) >= 2));
+    } else {
+      return false;
+    }
   }
 
   private getCurrentGameIndex(numberOfGames: number, pointsPerGame: number) {

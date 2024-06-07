@@ -149,14 +149,14 @@ export class ScoreBoardScoreEntryComponent {
     // }
     if (playerIndex === 0) {
       this.gameScoreSideA++;
-      if (this.gameScoreSideA >= this.pointsPerGame + 1) {
-        this.gameScoreSideB = this.gameScoreSideA - 2;
-      }
+      // if (this.gameScoreSideA >= this.pointsPerGame + 1) {
+      //   this.gameScoreSideB = this.gameScoreSideA - 2;
+      // }
     } else {
       this.gameScoreSideB++;
-      if (this.gameScoreSideB >= this.pointsPerGame + 1) {
-        this.gameScoreSideA = this.gameScoreSideB - 2;
-      }
+      // if (this.gameScoreSideB >= this.pointsPerGame + 1) {
+      //   this.gameScoreSideA = this.gameScoreSideB - 2;
+      // }
     }
     this.saveGameScore();
     this.saveMatch.emit({updatedMatch: this.match, backToMatchCard: false});

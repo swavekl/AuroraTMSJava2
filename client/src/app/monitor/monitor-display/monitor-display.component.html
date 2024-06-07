@@ -25,16 +25,15 @@
           </td>
         </tr>
         <tr>
-          <td *ngFor="let game of games; let idx = index;" class="game-score-cell"
-              [ngClass]="(idx === currentGameIndex) ? 'current-game-score-small-cell' : ''">
+          <td *ngFor="let game of games; let idx = index;" class="game-score-cell">
             <ng-container [ngSwitch]="idx">
-              <ng-container *ngSwitchCase="0">{{ matchData?.match?.game1ScoreSideA }}</ng-container>
-              <ng-container *ngSwitchCase="1">{{ matchData?.match?.game2ScoreSideA }}</ng-container>
-              <ng-container *ngSwitchCase="2">{{ matchData?.match?.game3ScoreSideA }}</ng-container>
-              <ng-container *ngSwitchCase="3">{{ matchData?.match?.game4ScoreSideA }}</ng-container>
-              <ng-container *ngSwitchCase="4">{{ matchData?.match?.game5ScoreSideA }}</ng-container>
-              <ng-container *ngSwitchCase="5">{{ matchData?.match?.game6ScoreSideA }}</ng-container>
-              <ng-container *ngSwitchCase="6">{{ matchData?.match?.game7ScoreSideA }}</ng-container>
+              <ng-container *ngSwitchCase="0">{{ (currentGameIndex > 0) ? matchData?.match?.game1ScoreSideA : '' }}</ng-container>
+              <ng-container *ngSwitchCase="1">{{ (currentGameIndex > 1) ? matchData?.match?.game2ScoreSideA : '' }}</ng-container>
+              <ng-container *ngSwitchCase="2">{{ (currentGameIndex > 2) ? matchData?.match?.game3ScoreSideA : '' }}</ng-container>
+              <ng-container *ngSwitchCase="3">{{ (currentGameIndex > 3) ? matchData?.match?.game4ScoreSideA : '' }}</ng-container>
+              <ng-container *ngSwitchCase="4">{{ (currentGameIndex > 4) ? matchData?.match?.game5ScoreSideA : '' }}</ng-container>
+              <ng-container *ngSwitchCase="5">{{ (currentGameIndex > 5) ? matchData?.match?.game6ScoreSideA : '' }}</ng-container>
+              <ng-container *ngSwitchCase="6">{{ (currentGameIndex > 6) ? matchData?.match?.game7ScoreSideA : '' }}</ng-container>
             </ng-container>
           </td>
           <td>&nbsp;</td>
@@ -44,16 +43,15 @@
           <td class="separator-row" [colSpan]="games.length + 3">&nbsp;</td>
         </tr>
         <tr>
-          <td *ngFor="let game of games; let idx = index;" class="game-score-cell"
-              [ngClass]="(idx === currentGameIndex) ? 'current-game-score-small-cell' : ''">
+          <td *ngFor="let game of games; let idx = index;" class="game-score-cell">
             <ng-container [ngSwitch]="idx">
-              <ng-container *ngSwitchCase="0">{{ matchData?.match?.game1ScoreSideB }}</ng-container>
-              <ng-container *ngSwitchCase="1">{{ matchData?.match?.game2ScoreSideB }}</ng-container>
-              <ng-container *ngSwitchCase="2">{{ matchData?.match?.game3ScoreSideB }}</ng-container>
-              <ng-container *ngSwitchCase="3">{{ matchData?.match?.game4ScoreSideB }}</ng-container>
-              <ng-container *ngSwitchCase="4">{{ matchData?.match?.game5ScoreSideB }}</ng-container>
-              <ng-container *ngSwitchCase="5">{{ matchData?.match?.game6ScoreSideB }}</ng-container>
-              <ng-container *ngSwitchCase="6">{{ matchData?.match?.game7ScoreSideB }}</ng-container>
+              <ng-container *ngSwitchCase="0">{{ (currentGameIndex > 0) ? matchData?.match?.game1ScoreSideB : '' }}</ng-container>
+              <ng-container *ngSwitchCase="1">{{ (currentGameIndex > 1) ? matchData?.match?.game2ScoreSideB : '' }}</ng-container>
+              <ng-container *ngSwitchCase="2">{{ (currentGameIndex > 2) ? matchData?.match?.game3ScoreSideB : '' }}</ng-container>
+              <ng-container *ngSwitchCase="3">{{ (currentGameIndex > 3) ? matchData?.match?.game4ScoreSideB : '' }}</ng-container>
+              <ng-container *ngSwitchCase="4">{{ (currentGameIndex > 4) ? matchData?.match?.game5ScoreSideB : '' }}</ng-container>
+              <ng-container *ngSwitchCase="5">{{ (currentGameIndex > 5) ? matchData?.match?.game6ScoreSideB : '' }}</ng-container>
+              <ng-container *ngSwitchCase="6">{{ (currentGameIndex > 6) ? matchData?.match?.game7ScoreSideB : '' }}</ng-container>
             </ng-container>
           </td>
           <td>&nbsp;</td>
