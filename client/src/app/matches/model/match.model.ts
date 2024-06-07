@@ -122,7 +122,7 @@ export class Match {
     }
   }
 
-  private static isGameWon(player1GameScore: number, player2GameScore: number, pointsPerGame: number) {
+  public static isGameWon(player1GameScore: number, player2GameScore: number, pointsPerGame: number) {
     if (player1GameScore >= pointsPerGame) {
       return (player1GameScore > player2GameScore && ((player1GameScore - player2GameScore) >= 2));
     } else {
