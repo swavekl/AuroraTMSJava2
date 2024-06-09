@@ -9,6 +9,7 @@ describe('AuthGuard', () => {
     });
   });
 
+  // @ts-ignore
   it('should ...', inject([AuthGuard], (guard: AuthGuard) => {
     expect(guard).toBeTruthy();
   }));
