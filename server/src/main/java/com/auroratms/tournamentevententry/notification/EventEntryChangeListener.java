@@ -102,7 +102,7 @@ public class EventEntryChangeListener {
             // the first entry is the one we need
             for (int i = 0; i < availableEventEntries && i < waitingListEntries.size(); i++) {
                 TournamentEventEntry waitingListEntry = waitingListEntries.get(i);
-                // start a 'cart session' which will last 2 hours
+                // start a 'cart session' which will last 4 hours
                 // this will give the player time to confirm entry by payment
                 // if they don't confirm in 2 hours a cleanup job will
                 // throw them out of the event
