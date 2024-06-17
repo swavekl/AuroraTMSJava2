@@ -106,7 +106,7 @@ public class EventEntryChangeListener {
                 // this will give the player time to confirm entry by payment
                 // if they don't confirm in 2 hours a cleanup job will
                 // throw them out of the event
-                Date futureCartSessionStartDate = DateUtils.addHours(new Date(), 2);
+                Date futureCartSessionStartDate = DateUtils.addHours(new Date(), 4);
                 CartSession cartSession = cartSessionService.startSession(PaymentRefundFor.TOURNAMENT_ENTRY, waitingListEntry.getTournamentEntryFk(), futureCartSessionStartDate);
                 waitingListEntry.setCartSessionId(cartSession.getSessionUUID());
                 waitingListEntry.setStatus(EventEntryStatus.PENDING_CONFIRMATION);

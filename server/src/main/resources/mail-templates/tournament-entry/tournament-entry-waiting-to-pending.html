@@ -13,9 +13,8 @@ and since you were on the waiting list, you were automatically placed in this ev
 <p>
 However, your event entry is not confirmed until we receive a payment, which for this event is
     <span th:text="${#numbers.formatDecimal(eventPrice, 1, 2)}">10.00</span> <span th:text="${currency}">USD</span>.
-We understand that you might be busy at the moment, so you have about 2 hours,
-until <span th:text="${#dates.format(cartSessionExpiration,'dd MMMM yyyy hh:mm aaa')}"></span> to complete the payment.
-If you are no longer interested in playing in this event, please remove yourself so other players can enter.
+We understand that you might be busy at the moment, so you have about 4 hours from the moment this email was sent to complete the payment.  If you fail to pay
+the spot will be given to the next person on the waiting list.  If you are no longer interested in playing in this event, please remove yourself so other players can enter.
 </p>
 <p>
 To complete it or to withdraw from this event please visit this <a th:href="${eventEntryUrl}">link</a>.
