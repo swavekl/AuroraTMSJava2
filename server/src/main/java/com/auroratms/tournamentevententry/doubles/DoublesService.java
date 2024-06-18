@@ -12,6 +12,7 @@ import com.auroratms.tournamentevententry.TournamentEventEntryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.thymeleaf.util.StringUtils;
 
 import java.util.*;
 
@@ -146,10 +147,10 @@ public class DoublesService {
                     for (TournamentEventEntry partnerEventEntry : partnerEventEntries) {
                         if (partnerEventEntry.getTournamentEventFk() == playerEventEntry.getTournamentEventFk()) {
                             // if this doubles partner wants to play with this player
-                            if (partnerEventEntry.getDoublesPartnerProfileId().equals(profileId)) {
+                            if (profileId.equals(partnerEventEntry.getDoublesPartnerProfileId())) {
                                 // find existing entry in case they are switching partners
                                 List<DoublesPair> playerDoublesEntry = this.doublesPairRepository.findPlayerDoublesEntry(playerEventEntry.getTournamentEventFk(), playerEventEntry.getId());
-                                if (playerDoublesEntry.size() == 0) {
+                                if (playerDoublesEntry.isEmpty()) {
                                     // create new doubles pair record
                                     doublesPair = new DoublesPair();
                                     doublesPair.setTournamentEventFk(eventFk);
