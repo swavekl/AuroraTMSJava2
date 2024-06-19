@@ -210,6 +210,7 @@ public class MatchSchedulingService {
                                 + event.getName() + "' event round robin round which starts at " + event.getStartTime() +
                                 " due to lack of available table time.  You can assign a later starting time to this event or configure more tables to the prior event so it completes sooner.";
                         log.warn(message);
+                        matrix.prettyPrint();
                         throw new MatchSchedulingException(message);
                     }
                 }

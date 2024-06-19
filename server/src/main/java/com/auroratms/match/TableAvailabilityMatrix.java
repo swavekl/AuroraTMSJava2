@@ -44,6 +44,7 @@ public class TableAvailabilityMatrix {
         int startTimeSlotIndex = timeSlotIndex(startTime);
         int timeSlotsNeeded = calculateTimeSlotsNeeded (duration);
         int endTimeSlotIndex = startTimeSlotIndex + timeSlotsNeeded;
+        log.info("Marking table " + tableNum + " as not available from " + startTime + " for duration " + duration);
         int tableIndex = tableNum - 1;
         boolean[] tableTimeSlots = this.availableTableTimeSlotsMatrix[tableIndex];
         for (int i = startTimeSlotIndex; i < endTimeSlotIndex; i++) {
@@ -153,6 +154,27 @@ public class TableAvailabilityMatrix {
     private int timeSlotIndex(double startTime) {
         double numTimeSlots = ((startTime - FIRST_TIME_SLOT) / TIME_SLOT_SIZE);
         return (int) (numTimeSlots);
+    }
+
+    public void prettyPrint() {
+        System.out.println("Table Availability Matrix");
+        for (int tableIndex = 0; tableIndex < availableTableTimeSlotsMatrix.length; tableIndex++) {
+            boolean[] tableTimeSlotsMatrix = availableTableTimeSlotsMatrix[tableIndex];
+            if (tableIndex == 0) {
+                System.out.print("table");
+                for (int i = 0; i < tableTimeSlotsMatrix.length; i++) {
+                    int hour = 8 + Math.floorDiv(i, 2);
+                    int minutes = (i % 2 == 0) ? 0 : 30;
+                    System.out.printf("| %02d:%02d ", hour, minutes);
+                }
+                System.out.println();
+            }
+            System.out.printf("  %02d ", (tableIndex + 1));
+            for (boolean timeSlotsMatrix : tableTimeSlotsMatrix) {
+                System.out.printf("|   %s   ", !timeSlotsMatrix ? "x" : " ");
+            }
+            System.out.println("");
+        }
     }
 
     public static class AvailableTableInfo {
