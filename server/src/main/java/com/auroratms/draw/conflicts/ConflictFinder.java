@@ -63,8 +63,8 @@ public class ConflictFinder {
 
         Map<String, ConflictInfo> playerConflictInfos = new HashMap<>();
 
-        // check if players in this draw's groups live nearby each other
-        int playersToAdvance = this.tournamentEvent.getPlayersToAdvance();
+        // assume single elimination round is always advancing 1 player, RR can be one or more
+        int playersToAdvance = (drawType == DrawType.SINGLE_ELIMINATION) ? 1 : this.tournamentEvent.getPlayersToAdvance();
         Set<String> keySet = thisEventDraws.keySet();
         for (String key : keySet) {
             List<DrawItem> groupDrawItems = thisEventDraws.get(key);

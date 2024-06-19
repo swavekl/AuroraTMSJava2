@@ -149,7 +149,8 @@ public class MatchOrderGenerator {
         Character bottomLeftSidePlayer = leftSidePlayers.remove(leftSidePlayers.size() - 1);
 
         // add players back
-        leftSidePlayers.add(1, topRightSidePlayer);
+        int insertIndex = (!leftSidePlayers.isEmpty()) ? 1 : 0;
+        leftSidePlayers.add(insertIndex, topRightSidePlayer);
         rightSidePlayers.add(bottomLeftSidePlayer);
     }
 
