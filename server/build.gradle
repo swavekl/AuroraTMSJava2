@@ -131,3 +131,8 @@ task copyAngularApp (type: Copy) {
 
 processResources.dependsOn(copyAngularApp)
 //jar.dependsOn(copyAngularApp)
+
+
+task prepareKotlinBuildScriptModel {
+
+}

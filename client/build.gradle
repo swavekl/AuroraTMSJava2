@@ -21,3 +21,8 @@ task buildAngularApp(type: NpxTask) {
 }
 
 jar.dependsOn 'buildAngularApp'
+
+
+task prepareKotlinBuildScriptModel {
+
+}
