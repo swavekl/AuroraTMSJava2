@@ -166,4 +166,144 @@ export class Match {
       return 0;
     }
   }
+
+  /**
+   * Finishes the match which may have been started but not finished due to default
+   * @param match
+   * @param defaultedPlayerIndex
+   * @param numberOfGames
+   * @param pointsPerGame
+   */
+  public static defaultMatch(match: Match, defaultedPlayerIndex: number, numberOfGames: number, pointsPerGame: number): Match {
+    const sideADefaulted: boolean = (defaultedPlayerIndex === 0);
+    const sideBDefaulted: boolean = (defaultedPlayerIndex === 1);
+    let defaultedMatch: Match = {
+      ...match,
+      sideADefaulted: sideADefaulted,
+      sideBDefaulted: sideBDefaulted
+    };
+
+    let numGamesWonByA = 0;
+    let numGamesWonByB = 0;
+    for (let gameIndex = 0; gameIndex < numberOfGames; gameIndex++) {
+      let playerAGameScore = 0;
+      let playerBGameScore = 0;
+      switch (gameIndex) {
+        case 0:
+          playerAGameScore = defaultedMatch.game1ScoreSideA;
+          playerBGameScore = defaultedMatch.game1ScoreSideB;
+          break;
+        case 1:
+          playerAGameScore = defaultedMatch.game2ScoreSideA;
+          playerBGameScore = defaultedMatch.game2ScoreSideB;
+          break;
+        case 2:
+          playerAGameScore = defaultedMatch.game3ScoreSideA;
+          playerBGameScore = defaultedMatch.game3ScoreSideB;
+          break;
+        case 3:
+          playerAGameScore = defaultedMatch.game4ScoreSideA;
+          playerBGameScore = defaultedMatch.game4ScoreSideB;
+          break;
+        case 4:
+          playerAGameScore = defaultedMatch.game5ScoreSideA;
+          playerBGameScore = defaultedMatch.game5ScoreSideB;
+          break;
+        case 5:
+          playerAGameScore = defaultedMatch.game6ScoreSideA;
+          playerBGameScore = defaultedMatch.game6ScoreSideB;
+          break;
+        case 6:
+          playerAGameScore = defaultedMatch.game7ScoreSideA;
+          playerBGameScore = defaultedMatch.game7ScoreSideB;
+          break;
+      }
+
+      if (this.isGameWon(playerAGameScore, playerBGameScore, pointsPerGame)) {
+        numGamesWonByA++;
+      } else if (this.isGameWon(playerBGameScore, playerAGameScore, pointsPerGame)) {
+        numGamesWonByB++;
+      } else {
+        // game was not finished or started
+        defaultedMatch = this.defaultGame(defaultedMatch, gameIndex, sideADefaulted, pointsPerGame);
+        if (sideADefaulted) {
+          numGamesWonByB++;
+        } else {
+          numGamesWonByA++;
+        }
+      }
+      const minimumNumberOfGamesToWin = (numberOfGames === 3) ? 2 : ((numberOfGames === 5) ? 3 : 4);
+      if (sideADefaulted && numGamesWonByB === minimumNumberOfGamesToWin) {
+        break;
+      } else if (sideBDefaulted && numGamesWonByA === minimumNumberOfGamesToWin) {
+        break;
+      }
+    }
+
+    return defaultedMatch;
+  }
+
+  /**
+   * Writes the score 11: x or x: 11 depending on who defaulted
+   * @param match
+   * @param gameIndex
+   * @param sideADefaulted
+   * @param pointsPerGame
+   * @private
+   */
+  private static defaultGame(match: Match, gameIndex: number, sideADefaulted: boolean, pointsPerGame: number): Match {
+    let defaultedMatch: Match = {...match};
+    switch (gameIndex) {
+      case 0:
+        defaultedMatch = {
+          ...defaultedMatch,
+          game1ScoreSideA: (sideADefaulted) ? defaultedMatch.game1ScoreSideA : pointsPerGame,
+          game1ScoreSideB: (!sideADefaulted) ? defaultedMatch.game1ScoreSideB : pointsPerGame
+        };
+        break;
+      case 1:
+        defaultedMatch = {
+          ...defaultedMatch,
+          game2ScoreSideA: (sideADefaulted) ? defaultedMatch.game2ScoreSideA : pointsPerGame,
+          game2ScoreSideB: (!sideADefaulted) ? defaultedMatch.game2ScoreSideB : pointsPerGame
+        };
+        break;
+      case 2:
+        defaultedMatch = {
+          ...defaultedMatch,
+          game3ScoreSideA: (sideADefaulted) ? defaultedMatch.game3ScoreSideA : pointsPerGame,
+          game3ScoreSideB: (!sideADefaulted) ? defaultedMatch.game3ScoreSideB : pointsPerGame
+        };
+        break;
+      case 3:
+        defaultedMatch = {
+          ...defaultedMatch,
+          game4ScoreSideA: (sideADefaulted) ? defaultedMatch.game4ScoreSideA : pointsPerGame,
+          game4ScoreSideB: (!sideADefaulted) ? defaultedMatch.game4ScoreSideB : pointsPerGame
+        };
+        break;
+      case 4:
+        defaultedMatch = {
+          ...defaultedMatch,
+          game5ScoreSideA: (sideADefaulted) ? defaultedMatch.game5ScoreSideA : pointsPerGame,
+          game5ScoreSideB: (!sideADefaulted) ? defaultedMatch.game5ScoreSideB : pointsPerGame
+        };
+        break;
+      case 5:
+        defaultedMatch = {
+          ...defaultedMatch,
+          game6ScoreSideA: (sideADefaulted) ? defaultedMatch.game6ScoreSideA : pointsPerGame,
+          game6ScoreSideB: (!sideADefaulted) ? defaultedMatch.game6ScoreSideB : pointsPerGame
+        };
+        break;
+      case 6:
+        defaultedMatch = {
+          ...defaultedMatch,
+          game7ScoreSideA: (sideADefaulted) ? defaultedMatch.game7ScoreSideA : pointsPerGame,
+          game7ScoreSideB: (!sideADefaulted) ? defaultedMatch.game7ScoreSideB : pointsPerGame
+        };
+        break;
+    }
+    return defaultedMatch;
+  }
 }

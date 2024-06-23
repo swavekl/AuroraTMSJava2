@@ -34,7 +34,7 @@ export class DefaultPlayerPhoneDialogComponent {
     if (this.doubles) {
       const teamANames: string [] = this.playerAName.split('/');
       this.teamAPlayer1 = teamANames[0];
-      this.teamAPlayer2 = teamANames[1] + ' long name very';
+      this.teamAPlayer2 = teamANames[1];
       const teamBNames: string [] = this.playerBName.split('/');
       this.teamBPlayer1 = teamBNames[0];
       this.teamBPlayer2 = teamBNames[1];

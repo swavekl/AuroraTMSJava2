@@ -249,10 +249,11 @@ export class ScoreEntryDialogComponent implements OnInit {
     this.anyMatchChanged = true;
   }
 
-  onDefaultValueChange($event: MatCheckboxChange) {
+  onDefaultValueChange($event: MatCheckboxChange, defaultedPlayerIndex: number) {
     // console.log('onDefaultValueChange', $event);
     this.dirty = true;
     this.anyMatchChanged = true;
+    this.match = Match.defaultMatch(this.match, defaultedPlayerIndex, this.numberOfGames, this.pointsPerGame);
   }
 
   isMatchWinner(profileId: string): boolean {

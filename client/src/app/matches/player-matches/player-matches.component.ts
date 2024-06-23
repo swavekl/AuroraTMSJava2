@@ -168,7 +168,7 @@ export class PlayerMatchesComponent implements OnInit, OnChanges {
       if (this.isMatchEntryStarted(match)) {
         const profileIds = (playerIndex === 0) ? match.playerAProfileId : match.playerBProfileId;
         const playerNames: string = this.matchCard.profileIdToNameMap[profileIds];
-        const message = `${playerNames} is about to be defaulted. Defaulting will set all game scores to 0 and it can't be undone.  Press \'OK\' to proceed or 'Cancel' to abort.`;
+        const message = `${playerNames} is about to be defaulted. Defaulting will set all remaining game scores to 0 and it can't be undone.  Press \'OK\' to proceed or 'Cancel' to abort.`;
         const config = {
           width: '450px', height: '260px', data: {
             message: message, contentAreaHeight: 140
@@ -220,29 +220,8 @@ export class PlayerMatchesComponent implements OnInit, OnChanges {
    * @private
    */
   private proceedWithDefaulting (match: Match, playerIndex: number) {
-    const sideADefaulted: boolean = (playerIndex === 0);
-    const sideBDefaulted: boolean = (playerIndex === 1);
-    const updatedMatch: Match = {
-      ...match,
-      sideADefaulted: sideADefaulted,
-      sideBDefaulted: sideBDefaulted,
-      game1ScoreSideA: 0,
-      game1ScoreSideB: 0,
-      game2ScoreSideA: 0,
-      game2ScoreSideB: 0,
-      game3ScoreSideA: 0,
-      game3ScoreSideB: 0,
-      game4ScoreSideA: 0,
-      game4ScoreSideB: 0,
-      game5ScoreSideA: 0,
-      game5ScoreSideB: 0,
-      game6ScoreSideA: 0,
-      game6ScoreSideB: 0,
-      game7ScoreSideA: 0,
-      game7ScoreSideB: 0
-    };
-    // console.log('updatedMatch.sideADefaulted', updatedMatch.sideADefaulted);
-    // console.log('updatedMatch.sideBDefaulted', updatedMatch.sideBDefaulted);
+    const numberOfGames: number = this.games.length;
+    const updatedMatch = Match.defaultMatch(match, playerIndex, numberOfGames, this.pointsPerGame);
     // console.log('proceedWithDefaulting updatedMatch', updatedMatch);
     this.updateMatch.emit(updatedMatch);
   }
