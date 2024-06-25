@@ -213,4 +213,16 @@ export class TournamentViewComponent implements OnInit, OnChanges {
     return hasEntry && isBeforeEntryCutoffDate && !this.enteringOrViewing;
   }
 
+  getEventAvailabilityClass(tournamentEvent: TournamentEvent): string {
+    const remainingSpots = tournamentEvent.maxEntries - tournamentEvent.numEntries;
+    if (remainingSpots > 4) {
+      return 'many-available';
+    } else if (remainingSpots > 0 && remainingSpots <= 4) {
+      return 'some-available';
+    } else {
+      return 'not-available';
+    }
+  }
+
+  protected readonly Math = Math;
 }

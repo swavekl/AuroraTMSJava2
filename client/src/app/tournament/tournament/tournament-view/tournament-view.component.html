@@ -64,13 +64,13 @@
               </button>
               <div class="fab-button-text">Players</div>
             </td>
-            <td class="heading mat-body-1">Players Entered</td>
+            <td class="heading mat-body-1">Player List</td>
           </tr>
           <tr>
             <td class="text-column mat-headline-6">
               <a [routerLink]="['/ui/tournaments/playerlist', tournament.id]"
                  [state]="{ tournamentStartDate: this.tournament.startDate}">
-                <span class="mat-headline-6">{{ tournament.numEntries }} ({{percentFull | percent}} full)</span>
+                <span class="mat-headline-6">{{ tournament.numEntries }} players ({{percentFull | percent}} full)</span>
               </a>
               <div>&nbsp;</div>
             </td>
@@ -142,8 +142,8 @@
         <table class="table-events-status">
           <thead>
           <tr>
-            <th class="event-name-day-column">Events</th>
-            <th class="event-spots-column">Spots (Taken/Max)</th>
+            <th class="event-name-day-column">Event</th>
+            <th class="event-spots-column">Taken&nbsp;/&nbsp;Available Spots</th>
           </tr>
           </thead>
           <tbody>
@@ -153,7 +153,8 @@
                   <div>{{ tournamentEvent.day | eventDay: tournamentStartDate }} {{ tournamentEvent.startTime | startTime }}</div>
               </td>
               <td class="event-spots-column">
-                  {{tournamentEvent.numEntries}} / {{tournamentEvent.maxEntries}}
+                <span>{{tournamentEvent.numEntries}} / </span>
+                <span [ngClass]="getEventAvailabilityClass(tournamentEvent)">{{Math.max(0, tournamentEvent.maxEntries - tournamentEvent.numEntries)}}</span>
               </td>
             </tr>
           </tbody>

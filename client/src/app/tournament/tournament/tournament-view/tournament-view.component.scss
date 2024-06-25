@@ -93,6 +93,23 @@ table.table-events-status {
         &.event-spots-column {
           text-align: right;
           width: 30%;
+          vertical-align: middle;
+        }
+
+        span {
+          font-size: 20px;
+
+          &.many-available {
+            color: green;
+          }
+
+          &.some-available {
+            color: yellow;
+          }
+
+          &.not-available {
+            color: red;
+          }
         }
       }
     }
