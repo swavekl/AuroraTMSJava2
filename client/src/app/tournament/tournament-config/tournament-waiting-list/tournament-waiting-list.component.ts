@@ -31,8 +31,11 @@ export class TournamentWaitingListComponent implements OnInit, OnChanges {
 
   returnUrl: string;
 
+  totalWaitedSpots: number;
+
   constructor() {
     this.sortBy = 'name';
+    this.totalWaitedSpots = 0;
   }
 
   ngOnInit(): void {
@@ -123,6 +126,11 @@ export class TournamentWaitingListComponent implements OnInit, OnChanges {
       (e1: EventWithPlayers, e2: EventWithPlayers) => {
         return e1.ordinalNumber < e2.ordinalNumber ? -1 : 1; }
     );
+    let totalWaitedSpots = 0;
+    for (const eventWithPlayers of this.eventWithPlayersList) {
+      totalWaitedSpots += eventWithPlayers.playersOnWaitingList.length;
+    }
+    this.totalWaitedSpots = totalWaitedSpots;
   }
 }
 

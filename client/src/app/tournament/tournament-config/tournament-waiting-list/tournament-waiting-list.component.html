@@ -6,9 +6,10 @@
     </mat-toolbar>
   </ng-container>
   <div style="padding: 0 0 16px 0; width: 100%;" fxLayout="row" fxLayoutAlign="center center">
+    <mat-label>Sort By:&nbsp;&nbsp;&nbsp;</mat-label>
     <mat-button-toggle-group name="sortBy" aria-label="Sort By" [value]="sortBy">
-      <mat-button-toggle value="name" (click)="onSortByName()">Sort by Player Name</mat-button-toggle>
-      <mat-button-toggle value="event" (click)="onSortByEvent()">Sort by Event</mat-button-toggle>
+      <mat-button-toggle value="name" (click)="onSortByName()">Player Name</mat-button-toggle>
+      <mat-button-toggle value="event" (click)="onSortByEvent()">Event</mat-button-toggle>
     </mat-button-toggle-group>
   </div>
   <div class="waiting-list-container">
@@ -34,6 +35,14 @@
           <td class="events-column">{{getPlayerEventList(entry.eventIds)}}</td>
         </tr>
         </tbody>
+        <tfoot>
+        <tr>
+          <th>Total Players: {{eventWithPlayersList.length}}</th>
+          <th></th>
+          <th>Total Waited Spots: {{totalWaitedSpots}}</th>
+          <th></th>
+        </tr>
+        </tfoot>
       </table>
     </div>
     <div *ngIf="sortBy == 'event'">
