@@ -249,7 +249,6 @@ export class TournamentPlayersListComponent implements OnInit, OnChanges {
     for (const entryInfo of this.entryInfos) {
       let aStatePlayerInfo: StatePlayersInfo = null;
       const playerState = (entryInfo.state === '' || entryInfo.state == null) ? 'N/A' : entryInfo.state;
-      console.log(`entryInfo.state = '${entryInfo.state}'`);
       for (const statePlayersInfo of localStatePlayerInfos) {
         if (statePlayersInfo.state === playerState) {
           aStatePlayerInfo = statePlayersInfo;
