@@ -19,6 +19,12 @@ th {
     border-bottom: 2px solid black;
   }
 
+  &.club-header {
+    text-align: left;
+    border-bottom: 2px solid black;
+    background: rgba(143, 126, 126, 0.18);
+  }
+
   div {
     &.event-name {
       font-size: 24px!important;
@@ -38,7 +44,7 @@ th {
 
 }
 
-table:not(#by-events-table) tbody {
+table:not(#by-events-table):not(#by-club-table) tbody {
   tr:nth-child(odd) {
     background: rgba(143, 126, 126, 0.18);
   }

@@ -18,6 +18,26 @@
           <tr>
             <td class="icon-column" rowspan="2">
               <button mat-fab color="primary">
+                <a (click)="showPlayers()">
+                  <mat-icon class="button-icon">groups</mat-icon>
+                </a>
+              </button>
+              <div class="fab-button-text">Players</div>
+            </td>
+            <td class="heading mat-body-1">Player List</td>
+          </tr>
+          <tr>
+            <td class="text-column mat-headline-6">
+              <a [routerLink]="['/ui/tournaments/playerlist', tournament.id]"
+                 [state]="{ tournamentStartDate: this.tournament.startDate}">
+                <span class="mat-headline-6">{{ tournament.numEntries }} players ({{percentFull | percent}} full)</span>
+              </a>
+              <div>&nbsp;</div>
+            </td>
+          </tr>
+          <tr>
+            <td class="icon-column" rowspan="2">
+              <button mat-fab color="primary">
                 <a [href]="getDirectionsURL()">
                   <mat-icon class="button-icon">assistant_direction</mat-icon>
                 </a>
@@ -53,26 +73,6 @@
                   {{tournament.email}}
                 </a>
               </div>
-            </td>
-          </tr>
-          <tr>
-            <td class="icon-column" rowspan="2">
-              <button mat-fab color="primary">
-                <a (click)="showPlayers()">
-                  <mat-icon class="button-icon">groups</mat-icon>
-                </a>
-              </button>
-              <div class="fab-button-text">Players</div>
-            </td>
-            <td class="heading mat-body-1">Player List</td>
-          </tr>
-          <tr>
-            <td class="text-column mat-headline-6">
-              <a [routerLink]="['/ui/tournaments/playerlist', tournament.id]"
-                 [state]="{ tournamentStartDate: this.tournament.startDate}">
-                <span class="mat-headline-6">{{ tournament.numEntries }} players ({{percentFull | percent}} full)</span>
-              </a>
-              <div>&nbsp;</div>
             </td>
           </tr>
           <tr *ngIf="tournament.configuration.blankEntryUrl != null">

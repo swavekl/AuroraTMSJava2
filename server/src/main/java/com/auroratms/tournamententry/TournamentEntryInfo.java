@@ -28,4 +28,10 @@ public class TournamentEntryInfo {
 
     // ids of events player is waiting on
     private List<Long> waitingListEventIds;
+
+    // name of player's home club
+    private String clubName;
+
+    // state abbreviation
+    private String state;
 }

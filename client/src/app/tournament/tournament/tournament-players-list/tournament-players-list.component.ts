@@ -27,6 +27,12 @@ export class TournamentPlayersListComponent implements OnInit, OnChanges {
   // map of event id to event object for faster lookup
   private eventIdToEventMap: any;
 
+  // players grouped by club
+  clubPlayersInfos: ClubPlayersInfo [] = null;
+
+  // players grouped by state
+  statePlayersInfos: StatePlayersInfo [] = null;
+
   constructor() {
     this.sortBy = 'name';
   }
@@ -61,6 +67,7 @@ export class TournamentPlayersListComponent implements OnInit, OnChanges {
     if (this.tournamentEvents != null && this.tournamentEvents.length > 0
       && this.entryInfos != null && this.entryInfos.length > 0) {
       this.tournamentEventsWithPlayers = this.categorizeEntriesByEvents(this.entryInfos, this.tournamentEvents);
+      this.clubPlayersInfos = null;
     }
   }
 
@@ -118,6 +125,16 @@ export class TournamentPlayersListComponent implements OnInit, OnChanges {
   onSortByEvent() {
     // they are already categorized - just show them
     this.sortBy = 'event';
+  }
+
+  onSortByState() {
+    this.sortByState();
+    this.sortBy = 'state';
+  }
+
+  onSortByClub() {
+    this.sortByClub();
+    this.sortBy = 'club';
   }
 
   /**
@@ -193,6 +210,73 @@ export class TournamentPlayersListComponent implements OnInit, OnChanges {
       return '';
     }
   }
+
+  sortByClub() {
+    let localClubPlayerInfos: ClubPlayersInfo [] = [];
+    for (const entryInfo of this.entryInfos) {
+      let aClubPlayerInfo: ClubPlayersInfo = null;
+      const playerClub = entryInfo.clubName ?? 'N/A';
+      for (const clubPlayersInfo of localClubPlayerInfos) {
+        if (clubPlayersInfo.clubName === playerClub) {
+          aClubPlayerInfo = clubPlayersInfo;
+          break;
+        }
+      }
+
+      if (aClubPlayerInfo == null) {
+        aClubPlayerInfo = new ClubPlayersInfo();
+        aClubPlayerInfo.clubName = playerClub;
+        localClubPlayerInfos.push(aClubPlayerInfo);
+      }
+
+      const playerInfo: PlayerInfo = new PlayerInfo();
+      playerInfo.playerName = this.fullName(entryInfo.firstName, entryInfo.lastName);
+      playerInfo.seedRating = entryInfo.seedRating;
+      playerInfo.eligibilityRating = entryInfo.eligibilityRating;
+
+      aClubPlayerInfo.playerInfos.push(playerInfo);
+    }
+
+    localClubPlayerInfos.sort((left: ClubPlayersInfo, right: ClubPlayersInfo) => {
+      return left.clubName.localeCompare(right.clubName);
+    });
+
+    this.clubPlayersInfos = localClubPlayerInfos;
+  }
+
+  sortByState() {
+    let localStatePlayerInfos: StatePlayersInfo [] = [];
+    for (const entryInfo of this.entryInfos) {
+      let aStatePlayerInfo: StatePlayersInfo = null;
+      const playerState = (entryInfo.state === '' || entryInfo.state == null) ? 'N/A' : entryInfo.state;
+      console.log(`entryInfo.state = '${entryInfo.state}'`);
+      for (const statePlayersInfo of localStatePlayerInfos) {
+        if (statePlayersInfo.state === playerState) {
+          aStatePlayerInfo = statePlayersInfo;
+          break;
+        }
+      }
+
+      if (aStatePlayerInfo == null) {
+        aStatePlayerInfo = new StatePlayersInfo();
+        aStatePlayerInfo.state = playerState;
+        localStatePlayerInfos.push(aStatePlayerInfo);
+      }
+
+      const playerInfo: PlayerInfo = new PlayerInfo();
+      playerInfo.playerName = this.fullName(entryInfo.firstName, entryInfo.lastName);
+      playerInfo.seedRating = entryInfo.seedRating;
+      playerInfo.eligibilityRating = entryInfo.eligibilityRating;
+
+      aStatePlayerInfo.playerInfos.push(playerInfo);
+    }
+
+    localStatePlayerInfos.sort((left: StatePlayersInfo, right: StatePlayersInfo) => {
+      return left.state.localeCompare(right.state);
+    });
+
+    this.statePlayersInfos = localStatePlayerInfos;
+  }
 }
 
 /**
@@ -243,4 +327,14 @@ export class PlayerInfo {
   playerName: string;
   eligibilityRating: number;
   seedRating: number;
+}
+
+export class ClubPlayersInfo {
+  clubName: string;
+  playerInfos: PlayerInfo [] = [];
+}
+
+export class StatePlayersInfo {
+  state: string;
+  playerInfos: PlayerInfo [] = [];
 }

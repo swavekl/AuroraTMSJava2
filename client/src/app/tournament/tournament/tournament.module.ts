@@ -24,6 +24,7 @@ import { TournamentPlayersListBigComponent } from './tournament-players-list-big
 import { TournamentPlayersListBigContainerComponent } from './tournament-players-list-big/tournament-players-list-big-container.component';
 import {MatToolbarModule} from '@angular/material/toolbar';
 import {MatTabsModule} from '@angular/material/tabs';
+import {MatLabel} from '@angular/material/form-field';
 
 
 @NgModule({
@@ -53,7 +54,8 @@ import {MatTabsModule} from '@angular/material/tabs';
         MatMenuModule,
         DrawsCommonModule,
         MatToolbarModule,
-        MatTabsModule
+        MatTabsModule,
+        MatLabel
     ]
 })
 export class TournamentModule {

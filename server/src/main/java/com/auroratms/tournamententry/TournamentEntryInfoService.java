@@ -1,5 +1,7 @@
 package com.auroratms.tournamententry;
 
+import com.auroratms.club.ClubEntity;
+import com.auroratms.club.ClubService;
 import com.auroratms.profile.UserProfile;
 import com.auroratms.profile.UserProfileExt;
 import com.auroratms.profile.UserProfileExtService;
@@ -11,6 +13,7 @@ import com.auroratms.usatt.UsattDataService;
 import com.auroratms.usatt.UsattPlayerRecord;
 import com.auroratms.usatt.UsattPlayerRecordRepository;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,19 +33,21 @@ public class TournamentEntryInfoService {
 
     private final UsattDataService usattDataService;
     private final UsattPlayerRecordRepository usattPlayerRecordRepository;
+    private final ClubService clubService;
 
     public TournamentEntryInfoService(TournamentEntryService tournamentEntryService,
                                       TournamentEventEntryService tournamentEventEntryService,
                                       UserProfileExtService userProfileExtService,
                                       UsattDataService usattDataService,
                                       UserProfileService userProfileService,
-                                      UsattPlayerRecordRepository usattPlayerRecordRepository) {
+                                      UsattPlayerRecordRepository usattPlayerRecordRepository, ClubService clubService) {
         this.tournamentEntryService = tournamentEntryService;
         this.tournamentEventEntryService = tournamentEventEntryService;
         this.userProfileExtService = userProfileExtService;
         this.usattDataService = usattDataService;
         this.userProfileService = userProfileService;
         this.usattPlayerRecordRepository = usattPlayerRecordRepository;
+        this.clubService = clubService;
     }
 
     /**
@@ -80,15 +85,27 @@ public class TournamentEntryInfoService {
         // collect membership ids
         Map<String, UserProfileExt> userProfileExtMap = userProfileExtService.findByProfileIds(profileIds);
         List<Long> membershipIds = new ArrayList<>(profileIdsSet.size());
+        Map<Long, String> clubInfoMap = new HashMap<>();
         Map<Long, String> reverseMapMembershipIdToProfileId = new HashMap<>();
         for (Map.Entry<String, UserProfileExt> entry : userProfileExtMap.entrySet()) {
             UserProfileExt userProfileExt = entry.getValue();
             membershipIds.add(userProfileExt.getMembershipId());
             reverseMapMembershipIdToProfileId.put(userProfileExt.getMembershipId(), userProfileExt.getProfileId());
+            if (userProfileExt.getClubFk() != null) {
+                clubInfoMap.put(userProfileExt.getClubFk(), "");
+            }
+        }
+
+        // get club infos
+        List<Long> clubIds = new ArrayList<>(clubInfoMap.keySet());
+        List<ClubEntity> clubList = clubService.findAllByIdIn(clubIds);
+        for (ClubEntity clubEntity : clubList) {
+            clubInfoMap.put(clubEntity.getId(), clubEntity.getClubName());
         }
 
         // pull player records for first and last name
         List<UsattPlayerRecord> playerRecords = usattDataService.findAllByMembershipIdIn(membershipIds);
+        Set<String> missingStateProfileIdsSet = new HashSet<>();
         for (UsattPlayerRecord playerRecord : playerRecords) {
             Long membershipId = playerRecord.getMembershipId();
             String profileId = reverseMapMembershipIdToProfileId.get(membershipId);
@@ -97,6 +114,18 @@ public class TournamentEntryInfoService {
                 if (tournamentEntryInfo != null) {
                     tournamentEntryInfo.setFirstName(playerRecord.getFirstName());
                     tournamentEntryInfo.setLastName(playerRecord.getLastName());
+                    // fill club name
+                    UserProfileExt userProfileExt = userProfileExtMap.get(profileId);
+                    if (userProfileExt != null && userProfileExt.getClubFk() != null) {
+                        String clubName = clubInfoMap.get(userProfileExt.getClubFk());
+                        tournamentEntryInfo.setClubName(clubName);
+                    }
+                    // fill state
+                    if (StringUtils.isNotEmpty(playerRecord.getState())) {
+                        tournamentEntryInfo.setState(playerRecord.getState());
+                    } else {
+                        missingStateProfileIdsSet.add(profileId);
+                    }
                 }
             } else {
                 System.out.println("didn't find profile id for membership " + membershipId);
@@ -119,6 +148,18 @@ public class TournamentEntryInfoService {
                         tournamentEntryInfo.setSeedRating(playerRecord.getTournamentRating());
                         tournamentEntryInfo.setEligibilityRating(playerRecord.getTournamentRating());
                     }
+                }
+            }
+        }
+
+        // fill missing states
+        List<String> missingProfileIds2 = new ArrayList<>(missingStateProfileIdsSet);
+        Collection<UserProfile> userProfilesWithState = userProfileService.listByProfileIds(missingProfileIds2);
+        for (UserProfile userProfile : userProfilesWithState) {
+            TournamentEntryInfo tournamentEntryInfo = mapProfileIdToInfo.get(userProfile.getUserId());
+            if (tournamentEntryInfo != null) {
+                if (StringUtils.isNotEmpty(userProfile.getState())) {
+                    tournamentEntryInfo.setState(userProfile.getState());
                 }
             }
         }
