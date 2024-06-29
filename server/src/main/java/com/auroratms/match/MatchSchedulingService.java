@@ -159,6 +159,7 @@ public class MatchSchedulingService {
         // calculate number of required tables to play this event if it were completely full
         int numTablesPerGroup = event.getNumTablesPerGroup();
         int maxEntries = event.getMaxEntries();
+        maxEntries = (event.isDoubles()) ? maxEntries / 2 : maxEntries;
         int playersPerGroup = event.getPlayersPerGroup();
         int maxNumGroups = maxEntries / playersPerGroup;
         int maxTablesNeeded = maxNumGroups * numTablesPerGroup;
