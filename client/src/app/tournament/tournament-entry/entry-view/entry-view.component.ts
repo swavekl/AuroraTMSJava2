@@ -111,7 +111,7 @@ export class EntryViewComponent implements OnInit, OnChanges, OnDestroy {
   private initPricingCalculator(pricingMethod: PricingMethod) {
     const isJunior = this.membershipUtil.isPlayerAJunior(this.playerProfile.dateOfBirth, this.tournament.startDate);
     let showLateEntryFee = false;
-    if (this.paymentsRefunds.length > 0) {
+    if (this.paymentsRefunds?.length > 0) {
       this.paymentsRefunds.forEach((paymentRefund: PaymentRefund) => {
         if (paymentRefund.status === PaymentRefundStatus.PAYMENT_COMPLETED) {
           const isPaymentOnTime = new DateUtils().isDateBefore(paymentRefund.transactionDate, this.tournament.configuration.lateEntryDate);
