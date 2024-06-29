@@ -17,6 +17,7 @@ import {Profile} from '../../../profile/profile';
 import {SummaryReportItem} from '../pricecalculator/summary-report.model';
 import {PaymentRefund} from '../../../account/model/payment-refund.model';
 import {ChangeRatingDialogComponent} from '../change-rating-dialog/change-rating-dialog.component';
+import {PaymentRefundStatus} from '../../../account/model/payment-refund-status.enum';
 
 @Component({
   selector: 'app-entry-view',
@@ -94,7 +95,7 @@ export class EntryViewComponent implements OnInit, OnChanges, OnDestroy {
       this.playerProfile = profileChanges.currentValue;
     }
 
-    if (this.playerProfile != null && this.tournament != null && this.entry) {
+    if (this.playerProfile != null && this.tournament != null && this.entry && this.paymentsRefunds != null) {
       this.priceCalculator = this.initPricingCalculator(this.tournament.configuration.pricingMethod);
       this.entryTotal = this.getTotal();
       this.summaryReportItems = this.getSummaryReportItems();
@@ -109,17 +110,25 @@ export class EntryViewComponent implements OnInit, OnChanges, OnDestroy {
    */
   private initPricingCalculator(pricingMethod: PricingMethod) {
     const isJunior = this.membershipUtil.isPlayerAJunior(this.playerProfile.dateOfBirth, this.tournament.startDate);
-    const isLateEntry = new DateUtils().isDateBefore(this.tournament.configuration.lateEntryDate, new Date());
+    let showLateEntryFee = false;
+    if (this.paymentsRefunds.length > 0) {
+      this.paymentsRefunds.forEach((paymentRefund: PaymentRefund) => {
+        if (paymentRefund.status === PaymentRefundStatus.PAYMENT_COMPLETED) {
+          const isPaymentOnTime = new DateUtils().isDateBefore(paymentRefund.transactionDate, this.tournament.configuration.lateEntryDate);
+          showLateEntryFee = showLateEntryFee || !isPaymentOnTime;
+        }
+      });
+    }
     switch (pricingMethod) {
       case PricingMethod.STANDARD:
         return new StandardPriceCalculator(this.membershipOptions,
           this.tournament.configuration.registrationFee,
-          this.tournament.configuration.lateEntryFee, isJunior, isLateEntry,
+          this.tournament.configuration.lateEntryFee, isJunior, showLateEntryFee,
           this.tournamentStartDate, this.tournamentCurrency);
       case PricingMethod.DISCOUNTED:
         return new DiscountedPriceCalculator(this.membershipOptions,
           this.tournament.configuration.registrationFee,
-          this.tournament.configuration.lateEntryFee, isJunior, isLateEntry,
+          this.tournament.configuration.lateEntryFee, isJunior, showLateEntryFee,
           this.tournamentStartDate, this.tournamentCurrency);
       // default:
       //   return new StandardPriceCalculator(this.membershipOptions);
