@@ -6,9 +6,9 @@
 </head>
 <body>
 Hello <span th:text="${playerFirstName}"></span>,
-<p>
-A spot opened up in the <span th:text="${eventName}"></span> event of the <span th:text="${tournamentName}"></span>
-and since you were on the waiting list, you were automatically placed in this event.
+<p>A spot opened up in the <span th:text="${eventName}"></span> event on <span th:text="${eventDateAndTime}"></span>
+ in the <span th:text="${tournamentName}"></span>. You were on the waiting list so you were automatically
+ placed in this event.
 </p>
 <p>
 However, your event entry is not confirmed until we receive a payment, which for this event is
@@ -19,6 +19,27 @@ the spot will be given to the next person on the waiting list.  If you are no lo
 <p>
 To complete it or to withdraw from this event please visit this <a th:href="${eventEntryUrl}">link</a>.
 </p>
+
+<div th:if="${enteredEvents.size > 0}">
+    <span>Below are the other events that you have already confirmed:</span>
+    <table>
+        <thead>
+        <tr>
+            <th>Event</th>
+            <th>Day & Time</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="event: ${enteredEvents}">
+            <td th:text="${event.eventName}">*</td>
+            <td th:text="${event.eventDayAndTime}">Fri 6:30 PM</td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+<br>
+<br>
 Sincerely,<br>
 TTAurora Admin
 </body>

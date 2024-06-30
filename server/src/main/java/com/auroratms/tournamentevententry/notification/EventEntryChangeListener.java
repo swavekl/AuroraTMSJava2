@@ -15,6 +15,8 @@ import com.auroratms.tournament.Tournament;
 import com.auroratms.tournament.TournamentService;
 import com.auroratms.tournamententry.TournamentEntry;
 import com.auroratms.tournamententry.TournamentEntryService;
+import com.auroratms.tournamententry.notification.EventEntryInfo;
+import com.auroratms.tournamententry.notification.TournamentEventListener;
 import com.auroratms.tournamentevententry.EventEntryStatus;
 import com.auroratms.tournamentevententry.TournamentEventEntry;
 import com.auroratms.tournamentevententry.TournamentEventEntryService;
@@ -24,6 +26,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,10 +34,7 @@ import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 
 import javax.mail.MessagingException;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Listener for handling tournament event withdrawal (manual or as a result of cleanup).
@@ -144,6 +144,7 @@ public class EventEntryChangeListener {
             String eventName = tournamentEvent.getName();
             double feeAdult = tournamentEvent.getFeeAdult();
             double feeJunior = tournamentEvent.getFeeJunior();
+            String eventDateAndTime = new EventEntryInfo(tournament.getStartDate(),tournamentEvent).getEventDayAndTime();
 
             // send email to player and cc TD
             Map<String, Object> templateModel = new HashMap<>();
@@ -157,11 +158,15 @@ public class EventEntryChangeListener {
             templateModel.put("eventName", eventName);
             templateModel.put("eventPrice", feeAdult);
             templateModel.put("eventPriceJunior", feeJunior);
+            templateModel.put("eventDateAndTime", eventDateAndTime);
 
             String currency = this.getTournamentCurrency(tournamentFk);
             templateModel.put("currency", currency);
 
             templateModel.put("cartSessionExpiration", futureCartSessionStartDate);
+
+            // get other events
+            addEventsInformation(templateModel, tournament, tournamentEventEntry.getTournamentEntryFk());
 
             String eventEntryUrl = String.format("%s/ui/entries/entrywizard/%d/edit/%d",
                     this.clientHostUrl, tournamentFk, tournamentEntry.getId());
@@ -189,5 +194,42 @@ public class EventEntryChangeListener {
             }
         }
         return currency;
+    }
+
+    /**
+     * Adds events (confirmed and waited on) to the context
+     * @param templateModel
+     * @param tournament
+     * @param tournamentEntryId
+     */
+    private int addEventsInformation(Map<String, Object> templateModel, Tournament tournament, long tournamentEntryId) {
+        PageRequest pageRequest = PageRequest.of(0, 200);
+        Collection<TournamentEvent> eventEntityCollection = tournamentEventEntityService.list(tournament.getId(), pageRequest);
+        Date tournamentStartDate = tournament.getStartDate();
+
+        // get this player's entries in this tournament
+        List<TournamentEventEntry> eventEntries = tournamentEventEntryService.getEntries(tournamentEntryId);
+        List<EventEntryInfo> enteredEvents = new ArrayList<>();
+
+        for (TournamentEventEntry eventEntry : eventEntries) {
+            if (Objects.requireNonNull(eventEntry.getStatus()) == EventEntryStatus.ENTERED) {
+                TournamentEvent tournamentEvent = getEvent(eventEntry.getTournamentEventFk(), eventEntityCollection);
+                if (tournamentEvent != null) {
+                    enteredEvents.add(new EventEntryInfo(tournamentStartDate, tournamentEvent));
+                }
+            }
+        }
+
+        templateModel.put("enteredEvents", enteredEvents);
+        return enteredEvents.size();
+    }
+
+    private TournamentEvent getEvent(long tournamentEventFk, Collection<TournamentEvent> eventEntityCollection) {
+        for (TournamentEvent tournamentEvent : eventEntityCollection) {
+            if (tournamentEvent.getId().equals(tournamentEventFk)) {
+                return tournamentEvent;
+            }
+        }
+        return null;
     }
 }
