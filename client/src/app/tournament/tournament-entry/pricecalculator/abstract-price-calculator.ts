@@ -4,6 +4,7 @@ import {TournamentEventEntryInfo} from '../model/tournament-event-entry-info-mod
 import {EventDayPipePipe} from '../../../shared/pipes/event-day-pipe.pipe';
 import {StartTimePipe} from '../../../shared/pipes/start-time.pipe';
 import {CurrencyPipe} from '@angular/common';
+import {EventEntryStatus} from '../model/event-entry-status.enum';
 
 export class AbstractPriceCalculator {
 
@@ -112,7 +113,8 @@ export class AbstractPriceCalculator {
   private addEventCommon (enteredEvent: TournamentEventEntryInfo): SummaryReportItem {
     const eventLine = new SummaryReportItem();
     eventLine.isHeader = false;
-    eventLine.itemText =  enteredEvent?.event?.name;
+    const isPending = (enteredEvent?.status !== EventEntryStatus.ENTERED);
+    eventLine.itemText =  enteredEvent?.event?.name + ((isPending) ? " (*)" : "");
     // enteredEvent?.event?.day | eventDay: tournamentStartDate }}
     const eventDayPipe: EventDayPipePipe = new EventDayPipePipe();
     const strEventDay = eventDayPipe.transform(enteredEvent?.event?.day, this.tournamentStartDate);

@@ -226,6 +226,13 @@ public class TournamentEntryInfoService {
                             info.setWaitingListEventIds(waitingListEventIds);
                         }
                         waitingListEventIds.add(eventFk);
+                    } else if (eventEntry.getStatus() == EventEntryStatus.PENDING_CONFIRMATION){
+                        List<Long> pendingList = info.getPendingEventIds();
+                        if (pendingList == null) {
+                            pendingList = new ArrayList<>();
+                            info.setPendingEventIds(pendingList);
+                        }
+                        pendingList.add(eventFk);
                     } else {
                         List<Long> eventIds = info.getEventIds();
                         if (eventIds == null) {

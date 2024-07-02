@@ -29,6 +29,9 @@ public class TournamentEntryInfo {
     // ids of events player is waiting on
     private List<Long> waitingListEventIds;
 
+    // ids of events in pending confirmation state
+    private List<Long> pendingEventIds;
+
     // name of player's home club
     private String clubName;
 

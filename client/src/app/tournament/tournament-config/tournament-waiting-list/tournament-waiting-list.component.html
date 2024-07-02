@@ -6,7 +6,7 @@
     </mat-toolbar>
   </ng-container>
   <div style="padding: 0 0 16px 0; width: 100%;" fxLayout="row" fxLayoutAlign="center center">
-    <mat-label>Sort By:&nbsp;&nbsp;&nbsp;</mat-label>
+    <span>&nbsp;&nbsp;Sort By:&nbsp;&nbsp;&nbsp;</span>
     <mat-button-toggle-group name="sortBy" aria-label="Sort By" [value]="sortBy">
       <mat-button-toggle value="name" (click)="onSortByName()">Player Name</mat-button-toggle>
       <mat-button-toggle value="event" (click)="onSortByEvent()">Event</mat-button-toggle>
@@ -14,13 +14,17 @@
   </div>
   <div class="waiting-list-container">
     <div *ngIf="sortBy == 'name'">
-      <table class="waiting-list-by-player-table">
+      <div  *ngIf="tournamentEntryInfos?.length === 0">
+        Waiting list is empty
+      </div>
+      <table class="waiting-list-by-player-table" *ngIf="tournamentEntryInfos">
         <thead>
         <tr>
           <th class="player-name-column">Player Name/Profile</th>
           <th class="events-column">Entry</th>
           <th class="events-column">Waited Events</th>
           <th class="events-column">Confirmed Events</th>
+          <th class="events-column">Pending Confirmation Events</th>
         </tr>
         </thead>
         <tbody>
@@ -33,11 +37,12 @@
           </td>
           <td class="events-column">{{getPlayerEventList(entry.waitingListEventIds)}}</td>
           <td class="events-column">{{getPlayerEventList(entry.eventIds)}}</td>
+          <td class="events-column">{{getPlayerEventList(entry.pendingEventIds)}}</td>
         </tr>
         </tbody>
         <tfoot>
         <tr>
-          <th>Total Players: {{tournamentEntryInfos.length}}</th>
+          <th>Total Players: {{tournamentEntryInfos?.length}}</th>
           <th></th>
           <th>Total Waited Spots: {{totalWaitedSpots}}</th>
           <th></th>

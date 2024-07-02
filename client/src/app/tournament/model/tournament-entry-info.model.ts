@@ -23,6 +23,9 @@ export class TournamentEntryInfo {
   // ids of events player is waiting on
   waitingListEventIds: number [];
 
+  // ids of events in pending confirmation state
+  pendingEventIds: number [];
+
   clubName: string;
 
   state: string;
