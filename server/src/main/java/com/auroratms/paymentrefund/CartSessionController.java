@@ -40,7 +40,11 @@ public class CartSessionController {
                 return ResponseEntity.created(uri).body(cartSession);
             } else {
                 log.info("Reused existing session with id " + existing.getSessionUUID() + " which was last updated on " + existing.getSessionLastUpdate());
-                CartSession updatedSession = cartSessionService.updateSession(existing.getSessionUUID());
+                CartSession updatedSession = existing;
+                if (existing.getSessionLastUpdate().before(new Date())) {
+                    updatedSession = cartSessionService.updateSession(existing.getSessionUUID());
+                    log.info("Updated existing session with id " + updatedSession.getSessionUUID() + ". The new expiration date is " + updatedSession.getSessionLastUpdate());
+                }
                 return ResponseEntity.ok(updatedSession);
             }
         } catch (Exception e) {

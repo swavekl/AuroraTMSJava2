@@ -38,7 +38,7 @@ public class CartSessionService {
         cartSession.setObjectId(objectId);
 
         CartSession savedCartSession = cartSessionRepository.saveAndFlush(cartSession);
-        log.info("Started cart session with id " + savedCartSession.getSessionUUID());
+        log.info("Started cart session with id " + savedCartSession.getSessionUUID() + "  for object with id " + objectId);
         return savedCartSession;
     }
 
