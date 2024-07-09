@@ -2,6 +2,7 @@ import {NgModule} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {RouterModule} from '@angular/router';
 import {FormsModule} from '@angular/forms';
+import {CdkDrag, CdkDragPlaceholder, CdkDropList} from '@angular/cdk/drag-drop';
 import {MatCardModule} from '@angular/material/card';
 import {MatListModule} from '@angular/material/list';
 import {MatIconModule} from '@angular/material/icon';
@@ -19,11 +20,12 @@ import {MatCheckboxModule} from '@angular/material/checkbox';
 import {MatDialogModule} from '@angular/material/dialog';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {MatButtonToggleModule} from '@angular/material/button-toggle';
+import {MatStepperModule} from '@angular/material/stepper';
+import {MatSlideToggleModule} from '@angular/material/slide-toggle';
 import {FlexLayoutModule} from 'ng-flex-layout';
 
 import {SharedModule} from '../../shared/shared.module';
 import {TournamentConfigRoutingModule} from './tournament-config-routing.module';
-
 import {TournamentConfigListContainerComponent} from './tournament-config-list/tournament-config-list-container.component';
 import {TournamentConfigListComponent} from './tournament-config-list/tournament-config-list.component';
 import {TournamentConfigEditContainerComponent} from './tournament-config-edit/tournament-config-edit-container.component';
@@ -37,8 +39,8 @@ import {PrizeInfoDialogComponent} from './tournament-event-config/prize-info-dia
 import {PrizeInfoValidatorDirective} from './tournament-event-config/prize-info-dialog/prize-info-validator.directive';
 import {TournamentWaitingListComponent} from './tournament-waiting-list/tournament-waiting-list.component';
 import {TournamentWaitingListContainerComponent} from './tournament-waiting-list/tournament-waiting-list-container.component';
-import {MatSlideToggleModule} from '@angular/material/slide-toggle';
-import {CdkDrag, CdkDragPlaceholder, CdkDropList} from '@angular/cdk/drag-drop';
+import {AddManyEventsDialogComponent} from './add-many-events-dialog/add-many-events-dialog.component';
+
 
 @NgModule({
   declarations: [
@@ -54,7 +56,8 @@ import {CdkDrag, CdkDragPlaceholder, CdkDropList} from '@angular/cdk/drag-drop';
     PrizeInfoDialogComponent,
     PrizeInfoValidatorDirective,
     TournamentWaitingListComponent,
-    TournamentWaitingListContainerComponent
+    TournamentWaitingListContainerComponent,
+    AddManyEventsDialogComponent
   ],
   imports: [
     CommonModule,
@@ -83,7 +86,8 @@ import {CdkDrag, CdkDragPlaceholder, CdkDropList} from '@angular/cdk/drag-drop';
     MatSlideToggleModule,
     CdkDropList,
     CdkDrag,
-    CdkDragPlaceholder
+    CdkDragPlaceholder,
+    MatStepperModule
   ],
   providers: []
 })

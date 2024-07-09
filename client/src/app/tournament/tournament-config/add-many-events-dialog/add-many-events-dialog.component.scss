@@ -1,0 +1,86 @@
+$container-height: 350px;
+
+.event-list{
+  height: $container-height;
+  border: 1px solid lightgray;
+  width: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+mat-dialog-content {
+  //border: 1px solid red;
+  margin: 0;
+}
+
+mat-dialog-actions {
+  //border: 1px solid blue;
+}
+
+div.start-times-container {
+  //border: 1px solid lightgray;
+  height: $container-height;
+  overflow-x: hidden;
+  overflow-y: auto;
+
+  table.day-time-table {
+
+    tr {
+      border-bottom: 1px solid lightgray;
+
+      td.name-column {
+        width: 220px;
+      }
+
+      mat-form-field.day-column {
+        width: 140px;
+        margin: 0 4px;
+      }
+
+      mat-form-field.time-column {
+        width: 140px;
+        margin: 0 4px;
+      }
+    }
+  }
+}
+
+.example-drag-cursor {
+  margin-right: 16px;
+  cursor: grab;
+}
+
+.drag-placeholder {
+  background: #ccc;
+  border: dotted 3px #999;
+  min-height: 50px;
+  transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+div.prizes-list {
+  height: $container-height;
+  width: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+
+  div.prizes-list-row {
+    border-bottom: 1px solid lightgray;
+
+    mat-form-field {
+      //padding: 0 4px;
+      margin: 0 4px;
+    }
+  }
+}
+
+div.events-order {
+  //border: 1px solid red;
+  height: $container-height;
+  width: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+div.stepper-actions {
+  margin-top: 10px;
+}

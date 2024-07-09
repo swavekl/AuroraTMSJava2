@@ -1,4 +1,4 @@
-import {Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChange, SimpleChanges} from '@angular/core';
+import {Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChange, SimpleChanges} from '@angular/core';
 import {TournamentEvent} from '../tournament-event.model';
 import {Router} from '@angular/router';
 import {MatDialog} from '@angular/material/dialog';
@@ -6,13 +6,16 @@ import {SelectEventDialogComponent} from '../select-event-dialog/select-event-di
 import {DateUtils} from '../../../shared/date-utils';
 import {CdkDragDrop, moveItemInArray} from '@angular/cdk/drag-drop';
 import {ConfirmationPopupComponent} from '../../../shared/confirmation-popup/confirmation-popup.component';
+import {AddManyEventsDialogComponent} from '../add-many-events-dialog/add-many-events-dialog.component';
+import {Subscription} from 'rxjs';
+import {Tournament} from '../tournament.model';
 
 @Component({
   selector: 'app-tournament-event-config-list',
   templateUrl: './tournament-event-config-list.component.html',
-  styleUrls: ['./tournament-event-config-list.component.css']
+  styleUrls: ['./tournament-event-config-list.component.scss']
 })
-export class TournamentEventConfigListComponent implements OnInit, OnChanges {
+export class TournamentEventConfigListComponent implements OnInit, OnChanges, OnDestroy {
 
   // tournament events
   @Input()
@@ -37,13 +40,19 @@ export class TournamentEventConfigListComponent implements OnInit, OnChanges {
   columnsToDisplay: string[] = ['num', 'name', 'day', 'startTime', 'fee', 'numEntries', 'actions'];
 
   @Output() delete = new EventEmitter();
-  @Output() renumber = new EventEmitter();
+  @Output() update = new EventEmitter();
+
+  private subscriptions: Subscription = new Subscription();
 
   constructor(private router: Router,
               public dialog: MatDialog) {
   }
 
   ngOnInit(): void {
+  }
+
+  ngOnDestroy(): void {
+    this.subscriptions.unsubscribe();
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -131,7 +140,7 @@ export class TournamentEventConfigListComponent implements OnInit, OnChanges {
         ordinalNumber: i + 1
       });
     }
-    this.renumber.emit(renumberedEvents);
+    this.update.emit(renumberedEvents);
   }
 
   /**
@@ -183,6 +192,54 @@ export class TournamentEventConfigListComponent implements OnInit, OnChanges {
     }
 
     this.events = renumberedEvents;
-    this.renumber.emit(updatedEvents);
+    this.update.emit(updatedEvents);
+  }
+
+  addManyEvent() {
+      const config = {
+        width: '750px', height: '580px', data: {tournamentId: this.tournamentId}
+
+      };
+      const dialogRef = this.dialog.open(AddManyEventsDialogComponent, config);
+      const subscription = dialogRef.afterClosed().subscribe(result => {
+        if (result.action === 'ok') {
+          let ordinalNumber = 1;
+          this.events.forEach((existingEvent: TournamentEvent) => {
+            ordinalNumber = Math.max(ordinalNumber, existingEvent.ordinalNumber);
+          });
+
+          // merge old and new events
+          let mergedEvents: TournamentEvent[] = [...this.events];
+          result.configuredEvents.forEach((newEvent: TournamentEvent) => {
+            let foundIndex = -1;
+            const foundEvent: TournamentEvent = mergedEvents.find((existingEvent: TournamentEvent, index: number) => {
+              const found: boolean = (existingEvent.name === newEvent.name);
+              if (found) {
+                foundIndex = index;
+              }
+              return found;
+            });
+            if (foundIndex === -1) {
+              // add new one at the end
+              mergedEvents.push(newEvent);
+            } else {
+              // replace existing event
+              mergedEvents.splice(foundIndex, 1, newEvent);
+            }
+          });
+
+          // reorder them
+          let orderedEvents: TournamentEvent[] = [];
+          mergedEvents.forEach((tournamentEvent: TournamentEvent, index: number) => {
+            orderedEvents.push({...tournamentEvent, ordinalNumber: index + 1});
+          });
+
+          this.events = orderedEvents;
+
+          this.update.emit(this.events);
+      }
+    });
+    this.subscriptions.add(subscription);
+
   }
 }

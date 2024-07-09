@@ -16,7 +16,7 @@ import {tap} from 'rxjs/operators';
                                       [numEventEntries]="numEventEntries"
                                       [maxNumEvenEntries]="maxNumEvenEntries"
                                       (delete)="onDelete($event)"
-                                      (renumber)="onRenumber($event)">
+                                      (update)="onUpdateMultiple($event)">
     </app-tournament-event-config-list>
   `,
   styles: []
@@ -70,7 +70,7 @@ export class TournamentEventConfigListContainerComponent implements OnInit, OnCh
     this.tournamentEventConfigService.delete(eventId);
   }
 
-  onRenumber(updatedEvents: TournamentEvent[]) {
+  onUpdateMultiple(updatedEvents: TournamentEvent[]) {
     for (const updatedEvent of updatedEvents) {
       this.tournamentEventConfigService.upsert(updatedEvent);
     }

@@ -1,0 +1,142 @@
+<form #f="ngForm" name="form" fxFlexFill>
+  <h2 mat-dialog-title>Add Multiple Events</h2>
+  <mat-dialog-content>
+    <mat-stepper #stepper>
+      <mat-step label="Events" state="events">
+        <div fxLayout="row" fxLayoutAlign="start start">
+          <mat-selection-list role="list" class="event-list" #eventList>
+            @for (availableEvent of availableEvents; track selectedEvents) {
+              <mat-list-option (click)="onSelectedEvent(availableEvent)" (selectedChange)="onSelectionChange($event)">{{ availableEvent.name }}</mat-list-option>
+            }
+          </mat-selection-list>
+        </div>
+        <div fxLayoutAlign="end start" fxLayout="row" class="stepper-actions">
+          <button type="button" mat-raised-button (click)="onCancel()">Cancel</button>
+          <span fxFlex></span>
+          <button mat-raised-button matStepperNext type="button" color="primary">Next</button>
+          <!--          <button type="button" mat-raised-button (click)="onOk()">Ok</button>-->
+        </div>
+      </mat-step>
+      <mat-step label="Events Order" state="oorder-events">
+        <div class="events-order">
+          <mat-table [dataSource]="selectedEvents" style="width: 100%" cdkDropList (cdkDropListDropped)="drop($event)">
+            <ng-container matColumnDef="num">
+              <mat-header-cell *matHeaderCellDef>No.</mat-header-cell>
+              <mat-cell *matCellDef="let event">
+                <mat-icon class="example-drag-cursor">reorder</mat-icon>
+                <span>{{event.ordinalNumber}}</span>
+              </mat-cell>
+            </ng-container>
+            <ng-container matColumnDef="name">
+              <mat-header-cell *matHeaderCellDef>Name</mat-header-cell>
+              <mat-cell *matCellDef="let event">
+                <span>{{event.name}}</span>
+              </mat-cell>
+            </ng-container>
+            <mat-header-row *matHeaderRowDef="columnsToDisplay; sticky: true"></mat-header-row>
+            <mat-row *matRowDef="let myRowData; columns: columnsToDisplay" cdkDrag cdkDragLockAxis="y">
+              <div class="drag-placeholder" *cdkDragPlaceholder></div>
+            </mat-row>
+          </mat-table>
+        </div>
+        <div fxLayout="row" fxLayoutAlign="space-between start" class="stepper-actions">
+          <button type="button" mat-raised-button (click)="onCancel()">Cancel</button>
+          <button mat-raised-button matStepperPrevious type="button">Previous</button>
+          <button mat-raised-button matStepperNext type="button" color="primary">Next</button>
+        </div>
+      </mat-step>
+      <mat-step label="Schedule" state="schedule">
+        <div class="start-times-container">
+          <table class="day-time-table">
+            <tr>
+              <th class="name-column">Event</th>
+              <th>Day</th>
+              <th>Time</th>
+            </tr>
+            @for (selectedEvent of selectedEvents; track abc) {
+              <tr>
+                <td class="name-column">{{ selectedEvent.name }}</td>
+                <td>
+                  <mat-form-field class="day-column">
+                    <mat-select name="day" [(ngModel)]="selectedEvent.day">
+                      <mat-option *ngFor="let day of days" [value]="day.day">
+                        {{ day.dayText }}
+                      </mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                </td>
+                <td>
+                  <mat-form-field class="time-column">
+                    <mat-select name="startTime" [(ngModel)]="selectedEvent.startTime">
+                      <mat-option *ngFor="let st of startTimes" [value]="st.startTime">
+                        {{ st.startTimeText }}
+                      </mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                </td>
+              </tr>
+            }
+          </table>
+        </div>
+        <div fxLayout="row" fxLayoutAlign="space-between start" class="stepper-actions">
+          <button type="button" mat-raised-button (click)="onCancel()">Cancel</button>
+          <button mat-raised-button matStepperPrevious type="button">Previous</button>
+          <button mat-raised-button matStepperNext type="button" color="primary">Next</button>
+        </div>
+      </mat-step>
+      <mat-step label="Prizes" state="prizes">
+        <div class="prizes-list">
+          <div fxLayout="row" fxLayoutGap="10px" class="prize-list-row">
+            <div fxFlex="25%">Event</div>
+            <div fxFlex="25%">1st Place</div>
+            <div fxFlex="25%">2nd Place</div>
+            <div fxFlex="25%">3rd Place</div>
+          </div>
+          @for (selectedEvent of selectedEvents; track abc) {
+            <div fxLayout="column" class="prize-list-row">
+              <div fxLayout="row" fxLayoutGap="10px">
+                <div fxFlex="25%">{{ selectedEvent.name }}</div>
+                <mat-form-field fxFlex="25%">
+                  <!--                  <mat-label>1st Place</mat-label>-->
+                  <input matInput type="text" [name]="'prizeone'+selectedEvent.id"
+                         [(ngModel)]="selectedEvent.configuration.prizeInfoList[0].prizeMoneyAmount"
+                         pattern="\d*">
+                </mat-form-field>
+                <mat-form-field fxFlex="25%">
+                  <!--                  <mat-label>2nd Place</mat-label>-->
+                  <input matInput type="text" [name]="'prizetwo'+selectedEvent.id"
+                         [(ngModel)]="selectedEvent.configuration.prizeInfoList[1].prizeMoneyAmount"
+                         pattern="\d*">
+                </mat-form-field>
+                <mat-form-field fxFlex="25%">
+                  <!--                  <mat-label>3rd Place</mat-label>-->
+                  <input matInput type="text" [name]="'prizethree'+selectedEvent.id"
+                         [(ngModel)]="selectedEvent.configuration.prizeInfoList[2].prizeMoneyAmount"
+                         pattern="\d*">
+                </mat-form-field>
+              </div>
+            </div>
+          }
+        </div>
+        <div fxLayout="row" fxLayoutAlign="space-between start" class="stepper-actions">
+          <button type="button" mat-raised-button (click)="onCancel()">Cancel</button>
+          <button mat-raised-button matStepperPrevious type="button">Previous</button>
+          <button type="button" color="primary" mat-raised-button (click)="onOk()">Ok</button>
+        </div>
+      </mat-step>
+      <!-- Icon overrides. -->
+      <ng-template matStepperIcon="events">
+        <mat-icon>list</mat-icon>
+      </ng-template>
+      <ng-template matStepperIcon="order-events">
+        <mat-icon>format_list_numbered</mat-icon>
+      </ng-template>
+      <ng-template matStepperIcon="schedule">
+        <mat-icon>schedule</mat-icon>
+      </ng-template>
+      <ng-template matStepperIcon="prizes">
+        <mat-icon>emoji_events</mat-icon>
+      </ng-template>
+    </mat-stepper>
+  </mat-dialog-content>
+</form>
