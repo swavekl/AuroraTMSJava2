@@ -19,6 +19,8 @@
   <span class="toolbar-spacer-2"></span>
   <button type="button" mat-raised-button (click)="onStopMatch()" [disabled]="this.selectedMatchCardIds?.length === 0">Stop Match</button>
   <span class="toolbar-spacer-2"></span>
+  <button type="button" mat-raised-button (click)="onMove()" [disabled]="this.selectedMatchCardIds?.length === 0">Move</button>
+  <span class="toolbar-spacer-2"></span>
   <button type="button" mat-raised-button (click)="onRefresh()">Refresh</button>
 </mat-toolbar>
 <div fxLayout="row" class="table-usage">

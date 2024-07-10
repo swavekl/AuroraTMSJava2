@@ -5,14 +5,22 @@ import {MatchCard} from '../../matches/model/match-card.model';
 @Component({
   selector: 'app-match-assignment-dialog',
   template: `
-    <h2 mat-dialog-title>Warning: {{conflictTables.length === 1 ? 'Table' : 'Tables'}} in Use</h2>
+    <h2 mat-dialog-title>
+      <span *ngIf="!isMove">Warning: {{conflictTables.length === 1 ? 'Table' : 'Tables'}} in Use</span>
+      <span *ngIf="isMove">Move to {{ numUsedTables === 1  ? ' Another Table' : ' Other Tables'}}</span>
+    </h2>
     <mat-dialog-content>
-      <ng-container *ngIf="conflictTables.length === 1; else multipleTables">
-        <p>Table {{conflictTables}} assigned for this match is occupied. Please select another table or force to play this match on assigned table.</p>
+      <ng-container *ngIf="!isMove && conflictTables.length === 1">
+        <p>Table {{ conflictTables }} assigned for this match is occupied. Please select another table or force to play this match on
+          assigned table.</p>
       </ng-container>
-      <ng-template #multipleTables>
-        <p>Tables {{conflictTables}} assigned for this match are occupied. Please select other tables or force to play this match on assigned tables.</p>
-      </ng-template>
+      <ng-container *ngIf="!isMove && conflictTables.length > 1">
+        <p>Tables {{ conflictTables }} assigned for this match are occupied. Please select other tables or force to play this match on
+          assigned tables.</p>
+      </ng-container>
+      <ng-container *ngIf="isMove">
+        <p>Please select {{ numUsedTables === 1 ? 'table' : 'tables' }} to move this match to</p>
+      </ng-container>
       <form name="form" #f="ngForm" novalidate>
         <div fxLayout="row" fxLayoutGap="10px">
           <mat-form-field style="max-width: 160px;">
@@ -50,6 +58,7 @@ export class MatchAssignmentDialogComponent implements OnInit {
   numUsedTables: number;
   table1: number;
   table2: number;
+  isMove: boolean;
 
   constructor(public dialogRef: MatDialogRef<MatchAssignmentDialogComponent>,
               @Inject(MAT_DIALOG_DATA) public data: MatchAssignmentDialogData) {
@@ -58,6 +67,7 @@ export class MatchAssignmentDialogComponent implements OnInit {
     this.conflictTables = data?.conflictTables;
     const strUsedTables = (this.matchCard.assignedTables) ? this.matchCard.assignedTables.split(',') : [];
     this.numUsedTables = strUsedTables.length;
+    this.isMove = this.conflictTables?.length === 0;
   }
 
   ngOnInit(): void {

@@ -158,6 +158,32 @@ export class TableUsageComponent implements OnInit, OnChanges {
     this.startSelectedMatchCards(this.selectedMatchCardIds);
   }
 
+  onMove() {
+    const unavailableTables: number [] = [];
+    for (let t = 0; t < this.tableUsageList.length; t++) {
+      const tableUsage = this.tableUsageList[t];
+      if (tableUsage.tableStatus === TableStatus.InUse) {
+        unavailableTables.push(tableUsage.tableNumber);
+      }
+    }
+
+    if (unavailableTables.length < this.tableUsageList.length) {
+      const selectedMatchCardId: number = this.selectedMatchCardIds [0];
+      const selectedMatchCard: MatchCard = this.allTodaysMatchCards.find(
+        (matchCard: MatchCard) => {
+          return matchCard.id === selectedMatchCardId;
+        }
+      );
+
+      if (selectedMatchCard) {
+        const matchAssignmentDialogData = this.makeTableAssignmentDialogData(selectedMatchCard, []);
+        this.showDialog(matchAssignmentDialogData, this.tableUsageList, this.selectedMatchCardIds, true);
+      } else {
+        console.error('Cant find match card with id ', selectedMatchCardId);
+      }
+    }
+  }
+
   private startSelectedMatchCards(matchCardIds: number[]) {
     console.log('startSelectedMatchCards', matchCardIds);
     const unavailableTables: number [] = [];
@@ -208,36 +234,10 @@ export class TableUsageComponent implements OnInit, OnChanges {
     if (unavailableTables.length > 0) {
       // show dialog to allow reassignment
       if (matchCardIds.length === 1) {
-        const matchAssignmentDialogData = this.makeTableAssignmentDialogData(matchCardIds, unavailableTables);
-        if (matchAssignmentDialogData) {
-          const config: MatDialogConfig = {
-            width: '380px', height: '300px', data: matchAssignmentDialogData
-          };
-          // show pairing dialog
-          const dialogRef = this.dialog.open(MatchAssignmentDialogComponent, config);
-          dialogRef.afterClosed().subscribe(result => {
-            if (result.action === 'force') {
-              this.startMatchesAndUpdateMatchCards(updatedTableUsages, matchCardIds);
-            } else if (result.action === 'move') {
-              const newTableNumbers = result.useTables;
-              const matchCardId = matchCardIds[0];
-              const forcedTableUsages: TableUsage [] = [];
-              for (let i = 0; i < newTableNumbers.length; i++) {
-                const tableNumber = newTableNumbers[i];
-                const tableUsage = this.tableUsageList.find(tableUsage1 => tableUsage1.tableNumber === tableNumber);
-                if (tableUsage) {
-                  tableUsage.tableStatus = TableStatus.InUse;
-                  tableUsage.matchStartTime = new Date();
-                  tableUsage.matchCardFk = matchCardId;
-                  tableUsage.completedMatches = 0;
-                  tableUsage.totalMatches = 0;
-                  forcedTableUsages.push(tableUsage);
-                }
-              }
-              this.startMatchesAndUpdateMatchCards(forcedTableUsages, [matchCardId]);
-            }
-          });
-        }
+        const selectedMatchInfo = this.matchesToPlayInfos.find(matchInfo => matchInfo.matchCard.id === matchCardIds[0]);
+        const matchAssignmentDialogData = this.makeTableAssignmentDialogData(
+          selectedMatchInfo.matchCard, unavailableTables);
+        this.showDialog(matchAssignmentDialogData, updatedTableUsages, matchCardIds, false);
       } else {
         // show warning if multiple match cards are started
       }
@@ -246,8 +246,67 @@ export class TableUsageComponent implements OnInit, OnChanges {
     }
   }
 
+  private showDialog(matchAssignmentDialogData: MatchAssignmentDialogData, updatedTableUsages: TableUsage[], matchCardIds: number[], isMove: boolean) {
+    if (matchAssignmentDialogData) {
+      const config: MatDialogConfig = {
+        width: '380px', height: '300px', data: matchAssignmentDialogData
+      };
+      // show pairing dialog
+      const dialogRef = this.dialog.open(MatchAssignmentDialogComponent, config);
+      dialogRef.afterClosed().subscribe(result => {
+        if (result.action === 'force') {
+          this.startMatchesAndUpdateMatchCards(updatedTableUsages, matchCardIds);
+        } else if (result.action === 'move') {
+          const newTableNumbers = result.useTables;
+          const matchCardId = matchCardIds[0];
+          const forcedTableUsages: TableUsage [] = [];
+          // remove from old tables
+          let oldStartTime = null;
+          if (isMove) {
+            const oldTableUsages: TableUsage[] = this.tableUsageList.filter((tableUsage: TableUsage) => { return tableUsage.matchCardFk === matchCardId; });
+            oldTableUsages.forEach((oldTableUsage: TableUsage) => {
+              oldTableUsage.tableStatus = TableStatus.Free;
+              oldStartTime = oldTableUsage.matchStartTime;
+              oldTableUsage.matchStartTime = null;
+              oldTableUsage.matchCardFk = null;
+              oldTableUsage.completedMatches = 0;
+              oldTableUsage.totalMatches = 0;
+              forcedTableUsages.push(oldTableUsage);
+            });
+          }
+
+          // assign to new tables
+          for (let i = 0; i < newTableNumbers.length; i++) {
+            const tableNumber = newTableNumbers[i];
+            const tableUsage = this.tableUsageList.find(tableUsage1 => tableUsage1.tableNumber === tableNumber);
+            if (tableUsage) {
+              tableUsage.tableStatus = TableStatus.InUse;
+              tableUsage.matchStartTime = (isMove && oldStartTime != null) ? oldStartTime : new Date();
+              tableUsage.matchCardFk = matchCardId;
+              tableUsage.completedMatches = 0;
+              tableUsage.totalMatches = 0;
+              forcedTableUsages.push(tableUsage);
+            }
+          }
+
+          this.startMatchesAndUpdateMatchCards(forcedTableUsages, [matchCardId]);
+        }
+      });
+    }
+  }
+
   private startMatchesAndUpdateMatchCards(tableUsages: TableUsage[], matchCardIds: number []) {
-    const updatedMatchCards = this.updateMatchCardStatus(matchCardIds, MatchCardStatus.STARTED);
+    const updatedMatchCards: MatchCard[] = this.updateMatchCardStatus(matchCardIds, MatchCardStatus.STARTED);
+    // reassign table in the match card
+    updatedMatchCards.forEach((matchCard: MatchCard) => {
+      const tableNumbers: number [] = [];
+      tableUsages.forEach((tableUsage: TableUsage) => {
+        if (tableUsage.matchCardFk === matchCard.id) {
+          tableNumbers.push(tableUsage.tableNumber);
+        }
+      });
+      matchCard.assignedTables = tableNumbers.join(',');
+    });
     this.startMatches.emit({tableUsages: tableUsages, matchCards: updatedMatchCards});
   }
 
@@ -270,8 +329,7 @@ export class TableUsageComponent implements OnInit, OnChanges {
     return updatedMatchCards;
   }
 
-  private makeTableAssignmentDialogData(matchCardIds: number[], conflictTables: number[]): MatchAssignmentDialogData {
-      const selectedMatchInfo = this.matchesToPlayInfos.find(matchInfo => matchInfo.matchCard.id === matchCardIds[0]);
+  private makeTableAssignmentDialogData(selectedMatchCard: MatchCard, conflictTables: number[]): MatchAssignmentDialogData {
       const availableTables: number [] = [];
       this.tableUsageList.forEach(tableUsage => {
         if (tableUsage.tableStatus === TableStatus.Free) {
@@ -281,7 +339,7 @@ export class TableUsageComponent implements OnInit, OnChanges {
       return {
         availableTables: availableTables,
         conflictTables: conflictTables,
-        matchCard: selectedMatchInfo.matchCard
+        matchCard: selectedMatchCard
       };
     }
 
