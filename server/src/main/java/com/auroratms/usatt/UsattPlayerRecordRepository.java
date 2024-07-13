@@ -12,6 +12,8 @@ public interface UsattPlayerRecordRepository extends JpaRepository<UsattPlayerRe
 
     UsattPlayerRecord getFirstByFirstNameAndLastName(String firstName, String lastName);
 
+    UsattPlayerRecord getFirstByFirstNameIgnoreCaseAndLastNameIgnoreCase(String firstName, String lastName);
+
     List<UsattPlayerRecord> findAllByMembershipIdIn(Iterable<Long> ids);
 
     List<UsattPlayerRecord> findAllByFirstNameOrLastName(String firstName, String lastName, Pageable pageable);

@@ -661,7 +661,7 @@ public class UsattDataService {
         for (UsattPlayerRecord newRecord : newRecords) {
             try {
                 logger.info("Trying to find temporary membership record for " + newRecord.getLastName() + ", " + newRecord.getFirstName());
-                UsattPlayerRecord playerRecord = playerRecordRepository.getFirstByFirstNameAndLastName(newRecord.getFirstName(), newRecord.getLastName());
+                UsattPlayerRecord playerRecord = playerRecordRepository.getFirstByFirstNameIgnoreCaseAndLastNameIgnoreCase(newRecord.getFirstName(), newRecord.getLastName());
                 if (playerRecord != null) {
                     Long membershipId = playerRecord.getMembershipId();
                     if (membershipId >= 400000 && membershipId <= 500000) {
