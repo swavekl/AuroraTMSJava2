@@ -46,6 +46,7 @@ export class ProfileEditComponent implements OnInit, OnChanges, AfterViewInit, O
   // save and cancel
   @Output() saved = new EventEmitter();
   @Output() canceled = new EventEmitter();
+  @Output() unlock = new EventEmitter();
 
   // list of US states
   statesList: any [];
@@ -302,5 +303,9 @@ export class ProfileEditComponent implements OnInit, OnChanges, AfterViewInit, O
       zipCode: null,
       countryCode: null
     };
+  }
+
+  onUnlockUser() {
+    this.unlock.emit(this.profile);
   }
 }

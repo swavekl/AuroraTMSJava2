@@ -34,4 +34,6 @@ public class UserProfile {
     private String homeClubName;
     // region of regional coordinator
     private String division;
+    // active, locked etc.
+    private String userStatus;
 }

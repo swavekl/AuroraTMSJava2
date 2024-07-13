@@ -102,4 +102,23 @@ export class ProfileService {
           })
       );
   }
+
+  unlockProfile(profile: Profile): Observable<Profile> {
+    this.setLoading(true);
+    const url = `${this.baseUrl}/${profile.userId}/unlock`;
+    return this.http.put<Profile>(url, profile, {
+      headers: new HttpHeaders({
+        'Content-Type': 'application/json'
+      })
+    }).pipe(
+      tap({
+        next: () => {
+          this.setLoading(false);
+        },
+        error: err => {
+          this.setLoading(false);
+        }
+      })
+    );
+  }
 }

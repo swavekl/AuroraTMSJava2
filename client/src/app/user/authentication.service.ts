@@ -118,12 +118,12 @@ export class AuthenticationService {
       .pipe(first())
       .subscribe(
         (response: any) => {
-          // console.log('login response', response);
+          console.log('login response', response);
           // login successful if there's a jwt token in the response
           this.processLoginResponse(response);
         },
         (error: any) => {
-          // console.log ('got login error', error);
+          console.log ('got login error', error);
           this.isAuthenticated$.next(false);
           this.loginStatus$.next(false);
         });

@@ -8,6 +8,7 @@ import com.okta.sdk.resource.group.Group;
 import com.okta.sdk.resource.group.GroupList;
 import com.okta.sdk.resource.user.User;
 import com.okta.sdk.resource.user.UserList;
+import com.okta.sdk.resource.user.UserStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheConfig;
@@ -213,6 +214,9 @@ public class UserProfileService {
 
         }
         userProfile.setDivision(oktaUserProfile.getDivision());
+        UserStatus userStatus = user.getStatus();
+        userProfile.setUserStatus(userStatus.toString());
+
         return userProfile;
     }
 

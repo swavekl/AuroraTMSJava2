@@ -17,7 +17,8 @@ import {UserRoles} from '../../user/user-roles.enum';
     <app-profile-edit [profile]="profile$ | async"
                       [canChangeMembershipId]="canChangeMembershipId"
                       (saved)="onSave($event)"
-                      (canceled)="onCancel($event)">
+                      (canceled)="onCancel($event)"
+                      (unlock)="onUnlock($event)">
     </app-profile-edit>
   `,
   styles: [],
@@ -247,6 +248,24 @@ export class ProfileEditContainerComponent implements OnInit, OnDestroy {
     profile.city = playerRecord.city;
     profile.membershipId = playerRecord.membershipId;
     profile.membershipExpirationDate = playerRecord.membershipExpirationDate;
+  }
+
+  onUnlock(profile: Profile) {
+    this.profileService.unlockProfile(profile)
+      .pipe(first())
+      .subscribe({
+          next: (updatedProfile: Profile) => {
+            this.profile$ = of (updatedProfile);
+          },
+          error: (error: any) => {
+            try {
+              const msg = JSON.parse(error.error.text);
+              console.error(msg);
+            } catch (e) {
+            }
+          }
+        }
+      );
   }
 
 }

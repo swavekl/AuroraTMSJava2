@@ -6,13 +6,15 @@ import com.auroratms.club.ClubService;
 import com.auroratms.usatt.UsattPlayerRecord;
 import com.auroratms.usatt.UsattPlayerRecordRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.net.URI;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -26,6 +28,8 @@ import java.util.Map;
 @PreAuthorize("isAuthenticated()")
 @Slf4j
 public class UserProfileController extends AbstractOktaController {
+
+    private static final Logger logger = LoggerFactory.getLogger(UserProfileController.class);
 
     @Autowired
     private UserProfileService userProfileService;
@@ -237,5 +241,23 @@ public class UserProfileController extends AbstractOktaController {
         userProfile.setMembershipId(userProfileExt.getMembershipId());
         userProfile.setHomeClubId(userProfileExt.getClubFk());
         return userProfile;
+    }
+
+    @PutMapping("/profiles/{userId}/unlock")
+    @ResponseBody
+    @PreAuthorize("hasAuthority('TournamentDirectors') or hasAuthority('Admins')")
+    public ResponseEntity<UserProfile> unlock(@RequestBody UserProfile userProfile,
+                                         @PathVariable String userId) {
+        try {
+            logger.info("Unlocking user named " + userProfile.getFirstName() + " " + userProfile.getLastName() + " with profileId " + userId );
+            String unlockUrl = oktaServiceBase + "/api/v1/users/" + userId + "/lifecycle/unlock";
+            String response = makePostRequest(unlockUrl, null);
+            // update profile so the cache gets evicted
+            UserProfile updatedProfile = userProfileService.updateProfile(userProfile);
+            return ResponseEntity.ok(updatedProfile);
+        } catch (IOException e) {
+            logger.error("Error unlocking user", e);
+            return ResponseEntity.badRequest().build();
+        }
     }
 }

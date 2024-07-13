@@ -149,6 +149,14 @@
             <span fxFlex></span>
             <button mat-raised-button color="primary" type="submit" >Save</button>
           </div>
+          <div fxLayout="row" fxLayoutAlign="start start" fxLayoutGap="10px" style="margin-top: 10px;">
+            <div style="padding-top: 8px;">
+              <mat-label>Status&nbsp;&nbsp;</mat-label>{{profile?.userStatus}}
+            </div>
+            <button mat-raised-button color="" type="button"
+                    [disabled]="!canChangeMembershipId || profile?.userStatus !== 'LOCKED_OUT'"
+                    (click)="onUnlockUser()">Unlock</button>
+          </div>
         </mat-card-content>
       </mat-card>
     </form>

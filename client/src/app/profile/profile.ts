@@ -20,6 +20,7 @@ export class Profile {
   homeClubId: number;
   homeClubName: string;
   division: string;
+  userStatus: string;
 
   constructor() {
 
@@ -67,5 +68,6 @@ export class Profile {
     this.homeClubId = otherProfile.homeClubId;
     this.homeClubName = otherProfile.homeClubName;
     this.division = otherProfile.division;
+    this.userStatus = otherProfile.userStatus;
   }
 }
