@@ -93,7 +93,7 @@ export class OfficialsListComponent implements AfterViewInit, OnDestroy {
     this.router.navigateByUrl(`${this.editUrl}/${id}`);
   }
 
-  canAddOfficial(): boolean {
+  canManageOfficial(): boolean {
     return this.authenticationService.hasCurrentUserRole([UserRoles.ROLE_ADMINS, UserRoles.ROLE_USATT_MATCH_OFFICIALS_MANAGERS]);
   }
 

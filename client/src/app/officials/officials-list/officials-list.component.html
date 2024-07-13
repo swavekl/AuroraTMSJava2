@@ -2,7 +2,7 @@
 <form>
   <mat-toolbar fxLayout="row" fxLayoutGap="10" class="tall-toolbar">
     <button type="button" mat-raised-button color="" (click)="addOfficial()"
-            [hidden]="!canAddOfficial()">
+            [hidden]="!canManageOfficial()">
       <mat-icon matListItemIcon>add</mat-icon>
       Add Official
     </button>
@@ -53,9 +53,9 @@
     </ng-container>
 
     <ng-container matColumnDef="actions">
-      <mat-header-cell *matHeaderCellDef>Actions</mat-header-cell>
+      <mat-header-cell *matHeaderCellDef>{{ canManageOfficial() ? 'Actions' : ''}}</mat-header-cell>
       <mat-cell *matCellDef="let official">
-        <button mat-icon-button (click)="onDeleteOfficial(official)"
+        <button mat-icon-button [hidden]="!canManageOfficial()" (click)="onDeleteOfficial(official)"
                 matTooltip="Delete" style="margin-right: 20px">
           <mat-icon matListItemIcon>delete</mat-icon>
         </button>
