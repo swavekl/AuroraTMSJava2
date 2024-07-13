@@ -13,6 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.thymeleaf.util.StringUtils;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -102,6 +103,12 @@ public class UserProfileController extends AbstractOktaController {
                     usattPlayerRecord.setState(userProfile.getState());
                     if (usattPlayerRecord.getTournamentRating() != userProfile.getTournamentRating()) {
                         usattPlayerRecord.setTournamentRating(userProfile.getTournamentRating());
+                    }
+                    // update names if spelling changed
+                    if (!StringUtils.equals(userProfile.getFirstName(), usattPlayerRecord.getFirstName()) ||
+                            !StringUtils.equals(userProfile.getLastName(), usattPlayerRecord.getLastName())) {
+                        usattPlayerRecord.setFirstName(userProfile.getFirstName());
+                        usattPlayerRecord.setLastName(userProfile.getLastName());
                     }
                     playerRecordRepository.save(usattPlayerRecord);
                 }
