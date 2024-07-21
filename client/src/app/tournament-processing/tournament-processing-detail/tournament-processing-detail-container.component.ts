@@ -21,6 +21,7 @@ import {TournamentProcessingRequestDetail} from '../model/tournament-processing-
   template: `
     <app-tournament-processing-detail [tournamentProcessingRequest]="tournamentProcessingRequest$ | async"
                                       [currencyCode]="currencyCode"
+                                      [returnUrl]="returnUrl"
                                       [generatingReports]="reportsGenerating$ | async"
                                       (requestEvent)="onRequestEvent($event)">
     </app-tournament-processing-detail>
@@ -57,6 +58,8 @@ export class TournamentProcessingDetailContainerComponent implements OnInit, OnD
   // currency to use for payment for tournament report
   public currencyCode: string;
 
+  public returnUrl: string;
+
   constructor(private tournamentProcessingService: TournamentProcessingService,
               private activatedRoute: ActivatedRoute,
               private router: Router,
@@ -70,6 +73,7 @@ export class TournamentProcessingDetailContainerComponent implements OnInit, OnD
     this.tournamentName = this.activatedRoute.snapshot.params['tournamentName'] || 'N/A';
     this.id = Number(strId);
     this.tournamentId = Number(strTournamentId);
+    this.returnUrl = history?.state?.returnUrl ?? '/ui/tournamentsconfig';
     this.setupProgressIndicator();
     this.loadTournamentProcessingData();
     this.prepareForPayment();

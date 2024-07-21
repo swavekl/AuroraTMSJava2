@@ -12,12 +12,12 @@
   <mat-table matSort aria-label="Tournament Processing">
     <ng-container matColumnDef="eventName">
       <mat-header-cell *matHeaderCellDef>Event Name</mat-header-cell>
-      <mat-cell *matCellDef="let tournamentProcessingData" [routerLink]="['/ui/processing/detail/', tournamentProcessingData.id]">{{ tournamentProcessingData.tournamentName }}</mat-cell>
+      <mat-cell *matCellDef="let tournamentProcessingData" [routerLink]="['/ui/processing/detail/', tournamentProcessingData.id]" [state]="{ returnUrl: '/ui/processing' }">{{ tournamentProcessingData.tournamentName }}</mat-cell>
     </ng-container>
 
     <ng-container matColumnDef="status">
       <mat-header-cell *matHeaderCellDef>Status</mat-header-cell>
-      <mat-cell *matCellDef="let tournamentProcessingData" [routerLink]="['/ui/processing/detail/', tournamentProcessingData.id]">{{ tournamentProcessingData.requestStatus }}</mat-cell>
+      <mat-cell *matCellDef="let tournamentProcessingData" [routerLink]="['/ui/processing/detail/', tournamentProcessingData.id]" [state]="{ returnUrl: '/ui/processing' }">{{ tournamentProcessingData.requestStatus }}</mat-cell>
     </ng-container>
 
     <mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></mat-header-row>

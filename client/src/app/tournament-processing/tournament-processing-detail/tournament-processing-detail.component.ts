@@ -30,6 +30,9 @@ export class TournamentProcessingDetailComponent implements OnInit, OnChanges {
   @Input()
   currencyCode: string;
 
+  @Input()
+  returnUrl: string;
+
   canGenerateReports: boolean;
 
   canProcessReports: boolean;

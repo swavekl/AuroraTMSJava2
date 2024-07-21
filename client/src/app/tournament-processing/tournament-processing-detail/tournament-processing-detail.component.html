@@ -1,6 +1,6 @@
 <div class="mat-headline-6" style="padding-left: 8px; width: 100%;">Tournament Publishing: {{ tournamentProcessingRequest?.tournamentName }}</div>
 <mat-toolbar fxLayout="row" fxLayoutGap="10">
-  <button mat-raised-button type="button" [routerLink]="['/ui/tournamentsconfig']" >Back</button>
+  <button mat-raised-button type="button" [routerLink]="returnUrl" >Back</button>
   <span class="toolbar-spacer-2"></span>
   <button type="button" mat-raised-button (click)="generateAllReports()" [disabled]="!isGenerateReportsEnabled()">
     <mat-icon matListItemIcon>note_add</mat-icon>
