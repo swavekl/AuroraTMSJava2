@@ -1,0 +1,15 @@
+hazelcast:
+  instance-name: auroratms
+  cluster-name: auroratms
+  network:
+    join:
+      multicast:
+        enabled: true
+  map:
+    default:
+      time-to-live-seconds: 300
+      eviction:
+        eviction-policy: LRU
+        size: 20000
+      backup-count: 0
+      async-backup-count: 0
