@@ -1,6 +1,7 @@
 package com.auroratms.insurance;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.util.Date;
 
 enum AdditionalInsuredRole {
@@ -12,7 +13,7 @@ enum AdditionalInsuredRole {
 
 @Entity
 @Table()
-public class InsuranceRequest {
+public class InsuranceRequest implements Serializable {
     // unique id
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

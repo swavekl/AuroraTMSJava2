@@ -5,6 +5,8 @@ import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.vault.repository.mapping.Secret;
 
+import java.io.Serializable;
+
 
 /**
  * Represents Stripe Connect account associated with
@@ -12,7 +14,7 @@ import org.springframework.vault.repository.mapping.Secret;
 @Data
 @NoArgsConstructor
 @Secret
-public class AccountEntity {
+public class AccountEntity implements Serializable {
 
     // profile id of user who created this stripe account
     @Id

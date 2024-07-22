@@ -1,9 +1,8 @@
 package com.auroratms.server;
 
-import net.sf.ehcache.CacheManager;
-import net.sf.ehcache.Ehcache;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.ehcache.EhCacheFactoryBean;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
@@ -29,8 +28,8 @@ public class SecurityConfiguration {
     @Autowired
     private DataSource dataSource;
 
-//    @Autowired
-    private CacheManager cacheManager = net.sf.ehcache.CacheManager.getInstance();
+    @Autowired
+    private CacheManager cacheManager;
 
     @EnableGlobalMethodSecurity(prePostEnabled = true, securedEnabled = true)
     protected static class GlobalSecurityConfiguration extends GlobalMethodSecurityConfiguration {
@@ -87,42 +86,17 @@ public class SecurityConfiguration {
         );
     }
 
-
-    //--- EHCache Configuration ---------------------------------------------//
+    // Use Hazelcast distributed cache for ACL cache
     @Bean
-    public EhCacheBasedAclCache aclCache(){
-        return new EhCacheBasedAclCache(ehcache(),
+    public SpringCacheBasedAclCache aclCache() {
+        final Cache aclCache = this.cacheManager.getCache("aclCache");
+        return new SpringCacheBasedAclCache(aclCache,
                 permissionGrantingStrategy(),
-                aclAuthorizationStrategy()
-        );
+                aclAuthorizationStrategy());
     }
 
     @Bean
     public PermissionGrantingStrategy permissionGrantingStrategy(){
         return new DefaultPermissionGrantingStrategy(consoleAuditLogger());
     }
-
-    @Bean
-    public Ehcache ehcache(){
-        EhCacheFactoryBean cacheFactoryBean = new EhCacheFactoryBean();
-        cacheFactoryBean.setCacheManager(cacheManager);
-//        cacheFactoryBean.setCacheManager(cacheManager());
-        cacheFactoryBean.setCacheName("aclCache");
-        cacheFactoryBean.setMaxBytesLocalHeap("1M");
-        cacheFactoryBean.setMaxEntriesLocalHeap(0L);
-        cacheFactoryBean.afterPropertiesSet();
-        return cacheFactoryBean.getObject();
-    }
-
-//    @Bean
-//    public net.sf.ehcache.CacheManager cacheManager(){
-//        EhCacheManagerFactoryBean cacheManager = new EhCacheManagerFactoryBean();
-//        cacheManager.setAcceptExisting(true);
-//        cacheManager.setCacheManagerName(CacheManager.getInstance().getName());
-//        cacheManager.afterPropertiesSet();
-//        return cacheManager.getObject();
-//    }
-
-    // C:\Users\Swavek\.gradle\caches\modules-2\files-2.1\org.springframework.security\spring-security-acl\5.1.1.RELEASE\8b30ed37d1062a226e3c311954a7372a2e79b2e3\spring-security-acl-5.1.1.RELEASE.jar!
-    // \createAclSchemaMySQL.sql
 }

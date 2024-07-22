@@ -55,7 +55,11 @@ dependencies {
     implementation "org.springframework.data:spring-data-keyvalue"
 
     // caching
-    implementation "net.sf.ehcache:ehcache-core:2.6.11"
+//    implementation "net.sf.ehcache:ehcache-core:2.6.11"
+    // distributed
+    implementation "org.springframework.boot:spring-boot-starter-cache"
+    implementation "com.hazelcast:hazelcast-all:4.2.2"
+    implementation "com.hazelcast:hazelcast-spring:4.2.2"
 
     implementation('com.okta.spring:okta-spring-boot-starter:2.0.0')
     implementation('org.springframework.security.oauth.boot:spring-security-oauth2-autoconfigure:2.4.0')

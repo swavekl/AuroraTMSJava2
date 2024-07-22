@@ -1,6 +1,5 @@
 package com.auroratms.email.campaign;
 
-import com.auroratms.sanction.SanctionRequestConfiguration;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -9,6 +8,7 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.io.StringWriter;
 import java.util.Collections;
 import java.util.List;
@@ -17,7 +17,7 @@ import java.util.List;
  * Small part of email campaign which we want to store in JSON
  */
 @Slf4j
-public class FilterConfiguration {
+public class FilterConfiguration implements Serializable {
     // filters to apply to recipients - by 0 - all or event id.
     private List<Long> recipientFilters;
 
@@ -74,7 +74,7 @@ public class FilterConfiguration {
     /**
      * Email recipient which should be removed after filtering
      */
-    public static class Recipient {
+    public static class Recipient implements Serializable {
         private String lastName;
 
         private String firstName;

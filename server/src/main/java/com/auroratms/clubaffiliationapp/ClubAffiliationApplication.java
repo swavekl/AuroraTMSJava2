@@ -3,6 +3,7 @@ package com.auroratms.clubaffiliationapp;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 
@@ -12,7 +13,7 @@ import java.util.List;
  */
 @Data
 @NoArgsConstructor
-public class ClubAffiliationApplication {
+public class ClubAffiliationApplication implements Serializable {
     // unique id
     private Long id;
 

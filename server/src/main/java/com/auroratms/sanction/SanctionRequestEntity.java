@@ -1,11 +1,12 @@
 package com.auroratms.sanction;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.util.Date;
 
 @Entity
 @Table(name = "sanction_request")
-public class SanctionRequestEntity {
+public class SanctionRequestEntity implements Serializable {
 
     // unique id
     @Id

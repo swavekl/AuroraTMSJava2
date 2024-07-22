@@ -3,6 +3,7 @@ package com.auroratms.tournamentprocessing;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -10,7 +11,7 @@ import java.util.List;
  * for processing to USATT
  */
 @Entity
-public class TournamentProcessingRequest {
+public class TournamentProcessingRequest implements Serializable {
     // unique id
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

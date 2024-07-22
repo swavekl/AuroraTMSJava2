@@ -3,13 +3,14 @@ package com.auroratms.tableusage;
 import lombok.NonNull;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.util.Date;
 
 /**
  * Class which keeps track of table usage at the tournament
  */
 @Entity
-public class TableUsage {
+public class TableUsage implements Serializable {
 
     // unique id
     @Id

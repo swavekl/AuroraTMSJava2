@@ -10,6 +10,7 @@ import lombok.Setter;
 
 import javax.persistence.*;
 import java.io.IOException;
+import java.io.Serializable;
 import java.io.StringWriter;
 import java.util.Date;
 import java.util.Objects;
@@ -17,7 +18,7 @@ import java.util.Objects;
 @NoArgsConstructor
 @Getter
 @Setter
-public class TournamentEvent {
+public class TournamentEvent implements Serializable {
     private Long id;
 
     private long tournamentFk;

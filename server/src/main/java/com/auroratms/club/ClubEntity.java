@@ -4,6 +4,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.io.Serializable;
 
 /**
  * Represents table tennis club (affiliated with USATT and perhaps non-affiliated too)
@@ -12,7 +13,7 @@ import javax.persistence.*;
 @Table(name = "club")
 @Data
 @NoArgsConstructor
-public class ClubEntity {
+public class ClubEntity implements Serializable {
 
     // unique id
     @Id

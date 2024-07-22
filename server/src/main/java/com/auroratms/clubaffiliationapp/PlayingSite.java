@@ -3,12 +3,14 @@ package com.auroratms.clubaffiliationapp;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
+
 /**
  * Represents an alternative club playing location and when it is open
  */
 @Data
 @NoArgsConstructor
-public class PlayingSite {
+public class PlayingSite implements Serializable {
     private String buildingName;
     // playing site address
     private String streetAddress;

@@ -3,13 +3,14 @@ package com.auroratms.tournamentprocessing;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.util.Date;
 
 /**
  * Each time tournament director generates and submits reports this will be created
  If report needs to be updated and resubmitted we create another detail like this. */
 @Entity
-public class TournamentProcessingRequestDetail {
+public class TournamentProcessingRequestDetail implements Serializable {
 
     // id of this data
     @Id

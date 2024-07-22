@@ -3,12 +3,13 @@ package com.auroratms.tournament;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 
 @Data
 @NoArgsConstructor
-public class TournamentConfiguration {
+public class TournamentConfiguration implements Serializable {
     // Late entry date Date to start charging late fees
     private Date lateEntryDate;
     // Entry cutoff date Date to stop accepting on-line entries

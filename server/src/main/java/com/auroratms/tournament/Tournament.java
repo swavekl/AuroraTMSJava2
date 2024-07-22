@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.io.StringWriter;
 import java.util.Date;
 import java.util.Set;
@@ -18,7 +19,7 @@ import java.util.Set;
  */
 @Data
 @NoArgsConstructor
-public class Tournament {
+public class Tournament implements Serializable {
     private Long id;
 
     private String name;

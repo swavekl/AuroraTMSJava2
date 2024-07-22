@@ -3,12 +3,14 @@ package com.auroratms.tournament;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
+
 /**
  * Describes a person and his/her role at the tournament: Referee, Umpire or Data entry clerk
  */
 @Data
 @NoArgsConstructor
-public class Personnel {
+public class Personnel implements Serializable {
 
     // name of the person
     private String name;

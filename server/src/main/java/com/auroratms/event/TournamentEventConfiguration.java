@@ -3,6 +3,7 @@ package com.auroratms.event;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -13,7 +14,7 @@ import java.util.Map;
  */
 @Data
 @NoArgsConstructor
-public class TournamentEventConfiguration {
+public class TournamentEventConfiguration implements Serializable {
 
     // prize money information
     private List<PrizeInfo> prizeInfoList;

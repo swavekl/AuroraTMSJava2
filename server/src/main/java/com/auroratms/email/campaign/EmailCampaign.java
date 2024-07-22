@@ -1,9 +1,10 @@
 package com.auroratms.email.campaign;
 
+import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 
-public class EmailCampaign {
+public class EmailCampaign implements Serializable {
 
     // unique id of a campaign
     private Long id;

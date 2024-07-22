@@ -5,6 +5,7 @@ import lombok.NoArgsConstructor;
 import lombok.NonNull;
 
 import javax.persistence.*;
+import java.io.Serializable;
 
 /**
  * Maps Okta profile id to USATT membership id - we can store other information here to
@@ -14,7 +15,7 @@ import javax.persistence.*;
 @NoArgsConstructor
 @Entity
 @Table(name = "userprofileext")
-public class UserProfileExt {
+public class UserProfileExt implements Serializable {
 
     // Okta profile id
     @Id

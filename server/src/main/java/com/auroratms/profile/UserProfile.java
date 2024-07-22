@@ -4,11 +4,12 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.Id;
+import java.io.Serializable;
 import java.util.Date;
 
 @Data
 @NoArgsConstructor
-public class UserProfile {
+public class UserProfile implements Serializable {
     // Okta profile id
     @Id
     private String userId;
