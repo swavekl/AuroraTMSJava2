@@ -3,11 +3,13 @@ package com.auroratms.event;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
+
 /**
  * Class holding information about the prize money and/or trophies awarded for each place
  */
 @Data
-public class PrizeInfo {
+public class PrizeInfo implements Serializable {
 
     // if draw type is division (e.e. it is a giant round robin event)
     // each group of 8 players designates a division for which this prize info is configured e.g.

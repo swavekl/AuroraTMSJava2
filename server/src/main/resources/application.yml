@@ -1,7 +1,7 @@
 spring.jpa.hibernate.ddl-auto: update
 
 spring.cache.type: hazelcast
-spring.hazelcast.config: classpath:cache.yaml
+spring.hazelcast.config: classpath:hazelcast-cache.yaml
 
 spring.datasource:
   driver-class-name: com.mysql.jdbc.Driver
