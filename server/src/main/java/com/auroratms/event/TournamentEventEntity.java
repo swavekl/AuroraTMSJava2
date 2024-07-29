@@ -1,5 +1,6 @@
 package com.auroratms.event;
 
+import com.auroratms.tournament.EligibilityRestriction;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
@@ -59,6 +60,9 @@ public class TournamentEventEntity {
 
     // flag indicating if event has any gender restrictions (men's or women's only event)
     private GenderRestriction genderRestriction = GenderRestriction.NONE;
+
+    @Column(columnDefinition = "integer default 0")
+    private EligibilityRestriction eligibilityRestriction = EligibilityRestriction.OPEN;
 
     // round robin options
     private int playersPerGroup;

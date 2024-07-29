@@ -1,5 +1,6 @@
 package com.auroratms.event;
 
+import com.auroratms.tournament.EligibilityRestriction;
 import com.auroratms.tournament.TournamentConfiguration;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -58,6 +59,8 @@ public class TournamentEvent implements Serializable {
 
     // flag indicating if event has any gender restrictions (men's or women's only event)
     private GenderRestriction genderRestriction = GenderRestriction.NONE;
+
+    private EligibilityRestriction eligibilityRestriction = EligibilityRestriction.OPEN;
 
     // round robin options
     private int playersPerGroup;
@@ -137,6 +140,7 @@ public class TournamentEvent implements Serializable {
         tournamentEventEntity.setAgeRestrictionType(this.getAgeRestrictionType());
         tournamentEventEntity.setAgeRestrictionDate(this.getAgeRestrictionDate());
         tournamentEventEntity.setGenderRestriction(this.getGenderRestriction());
+        tournamentEventEntity.setEligibilityRestriction(this.getEligibilityRestriction());
         tournamentEventEntity.setPlayersPerGroup(this.getPlayersPerGroup());
         tournamentEventEntity.setDrawMethod(this.getDrawMethod());
         tournamentEventEntity.setNumTablesPerGroup(this.getNumTablesPerGroup());
@@ -189,6 +193,7 @@ public class TournamentEvent implements Serializable {
         tournamentEvent.setAgeRestrictionType(tournamentEventEntity.getAgeRestrictionType());
         tournamentEvent.setAgeRestrictionDate(tournamentEventEntity.getAgeRestrictionDate());
         tournamentEvent.setGenderRestriction(tournamentEventEntity.getGenderRestriction());
+        tournamentEvent.setEligibilityRestriction(tournamentEventEntity.getEligibilityRestriction());
         tournamentEvent.setPlayersPerGroup(tournamentEventEntity.getPlayersPerGroup());
         tournamentEvent.setDrawMethod(tournamentEventEntity.getDrawMethod());
         tournamentEvent.setNumTablesPerGroup(tournamentEventEntity.getNumTablesPerGroup());
@@ -239,6 +244,7 @@ public class TournamentEvent implements Serializable {
         this.setAgeRestrictionType(cloneFrom.getAgeRestrictionType());
         this.setAgeRestrictionDate(cloneFrom.getAgeRestrictionDate());
         this.setGenderRestriction(cloneFrom.getGenderRestriction());
+        this.setEligibilityRestriction(cloneFrom.getEligibilityRestriction());
         this.setPlayersPerGroup(cloneFrom.getPlayersPerGroup());
         this.setDrawMethod(cloneFrom.getDrawMethod());
         this.setNumTablesPerGroup(cloneFrom.getNumTablesPerGroup());

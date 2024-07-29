@@ -55,7 +55,7 @@ public class EventEntryStatusService {
      * @return list of event entry infos with that information
      */
     @Transactional(readOnly = true)
-    List<TournamentEventEntryInfo> getEntriesWithStatus(long tournamentEntryId) {
+    public List<TournamentEventEntryInfo> getEntriesWithStatus(long tournamentEntryId) {
         // get a list of event entries for this player
         List<TournamentEventEntryInfo> eventEntryInfos = Collections.EMPTY_LIST;
         TournamentEntry tournamentEntry = tournamentEntryService.get(tournamentEntryId);
@@ -113,12 +113,15 @@ public class EventEntryStatusService {
             UserProfile userProfile = userProfileService.getProfile(profileId);
             Tournament tournament = tournamentService.getByKey(tournamentId);
             Date tournamentStartDate = tournament.getStartDate();
+            String tournamentState = tournament.getState();
+            String tournamentCountryCode = "US";
 
             if (userProfile != null) {
                 // now determine availability status of the events that are not entered yet
                 PolicyApplicator policyApplicator = new PolicyApplicator();
                 List<TournamentEvent> eventEntityList = new ArrayList<>(eventEntityCollection);
-                policyApplicator.configurePolicies(eventEntries, eventEntityList, userProfile, eligibilityRating, tournamentStartDate);
+                policyApplicator.configurePolicies(eventEntries, eventEntityList, userProfile, eligibilityRating,
+                        tournamentStartDate, tournamentState, tournamentCountryCode);
                 eventEntryInfos = policyApplicator.evaluateRestrictions(eventEntityList, eventEntryInfos);
             }
 

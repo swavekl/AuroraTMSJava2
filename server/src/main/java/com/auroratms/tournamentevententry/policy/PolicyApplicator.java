@@ -18,10 +18,13 @@ public class PolicyApplicator {
     public void configurePolicies(List<TournamentEventEntry> eventEntries,
                                   List<TournamentEvent> events,
                                   UserProfile userProfile, int eligibilityRating,
-                                  Date tournamentStartDate) {
+                                  Date tournamentStartDate,
+                                  String tournamentState,
+                                  String tournamentCountryCode) {
         addPolicy(new GenderRestrictedEventPolicy(userProfile.getGender()));
         addPolicy(new AgeRestrictionEventPolicy(tournamentStartDate, userProfile.getDateOfBirth()));
         addPolicy(new RatingRestrictionEventPolicy(eligibilityRating));
+        addPolicy(new ClosedOpenRestrictionEventPolicy(tournamentState, userProfile.getState(), tournamentCountryCode, userProfile.getCountryCode()));
         addPolicy(new SchedulingConflictEventPolicy(eventEntries, events));
         addPolicy(new FullEventPolicy());
     }

@@ -2,6 +2,7 @@ import {GenderRestriction} from './model/gender-restriction.enum';
 import {AgeRestrictionType} from './model/age-restriction-type.enum';
 import {DrawMethod} from './model/draw-method.enum';
 import {TournamentEventConfiguration} from './model/tournament-event-configuration.model';
+import {EligibilityRestriction} from './model/eligibility-restriction.enum';
 
 /**
  * Tournament event e.g. U-2200, Giant Round Robin etc.
@@ -46,6 +47,9 @@ export class TournamentEvent {
 
   // flag indicating if event has any gender restrictions (men's or women's only event)
   genderRestriction: GenderRestriction = GenderRestriction.NONE;
+
+  // who can play in the tournament
+  eligibilityRestriction: EligibilityRestriction = EligibilityRestriction.OPEN;
 
   // round robin options
   playersPerGroup: number;
@@ -110,6 +114,7 @@ export class TournamentEvent {
       advanceUnratedWinner: tournamentEvent.advanceUnratedWinner || false,
       pointsPerGame: tournamentEvent.pointsPerGame || 11,
       play3rd4thPlace: tournamentEvent.play3rd4thPlace || false,
+      eligibilityRestriction: tournamentEvent.eligibilityRestriction || EligibilityRestriction.OPEN,
       configuration: tournamentEvent.configuration || new TournamentEventConfiguration()
     };
     return eventWithDefaults;
@@ -146,6 +151,7 @@ export class TournamentEvent {
     } else {
       tournamentEvent.ageRestrictionType = AgeRestrictionType.NONE;
     }
+    tournamentEvent.eligibilityRestriction = EligibilityRestriction.OPEN;
     // tournamentEvent.genderRestriction = GenderRestriction[selectedEvent.genderRestriction];
     tournamentEvent.configuration = new TournamentEventConfiguration();
     tournamentEvent.configuration.prizeInfoList = [];

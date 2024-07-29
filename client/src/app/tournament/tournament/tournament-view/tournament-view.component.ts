@@ -12,7 +12,7 @@ import {TodayService} from '../../../shared/today.service';
 import {MembershipUtil} from '../../util/membership-util';
 import {ConfirmationPopupComponent} from '../../../shared/confirmation-popup/confirmation-popup.component';
 import {MatDialog} from '@angular/material/dialog';
-import {EligibilityRestriction} from '../../tournament-config/model/tournament-type.enum';
+import {EligibilityRestriction} from '../../tournament-config/model/eligibility-restriction.enum';
 import {Regions} from '../../../shared/regions';
 import {StatesList} from '../../../shared/states/states-list';
 

@@ -14,6 +14,7 @@ import {CommonRegexPatterns} from '../../../shared/common-regex-patterns';
 import {TournamentEventConfiguration} from '../model/tournament-event-configuration.model';
 import {PrizeInfoDialogComponent, PrizeInfoDialogData} from './prize-info-dialog/prize-info-dialog.component';
 import {MatDialog, MatDialogConfig} from '@angular/material/dialog';
+import {EligibilityRestriction} from '../model/eligibility-restriction.enum';
 
 @Component({
   selector: 'app-tournament-event-config',
@@ -58,6 +59,13 @@ export class TournamentEventConfigComponent implements OnInit, OnChanges, OnDest
     {value: 'AGE_UNDER_OR_EQUAL_ON_DAY_EVENT', label: 'Maximum age on day of tournament'},
     {value: 'AGE_OVER_AT_THE_END_OF_YEAR', label: 'Minimum age at the end of year'},
     {value: 'BORN_ON_OR_AFTER_DATE', label: 'Born on or before date'}
+  ];
+
+  eligibilityRestrictionOptions: any[] = [
+    {value: EligibilityRestriction.OPEN, name: 'Open'},
+    {value: EligibilityRestriction.CLOSED_STATE, name: 'State Closed'},
+    {value: EligibilityRestriction.CLOSED_REGIONAL, name: 'Regional Closed'},
+    {value: EligibilityRestriction.CLOSED_NATIONAL, name: 'National Closed'}
   ];
 
   maxAgeRestrictionDate: Date;

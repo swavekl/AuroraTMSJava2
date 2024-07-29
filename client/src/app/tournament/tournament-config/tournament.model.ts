@@ -4,7 +4,7 @@ import * as moment from 'moment';
 import {PricingMethod} from '../model/pricing-method.enum';
 import {Personnel} from './model/personnel.model';
 import {CheckInType} from '../model/check-in-type.enum';
-import {EligibilityRestriction} from './model/tournament-type.enum';
+import {EligibilityRestriction} from './model/eligibility-restriction.enum';
 
 export class Tournament {
   id: number;

@@ -96,7 +96,7 @@
             </mat-form-field>
           </div>
           <div fxLayout.lt-sm="column" fxLayout="row" fxLayoutGap="10px">
-            <mat-form-field fxFlex="40%">
+            <mat-form-field fxFlex="20%">
               <mat-label>Gender Restriction</mat-label>
               <mat-select name="genderRestriction" [(ngModel)]="tournamentEvent.genderRestriction">
                 <mat-option *ngFor="let genderRestriction of genderRestrictions" [value]="genderRestriction.value">
@@ -105,13 +105,20 @@
               </mat-select>
             </mat-form-field>
             <mat-form-field fxFlex="30%">
+              <mat-label>Player Eligibility</mat-label>
+              <mat-select matInput type="text" name="eligibilityRestriction" [(ngModel)]="tournamentEvent.eligibilityRestriction" required>
+                <mat-option *ngFor="let option of eligibilityRestrictionOptions" value="{{option.value}}">{{option.name}}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+            <mat-form-field fxFlex="25%">
               <mat-label>Fee Adult</mat-label>
               <input matInput type="text" name="feeAdult" [(ngModel)]="tournamentEvent.feeAdult" reuired
                      [pattern]="PRICE_REGEX" #feeAdult="ngModel">
               <mat-error *ngIf="feeAdult.control?.hasError('pattern')">Enter price e.g. 50 or 22.50</mat-error>
               <mat-error *ngIf="feeAdult.control?.hasError('required')">This field is required</mat-error>
             </mat-form-field>
-            <mat-form-field fxFlex="30%">
+            <mat-form-field fxFlex="25%">
               <mat-label>Fee Junior</mat-label>
               <input matInput type="text" name="feeJunior" [(ngModel)]="tournamentEvent.feeJunior" required
                      [pattern]="PRICE_REGEX" #feeJunior="ngModel">

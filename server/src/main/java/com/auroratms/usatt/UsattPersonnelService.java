@@ -3,6 +3,7 @@ package com.auroratms.usatt;
 import com.auroratms.profile.UserProfile;
 import com.auroratms.profile.UserProfileService;
 import com.auroratms.users.UserRoles;
+import com.auroratms.utils.USRegionsInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -70,31 +71,11 @@ public class UsattPersonnelService {
      * @return
      */
     public String getSanctionCoordinatorRegion(int startLevel, String venueState) {
-        Map<String, String[]> regionsInfo = new HashMap();
-        regionsInfo.put("East", new String [] {"CT", "DE", "DC", "ME", "MD", "MA", "NH", "NJ", "NY", "PA", "RI", "VT", "VA", "WV"});
-        regionsInfo.put("Midwest", new String [] {"IL", "IN", "KY", "MI", "OH"});
-        regionsInfo.put("Mountain", new String [] {"CO", "NE", "NM", "UT", "WY"});
-        regionsInfo.put("North", new String [] {"IA", "MN", "ND", "SD", "WI"});
-        regionsInfo.put("Northwest", new String [] {"AK", "ID", "MT", "OR", "WA"});
-        regionsInfo.put("Pacific", new String [] {"AZ", "CA", "HI", "NV"});
-        regionsInfo.put("South Central", new String [] {"AR", "KS", "LA", "MO", "OK", "TX"});
-        regionsInfo.put("Southeast", new String [] {"AL", "FL", "GA", "MS", "NC", "SC", "TN"});
         if (startLevel >= 4) {
             return "National";
         } else {
-            for (String region : regionsInfo.keySet()) {
-                String[] states = regionsInfo.get(region);
-                String stateFound = Arrays.stream(states)
-                        .filter(state -> state.equals(venueState))
-                        .findAny()
-                        .orElse(null);
-
-                if (stateFound != null) {
-                    return region;
-                }
-            }
+            return USRegionsInfo.lookupRegionFromState(venueState);
         }
-        return null;
     }
 
     /**

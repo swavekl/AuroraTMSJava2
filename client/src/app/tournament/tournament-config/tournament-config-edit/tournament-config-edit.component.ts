@@ -21,7 +21,7 @@ import {
   OfficialSearchOptions
 } from '../../../officials/official-search-dialog/official-search-dialog.component';
 import {ErrorMessagePopupService} from '../../../shared/error-message-dialog/error-message-popup.service';
-import {EligibilityRestriction} from '../model/tournament-type.enum';
+import {EligibilityRestriction} from '../model/eligibility-restriction.enum';
 
 @Component({
   selector: 'app-tournament-config-edit',
