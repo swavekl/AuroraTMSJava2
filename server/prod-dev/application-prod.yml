@@ -123,8 +123,8 @@ spring.servlet.multipart:
 message.broker.type: rabbitmq
 
 message.broker.rabbitmq:
-  host: gateway-pc
-  port: 61613
+  host: rabbitmq
+  port: 5672
 
 # RabbitMQ log file location: c:\Users\Swavek\AppData\Roaming\RabbitMQ\log
 #logging.level.com.rabbitmq.client: TRACE
