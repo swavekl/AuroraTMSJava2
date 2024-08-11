@@ -119,8 +119,8 @@ spring.servlet.multipart:
 
 
 # Rabbit MQ 3.9.11 with Erlang 24.2
-message.broker.type: inmemory
-#message.broker.type: rabbitmq
+#message.broker.type: inmemory
+message.broker.type: rabbitmq
 
 message.broker.rabbitmq:
   host: gateway-pc
