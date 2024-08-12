@@ -80,7 +80,6 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 //            messageBrokerRegistry.setPathMatcher(new AntPathMatcher("."));
             messageBrokerRegistry.enableStompBrokerRelay("/topic")
                     .setRelayHost(rabbitMQHost)
-                    .setRelayPort(rabbitMQPort)
                     .setClientLogin(rabbitMQLogin)
                     .setClientPasscode(rabbitMQPasscode)
                     .setSystemLogin(rabbitMQLogin)
