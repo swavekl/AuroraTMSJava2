@@ -109,8 +109,13 @@ export class ScoreBoardMatchSelectionComponent implements OnInit {
     this.monitorService.sendMessage(this.tournamentId, this.tableNumber, monitorMessage);
 
     const matchCardId = matchCard.id;
-    const url = `/ui/scoreboard/scoreentry/${this.tournamentId}/${this.tournamentDay}/${this.tableNumber}/${matchCardId}/${matchIndex}`;
-    this.router.navigateByUrl(url);
+    const url = `/ui/scoreboard/matchstart/${this.tournamentId}/${this.tournamentDay}/${this.tableNumber}/${matchCardId}/${matchIndex}`;
+    const extras = {
+      state: {
+        doubles: doubles
+      }
+    };
+    this.router.navigateByUrl(url, extras);
   }
 
   back() {

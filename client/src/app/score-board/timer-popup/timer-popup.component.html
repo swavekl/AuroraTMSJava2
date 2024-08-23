@@ -1,0 +1,12 @@
+<mat-dialog-content>
+  <div style="margin-top: 40px" fxLayout="row" fxLayoutAlign="center center">
+    <app-timer-display [label]="title" (timerExpired)="onStopTimer()"></app-timer-display>
+  </div>
+</mat-dialog-content>
+<mat-dialog-actions>
+  <div fxLayout="row" fxLayoutAlign="end start" style="width: 100%; margin: 10px;">
+    <button mat-raised-button (click)="onStopTimer()" color="primary">Stop Timer</button>
+  </div>
+</mat-dialog-actions>
+
+

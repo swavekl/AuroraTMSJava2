@@ -2,7 +2,10 @@ import {OrderOfServingCalculator} from './order-of-serving-calculator';
 
 describe('OrderOfServingCalculator', () => {
   // doubles
-  let calculator = new OrderOfServingCalculator(5, true);
+  let calculator = new OrderOfServingCalculator(5, true, '','');
+  // A, B on the right
+  calculator.switchSides();
+
   calculator.recordServerAndReceiver('A', 'X');
   let lastDoublesGame = 1;
   it('Doubles initial server A', () => {
@@ -123,6 +126,7 @@ describe('OrderOfServingCalculator', () => {
       if (lastDoublesGame != game) {
         lastDoublesGame = game;
         const nextGameIndex = calculator.startNextGame();
+        calculator.switchSides();
         let nextReceiver = null;
         switch (nextGameIndex) {
           case 1:
@@ -154,7 +158,7 @@ describe('OrderOfServingCalculator', () => {
   });
 
 
-  let singlesCalculator = new OrderOfServingCalculator(5, false);
+  let singlesCalculator = new OrderOfServingCalculator(5, false, '', '');
   singlesCalculator.recordServerAndReceiver('A', 'X');
   let lastSinglesGame = 1;
   it('Singles initial server A', () => {
@@ -274,6 +278,7 @@ describe('OrderOfServingCalculator', () => {
     if (lastSinglesGame != game) {
       lastSinglesGame = game;
         const nextGameIndex = singlesCalculator.startNextGame();
+        singlesCalculator.switchSides();
         let nextReceiver = null;
         switch (nextGameIndex) {
           case 1:

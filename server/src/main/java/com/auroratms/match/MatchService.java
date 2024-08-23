@@ -54,10 +54,16 @@ public class MatchService {
             match.setGame6ScoreSideB(updatedMatch.getGame6ScoreSideB());
             match.setGame7ScoreSideA(updatedMatch.getGame7ScoreSideA());
             match.setGame7ScoreSideB(updatedMatch.getGame7ScoreSideB());
-            match.setSideAServesFirst(updatedMatch.isSideAServesFirst());
             match.setSideATimeoutTaken(updatedMatch.isSideATimeoutTaken());
             match.setSideBTimeoutTaken(updatedMatch.isSideBTimeoutTaken());
             match.setScoreEnteredByProfileId(updatedMatch.getScoreEnteredByProfileId());
+            match.setWarmupStarted(updatedMatch.isWarmupStarted());
+            match.setPlayerACardsJSON(updatedMatch.getPlayerACardsJSON());
+            match.setPlayerBCardsJSON(updatedMatch.getPlayerBCardsJSON());
+            match.setServingOrderStateJSON(updatedMatch.getServingOrderStateJSON());
+            match.setUmpireName(updatedMatch.getUmpireName());
+            match.setAssistantUmpireName(updatedMatch.getAssistantUmpireName());
+            match.setInitialServerSide(updatedMatch.getInitialServerSide());
             return this.matchRepository.saveAndFlush(match);
         } catch (Exception e) {
             throw new ResourceUpdateFailedException("Unable to update updatedMatch results");

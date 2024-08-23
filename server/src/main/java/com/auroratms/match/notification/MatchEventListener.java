@@ -67,8 +67,7 @@ public class MatchEventListener {
             String timeoutRequester = (!timeoutStarted) ? null : (sideARequestedTimeout)
                     ? matchBefore.getPlayerAProfileId() : matchBefore.getPlayerBProfileId();
 
-            // todo - maybe it is better to do this directly via websocket
-            boolean warmupStarted = false;
+            boolean warmupStarted = matchAfter.isWarmupStarted();
 
             this.matchStatusPublisher.publishMatchUpdate(matchCardId, matchAfter, timeoutStarted, timeoutRequester, warmupStarted);
             log.info("Finished processing match update event for match card with id " + matchCardId);

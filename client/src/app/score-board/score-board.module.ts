@@ -2,7 +2,7 @@ import {NgModule} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {MatFormFieldModule} from '@angular/material/form-field';
 import {FormsModule} from '@angular/forms';
-import {MatToolbar, MatToolbarModule, MatToolbarRow} from '@angular/material/toolbar';
+import {MatToolbar, MatToolbarRow} from '@angular/material/toolbar';
 import {MatInputModule} from '@angular/material/input';
 import {MatGridListModule} from '@angular/material/grid-list';
 import {MatButtonModule} from '@angular/material/button';
@@ -19,6 +19,15 @@ import {ScoreBoardScoreEntryComponent} from './score-board-score-entry/score-boa
 import {ScoreBoardScoreEntryContainerComponent} from './score-board-score-entry/score-board-score-entry-container.component';
 import {MatIcon} from '@angular/material/icon';
 import {TimerFormatterPipe} from '../shared/pipes/timer-formatter.pipe';
+import {ScoreBoardMatchStartComponent} from './score-board-match-start/score-board-match-start.component';
+import {
+  ScoreBoardMatchStartContainerComponent
+} from './score-board-match-start/score-board-match-start-container.component';
+import {MatRadioButton, MatRadioGroup} from '@angular/material/radio';
+import {ScoreTableComponent} from '../matches/score-table/score-table.component';
+import {MatchesModule} from '../matches/matches.module';
+import { CardsPopupComponent } from './cards-popup/cards-popup.component';
+import {MatDialogActions, MatDialogContent, MatDialogTitle} from '@angular/material/dialog';
 
 
 @NgModule({
@@ -28,7 +37,10 @@ import {TimerFormatterPipe} from '../shared/pipes/timer-formatter.pipe';
     ScoreBoardMatchSelectionComponent,
     ScoreBoardMatchSelectContainerComponent,
     ScoreBoardScoreEntryComponent,
-    ScoreBoardScoreEntryContainerComponent
+    ScoreBoardScoreEntryContainerComponent,
+    ScoreBoardMatchStartComponent,
+    ScoreBoardMatchStartContainerComponent,
+    CardsPopupComponent
   ],
   imports: [
     CommonModule,
@@ -44,7 +56,13 @@ import {TimerFormatterPipe} from '../shared/pipes/timer-formatter.pipe';
     MatIcon,
     MatToolbar,
     MatToolbarRow,
-    TimerFormatterPipe
+    TimerFormatterPipe,
+    MatRadioGroup,
+    MatRadioButton,
+    MatchesModule,
+    MatDialogContent,
+    MatDialogActions,
+    MatDialogTitle
   ]
 })
 export class ScoreBoardModule {

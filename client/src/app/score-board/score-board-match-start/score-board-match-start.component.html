@@ -1,0 +1,182 @@
+<div fxLayout="column" fxLayoutAlign="start center" style="height: 100%;">
+  <div fxLayout="row" fxFlexAlign="center center">
+    <div>&nbsp;</div>
+    <div fxFlex *ngIf="match != null">
+      <mat-toolbar>
+        <mat-toolbar-row fxLayout="row" fxLayoutAlign="start start" fxLayoutGap="10px">
+          <button mat-raised-button (click)="back()" style="margin-right: 10px">Back</button>
+          <span fxFlex></span>
+          <button mat-raised-button color="primary" (click)="recordServerAndReceiver()" [disabled]="!isMatchNotStarted()"
+                  debounceClicks>Record Sides & Server
+          </button>
+          <button mat-raised-button (click)="startWarmup()" [disabled]="!canStartWarmup()">Start Warmup</button>
+          <button mat-raised-button (click)="endMatch()">End Match</button>
+        </mat-toolbar-row>
+      </mat-toolbar>
+      <div fxLayout="row" fxLayoutAlign="center start">
+        <table class="players-table">
+          <thead>
+          <tr>
+            <th class="timeout-cards-cell">
+              <button type="button" mat-raised-button (click)="startTimeout('A')"
+                      [disabled]="!canStartTimeout('A')">Timeout</button>
+            </th>
+            <th class="buttons-column">
+              <button mat-raised-button (click)="switchPlayers(true)">
+                Switch Players
+                <mat-icon>swap_vert</mat-icon>
+              </button>
+            </th>
+            <th class="buttons-column" colspan="2">
+              <button mat-raised-button (click)="swapSides()">Switch Sides
+                <mat-icon>swap_horiz</mat-icon>
+              </button>
+            </th>
+            <th class="buttons-column">
+              <button mat-raised-button (click)="switchPlayers(false)">
+                Switch Players
+                <mat-icon>swap_vert</mat-icon>
+              </button>
+            </th>
+            <th class="timeout-cards-cell right-aligned">
+              <button type="button" mat-raised-button (click)="startTimeout('B')"
+                      [disabled]="!canStartTimeout('B')">Timeout</button>
+            </th>
+          </tr>
+          <tr>
+            <th class="timeout-cards-cell">
+              <button type="button" mat-raised-button (click)="issueCard(true)">Cards</button>
+            </th>
+            <th class="serving-receiver-label-column">Side to Serve First</th>
+            <th colspan="2">
+              <form #f="ngForm" name="form">
+                <mat-radio-group [(ngModel)]="servingSide" name="servingSide" fxLayout="row"
+                                 fxLayoutAlign="space-between start">
+                  <mat-radio-button value="left" (click)="onSelectServer(true)" [disabled]="!isMatchNotStarted()">Left</mat-radio-button>
+                  <mat-radio-button value="right" (click)="onSelectServer(false)" [disabled]="!isMatchNotStarted()">Right</mat-radio-button>
+                </mat-radio-group>
+              </form>
+            </th>
+            <th>
+            </th>
+            <th class="timeout-cards-cell right-aligned">
+              <button type="button" mat-raised-button (click)="issueCard(false)">Cards</button>
+            </th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr class="net-post-row">
+            <td></td>
+            <td></td>
+            <td class="net-post-cell"></td>
+            <td></td>
+            <td></td>
+            <td></td>
+          </tr>
+          <tr class="white-doubles-divider">
+            <td>
+            </td>
+            <td class="names-column">
+              <ng-container *ngIf="doubles">
+                {{ getPlayerName(true, 0) }} [{{ getPlayerLetter(true, 0) }}]
+              </ng-container>
+            </td>
+            <td class="server-receiver-column net-cell"></td>
+            <td class="server-receiver-column">{{ isServer(false) ? 'S' : 'R' }}</td>
+            <td class="names-column right-aligned">
+              {{ getPlayerName(false, 0) }} [{{ getPlayerLetter(false, 0) }}]
+            </td>
+            <td></td>
+          </tr>
+          <tr>
+            <td></td>
+            <td class="names-column">
+              {{ getPlayerName(true, 1) }} [{{ getPlayerLetter(true, 1) }}]
+            </td>
+            <td class="server-receiver-column net-cell">{{ isServer(true) ? 'S' : 'R' }}</td>
+            <td class="server-receiver-column">&nbsp;</td>
+            <td class="names-column right-aligned">
+              <ng-container *ngIf="doubles">
+               {{ getPlayerName(false, 1) }} [{{ getPlayerLetter(false, 1) }}]
+              </ng-container>
+            </td>
+            <td>
+            </td>
+          </tr>
+          <tr class="net-post-row">
+            <td></td>
+            <td></td>
+            <td class="net-post-cell"></td>
+            <td></td>
+            <td></td>
+            <td></td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div fxLayout="row" fxLayoutAlign="center start">
+        <table class="score-table">
+          <tbody>
+          <tr>
+            <td class="button-cell">
+              <button type="button" mat-fab color="" class="add-button" (click)="addPoint(true)">
+                <mat-icon>add</mat-icon>
+              </button>
+            </td>
+            <td class="button-cell">
+              <button type="button" mat-fab color="" class="subtract-button" (click)="subtractPoint(true)">
+                <mat-icon>remove</mat-icon>
+              </button>
+            </td>
+            <td class="game-score-cell" rowspan="2">{{ getScore(true) }}</td>
+            <td class="game-score-cell" rowspan="2">:</td>
+            <td class="game-score-cell" rowspan="2">{{ getScore(false) }}</td>
+            <td class="button-cell right-aligned">
+              <button type="button" mat-fab color="" class="subtract-button" (click)="subtractPoint(false)">
+                <mat-icon>remove</mat-icon>
+              </button>
+            </td>
+            <td class="button-cell right-aligned">
+              <button type="button" mat-fab color="" class="add-button" (click)="addPoint(false)">
+                <mat-icon>add</mat-icon>
+              </button>
+            </td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div fxLayout="row" *ngIf="match" class="match-scores-table-container">
+        <div fxFlex="grow">
+          <div fxLayout="row" fxLayoutAlign="end start" style="margin-top: 25px; margin-right: 10px;">
+            <app-cards-display [cardsInfo]="getCardsInfo(true)">
+            </app-cards-display>
+          </div>
+          <div fxLayout="row" fxLayoutAlign="end start" [style.margin-top]="doubles ? '1px' : '15px'"
+               style="margin-right: 10px;">
+            <app-cards-display [cardsInfo]="getCardsInfo(false)">
+            </app-cards-display>
+          </div>
+        </div>
+        <div>
+          <app-match-score-table [match]="match"
+                                 [doubles]="doubles"
+                                 [playerAName]="playerAName"
+                                 [playerBName]="playerBName"
+                                 [numberOfGames]="numberOfGames"
+                                 [pointsPerGame]="pointsPerGame"
+                                 [currentGameIndex]="gameToShowIndex"
+                                 [showPlayerNames]="true">
+          </app-match-score-table>
+        </div>
+        <div fxFlex="grow" style="padding: 70px 30px;">
+          <button type="button" mat-raised-button color="" class="game-prev-next-button" (click)="nextGame()"
+                  [disabled]="!(hasNextGame() && isGameFinished())">Next Game
+          </button>
+        </div>
+      </div>
+    </div>
+    <div>&nbsp;</div>
+  </div>
+</div>

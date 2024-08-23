@@ -39,12 +39,13 @@ export class MonitorService {
     const url = `https://${environment.baseServer}/websocket-hs?access_token=${accessToken}`;
     const socket = new SockJS(url);
     this.stompClient = Stomp.over(socket);
+    console.log('connecting stop client');
     this.stompClient.connect({'Authorization': accessToken}, function (frame) {
       me.setConnected(true);
       if (asSubscriber) {
         const topicName = me.getTopicName(tournamentId, tableNumber);
         me.stompClient.subscribe(topicName, function (message) {
-          // console.log ('monitorMessage', monitorMessage);
+          // console.log ('monitorMessage', message);
           const monitorMessage: MonitorMessage = JSON.parse(message.body);
           me.messagesSubject$.next(monitorMessage);
         });

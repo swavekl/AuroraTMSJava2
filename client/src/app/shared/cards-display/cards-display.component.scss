@@ -1,0 +1,88 @@
+$small-width: 28px;
+$small-height: 40px;
+$large-width: 50px;
+$large-height: 75px;
+$small-border-radius: 4px;
+$large-border-radius: 6px;
+
+table.cards-display {
+  /* We need this to be able to use border-radius. */
+  border-collapse: separate;
+
+  &.small-separation {
+    /* Add a 1px border spacing for out box-shadow to fit into. Increase this if you want to increase the border width. */
+    border-spacing: 10px;
+  }
+
+  &.large-separation {
+    /* Add a 1px border spacing for out box-shadow to fit into. Increase this if you want to increase the border width. */
+    border-spacing: 10px;
+  }
+
+  tbody {
+    tr {
+      td {
+        /* Remove any borders from our stylesheet. */
+        border: 0;
+
+        text-align: center;
+        vertical-align: middle;
+        font-weight: bold;
+
+        &.small-format {
+          font-size: 18px;
+          min-width: $small-width;
+          width: $small-width;
+          min-height: $small-height;
+          height: $small-height;
+          border-radius: $small-border-radius;
+        }
+
+        &.large-format {
+          font-size: 30px;
+          min-width: $large-width;
+          width: $large-width;
+          min-height: $large-height;
+          height: $large-height;
+          border-radius: $large-border-radius;
+        }
+
+        &.timeout-card {
+          /* Use the spread value on the box-shadow to set the border width. */
+          box-shadow: 0 0 0 2px black;
+        }
+
+        &.yellow-card {
+          background-color: gold;
+          box-shadow: 0 0 0 2px gold;
+        }
+
+        &.red-card {
+          background-color: red;
+          box-shadow: 0 0 0 2px red;
+        }
+
+        &.yellow-red-card {
+          position: relative;
+          background: red;
+          box-shadow: 0 0 0 2px red;
+        }
+
+        &.yellow-red-card > span {
+          position: relative;
+        }
+
+        &.yellow-red-card:before {
+          position: absolute;
+          content: '';
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 50%;
+          box-shadow: 0 0 0 2px gold;
+          background: gold;
+        }
+      }
+    }
+  }
+}

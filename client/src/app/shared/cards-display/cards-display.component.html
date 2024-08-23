@@ -1,0 +1,35 @@
+<table class="cards-display" [ngClass]="smallFormat ? 'small-separation': 'large-separation'">
+  <tbody>
+  <tr *ngIf="cardsInfo != null">
+    <td *ngIf="cardsInfo.timeoutCard || displayAll" class="timeout-card"
+        [ngClass]="smallFormat ? 'small-format': 'large-format'"
+        (click)="onCardClicked('timeoutCard')">
+      T
+    </td>
+    <td *ngIf="cardsInfo.yellowCard || displayAll" (click)="onCardClicked('yellowCard')"
+        class="yellow-card" [ngClass]="smallFormat ? 'small-format': 'large-format'">
+      &nbsp;&nbsp;
+    </td>
+    <td *ngIf="cardsInfo.yellowAndRed1 || displayAll" (click)="onCardClicked('yellowAndRed1')"
+        class="yellow-red-card" [ngClass]="smallFormat ? 'small-format': 'large-format'">
+      <span>1</span>
+    </td>
+    <td *ngIf="cardsInfo.yellowAndRed2 || displayAll" (click)="onCardClicked('yellowAndRed2')"
+        class="yellow-red-card" [ngClass]="smallFormat ? 'small-format': 'large-format'">
+      <span>2</span>
+    </td>
+    <td *ngIf="cardsInfo.redCard || displayAll" (click)="onCardClicked('redCard')"
+        class="red-card" [ngClass]="smallFormat ? 'small-format': 'large-format'">
+      &nbsp;&nbsp;
+    </td>
+    <td *ngIf="cardsInfo.yellowCardForCoach || displayAll" (click)="onCardClicked('yellowCardForCoach')"
+        class="yellow-card" [ngClass]="smallFormat ? 'small-format': 'large-format'">
+      C
+    </td>
+    <td *ngIf="cardsInfo.redCardForCoach|| displayAll" (click)="onCardClicked('yellowCardForCoach')"
+        class="red-card" [ngClass]="smallFormat ? 'small-format': 'large-format'">
+      C
+    </td>
+  </tr>
+  </tbody>
+</table>

@@ -29,6 +29,9 @@ import {DownloadButtonComponent} from './download-file/download-button.component
 import {getSaver, SAVER} from './download-service/saver.provider';
 import {DateAfterDirective} from './directives/date-after.directive';
 import { PhonePipe } from './pipes/phone.pipe';
+import {TimerDisplayComponent} from './timer-display/timer-display.component';
+import {TimerFormatterPipe} from './pipes/timer-formatter.pipe';
+import {CardsDisplayComponent} from './cards-display/cards-display.component';
 
 
 @NgModule({
@@ -51,7 +54,9 @@ import { PhonePipe } from './pipes/phone.pipe';
     DownloadButtonComponent,
     SelectionsDifferentDirective,
     ValuesMatchDirective,
-    PhonePipe
+    PhonePipe,
+    TimerDisplayComponent,
+    CardsDisplayComponent
   ],
   exports: [
     LinearProgressBarComponent,
@@ -71,7 +76,9 @@ import { PhonePipe } from './pipes/phone.pipe';
     DownloadButtonComponent,
     SelectionsDifferentDirective,
     ValuesMatchDirective,
-    PhonePipe
+    PhonePipe,
+    TimerDisplayComponent,
+    CardsDisplayComponent
   ],
   imports: [
     CommonModule,
@@ -82,7 +89,8 @@ import { PhonePipe } from './pipes/phone.pipe';
     FlexLayoutModule,
     MatIconModule,
     MatListModule,
-    MatProgressSpinnerModule
+    MatProgressSpinnerModule,
+    TimerFormatterPipe
   ],
   providers: [
     LocalStorageService,

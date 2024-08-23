@@ -3,6 +3,8 @@ import {MonitorMessage} from '../model/monitor-message.model';
 import {Match} from '../../matches/model/match.model';
 import {takeWhile, timer} from 'rxjs';
 import {finalize, tap} from 'rxjs/operators';
+import {OrderOfServingCalculator} from '../../shared/serve-order/order-of-serving-calculator';
+import {CardsInfo} from '../../shared/cards-display/cards-info.model';
 
 @Component({
   selector: 'app-monitor-display',
@@ -39,6 +41,11 @@ export class MonitorDisplayComponent implements OnInit, OnChanges {
 
   timerLabel: string;
 
+  playerACardsInfo: CardsInfo;
+  playerBCardsInfo: CardsInfo;
+
+  private orderOfServingCalculator: OrderOfServingCalculator;
+
   constructor(protected cdr: ChangeDetectorRef) {
     this.games = Array(5);
   }
@@ -59,6 +66,30 @@ export class MonitorDisplayComponent implements OnInit, OnChanges {
         this.currentGameIndex = this.getCurrentGameIndex(mm.numberOfGames, mm.pointsPerGame);
         this.getCurrentGameScore();
         this.getTimerData(mm.warmupStarted, mm.timeoutStarted, mm.timeoutRequester);
+
+        if (this.orderOfServingCalculator == null) {
+          let orderOfServingCalculator = new OrderOfServingCalculator(
+            mm.numberOfGames, mm.doubles, this.match.playerAProfileId, this.match.playerBProfileId);
+          if (this.match.servingOrderStateJSON != null && this.match?.servingOrderStateJSON != '') {
+            orderOfServingCalculator.fromJson(this.match.servingOrderStateJSON);
+          }
+          this.orderOfServingCalculator = orderOfServingCalculator;
+        } else {
+          if (this.match.servingOrderStateJSON != null && this.match?.servingOrderStateJSON != '') {
+            this.orderOfServingCalculator.fromJson(this.match.servingOrderStateJSON);
+          }
+        }
+
+        if (this.match.playerACardsJSON != null) {
+          const infoA: CardsInfo = new CardsInfo();
+          infoA.fromJson(this.match.playerACardsJSON);
+          this.playerACardsInfo = infoA;
+        }
+        if (this.match.playerBCardsJSON != null) {
+          const infoB: CardsInfo = new CardsInfo();
+          infoB.fromJson(this.match.playerBCardsJSON);
+          this.playerBCardsInfo = infoB;
+        }
       }
     }
   }
@@ -164,7 +195,7 @@ export class MonitorDisplayComponent implements OnInit, OnChanges {
         this.startTimer(duration, label);
       }
     } else {
-      if (!timeoutStarted) {
+      if (!warmupStarted && !timeoutStarted) {
         this.stopTimer();
       }
     }
@@ -193,5 +224,43 @@ export class MonitorDisplayComponent implements OnInit, OnChanges {
       this.timerValue = 0;
       this.timerRunning = false;
     }
+  }
+
+  serverOrReceiver(playerName: string) {
+    let playerProfileId = null;
+    if (this.matchData.doubles) {
+      const teamAProfileIds = this.match.playerAProfileId.split(';');
+      const teamBProfileIds = this.match.playerBProfileId.split(';');
+      if (playerName === this.matchData.playerAName) {
+        playerProfileId = teamAProfileIds[0];
+      } else if (playerName === this.matchData.playerAPartnerName) {
+        playerProfileId = teamAProfileIds[1];
+      } else if (playerName === this.matchData.playerBName) {
+        playerProfileId = teamBProfileIds[0];
+      } else if (playerName === this.matchData.playerBPartnerName) {
+        playerProfileId = teamBProfileIds[1];
+      }
+    } else {
+      if (playerName === this.matchData.playerAName) {
+        playerProfileId = this.match.playerAProfileId;
+      } else {
+        playerProfileId = this.match.playerBProfileId;
+      }
+    }
+
+    if (playerProfileId) {
+      if (this.orderOfServingCalculator.isPlayerServer(playerProfileId)) {
+        return '[S]';
+      } else if (this.orderOfServingCalculator.isPlayerReceiver(playerProfileId)) {
+        return '[R]'
+      }
+    }
+    // neither
+    return '';
+  }
+
+  getCardsInfo(playerACardsJSON: string) {
+
+    return undefined;
   }
 }

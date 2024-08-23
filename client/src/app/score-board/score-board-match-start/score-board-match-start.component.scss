@@ -1,0 +1,113 @@
+@use "src/my-theme.scss" as *;
+
+table.players-table {
+  thead tr th {
+
+    &.timeout-cards-cell {
+      text-align: left;
+      padding-bottom: 10px;
+    }
+
+    &.right-aligned {
+      text-align: right;
+    }
+
+    &.serving-receiver-label-column {
+      text-align: right;
+      font-size: 18px;
+      //border: 1px solid green;
+      padding-right: 10px;
+    }
+  }
+
+  tbody tr {
+
+    &.net-post-row {
+      height: 15px !important;
+    }
+
+    &.white-doubles-divider {
+      border-bottom: 2px solid white;
+    }
+
+    td {
+      //border: 1px solid purple;
+
+      &.net-post-cell {
+        border-right: 2px solid black;
+      }
+
+      &.names-column {
+        font-size: 18px;
+        padding: 10px 20px;
+        min-width: 250px;
+        align-content: center;
+        background-color: lightskyblue;
+        height: 100px;
+      }
+
+      &.right-aligned {
+        text-align: right;
+      }
+
+      &.net-cell {
+        border-right: 2px solid black;
+        //max-width: 1px;
+      }
+
+      &.buttons-column {
+        align-content: center;
+        text-align: center;
+      }
+
+      &.server-receiver-column {
+        //min-width: 30px;
+        text-align: center;
+        vertical-align: middle;
+        background-color: lightskyblue;
+        font-size: 18px;
+      }
+
+      &.versus-column {
+        //min-width: 30px;
+        text-align: center;
+        vertical-align: middle;
+      }
+    }
+  }
+
+}
+
+table.score-table {
+  width: 720px;
+  margin-top: 10px;
+  margin-bottom: 10px;
+
+  td {
+    //border: 1px solid green;
+
+    &.game-score-cell {
+      padding: 24px 16px;
+      vertical-align: middle;
+      text-align: center;
+      font-size: 48px;
+    }
+
+    &.button-cell {
+      padding: 20px;
+      text-align: justify-all;
+    }
+
+    button.subtract-button {
+      background-color: lighten($primary-color, 40%);
+    }
+
+    button.add-button {
+      background-color: lighten($primary-color, 20%);
+    }
+
+    &.right-aligned {
+      text-align: right;
+    }
+  }
+}

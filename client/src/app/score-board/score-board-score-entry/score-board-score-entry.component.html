@@ -9,11 +9,11 @@
           <span fxFlex></span>
           <button mat-raised-button color="primary" (click)="save()" debounceClicks [disabled]="!isScoreValid()">Save</button>
         </mat-toolbar-row>
-        <mat-toolbar-row fxLayout="row" fxLayoutAlign="end start" fxLayoutGap="10px">
-          <span fxFlex></span>
-          <button mat-raised-button [disabled]="!canStartWarmup()" (click)="startWarmup()" style="margin-right: 10px">Start Warmup</button>
-          <button mat-raised-button [disabled]="!canStopWarmup()" (click)="stopWarmup()" style="margin-right: 10px">Stop Warmup</button>
-        </mat-toolbar-row>
+<!--        <mat-toolbar-row fxLayout="row" fxLayoutAlign="end start" fxLayoutGap="10px">-->
+<!--          <span fxFlex></span>-->
+<!--          <button mat-raised-button [disabled]="!canStartWarmup()" (click)="startWarmup()" style="margin-right: 10px">Start Warmup</button>-->
+<!--          <button mat-raised-button [disabled]="!canStopWarmup()" (click)="stopWarmup()" style="margin-right: 10px">Stop Warmup</button>-->
+<!--        </mat-toolbar-row>-->
         <mat-toolbar-row fxLayout="row" fxLayoutAlign="start start" fxLayoutGap="10px">
           <span fxFlex></span>
           <button mat-raised-button [disabled]="!canStartTimeout('A')" (click)="startTimeout('A')" style="margin-right: 10px">Start Timeout A</button>

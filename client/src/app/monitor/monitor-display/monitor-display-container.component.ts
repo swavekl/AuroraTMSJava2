@@ -30,7 +30,7 @@ export class MonitorDisplayContainerComponent implements OnInit, OnDestroy {
     this.tournamentId = Number(strTournamentId);
     const strTableToMonitor = this.activatedRoute.snapshot.params['tableNumber'] || 1;
     this.tableNumber = Number(strTableToMonitor);
-    console.log (`tournament ${this.tournamentId}, tableToMonitor: ${this.tableNumber}`);
+    // console.log (`tournament ${this.tournamentId}, tableToMonitor: ${this.tableNumber}`);
   }
 
   ngOnInit(): void {

@@ -31,6 +31,7 @@ import {RankingResultsContainerComponent} from './ranking-results/ranking-result
 import {RankingResultsComponent} from './ranking-results/ranking-results.component';
 import { DefaultPlayerPhoneDialogComponent } from './default-player-phone-dialog/default-player-phone-dialog.component';
 import {MatRadioModule} from '@angular/material/radio';
+import {ScoreTableComponent} from './score-table/score-table.component';
 
 
 @NgModule({
@@ -46,7 +47,11 @@ import {MatRadioModule} from '@angular/material/radio';
     ScoreAuditDialogComponent,
     RankingResultsComponent,
     RankingResultsContainerComponent,
-    DefaultPlayerPhoneDialogComponent
+    DefaultPlayerPhoneDialogComponent,
+    ScoreTableComponent
+  ],
+  exports: [
+    ScoreTableComponent
   ],
   imports: [
     CommonModule,

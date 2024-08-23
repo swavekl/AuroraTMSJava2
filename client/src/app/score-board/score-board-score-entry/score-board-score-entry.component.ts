@@ -2,6 +2,7 @@ import {Component, EventEmitter, Input, Output, SimpleChange, SimpleChanges} fro
 import {Match} from '../../matches/model/match.model';
 import {finalize, tap} from 'rxjs/operators';
 import {takeWhile, timer} from 'rxjs';
+import {OrderOfServingCalculator} from '../../shared/serve-order/order-of-serving-calculator';
 
 @Component({
   selector: 'app-score-board-score-entry',
@@ -54,6 +55,8 @@ export class ScoreBoardScoreEntryComponent {
   // timeout started for player A or B
   timeoutForPlayer: string = null;
 
+  private orderOfServingCalculator: OrderOfServingCalculator;
+
   constructor() {
     this.games = [];
     this.pointsPerGame = 11;
@@ -78,12 +81,24 @@ export class ScoreBoardScoreEntryComponent {
       if (match) {
         this.gameToShowIndex = this.getNextGameIndex(this.match);
         this.getGameScore();
+        if (this.orderOfServingCalculator == null) {
+          this.orderOfServingCalculator = new OrderOfServingCalculator(this.numberOfGames, this.doubles,
+            this.match.playerAProfileId, this.match.playerBProfileId);
+          if (this.match.servingOrderStateJSON != null) {
+            this.orderOfServingCalculator.fromJson(this.match.servingOrderStateJSON);
+          }
+        } else {
+          if (this.match.servingOrderStateJSON != null) {
+            this.orderOfServingCalculator.fromJson(this.match.servingOrderStateJSON);
+          }
+        }
       }
     }
   }
 
   previousGame() {
     this.saveGameScore();
+    this.determineServerAndReceiver();
     if (this.dirty) {
       this.saveMatch.emit({updatedMatch: this.match, backToMatchCard: false});
       this.dirty = false;
@@ -98,6 +113,7 @@ export class ScoreBoardScoreEntryComponent {
 
   nextGame() {
     this.saveGameScore();
+    this.advanceToNextGame();
     if (this.dirty) {
       this.saveMatch.emit({updatedMatch: this.match, backToMatchCard: false});
       this.dirty = false;
@@ -138,27 +154,19 @@ export class ScoreBoardScoreEntryComponent {
       this.gameScoreSideB -= (this.gameScoreSideB > 0) ? 1 : 0;
     }
     this.saveGameScore();
+    this.determineServerAndReceiver();
     this.saveMatch.emit({updatedMatch: this.match, backToMatchCard: false});
     this.dirty = true;
   }
 
   addPoint(playerIndex: number) {
-    // if (!this.isWinnerSelected()) {
-    //   this.setWinner(playerIndex);
-    // } else {
-    // }
     if (playerIndex === 0) {
       this.gameScoreSideA++;
-      // if (this.gameScoreSideA >= this.pointsPerGame + 1) {
-      //   this.gameScoreSideB = this.gameScoreSideA - 2;
-      // }
     } else {
       this.gameScoreSideB++;
-      // if (this.gameScoreSideB >= this.pointsPerGame + 1) {
-      //   this.gameScoreSideA = this.gameScoreSideB - 2;
-      // }
     }
     this.saveGameScore();
+    this.determineServerAndReceiver();
     this.saveMatch.emit({updatedMatch: this.match, backToMatchCard: false});
     this.dirty = true;
   }
@@ -341,23 +349,23 @@ export class ScoreBoardScoreEntryComponent {
     }
   }
 
-  startWarmup() {
-    this.startTimer(120);
-    this.timerEvent.emit({action: 'startWarmup', timeoutForPlayer: null, updatedMatch: this.match});
-  }
-
-  stopWarmup() {
-    this.stopTimer();
-    this.timerEvent.emit({action: 'stopWarmup', timeoutForPlayer: null, updatedMatch: this.match});
-  }
-
-  canStartWarmup() {
-    if (!this.timerRunning) {
-      return this.isMatchNotStarted();
-    } else {
-      return false;
-    }
-  }
+  // startWarmup() {
+  //   this.startTimer(120);
+  //   this.timerEvent.emit({action: 'startWarmup', timeoutForPlayer: null, updatedMatch: this.match});
+  // }
+  //
+  // stopWarmup() {
+  //   this.stopTimer();
+  //   this.timerEvent.emit({action: 'stopWarmup', timeoutForPlayer: null, updatedMatch: this.match});
+  // }
+  //
+  // canStartWarmup() {
+  //   if (!this.timerRunning) {
+  //     return this.isMatchNotStarted();
+  //   } else {
+  //     return false;
+  //   }
+  // }
 
   isMatchNotStarted () {
     if (this.match != null) {
@@ -373,9 +381,9 @@ export class ScoreBoardScoreEntryComponent {
     }
   }
 
-  canStopWarmup() {
-    return this.canStartWarmup() && this.timerRunning;
-  }
+  // canStopWarmup() {
+  //   return this.canStartWarmup() && this.timerRunning;
+  // }
 
   startTimeout(playerLetter: string) {
     if (!this.timerRunning) {
@@ -418,5 +426,23 @@ export class ScoreBoardScoreEntryComponent {
     } else {
       return false;
     }
+  }
+
+  private determineServerAndReceiver() {
+    if (this.orderOfServingCalculator != null) {
+      this.orderOfServingCalculator.determineNextServerAndReceiver(this.gameScoreSideA, this.gameScoreSideB);
+      const orderOfServingJSON = this.orderOfServingCalculator.toJson();
+      this.match = {...this.match,
+        servingOrderStateJSON: orderOfServingJSON};
+    }
+  }
+
+  private advanceToNextGame() {
+    this.orderOfServingCalculator.startNextGame();
+    this.orderOfServingCalculator.switchSides();
+    const selectedServer = 'A';
+    const nextReceiver = this.orderOfServingCalculator.determineNextReceiver(selectedServer);
+    this.orderOfServingCalculator.recordServerAndReceiver('Y', nextReceiver);
+    this.orderOfServingCalculator.determineNextServerAndReceiver(this.gameScoreSideA, this.gameScoreSideB);
   }
 }

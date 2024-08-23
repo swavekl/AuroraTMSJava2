@@ -4,12 +4,18 @@
       <table class="match-display" *ngIf="matchData">
         <tbody>
         <tr>
+          <td [colSpan]="games.length + 3">
+            <app-cards-display [smallFormat]="true" [cardsInfo]="playerACardsInfo">
+            </app-cards-display>
+          </td>
+        </tr>
+        <tr>
           <td class="name-cell" [colSpan]="games.length">
-            {{ matchData?.playerAName }}
+            {{ matchData?.playerAName }} {{ serverOrReceiver(matchData?.playerAName) }}
           </td>
           <td [rowSpan]="matchData.doubles ? 2 : 1" class="timeout-symbol-cell">
             <div *ngIf="matchData.match?.sideATimeoutTaken" class="timout-taken-symbol">
-              <mat-icon>timer</mat-icon>
+              <mat-icon>update</mat-icon>
             </div>
           </td>
           <td [rowSpan]="matchData.doubles ? 3 : 2" class="games-won-cell align-bottom">
@@ -21,7 +27,7 @@
         </tr>
         <tr *ngIf="matchData.doubles">
           <td class="name-cell" [colSpan]="games.length">
-            {{ matchData?.playerAPartnerName }}
+            {{ matchData?.playerAPartnerName }} {{ serverOrReceiver(matchData?.playerAPartnerName) }}
           </td>
         </tr>
         <tr>
@@ -64,17 +70,23 @@
         </tr>
         <tr>
           <td class="name-cell" [colSpan]="games.length">
-            {{ matchData?.playerBName }}
+            {{ matchData?.playerBName }} {{ serverOrReceiver(matchData?.playerBName) }}
           </td>
           <td [rowSpan]="matchData.doubles ? 2 : 1" class="timeout-symbol-cell">
             <div *ngIf="matchData.match?.sideBTimeoutTaken" class="timout-taken-symbol">
-              <mat-icon>timer</mat-icon>
+              <mat-icon>update</mat-icon>
             </div>
           </td>
         </tr>
         <tr *ngIf="matchData.doubles">
           <td class="name-cell" [colSpan]="games.length">
-            {{ matchData?.playerBPartnerName }}
+            {{ matchData?.playerBPartnerName }} {{ serverOrReceiver(matchData?.playerBPartnerName) }}
+          </td>
+        </tr>
+        <tr>
+          <td [colSpan]="games.length + 3">
+            <app-cards-display [smallFormat]="true" [cardsInfo]="playerBCardsInfo">
+            </app-cards-display>
           </td>
         </tr>
         </tbody>
@@ -84,7 +96,7 @@
   <div fxLayout="row" fxLayoutAlign="center start" style="margin-top: 50px">
     <div class="timer-display" *ngIf="timerRunning">{{ timerLabel}} {{ timerValue | timerFormatter }}</div>
   </div>
-  <div>{{ isNaN(currentGameIndex) ? '' : 'Current game: ' + (currentGameIndex + 1) }}</div>
+<!--  <div>{{ isNaN(currentGameIndex) ? '' : 'Current game: ' + (currentGameIndex + 1) }}</div>-->
   <div class="status-line">Connection to table # {{ tableNumber }},
     Status: {{ isConnected ? 'connected' : 'disconnected' }}
   </div>

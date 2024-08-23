@@ -1,0 +1,77 @@
+<table class="match-scores-table" *ngIf="match != null">
+  <thead>
+  <tr>
+    <th></th>
+    <ng-container *ngFor="let game of games; let idx = index;">
+      <th [ngClass]="isCurrentGame(idx) ? 'current-game-score-column' : ''">{{ idx + 1 }}</th>
+    </ng-container>
+    <th>Games</th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr style="border-bottom: 8px solid #F5F5F5">
+    <ng-container *ngIf="showPlayerNames; else showPlayerLetter">
+      <td class="player-name-column">
+        <div class="player-name" fxLayout="column" fxLayoutAlign="start stretch" fxLayoutGap="4px">
+          <ng-container *ngIf="doubles; else singlesPlayerAName">
+            <div>{{ getDoublesPlayerName(playerAName, 0) }}</div>
+            <div>{{ getDoublesPlayerName(playerAName, 1) }}</div>
+          </ng-container>
+          <ng-template #singlesPlayerAName>
+            <div>{{ playerAName }}</div>
+          </ng-template>
+        </div>
+      </td>
+    </ng-container>
+    <ng-template #showPlayerLetter>
+      <td class="player-code-column">{{ match.playerALetter }}</td>
+    </ng-template>
+    <ng-container *ngFor="let game of games; let idx = index;">
+      <td class="game-score-column" [ngClass]="isCurrentGame(idx) ? 'current-game-score-column' : ''">
+        <ng-container [ngSwitch]="idx">
+          <ng-container *ngSwitchCase="0">{{ match.game1ScoreSideA }}</ng-container>
+          <ng-container *ngSwitchCase="1">{{ match.game2ScoreSideA }}</ng-container>
+          <ng-container *ngSwitchCase="2">{{ match.game3ScoreSideA }}</ng-container>
+          <ng-container *ngSwitchCase="3">{{ match.game4ScoreSideA }}</ng-container>
+          <ng-container *ngSwitchCase="4">{{ match.game5ScoreSideA }}</ng-container>
+          <ng-container *ngSwitchCase="5">{{ match.game6ScoreSideA }}</ng-container>
+          <ng-container *ngSwitchCase="6">{{ match.game7ScoreSideA }}</ng-container>
+        </ng-container>
+      </td>
+    </ng-container>
+    <td class="games-column">{{ playerAGames }}</td>
+  </tr>
+  <tr>
+    <ng-container *ngIf="showPlayerNames; else showPlayerLetter2">
+      <td class="player-name-column">
+        <div class="player-name" fxLayout="column" fxLayoutAlign="start stretch" fxLayoutGap="4px">
+          <ng-container *ngIf="doubles; else singlesPlayerBName">
+            <div>{{ getDoublesPlayerName(playerBName, 0) }}</div>
+            <div>{{ getDoublesPlayerName(playerBName, 1) }}</div>
+          </ng-container>
+          <ng-template #singlesPlayerBName>
+            <div>{{ playerBName }}</div>
+          </ng-template>
+        </div>
+      </td>
+    </ng-container>
+    <ng-template #showPlayerLetter2>
+      <td class="player-code-column">{{ match.playerBLetter }}</td>
+    </ng-template>
+    <ng-container *ngFor="let game of games; let idx = index;">
+      <td class="game-score-column" [ngClass]="isCurrentGame(idx) ? 'current-game-score-column' : ''">
+        <ng-container [ngSwitch]="idx">
+          <ng-container *ngSwitchCase="0">{{ match.game1ScoreSideB }}</ng-container>
+          <ng-container *ngSwitchCase="1">{{ match.game2ScoreSideB }}</ng-container>
+          <ng-container *ngSwitchCase="2">{{ match.game3ScoreSideB }}</ng-container>
+          <ng-container *ngSwitchCase="3">{{ match.game4ScoreSideB }}</ng-container>
+          <ng-container *ngSwitchCase="4">{{ match.game5ScoreSideB }}</ng-container>
+          <ng-container *ngSwitchCase="5">{{ match.game6ScoreSideB }}</ng-container>
+          <ng-container *ngSwitchCase="6">{{ match.game7ScoreSideB }}</ng-container>
+        </ng-container>
+      </td>
+    </ng-container>
+    <td class="games-column">{{ playerBGames }}</td>
+  </tr>
+  </tbody>
+</table>

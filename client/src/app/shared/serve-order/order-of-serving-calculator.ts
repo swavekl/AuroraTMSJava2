@@ -1,17 +1,19 @@
+import {PositionsRecorder} from './positions-recorder';
+
 /**
  * Calculator for determining the order of serving
  */
 export class OrderOfServingCalculator {
 
-  // if true it is a doubles event
-  doubles: boolean = false;
-
   // we move in these arrays in circular fashion
   // either forward e.g. A -> X, X -> B, B -> Y, Y -> A  or
   // backwards e.g. A -> Y, Y -> B, B -> X, X -> A
-  doublesOrderOfPlayers: string [] = ['A', 'X', 'B', 'Y'];
+  private readonly doublesOrderOfPlayers: string [] = ['A', 'X', 'B', 'Y'];
   // trivial case for singles A -> X, X -> A
-  singlesOrderOfPlayers: string [] = ['A', 'X'];
+  private readonly singlesOrderOfPlayers: string [] = ['A', 'X'];
+
+  // if true it is a doubles event
+  doubles: boolean = false;
 
   // if true the current game serving order is determined by cycling forward in orderOfPlayers array
   // if false backwards
@@ -25,12 +27,15 @@ export class OrderOfServingCalculator {
 
   // current server and receiver letters
   // letters designating players e.g. A X Y or B
-  currentServer: string;
-  currentReceiver: string;
+  currentServer: string = 'A';
+  currentReceiver: string = 'X';
 
-  constructor(numGames: number, doubles: boolean) {
+  positionsRecorder: PositionsRecorder;
+
+  constructor(numGames: number, doubles: boolean, playerAProfileId: string, playerBProfileId: string) {
     this.gameServerAndReceiver = new Array(numGames);
     this.doubles = doubles;
+    this.positionsRecorder = new PositionsRecorder(doubles, playerAProfileId, playerBProfileId);
   }
 
   private getOrderOfPlayers() {
@@ -54,6 +59,7 @@ export class OrderOfServingCalculator {
     this.currentServer = serverLetter;
     this.currentReceiver = receiverLetter;
     this.cyclingForward = this.isCyclingForward(this.currentServer, this.currentReceiver);
+    this.positionsRecorder.recordPlayerPositions(this.currentServer, this.currentReceiver);
   }
 
   /**
@@ -80,6 +86,9 @@ export class OrderOfServingCalculator {
     let idxServer = orderOfPlayers.indexOf(this.currentServer);
     let idxReceiver = orderOfPlayers.indexOf(this.currentReceiver);
 
+    const previousServer = this.currentServer;
+    const previousReceiver = this.currentReceiver;
+
     const totalPoints = pointsSideA + pointsSideB;
     const divisor = (pointsSideA >= 10 && pointsSideB >= 10) ? 1 : 2;
     const remainder = totalPoints % divisor;
@@ -98,12 +107,14 @@ export class OrderOfServingCalculator {
     }
 
     // determine receiver
+    let switchSidesInLastGame = false;
     if (this.doubles) {
       // if this is the last game
       if (this.currentGame === (this.gameServerAndReceiver.length - 1))
         // one of the teams won 5 points
         if ((pointsSideA === 5 && pointsSideB < 5) ||
           (pointsSideA < 5 && pointsSideB === 5)) {
+          switchSidesInLastGame = true;
           changeReceiver = true;
           this.cyclingForward = !this.cyclingForward;
           // adjust index so calculation below is properly cycling to the other receiver
@@ -125,6 +136,20 @@ export class OrderOfServingCalculator {
       }
       this.currentReceiver = orderOfPlayers[idxReceiver];
     }
+
+    if (this.doubles) {
+      if (this.currentReceiver !== previousReceiver) {
+        const leftSide = this.positionsRecorder.isPlayerOnLeftSide(this.currentReceiver);
+        this.positionsRecorder.switchPlayers(leftSide);
+      }
+      if (switchSidesInLastGame) {
+        this.positionsRecorder.switchSides();
+        if (this.currentServer !== previousServer) {
+          const leftSide = this.positionsRecorder.isPlayerOnLeftSide(this.currentServer);
+          this.positionsRecorder.switchPlayers(leftSide);
+        }
+      }
+    }
   }
 
   /**
@@ -135,7 +160,7 @@ export class OrderOfServingCalculator {
     // get serving direction of the previous game
     const previousGame = Math.max(0, this.currentGame - 1);
     const currentGameServerAndReceiver = this.gameServerAndReceiver[previousGame];
-    const playerLetters: string [] = currentGameServerAndReceiver.split(',');
+    const playerLetters: string [] = (currentGameServerAndReceiver != null) ? currentGameServerAndReceiver.split(',') : [];
     const serverPlayer = playerLetters[0];
     const receiverPlayer = playerLetters[1];
     const wasCyclingForward = this.isCyclingForward(serverPlayer, receiverPlayer);
@@ -170,10 +195,12 @@ export class OrderOfServingCalculator {
   public toJson(): string {
     return JSON.stringify({
       doubles: this.doubles,
+      cyclingForward: this.cyclingForward,
       currentGame: this.currentGame,
       gameServerAndReceiver: this.gameServerAndReceiver,
       currentServer: this.currentServer,
-      currentReceiver: this.currentReceiver
+      currentReceiver: this.currentReceiver,
+      positionsRecorder: this.positionsRecorder
     });
   }
 
@@ -184,10 +211,66 @@ export class OrderOfServingCalculator {
   public fromJson(jsonString: string) {
     const values = JSON.parse(jsonString);
     this.doubles = values.doubles;
+    this.cyclingForward = values.cyclingForward
     this.currentGame = values.currentGame;
     this.gameServerAndReceiver = values.gameServerAndReceiver;
     this.currentReceiver = values.currentReceiver;
     this.currentServer = values.currentServer;
+    const fakeProfileIds = (this.doubles) ? 'aa;bb' : 'aaa';
+    let positionsRecorder: PositionsRecorder = new PositionsRecorder(this.doubles, fakeProfileIds, fakeProfileIds);
+    positionsRecorder.from (values.positionsRecorder);
+    this.positionsRecorder = positionsRecorder;
   }
 
+  public switchSides() {
+    this.positionsRecorder.switchSides();
+  }
+
+  lookupPlayerProfile(sideAndNumber: string) {
+    return this.positionsRecorder.getPlayerProfile(sideAndNumber);
+  }
+
+  switchPlayers(leftSide: boolean) {
+    this.positionsRecorder.switchPlayers(leftSide);
+  }
+
+  public isServer(leftSide: boolean) {
+    const sideAndNumber = (leftSide) ? "L2" : "R1";
+    const playerPositions = this.positionsRecorder.getPlayerPositions();
+    // console.log('player at position ' + sideAndNumber + ' is ' + playerPositions[sideAndNumber]);
+    // console.log('current server is ' + this.currentServer);
+    return playerPositions[sideAndNumber] === this.currentServer;
+  }
+
+  public isPlayerServer(playerProfileId: string): boolean {
+    if (this.positionsRecorder != null) {
+      const playerLetter = this.positionsRecorder.lookupPlayerLetter(playerProfileId);
+      return playerLetter === this.currentServer;
+    } else {
+      return false;
+    }
+  }
+
+  public isPlayerReceiver(playerProfileId: string): boolean {
+    if (this.positionsRecorder != null) {
+      const playerLetter = this.positionsRecorder.lookupPlayerLetter(playerProfileId);
+      return playerLetter === this.currentReceiver;
+    } else {
+      return false;
+    }
+  }
+
+  lookupPlayerInPosition(sideAndNumber: string): string {
+    const playerPositions = this.positionsRecorder.getPlayerPositions();
+    return playerPositions[sideAndNumber]
+  }
+
+  determineDefaultServerAndReceiver(isServingFromLeft: boolean) {
+    const sideAndNumber = isServingFromLeft ? 'L2' : 'R1';
+    const defaultServer = this.lookupPlayerInPosition(sideAndNumber);
+    const nextReceiver = this.determineNextReceiver(defaultServer);
+    this.recordServerAndReceiver(defaultServer, nextReceiver);
+    // this.determineNextServerAndReceiver(this.gameScoreSideA, this.gameScoreSideB);
+
+  }
 }

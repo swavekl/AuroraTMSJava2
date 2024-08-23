@@ -50,9 +50,6 @@ public class Match implements Serializable, Cloneable {
     private boolean sideATimeoutTaken;
     private boolean sideBTimeoutTaken;
 
-    // indicates if side A is to serve first, if false side B servers first - help for umpire
-    private boolean sideAServesFirst;
-
     // game (set) scores of played match e.g. 11:7, 11:8.  First number is for player A, second is for player B
     @Column(nullable = true)
     private byte game1ScoreSideA;
@@ -94,6 +91,32 @@ public class Match implements Serializable, Cloneable {
     private int playerARating;
     private int playerBRating;
 
+    // indicates if warmup was started
+    private boolean warmupStarted;
+
+    // cards received by player A
+    @Column(length = 300)
+    private String playerACardsJSON;
+
+    // cards received by player A
+    @Column(length = 300)
+    private String playerBCardsJSON;
+
+    // serving order in each game - state
+    @Column(length = 500)
+    private String servingOrderStateJSON;
+
+    // names of umpire and assistant umpire
+    @Column(length = 100)
+    private String umpireName;
+
+    @Column(length = 100)
+    private String assistantUmpireName;
+
+    // initial server side - either 'left' or 'right' or null if not recorded
+    @Column(length = 6)
+    private String initialServerSide;
+
     @Override
     public String toString() {
         return "Match{" +
@@ -105,7 +128,6 @@ public class Match implements Serializable, Cloneable {
                 ", sideBDefaulted=" + sideBDefaulted +
                 ", sideATimeoutTaken=" + sideATimeoutTaken +
                 ", sideBTimeoutTaken=" + sideBTimeoutTaken +
-                ", sideAServesFirst=" + sideAServesFirst +
                 ", game1ScoreSideA=" + game1ScoreSideA +
                 ", game1ScoreSideB=" + game1ScoreSideB +
                 ", game2ScoreSideA=" + game2ScoreSideA +
@@ -124,6 +146,13 @@ public class Match implements Serializable, Cloneable {
                 ", playerBLetter=" + playerBLetter +
                 ", playerARating=" + playerARating +
                 ", playerBRating=" + playerBRating +
+                ", playerACardsJSON=" + playerACardsJSON +
+                ", playerBCardsJSON=" + playerBCardsJSON +
+                ", servingOrderStateJSON=" + servingOrderStateJSON +
+                ", umpireName=" + umpireName +
+                ", assistantUmpireName=" + assistantUmpireName +
+                ", warmupStarted=" + warmupStarted +
+                ", initialServerSide=" + initialServerSide +
                 '}';
     }
 

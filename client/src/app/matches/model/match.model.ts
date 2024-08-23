@@ -25,9 +25,6 @@ export class Match {
   sideATimeoutTaken: boolean;
   sideBTimeoutTaken: boolean;
 
-  // indicates if side A is to serve first, if false side B servers first - help for umpire
-  sideAServesFirst: boolean;
-
   // game (set) scores of played match e.g. 11:7, 11:8,
   game1ScoreSideA: number;
   game1ScoreSideB: number;
@@ -54,6 +51,24 @@ export class Match {
   // seed rating of player in a match
   playerARating: number;
   playerBRating: number;
+
+  // indicates if warmup was started
+  warmupStarted: boolean;
+
+  // cards received by player/team A
+  playerACardsJSON: string;
+
+  // cards received by player/team B
+  playerBCardsJSON: string;
+
+  servingOrderStateJSON: string;
+
+  // names of umpire and assistant umpire
+  umpireName: string;
+  assistantUmpireName: string;
+
+  // initial server side - either 'left' or 'right'
+  initialServerSide: string;
 
   /**
    *
@@ -130,6 +145,11 @@ export class Match {
     }
   }
 
+  public static isGameFinished(player1GameScore: number, player2GameScore: number, pointsPerGame: number) {
+    return Match.isGameWon(player1GameScore, player2GameScore, pointsPerGame) ||
+           Match.isGameWon(player2GameScore, player1GameScore, pointsPerGame);
+
+  }
 
   /**
    * Tests if the complete match score was entered
@@ -305,5 +325,51 @@ export class Match {
         break;
     }
     return defaultedMatch;
+  }
+
+  public static getScoreInGames(numberOfGames: number, pointsPerGame: number, match: Match): any {
+      let numGamesWonByA = 0;
+      let numGamesWonByB = 0;
+      for (let i = 0; i < numberOfGames; i++) {
+        let playerAGameScore = 0;
+        let playerBGameScore = 0;
+        switch (i) {
+          case 0:
+            playerAGameScore = match.game1ScoreSideA;
+            playerBGameScore = match.game1ScoreSideB;
+            break;
+          case 1:
+            playerAGameScore = match.game2ScoreSideA;
+            playerBGameScore = match.game2ScoreSideB;
+            break;
+          case 2:
+            playerAGameScore = match.game3ScoreSideA;
+            playerBGameScore = match.game3ScoreSideB;
+            break;
+          case 3:
+            playerAGameScore = match.game4ScoreSideA;
+            playerBGameScore = match.game4ScoreSideB;
+            break;
+          case 4:
+            playerAGameScore = match.game5ScoreSideA;
+            playerBGameScore = match.game5ScoreSideB;
+            break;
+          case 5:
+            playerAGameScore = match.game6ScoreSideA;
+            playerBGameScore = match.game6ScoreSideB;
+            break;
+          case 6:
+            playerAGameScore = match.game7ScoreSideA;
+            playerBGameScore = match.game7ScoreSideB;
+            break;
+        }
+
+        if (Match.isGameWon(playerAGameScore, playerBGameScore, pointsPerGame)) {
+          numGamesWonByA++;
+        } else if (Match.isGameWon(playerBGameScore, playerAGameScore, pointsPerGame)) {
+          numGamesWonByB++;
+        }
+      }
+      return {playerAGames: numGamesWonByA, playerBGames: numGamesWonByB};
   }
 }
