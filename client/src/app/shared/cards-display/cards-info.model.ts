@@ -25,13 +25,15 @@ export class CardsInfo {
   }
 
   public fromJson(cardsJSON: string) {
-    const parsed = JSON.parse(cardsJSON);
-    this.timeoutCard = parsed.timeoutCard;
-    this.yellowCard = parsed.yellowCard;
-    this.yellowAndRed1 = parsed.yellowAndRed1;
-    this.yellowAndRed2 = parsed.yellowAndRed2;
-    this.redCard = parsed.redCard;
-    this.redCardForCoach = parsed.redCardForCoach;
-    this.yellowCardForCoach = parsed.yellowCardForCoach;
+    if (cardsJSON != null && cardsJSON != '') {
+      const parsed = JSON.parse(cardsJSON);
+      this.timeoutCard = parsed.timeoutCard;
+      this.yellowCard = parsed.yellowCard;
+      this.yellowAndRed1 = parsed.yellowAndRed1;
+      this.yellowAndRed2 = parsed.yellowAndRed2;
+      this.redCard = parsed.redCard;
+      this.redCardForCoach = parsed.redCardForCoach;
+      this.yellowCardForCoach = parsed.yellowCardForCoach;
+    }
   }
 }

@@ -1,4 +1,4 @@
-import {ChangeDetectorRef, Component, EventEmitter, Input, OnChanges, Output, SimpleChange, SimpleChanges} from '@angular/core';
+import {Component, EventEmitter, Input, OnChanges, Output, SimpleChange, SimpleChanges} from '@angular/core';
 import {Match} from '../../matches/model/match.model';
 import {OrderOfServingCalculator} from '../../shared/serve-order/order-of-serving-calculator';
 import {ConfirmationPopupComponent} from '../../shared/confirmation-popup/confirmation-popup.component';
@@ -51,9 +51,9 @@ export class ScoreBoardMatchStartComponent implements OnChanges {
 
   private playerProfileIdToNameMap: any = {};
 
-  private playerACardsInfo: CardsInfo;
+  public playerACardsInfo: CardsInfo;
 
-  private playerBCardsInfo: CardsInfo;
+  public playerBCardsInfo: CardsInfo;
 
   // used to indicate the serving side to start serving in the match
   servingSide: string = 'left';
@@ -118,20 +118,17 @@ export class ScoreBoardMatchStartComponent implements OnChanges {
           this.playerProfileIdToNameMap = this.makeProfileIdMap();
         }
 
-        if (this.playerACardsInfo == null) {
-          this.playerACardsInfo = new CardsInfo();
-          if (this.match.playerACardsJSON != null) {
-            this.playerACardsInfo.fromJson(this.match.playerACardsJSON);
-          }
-          this.match.playerACardsJSON = this.playerACardsInfo.toJson();
+        this.playerACardsInfo = new CardsInfo();
+        if (this.match.playerACardsJSON != null) {
+          this.playerACardsInfo.fromJson(this.match.playerACardsJSON);
         }
-        if (this.playerBCardsInfo == null) {
-          this.playerBCardsInfo = new CardsInfo();
-          if (this.match.playerBCardsJSON != null) {
-            this.playerBCardsInfo.fromJson(this.match.playerBCardsJSON);
-          }
-          this.match.playerBCardsJSON = this.playerBCardsInfo.toJson();
+        this.match.playerACardsJSON = this.playerACardsInfo.toJson();
+
+        this.playerBCardsInfo = new CardsInfo();
+        if (this.match.playerBCardsJSON != null) {
+          this.playerBCardsInfo.fromJson(this.match.playerBCardsJSON);
         }
+        this.match.playerBCardsJSON = this.playerBCardsInfo.toJson();
       }
     }
   }
@@ -381,10 +378,10 @@ export class ScoreBoardMatchStartComponent implements OnChanges {
   }
 
   private getPlayerIndex(leftSide: boolean) {
-    const serverSideAndNumber = (leftSide) ? 'L2' : 'R1';
-    const playerInPosition = this.orderOfServingCalculator.lookupPlayerInPosition(serverSideAndNumber);
-    const playerIndex = (playerInPosition === 'A' || playerInPosition === 'B') ? 0 : 1;
-    return playerIndex;
+    const playerSideAndPosition = (leftSide) ? 'L2' : 'R1';
+    const playerLetter = this.orderOfServingCalculator.lookupPlayerInPosition(playerSideAndPosition);
+    // console.log('playerSideAndPosition ' + playerSideAndPosition + ' playerLetter ' + playerLetter);
+    return (playerLetter === 'A' || playerLetter === 'B') ? 0 : 1;
   }
 
   private getNextGameIndex(match: Match): number {
@@ -577,24 +574,26 @@ export class ScoreBoardMatchStartComponent implements OnChanges {
 
   issueCard(leftSide: boolean) {
     const cardsInfo = this.getCardsInfo(leftSide);
+    const playerIndex = this.getPlayerIndex(leftSide);
     const config = {
-      width: "500px", height: "250px", data: {
+      width: "550px", height: "250px", data: {
         cardsInfo: cardsInfo
       }
     }
     const dialogRef = this.dialog.open(CardsPopupComponent, config);
     dialogRef.afterClosed().subscribe(updatedCardsInfo => {
-      const playerIndex = this.getPlayerIndex(leftSide);
-      const updatePlayerCardsInfoJSON = JSON.stringify(updatedCardsInfo);
-      if (playerIndex === 0) {
-        this.playerACardsInfo = updatedCardsInfo;
-        this.match = {...this.match, playerACardsJSON: updatePlayerCardsInfoJSON };
-      } else {
-        this.playerBCardsInfo = updatedCardsInfo;
-        this.match = {...this.match, playerBCardsJSON: updatePlayerCardsInfoJSON };
+      if (updatedCardsInfo != null) {
+        const updatePlayerCardsInfoJSON = JSON.stringify(updatedCardsInfo);
+        if (playerIndex === 0) {
+          this.playerACardsInfo = updatedCardsInfo;
+          this.match = {...this.match, playerACardsJSON: updatePlayerCardsInfoJSON };
+        } else {
+          this.playerBCardsInfo = updatedCardsInfo;
+          this.match = {...this.match, playerBCardsJSON: updatePlayerCardsInfoJSON };
+        }
+        this.saveMatch.emit({updatedMatch: this.match, backToMatchCard: false});
+        this.dirty = false;
       }
-      this.saveMatch.emit({updatedMatch: this.match, backToMatchCard: false});
-      this.dirty = false;
     });
   }
 

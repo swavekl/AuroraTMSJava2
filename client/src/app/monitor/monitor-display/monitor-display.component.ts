@@ -80,16 +80,17 @@ export class MonitorDisplayComponent implements OnInit, OnChanges {
           }
         }
 
+        const infoA: CardsInfo = new CardsInfo();
         if (this.match.playerACardsJSON != null) {
-          const infoA: CardsInfo = new CardsInfo();
           infoA.fromJson(this.match.playerACardsJSON);
-          this.playerACardsInfo = infoA;
         }
+        this.playerACardsInfo = infoA;
+
+        const infoB: CardsInfo = new CardsInfo();
         if (this.match.playerBCardsJSON != null) {
-          const infoB: CardsInfo = new CardsInfo();
           infoB.fromJson(this.match.playerBCardsJSON);
-          this.playerBCardsInfo = infoB;
         }
+        this.playerBCardsInfo = infoB;
       }
     }
   }

@@ -172,8 +172,8 @@ export class ScoreBoardMatchStartContainerComponent implements OnDestroy {
   private sendMonitorUpdate(match: Match, action: string) {
     let playerAName: string = this.playerAName;
     let playerBName: string = this.playerBName;
-    let playerAPartnerName = 'X';
-    let playerBPartnerName = 'Y';
+    let playerAPartnerName = '';
+    let playerBPartnerName = '';
     if (this.doubles) {
       const teamAPlayerNames = this.playerAName.split('/');
       if (teamAPlayerNames.length === 2) {

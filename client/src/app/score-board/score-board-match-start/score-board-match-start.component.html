@@ -149,13 +149,13 @@
 
       <div fxLayout="row" *ngIf="match" class="match-scores-table-container">
         <div fxFlex="grow">
-          <div fxLayout="row" fxLayoutAlign="end start" style="margin-top: 25px; margin-right: 10px;">
-            <app-cards-display [cardsInfo]="getCardsInfo(true)">
+          <div fxLayout="row" fxLayoutAlign="end start" [style.margin-top]="doubles ? '35px' : '10px'" style="margin-right: 10px;">
+            <app-cards-display [cardsInfo]="this.playerACardsInfo">
             </app-cards-display>
           </div>
-          <div fxLayout="row" fxLayoutAlign="end start" [style.margin-top]="doubles ? '1px' : '15px'"
+          <div fxLayout="row" fxLayoutAlign="end start" [style.margin-top]="doubles ? '20px' : '15px'"
                style="margin-right: 10px;">
-            <app-cards-display [cardsInfo]="getCardsInfo(false)">
+            <app-cards-display [cardsInfo]="this.playerBCardsInfo">
             </app-cards-display>
           </div>
         </div>

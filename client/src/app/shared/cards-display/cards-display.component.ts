@@ -1,6 +1,5 @@
 import {Component, Input} from '@angular/core';
 import {CardsInfo} from './cards-info.model';
-import {Club} from '../../club/club/model/club.model';
 
 @Component({
   selector: 'app-cards-display',
@@ -30,7 +29,7 @@ export class CardsDisplayComponent {
   onCardClicked(cardId: string) {
     if (this.displayAll) {
       let updatedCardsInfo = JSON.parse(JSON.stringify(this.cardsInfo));
-      updatedCardsInfo[cardId] = true;
+      updatedCardsInfo[cardId] = !updatedCardsInfo[cardId];
       this.cardsInfo = updatedCardsInfo;
       if (this.callbackFn != null) {
         this.callbackFn(this.callbackFnScope, this.cardsInfo);

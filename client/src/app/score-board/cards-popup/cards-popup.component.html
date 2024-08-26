@@ -1,14 +1,17 @@
 <h2 mat-dialog-title>Issue Card</h2>
 <mat-dialog-content>
-  <app-cards-display [smallFormat]="false"
-                     [displayAll]="true"
-                     [cardsInfo]="cardsInfo"
-  [callbackFn]="onCardSelected"
-  [callbackFnScope]="this">
-  </app-cards-display>
+  <div fxLayout="row" fxLayoutAlign="center start">
+    <app-cards-display [smallFormat]="false"
+                       [displayAll]="true"
+                       [cardsInfo]="cardsInfo"
+                       [callbackFn]="onCardSelected"
+                       [callbackFnScope]="this">
+    </app-cards-display>
+  </div>
 </mat-dialog-content>
-<mat-dialog-actions fxLayout="row" fxLayoutAlign="space-between start">
-  <button type="button" mat-raised-button (click)="onCancel()">Cancel</button>
-  <span fxFlex></span>
-  <button type="button" mat-raised-button color="primary" (click)="onIssue()">Issue</button>
+<mat-dialog-actions style="margin: 10px;"
+                    fxLayout="row" fxLayoutAlign="space-between start">
+    <button type="button" mat-raised-button (click)="onCancel()">Cancel</button>
+    <span fxFlex></span>
+    <button type="button" mat-raised-button color="primary" (click)="onIssue()">Issue</button>
 </mat-dialog-actions>

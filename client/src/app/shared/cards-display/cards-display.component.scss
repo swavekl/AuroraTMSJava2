@@ -9,18 +9,12 @@ table.cards-display {
   /* We need this to be able to use border-radius. */
   border-collapse: separate;
 
-  &.small-separation {
-    /* Add a 1px border spacing for out box-shadow to fit into. Increase this if you want to increase the border width. */
-    border-spacing: 10px;
-  }
-
-  &.large-separation {
-    /* Add a 1px border spacing for out box-shadow to fit into. Increase this if you want to increase the border width. */
-    border-spacing: 10px;
-  }
+  /* Add a 1px border spacing for out box-shadow to fit into. Increase this if you want to increase the border width. */
+  border-spacing: 1px;
 
   tbody {
     tr {
+
       td {
         /* Remove any borders from our stylesheet. */
         border: 0;
@@ -45,6 +39,23 @@ table.cards-display {
           min-height: $large-height;
           height: $large-height;
           border-radius: $large-border-radius;
+        }
+
+        &.small-separator-cell {
+          min-width: 10px;
+        }
+
+        &.large-separator-cell {
+          min-width: 20px;
+        }
+
+        &.spacer-cell {
+          height: 10px;
+        }
+
+        &.card-underlined {
+          background-color: black;
+          height: 4px;
         }
 
         &.timeout-card {
@@ -83,6 +94,7 @@ table.cards-display {
           background: gold;
         }
       }
+
     }
   }
 }

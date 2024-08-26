@@ -1,35 +1,79 @@
-<table class="cards-display" [ngClass]="smallFormat ? 'small-separation': 'large-separation'">
+<table class="cards-display" *ngIf="cardsInfo != null">
   <tbody>
-  <tr *ngIf="cardsInfo != null">
+  <tr>
+<!--    minimal bar in case there are no cards selected-->
+    <td [ngClass]="smallFormat ? 'small-separator-cell' : 'large-separator-cell'"></td>
+
     <td *ngIf="cardsInfo.timeoutCard || displayAll" class="timeout-card"
         [ngClass]="smallFormat ? 'small-format': 'large-format'"
         (click)="onCardClicked('timeoutCard')">
       T
     </td>
+    <td *ngIf="cardsInfo.timeoutCard || displayAll" [ngClass]="smallFormat ? 'small-separator-cell' : 'large-separator-cell'"></td>
+
     <td *ngIf="cardsInfo.yellowCard || displayAll" (click)="onCardClicked('yellowCard')"
         class="yellow-card" [ngClass]="smallFormat ? 'small-format': 'large-format'">
       &nbsp;&nbsp;
     </td>
+    <td *ngIf="cardsInfo.yellowCard || displayAll" [ngClass]="smallFormat ? 'small-separator-cell' : 'large-separator-cell'"></td>
+
     <td *ngIf="cardsInfo.yellowAndRed1 || displayAll" (click)="onCardClicked('yellowAndRed1')"
         class="yellow-red-card" [ngClass]="smallFormat ? 'small-format': 'large-format'">
       <span>1</span>
     </td>
+    <td *ngIf="cardsInfo.yellowAndRed1 || displayAll" [ngClass]="smallFormat ? 'small-separator-cell' : 'large-separator-cell'"></td>
+
     <td *ngIf="cardsInfo.yellowAndRed2 || displayAll" (click)="onCardClicked('yellowAndRed2')"
         class="yellow-red-card" [ngClass]="smallFormat ? 'small-format': 'large-format'">
       <span>2</span>
     </td>
+    <td *ngIf="cardsInfo.yellowAndRed2 || displayAll" [ngClass]="smallFormat ? 'small-separator-cell' : 'large-separator-cell'"></td>
+
     <td *ngIf="cardsInfo.redCard || displayAll" (click)="onCardClicked('redCard')"
         class="red-card" [ngClass]="smallFormat ? 'small-format': 'large-format'">
       &nbsp;&nbsp;
     </td>
+    <td *ngIf="cardsInfo.redCard || displayAll" [ngClass]="smallFormat ? 'small-separator-cell' : 'large-separator-cell'"></td>
+
     <td *ngIf="cardsInfo.yellowCardForCoach || displayAll" (click)="onCardClicked('yellowCardForCoach')"
         class="yellow-card" [ngClass]="smallFormat ? 'small-format': 'large-format'">
       C
     </td>
+    <td *ngIf="cardsInfo.yellowCardForCoach || displayAll" [ngClass]="smallFormat ? 'small-separator-cell' : 'large-separator-cell'"></td>
+
     <td *ngIf="cardsInfo.redCardForCoach|| displayAll" (click)="onCardClicked('yellowCardForCoach')"
         class="red-card" [ngClass]="smallFormat ? 'small-format': 'large-format'">
       C
     </td>
+  </tr>
+  <tr>
+<!--    separator row since padding doesn't seem to work with empty cells -->
+    <td colspan="14" class="spacer-cell"></td>
+  </tr>
+<!--  row of indicator which cards are already issued -->
+  <tr *ngIf="!smallFormat && displayAll">
+<!--    starter cell bar-->
+    <td class="large-separator-cell"></td>
+
+    <td [ngClass]="cardsInfo.timeoutCard ? 'card-underlined' : ''"></td>
+    <td class="large-separator-cell"></td>
+
+    <td [ngClass]="cardsInfo.yellowCard ? 'card-underlined' : ''"></td>
+    <td class="large-separator-cell"></td>
+
+    <td [ngClass]="cardsInfo.yellowAndRed1 ? 'card-underlined' : ''"></td>
+    <td class="large-separator-cell"></td>
+
+    <td [ngClass]="cardsInfo.yellowAndRed2 ? 'card-underlined' : ''"></td>
+    <td class="large-separator-cell"></td>
+
+    <td [ngClass]="cardsInfo.redCard ? 'card-underlined' : ''"></td>
+    <td class="large-separator-cell"></td>
+
+    <td [ngClass]="cardsInfo.yellowCardForCoach ? 'card-underlined' : ''"></td>
+    <td class="large-separator-cell"></td>
+
+    <td [ngClass]="cardsInfo.redCardForCoach ? 'card-underlined' : ''"></td>
   </tr>
   </tbody>
 </table>
