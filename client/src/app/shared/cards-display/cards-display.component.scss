@@ -43,10 +43,14 @@ table.cards-display {
 
         &.small-separator-cell {
           min-width: 10px;
+          min-height: $small-height;
+          height: $small-height;
         }
 
         &.large-separator-cell {
           min-width: 20px;
+          min-height: $large-height;
+          height: $large-height;
         }
 
         &.spacer-cell {
@@ -56,6 +60,10 @@ table.cards-display {
         &.card-underlined {
           background-color: black;
           height: 4px;
+        }
+
+        &.card-underlined-separator {
+          min-width: 20px;
         }
 
         &.timeout-card {

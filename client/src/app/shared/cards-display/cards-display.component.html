@@ -53,25 +53,25 @@
 <!--  row of indicator which cards are already issued -->
   <tr *ngIf="!smallFormat && displayAll">
 <!--    starter cell bar-->
-    <td class="large-separator-cell"></td>
+    <td class="card-underlined-separator"></td>
 
     <td [ngClass]="cardsInfo.timeoutCard ? 'card-underlined' : ''"></td>
-    <td class="large-separator-cell"></td>
+    <td class="card-underlined-separator"></td>
 
     <td [ngClass]="cardsInfo.yellowCard ? 'card-underlined' : ''"></td>
-    <td class="large-separator-cell"></td>
+    <td class="card-underlined-separator"></td>
 
     <td [ngClass]="cardsInfo.yellowAndRed1 ? 'card-underlined' : ''"></td>
-    <td class="large-separator-cell"></td>
+    <td class="card-underlined-separator"></td>
 
     <td [ngClass]="cardsInfo.yellowAndRed2 ? 'card-underlined' : ''"></td>
-    <td class="large-separator-cell"></td>
+    <td class="card-underlined-separator"></td>
 
     <td [ngClass]="cardsInfo.redCard ? 'card-underlined' : ''"></td>
-    <td class="large-separator-cell"></td>
+    <td class="card-underlined-separator"></td>
 
     <td [ngClass]="cardsInfo.yellowCardForCoach ? 'card-underlined' : ''"></td>
-    <td class="large-separator-cell"></td>
+    <td class="card-underlined-separator"></td>
 
     <td [ngClass]="cardsInfo.redCardForCoach ? 'card-underlined' : ''"></td>
   </tr>
