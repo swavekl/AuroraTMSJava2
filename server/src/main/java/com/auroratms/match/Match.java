@@ -1,5 +1,6 @@
 package com.auroratms.match;
 
+import com.auroratms.match.publish.message.MonitorMessageType;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -117,6 +118,12 @@ public class Match implements Serializable, Cloneable {
     @Column(length = 6)
     private String initialServerSide;
 
+    // if true the match is umpired and scores are entered via a tablet
+    private boolean matchUmpired;
+
+    // type of message to send to monitor
+    private MonitorMessageType messageType;
+
     @Override
     public String toString() {
         return "Match{" +
@@ -153,6 +160,8 @@ public class Match implements Serializable, Cloneable {
                 ", assistantUmpireName=" + assistantUmpireName +
                 ", warmupStarted=" + warmupStarted +
                 ", initialServerSide=" + initialServerSide +
+                ", isUmpired=" + matchUmpired +
+                ", messageType=" + messageType +
                 '}';
     }
 

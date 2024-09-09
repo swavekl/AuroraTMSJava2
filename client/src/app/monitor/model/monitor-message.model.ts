@@ -5,9 +5,6 @@ import {MonitorMessageType} from './monitor-message-type';
  * Message to update match status on the monitor display
  */
 export interface MonitorMessage {
-  // type of message
-  messageType: MonitorMessageType;
-
   // current match status
   match: Match;
 
@@ -23,13 +20,4 @@ export interface MonitorMessage {
 
   // most often 11 points but could be 21 or another
   pointsPerGame: number;
-
-  // started or stopped (maybe prematurely)
-  timeoutStarted: boolean;
-
-  // player or doubles team requesting timeout
-  timeoutRequester: string;
-
-  // started or stopped
-  warmupStarted: boolean;
 }

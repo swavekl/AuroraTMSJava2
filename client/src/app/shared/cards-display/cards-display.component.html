@@ -41,10 +41,11 @@
     </td>
     <td *ngIf="cardsInfo.yellowCardForCoach || displayAll" [ngClass]="smallFormat ? 'small-separator-cell' : 'large-separator-cell'"></td>
 
-    <td *ngIf="cardsInfo.redCardForCoach|| displayAll" (click)="onCardClicked('yellowCardForCoach')"
+    <td *ngIf="cardsInfo.redCardForCoach|| displayAll" (click)="onCardClicked('redCardForCoach')"
         class="red-card" [ngClass]="smallFormat ? 'small-format': 'large-format'">
       C
     </td>
+    <td *ngIf="cardsInfo.redCardForCoach || displayAll" [ngClass]="smallFormat ? 'small-separator-cell' : 'large-separator-cell'"></td>
   </tr>
   <tr *ngIf="!smallFormat && displayAll">
 <!--    separator row since padding doesn't seem to work with empty cells -->

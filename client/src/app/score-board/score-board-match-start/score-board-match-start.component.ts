@@ -6,6 +6,7 @@ import {MatDialog} from '@angular/material/dialog';
 import {TimerPopupComponent} from '../timer-popup/timer-popup.component';
 import {CardsInfo} from '../../shared/cards-display/cards-info.model';
 import {CardsPopupComponent} from '../cards-popup/cards-popup.component';
+import {MonitorMessageType} from '../../monitor/model/monitor-message-type';
 
 @Component({
   selector: 'app-score-board-match-start',
@@ -170,7 +171,8 @@ export class ScoreBoardMatchStartComponent implements OnChanges {
     if (this.isServerAndReceiverRecorded()) {
       this.match = {
         ...this.match,
-        warmupStarted: true
+        warmupStarted: true,
+        messageType: MonitorMessageType.WarmupStarted
       };
       this.timerEvent.emit({action: 'startWarmup', updatedMatch: this.match});
 
@@ -189,10 +191,10 @@ export class ScoreBoardMatchStartComponent implements OnChanges {
     }
   }
 
-  showTimerPopup(duration: number, title: string, eventName: string) {
+  showTimerPopup(duration: number, title: string, stopEventName: string) {
     const config = {
       width: '500px', height: '200px', data: {
-        duration: duration, title: title, eventName: eventName
+        duration: duration, title: title, eventName: stopEventName
       }
     };
     const dialogRef = this.dialog.open(TimerPopupComponent, config);
@@ -201,6 +203,8 @@ export class ScoreBoardMatchStartComponent implements OnChanges {
         this.stopWarmup();
       } else if (resultEventName === 'stopTimeout') {
         this.stopTimeout();
+      } else if (resultEventName === 'stopBreak') {
+        this.stopBreak();
       }
     });
 
@@ -209,7 +213,8 @@ export class ScoreBoardMatchStartComponent implements OnChanges {
   stopWarmup() {
     this.match = {
       ...this.match,
-      warmupStarted: false
+      warmupStarted: false,
+      messageType: MonitorMessageType.WarmupStopped
     };
     this.timerEvent.emit({action: 'stopWarmup', updatedMatch: this.match});
   }
@@ -219,6 +224,10 @@ export class ScoreBoardMatchStartComponent implements OnChanges {
   }
 
   stopTimeout() {
+    this.match = {
+      ...this.match,
+      messageType: MonitorMessageType.TimeoutStopped
+    };
     this.timerEvent.emit({action: 'stopTimeout', updatedMatch: this.match});
   }
 
@@ -235,6 +244,27 @@ export class ScoreBoardMatchStartComponent implements OnChanges {
     } else {
       return false;
     }
+  }
+
+  startBreak() {
+    this.match = {
+      ...this.match,
+      messageType: MonitorMessageType.BreakStarted
+    };
+    this.timerEvent.emit({action: 'startBreak', updatedMatch: this.match});
+    this.showTimerPopup(60, 'Break', 'stopBreak');
+  }
+
+  stopBreak() {
+    this.match = {
+      ...this.match,
+      messageType: MonitorMessageType.BreakStopped
+    };
+    this.timerEvent.emit({action: 'stopBreak', updatedMatch: this.match});
+  }
+
+  canStartBreak() {
+    return !this.isMatchNotStarted() && this.hasNextGame() && this.isGameFinished();
   }
 
   back() {
@@ -520,10 +550,17 @@ export class ScoreBoardMatchStartComponent implements OnChanges {
       const sideATimeoutTaken = (playerLetter === 'A') || this.match.sideATimeoutTaken;
       const sideBTimeoutTaken = (playerLetter === 'B') || this.match.sideBTimeoutTaken;
       this.timeoutForPlayer = playerLetter;
+      this.playerACardsInfo.timeoutCard = sideATimeoutTaken;
+      this.playerBCardsInfo.timeoutCard = sideBTimeoutTaken;
+      const playerACardsJSON = this.playerACardsInfo.toJson();
+      const playerBCardsJSON = this.playerBCardsInfo.toJson();
       this.match = {
         ...this.match,
         sideATimeoutTaken: sideATimeoutTaken,
-        sideBTimeoutTaken: sideBTimeoutTaken
+        sideBTimeoutTaken: sideBTimeoutTaken,
+        playerACardsJSON: playerACardsJSON,
+        playerBCardsJSON: playerBCardsJSON,
+        messageType: MonitorMessageType.TimeoutStarted
       };
       this.timerEvent.emit({action: 'startTimeout', timeoutForPlayer: this.timeoutForPlayer, updatedMatch: this.match});
       this.showTimerPopup(60, 'Timeout', 'stopTimeout');

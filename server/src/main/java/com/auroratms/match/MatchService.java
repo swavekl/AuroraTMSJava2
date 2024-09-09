@@ -64,6 +64,8 @@ public class MatchService {
             match.setUmpireName(updatedMatch.getUmpireName());
             match.setAssistantUmpireName(updatedMatch.getAssistantUmpireName());
             match.setInitialServerSide(updatedMatch.getInitialServerSide());
+            match.setMatchUmpired(updatedMatch.isMatchUmpired());
+            match.setMessageType(updatedMatch.getMessageType());
             return this.matchRepository.saveAndFlush(match);
         } catch (Exception e) {
             throw new ResourceUpdateFailedException("Unable to update updatedMatch results");

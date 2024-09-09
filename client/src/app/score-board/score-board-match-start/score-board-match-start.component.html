@@ -10,6 +10,7 @@
                   debounceClicks>Record Sides & Server
           </button>
           <button mat-raised-button (click)="startWarmup()" [disabled]="!canStartWarmup()">Start Warmup</button>
+          <button mat-raised-button (click)="startBreak()" [disabled]="!canStartBreak()">Start Break</button>
           <button mat-raised-button (click)="endMatch()">End Match</button>
         </mat-toolbar-row>
       </mat-toolbar>

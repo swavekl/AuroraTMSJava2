@@ -1,103 +1,117 @@
-<app-centered-panel>
-  <div fxLayout="row" fxLayoutAlign="start center">
-    <div>
-      <table class="match-display" *ngIf="matchData">
-        <tbody>
-        <tr>
-          <td [colSpan]="games.length + 3">
-            <app-cards-display [smallFormat]="true" [cardsInfo]="playerACardsInfo">
-            </app-cards-display>
-          </td>
-        </tr>
-        <tr>
-          <td class="name-cell" [colSpan]="games.length">
-            {{ matchData?.playerAName }} {{ serverOrReceiver(matchData?.playerAName) }}
-          </td>
-          <td [rowSpan]="matchData.doubles ? 2 : 1" class="timeout-symbol-cell">
-            <div *ngIf="matchData.match?.sideATimeoutTaken" class="timout-taken-symbol">
-              <mat-icon>update</mat-icon>
-            </div>
-          </td>
-          <td [rowSpan]="matchData.doubles ? 3 : 2" class="games-won-cell align-bottom">
-            <div>{{ numGamesWonByA }}</div>
-          </td>
-          <td [rowSpan]="matchData.doubles ? 3 : 2" class="current-game-score-cell align-bottom">
-            {{ gameScoreSideA }}
-          </td>
-        </tr>
-        <tr *ngIf="matchData.doubles">
-          <td class="name-cell" [colSpan]="games.length">
-            {{ matchData?.playerAPartnerName }} {{ serverOrReceiver(matchData?.playerAPartnerName) }}
-          </td>
-        </tr>
-        <tr>
-          <td *ngFor="let game of games; let idx = index;" class="game-score-cell">
-            <ng-container [ngSwitch]="idx">
-              <ng-container *ngSwitchCase="0">{{ (currentGameIndex > 0) ? matchData?.match?.game1ScoreSideA : '' }}</ng-container>
-              <ng-container *ngSwitchCase="1">{{ (currentGameIndex > 1) ? matchData?.match?.game2ScoreSideA : '' }}</ng-container>
-              <ng-container *ngSwitchCase="2">{{ (currentGameIndex > 2) ? matchData?.match?.game3ScoreSideA : '' }}</ng-container>
-              <ng-container *ngSwitchCase="3">{{ (currentGameIndex > 3) ? matchData?.match?.game4ScoreSideA : '' }}</ng-container>
-              <ng-container *ngSwitchCase="4">{{ (currentGameIndex > 4) ? matchData?.match?.game5ScoreSideA : '' }}</ng-container>
-              <ng-container *ngSwitchCase="5">{{ (currentGameIndex > 5) ? matchData?.match?.game6ScoreSideA : '' }}</ng-container>
-              <ng-container *ngSwitchCase="6">{{ (currentGameIndex > 6) ? matchData?.match?.game7ScoreSideA : '' }}</ng-container>
-            </ng-container>
-          </td>
-          <td>&nbsp;</td>
-        </tr>
-        <tr>
-<!--          separator -->
-          <td class="separator-row" [colSpan]="games.length + 3">&nbsp;</td>
-        </tr>
-        <tr>
-          <td *ngFor="let game of games; let idx = index;" class="game-score-cell">
-            <ng-container [ngSwitch]="idx">
-              <ng-container *ngSwitchCase="0">{{ (currentGameIndex > 0) ? matchData?.match?.game1ScoreSideB : '' }}</ng-container>
-              <ng-container *ngSwitchCase="1">{{ (currentGameIndex > 1) ? matchData?.match?.game2ScoreSideB : '' }}</ng-container>
-              <ng-container *ngSwitchCase="2">{{ (currentGameIndex > 2) ? matchData?.match?.game3ScoreSideB : '' }}</ng-container>
-              <ng-container *ngSwitchCase="3">{{ (currentGameIndex > 3) ? matchData?.match?.game4ScoreSideB : '' }}</ng-container>
-              <ng-container *ngSwitchCase="4">{{ (currentGameIndex > 4) ? matchData?.match?.game5ScoreSideB : '' }}</ng-container>
-              <ng-container *ngSwitchCase="5">{{ (currentGameIndex > 5) ? matchData?.match?.game6ScoreSideB : '' }}</ng-container>
-              <ng-container *ngSwitchCase="6">{{ (currentGameIndex > 6) ? matchData?.match?.game7ScoreSideB : '' }}</ng-container>
-            </ng-container>
-          </td>
-          <td>&nbsp;</td>
-          <td [rowSpan]="matchData.doubles ? 3 : 2" class="games-won-cell align-top">
-            <div>{{ numGamesWonByB }}</div>
-          </td>
-          <td [rowSpan]="matchData.doubles ? 3 : 2" class="current-game-score-cell align-top">
-            {{ gameScoreSideB }}
-          </td>
-        </tr>
-        <tr>
-          <td class="name-cell" [colSpan]="games.length">
-            {{ matchData?.playerBName }} {{ serverOrReceiver(matchData?.playerBName) }}
-          </td>
-          <td [rowSpan]="matchData.doubles ? 2 : 1" class="timeout-symbol-cell">
-            <div *ngIf="matchData.match?.sideBTimeoutTaken" class="timout-taken-symbol">
-              <mat-icon>update</mat-icon>
-            </div>
-          </td>
-        </tr>
-        <tr *ngIf="matchData.doubles">
-          <td class="name-cell" [colSpan]="games.length">
-            {{ matchData?.playerBPartnerName }} {{ serverOrReceiver(matchData?.playerBPartnerName) }}
-          </td>
-        </tr>
-        <tr>
-          <td [colSpan]="games.length + 3">
-            <app-cards-display [smallFormat]="true" [cardsInfo]="playerBCardsInfo">
-            </app-cards-display>
-          </td>
-        </tr>
-        </tbody>
-      </table>
+<div class="purple-background">
+  <app-centered-panel>
+    <div fxLayout="row" fxLayoutAlign="start center">
+      <div>
+        <table class="match-display" *ngIf="matchData">
+          <tbody>
+          <tr *ngIf="!matchData.doubles" style="height: 75px;">
+            <td>&nbsp;</td>
+          </tr>
+          <tr>
+            <td [colSpan]="games.length + 3" class="cards-display-top">
+              <app-cards-display [smallFormat]="true" [cardsInfo]="playerACardsInfo">
+              </app-cards-display>
+            </td>
+          </tr>
+          <tr>
+            <td class="name-cell" [colSpan]="games.length">
+              {{ matchData?.playerAName }}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{ serverOrReceiver(matchData?.playerAName) }}
+            </td>
+            <td [rowSpan]="matchData.doubles ? 2 : 1" class="timeout-symbol-cell">
+<!--              <div *ngIf="matchData.match?.sideATimeoutTaken" class="timout-taken-symbol">-->
+<!--                <mat-icon>update</mat-icon>-->
+<!--              </div>-->
+            </td>
+            <td [rowSpan]="matchData.doubles ? 3 : 2" class="games-won-cell align-bottom">
+              <div>{{ numGamesWonByA }}</div>
+            </td>
+            <td [rowSpan]="matchData.doubles ? 3 : 2" class="current-game-score-cell align-bottom">
+              {{ gameScoreSideA }}
+            </td>
+          </tr>
+          <tr *ngIf="matchData.doubles">
+            <td class="name-cell" [colSpan]="games.length">
+              {{ matchData?.playerAPartnerName }}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{ serverOrReceiver(matchData?.playerAPartnerName) }}
+            </td>
+          </tr>
+          <tr>
+            <td *ngFor="let game of games; let idx = index;" class="game-score-cell">
+              <ng-container [ngSwitch]="idx">
+                <ng-container *ngSwitchCase="0">{{ (currentGameIndex > 0) ? matchData?.match?.game1ScoreSideA : '' }}</ng-container>
+                <ng-container *ngSwitchCase="1">{{ (currentGameIndex > 1) ? matchData?.match?.game2ScoreSideA : '' }}</ng-container>
+                <ng-container *ngSwitchCase="2">{{ (currentGameIndex > 2) ? matchData?.match?.game3ScoreSideA : '' }}</ng-container>
+                <ng-container *ngSwitchCase="3">{{ (currentGameIndex > 3) ? matchData?.match?.game4ScoreSideA : '' }}</ng-container>
+                <ng-container *ngSwitchCase="4">{{ (currentGameIndex > 4) ? matchData?.match?.game5ScoreSideA : '' }}</ng-container>
+                <ng-container *ngSwitchCase="5">{{ (currentGameIndex > 5) ? matchData?.match?.game6ScoreSideA : '' }}</ng-container>
+                <ng-container *ngSwitchCase="6">{{ (currentGameIndex > 6) ? matchData?.match?.game7ScoreSideA : '' }}</ng-container>
+              </ng-container>
+            </td>
+            <td>&nbsp;</td>
+          </tr>
+          <tr>
+            <!--          separator -->
+            <td class="separator-row" [colSpan]="games.length + 3">&nbsp;</td>
+          </tr>
+          <tr>
+            <td *ngFor="let game of games; let idx = index;" class="game-score-cell">
+              <ng-container [ngSwitch]="idx">
+                <ng-container *ngSwitchCase="0">{{ (currentGameIndex > 0) ? matchData?.match?.game1ScoreSideB : '' }}</ng-container>
+                <ng-container *ngSwitchCase="1">{{ (currentGameIndex > 1) ? matchData?.match?.game2ScoreSideB : '' }}</ng-container>
+                <ng-container *ngSwitchCase="2">{{ (currentGameIndex > 2) ? matchData?.match?.game3ScoreSideB : '' }}</ng-container>
+                <ng-container *ngSwitchCase="3">{{ (currentGameIndex > 3) ? matchData?.match?.game4ScoreSideB : '' }}</ng-container>
+                <ng-container *ngSwitchCase="4">{{ (currentGameIndex > 4) ? matchData?.match?.game5ScoreSideB : '' }}</ng-container>
+                <ng-container *ngSwitchCase="5">{{ (currentGameIndex > 5) ? matchData?.match?.game6ScoreSideB : '' }}</ng-container>
+                <ng-container *ngSwitchCase="6">{{ (currentGameIndex > 6) ? matchData?.match?.game7ScoreSideB : '' }}</ng-container>
+              </ng-container>
+            </td>
+            <td>&nbsp;</td>
+            <td [rowSpan]="matchData.doubles ? 3 : 2" class="games-won-cell align-top">
+              <div>{{ numGamesWonByB }}</div>
+            </td>
+            <td [rowSpan]="matchData.doubles ? 3 : 2" class="current-game-score-cell align-top">
+              {{ gameScoreSideB }}
+            </td>
+          </tr>
+          <tr>
+            <td class="name-cell" [colSpan]="games.length">
+              {{ matchData?.playerBName }}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{ serverOrReceiver(matchData?.playerBName) }}
+            </td>
+            <td [rowSpan]="matchData.doubles ? 2 : 1" class="timeout-symbol-cell">
+
+<!--              <div *ngIf="matchData.match?.sideBTimeoutTaken" class="timout-taken-symbol">-->
+<!--                <mat-icon>update</mat-icon>-->
+<!--              </div>-->
+            </td>
+          </tr>
+          <tr *ngIf="matchData.doubles">
+            <td class="name-cell" [colSpan]="games.length">
+              {{ matchData?.playerBPartnerName }}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{ serverOrReceiver(matchData?.playerBPartnerName) }}
+            </td>
+          </tr>
+          <tr>
+            <td [colSpan]="games.length + 3" class="cards-display-bottom">
+              <app-cards-display [smallFormat]="true" [cardsInfo]="playerBCardsInfo">
+              </app-cards-display>
+            </td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
-  </div>
-  <div fxLayout="row" fxLayoutAlign="center start" style="margin-top: 50px">
-    <div class="timer-display" *ngIf="timerRunning">{{ timerLabel}} {{ timerValue | timerFormatter }}</div>
-  </div>
-<!--  <div>{{ isNaN(currentGameIndex) ? '' : 'Current game: ' + (currentGameIndex + 1) }}</div>-->
-  <div class="status-line">Connection to table # {{ tableNumber }},
-    Status: {{ isConnected ? 'connected' : 'disconnected' }}
-  </div>
-</app-centered-panel>
+    <div class="timer-display" *ngIf="timerRunning">
+      <div class="timer-display-inner">
+        {{ timerLabel }} {{ timerValue | timerFormatter }}
+      </div>
+    </div>
+    <!--  <div>{{ isNaN(currentGameIndex) ? '' : 'Current game: ' + (currentGameIndex + 1) }}</div>-->
+    <div class="status">
+      Table {{ tableNumber }}
+        <ng-container *ngIf="isConnected; else disconnected">
+          <span class="connected"><mat-icon>wifi</mat-icon></span>
+        </ng-container>
+        <ng-template #disconnected>
+          <span class="disconnected"><mat-icon>wifi_off</mat-icon></span>
+        </ng-template>
+    </div>
+  </app-centered-panel>
+</div>

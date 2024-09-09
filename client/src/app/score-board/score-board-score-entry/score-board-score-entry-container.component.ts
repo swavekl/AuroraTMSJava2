@@ -180,7 +180,6 @@ export class ScoreBoardScoreEntryContainerComponent implements OnDestroy {
         break;
     }
     const monitorMessage: MonitorMessage = {
-      messageType: messageType,
       match: match,
       playerAName: playerAName,
       playerBName: playerBName,
@@ -189,9 +188,6 @@ export class ScoreBoardScoreEntryContainerComponent implements OnDestroy {
       doubles: this.doubles,
       pointsPerGame: this.pointsPerGame,
       numberOfGames: this.numberOfGames,
-      timeoutStarted: this.isTimeoutStarted(match),
-      timeoutRequester: this.getTimeoutRequester(match),
-      warmupStarted: messageType === MonitorMessageType.WarmupStarted
     };
     this.monitorService.sendMessage(this.tournamentId, this.tableNumber, monitorMessage);
   }

@@ -1,8 +1,11 @@
 export enum MonitorMessageType {
+  StartMatch = 'StartMatch',
   ScoreUpdate = 'ScoreUpdate',
   TimeoutStarted = 'TimeoutStarted',
   TimeoutStopped = 'TimeoutStopped',
   WarmupStarted = 'WarmupStarted',
   WarmupStopped = 'WarmupStopped',
-  Finished = 'Finished'
+  BreakStarted = 'BreakStarted',
+  BreakStopped = 'BreakStopped',
+  FinishMatch = 'FinishMatch'
 }

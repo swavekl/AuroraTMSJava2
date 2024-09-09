@@ -155,18 +155,15 @@ export class ScoreBoardMatchStartContainerComponent implements OnDestroy {
   onTimerEvent(event: any) {
     const updatedMatch: Match = event.updatedMatch;
     const action: string = event.action;
-    if (action === 'startWarmup' || action === 'stopWarmup') {
-      // just send a message there is nothing to record
-      this.sendMonitorUpdate(updatedMatch, action);
-      this.matchService.update(updatedMatch)
-        .pipe(first(),
-          tap({
-            next: () => {
-              this.saveMatchState(updatedMatch);
-            }
-          })
-        ).subscribe();
-    }
+    this.sendMonitorUpdate(updatedMatch, action);
+    this.matchService.update(updatedMatch)
+      .pipe(first(),
+        tap({
+          next: () => {
+            this.saveMatchState(updatedMatch);
+          }
+        })
+      ).subscribe();
   }
 
   private sendMonitorUpdate(match: Match, action: string) {
@@ -186,23 +183,7 @@ export class ScoreBoardMatchStartContainerComponent implements OnDestroy {
         playerBPartnerName = teamBPlayerNames[1];
       }
     }
-    let messageType: MonitorMessageType = MonitorMessageType.ScoreUpdate;
-    switch(action) {
-      case 'startWarmup':
-        messageType = MonitorMessageType.WarmupStarted;
-        break;
-      case 'stopWarmup':
-        messageType = MonitorMessageType.WarmupStopped;
-        break;
-      case 'startTimeout':
-        messageType = MonitorMessageType.TimeoutStarted;
-        break;
-      case 'stopTimeout':
-        messageType = MonitorMessageType.TimeoutStopped;
-        break;
-    }
     const monitorMessage: MonitorMessage = {
-      messageType: messageType,
       match: match,
       playerAName: playerAName,
       playerBName: playerBName,
@@ -211,9 +192,6 @@ export class ScoreBoardMatchStartContainerComponent implements OnDestroy {
       doubles: this.doubles,
       pointsPerGame: this.pointsPerGame,
       numberOfGames: this.numberOfGames,
-      timeoutStarted: messageType === MonitorMessageType.TimeoutStarted,
-      timeoutRequester: null,
-      warmupStarted: messageType === MonitorMessageType.WarmupStarted
     };
     this.monitorService.sendMessage(this.tournamentId, this.tableNumber, monitorMessage);
   }

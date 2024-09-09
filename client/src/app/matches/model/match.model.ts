@@ -1,3 +1,5 @@
+import {MonitorMessageType} from '../../monitor/model/monitor-message-type';
+
 export class Match {
   // to be determined player profile id
   static readonly TBD_PROFILE_ID = 'TBD';
@@ -69,6 +71,12 @@ export class Match {
 
   // initial server side - either 'left' or 'right'
   initialServerSide: string;
+
+  // if true the match is umpired and scores are entered via a tablet
+  matchUmpired: boolean;
+
+  // type of message
+  messageType: MonitorMessageType;
 
   /**
    *

@@ -5,6 +5,7 @@ import {takeWhile, timer} from 'rxjs';
 import {finalize, tap} from 'rxjs/operators';
 import {OrderOfServingCalculator} from '../../shared/serve-order/order-of-serving-calculator';
 import {CardsInfo} from '../../shared/cards-display/cards-info.model';
+import {MonitorMessageType} from '../model/monitor-message-type';
 
 @Component({
   selector: 'app-monitor-display',
@@ -65,7 +66,7 @@ export class MonitorDisplayComponent implements OnInit, OnChanges {
         this.getScoreInGames(mm.numberOfGames, mm.pointsPerGame, this.match);
         this.currentGameIndex = this.getCurrentGameIndex(mm.numberOfGames, mm.pointsPerGame);
         this.getCurrentGameScore();
-        this.getTimerData(mm.warmupStarted, mm.timeoutStarted, mm.timeoutRequester);
+        this.getTimerData(mm.match.messageType);
 
         if (this.orderOfServingCalculator == null) {
           let orderOfServingCalculator = new OrderOfServingCalculator(
@@ -188,15 +189,31 @@ export class MonitorDisplayComponent implements OnInit, OnChanges {
 
   protected readonly isNaN = isNaN;
 
-  private getTimerData(warmupStarted: boolean, timeoutStarted: boolean, timeoutRequester: string) {
+  private getTimerData(messageType: MonitorMessageType) {
     if (!this.timerRunning) {
-      if (warmupStarted || timeoutStarted) {
-        const duration: number = (warmupStarted) ? 120 : (timeoutStarted) ? 60 : 0;
-        const label = (warmupStarted) ? 'Warmup' : 'Timeout';
+      let duration: number = 0;
+      let label = 'Break';
+      switch (messageType) {
+        case MonitorMessageType.WarmupStarted:
+          label = 'Warmup';
+          duration = 120;
+          break;
+        case MonitorMessageType.BreakStarted:
+          label = 'Break';
+          duration = 60;
+          break;
+        case MonitorMessageType.TimeoutStarted:
+          label = 'Timeout';
+          duration = 60;
+          break;
+      }
+      if (duration > 0) {
         this.startTimer(duration, label);
       }
     } else {
-      if (!warmupStarted && !timeoutStarted) {
+      if (messageType === MonitorMessageType.WarmupStopped ||
+        messageType === MonitorMessageType.BreakStopped ||
+        messageType === MonitorMessageType.TimeoutStopped) {
         this.stopTimer();
       }
     }
@@ -251,9 +268,9 @@ export class MonitorDisplayComponent implements OnInit, OnChanges {
 
     if (playerProfileId) {
       if (this.orderOfServingCalculator.isPlayerServer(playerProfileId)) {
-        return '[S]';
+        return 'S';
       } else if (this.orderOfServingCalculator.isPlayerReceiver(playerProfileId)) {
-        return '[R]'
+        return 'R'
       }
     }
     // neither

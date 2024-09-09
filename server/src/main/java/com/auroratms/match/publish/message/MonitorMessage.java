@@ -11,9 +11,6 @@ import java.io.Serializable;
 @ToString
 public class MonitorMessage implements Serializable {
 
-    // type of message
-    MonitorMessageType messageType = MonitorMessageType.ScoreUpdate;
-
     // current match status
     Match match;
 
@@ -29,53 +26,12 @@ public class MonitorMessage implements Serializable {
 
     int pointsPerGame;
 
-    // started or stopped (maybe prematurely)
-    boolean timeoutStarted;
-
-    // player or doubles team requesting timeout
-    String timeoutRequester;
-
-    // started or stopped
-    boolean warmupStarted;
-
-    public MonitorMessageType getMessageType() {
-        return messageType;
-    }
-
-    public void setMessageType(MonitorMessageType messageType) {
-        this.messageType = messageType;
-    }
-
     public Match getMatch() {
         return match;
     }
 
     public void setMatch(Match match) {
         this.match = match;
-    }
-
-    public boolean isTimeoutStarted() {
-        return timeoutStarted;
-    }
-
-    public void setTimeoutStarted(boolean timeoutStarted) {
-        this.timeoutStarted = timeoutStarted;
-    }
-
-    public String getTimeoutRequester() {
-        return timeoutRequester;
-    }
-
-    public void setTimeoutRequester(String timeoutRequester) {
-        this.timeoutRequester = timeoutRequester;
-    }
-
-    public boolean isWarmupStarted() {
-        return warmupStarted;
-    }
-
-    public void setWarmupStarted(boolean warmupStarted) {
-        this.warmupStarted = warmupStarted;
     }
 
     public String getPlayerAName() {

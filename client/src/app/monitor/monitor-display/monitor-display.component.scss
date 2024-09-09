@@ -1,6 +1,8 @@
 @use "src/my-theme" as *;
 
 table.match-display {
+  color: white;
+
   tr {
     td {
       &.name-cell {
@@ -54,16 +56,66 @@ table.match-display {
       &.separator-row {
         height: 30px;
       }
+
+      &.cards-display-top {
+        padding-bottom: 30px;
+      }
+
+      &.cards-display-bottom {
+        padding-top: 30px;
+      }
+
     }
   }
 }
 
-div.status-line {
-  margin-top: 160px;
+div.server-receiver-indicator {
+  font-size: 45px;
+  font-weight: bold;
+  width: 1em;
+  height: 1em;
+  line-height: 1em;
+  border-radius: 50%;
+  color: black;
+  text-align: center;
+  background: white;
 }
 
-div.timer-display {
-  font-size: 80px;
+div.status {
+  position: fixed;
+  bottom: 0;
+  right: 0;
+  padding: 0 10px 10px 0;
+  color: white;
+  font-size: 16px;
+}
+
+.connected {
+  color: green;
+}
+
+.disconnected {
+  color: red;
+}
+
+$timer-panel-width: 700px;
+$timer-panel-height: 230px;
+
+.timer-display {
+  position: absolute;
+  justify-content: center;
+  top: calc((100vh / 2) - ($timer-panel-height / 2) + 72px);
+  left: calc((100% - $timer-panel-width) / 2);
+  height: $timer-panel-height;
+  width: $timer-panel-width;
+  z-index: 99;
+  background-color: white;
+  border-radius: 5px;
+}
+
+.timer-display-inner {
+  margin-top: 100px;
+  font-size: 100px;
 }
 
 div.timout-taken-symbol {
@@ -75,4 +127,14 @@ div.timout-taken-symbol {
     height: 38px;
     width: 38px;
   }
+}
+
+.purple-background {
+  //background-image: url("../../../assets/images/gradient-purple-striped-background.jpg");
+  background-image: url("../../../assets/images/purple-gradient-with-lines.jpg");
+  //background-color: $primary-color;
+  background-repeat: no-repeat;
+  background-size: cover;
+  width: 100%;
+  height: calc(100vh - 70px);
 }

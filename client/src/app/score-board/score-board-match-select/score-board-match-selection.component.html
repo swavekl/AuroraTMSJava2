@@ -18,18 +18,20 @@
             <th></th>
           </tr>
           </thead>
-          <tr *ngFor="let matchCard of matchCards">
-            <ng-container *ngIf="areMatchPlayersDetermined(matchCard)">
-              <td>{{ getEventName(matchCard) }}</td>
-              <td>{{ matchCard.startTime | startTime }}</td>
-              <td>{{ getPlayerNames(matchCard, 'A') }}</td>
-              <td>vs</td>
-              <td>{{ getPlayerNames(matchCard, 'B') }}</td>
-              <td>
-                <button type="button" mat-raised-button (click)="selectedMatch(matchCard)">Select</button>
-              </td>
-            </ng-container>
-          </tr>
+          <ng-container *ngFor="let matchCard of matchCards">
+            <tr *ngFor="let match of matchCard.matches; index as matchIndex">
+              <ng-container *ngIf="areMatchPlayersDetermined(matchCard, matchIndex)">
+                <td>{{ getEventName(matchCard) }}</td>
+                <td>{{ matchCard.startTime | startTime }}</td>
+                <td>{{ getPlayerNames(matchCard, matchIndex,'A') }}</td>
+                <td>vs</td>
+                <td>{{ getPlayerNames(matchCard, matchIndex, 'B') }}</td>
+                <td>
+                  <button type="button" mat-raised-button (click)="selectedMatch(matchCard, matchIndex)">Select</button>
+                </td>
+              </ng-container>
+            </tr>
+          </ng-container>
         </table>
       </div>
     </div>

@@ -6,7 +6,6 @@ import com.auroratms.match.Match;
 import com.auroratms.match.MatchCard;
 import com.auroratms.match.MatchCardService;
 import com.auroratms.match.publish.message.MonitorMessage;
-import com.auroratms.match.publish.message.MonitorMessageType;
 import com.auroratms.server.RabbitMQConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,7 +47,7 @@ public class MatchStatusPublisher {
         this.template = template;
     }
 
-    public void publishMatchUpdate(long matchCardId, Match match, boolean timeoutStarted, String timeoutRequester, boolean warmupStarted) {
+    public void publishMatchUpdate(long matchCardId, Match match) {
         MatchCard matchCard = matchCardService.getMatchCardWithPlayerProfiles(matchCardId);
         String assignedTables = matchCard.getAssignedTables();
         if (assignedTables != null) {
@@ -89,14 +88,6 @@ public class MatchStatusPublisher {
                         }
                     }
 
-                    if (warmupStarted) {
-                        monitorMessage.setMessageType(MonitorMessageType.WarmupStarted);
-                        monitorMessage.setWarmupStarted(true);
-                    } else if (timeoutStarted) {
-                        monitorMessage.setMessageType(MonitorMessageType.TimeoutStarted);
-                        monitorMessage.setTimeoutStarted(true);
-                        monitorMessage.setTimeoutRequester(timeoutRequester);
-                    }
                     this.createTopicAndSend(monitorMessage, tournamentFk, tableNumber);
 
                 } catch (Exception e) {

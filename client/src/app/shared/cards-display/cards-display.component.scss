@@ -18,6 +18,8 @@ table.cards-display {
       td {
         /* Remove any borders from our stylesheet. */
         border: 0;
+        // ensure 1, 2 and C are shown in black for readability
+        color: black !important;
 
         text-align: center;
         vertical-align: middle;
@@ -69,6 +71,7 @@ table.cards-display {
         &.timeout-card {
           /* Use the spread value on the box-shadow to set the border width. */
           box-shadow: 0 0 0 2px black;
+          background-color: white;
         }
 
         &.yellow-card {

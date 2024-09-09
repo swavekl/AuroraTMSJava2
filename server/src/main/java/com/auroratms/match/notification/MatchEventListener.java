@@ -54,25 +54,20 @@ public class MatchEventListener {
     private void processEvent(MatchUpdateEvent matchUpdateEvent) {
         Match matchBefore = matchUpdateEvent.getMatchBefore();
         long matchCardId = matchBefore.getMatchCard().getId();
-        log.info("Begin processing match update event in MatchEventListener " + matchCardId);
         Match matchAfter = matchUpdateEvent.getMatchAfter();
-        try {
-            // record who made a change and the score after the change
-            makeAuditEntry(matchUpdateEvent.getProfileId(), matchBefore, matchAfter);
+        if (matchAfter.isMatchUmpired()) {
+            log.info("Begin processing match update event in MatchEventListener " + matchCardId + " match # " + matchAfter.getMatchNum());
+            try {
+                // record who made a change and the score after the change
+                makeAuditEntry(matchUpdateEvent.getProfileId(), matchBefore, matchAfter);
 
-            // figure out if time out was taken
-            boolean sideARequestedTimeout = !matchBefore.isSideATimeoutTaken() && matchAfter.isSideATimeoutTaken();
-            boolean sideBRequestedTimeout = !matchBefore.isSideBTimeoutTaken() && matchAfter.isSideBTimeoutTaken();
-            boolean timeoutStarted = (sideARequestedTimeout || sideBRequestedTimeout);
-            String timeoutRequester = (!timeoutStarted) ? null : (sideARequestedTimeout)
-                    ? matchBefore.getPlayerAProfileId() : matchBefore.getPlayerBProfileId();
-
-            boolean warmupStarted = matchAfter.isWarmupStarted();
-
-            this.matchStatusPublisher.publishMatchUpdate(matchCardId, matchAfter, timeoutStarted, timeoutRequester, warmupStarted);
-            log.info("Finished processing match update event for match card with id " + matchCardId);
-        } catch (Exception e) {
-            log.error("Unable to update match status for match card with id " + matchCardId, e);
+                this.matchStatusPublisher.publishMatchUpdate(matchCardId, matchAfter);
+                log.info("Finished processing match update event for match card with id " + matchCardId + " match # " + matchAfter.getMatchNum());
+            } catch (Exception e) {
+                log.error("Unable to update match status for match # " + matchAfter.getMatchNum() + " on match card with id " + matchCardId, e);
+            }
+        } else {
+            log.info("Match # " + matchAfter.getMatchNum() + " on match card with id " + matchCardId + " is not umpired");
         }
     }
 
