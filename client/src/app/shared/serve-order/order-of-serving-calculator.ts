@@ -19,6 +19,9 @@ export class OrderOfServingCalculator {
   // if false backwards
   cyclingForward: boolean = true;
 
+  // previous total points to detect if we are moving forward
+  previousTotalPoints: number = 0;
+
   // current game index - 0 based
   currentGame: number = 0;
 
@@ -36,6 +39,7 @@ export class OrderOfServingCalculator {
     this.gameServerAndReceiver = new Array(numGames);
     this.doubles = doubles;
     this.positionsRecorder = new PositionsRecorder(doubles, playerAProfileId, playerBProfileId);
+    this.previousTotalPoints = 0;
   }
 
   private getOrderOfPlayers() {
@@ -46,6 +50,7 @@ export class OrderOfServingCalculator {
    * advances to the next game
    */
   public startNextGame(): number {
+    this.previousTotalPoints = 0;
     return ++this.currentGame;
   }
 
@@ -90,18 +95,37 @@ export class OrderOfServingCalculator {
     const previousReceiver = this.currentReceiver;
 
     const totalPoints = pointsSideA + pointsSideB;
+    // if umpire is correcting a score from say 2:1 to 1:2 via 1:1 then 1:2 then don't cycle forward or backward
     const divisor = (pointsSideA >= 10 && pointsSideB >= 10) ? 1 : 2;
     const remainder = totalPoints % divisor;
-    // figure out if server and receiver changes (every 2 points or at 10 : 10)
-    const changeServer = (remainder === 0) && (totalPoints > 0);
+    const previousRemainder = this.previousTotalPoints % divisor;
+    const reverseDirection = (this.previousTotalPoints > totalPoints);
+
+    // figure out if server and receiver changes (every 2 points or at every point after 10 : 10)
+    const changeServer =
+      (!reverseDirection && (totalPoints > 0) && (remainder === 0)) ||
+      (reverseDirection && (this.previousTotalPoints > 0) && (previousRemainder === 0));
+
+    this.previousTotalPoints = totalPoints;
     let changeReceiver: boolean = changeServer;
     if (changeServer) {
-      if (this.cyclingForward) {
-        idxServer++;
-        idxServer = (idxServer === orderOfPlayers.length) ? 0 : idxServer;
+      if (!reverseDirection) {
+        if (this.cyclingForward) {
+          idxServer++;
+          idxServer = (idxServer === orderOfPlayers.length) ? 0 : idxServer;
+        } else {
+          idxServer--;
+          idxServer = (idxServer < 0) ? orderOfPlayers.length - 1 : idxServer;
+        }
       } else {
-        idxServer--;
-        idxServer = (idxServer < 0) ? orderOfPlayers.length - 1 : idxServer;
+        // temporarily change the direction of cycling
+        if (this.cyclingForward) {
+          idxServer--;
+          idxServer = (idxServer < 0) ? orderOfPlayers.length - 1 : idxServer;
+        } else {
+          idxServer++;
+          idxServer = (idxServer === orderOfPlayers.length) ? 0 : idxServer;
+        }
       }
       this.currentServer = orderOfPlayers[idxServer];
     }
@@ -118,21 +142,34 @@ export class OrderOfServingCalculator {
           changeReceiver = true;
           this.cyclingForward = !this.cyclingForward;
           // adjust index so calculation below is properly cycling to the other receiver
-          if (this.cyclingForward) {
-            idxReceiver++;
-          } else {
-            idxReceiver--;
+          if (!reverseDirection) {
+            if (this.cyclingForward) {
+              idxReceiver++;
+            } else {
+              idxReceiver--;
+            }
           }
         }
     }
 
     if (changeReceiver) {
-      if (this.cyclingForward) {
-        idxReceiver++;
-        idxReceiver = (idxReceiver === orderOfPlayers.length) ? 0 : idxReceiver;
+      if (!reverseDirection) {
+        if (this.cyclingForward) {
+          idxReceiver++;
+          idxReceiver = (idxReceiver === orderOfPlayers.length) ? 0 : idxReceiver;
+        } else {
+          idxReceiver--;
+          idxReceiver = (idxReceiver < 0) ? orderOfPlayers.length - 1 : idxReceiver;
+        }
       } else {
-        idxReceiver--;
-        idxReceiver = (idxReceiver < 0) ? orderOfPlayers.length - 1 : idxReceiver;
+        // temporarily reverse the direction of cycling
+        if (this.cyclingForward) {
+          idxReceiver--;
+          idxReceiver = (idxReceiver < 0) ? orderOfPlayers.length - 1 : idxReceiver;
+        } else {
+          idxReceiver++;
+          idxReceiver = (idxReceiver === orderOfPlayers.length) ? 0 : idxReceiver;
+        }
       }
       this.currentReceiver = orderOfPlayers[idxReceiver];
     }
@@ -150,6 +187,7 @@ export class OrderOfServingCalculator {
         }
       }
     }
+    console.log('NEW currentServer ' + this.currentServer + ' currentReceiver ' + this.currentReceiver);
   }
 
   /**
@@ -211,14 +249,14 @@ export class OrderOfServingCalculator {
   public fromJson(jsonString: string) {
     const values = JSON.parse(jsonString);
     this.doubles = values.doubles;
-    this.cyclingForward = values.cyclingForward
+    this.cyclingForward = values.cyclingForward;
     this.currentGame = values.currentGame;
     this.gameServerAndReceiver = values.gameServerAndReceiver;
     this.currentReceiver = values.currentReceiver;
     this.currentServer = values.currentServer;
     const fakeProfileIds = (this.doubles) ? 'aa;bb' : 'aaa';
     let positionsRecorder: PositionsRecorder = new PositionsRecorder(this.doubles, fakeProfileIds, fakeProfileIds);
-    positionsRecorder.from (values.positionsRecorder);
+    positionsRecorder.from(values.positionsRecorder);
     this.positionsRecorder = positionsRecorder;
   }
 
@@ -235,7 +273,7 @@ export class OrderOfServingCalculator {
   }
 
   public isServer(leftSide: boolean) {
-    const sideAndNumber = (leftSide) ? "L2" : "R1";
+    const sideAndNumber = (leftSide) ? 'L2' : 'R1';
     const playerPositions = this.positionsRecorder.getPlayerPositions();
     // console.log('player at position ' + sideAndNumber + ' is ' + playerPositions[sideAndNumber]);
     // console.log('current server is ' + this.currentServer);
@@ -262,7 +300,7 @@ export class OrderOfServingCalculator {
 
   lookupPlayerInPosition(sideAndNumber: string): string {
     const playerPositions = this.positionsRecorder.getPlayerPositions();
-    return playerPositions[sideAndNumber]
+    return playerPositions[sideAndNumber];
   }
 
   determineDefaultServerAndReceiver(isServingFromLeft: boolean) {
