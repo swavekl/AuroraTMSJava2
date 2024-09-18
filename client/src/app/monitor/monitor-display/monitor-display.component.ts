@@ -270,7 +270,7 @@ export class MonitorDisplayComponent implements OnInit, OnChanges {
       if (this.orderOfServingCalculator.isPlayerServer(playerProfileId)) {
         return 'S';
       } else if (this.orderOfServingCalculator.isPlayerReceiver(playerProfileId)) {
-        return 'R'
+        return this.matchData.doubles ? 'R' : '';
       }
     }
     // neither

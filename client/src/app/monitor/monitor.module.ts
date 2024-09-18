@@ -16,6 +16,7 @@ import {MonitorDisplayContainerComponent} from './monitor-display/monitor-displa
 import {MatGridListModule} from '@angular/material/grid-list';
 import {TimerFormatterPipe} from '../shared/pipes/timer-formatter.pipe';
 import {MatIcon} from '@angular/material/icon';
+import {ServerReceiverIndicatorComponent} from '../shared/server-receiver-indicator/server-receiver-indicator.component';
 
 @NgModule({
   declarations: [
@@ -36,7 +37,8 @@ import {MatIcon} from '@angular/material/icon';
     SharedModule,
     MatGridListModule,
     TimerFormatterPipe,
-    MatIcon
+    MatIcon,
+    ServerReceiverIndicatorComponent
   ],
   providers: [
   ]

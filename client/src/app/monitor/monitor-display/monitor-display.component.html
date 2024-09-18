@@ -15,12 +15,10 @@
           </tr>
           <tr>
             <td class="name-cell" [colSpan]="games.length">
-              {{ matchData?.playerAName }}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{ serverOrReceiver(matchData?.playerAName) }}
+              {{ matchData?.playerAName }}
             </td>
-            <td [rowSpan]="matchData.doubles ? 2 : 1" class="timeout-symbol-cell">
-<!--              <div *ngIf="matchData.match?.sideATimeoutTaken" class="timout-taken-symbol">-->
-<!--                <mat-icon>update</mat-icon>-->
-<!--              </div>-->
+            <td>
+              <app-server-receiver-indicator [indicator]="serverOrReceiver(matchData?.playerAName)"></app-server-receiver-indicator>
             </td>
             <td [rowSpan]="matchData.doubles ? 3 : 2" class="games-won-cell align-bottom">
               <div>{{ numGamesWonByA }}</div>
@@ -31,7 +29,10 @@
           </tr>
           <tr *ngIf="matchData.doubles">
             <td class="name-cell" [colSpan]="games.length">
-              {{ matchData?.playerAPartnerName }}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{ serverOrReceiver(matchData?.playerAPartnerName) }}
+              {{ matchData?.playerAPartnerName }}
+            </td>
+            <td>
+              <app-server-receiver-indicator [indicator]="serverOrReceiver(matchData?.playerAPartnerName)"></app-server-receiver-indicator>
             </td>
           </tr>
           <tr>
@@ -74,18 +75,18 @@
           </tr>
           <tr>
             <td class="name-cell" [colSpan]="games.length">
-              {{ matchData?.playerBName }}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{ serverOrReceiver(matchData?.playerBName) }}
+              {{ matchData?.playerBName }}
             </td>
-            <td [rowSpan]="matchData.doubles ? 2 : 1" class="timeout-symbol-cell">
-
-<!--              <div *ngIf="matchData.match?.sideBTimeoutTaken" class="timout-taken-symbol">-->
-<!--                <mat-icon>update</mat-icon>-->
-<!--              </div>-->
+            <td class="server-receiver-column">
+              <app-server-receiver-indicator [indicator]="serverOrReceiver(matchData?.playerBName)"></app-server-receiver-indicator>
             </td>
           </tr>
           <tr *ngIf="matchData.doubles">
             <td class="name-cell" [colSpan]="games.length">
-              {{ matchData?.playerBPartnerName }}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{ serverOrReceiver(matchData?.playerBPartnerName) }}
+              {{ matchData?.playerBPartnerName }}
+            </td>
+            <td>
+              <app-server-receiver-indicator [indicator]="serverOrReceiver(matchData?.playerBPartnerName)"></app-server-receiver-indicator>
             </td>
           </tr>
           <tr>

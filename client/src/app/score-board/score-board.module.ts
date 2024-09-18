@@ -28,6 +28,7 @@ import {ScoreTableComponent} from '../matches/score-table/score-table.component'
 import {MatchesModule} from '../matches/matches.module';
 import { CardsPopupComponent } from './cards-popup/cards-popup.component';
 import {MatDialogActions, MatDialogContent, MatDialogTitle} from '@angular/material/dialog';
+import {ServerReceiverIndicatorComponent} from '../shared/server-receiver-indicator/server-receiver-indicator.component';
 
 
 @NgModule({
@@ -42,28 +43,29 @@ import {MatDialogActions, MatDialogContent, MatDialogTitle} from '@angular/mater
     ScoreBoardMatchStartContainerComponent,
     CardsPopupComponent
   ],
-  imports: [
-    CommonModule,
-    ScoreBoardRoutingModule,
-    SharedModule,
-    MatFormFieldModule,
-    MatSelectModule,
-    FormsModule,
-    FlexLayoutModule,
-    MatInputModule,
-    MatGridListModule,
-    MatButtonModule,
-    MatIcon,
-    MatToolbar,
-    MatToolbarRow,
-    TimerFormatterPipe,
-    MatRadioGroup,
-    MatRadioButton,
-    MatchesModule,
-    MatDialogContent,
-    MatDialogActions,
-    MatDialogTitle
-  ]
+    imports: [
+        CommonModule,
+        ScoreBoardRoutingModule,
+        SharedModule,
+        MatFormFieldModule,
+        MatSelectModule,
+        FormsModule,
+        FlexLayoutModule,
+        MatInputModule,
+        MatGridListModule,
+        MatButtonModule,
+        MatIcon,
+        MatToolbar,
+        MatToolbarRow,
+        TimerFormatterPipe,
+        MatRadioGroup,
+        MatRadioButton,
+        MatchesModule,
+        MatDialogContent,
+        MatDialogActions,
+        MatDialogTitle,
+        ServerReceiverIndicatorComponent
+    ]
 })
 export class ScoreBoardModule {
 }

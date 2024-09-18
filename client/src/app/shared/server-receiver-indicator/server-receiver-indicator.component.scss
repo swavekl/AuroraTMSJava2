@@ -1,0 +1,26 @@
+.server-receiver-indicator {
+  font-weight: bold;
+  width: 1.4em;
+  height: 1.4em;
+  line-height: 1.4em;
+  border-radius: 50%;
+  color: black;
+  text-align: center;
+  background: white;
+}
+
+.small-indicator {
+  font-size: 20px;
+}
+
+.large-indicator {
+  font-size: 30px;
+}
+
+.server-color {
+  background: white;
+}
+
+.receiver-color {
+  background: yellow;
+}

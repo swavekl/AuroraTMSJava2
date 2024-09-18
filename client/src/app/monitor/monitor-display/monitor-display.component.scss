@@ -5,44 +5,34 @@ table.match-display {
 
   tr {
     td {
+
       &.name-cell {
         font-size: 45px;
         font-weight: bold;
         text-align: left;
         padding: 20px;
-        //border: 1px solid green;
       }
 
       &.game-score-cell {
         font-size: 36px;
         padding: 24px 16px;
         vertical-align: middle;
-        //border: 1px solid purple;
       }
 
       &.current-game-score-small-cell {
         background-color: #d7c8f5;
-        //background-color: lighten($primary-color, 60%);
-      }
-
-      &.timeout-symbol-cell {
-        //border: 3px solid deepskyblue;
-        vertical-align: middle;
-        min-width: 45px;
       }
 
       &.games-won-cell {
         font-size: 70px;
         padding: 20px;
         width: 150px;
-        //border: 2px solid deeppink;
       }
 
       &.current-game-score-cell {
         font-size: 130px;
         padding: 40px;
         width: 200px;
-        //border: 1px solid blue;
       }
 
       &.align-bottom {
@@ -67,18 +57,6 @@ table.match-display {
 
     }
   }
-}
-
-div.server-receiver-indicator {
-  font-size: 45px;
-  font-weight: bold;
-  width: 1em;
-  height: 1em;
-  line-height: 1em;
-  border-radius: 50%;
-  color: black;
-  text-align: center;
-  background: white;
 }
 
 div.status {
@@ -116,17 +94,6 @@ $timer-panel-height: 230px;
 .timer-display-inner {
   margin-top: 100px;
   font-size: 100px;
-}
-
-div.timout-taken-symbol {
-  margin: 10px 0;
-  //border: 2px solid cyan;
-
-  mat-icon {
-    font-size: 38px;
-    height: 38px;
-    width: 38px;
-  }
 }
 
 .purple-background {

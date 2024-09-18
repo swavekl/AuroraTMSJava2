@@ -79,26 +79,30 @@
             </td>
             <td class="names-column">
               <ng-container *ngIf="doubles">
-                {{ getPlayerName(true, 0) }} [{{ getPlayerLetter(true, 0) }}]
+                {{ getPlayerName(true, 0) }}
+<!--                [{{ getPlayerLetter(true, 0) }}]-->
               </ng-container>
             </td>
             <td class="server-receiver-column net-cell"></td>
             <td class="server-receiver-column">{{ isServer(false) ? 'S' : 'R' }}</td>
             <td class="names-column right-aligned">
-              {{ getPlayerName(false, 0) }} [{{ getPlayerLetter(false, 0) }}]
+              {{ getPlayerName(false, 0) }}
+<!--              [{{ getPlayerLetter(false, 0) }}]-->
             </td>
             <td></td>
           </tr>
           <tr>
             <td></td>
             <td class="names-column">
-              {{ getPlayerName(true, 1) }} [{{ getPlayerLetter(true, 1) }}]
+              {{ getPlayerName(true, 1) }}
+<!--              [{{ getPlayerLetter(true, 1) }}]-->
             </td>
             <td class="server-receiver-column net-cell">{{ isServer(true) ? 'S' : 'R' }}</td>
             <td class="server-receiver-column">&nbsp;</td>
             <td class="names-column right-aligned">
               <ng-container *ngIf="doubles">
-               {{ getPlayerName(false, 1) }} [{{ getPlayerLetter(false, 1) }}]
+               {{ getPlayerName(false, 1) }}
+<!--                [{{ getPlayerLetter(false, 1) }}]-->
               </ng-container>
             </td>
             <td>

@@ -61,11 +61,11 @@ table.players-table {
       }
 
       &.server-receiver-column {
-        //min-width: 30px;
         text-align: center;
         vertical-align: middle;
         background-color: lightskyblue;
         font-size: 18px;
+        font-weight: bold;
       }
 
       &.versus-column {
