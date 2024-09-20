@@ -1,11 +1,12 @@
 package com.auroratms.email.campaign;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.util.Date;
 
 @Entity
 @Table(name = "email_campaign")
-public class EmailCampaignEntity {
+public class EmailCampaignEntity implements Serializable {
 
     // unique id of a campaign
     // unique id
@@ -20,7 +21,7 @@ public class EmailCampaignEntity {
     private String subject;
 
     // text of the email body
-    @Column(length = 2000)
+    @Column(length = 10000)
     private String body;
 
     // date sent

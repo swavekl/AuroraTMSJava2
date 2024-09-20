@@ -4,10 +4,13 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.vault.repository.mapping.Secret;
+
+import java.io.Serializable;
+
 @Data
 @NoArgsConstructor
 @Secret
-public class EmailServerConfigurationEntity {
+public class EmailServerConfigurationEntity implements Serializable {
 
     // tournament director profile id
     @Id
