@@ -42,7 +42,6 @@ import java.util.*;
  * to pay by email.
  */
 @Component
-@Transactional
 @Slf4j
 @RequiredArgsConstructor  // instead of autowired
 public class EventEntryChangeListener {
@@ -71,21 +70,25 @@ public class EventEntryChangeListener {
     @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handleEventEntryChangedEvent(EventEntryChangeEvent event) {
-        // run this task as system principal, so we have access to various services
-        SystemPrincipalExecutor task = new SystemPrincipalExecutor() {
-            @Override
-            protected void taskBody() {
-                handleEventEntryChangedEventInternal(event);
-            }
-        };
-        task.execute();
+        // if a player is on the waiting for more than one event which was freed up
+        // ensure only one event entry is processed at a time so only one card session is created
+        synchronized (this) {
+            // run this task as system principal, so we have access to various services
+            SystemPrincipalExecutor task = new SystemPrincipalExecutor() {
+                @Override
+                protected void taskBody() {
+                    handleEventEntryChangedEventInternal(event);
+                }
+            };
+            task.execute();
+        }
     }
 
     /**
-     *
      * @param event
      */
-    private void handleEventEntryChangedEventInternal(EventEntryChangeEvent event) {
+    @Transactional
+    public void handleEventEntryChangedEventInternal(EventEntryChangeEvent event) {
         TournamentEvent tournamentEvent = tournamentEventEntityService.get(event.getEventId());
         log.info("Got tournament entry event of type " + event.getChangeType() + " for event " + tournamentEvent.getName() + " entry status " + event.getStatus());
 
@@ -107,13 +110,21 @@ public class EventEntryChangeListener {
                 // if they don't confirm in 12 hours a cleanup job will
                 // throw them out of the event
                 Date futureCartSessionStartDate = DateUtils.addHours(new Date(), 12);
-                CartSession cartSession = cartSessionService.startSession(PaymentRefundFor.TOURNAMENT_ENTRY, waitingListEntry.getTournamentEntryFk(), futureCartSessionStartDate);
+                // If a player was already moved from one waiting list to pending payment there will be already a cart session
+                // check it is the case, so we don't create multiple sessions and avoid one of them expiring and removing entries associated with it
+                CartSession cartSession = cartSessionService.findSessionFor(PaymentRefundFor.TOURNAMENT_ENTRY, waitingListEntry.getTournamentEntryFk());
+                if (cartSession.getSessionUUID() == null) {
+                    log.info("Creating new cart session");
+                    cartSession = cartSessionService.startSession(PaymentRefundFor.TOURNAMENT_ENTRY, waitingListEntry.getTournamentEntryFk(), futureCartSessionStartDate);
+                } else {
+                    log.info("Found existing cart session with id " + cartSession.getSessionUUID());
+                }
                 waitingListEntry.setCartSessionId(cartSession.getSessionUUID());
                 waitingListEntry.setStatus(EventEntryStatus.PENDING_CONFIRMATION);
 
                 tournamentEventEntryService.update(waitingListEntry);
 
-                String playerFullName = sendEmail (waitingListEntry, futureCartSessionStartDate);
+                String playerFullName = sendEmail(waitingListEntry, futureCartSessionStartDate);
                 log.info(String.format("Moved player %s from waiting list to event entry pending payment", playerFullName));
             }
         }
@@ -144,7 +155,7 @@ public class EventEntryChangeListener {
             String eventName = tournamentEvent.getName();
             double feeAdult = tournamentEvent.getFeeAdult();
             double feeJunior = tournamentEvent.getFeeJunior();
-            String eventDateAndTime = new EventEntryInfo(tournament.getStartDate(),tournamentEvent).getEventDayAndTime();
+            String eventDateAndTime = new EventEntryInfo(tournament.getStartDate(), tournamentEvent).getEventDayAndTime();
 
             // send email to player and cc TD
             Map<String, Object> templateModel = new HashMap<>();
@@ -182,7 +193,7 @@ public class EventEntryChangeListener {
         return playerFullName;
     }
 
-    private String getTournamentCurrency (long tournamentId) {
+    private String getTournamentCurrency(long tournamentId) {
         String currency = "";
         String tournamentOwnerLoginId = tournamentService.getTournamentOwner(tournamentId);
         if (tournamentOwnerLoginId != null) {
@@ -198,6 +209,7 @@ public class EventEntryChangeListener {
 
     /**
      * Adds events (confirmed and waited on) to the context
+     *
      * @param templateModel
      * @param tournament
      * @param tournamentEntryId
