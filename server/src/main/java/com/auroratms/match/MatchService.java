@@ -86,4 +86,8 @@ public class MatchService {
     public boolean lockMatch(long matchId, String profileId) {
         return this.matchRepository.lockMatch(matchId, profileId) == 1;
     }
+
+    public List<Match> findAllByIdIn(List<Long> matchIds) {
+        return this.matchRepository.findAllByIdIn(matchIds);
+    }
 }

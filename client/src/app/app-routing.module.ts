@@ -150,7 +150,15 @@ const routes: Routes = [
       roles: [UserRoles.ROLE_TOURNAMENT_DIRECTORS, UserRoles.ROLE_ADMINS]
     }
   },
-  { path: 'ui/registrations', loadChildren: () => import('./registration/registration.module').then(m => m.RegistrationModule) }
+  {
+    path: 'ui/registrations', loadChildren: () => import('./registration/registration.module').then(m => m.RegistrationModule)
+  },
+  {
+    path: 'ui/umpiremanagement', loadChildren: () => import('./umpires/umpires.module').then(m => m.UmpiresModule),
+    data: {
+      roles: [UserRoles.ROLE_TOURNAMENT_DIRECTORS, UserRoles.ROLE_ADMINS, UserRoles.ROLE_REFEREES, UserRoles.ROLE_UMPIRES]
+    }
+  }
 ];
 
 @NgModule({

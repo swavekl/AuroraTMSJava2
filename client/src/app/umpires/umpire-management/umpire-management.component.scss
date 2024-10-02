@@ -1,0 +1,17 @@
+@use "src/my-theme.scss" as *;
+
+div.umpiring-list-container {
+  border: 1px solid blue;
+  width: 100%;
+  height: calc(100vh - 135px);
+}
+
+div.all-umpires-list {
+  width: 100%;
+  //border: 1px solid red;
+}
+
+div.single-umpire-records {
+  width: 100%;
+  //border: 1px solid green;
+}

@@ -45,7 +45,6 @@ export class SanctionRequestListComponent implements AfterViewInit, OnDestroy {
     });
     this.subscriptions.add(loadingSubscription);
   }
-
   ngAfterViewInit(): void {
     this.dataSource.sort = this.sort;
     this.dataSource.paginator = this.paginator;

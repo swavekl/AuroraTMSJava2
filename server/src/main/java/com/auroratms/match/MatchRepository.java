@@ -23,4 +23,6 @@ public interface MatchRepository extends JpaRepository<Match, Long> {
     )
     int lockMatch(@Param("matchId") long matchId,
                   @Param("profileId") String profileId);
+
+    List<Match> findAllByIdIn(List<Long> matchIds);
 }

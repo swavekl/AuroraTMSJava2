@@ -1,0 +1,53 @@
+<div mat-dialog-title>Assign Match Umpires</div>
+<mat-dialog-content>
+  <form>
+    <div fxLayout="column" fxLayoutAlign="start start">
+      <div fxLayout="row" fxLayoutAlign="space-between start" fxLayoutGap="10px" style="width: 100%">
+        <mat-form-field fxFlex="35%">
+          <mat-label>Event</mat-label>
+          <mat-select matInput type="text" placeholder="event" name="eventId"
+                      [(ngModel)]="eventId" (selectionChange)="onChangeEvent($event)" required>
+            <mat-option *ngFor="let tournamentEvent of tournamentEvents"
+                        [value]="tournamentEvent.id">{{ tournamentEvent.name }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field fxFlex="65%">
+          <mat-label>Match</mat-label>
+          <mat-select matInput type="text" placeholder="match" name="matchId"
+                      [(ngModel)]="matchId" (selectionChange)="onChangeMatch($event)" required>
+              <mat-option *ngFor="let matchInfo of oneEventMatchInfos"
+                          [matTooltip]="matchInfo.matchPlayers"
+                          [value]="matchInfo.id">{{matchInfo.description}}
+              </mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+      <div>{{playerNames}}</div>
+      <div fxLayout="row" fxLayoutAlign="space-between start" fxLayoutGap="10px" style="width: 100%">
+        <mat-form-field fxFlex="50%">
+          <mat-label>Umpire</mat-label>
+          <mat-select matInput type="text" placeholder="umpire" name="umpire"
+                      [(ngModel)]="umpireProfileId" (selectionChange)="onChangeUmpire($event)" required>
+            <mat-option *ngFor="let umpire of umpireList"
+                        [value]="umpire.profileId">{{umpire.name}}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field fxFlex="50%">
+          <mat-label>Assistant Umpire</mat-label>
+          <mat-select matInput type="text" placeholder="assistant Umpire" name="assistantUmpire"
+                      [(ngModel)]="assistantUmpireProfileId" (selectionChange)="onChangeAssistantUmpire($event)">
+            <mat-option *ngFor="let umpire of umpireList"
+                        [value]="umpire.profileId">{{umpire.name}}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+    </div>
+  </form>
+</mat-dialog-content>
+<mat-dialog-actions fxLayout="row" fxLayoutAlign="space-between start">
+  <button type="button" mat-raised-button (click)="onCancel()">Cancel</button>
+  <button type="button" mat-raised-button color="primary" (click)="onAssign()">Assign</button>
+</mat-dialog-actions>

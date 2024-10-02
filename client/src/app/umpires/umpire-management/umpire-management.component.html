@@ -1,0 +1,9 @@
+<mat-toolbar>
+  <button type="button" mat-raised-button (click)="onAssignUmpire()">Assign Umpires</button>
+</mat-toolbar>
+<div fxLayout="column" fxLayoutAlign="start start" class="umpiring-list-container">
+  <div fxFlex="50%" class="all-umpires-list">
+    <app-umpire-summary-table [tournamentId]="tournamentId"></app-umpire-summary-table>
+  </div>
+  <div fxFlex="50%" class="single-umpire-records">Details</div>
+</div>
