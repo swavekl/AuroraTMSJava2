@@ -23,7 +23,7 @@ export class UmpiringService {
   }
 
   public assign(umpireWork: UmpireWork): Observable<void> {
-    const url = `/api/umpire/assign}`;
+    const url = `/api/umpire/assign`;
     this.setLoading(true);
     return this.httpClient.post<UmpireWork>(url, umpireWork)
       .pipe(

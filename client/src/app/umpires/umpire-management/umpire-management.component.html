@@ -1,9 +1,42 @@
+<div class="mat-headline-6" style="padding-left: 8px; width: 95%;">Umpire Management - {{tournamentName}}</div>
 <mat-toolbar>
   <button type="button" mat-raised-button (click)="onAssignUmpire()">Assign Umpires</button>
 </mat-toolbar>
 <div fxLayout="column" fxLayoutAlign="start start" class="umpiring-list-container">
   <div fxFlex="50%" class="all-umpires-list">
-    <app-umpire-summary-table [tournamentId]="tournamentId"></app-umpire-summary-table>
+    <app-umpire-summary-table [tournamentId]="tournamentId"
+                              (viewDetailsEvent)="onViewUmpireDetails($event)"></app-umpire-summary-table>
   </div>
-  <div fxFlex="50%" class="single-umpire-records">Details</div>
+  <div fxFlex="50%" class="single-umpire-records">
+    <ng-container *ngIf="umpireMatchInfos?.length > 0; else nomatches">
+      <table>
+        <thead>
+        <tr>
+          <th colspan="6" class="title">Matches umpired by {{selectedUmpireName}}</th>
+        </tr>
+        <tr>
+          <th>Event</th>
+          <th>Round</th>
+          <th>Player A</th>
+          <th>Player B</th>
+          <th>Score</th>
+          <th>Assistant</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr *ngFor="let umpireMatchInfo of umpireMatchInfos">
+          <td class="event-name-column">{{ umpireMatchInfo.eventName }}</td>
+          <td class="round-column">{{ umpireMatchInfo.roundName }}</td>
+          <td class="player-name-column">{{ umpireMatchInfo.playerAName }}</td>
+          <td class="player-name-column">{{ umpireMatchInfo.playerBName }}</td>
+          <td class="score-column">{{ umpireMatchInfo.matchScore }}</td>
+          <td class="assistant-column">{{ umpireMatchInfo.assistantUmpire === true ? 'Yes' : '' }}</td>
+        </tr>
+        </tbody>
+      </table>
+    </ng-container>
+    <ng-template #nomatches>
+      <app-centered-panel>No matches for this umpire</app-centered-panel>
+    </ng-template>
+  </div>
 </div>

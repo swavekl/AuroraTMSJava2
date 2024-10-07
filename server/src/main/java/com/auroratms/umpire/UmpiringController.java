@@ -25,7 +25,7 @@ public class UmpiringController {
      * @param umpireWork
      * @return
      */
-    @PutMapping("/assign")
+    @PostMapping("/assign")
     @PreAuthorize("hasAuthority('TournamentDirectors') or hasAuthority('Referees')")
     @ResponseBody
     public ResponseEntity<Void> assignOfficials(@RequestBody UmpireWork umpireWork) {

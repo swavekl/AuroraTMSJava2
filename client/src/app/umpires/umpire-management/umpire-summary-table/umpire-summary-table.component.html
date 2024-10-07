@@ -1,30 +1,19 @@
-<div class="mat-elevation-z8">
-  <mat-table matSort matSortActive="fullName" matSortDirection="asc" aria-label="Umpiring Summary List">
+<div class="full-width-table">
+  <mat-table matSort matSortActive="umpireName" matSortDirection="asc" aria-label="Umpiring Summary List">
     <ng-container matColumnDef="umpireName">
       <mat-header-cell *matHeaderCellDef>Name</mat-header-cell>
-      <mat-cell *matCellDef="let umpireSummaryRecord">{{ umpireSummaryRecord.umpireName }}</mat-cell>
+      <mat-cell *matCellDef="let umpireSummaryRecord" (click)="onViewUmpireDetails(umpireSummaryRecord.profileId)">{{ umpireSummaryRecord.umpireName }}</mat-cell>
     </ng-container>
 
     <ng-container matColumnDef="numUmpiredMatches">
       <mat-header-cell *matHeaderCellDef mat-sort-header="numUmpiredMatches">Umpired Matches</mat-header-cell>
-      <mat-cell *matCellDef="let umpireSummaryRecord">{{ umpireSummaryRecord.numUmpiredMatches}}</mat-cell>
+      <mat-cell *matCellDef="let umpireSummaryRecord" (click)="onViewUmpireDetails(umpireSummaryRecord.profileId)">{{ umpireSummaryRecord.numUmpiredMatches}}</mat-cell>
     </ng-container>
 
     <ng-container matColumnDef="numAssistantUmpiredMatches">
       <mat-header-cell *matHeaderCellDef>Assistant Umpire Matches</mat-header-cell>
-      <mat-cell *matCellDef="let umpireSummaryRecord">{{ umpireSummaryRecord.numAssistantUmpiredMatches }}</mat-cell>
+      <mat-cell *matCellDef="let umpireSummaryRecord" (click)="onViewUmpireDetails(umpireSummaryRecord.profileId)">{{ umpireSummaryRecord.numAssistantUmpiredMatches }}</mat-cell>
     </ng-container>
-
-    <ng-container matColumnDef="actions">
-      <mat-header-cell *matHeaderCellDef>Actions</mat-header-cell>
-      <mat-cell *matCellDef="let umpireSummaryRecord">
-        <button mat-icon-button (click)="onViewUmpireDetails(umpireSummaryRecord.profileId)"
-                matTooltip="View Details" style="margin-right: 20px">
-          <mat-icon matListItemIcon>view</mat-icon>
-        </button>
-      </mat-cell>
-    </ng-container>
-
     <mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></mat-header-row>
     <mat-row *matRowDef="let row; columns: displayedColumns"></mat-row>
   </mat-table>

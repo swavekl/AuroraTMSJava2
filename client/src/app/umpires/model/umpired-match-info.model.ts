@@ -22,5 +22,5 @@ export interface UmpiredMatchInfo {
   matchScore: string;
 
   // if true served as assistant umpire during this match
-  isAssistantUmpire: boolean;
+  assistantUmpire: boolean;
 }

@@ -50,7 +50,6 @@ export class AssignUmpiresDialogComponent {
 
   constructor(public dialogRef: MatDialogRef<AssignUmpiresDialogComponent>,
               @Inject(MAT_DIALOG_DATA) public data: any,
-              private umpiringService: UmpiringService,
               private tournamentEventConfigService: TournamentEventConfigService,
               private matchCardService: MatchCardService) {
     this.tournamentId = data?.tournamentId;

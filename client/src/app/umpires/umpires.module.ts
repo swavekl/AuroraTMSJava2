@@ -31,6 +31,7 @@ import {UmpireSummaryTableComponent} from './umpire-management/umpire-summary-ta
 import {AssignUmpiresDialogComponent} from './assign-umpires-dialog/assign-umpires-dialog.component';
 import {MatError, MatFormField, MatLabel, MatOption, MatSelect} from '@angular/material/select';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
+import {SharedModule} from '../shared/shared.module';
 
 
 @NgModule({
@@ -40,40 +41,41 @@ import {FormsModule, ReactiveFormsModule} from '@angular/forms';
     UmpireSummaryTableComponent,
     AssignUmpiresDialogComponent
   ],
-  imports: [
-    CommonModule,
-    UmpiresRoutingModule,
-    MatToolbar,
-    MatButton,
-    FlexLayoutModule,
-    MatCell,
-    MatCellDef,
-    MatColumnDef,
-    MatHeaderCell,
-    MatHeaderRow,
-    MatHeaderRowDef,
-    MatIcon,
-    MatIconButton,
-    MatListItemIcon,
-    MatPaginator,
-    MatRow,
-    MatRowDef,
-    MatSort,
-    MatSortHeader,
-    MatTable,
-    MatTooltip,
-    MatTableModule,
-    MatPaginatorModule,
-    MatSortModule,
-    MatDialogModule,
-    MatSelect,
-    MatError,
-    MatFormField,
-    MatLabel,
-    MatOption,
-    ReactiveFormsModule,
-    FormsModule
-  ]
+    imports: [
+        CommonModule,
+        UmpiresRoutingModule,
+        MatToolbar,
+        MatButton,
+        FlexLayoutModule,
+        MatCell,
+        MatCellDef,
+        MatColumnDef,
+        MatHeaderCell,
+        MatHeaderRow,
+        MatHeaderRowDef,
+        MatIcon,
+        MatIconButton,
+        MatListItemIcon,
+        MatPaginator,
+        MatRow,
+        MatRowDef,
+        MatSort,
+        MatSortHeader,
+        MatTable,
+        MatTooltip,
+        MatTableModule,
+        MatPaginatorModule,
+        MatSortModule,
+        MatDialogModule,
+        MatSelect,
+        MatError,
+        MatFormField,
+        MatLabel,
+        MatOption,
+        ReactiveFormsModule,
+        FormsModule,
+        SharedModule
+    ]
 })
 export class UmpiresModule {
 }

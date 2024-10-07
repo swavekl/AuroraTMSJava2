@@ -1,4 +1,15 @@
-import {AfterViewInit, Component, Input, OnChanges, OnInit, SimpleChange, SimpleChanges, ViewChild} from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  EventEmitter,
+  Input,
+  OnChanges,
+  OnInit,
+  Output,
+  SimpleChange,
+  SimpleChanges,
+  ViewChild
+} from '@angular/core';
 import {MatTable} from '@angular/material/table';
 import {MatPaginator} from '@angular/material/paginator';
 import {MatSort} from '@angular/material/sort';
@@ -18,7 +29,10 @@ export class UmpireSummaryTableComponent implements AfterViewInit, OnChanges {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
   @ViewChild(MatTable) table!: MatTable<UmpireWorkSummary>;
-  dataSource;
+  dataSource: UmpireSummaryTableDataSource;
+
+  @Output()
+  private viewDetailsEvent: EventEmitter<string> = new EventEmitter<string>();
 
   /** Columns displayed in the table. Columns IDs can be added, removed, or reordered. */
   displayedColumns = ['umpireName', 'numUmpiredMatches', 'numAssistantUmpiredMatches'];
@@ -34,8 +48,8 @@ export class UmpireSummaryTableComponent implements AfterViewInit, OnChanges {
       const tournamentId = tournamentIdSimpleChange.currentValue;
       if (!tournamentIdSimpleChange.isFirstChange() && tournamentId != undefined) {
         this.tournamentId = tournamentId;
-        this.dataSource.tournamentId = tournamentId;
-        this.dataSource.connect();
+        this.dataSource.tournamentId = this.tournamentId;
+        this.dataSource.loadSummaries();
       }
     }
   }
@@ -48,6 +62,11 @@ export class UmpireSummaryTableComponent implements AfterViewInit, OnChanges {
   }
 
   onViewUmpireDetails(umpireProfileId: string) {
+    this.viewDetailsEvent.emit(umpireProfileId);
+  }
 
+  refresh() {
+    this.dataSource.loadSummaries();
+    this.viewDetailsEvent.emit(null);
   }
 }

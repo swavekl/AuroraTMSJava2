@@ -13,11 +13,12 @@ import {UmpireWorkSummary} from '../../model/umpire-work-summary.model';
  */
 export class UmpireSummaryTableDataSource extends DataSource<UmpireWorkSummary> {
   data: UmpireWorkSummary[];
-  data$: Observable<UmpireWorkSummary[]>;
-  paginator: MatPaginator | undefined;
-  sort: MatSort | undefined;
 
   private _tournamentId: number;
+
+  paginator: MatPaginator | undefined;
+
+  sort: MatSort | undefined;
 
   constructor(private umpiringService: UmpiringService) {
     super();
@@ -35,29 +36,38 @@ export class UmpireSummaryTableDataSource extends DataSource<UmpireWorkSummary> 
    * @returns A stream of the items to be rendered.
    */
   connect(): Observable<UmpireWorkSummary[]> {
+    console.log('in connect', this._tournamentId);
     if (this.paginator && this.sort) {
-      if (this._tournamentId != undefined) {
-        this.data$ = this.umpiringService.getSummaries(this._tournamentId);
-        this.data$.pipe(
-          first(),
-          map((umpireWorkSummaries: UmpireWorkSummary[]) => {
-            console.log(`got work summaries for tournament ${this._tournamentId}`, umpireWorkSummaries);
-            this.data = umpireWorkSummaries;
-            return of(this.data);
-          })).subscribe();
-      }
+      // this.loadSummaries();
 
       // Combine everything that affects the rendered data into one update
       // stream for the data-table to consume.
       return merge(observableOf(this.data), this.paginator.page, this.sort.sortChange)
         .pipe(map((value: any, index: number) => {
-          console.log('merging value', value);
+          console.log('merging data', value);
           return this.getPagedData(this.getSortedData([...this.data]));
         }));
     } else {
       throw Error('Please set the paginator and sort on the data source before connecting.');
     }
+  }
 
+  /**
+   *
+   */
+  public loadSummaries() {
+    if (this._tournamentId != undefined) {
+      console.log('getting summaries');
+      this.umpiringService.getSummaries(this._tournamentId)
+        .pipe(
+          first(),
+          map((umpireWorkSummaries: UmpireWorkSummary[]) => {
+            console.log('got umpire work summaries', umpireWorkSummaries);
+            this.data = umpireWorkSummaries;
+            return this.data;
+          }))
+        .subscribe();
+    }
   }
 
   /**
@@ -88,7 +98,6 @@ export class UmpireSummaryTableDataSource extends DataSource<UmpireWorkSummary> 
     if (!this.sort || !this.sort.active || this.sort.direction === '') {
       return data;
     }
-
     return data.sort((a, b) => {
       const isAsc = this.sort?.direction === 'asc';
       switch (this.sort?.active) {
