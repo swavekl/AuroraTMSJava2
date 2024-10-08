@@ -14,14 +14,19 @@
     </tr>
     </thead>
     <tbody>
-    <tr *ngFor="let umpireMatchInfo of umpireMatchInfos">
-      <td class="event-name-column">{{ umpireMatchInfo.eventName }}</td>
-      <td class="round-column">{{ umpireMatchInfo.roundName }}</td>
-      <td class="player-name-column">{{ umpireMatchInfo.playerAName }}</td>
-      <td class="player-name-column">{{ umpireMatchInfo.playerBName }}</td>
-      <td class="score-column">{{ umpireMatchInfo.matchScore }}</td>
-      <td class="assistant-column">{{ umpireMatchInfo.assistantUmpire === true ? 'Yes' : '' }}</td>
-    </tr>
+    <ng-container *ngFor="let umpireMatchInfo of umpireMatchInfos;  let idx = index; let last = last; let first = first">
+      <tr *ngIf="showTournamentName(idx)" >
+        <td colspan="6" class="tournament-name">{{umpireMatchInfo.tournamentName}}</td>
+      </tr>
+      <tr>
+        <td class="event-name-column">{{ umpireMatchInfo.eventName }}</td>
+        <td class="round-column">{{ umpireMatchInfo.roundName }}</td>
+        <td class="player-name-column">{{ umpireMatchInfo.playerAName }}</td>
+        <td class="player-name-column">{{ umpireMatchInfo.playerBName }}</td>
+        <td class="score-column">{{ umpireMatchInfo.matchScore }}</td>
+        <td class="assistant-column">{{ umpireMatchInfo.assistantUmpire === true ? 'Yes' : '' }}</td>
+      </tr>
+    </ng-container>
     </tbody>
   </table>
 </ng-container>

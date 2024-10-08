@@ -16,4 +16,14 @@ export class UmpireMatchListComponent {
 
   @Input()
   umpireName: string;
+
+  showTournamentName(index: number) {
+    if (index === 0) {
+      return true;
+    } else {
+      const tournamentName = this.umpireMatchInfos[index].tournamentName;
+      const previousTournamentName = this.umpireMatchInfos[index - 1].tournamentName;
+      return tournamentName !== previousTournamentName;
+    }
+  }
 }
