@@ -44,7 +44,7 @@ export class UmpireManagementComponent {
       });
       this.selectedUmpireName = (selectedUmpires?.length > 0) ? selectedUmpires[0].name : '';
 
-      this.umpiringService.getUmpireMatches(umpireProfileId)
+      this.umpiringService.getUmpireMatches(umpireProfileId, this.tournamentId)
         .pipe(
           first(),
           map((umpiredMatchInfos: UmpiredMatchInfo[]) => {

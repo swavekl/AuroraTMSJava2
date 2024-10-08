@@ -156,7 +156,13 @@ const routes: Routes = [
   {
     path: 'ui/umpiremanagement', loadChildren: () => import('./umpires/umpires.module').then(m => m.UmpiresModule),
     data: {
-      roles: [UserRoles.ROLE_TOURNAMENT_DIRECTORS, UserRoles.ROLE_ADMINS, UserRoles.ROLE_REFEREES, UserRoles.ROLE_UMPIRES]
+      roles: [UserRoles.ROLE_TOURNAMENT_DIRECTORS, UserRoles.ROLE_ADMINS, UserRoles.ROLE_REFEREES]
+    }
+  },
+  {
+    path: 'ui/umpirebook', loadChildren: () => import('./umpires/umpires.module').then(m => m.UmpiresModule),
+    data: {
+      roles: [UserRoles.ROLE_ADMINS, UserRoles.ROLE_UMPIRES]
     }
   }
 ];

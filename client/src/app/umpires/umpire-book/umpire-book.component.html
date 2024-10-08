@@ -1,0 +1,7 @@
+<div class="mat-headline-6" style="padding-left: 8px; width: 95%;">Umpire Book for {{umpireName}}</div>
+<div class="umpire-book-container">
+  <app-umpire-match-list [singleTournament]="false"
+                         [umpireMatchInfos]="umpireMatchInfos$ | async "
+                         >
+  </app-umpire-match-list>
+</div>

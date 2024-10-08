@@ -16,4 +16,10 @@ public interface UmpireWorkRepository extends JpaRepository<UmpireWork, Long> {
             " WHERE uwe.umpireProfileId = ?1 " +
             " OR uwe.assistantUmpireProfileId = ?1")
     List<UmpireWork> findByUmpireProfileId(String umpireProfileId);
+
+    @Query("FROM UmpireWork uwe" +
+            " WHERE (uwe.umpireProfileId = ?1 " +
+            " OR uwe.assistantUmpireProfileId = ?1)" +
+            " AND uwe.tournamentFk = ?2")
+    List<UmpireWork> findByUmpireProfileIdAndTournament(String umpireProfileId, Long tournamentId);
 }

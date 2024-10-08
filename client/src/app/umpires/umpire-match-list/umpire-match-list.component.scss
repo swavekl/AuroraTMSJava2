@@ -1,0 +1,48 @@
+@use "src/my-theme.scss" as *;
+
+table {
+  width: 100%;
+  overflow: auto;
+
+  thead tr th {
+    text-align: left;
+    font-size: 18px;
+    font-weight: bold;
+    padding: 4px;
+
+    &.title {
+      font-size: 24px;
+    }
+  }
+
+  tbody tr:nth-child(odd) td {
+    background: rgba(143, 126, 126, 0.18);
+  }
+
+  tbody tr td {
+    border: 1px solid lightgray;
+    padding: 4px;
+    font-size: 16px;
+
+    &.event-name-column {
+      width: 15%;
+    }
+
+    &.round-column {
+      width: 15%;
+    }
+
+    &.player-name-column {
+      width: 30%;
+    }
+
+    &.score-column {
+      width: 5%;
+    }
+
+    &.assistant-column {
+      width: 5%;
+      text-align: center;
+    }
+  }
+}

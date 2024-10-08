@@ -57,8 +57,8 @@ export class UmpiringService {
       );
   }
 
-  public getUmpireMatches(umpireProfileId: string): Observable<UmpiredMatchInfo[]> {
-    const url = `/api/umpire/matches/${umpireProfileId}`;
+  public getUmpireMatches(umpireProfileId: string, tournamentId: number): Observable<UmpiredMatchInfo[]> {
+    const url = `/api/umpire/matches/${umpireProfileId}/${tournamentId}`;
     return this.httpClient.get(url)
       .pipe(
         tap(() => {

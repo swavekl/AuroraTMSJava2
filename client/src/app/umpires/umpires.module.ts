@@ -32,6 +32,8 @@ import {AssignUmpiresDialogComponent} from './assign-umpires-dialog/assign-umpir
 import {MatError, MatFormField, MatLabel, MatOption, MatSelect} from '@angular/material/select';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {SharedModule} from '../shared/shared.module';
+import {UmpireBookComponent} from './umpire-book/umpire-book.component';
+import {UmpireMatchListComponent} from './umpire-match-list/umpire-match-list.component';
 
 
 @NgModule({
@@ -39,7 +41,9 @@ import {SharedModule} from '../shared/shared.module';
     UmpireManagementComponent,
     UmpireManagementContainerComponent,
     UmpireSummaryTableComponent,
-    AssignUmpiresDialogComponent
+    AssignUmpiresDialogComponent,
+    UmpireBookComponent,
+    UmpireMatchListComponent
   ],
     imports: [
         CommonModule,

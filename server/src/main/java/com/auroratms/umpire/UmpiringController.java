@@ -63,12 +63,13 @@ public class UmpiringController {
      * @param profileId
      * @return
      */
-    @GetMapping("/matches/{profileId}")
-    @PreAuthorize("hasAuthority('TournamentDirectors') or hasAuthority('Referees')")
+    @GetMapping("/matches/{profileId}/{tournamentId}")
+    @PreAuthorize("hasAuthority('TournamentDirectors') or hasAuthority('Referees') or hasAuthority('Umpires')")
     @ResponseBody
-    public ResponseEntity<List<UmpiredMatchInfo>> getUmpiredMatches(@PathVariable String profileId) {
+    public ResponseEntity<List<UmpiredMatchInfo>> getUmpiredMatches(@PathVariable String profileId,
+                                                                    @PathVariable Long tournamentId) {
         try {
-            List<UmpiredMatchInfo> umpiredMatchInfos = umpiringService.getUmpiredMatches(profileId);
+            List<UmpiredMatchInfo> umpiredMatchInfos = umpiringService.getUmpiredMatches(profileId, tournamentId);
             return ResponseEntity.ok(umpiredMatchInfos);
         } catch (Exception e) {
             log.error("Unable to get umpired match list for umpire with profile id " + profileId, e);

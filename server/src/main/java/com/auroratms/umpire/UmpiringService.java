@@ -18,7 +18,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Service
 @Transactional
@@ -193,11 +192,14 @@ public class UmpiringService {
      * Gets a list of all matches at all tournament umpired by this umpire
      *
      * @param umpireProfileId
+     * @param tournamentId
      * @return
      */
-    public List<UmpiredMatchInfo> getUmpiredMatches(String umpireProfileId) {
+    public List<UmpiredMatchInfo> getUmpiredMatches(String umpireProfileId, Long tournamentId) {
         // find all umpired matches by this umpire (as umpire or assistant umpire)
-        List<UmpireWork> umpireWorkEntities = umpireWorkRepository.findByUmpireProfileId(umpireProfileId);
+        List<UmpireWork> umpireWorkEntities = (tournamentId != 0)
+                ? umpireWorkRepository.findByUmpireProfileIdAndTournament(umpireProfileId, tournamentId)
+                : umpireWorkRepository.findByUmpireProfileId(umpireProfileId);
         List<Long> matchIds = new ArrayList<>(umpireWorkEntities.size());
         Set<Long> uniqueTournamentIds = new HashSet<>();
         Set<Long> uniqueEventIds = new HashSet<>();
@@ -252,11 +254,11 @@ public class UmpiringService {
             UmpiredMatchInfo umpiredMatchInfo = new UmpiredMatchInfo();
             MatchCard matchCard = match.getMatchCard();
             long eventFk = matchCard.getEventFk();
-            Long tournamentId = eventToTournamentIdMap.get(eventFk);
+            Long localTournamentId = eventToTournamentIdMap.get(eventFk);
 
             // set tournament name
             for (Tournament tournament : tournaments) {
-                if (Objects.equals(tournament.getId(), tournamentId)) {
+                if (Objects.equals(tournament.getId(), localTournamentId)) {
                     umpiredMatchInfo.setTournamentName(tournament.getName());
                     break;
                 }
