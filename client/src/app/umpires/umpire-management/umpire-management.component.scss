@@ -33,6 +33,10 @@ div.single-umpire-records {
       }
     }
 
+    tbody tr:nth-child(odd) td {
+      background: rgba(143, 126, 126, 0.18);
+    }
+
     tbody tr td {
       border: 1px solid lightgray;
       padding: 4px;

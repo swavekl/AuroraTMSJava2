@@ -49,7 +49,6 @@ export class UmpireSummaryTableComponent implements AfterViewInit, OnChanges {
       if (!tournamentIdSimpleChange.isFirstChange() && tournamentId != undefined) {
         this.tournamentId = tournamentId;
         this.dataSource.tournamentId = this.tournamentId;
-        this.dataSource.loadSummaries();
       }
     }
   }
@@ -66,7 +65,7 @@ export class UmpireSummaryTableComponent implements AfterViewInit, OnChanges {
   }
 
   refresh() {
-    this.dataSource.loadSummaries();
+    this.dataSource.loadSummaries(this.tournamentId);
     this.viewDetailsEvent.emit(null);
   }
 }

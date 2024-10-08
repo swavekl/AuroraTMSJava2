@@ -2,7 +2,7 @@ import {DataSource} from '@angular/cdk/collections';
 import {MatPaginator} from '@angular/material/paginator';
 import {MatSort} from '@angular/material/sort';
 import {first, map} from 'rxjs/operators';
-import {Observable, of as observableOf, merge, of} from 'rxjs';
+import {Observable, of as observableOf, merge, of, Subject, BehaviorSubject} from 'rxjs';
 import {UmpiringService} from '../../service/umpiring.service';
 import {UmpireWorkSummary} from '../../model/umpire-work-summary.model';
 
@@ -14,7 +14,7 @@ import {UmpireWorkSummary} from '../../model/umpire-work-summary.model';
 export class UmpireSummaryTableDataSource extends DataSource<UmpireWorkSummary> {
   data: UmpireWorkSummary[];
 
-  private _tournamentId: number;
+  private tournamentIdSubject: BehaviorSubject<number> = new BehaviorSubject(0);
 
   paginator: MatPaginator | undefined;
 
@@ -27,7 +27,7 @@ export class UmpireSummaryTableDataSource extends DataSource<UmpireWorkSummary> 
 
 
   set tournamentId(value: number) {
-    this._tournamentId = value;
+    this.tournamentIdSubject.next(value);
   }
 
   /**
@@ -36,16 +36,20 @@ export class UmpireSummaryTableDataSource extends DataSource<UmpireWorkSummary> 
    * @returns A stream of the items to be rendered.
    */
   connect(): Observable<UmpireWorkSummary[]> {
-    console.log('in connect', this._tournamentId);
     if (this.paginator && this.sort) {
-      // this.loadSummaries();
-
       // Combine everything that affects the rendered data into one update
       // stream for the data-table to consume.
-      return merge(observableOf(this.data), this.paginator.page, this.sort.sortChange)
-        .pipe(map((value: any, index: number) => {
-          console.log('merging data', value);
-          return this.getPagedData(this.getSortedData([...this.data]));
+      return merge(observableOf(this.data), this.tournamentIdSubject.asObservable(),
+        this.paginator.page, this.sort.sortChange)
+        .pipe(map((value: any) => {
+          // console.log('merging data', value);
+          if (typeof value === 'number') {
+            const tournamentId: number = value as number;
+            this.loadSummaries(tournamentId);
+            return this.data;
+          } else {
+            return [];
+          }
         }));
     } else {
       throw Error('Please set the paginator and sort on the data source before connecting.');
@@ -55,18 +59,22 @@ export class UmpireSummaryTableDataSource extends DataSource<UmpireWorkSummary> 
   /**
    *
    */
-  public loadSummaries() {
-    if (this._tournamentId != undefined) {
-      console.log('getting summaries');
-      this.umpiringService.getSummaries(this._tournamentId)
+  public loadSummaries(tournamentId: number) {
+    if (tournamentId != undefined && tournamentId > 0) {
+      this.umpiringService.getSummaries(tournamentId)
         .pipe(
           first(),
           map((umpireWorkSummaries: UmpireWorkSummary[]) => {
-            console.log('got umpire work summaries', umpireWorkSummaries);
-            this.data = umpireWorkSummaries;
+            // console.log('got umpire work summaries', umpireWorkSummaries);
+            this.data = this.getPagedData(this.getSortedData([...umpireWorkSummaries]));
             return this.data;
           }))
-        .subscribe();
+        .subscribe({
+          complete: () => {
+            // tickle so merge fires
+            this.tournamentIdSubject.next(0);
+          }
+        });
     }
   }
 
