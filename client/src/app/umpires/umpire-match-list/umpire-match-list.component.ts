@@ -17,13 +17,17 @@ export class UmpireMatchListComponent {
   @Input()
   umpireName: string;
 
-  showTournamentName(index: number) {
-    if (index === 0) {
-      return true;
+  showTournamentName(index: number): boolean {
+    if (!this.singleTournament) {
+      if (index === 0) {
+        return true;
+      } else {
+        const tournamentName = this.umpireMatchInfos[index].tournamentName;
+        const previousTournamentName = this.umpireMatchInfos[index - 1].tournamentName;
+        return tournamentName !== previousTournamentName;
+      }
     } else {
-      const tournamentName = this.umpireMatchInfos[index].tournamentName;
-      const previousTournamentName = this.umpireMatchInfos[index - 1].tournamentName;
-      return tournamentName !== previousTournamentName;
+      return false;
     }
   }
 }

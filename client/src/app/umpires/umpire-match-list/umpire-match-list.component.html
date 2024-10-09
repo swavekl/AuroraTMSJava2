@@ -21,8 +21,12 @@
       <tr>
         <td class="event-name-column">{{ umpireMatchInfo.eventName }}</td>
         <td class="round-column">{{ umpireMatchInfo.roundName }}</td>
-        <td class="player-name-column">{{ umpireMatchInfo.playerAName }}</td>
-        <td class="player-name-column">{{ umpireMatchInfo.playerBName }}</td>
+        <td class="player-name-column" [ngClass]="umpireMatchInfo.playerAWon ? 'match-winner' : ''">
+          {{ umpireMatchInfo.playerAName }}
+        </td>
+        <td class="player-name-column" [ngClass]="umpireMatchInfo.playerBWon ? 'match-winner' : ''">
+          {{ umpireMatchInfo.playerBName }}
+        </td>
         <td class="score-column">{{ umpireMatchInfo.matchScore }}</td>
         <td class="assistant-column">{{ umpireMatchInfo.assistantUmpire === true ? 'Yes' : '' }}</td>
       </tr>

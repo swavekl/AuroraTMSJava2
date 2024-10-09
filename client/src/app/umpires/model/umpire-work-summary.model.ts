@@ -9,7 +9,7 @@ export interface UmpireWorkSummary {
   umpireName: string;
 
   // indicates if umpire is officiating a match currently
-  isBusy: boolean;
+  busy: boolean;
 
   // number of matches umpired as a main umpire during this tournament
   numUmpiredMatches: number;

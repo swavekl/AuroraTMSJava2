@@ -18,6 +18,10 @@ export interface UmpiredMatchInfo {
   playerAName: string;
   playerBName: string;
 
+  // true if playerA won the match
+  playerAWon: boolean;
+  playerBWon: boolean;
+
   // short version of a match score e.e. 9,9,-8,7
   matchScore: string;
 

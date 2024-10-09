@@ -41,6 +41,10 @@ table {
       width: 30%;
     }
 
+    &.match-winner {
+      font-weight: bold;
+    }
+
     &.score-column {
       width: 5%;
     }

@@ -14,6 +14,11 @@
       <mat-header-cell *matHeaderCellDef>Assistant Umpire Matches</mat-header-cell>
       <mat-cell *matCellDef="let umpireSummaryRecord" (click)="onViewUmpireDetails(umpireSummaryRecord.profileId)">{{ umpireSummaryRecord.numAssistantUmpiredMatches }}</mat-cell>
     </ng-container>
+
+    <ng-container matColumnDef="busy">
+      <mat-header-cell *matHeaderCellDef>Is Busy</mat-header-cell>
+      <mat-cell *matCellDef="let umpireSummaryRecord" (click)="onViewUmpireDetails(umpireSummaryRecord.profileId)">{{ umpireSummaryRecord.busy ? 'Yes' : ''}}</mat-cell>
+    </ng-container>
     <mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></mat-header-row>
     <mat-row *matRowDef="let row; columns: displayedColumns"></mat-row>
   </mat-table>

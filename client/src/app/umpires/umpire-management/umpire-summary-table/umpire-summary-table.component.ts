@@ -35,7 +35,7 @@ export class UmpireSummaryTableComponent implements AfterViewInit, OnChanges {
   private viewDetailsEvent: EventEmitter<string> = new EventEmitter<string>();
 
   /** Columns displayed in the table. Columns IDs can be added, removed, or reordered. */
-  displayedColumns = ['umpireName', 'numUmpiredMatches', 'numAssistantUmpiredMatches'];
+  displayedColumns = ['umpireName', 'numUmpiredMatches', 'numAssistantUmpiredMatches', 'busy'];
 
   constructor(private umpiringService: UmpiringService) {
     this.tournamentId = 0;

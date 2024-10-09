@@ -29,6 +29,10 @@ public class UmpiredMatchInfo implements Serializable {
     private String playerAName;
     private String playerBName;
 
+    // true if playerA won the match
+    private boolean playerAWon;
+    private boolean playerBWon;
+
     // short version of a match score e.e. 9,9,-8,7
     private String matchScore;
 

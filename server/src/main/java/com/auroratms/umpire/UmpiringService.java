@@ -11,6 +11,7 @@ import com.auroratms.tournament.Personnel;
 import com.auroratms.tournament.Tournament;
 import com.auroratms.tournament.TournamentService;
 import com.auroratms.users.UserRoles;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -106,9 +107,11 @@ public class UmpiringService {
 
             // same for matches served as assistant umpire
             String assistantUmpireProfileId = umpireWork.getAssistantUmpireProfileId();
-            Integer countAssistantUmpiredMatches = mapAssistantUmpireToNumAssistantUmpiredMatches.get(assistantUmpireProfileId);
-            countAssistantUmpiredMatches++;
-            mapAssistantUmpireToNumAssistantUmpiredMatches.put(assistantUmpireProfileId, countAssistantUmpiredMatches);
+            if (!StringUtils.isEmpty(assistantUmpireProfileId)) {
+                Integer countAssistantUmpiredMatches = mapAssistantUmpireToNumAssistantUmpiredMatches.get(assistantUmpireProfileId);
+                countAssistantUmpiredMatches++;
+                mapAssistantUmpireToNumAssistantUmpiredMatches.put(assistantUmpireProfileId, countAssistantUmpiredMatches);
+            }
 
             // collect all match ids to determine which ones are in progress
             matchIds.add(umpireWork.getMatchFk());
@@ -282,8 +285,14 @@ public class UmpiringService {
             umpiredMatchInfo.setPlayerBName(playerBName);
 
             // set match results
-            String matchScore = getCompactResult(match, allEvents, matchCard);
+            int pointsPerGame = getPointsPerGame(allEvents, matchCard);
+            String matchScore = getCompactResult(match, matchCard, pointsPerGame);
             umpiredMatchInfo.setMatchScore(matchScore);
+
+            boolean playerAWon = match.isMatchWinner(match.getPlayerAProfileId(), matchCard.getNumberOfGames(), pointsPerGame);
+            umpiredMatchInfo.setPlayerAWon(playerAWon);
+            boolean playerBWon = match.isMatchWinner(match.getPlayerBProfileId(), matchCard.getNumberOfGames(), pointsPerGame);
+            umpiredMatchInfo.setPlayerBWon(playerBWon);
 
             boolean wasAssistantUmpire = wasAssistantUmpire(umpireProfileId, match.getId(), umpireWorkEntities);
             umpiredMatchInfo.setAssistantUmpire(wasAssistantUmpire);
@@ -313,13 +322,23 @@ public class UmpiringService {
     }
 
     /**
-     *
      * @param match
+     * @param matchCard
+     * @param pointsPerGame
+     * @return
+     */
+    private String getCompactResult(Match match, MatchCard matchCard, int pointsPerGame) {
+        int numberOfGames = matchCard.getNumberOfGames();
+        return match.getCompactResult(numberOfGames, pointsPerGame);
+    }
+
+    /**
+     * Gets points per game for this match card
      * @param allEvents
      * @param matchCard
      * @return
      */
-    private String getCompactResult(Match match, List<TournamentEvent> allEvents, MatchCard matchCard) {
+    private int getPointsPerGame(List<TournamentEvent> allEvents, MatchCard matchCard) {
         int pointsPerGame = 11;
         for (TournamentEvent tournamentEvent : allEvents) {
             if (tournamentEvent.getId() == matchCard.getEventFk()) {
@@ -327,8 +346,7 @@ public class UmpiringService {
                 break;
             }
         }
-        int numberOfGames = matchCard.getNumberOfGames();
-        return match.getCompactResult(numberOfGames, pointsPerGame);
+        return pointsPerGame;
     }
 
 
