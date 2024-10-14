@@ -2,10 +2,8 @@ import {Component, Inject} from '@angular/core';
 import {MatSelectChange} from '@angular/material/select';
 import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
 
-import {combineLatest, forkJoin, Observable} from 'rxjs';
+import {combineLatest, Observable} from 'rxjs';
 import {first, map} from 'rxjs/operators';
-
-import {UmpiringService} from '../service/umpiring.service';
 import {TournamentEventConfigService} from '../../tournament/tournament-config/tournament-event-config.service';
 import {TournamentEvent} from '../../tournament/tournament-config/tournament-event.model';
 import {MatchCardService} from '../../matches/service/match-card.service';
@@ -37,7 +35,11 @@ export class AssignUmpiresDialogComponent {
   oneEventMatchInfos: MatchInfo [];
 
   // selected match player names
-  playerNames: string;
+  playerAName: string;
+  playerBName: string;
+
+  // indicates if selected match is a doubles match
+  doublesMatch: boolean = false;
 
   // list of available umpire in this tournament
   umpireList: Personnel[];
@@ -111,6 +113,13 @@ export class AssignUmpiresDialogComponent {
     return (tournamentEvent != null) ? tournamentEvent.name : '';
   }
 
+  private getPointsPerGame(eventId: number, tournamentEvents: TournamentEvent[]): number {
+    const tournamentEvent = tournamentEvents.find((tournamentEvent: TournamentEvent, index: number, events: TournamentEvent[]) => {
+      return (tournamentEvent.id === eventId);
+    });
+    return (tournamentEvent != null) ? tournamentEvent.pointsPerGame : 11;
+  }
+
   private getMatchCardsWithNames() {
     combineLatest([this.tournamentEvents$, this.matchCards$])
       .pipe(
@@ -120,22 +129,37 @@ export class AssignUmpiresDialogComponent {
               this.tournamentEvents = tournamentEvents.filter((tournamentEvent: TournamentEvent) => {
                 return tournamentEvent.day === this.tournamentDay;
               });
+              const doublesEventIds: number [] = this.tournamentEvents
+                .filter((tournamentEvent: TournamentEvent) => {
+                  return tournamentEvent.doubles;
+                })
+                .map((tournamentEvent: TournamentEvent) => {
+                  return tournamentEvent.id;
+                });
               // create match infos for all matches for all events
               for (const matchCard of matchCards) {
                 const eventName = this.getEventName(matchCard.eventFk, this.tournamentEvents);
+                const pointsPerGame = this.getPointsPerGame(matchCard.eventFk, this.tournamentEvents);
                 const matchIdentifierText = MatchCard.getFullMatchName(eventName, matchCard.drawType, matchCard.round, matchCard.groupNum);
                 let matchInfosForEvent: MatchInfo[] = this.allEventsToMatchInfosMap[matchCard.eventFk];
                 if (matchInfosForEvent == undefined) {
                   matchInfosForEvent = [];
                   this.allEventsToMatchInfosMap[matchCard.eventFk] = matchInfosForEvent;
                 }
+                const doublesMatch = doublesEventIds.includes(matchCard.eventFk);
                 matchCard.matches.forEach((match: Match) => {
-                  const playerAName = matchCard.profileIdToNameMap[match.playerAProfileId];
-                  const playerBName = matchCard.profileIdToNameMap[match.playerBProfileId];
-                  const tooltip: string = `${playerAName} vs ${playerBName}`;
-                  const description = `${matchIdentifierText} M${match.matchNum}`;
-                  const matchInfo: MatchInfo = {id: match.id, description: description, matchPlayers: tooltip};
-                  matchInfosForEvent.push(matchInfo);
+                  const numberOfGames = matchCard.numberOfGames;
+                  if (!Match.isMatchFinished(match, numberOfGames, pointsPerGame)) {
+                    const playerAName = matchCard.profileIdToNameMap[match.playerAProfileId] ?? Match.TBD_PROFILE_ID;
+                    const playerBName = matchCard.profileIdToNameMap[match.playerBProfileId] ?? Match.TBD_PROFILE_ID;
+                    const tooltip: string = `${playerAName} vs ${playerBName}`;
+                    const description = `${matchIdentifierText} M${match.matchNum}`;
+                    const matchInfo: MatchInfo = {
+                      id: match.id, description: description, tooltip: tooltip,
+                      playerAName: playerAName, playerBName: playerBName, doubles: doublesMatch
+                    };
+                    matchInfosForEvent.push(matchInfo);
+                  }
                 });
               }
               // show only first event match cards
@@ -152,7 +176,9 @@ export class AssignUmpiresDialogComponent {
     const matchInfo: MatchInfo = this.oneEventMatchInfos.find((matchInfo: any) => {
       return matchInfo.id === matchId;
     });
-    this.playerNames = matchInfo?.matchPlayers;
+    this.playerAName = matchInfo?.playerAName;
+    this.playerBName = matchInfo?.playerBName;
+    this.doublesMatch = matchInfo?.doubles;
   }
 
   onChangeUmpire($event: MatSelectChange) {
@@ -162,10 +188,24 @@ export class AssignUmpiresDialogComponent {
   onChangeAssistantUmpire($event: MatSelectChange) {
     this.assistantUmpireProfileId = $event.value;
   }
+
+  protected readonly JSON = JSON;
+
+  getPartnerName(playerNames: string, partnerIndex: number) {
+    const separatorIndex = playerNames.indexOf('/');
+    if (partnerIndex === 0) {
+      return playerNames.substring(0, separatorIndex - 1);
+    } else {
+      return playerNames.substring(separatorIndex + 1);
+    }
+  }
 }
 
 export interface MatchInfo {
   id: number;
   description: string;
-  matchPlayers: string;
+  tooltip: string;
+  playerAName: string;
+  playerBName: string;
+  doubles: boolean;
 }

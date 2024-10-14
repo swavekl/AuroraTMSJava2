@@ -1,6 +1,6 @@
-<div mat-dialog-title>Assign Match Umpires</div>
+<div mat-dialog-title>Assign Umpires</div>
 <mat-dialog-content>
-  <form>
+  <form name="form" #f="ngForm" novalidate>
     <div fxLayout="column" fxLayoutAlign="start start">
       <div fxLayout="row" fxLayoutAlign="space-between start" fxLayoutGap="10px" style="width: 100%">
         <mat-form-field fxFlex="35%">
@@ -17,18 +17,40 @@
           <mat-select matInput type="text" placeholder="match" name="matchId"
                       [(ngModel)]="matchId" (selectionChange)="onChangeMatch($event)" required>
               <mat-option *ngFor="let matchInfo of oneEventMatchInfos"
-                          [matTooltip]="matchInfo.matchPlayers"
+                          [matTooltip]="matchInfo.tooltip"
                           [value]="matchInfo.id">{{matchInfo.description}}
               </mat-option>
           </mat-select>
         </mat-form-field>
       </div>
-      <div>{{playerNames}}</div>
+      <table class="selected-match">
+        <tbody>
+        <ng-container *ngIf="!doublesMatch; else doubles">
+          <tr>
+            <td class="player-name-cell">{{playerAName}}</td>
+            <td class="versus-cell">vs</td>
+            <td class="player-name-cell">{{playerBName}}</td>
+          </tr>
+        </ng-container>
+        <ng-template #doubles>
+          <tr>
+            <td class="player-name-cell">{{getPartnerName(playerAName, 0)}}</td>
+            <td class="versus-cell" rowspan="2">vs</td>
+            <td class="player-name-cell">{{getPartnerName(playerBName, 0)}}</td>
+          </tr>
+          <tr>
+            <td class="player-name-cell">{{getPartnerName(playerAName, 1)}}</td>
+            <td class="player-name-cell">{{getPartnerName(playerBName, 1)}}</td>
+          </tr>
+        </ng-template>
+        </tbody>
+      </table>
       <div fxLayout="row" fxLayoutAlign="space-between start" fxLayoutGap="10px" style="width: 100%">
         <mat-form-field fxFlex="50%">
           <mat-label>Umpire</mat-label>
           <mat-select matInput type="text" placeholder="umpire" name="umpire"
-                      [(ngModel)]="umpireProfileId" (selectionChange)="onChangeUmpire($event)" required>
+                      [(ngModel)]="umpireProfileId"
+                      (selectionChange)="onChangeUmpire($event)" required>
             <mat-option *ngFor="let umpire of umpireList"
                         [value]="umpire.profileId">{{umpire.name}}
             </mat-option>
@@ -37,17 +59,23 @@
         <mat-form-field fxFlex="50%">
           <mat-label>Assistant Umpire</mat-label>
           <mat-select matInput type="text" placeholder="assistant Umpire" name="assistantUmpire"
-                      [(ngModel)]="assistantUmpireProfileId" (selectionChange)="onChangeAssistantUmpire($event)">
+                      [(ngModel)]="assistantUmpireProfileId"
+                      (selectionChange)="onChangeAssistantUmpire($event)"
+                      appValuesDifferent="umpire">
             <mat-option *ngFor="let umpire of umpireList"
                         [value]="umpire.profileId">{{umpire.name}}
             </mat-option>
           </mat-select>
+          <mat-error *ngIf="f.form.controls['assistantUmpire']?.errors?.appValuesDifferent">
+            Assistant Umpire must be different from Umpire</mat-error>
         </mat-form-field>
       </div>
     </div>
+    <div>
+    </div>
   </form>
 </mat-dialog-content>
-<mat-dialog-actions fxLayout="row" fxLayoutAlign="space-between start">
+<mat-dialog-actions fxLayout="row" fxLayoutAlign="space-between start" fxLayoutGap="10px" style="margin: 10px;">
   <button type="button" mat-raised-button (click)="onCancel()">Cancel</button>
   <button type="button" mat-raised-button color="primary" (click)="onAssign()">Assign</button>
 </mat-dialog-actions>
