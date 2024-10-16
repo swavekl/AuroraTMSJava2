@@ -70,6 +70,8 @@ public class TournamentInfoController {
             tournamentInfo.setLogo ("../assets/images/AmericasTeamChampionshipSmall.png");
         } else if (tournamentInfo.getName().contains("Aurora Cup")) {
             tournamentInfo.setLogo ("../assets/images/AuroraCupWhiteSmall.png");
+        } else if (tournamentInfo.getName().contains("Illinois State")) {
+            tournamentInfo.setLogo ("../assets/images/IllinoisStateChampionshipLogoSmall.png");
         } else if (tournamentInfo.getName().contains("Badger")) {
             tournamentInfo.setLogo ("../assets/images/BadgerOpenSmall.png");
         } else {

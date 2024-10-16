@@ -72,7 +72,7 @@ public class SchedulingConflictEventPolicy implements IEventPolicy {
                     double startTime = event.getStartTime();
                     // compute time difference and see if it is less than minimum difference
                     double timeDiff = Math.abs(startTimeToCheck - startTime);
-                    if (timeDiff <= MIN_TIME_DIFFERENCE) {
+                    if (timeDiff < MIN_TIME_DIFFERENCE) {
                         conflictFound = true;
                         break;
                     }
