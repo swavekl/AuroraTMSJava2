@@ -13,6 +13,8 @@
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
+      <module name="client.main" target="1.8" />
+      <module name="client.test" target="1.8" />
       <module name="com.auroratms.server" target="1.8" />
       <module name="com.example.demo.main" target="1.8" />
       <module name="com.example.demo.test" target="1.8" />
