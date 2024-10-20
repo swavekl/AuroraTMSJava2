@@ -110,12 +110,12 @@ spring.servlet.multipart:
 
 
 # Rabbit MQ 3.9.11 with Erlang 24.2
-#message.broker.type: inmemory
-message.broker.type: rabbitmq
+message.broker.type: inmemory
+#message.broker.type: rabbitmq
 
 message.broker.rabbitmq:
   host: gateway-pc
-  port: 5672
+  port: 61613
 
 # RabbitMQ log file location: c:\Users\Swavek\AppData\Roaming\RabbitMQ\log
 #logging.level.com.rabbitmq.client: TRACE
