@@ -93,7 +93,10 @@ export class TournamentWaitingListComponent implements OnInit, OnChanges {
     this.eventWithPlayersList = [];
     // sort by entry id which is increasing as new event entries are added
     this.tournamentEntryInfos.sort((tee1: TournamentEntryInfo, tee2: TournamentEntryInfo) => {
-        return tee1.entryId < tee2.entryId ? -1 : 1;
+      const fullName1 = tee1.lastName + ', ' + tee1.firstName;
+      const fullName2 = tee2.lastName + ', ' + tee2.firstName;
+      return fullName1.localeCompare(fullName2);
+        // return tee1.entryId < tee2.entryId ? -1 : 1;
     });
 
     // transform each player's event entries into list of

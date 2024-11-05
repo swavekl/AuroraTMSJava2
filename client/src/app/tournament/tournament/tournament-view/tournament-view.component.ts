@@ -38,6 +38,8 @@ export class TournamentViewComponent implements OnInit, OnChanges {
   // users hit it more than once since the new page doesn't show up quickly
   enteringOrViewing: boolean;
 
+  shownEventListWarning: boolean;
+
   constructor(private router: Router,
               private authService: AuthenticationService,
               private tournamentEntryService: TournamentEntryService,
@@ -45,6 +47,7 @@ export class TournamentViewComponent implements OnInit, OnChanges {
               private dialog: MatDialog) {
     this.entryId = 0;
     this.enteringOrViewing = false;
+    this.shownEventListWarning = false;
   }
 
   ngOnInit(): void {
@@ -58,6 +61,15 @@ export class TournamentViewComponent implements OnInit, OnChanges {
         this.tournamentStartDate = new DateUtils().convertFromString(tournament.startDate);
         const maxNumEventEntries = (tournament.maxNumEventEntries > 0) ? tournament.maxNumEventEntries : 1;
         this.percentFull = tournament.numEventEntries / maxNumEventEntries;
+      }
+    }
+    const tournamentEventsChange: SimpleChange = changes.tournamentEvents;
+    if (tournamentEventsChange != null) {
+      const tournamentEvents: TournamentEvent [] = tournamentEventsChange.currentValue;
+      if (tournamentEvents != null) {
+        this.tournamentEvents = tournamentEvents.sort((event1: TournamentEvent, event2: TournamentEvent) => {
+          return event1.ordinalNumber < event2.ordinalNumber ? -1 : 1;
+        });
       }
     }
   }
@@ -225,4 +237,20 @@ export class TournamentViewComponent implements OnInit, OnChanges {
   }
 
   protected readonly Math = Math;
+
+  onClickEvent() {
+    if (!this.shownEventListWarning && this.isBeforeEntryCutoffDate()) {
+      const config = {
+        width: '450px', height: '250px', data: {
+          message: "This is a non-clickable list of events showing the number of taken and available spots in each event. " +
+            "To enter tournament events please click 'Enter' or 'View Entry' button above.",
+          showOk: true, showCancel: false, okText: 'Close', title: 'Information', contentAreaHeight: '120px'
+        }
+      };
+      const dialogRef = this.dialog.open(ConfirmationPopupComponent, config);
+      dialogRef.afterClosed().pipe(first()).subscribe(result => {
+        this.shownEventListWarning = true;
+      });
+    }
+  }
 }

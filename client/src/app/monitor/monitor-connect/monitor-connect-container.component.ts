@@ -2,7 +2,7 @@ import {Component, OnDestroy, OnInit} from '@angular/core';
 import {Router} from '@angular/router';
 import {Observable, Subscription} from 'rxjs';
 import {map} from 'rxjs/operators';
-import * as moment from 'moment';
+import moment from 'moment';
 import {DateUtils} from '../../shared/date-utils';
 import {UserRoles} from '../../user/user-roles.enum';
 import {AuthenticationService} from '../../user/authentication.service';

@@ -21,6 +21,7 @@
         <thead>
         <tr>
           <th class="player-name-column">Player Name/Profile</th>
+          <th class="events-column">Rating (E/S)</th>
           <th class="events-column">Entry</th>
           <th class="events-column">Waited Events</th>
           <th class="events-column">Confirmed Events</th>
@@ -32,8 +33,11 @@
           <td class="player-name-column">
             <a [routerLink]="['/ui/userprofile/edit', entry.profileId]" [state]="{waitingListReturnUrl: returnUrl}">{{entry.lastName}}, {{entry.firstName}}</a>
           </td>
-          <td class="player-name-column">
-            <a [routerLink]="['/ui/entries/entryview', tournamentId, 'edit', entry.entryId]">Entry</a>
+          <td>
+            {{entry.eligibilityRating }} / {{ entry.seedRating}}
+          </td>
+          <td class="events-column">
+            <a [routerLink]="['/ui/entries/entryview', tournamentId, 'edit', entry.entryId]" [state]="{returnUrl: returnUrl}">Entry</a>
           </td>
           <td class="events-column">{{getPlayerEventList(entry.waitingListEventIds)}}</td>
           <td class="events-column">{{getPlayerEventList(entry.eventIds)}}</td>
@@ -55,12 +59,14 @@
         <thead>
         <tr>
           <th class="event-name-column">Event</th>
+          <th class="wl-count-column">Count</th>
           <th class="players-column">Players </th>
         </tr>
         </thead>
         <tbody>
         <tr *ngFor="let eventWithPlayers of eventWithPlayersList">
           <td class="event-name-column">{{eventWithPlayers.eventName}}</td>
+          <td class="wl-count-column">{{eventWithPlayers.playersOnWaitingList.length}}</td>
           <td class="players-column">{{eventWithPlayers.playersOnWaitingList.join(' | ')}}</td>
         </tr>
         </tbody>

@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import * as moment from 'moment';
+import moment from 'moment';
 
 /**
  * Service for sharing visibility and url of Today page between home page and application's main menu

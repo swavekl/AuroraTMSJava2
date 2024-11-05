@@ -6,7 +6,7 @@ import {LocalStorageService} from '../../../shared/local-storage.service';
 import {Regions} from '../../../shared/regions';
 import {LinearProgressBarService} from '../../../shared/linear-progress-bar/linear-progress-bar.service';
 import {TodayService} from '../../../shared/today.service';
-import * as moment from 'moment/moment';
+import moment from 'moment/moment';
 
 @Component({
   selector: 'app-tournament-list-container',

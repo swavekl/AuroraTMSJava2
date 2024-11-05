@@ -2,7 +2,7 @@ import {Component, OnDestroy} from '@angular/core';
 import {createSelector} from '@ngrx/store';
 import {SanctionRequest, SanctionRequestStatus} from '../model/sanction-request.model';
 import {Subscription} from 'rxjs';
-import * as moment from 'moment';
+import moment from 'moment';
 import {ActivatedRoute, Router} from '@angular/router';
 import {LinearProgressBarService} from '../../shared/linear-progress-bar/linear-progress-bar.service';
 import {SanctionRequestService} from '../service/sanction-request.service';

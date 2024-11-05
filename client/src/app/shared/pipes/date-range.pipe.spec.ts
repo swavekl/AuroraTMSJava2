@@ -1,5 +1,5 @@
 import { DateRangePipe } from './date-range.pipe';
-import * as moment from 'moment';
+import moment from 'moment';
 
 describe('DateRangePipe', () => {
   it('create an instance', () => {

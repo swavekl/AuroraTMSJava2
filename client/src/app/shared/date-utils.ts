@@ -1,4 +1,4 @@
-import * as moment from 'moment';
+import moment from 'moment';
 import {StartTimePipe} from './pipes/start-time.pipe';
 
 export class DateUtils {

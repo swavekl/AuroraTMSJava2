@@ -29,11 +29,11 @@ table.waiting-list-by-player-table {
       text-align: left;
 
       &.player-name-column {
-        min-width: calc((100% - 50px) / 5);
+        min-width: calc((100% - 50px) / 6);
       }
 
       &.events-column {
-        min-width: calc(((100% - 50px) / 5) * 2);
+        min-width: calc(((100% - 50px) / 6) * 2);
       }
     }
   }
@@ -58,6 +58,10 @@ table.waiting-list-by-event-table {
 
       &.event-name-column {
         width: 300px;
+      }
+
+      &.wl-count-column {
+        width: 100px;
       }
 
       &.players-column {

@@ -5,7 +5,7 @@ import {AuthenticationService} from '../../user/authentication.service';
 import {MonitorMessage} from '../model/monitor-message.model';
 // stomp implementation
 import * as Stomp from 'stompjs';
-import * as SockJS from 'sockjs-client';
+import SockJS from 'sockjs-client';
 
 /**
  * Data service providing match scores for monitor via websocket i.e. pushed from server

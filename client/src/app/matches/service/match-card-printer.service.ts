@@ -2,8 +2,7 @@ import {Injectable, OnDestroy} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {BehaviorSubject, Observable, Subscription} from 'rxjs';
 import {distinctUntilChanged} from 'rxjs/operators';
-import {environment} from '../../../environments/environment';
-import * as printJS from 'print-js';
+import printJS from 'print-js';
 import {DownloadService} from '../../shared/download-service/download.service';
 import {Download} from '../../shared/download-service/download';
 

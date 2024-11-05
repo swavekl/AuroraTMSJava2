@@ -147,7 +147,7 @@
           </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let tournamentEvent of tournamentEvents; first as isFirst; last as isLast">
+            <tr *ngFor="let tournamentEvent of tournamentEvents; first as isFirst; last as isLast" (click)="onClickEvent()">
               <td class="event-name-day-column">
                   <div>{{tournamentEvent.name}} </div>
                   <div>{{ tournamentEvent.day | eventDay: tournamentStartDate }} {{ tournamentEvent.startTime | startTime }}</div>

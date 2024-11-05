@@ -1,6 +1,6 @@
 import {DateUtils} from '../../shared/date-utils';
 import {TournamentEvent} from './tournament-event.model';
-import * as moment from 'moment';
+import moment from 'moment';
 import {PricingMethod} from '../model/pricing-method.enum';
 import {Personnel} from './model/personnel.model';
 import {CheckInType} from '../model/check-in-type.enum';

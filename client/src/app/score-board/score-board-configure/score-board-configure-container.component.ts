@@ -7,7 +7,7 @@ import {Observable, Subscription} from 'rxjs';
 import {map} from 'rxjs/operators';
 import {Tournament} from '../../tournament/tournament-config/tournament.model';
 import {DateUtils} from '../../shared/date-utils';
-import * as moment from 'moment';
+import moment from 'moment';
 import {UserRoles} from '../../user/user-roles.enum';
 import {TodayService} from '../../shared/today.service';
 
