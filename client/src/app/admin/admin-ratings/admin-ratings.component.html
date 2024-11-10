@@ -16,6 +16,8 @@
       (uploadFinished)="onMembershipsFileUploadFinished($event)"
       [storagePath]="getMembershipsStoragePath()">
     </app-upload-file-component>
+    <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+    <button mat-raised-button type="button" routerLink="/ui/admin/userlist">Manage Users</button>
   </mat-card-actions>
   <mat-card-content>
     <div class="mat-subtitle-1" fxLayoutAlign="start start" fxLayout="row">

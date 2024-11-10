@@ -62,6 +62,32 @@ export class ProfileService {
   }
 
   /**
+   * Find profiles given filter expression e.g. firstName=John&lastName=Glen
+   * @param searchCriteria expression
+   */
+  listProfiles(searchCriteria: any[]): Observable<ProfileListResponse> {
+    this.setLoading(true);
+    let filter = '';
+    for (const searchCriterion of searchCriteria) {
+      filter += (filter.length === 0) ? '?' : '&';
+      filter += searchCriterion.name + '=' + searchCriterion.value;
+    }
+    const url = `${this.baseUrl}list${filter}`;
+    return this.http.get<ProfileListResponse>(url)
+      .pipe(
+        tap({
+          next: (response: ProfileListResponse) => {
+            this.setLoading(false);
+          },
+          error: (error) => {
+            this.setLoading(false);
+            console.error(error);
+          }
+        })
+      );
+  }
+
+  /**
    * Creates profile
    * @param profile profile to update
    */
@@ -121,4 +147,47 @@ export class ProfileService {
       })
     );
   }
+
+  getGroups(profileId: string): Observable<string[]> {
+    this.setLoading(true);
+    const url = `${this.baseUrl}/${profileId}/groups`;
+    return this.http.get<string[]>(url, {
+      headers: new HttpHeaders({
+        'Content-Type': 'application/json'
+      })
+    }).pipe(
+      tap({
+        next: () => {
+          this.setLoading(false);
+        },
+        error: err => {
+          this.setLoading(false);
+        }
+      })
+    );
+  }
+
+  updateGroups(profileId: string, groups: string []) {
+    this.setLoading(true);
+    const url = `${this.baseUrl}/${profileId}/groups`;
+    return this.http.put(url, groups, {
+      headers: new HttpHeaders({
+        'Content-Type': 'application/json'
+      })
+    }).pipe(
+      tap({
+        next: () => {
+          this.setLoading(false);
+        },
+        error: err => {
+          this.setLoading(false);
+        }
+      })
+    );
+  }
+}
+
+export interface ProfileListResponse {
+  profiles: Profile[];
+  after: string;
 }

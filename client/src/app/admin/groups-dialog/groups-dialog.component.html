@@ -1,0 +1,14 @@
+<h2 mat-dialog-title>Roles - {{ username }}</h2>
+<form #f="ngForm" name="form">
+  <mat-dialog-content>
+    <div fxLayout="row wrap" fxLayoutGap="10px" fxLayoutAlign="flex-start">
+      <ng-container *ngFor="let group of allGroups">
+        <mat-checkbox [name]="group" class="group-checkbox" [checked]="isChecked(group)" >{{ group }}</mat-checkbox>
+      </ng-container>
+    </div>
+  </mat-dialog-content>
+  <mat-dialog-actions fxLayout="row" fxLayoutAlign="space-between start" fxLayoutGap="10px" style="margin: 10px;">
+    <button mat-raised-button type="button" (click)="onCancel()">Cancel</button>
+    <button mat-raised-button type="button" color="primary" (click)="onSave(f.value)">Save</button>
+  </mat-dialog-actions>
+</form>

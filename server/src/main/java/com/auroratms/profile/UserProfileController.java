@@ -178,6 +178,19 @@ public class UserProfileController extends AbstractOktaController {
         }
     }
 
+    @GetMapping("/profileslist")
+    @PreAuthorize("hasAuthority('Admins')")
+    public ResponseEntity<Map<String, Object>> listPaged(@RequestParam(name = "limit") Integer limit,
+                                                         @RequestParam(name = "after", required = false) String after,
+                                                         @RequestParam(name = "lastName", required = false) String lastName) {
+        try {
+            Map<String, Object> responseMap = userProfileService.listPaged(limit, after, lastName);
+            return new ResponseEntity(responseMap, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity(e.getMessage(), HttpStatus.NOT_FOUND);
+        }
+    }
+
     /**
      * Gets membership id information which resides in our database not in Okta
      * @param userProfiles
@@ -265,6 +278,29 @@ public class UserProfileController extends AbstractOktaController {
         } catch (IOException e) {
             logger.error("Error unlocking user", e);
             return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @GetMapping("profiles/{userId}/groups")
+    @PreAuthorize("hasAuthority('Admins')")
+    public ResponseEntity<List<String>> getUserGroups(@PathVariable String userId) {
+        try {
+            List<String> groups = this.userProfileService.getUserGroups(userId);
+            return ResponseEntity.ok(groups);
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
+    @PutMapping("profiles/{userId}/groups")
+    @PreAuthorize("hasAuthority('Admins')")
+    public ResponseEntity<Void> getUserGroups(@PathVariable String userId,
+                                              @RequestBody List<String> groups) {
+        try {
+            this.userProfileService.updateUserGroups(userId, groups);
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
         }
     }
 }

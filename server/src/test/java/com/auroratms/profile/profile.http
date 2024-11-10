@@ -220,3 +220,48 @@ Authorization: Bearer {{accessToken}}
  client.log('responseBody '+ response.body.firstName)
 %}
 ###
+
+### login
+POST https://{{host}}:{{port}}/api/users/login
+Accept: application/json, text/plain, */*
+Accept-Encoding: gzip, deflate, br
+Accept-Language: en-US,en;q=0.9
+Access-Control-Allow-Credentials: true
+Access-Control-Allow-Origin: https://{{host}}:{{clientport}}
+Host: {{host}}:{{port}}
+Origin: https://{{host}}:{{clientport}}
+Referer: https://{{host}}:{{clientport}}/login/signin
+Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+Content-Type: application/json;charset=UTF-8
+Pragma: no-cache
+Strict-Transport-Security: max-age=31536000 ; includeSubDomains
+Vary: Origin
+Vary: Access-Control-Request-Method
+Vary: Access-Control-Request-Headers
+X-Content-Type-Options: nosniff
+X-Frame-Options: DENY
+X-XSS-Protection: 1; mode=block
+Connection: keep-alive
+
+{   "email": "{{adminusername}}",   "password": "{{adminpassword}}" }
+> {%
+    client.test("Request executed successfully", function() {
+        client.assert(response.status === 200, "Response status is not 200");
+    });
+    client.global.set("adminAccessToken", response.body.access_token);
+    client.global.set("adminUserId", response.body.id);
+%}
+
+### list profile
+GET https://{{host}}:{{port}}/api/profileslist?limit=10&lastName=Lorenc
+Accept: application/json
+Authorization: Bearer {{adminAccessToken}}
+
+> {%
+ client.test("Request executed successfully", function() {
+      client.assert(response.status === 200, "Response status is not 200");
+      client.assert(response.body.profiles !== null, "Response body is empty");
+    });
+ client.log('responseBody '+ response.body)
+%}
+###

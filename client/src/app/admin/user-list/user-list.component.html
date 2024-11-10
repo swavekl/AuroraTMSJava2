@@ -1,0 +1,63 @@
+<div class="mat-headline-6" style="padding-left: 8px">Admin - Manage Users</div>
+<form>
+  <mat-toolbar fxLayout="row" fxLayoutGap="10" class="tall-toolbar">
+    <button type="button" mat-raised-button color="" (click)="back()">Back</button>
+    <span class="toolbar-spacer-2"></span>
+    <span>Filter by: </span>
+    <mat-form-field>
+      <mat-label>Last Name</mat-label>
+      <input matInput name="filterNameCtrl" type="text" [ngModel]="filterName" #filterNameCtrl="ngModel">
+    </mat-form-field>
+  </mat-toolbar>
+</form>
+<div class="table-container">
+  <mat-table matSort aria-label="userProfiles" class="user-list-table">
+    <ng-container matColumnDef="firstName">
+      <mat-header-cell *matHeaderCellDef>First Name</mat-header-cell>
+      <mat-cell *matCellDef="let userProfile" [routerLink]="[editUrl, userProfile.userId]" [state]="{addingProfile: true, returnUrl: returnUrl }">{{ userProfile.firstName }}</mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="lastName">
+      <mat-header-cell *matHeaderCellDef>Last Name</mat-header-cell>
+      <mat-cell *matCellDef="let userProfile" [routerLink]="[editUrl, userProfile.userId]" [state]="{addingProfile: true, returnUrl: returnUrl }">{{ userProfile.lastName }}</mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="mobilePhone">
+      <mat-header-cell *matHeaderCellDef>Phone</mat-header-cell>
+      <mat-cell *matCellDef="let userProfile" [routerLink]="[editUrl, userProfile.userId]" [state]="{addingProfile: true, returnUrl: returnUrl }" [matTooltip]="userProfile.email">{{ userProfile.mobilePhone }}</mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="state">
+      <mat-header-cell *matHeaderCellDef>State</mat-header-cell>
+      <mat-cell *matCellDef="let userProfile" [routerLink]="[editUrl, userProfile.userId]" [state]="{addingProfile: true, returnUrl: returnUrl }">{{ userProfile.state }}</mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="status">
+      <mat-header-cell *matHeaderCellDef>Status</mat-header-cell>
+      <mat-cell *matCellDef="let userProfile" [routerLink]="[editUrl, userProfile.userId]" [state]="{addingProfile: true, returnUrl: returnUrl }">{{ userProfile.userStatus }}</mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="actions">
+      <mat-header-cell *matHeaderCellDef>Actions</mat-header-cell>
+      <mat-cell *matCellDef="let userProfile">
+        <button mat-icon-button (click)="onViewGroups(userProfile)"
+                matTooltip="Groups" style="margin-right: 20px">
+          <mat-icon matListItemIcon>groups</mat-icon>
+        </button>
+      </mat-cell>
+    </ng-container>
+    <mat-header-row *matHeaderRowDef="displayColumns; sticky: true"></mat-header-row>
+    <mat-row *matRowDef="let row; columns: displayColumns"></mat-row>
+  </mat-table>
+  <mat-paginator #paginator
+                 [length]="dataSource.total$ | async"
+                 [pageIndex]="0"
+                 [pageSize]="12"
+                 [pageSizeOptions]="[12, 24]"
+                 [style.display]="((dataSource.total$ | async) === 0) ? 'none' : 'block'"
+                 aria-label="Select page">
+  </mat-paginator>
+  <div *ngIf="(dataSource.total$ | async) === 0" class="no-rows-found">
+    <span class="mat-h2">No rows found</span>
+  </div>
+</div>
