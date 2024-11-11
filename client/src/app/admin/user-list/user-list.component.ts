@@ -85,4 +85,8 @@ export class UserListComponent {
         }
     });
   }
+
+  clearFilter() {
+    this.filterNameCtrl.reset();
+  }
 }

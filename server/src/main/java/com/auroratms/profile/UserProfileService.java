@@ -7,9 +7,12 @@ import com.okta.sdk.client.Clients;
 import com.okta.sdk.impl.resource.DefaultUserBuilder;
 import com.okta.sdk.resource.group.Group;
 import com.okta.sdk.resource.group.GroupList;
-import com.okta.sdk.resource.user.*;
-import org.apache.commons.collections4.MapUtils;
+import com.okta.sdk.resource.user.User;
+import com.okta.sdk.resource.user.UserList;
+import com.okta.sdk.resource.user.UserStatus;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheConfig;
@@ -21,7 +24,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
@@ -34,6 +36,7 @@ import java.util.*;
 @Transactional
 public class UserProfileService {
 
+    private static final Logger log = LoggerFactory.getLogger(UserProfileService.class);
     @Value("${okta.client.orgUrl}")
     protected String oktaServiceBase;
 
@@ -189,7 +192,8 @@ public class UserProfileService {
                 query += "&after=" + after;
             }
             if (lastName != null) {
-                query += "&filter=profile.lastName%20eq%20%22" + lastName +"%22";
+                String encodedLastName = lastName.replaceAll(" ", "%20");
+                query += "&filter=profile.lastName%20eq%20%22" + encodedLastName +"%22";
             }
             SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
 
@@ -231,7 +235,40 @@ public class UserProfileService {
                     }
                 }
             });
+            // if this is the query for the first page
+            if (after == null) {
+                Client client = getClient();
+                long usersCount = 0;
+                if (lastName == null) {
+                    // get the count of users in Everyone group
+                    GroupList groups = client.listGroups("Everyone", null, "stats");
+                    for (Group group : groups) {
+                        Map<String, Object> embedded = group.getEmbedded();
+                        if (embedded != null) {
+                            Map<String, Object> stats = (Map<String, Object>) embedded.get("stats");
+                            if (stats != null) {
+                                usersCount = Long.valueOf(stats.get("usersCount").toString());
+                                break;
+                            }
+                        }
+                    }
+                } else {
+                    // if filter is present on the first call
+                    if (userProfileCollection.size() < limit) {
+                        // no need to requery if fewer then the list size were returned
+                        usersCount = userProfileCollection.size();
+                    } else {
+                        // then get up to 200 users - should be enough for most of the cases
+                        String filter = "profile.lastName eq \"" + lastName + "\"";
+                        UserList users = client.listUsers(null, filter, null, null, null);
+                        usersCount = users.stream().count();
+                    }
+                }
+                responseMap.put("usersCount", usersCount);
+            }
+
         } catch (Exception e) {
+            log.error("Error getting list of users", e);
             throw new RuntimeException("Error retrieving list of user profiles", e);
         }
 

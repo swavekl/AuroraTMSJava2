@@ -1,8 +1,8 @@
 import {DataSource} from '@angular/cdk/collections';
 import {MatPaginator} from '@angular/material/paginator';
 import {MatSort} from '@angular/material/sort';
-import {map, tap} from 'rxjs/operators';
-import {BehaviorSubject, merge, Observable, of} from 'rxjs';
+import {first, map} from 'rxjs/operators';
+import {BehaviorSubject, merge, Observable, of, Subject} from 'rxjs';
 import {ProfileListResponse, ProfileService} from '../../profile/profile.service';
 import {Profile} from '../../profile/profile';
 
@@ -10,8 +10,8 @@ import {Profile} from '../../profile/profile';
  * Data source for the users list view.
  */
 export class UsersListDataSource extends DataSource<Profile> {
-  profiles$: Observable<Profile[]>;
-  total$: Observable<number>;
+  profiles$: Subject<Profile[]> = new Subject<Profile[]> ();
+  total$: Subject<number> = new Subject<number>();
   profiles: Profile [];
   filterByName$: BehaviorSubject<string> = new BehaviorSubject<string>('');
   paginator: MatPaginator | undefined;
@@ -22,15 +22,9 @@ export class UsersListDataSource extends DataSource<Profile> {
   constructor(private profileService: ProfileService) {
     super();
     this.profiles = []
-    this.profiles$ = of(this.profiles);
-    this.total$ = of(1000);
+    this.total$.next(0);
     this.after = null;
     this.previousFilterValue = null;
-    // select Profile entities from cache
-    // this.profiles$ = this.profileService.store.select(
-    //   this.profileService.selectors.selectEntities);
-    // this.total$ = this.profileService.store.select(
-    //   selectUsersTotal);
   }
 
   /**
@@ -40,19 +34,17 @@ export class UsersListDataSource extends DataSource<Profile> {
    */
   connect(): Observable<Profile[]> {
     if (this.paginator && this.sort) {
-      // load first page
-      this.loadPage(false);
       // when results arrive or next page or sort order changes
-      return merge(this.profiles$,
+      return merge(this.profiles$.asObservable(),
         this.paginator.page, this.sort.sortChange,
         this.filterByName$.asObservable())
         .pipe(
-          map((value: any, index: number) => {
+          map((value: any) => {
             if (Array.isArray(value)) {
               // results arrived - return them
               return value;
             } else {
-              // next/previous page requested or sort change, request new page
+              // next/previous page requested or sort change, or filter by last name request new page
               this.loadPage(value);
               // return current page for now
               return this.profiles;
@@ -75,10 +67,10 @@ export class UsersListDataSource extends DataSource<Profile> {
    */
   public loadPage(value: any) {
     const filterValueChanged = typeof value === 'string' && value !== this.previousFilterValue;
-    const paginatorEvent = (value.pageIndex !== undefined);
+    const paginatorEvent = (value?.pageIndex !== undefined);
     if (filterValueChanged) {
       this.paginator.pageIndex = 0;
-      this.after = null;
+      // this.after = null;
     }
 
     if (!paginatorEvent) {
@@ -101,23 +93,22 @@ export class UsersListDataSource extends DataSource<Profile> {
     if (this.after != null) {
       searchCriteria.push({name: 'after', value: this.after})
     }
-    const firstCall = (this.profiles$ == null);
-    this.profiles$ = this.profileService.listProfiles(searchCriteria)
-      .pipe(
-        map(
-            (response: ProfileListResponse) => {
-              this.profiles = response.profiles;
-              this.after = response.after;
-              return this.profiles;
-            },
-            (error) => {
-              console.error(error);
-            }
-          ));
-
-    if (!firstCall) {
-      this.profiles$.subscribe();
-    }
+    // console.log('listing profiles search criteria', searchCriteria);
+    this.profileService.listProfiles(searchCriteria)
+      .pipe(first())
+      .subscribe({
+        next: (response: ProfileListResponse) => {
+          this.profiles = response.profiles;
+          this.after = response.after;
+          this.profiles$.next(this.profiles);
+          if (response.usersCount != null) {
+            this.total$.next(response.usersCount)
+          }
+        },
+        error: (error: any) => {
+          console.error(error);
+        }
+      });
   }
 
   /**

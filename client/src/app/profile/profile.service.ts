@@ -190,4 +190,5 @@ export class ProfileService {
 export interface ProfileListResponse {
   profiles: Profile[];
   after: string;
+  usersCount: number;
 }
