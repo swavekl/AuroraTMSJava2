@@ -148,9 +148,9 @@ export class ProfileService {
     );
   }
 
-  getGroups(profileId: string): Observable<string[]> {
+  getUserRoles(profileId: string): Observable<string[]> {
     this.setLoading(true);
-    const url = `${this.baseUrl}/${profileId}/groups`;
+    const url = `${this.baseUrl}/${profileId}/roles`;
     return this.http.get<string[]>(url, {
       headers: new HttpHeaders({
         'Content-Type': 'application/json'
@@ -167,9 +167,9 @@ export class ProfileService {
     );
   }
 
-  updateGroups(profileId: string, groups: string []) {
+  updateUserRoles(profileId: string, groups: string []) {
     this.setLoading(true);
-    const url = `${this.baseUrl}/${profileId}/groups`;
+    const url = `${this.baseUrl}/${profileId}/roles`;
     return this.http.put(url, groups, {
       headers: new HttpHeaders({
         'Content-Type': 'application/json'

@@ -1,5 +1,6 @@
 package com.auroratms.profile;
 
+import com.auroratms.users.UserRoles;
 import com.google.gson.*;
 import com.okta.sdk.authc.credentials.TokenClientCredentials;
 import com.okta.sdk.client.Client;
@@ -29,6 +30,7 @@ import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -547,94 +549,66 @@ public class UserProfileService {
         }
         return userProfileList;
     }
-//
-//    /**
-//     *
-//     * @param groupName
-//     * @param profileId
-//     */
-//    public void addUserToGroup(String groupName, String profileId) {
-//        Client client = getClient();
-//        User user = client.getUser(profileId);
-//        boolean memberOfGroup = false;
-//        GroupList groups = user.listGroups();
-//        for (Group group : groups) {
-//            if (group.getId().equals(groupName)) {
-//                memberOfGroup = true;
-//                break;
-//            }
-//        }
-//
-//        if (!memberOfGroup) {
-//            com.okta.sdk.resource.user.UserProfile profile = user.getProfile();
-//            System.out.println("Adding user " + profile.getFirstName() + " " + profile.getLastName() + " to group " + groupName);
-//            user.addToGroup(groupName);
-//            boolean addedSuccessfully = false;
-//            groups = user.listGroups();
-//            for (Group group : groups) {
-//                if (group.getId().equals(groupName)) {
-//                    addedSuccessfully = true;
-//                    break;
-//                }
-//            }
-//            if (addedSuccessfully) {
-//                System.out.println("Successfully added member to group");
-//            }
-//        }
-//    }
 
     /**
-     *
-     * @param profileId
+     * Gets user roles this user has
+     * @param profileId od of a user
      * @return
      */
-    public List<String> getUserGroups(String profileId) {
-        List<String> groups = new ArrayList<>();
+    public List<String> getUserRoles(String profileId) {
+        List<String> userRoles = new ArrayList<>();
         Client client = getClient();
         User user = client.getUser(profileId);
-        GroupList groups1 = user.listGroups();
-        for (Group group : groups1) {
+        GroupList groupList = user.listGroups();
+        for (Group group : groupList) {
             String name = group.getProfile().getName();
-            groups.add(name);
+            userRoles.add(name);
         }
 
-        return groups;
+        return userRoles;
     }
 
     /**
-     *
-     * @param profileId
-     * @param updatedGroups
+     * Updates user roles this user has
+     * @param profileId profile id of a user
+     * @param updatedRoles new list of roles
      */
-    public void updateUserGroups(String profileId, List<String> updatedGroups) {
+    public void updateUserRoles(String profileId, List<String> updatedRoles) {
+        if (!updatedRoles.contains(UserRoles.Everyone)) {
+            updatedRoles.add(UserRoles.Everyone);
+        }
         Client client = getClient();
         User user = client.getUser(profileId);
-
-        // remove group
-//        GroupList currentGroupList = user.listGroups();
-//        for (Group group : currentGroupList) {
-//            String groupName = group.getProfile().getName();
-//            if (!updatedGroups.contains(groupName)) {
-//                user.removeRole(group.getId());
-//            }
-//        }
-
-        // add to groups
+        // groups in Okta are roles in this application
         GroupList userGroupList = user.listGroups();
-        for (String updatedGroup : updatedGroups) {
-            // check if already member of this group
-            String groupToAddId = null;
-            for (Group group : userGroupList) {
-                String groupName = group.getProfile().getName();
-                if (groupName.equals(updatedGroup)) {
-                    groupToAddId = group.getId();
+        List<String> existingRoles = userGroupList.stream()
+                .map(group -> group.getProfile().getName())
+                .collect(Collectors.toList());
+        List<String> addedRoles = updatedRoles.stream()
+                .filter(groupName -> !existingRoles.contains(groupName))
+                .collect(Collectors.toList());
+        List<String> removedRoles = existingRoles.stream()
+                .filter(groupName -> !updatedRoles.contains(groupName))
+                .collect(Collectors.toList());
+
+        GroupList allGroups = client.listGroups();
+        // add new roles
+        for (String addedRole : addedRoles) {
+            for (Group group : allGroups) {
+                if (group.getProfile().getName().equals(addedRole)) {
+                    user.addToGroup(group.getId());
                     break;
                 }
             }
+        }
 
-            // not a member then add
-            if (groupToAddId != null) {
-                user.addToGroup(groupToAddId);
+        // remove user from unwanted roles
+        for (String removedRole : removedRoles) {
+            for (Group group : allGroups) {
+                if (group.getProfile().getName().equals(removedRole)) {
+                    group.removeUser(profileId);
+                    break;
+                }
             }
         }
     }

@@ -281,23 +281,23 @@ public class UserProfileController extends AbstractOktaController {
         }
     }
 
-    @GetMapping("profiles/{userId}/groups")
+    @GetMapping("profiles/{userId}/roles")
     @PreAuthorize("hasAuthority('Admins')")
-    public ResponseEntity<List<String>> getUserGroups(@PathVariable String userId) {
+    public ResponseEntity<List<String>> getUserRoles(@PathVariable String userId) {
         try {
-            List<String> groups = this.userProfileService.getUserGroups(userId);
-            return ResponseEntity.ok(groups);
+            List<String> roles = this.userProfileService.getUserRoles(userId);
+            return ResponseEntity.ok(roles);
         } catch (Exception e) {
             return ResponseEntity.internalServerError().build();
         }
     }
 
-    @PutMapping("profiles/{userId}/groups")
+    @PutMapping("profiles/{userId}/roles")
     @PreAuthorize("hasAuthority('Admins')")
-    public ResponseEntity<Void> getUserGroups(@PathVariable String userId,
-                                              @RequestBody List<String> groups) {
+    public ResponseEntity<Void> updateUserRoles(@PathVariable String userId,
+                                                @RequestBody List<String> updatedRoles) {
         try {
-            this.userProfileService.updateUserGroups(userId, groups);
+            this.userProfileService.updateUserRoles(userId, updatedRoles);
             return ResponseEntity.ok().build();
         } catch (Exception e) {
             return ResponseEntity.internalServerError().build();

@@ -11,7 +11,7 @@ import {debounceTime, distinctUntilChanged, skip} from 'rxjs/operators';
 import {ProfileService} from '../../profile/profile.service';
 import {UsersListDataSource} from './user-list-data-source';
 import {Profile} from '../../profile/profile';
-import {GroupsDialogComponent} from '../groups-dialog/groups-dialog.component';
+import {RolesDialogComponent} from '../groups-dialog/roles-dialog.component';
 
 @Component({
   selector: 'app-user-list',
@@ -69,17 +69,17 @@ export class UserListComponent {
   }
 
   onViewGroups(userProfile: Profile) {
-    this.profileService.getGroups(userProfile.userId).subscribe({
+    this.profileService.getUserRoles(userProfile.userId).subscribe({
       next:
-        (groups: string[]) => {
+        (roles: string[]) => {
           const config: MatDialogConfig = {
-            width: '700px', height: '460px', data: {groups: groups, profile: userProfile}
+            width: '700px', height: '460px', data: {roles: roles, profile: userProfile}
           };
-          const dialogRef = this.dialog.open(GroupsDialogComponent, config);
+          const dialogRef = this.dialog.open(RolesDialogComponent, config);
           dialogRef.afterClosed().subscribe(result => {
             if (result.action === 'ok') {
-              // this.profileService.updateGroups(userProfile.userId, result.groups).subscribe({
-              // });
+              this.profileService.updateUserRoles(userProfile.userId, result.roles).subscribe({
+              });
             }
           });
         }
