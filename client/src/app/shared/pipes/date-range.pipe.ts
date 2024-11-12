@@ -21,6 +21,13 @@ export class DateRangePipe implements PipeTransform {
       const endDate: Date = dates[1];
       const mStartDate: Moment = moment(startDate);
       const mEndDate: Moment = moment(endDate);
+      // mStartDate.set('hour', 0);
+      // mStartDate.set('minute', 0);
+      // mStartDate.utc(true);
+      // const startdate = mStartDate.toDate();
+      // console.log('startdate', startdate);
+      // mEndDate.set('hour', 0);
+      // mEndDate.set('minute', 0);
       if (mStartDate.isSame(mEndDate)) {
         return mStartDate.format(this.DATE_FORMAT);
       } else {
@@ -30,6 +37,9 @@ export class DateRangePipe implements PipeTransform {
           explicitAllDay: true,
           implicitYear : false
         };
+        console.log('mStartDate', mStartDate);
+        console.log('mEndDate  ', mEndDate);
+
         return moment(startDate).twix(endDate).format(options);
       }
     } else if (dates?.length === 1) {
