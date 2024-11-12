@@ -1,4 +1,4 @@
-import { Pipe, PipeTransform } from '@angular/core';
+import {Pipe, PipeTransform} from '@angular/core';
 import moment from 'moment';
 import 'twix';
 import {Moment} from 'moment';
@@ -14,20 +14,22 @@ import {Moment} from 'moment';
 })
 export class DateRangePipe implements PipeTransform {
   readonly DATE_FORMAT = 'MMM D, yyyy';
+  readonly TIME_PORTION: string = 'T00:00:00.000+00:00';
 
-  transform(dates: Date[], ...args: unknown[]): string {
+  transform(dates: any[], ...args: unknown[]): string {
     if (dates?.length === 2) {
-      const startDate: Date = dates[0];
-      const endDate: Date = dates[1];
-      const mStartDate: Moment = moment(startDate);
-      const mEndDate: Moment = moment(endDate);
-      // mStartDate.set('hour', 0);
-      // mStartDate.set('minute', 0);
-      // mStartDate.utc(true);
-      // const startdate = mStartDate.toDate();
-      // console.log('startdate', startdate);
-      // mEndDate.set('hour', 0);
-      // mEndDate.set('minute', 0);
+      let startDate: any = dates[0];
+      let endDate: any = dates[1];
+      if (typeof startDate === 'string') {
+        startDate = startDate.substring(0, startDate.indexOf('T'));
+        startDate += this.TIME_PORTION;
+      }
+      if (typeof endDate === 'string') {
+        endDate = endDate.substring(0, endDate.indexOf('T'));
+        endDate += this.TIME_PORTION;
+      }
+      const mStartDate: Moment = moment(startDate).utc();
+      const mEndDate: Moment = moment(endDate).utc();
       if (mStartDate.isSame(mEndDate)) {
         return mStartDate.format(this.DATE_FORMAT);
       } else {
@@ -35,12 +37,9 @@ export class DateRangePipe implements PipeTransform {
         const options = {
           hideTime: true,
           explicitAllDay: true,
-          implicitYear : false
+          implicitYear: false
         };
-        console.log('mStartDate', mStartDate);
-        console.log('mEndDate  ', mEndDate);
-
-        return moment(startDate).twix(endDate).format(options);
+        return mStartDate.twix(mEndDate).format(options);
       }
     } else if (dates?.length === 1) {
       const startDate = dates[0];

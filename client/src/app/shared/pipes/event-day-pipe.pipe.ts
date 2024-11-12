@@ -6,7 +6,9 @@ import moment, {Moment} from 'moment';
 })
 export class EventDayPipePipe implements PipeTransform {
 
-  transform(eventDay: number, tournamentStartDate: Date, ...args: unknown[]): string {
+  readonly TIME_PORTION: string = 'T00:00:00.000+00:00';
+
+  transform(eventDay: number, tournamentStartDate: any, ...args: unknown[]): string {
     let strEventDayName = '';
     if (tournamentStartDate != null) {
       const localMoment = moment([tournamentStartDate.getFullYear(), tournamentStartDate.getMonth(), tournamentStartDate.getDate(), 0, 0, 0]).utc();
