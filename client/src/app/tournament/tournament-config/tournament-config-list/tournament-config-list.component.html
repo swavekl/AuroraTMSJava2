@@ -22,7 +22,7 @@
                 </mat-card-title>
               </mat-card-header>
               <mat-card-content>
-                <h3>{{tournament.startDate | date }} - {{tournament.endDate | date }}</h3>
+                <h3>{{[tournament.startDate, tournament.endDate] | dateRange }}</h3>
                 <h4>{{ tournament.city }}, {{tournament.state}} </h4>
               </mat-card-content>
               <mat-card-actions>
