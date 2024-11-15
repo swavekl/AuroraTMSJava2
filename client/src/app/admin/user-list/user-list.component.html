@@ -3,12 +3,19 @@
   <mat-toolbar fxLayout="row" fxLayoutGap="10" class="tall-toolbar">
     <button type="button" mat-raised-button color="" (click)="back()">Back</button>
     <span class="toolbar-spacer-2"></span>
-    <span>Filter by: </span>
     <mat-form-field>
-      <mat-label>Last Name</mat-label>
+      <mat-label>Filter by Last Name</mat-label>
       <input matInput name="filterNameCtrl" type="text" [ngModel]="filterName" #filterNameCtrl="ngModel">
+      <button mat-icon-button matSuffix (click)="clearFilter()"><mat-icon>clear</mat-icon></button>
     </mat-form-field>
-    <button mat-mini-fab color="" (click)="clearFilter()" type="button"><mat-icon>clear</mat-icon></button>
+    <mat-form-field>
+      <mat-label>Filter by Status</mat-label>
+      <mat-select name="filterByStatusCtrl" [ngModel]="filterByStatus" #filterByStatusCtrl="ngModel">
+        <mat-option value="">All</mat-option>
+        <mat-option *ngFor="let status of getStatusList()" [value]="status">{{status | oktaUserStatus}}</mat-option>
+      </mat-select>
+
+    </mat-form-field>
   </mat-toolbar>
 </form>
 <div class="table-container">
@@ -35,7 +42,7 @@
 
     <ng-container matColumnDef="status">
       <mat-header-cell *matHeaderCellDef>Status</mat-header-cell>
-      <mat-cell *matCellDef="let userProfile" [routerLink]="[editUrl, userProfile.userId]" [state]="{addingProfile: true, returnUrl: returnUrl }">{{ userProfile.userStatus }}</mat-cell>
+      <mat-cell *matCellDef="let userProfile" [routerLink]="[editUrl, userProfile.userId]" [state]="{addingProfile: true, returnUrl: returnUrl }">{{ userProfile.userStatus  | oktaUserStatus }}</mat-cell>
     </ng-container>
 
     <ng-container matColumnDef="actions">
@@ -44,6 +51,10 @@
         <button mat-icon-button (click)="onViewGroups(userProfile)"
                 matTooltip="Groups" style="margin-right: 20px">
           <mat-icon matListItemIcon>groups</mat-icon>
+        </button>
+        <button *ngIf="isUserLockedOut(userProfile)" mat-icon-button (click)="onUnlockUser(userProfile)" [disabled]="!isUserLockedOut(userProfile)"
+                [matTooltip]="isUserLockedOut(userProfile) ? 'Unlock' : ''" style="margin-right: 20px" >
+          <mat-icon matListItemIcon>lock_open</mat-icon>
         </button>
       </mat-cell>
     </ng-container>

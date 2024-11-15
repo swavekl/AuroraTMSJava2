@@ -14,10 +14,12 @@ export class UsersListDataSource extends DataSource<Profile> {
   total$: Subject<number> = new Subject<number>();
   profiles: Profile [];
   filterByName$: BehaviorSubject<string> = new BehaviorSubject<string>('');
+  filterByStatus$: BehaviorSubject<string> = new BehaviorSubject<string>('');
   paginator: MatPaginator | undefined;
   sort: MatSort | undefined;
   after: string;
   previousFilterValue: string;
+  previousStatusFilterValue: string;
 
   constructor(private profileService: ProfileService) {
     super();
@@ -25,6 +27,7 @@ export class UsersListDataSource extends DataSource<Profile> {
     this.total$.next(0);
     this.after = null;
     this.previousFilterValue = null;
+    this.previousStatusFilterValue = null;
   }
 
   /**
@@ -36,7 +39,8 @@ export class UsersListDataSource extends DataSource<Profile> {
     if (this.paginator && this.sort) {
       // when results arrive or next page or sort order changes
       return merge(this.profiles$.asObservable(),
-        this.paginator.page, this.sort.sortChange,
+        this.paginator.page,
+        this.filterByStatus$.asObservable(),
         this.filterByName$.asObservable())
         .pipe(
           map((value: any) => {
@@ -88,6 +92,12 @@ export class UsersListDataSource extends DataSource<Profile> {
     if (filterValue != null && filterValue !== '') {
       searchCriteria.push({name: 'lastName', value: filterValue});
       this.previousFilterValue = filterValue;
+    }
+
+    const filterByStatusValue = this.filterByStatus$.value;
+    if (filterByStatusValue != null && filterByStatusValue !== '') {
+      searchCriteria.push({name: 'status', value: filterByStatusValue});
+      this.previousStatusFilterValue = filterByStatusValue;
     }
 
     if (this.after != null) {

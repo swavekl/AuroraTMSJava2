@@ -20,12 +20,14 @@ import {MatDialogModule} from '@angular/material/dialog';
 import {FlexLayoutModule} from 'ng-flex-layout';
 import {UserListComponent} from './user-list/user-list.component';
 import {FormsModule} from '@angular/forms';
+import { OktaUserStatusPipe } from './okta-user-status.pipe';
 
 @NgModule({
   declarations: [
     AdminRatingsComponent,
     AdminRatingsContainerComponent,
-    UserListComponent
+    UserListComponent,
+    OktaUserStatusPipe
   ],
   imports: [
     CommonModule,

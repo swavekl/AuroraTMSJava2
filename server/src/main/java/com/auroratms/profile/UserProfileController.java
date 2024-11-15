@@ -182,9 +182,10 @@ public class UserProfileController extends AbstractOktaController {
     @PreAuthorize("hasAuthority('Admins')")
     public ResponseEntity<Map<String, Object>> listPaged(@RequestParam(name = "limit") Integer limit,
                                                          @RequestParam(name = "after", required = false) String after,
-                                                         @RequestParam(name = "lastName", required = false) String lastName) {
+                                                         @RequestParam(name = "lastName", required = false) String lastName,
+                                                         @RequestParam(name = "status", required = false) String status) {
         try {
-            Map<String, Object> responseMap = userProfileService.listPaged(limit, after, lastName);
+            Map<String, Object> responseMap = userProfileService.listPaged(limit, after, lastName, status);
             return new ResponseEntity(responseMap, HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity(e.getMessage(), HttpStatus.NOT_FOUND);

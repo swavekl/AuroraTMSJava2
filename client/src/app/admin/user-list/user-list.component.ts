@@ -3,15 +3,16 @@ import {MatPaginator} from '@angular/material/paginator';
 import {MatSort} from '@angular/material/sort';
 import {MatTable} from '@angular/material/table';
 import {UntypedFormControl} from '@angular/forms';
-import {Subscription} from 'rxjs';
+import {of, Subscription} from 'rxjs';
 import {LinearProgressBarService} from '../../shared/linear-progress-bar/linear-progress-bar.service';
 import {Router} from '@angular/router';
 import {MatDialog, MatDialogConfig} from '@angular/material/dialog';
-import {debounceTime, distinctUntilChanged, skip} from 'rxjs/operators';
+import {debounceTime, distinctUntilChanged, first, skip} from 'rxjs/operators';
 import {ProfileService} from '../../profile/profile.service';
 import {UsersListDataSource} from './user-list-data-source';
 import {Profile} from '../../profile/profile';
 import {RolesDialogComponent} from '../groups-dialog/roles-dialog.component';
+import {OktaUserStatusPipe} from '../okta-user-status.pipe';
 
 @Component({
   selector: 'app-user-list',
@@ -23,8 +24,10 @@ export class UserListComponent {
   @ViewChild(MatSort) sort!: MatSort;
   @ViewChild(MatTable) table!: MatTable<Profile>;
   @ViewChild('filterNameCtrl') filterNameCtrl: UntypedFormControl;
+  @ViewChild('filterByStatusCtrl') filterByStatusCtrl: UntypedFormControl;
   dataSource: UsersListDataSource;
   filterName: string;
+  filterByStatus: any;
 
   /** Columns displayed in the table. Columns IDs can be added, removed, or reordered. */
   displayColumns = ['firstName', 'lastName', 'mobilePhone', 'state', 'status', 'actions'];
@@ -60,7 +63,18 @@ export class UserListComponent {
         debounceTime(500)
       )
       .subscribe((value) => {
+        console.log('filter by name changes', value);
         this.dataSource.filterByName$.next(value);
+      });
+    this.filterByStatusCtrl.valueChanges
+      .pipe(
+        skip(1),
+        distinctUntilChanged(),
+        debounceTime(500)
+      )
+      .subscribe((value) => {
+        console.log("changing status filter to " + value);
+        this.dataSource.filterByStatus$.next(value);
       });
   }
 
@@ -88,5 +102,32 @@ export class UserListComponent {
 
   clearFilter() {
     this.filterNameCtrl.reset();
+  }
+
+  isUserLockedOut(profile: Profile) : boolean {
+    return profile?.userStatus === 'LOCKED_OUT';
+  }
+
+  onUnlockUser(profile: Profile) {
+    this.profileService.unlockProfile(profile)
+      .pipe(first())
+      .subscribe({
+          next: (updatedProfile: Profile) => {
+            // refresh the page
+            this.dataSource.loadPage(null);
+          },
+          error: (error: any) => {
+            try {
+              const msg = JSON.parse(error.error.text);
+              console.error(msg);
+            } catch (e) {
+            }
+          }
+        }
+      );
+  }
+
+  getStatusList(): string [] {
+    return OktaUserStatusPipe.getAllStatus();
   }
 }

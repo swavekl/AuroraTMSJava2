@@ -181,12 +181,14 @@ public class UserProfileService {
 
     /**
      * Paged query with filtering
+     *
      * @param limit
      * @param after
      * @param lastName
+     * @param status
      * @return
      */
-    public Map<String, Object> listPaged(int limit, String after, String lastName) {
+    public Map<String, Object> listPaged(int limit, String after, String lastName, String status) {
         Map<String, Object> responseMap = new HashMap<>();
         try {
             String query = "?limit=" + limit;
@@ -196,6 +198,11 @@ public class UserProfileService {
             if (lastName != null) {
                 String encodedLastName = lastName.replaceAll(" ", "%20");
                 query += "&filter=profile.lastName%20eq%20%22" + encodedLastName +"%22";
+            }
+            if (StringUtils.isNotEmpty(status)) {
+                query += (lastName == null) ? "&filter=" : "%20and%20";
+                String encodedStatus = status.replaceAll(" ", "%20");
+                query += "status%20eq%20%22" + encodedStatus + "%22";
             }
             SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
 
@@ -241,7 +248,7 @@ public class UserProfileService {
             if (after == null) {
                 Client client = getClient();
                 long usersCount = 0;
-                if (lastName == null) {
+                if (lastName == null && StringUtils.isEmpty(status)) {
                     // get the count of users in Everyone group
                     GroupList groups = client.listGroups("Everyone", null, "stats");
                     for (Group group : groups) {
@@ -261,7 +268,14 @@ public class UserProfileService {
                         usersCount = userProfileCollection.size();
                     } else {
                         // then get up to 200 users - should be enough for most of the cases
-                        String filter = "profile.lastName eq \"" + lastName + "\"";
+                        String filter = "";
+                        if (lastName != null) {
+                            filter = "profile.lastName eq \"" + lastName + "\"";
+                        }
+                        if (StringUtils.isNotEmpty(status)) {
+                            filter += (filter.isEmpty()) ? "" : " and ";
+                            filter += "status eq \"" + status + "\"";
+                        }
                         UserList users = client.listUsers(null, filter, null, null, null);
                         usersCount = users.stream().count();
                     }
