@@ -129,7 +129,7 @@ dependencies {
 //}
 
 task copyAngularApp (type: Copy) {
-    from '../client/dist/client'
+    from '../client/dist/client/browser'
     into './build/resources/main/static'
 }
 
