@@ -11,7 +11,8 @@ import {createSelector} from '@ngrx/store';
 import {TournamentInfo} from '../../model/tournament-info.model';
 import {TournamentInfoService} from '../../service/tournament-info.service';
 import {DateUtils} from '../../../shared/date-utils';
-import {lazyArray} from '../../../shared/lazy-array';
+import {AuthenticationService} from '../../../user/authentication.service';
+import {HttpClient} from '@angular/common/http';
 
 @Component({
   selector: 'app-tournament-player-list-container',
@@ -37,7 +38,9 @@ export class TournamentPlayersListContainerComponent implements OnInit, OnDestro
               private tournamentInfoService: TournamentInfoService,
               private tournamentEventConfigService: TournamentEventConfigService,
               private activatedRoute: ActivatedRoute,
-              private linearProgressBarService: LinearProgressBarService) {
+              private linearProgressBarService: LinearProgressBarService,
+              private authenticationService: AuthenticationService,
+              private httpClient: HttpClient) {
     this.setupProgressIndicator();
   }
 
@@ -154,29 +157,46 @@ export class TournamentPlayersListContainerComponent implements OnInit, OnDestro
       const tournamentStartDate = new DateUtils().convertFromString(strTournamentStartDate);
       this.tournamentStartDate$ = of(tournamentStartDate);
     } else {
-      // create a selector for fast lookup in cache
-      const tournamentInfoSelector = this.tournamentInfoService.selectors.selectEntityMap;
-      const selectedTournamentSelector = createSelector(
-        tournamentInfoSelector,
-        (entityMap) => {
-          return entityMap[tournamentId];
-        });
-
-      const subscription = this.tournamentInfoService.store.select(selectedTournamentSelector)
-        .subscribe(
-          (tournamentInfo: TournamentInfo) => {
-            if (tournamentInfo) {
-              // console.log('got tournamentInfo from cache for START_DATE');
-              const tournamentStartDate2 = new DateUtils().convertFromString(tournamentInfo.startDate);
-              this.tournamentStartDate$ = of(tournamentStartDate2);
-            } else {
-              // console.log('tournamentInfo not in cache. getting from SERVER');
-              // not in cache so get it. Since it is an entity collection it will be
-              // piped to the above selector and processed by if branch
-              this.tournamentInfoService.getByKey(tournamentId);
-            }
+      const currentUser = this.authenticationService.getCurrentUser();
+      if (currentUser == null) {
+        this.getPublicTournamentInfo(tournamentId);
+      } else {
+        // create a selector for fast lookup in cache
+        const tournamentInfoSelector = this.tournamentInfoService.selectors.selectEntityMap;
+        const selectedTournamentSelector = createSelector(
+          tournamentInfoSelector,
+          (entityMap) => {
+            return entityMap[tournamentId];
           });
-      this.subscriptions.add(subscription);
+
+        const subscription = this.tournamentInfoService.store.select(selectedTournamentSelector)
+          .subscribe(
+            (tournamentInfo: TournamentInfo) => {
+              if (tournamentInfo) {
+                // console.log('got tournamentInfo from cache for START_DATE');
+                const tournamentStartDate2 = new DateUtils().convertFromString(tournamentInfo.startDate);
+                this.tournamentStartDate$ = of(tournamentStartDate2);
+              } else {
+                // console.log('tournamentInfo not in cache. getting from SERVER');
+                // not in cache so get it. Since it is an entity collection it will be
+                // piped to the above selector and processed by if branch
+                this.tournamentInfoService.getByKey(tournamentId);
+              }
+            });
+        this.subscriptions.add(subscription);
+      }
     }
   }
+
+  private getPublicTournamentInfo(tournamentId: number) {
+    const url = `/publicapi/tournamentinfo/${tournamentId}`;
+    this.httpClient.get(url).pipe(first())
+      .subscribe((tournamentInfo: TournamentInfo) => {
+      if (tournamentInfo != null) {
+        const tournamentStartDate2 = new DateUtils().convertFromString(tournamentInfo.startDate);
+        this.tournamentStartDate$ = of(tournamentStartDate2);
+      }
+    });
+  }
+
 }

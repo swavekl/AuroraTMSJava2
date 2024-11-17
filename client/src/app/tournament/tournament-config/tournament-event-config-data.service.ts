@@ -5,6 +5,7 @@ import {HttpClient} from '@angular/common/http';
 import {Observable} from 'rxjs';
 import {of} from 'rxjs';
 import {QueryParams} from '@ngrx/data/src/dataservices/interfaces';
+import {AuthenticationService} from '../../user/authentication.service';
 
 @Injectable({providedIn: 'root'})
 export class TournamentEventConfigDataService extends DefaultDataService<TournamentEvent> {
@@ -12,7 +13,10 @@ export class TournamentEventConfigDataService extends DefaultDataService<Tournam
   // id of the currently queried tournament
   private tournamentId: number;
 
-  constructor(http: HttpClient, httpUrlGenerator: HttpUrlGenerator, config?: DefaultDataServiceConfig) {
+  constructor(http: HttpClient,
+              httpUrlGenerator: HttpUrlGenerator,
+              private authenticationService: AuthenticationService,
+              config?: DefaultDataServiceConfig) {
     super('TournamentEvent', http, httpUrlGenerator, config);
   }
 
@@ -21,8 +25,10 @@ export class TournamentEventConfigDataService extends DefaultDataService<Tournam
   }
 
   getServiceUrl(plural: boolean = false): string {
+    const currentUser = this.authenticationService.getCurrentUser();
+    const urlStart = (currentUser != null) ? '/api' : '/publicapi'
     const addPlural = (plural) ? 's' : '';
-    return `/api/tournament/${this.tournamentId}/tournamentevent${addPlural}`;
+    return `${urlStart}/tournament/${this.tournamentId}/tournamentevent${addPlural}`;
   }
 
   getAll(): Observable<TournamentEvent[]> {

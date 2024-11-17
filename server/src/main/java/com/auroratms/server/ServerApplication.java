@@ -76,7 +76,7 @@ public class ServerApplication {
                 resolver.setAllowUriQueryParameter(true);
 
                 http.authorizeRequests()
-                        .antMatchers("/", "/ui/**",
+                        .antMatchers("/", "/ui/**", "/publicapi/**",
                                 "/images/**", "/api/users/**", fileRepoUrlPattern,
                                 "/index.html", "/*.css", "/*.css.map", "/*.ico", "/*.js", "/*.js.map", "/assets/**")
                         .permitAll()

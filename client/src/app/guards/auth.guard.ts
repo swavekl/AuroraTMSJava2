@@ -1,5 +1,5 @@
 import {Injectable, inject} from '@angular/core';
-import {Router, ActivatedRouteSnapshot, RouterStateSnapshot, CanActivateFn} from '@angular/router';
+import {Router, ActivatedRouteSnapshot, RouterStateSnapshot, CanActivateFn, UrlSegment} from '@angular/router';
 import {AuthenticationService} from '../user/authentication.service';
 
 @Injectable({
@@ -29,7 +29,23 @@ export class AuthGuardService  {
       return true;
     } else {
       // not logged in so redirect to login page with the return url
-      this.router.navigate(['/ui/login'], {queryParams: {returnUrl: state.url}});
+      // unless it is one of the public routes
+      if (this.isPublicRoute(route.url)) {
+        return true;
+      } else {
+        this.router.navigate(['/ui/login'], {queryParams: {returnUrl: state.url}});
+        return false;
+      }
+    }
+  }
+
+  private isPublicRoute(urlSegments: UrlSegment[]): boolean {
+    if (urlSegments != null) {
+      const publicPlayerList = urlSegments.filter((segment: UrlSegment) => {
+        return 'playerlist' === segment.path;
+      });
+      return (publicPlayerList.length > 0);
+    } else {
       return false;
     }
   }
