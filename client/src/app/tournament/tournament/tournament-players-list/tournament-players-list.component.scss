@@ -42,6 +42,12 @@ th {
     padding-bottom: 16px;
   }
 
+  &.entries-count-footer {
+    text-align: left;
+    border-top: 1px solid black;
+    font-size: 18px;
+    padding-top: 10px;
+  }
 }
 
 table:not(#by-events-table):not(#by-club-table) tbody {

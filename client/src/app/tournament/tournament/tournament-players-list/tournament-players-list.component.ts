@@ -17,7 +17,13 @@ export class TournamentPlayersListComponent implements OnInit, OnChanges {
   tournamentEvents: TournamentEvent[];
 
   @Input()
+  tournamentName: string;
+
+  @Input()
   tournamentStartDate: Date;
+
+  @Input()
+  tournamentEndDate: Date;
 
   // tournament events with players in them
   tournamentEventsWithPlayers: TournamentEventWithPlayers[];
@@ -46,7 +52,11 @@ export class TournamentPlayersListComponent implements OnInit, OnChanges {
     if (entryInfosChange) {
       const entryInfos: TournamentEntryInfo [] = entryInfosChange.currentValue;
       if (entryInfos) {
-        this.entryInfos = this.sortEntries(entryInfos);
+        const nonEmptyEntryInfos: TournamentEntryInfo [] = entryInfos.filter(
+          (tournamentEntryInfo: TournamentEntryInfo) => {
+            return tournamentEntryInfo.eventIds != null;
+          });
+        this.entryInfos = this.sortEntries(nonEmptyEntryInfos);
       }
     }
 

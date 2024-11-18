@@ -1,5 +1,6 @@
 <div style="padding: 8px 8px">
   <div fxLayout="column" fxLayoutAlign="center center">
+    <div class="mat-headline-6">{{tournamentName}}</div>
     <div>
       <mat-label>Sort by:&nbsp;&nbsp;&nbsp;</mat-label>
     </div>
@@ -39,6 +40,11 @@
             <td class="player-events" fxShow.gt-sm="true" fxShow.sm="true" fxHide.lt-sm="true">{{getPlayerEventList(info.eventIds)}}</td>
           </tr>
         </tbody>
+        <tfoot *ngIf="entryInfos != null">
+          <tr>
+            <th class="entries-count-footer" colspan="4">Total Players: {{ entryInfos?.length }}</th>
+          </tr>
+        </tfoot>
       </table>
     </div>
     <div *ngIf="sortBy === 'event'">

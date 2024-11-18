@@ -20,6 +20,8 @@ import {HttpClient} from '@angular/common/http';
     <app-tournament-players-list [entryInfos]="entryInfos$ | async"
                                  [tournamentEvents]="tournamentEvents$ | async"
                                  [tournamentStartDate]="tournamentStartDate$ | async"
+                                 [tournamentEndDate]="tournamentEndDate$ | async"
+                                 [tournamentName]="tournamentName$ | async"
     ></app-tournament-players-list>
   `,
   styles: []
@@ -31,6 +33,8 @@ export class TournamentPlayersListContainerComponent implements OnInit, OnDestro
   entryInfos$: Observable<TournamentEntryInfo[]>;
   tournamentEvents$: Observable<TournamentEvent[]>;
   tournamentStartDate$: Observable<Date>;
+  tournamentEndDate$: Observable<Date>;
+  tournamentName$: Observable<string>;
 
   loading$: Observable<boolean>;
 
@@ -156,6 +160,12 @@ export class TournamentPlayersListContainerComponent implements OnInit, OnDestro
       // console.log('Tournament start date PASSED from previous screen');
       const tournamentStartDate = new DateUtils().convertFromString(strTournamentStartDate);
       this.tournamentStartDate$ = of(tournamentStartDate);
+      const strTournamentEndDate = history?.state?.tournamentEndDate;
+      if (strTournamentEndDate != null) {
+        const tournamentEndDate = new DateUtils().convertFromString(strTournamentEndDate);
+        this.tournamentEndDate$ = of(tournamentEndDate);
+      }
+      this.tournamentName$ = of(history?.state?.tournamentName);
     } else {
       const currentUser = this.authenticationService.getCurrentUser();
       if (currentUser == null) {
@@ -176,6 +186,9 @@ export class TournamentPlayersListContainerComponent implements OnInit, OnDestro
                 // console.log('got tournamentInfo from cache for START_DATE');
                 const tournamentStartDate2 = new DateUtils().convertFromString(tournamentInfo.startDate);
                 this.tournamentStartDate$ = of(tournamentStartDate2);
+                const tournamentEndDate2 = new DateUtils().convertFromString(tournamentInfo.endDate);
+                this.tournamentEndDate$ = of(tournamentEndDate2);
+                this.tournamentName$ = of(tournamentInfo.name);
               } else {
                 // console.log('tournamentInfo not in cache. getting from SERVER');
                 // not in cache so get it. Since it is an entity collection it will be
@@ -195,6 +208,9 @@ export class TournamentPlayersListContainerComponent implements OnInit, OnDestro
       if (tournamentInfo != null) {
         const tournamentStartDate2 = new DateUtils().convertFromString(tournamentInfo.startDate);
         this.tournamentStartDate$ = of(tournamentStartDate2);
+        const tournamentEndDate2 = new DateUtils().convertFromString(tournamentInfo.endDate);
+        this.tournamentEndDate$ = of(tournamentEndDate2);
+        this.tournamentName$ = of(tournamentInfo.name);
       }
     });
   }

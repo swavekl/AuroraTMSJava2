@@ -185,7 +185,9 @@ export class TournamentViewComponent implements OnInit, OnChanges {
     // to prevent going to the server for it
     const extras = {
       state: {
-        tournamentStartDate: this.tournament.startDate
+        tournamentStartDate: this.tournament.startDate,
+        tournamentEndDate: this.tournament.endDate,
+        tournamentName: this.tournament.name
       }
     };
     this.router.navigateByUrl(url, extras);

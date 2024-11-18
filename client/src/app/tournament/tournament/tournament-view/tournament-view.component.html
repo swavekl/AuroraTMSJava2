@@ -29,7 +29,7 @@
           <tr>
             <td class="text-column mat-headline-6">
               <a [routerLink]="['/ui/tournaments/playerlist', tournament.id]"
-                 [state]="{ tournamentStartDate: this.tournament.startDate}">
+                 [state]="{ tournamentStartDate: this.tournament.startDate, tournamentEndDate: this.tournament.endDate, tournamentName: this.tournament.name}">
                 <span class="mat-headline-6">{{ tournament.numEntries }} players ({{percentFull | percent}} full)</span>
               </a>
               <div>&nbsp;</div>
