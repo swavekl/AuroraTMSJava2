@@ -6,6 +6,7 @@ import {Subscription} from 'rxjs';
 import {LinearProgressBarService} from '../../shared/linear-progress-bar/linear-progress-bar.service';
 import {PasswordCriteria} from '../password-criteria';
 import {Router} from '@angular/router';
+import {TitleCasePipe} from '@angular/common';
 
 @Component({
   selector: 'app-register',
@@ -52,38 +53,53 @@ export class RegisterComponent implements OnInit, OnDestroy {
   }
 
   register() {
-    this.registrationInProgress = true;
-    this.linearProgressBarService.setLoading(true);
+    // make the names properly cased i.e. first letter upper case, the rest lower case
+    // iPhone users type them all in uppercase
+    const titleCasePipe = new TitleCasePipe();
+    let firstName = titleCasePipe.transform(this.firstName);
+    let lastName = titleCasePipe.transform(this.lastName);
+    firstName = firstName.trim();
+    lastName = lastName.trim();
+    // console.log(`'${firstName}' '${lastName}'`);
+    if (firstName.length > 0 && lastName.length > 0) {
+      this.registrationInProgress = true;
+      this.linearProgressBarService.setLoading(true);
 
-    const subscription = this.authenticationService.register(this.firstName, this.lastName, this.email, this.password, this.password2, this.registerByTD)
-      .pipe(first())
-      .subscribe(
-        (profileId: string) => {
-          this.message = '';
-          this.registrationInProgress = false;
-          this.registrationCompleted = true;
-          this.linearProgressBarService.setLoading(false);
-          if (this.registerByTD) {
-            const extras = {
-              state: {
-                initializingProfile: true,
-                forwardUrl: `/ui/tournaments/playerlistbig/${this.tournamentId}`,
-                returnUrl: `/ui/entries/entryadd/${this.tournamentId}/${profileId}`
+      const subscription = this.authenticationService.register(firstName, lastName, this.email, this.password, this.password2, this.registerByTD)
+        .pipe(first())
+        .subscribe(
+          {
+            next: (profileId: string) => {
+              this.message = '';
+              this.registrationInProgress = false;
+              this.registrationCompleted = true;
+              this.linearProgressBarService.setLoading(false);
+              if (this.registerByTD) {
+                const extras = {
+                  state: {
+                    initializingProfile: true,
+                    forwardUrl: `/ui/tournaments/playerlistbig/${this.tournamentId}`,
+                    returnUrl: `/ui/entries/entryadd/${this.tournamentId}/${profileId}`
+                  }
+                };
+                this.router.navigateByUrl(`/ui/userprofile/edit/${profileId}`, extras);
+              } else {
+                this.okMessage = `Account activation email was sent to ${this.email ? this.email : 'your'}.</p><p>Please allow up to 1 minute for email to arrive and if you still cannot find it, check your SPAM or JUNK</span> folder.</p><p>Look for email from Okta with title 'Welcome to TTAurora'.`;
               }
-            };
-            this.router.navigateByUrl(`/ui/userprofile/edit/${profileId}`, extras);
-          } else {
-            this.okMessage = `Account activation email was sent to ${this.email ? this.email : 'your'} email account.  If you cannot find the email, please check your Spam or Junk folder.</p><p>Please follow instruction in the email to continue.` ;
-          }
-        },
-        error => {
-            // console.log('error registering', error);
-            this.message = error.error;
-            this.okMessage = '';
-          this.registrationInProgress = false;
-          this.linearProgressBarService.setLoading(false);
-        });
-    this.subscription.add(subscription);
+            },
+            error: error => {
+              // console.log('error registering', error);
+              this.message = error.error;
+              this.okMessage = '';
+              this.registrationInProgress = false;
+              this.linearProgressBarService.setLoading(false);
+            }
+          });
+      this.subscription.add(subscription);
+    } else {
+      this.message = 'Please provide non-empty first and last name';
+      this.okMessage = '';
+    }
   }
 
   ngOnDestroy(): void {

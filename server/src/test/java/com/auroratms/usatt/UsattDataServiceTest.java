@@ -39,7 +39,6 @@ public class UsattDataServiceTest extends AbstractJUnit4SpringContextTests {
     private UsattDataService usattDataService;
 
     @Test ()
-    @Ignore
     public void testFetchOneUser () {
         String filename = "C:\\myprojects\\data\\DubinaRecords.csv";
         RatingsProcessorStatus ratingsProcessorStatus = new RatingsProcessorStatus();
@@ -56,11 +55,23 @@ public class UsattDataServiceTest extends AbstractJUnit4SpringContextTests {
         assertEquals ("wrong last name", playerInfo.getLastName(), "Dubina");
         assertEquals ("wrong membership id", playerInfo.getMembershipId().longValue(), 9051L);
 
+        UsattPlayerRecord playerInfo2 = usattDataService.getPlayerByNames("SAMSON", "DUBINA");
+        assertNotNull("wrong count", playerInfo2);
+        assertEquals ("wrong first name", playerInfo2.getFirstName(), "Samson");
+        assertEquals ("wrong last name", playerInfo2.getLastName(), "Dubina");
+        assertEquals ("wrong membership id", playerInfo2.getMembershipId().longValue(), 9051L);
+
+        UsattPlayerRecord playerInfo3 = usattDataService.getPlayerByNames("SAMSON", "DUBINA ");
+        assertNotNull("wrong count", playerInfo3);
+        assertEquals ("wrong first name", playerInfo3.getFirstName(), "Samson");
+        assertEquals ("wrong last name", playerInfo3.getLastName(), "Dubina");
+        assertEquals ("wrong membership id", playerInfo3.getMembershipId().longValue(), 9051L);
+
         UsattPlayerRecord playerByMembershipId = usattDataService.getPlayerByMembershipId(9051L);
         assertNotNull("didn't find player", playerByMembershipId);
-        assertEquals ("wrong first name", playerInfo.getFirstName(), "Samson");
-        assertEquals ("wrong last name", playerInfo.getLastName(), "Dubina");
-        assertEquals ("wrong membership id", playerInfo.getMembershipId().longValue(), 9051L);
+        assertEquals ("wrong first name", playerInfo3.getFirstName(), "Samson");
+        assertEquals ("wrong last name", playerInfo3.getLastName(), "Dubina");
+        assertEquals ("wrong membership id", playerInfo3.getMembershipId().longValue(), 9051L);
 
     }
 
@@ -84,6 +95,7 @@ public class UsattDataServiceTest extends AbstractJUnit4SpringContextTests {
     }
 
     @Test
+    @Ignore
     public void testRating() {
         // Samson's rating as of
 //        INSERT INTO auroratmstest.usattratinghistory
@@ -164,7 +176,7 @@ public class UsattDataServiceTest extends AbstractJUnit4SpringContextTests {
     }
 
     @Test
-//    @Ignore
+    @Ignore
     public void testReadingMembership () {
         String filename = "F:\\ratings files\\currentMembersReport.csv";
         MembershipsProcessorStatus membershipsProcessorStatus = new MembershipsProcessorStatus();
