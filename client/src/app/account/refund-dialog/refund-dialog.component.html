@@ -22,7 +22,7 @@
     </button>
     <span fxFlex></span>
     <button [style.display]="refundComplete ? 'none' : 'block'" mat-raised-button color="primary" type="submit"
-            (click)="onSubmit()" debounceClicks
+            (debounceClick)="onSubmit()" debounceClicks
             [disabled]="this.refundInProgress$ | async">
       Submit
     </button>
