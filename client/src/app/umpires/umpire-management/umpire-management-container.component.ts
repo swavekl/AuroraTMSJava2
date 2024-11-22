@@ -84,6 +84,10 @@ export class UmpireManagementContainerComponent implements OnInit, OnDestroy {
                 });
               }
               this.umpireList = availableUmpires;
+            } else {
+              this.tournamentName = null;
+              this.tournamentId = 0;
+              this.tournamentDay = 1;
             }
           }
         ))
