@@ -313,7 +313,7 @@ public class UmpiringService {
     private boolean wasAssistantUmpire(String umpireProfileId, long matchId, List<UmpireWork> umpireWorkEntities) {
         for (UmpireWork umpireWorkEntity : umpireWorkEntities) {
             if (umpireWorkEntity.getMatchFk() == matchId) {
-                if (umpireWorkEntity.getUmpireProfileId().equals(umpireProfileId)) {
+                if (StringUtils.equals(umpireWorkEntity.getAssistantUmpireProfileId(), umpireProfileId)) {
                     return true;
                 }
             }
