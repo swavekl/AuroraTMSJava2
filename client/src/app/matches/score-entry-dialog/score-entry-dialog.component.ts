@@ -295,6 +295,31 @@ export class ScoreEntryDialogComponent implements OnInit {
     dialogRef.afterClosed().subscribe(result => {
     });
   }
+
+  onFlipScore() {
+    const flippedMatch = {
+      ...this.match,
+      game1ScoreSideA : this.match.game1ScoreSideB,
+      game1ScoreSideB : this.match.game1ScoreSideA,
+      game2ScoreSideA : this.match.game2ScoreSideB,
+      game2ScoreSideB : this.match.game2ScoreSideA,
+      game3ScoreSideA : this.match.game3ScoreSideB,
+      game3ScoreSideB : this.match.game3ScoreSideA,
+      game4ScoreSideA : this.match.game4ScoreSideB,
+      game4ScoreSideB : this.match.game4ScoreSideA,
+      game5ScoreSideA : this.match.game5ScoreSideB,
+      game5ScoreSideB : this.match.game5ScoreSideA,
+      game6ScoreSideA : this.match.game6ScoreSideB,
+      game6ScoreSideB : this.match.game6ScoreSideA,
+      game7ScoreSideA : this.match.game7ScoreSideB,
+      game7ScoreSideB : this.match.game7ScoreSideA,
+      sideADefaulted : this.match.sideBDefaulted,
+      sideBDefaulted : this.match.sideADefaulted
+    }
+    this.dirty = true;
+    this.anyMatchChanged = true;
+    this.match = flippedMatch;
+  }
 }
 
 

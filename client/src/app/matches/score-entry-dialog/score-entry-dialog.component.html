@@ -79,9 +79,11 @@
     <span fxFlex></span>
     <button mat-raised-button (click)="onReset()" [tabindex]="(numberOfGames * 2) + 3">Clear</button>
     <span fxFlex></span>
-    <button mat-raised-button (click)="onPrevious(f.value)" [disabled]="disablePreviousButton" [tabindex]="(numberOfGames * 2) + 4">Save & Previous</button>
-    <button mat-raised-button (click)="onNext(f.value)" [disabled]="disableNextButton" [tabindex]="(numberOfGames * 2) + 5">Save & Next</button>
+    <button mat-raised-button (click)="onFlipScore()" [tabindex]="(numberOfGames * 2) + 4">Flip Score</button>
     <span fxFlex></span>
-    <button mat-raised-button color="primary" (click)="onSave(f.value)" [tabindex]="(numberOfGames * 2) + 6">Save</button>
+    <button mat-raised-button (click)="onPrevious(f.value)" [disabled]="disablePreviousButton" [tabindex]="(numberOfGames * 2) + 5">Save & Previous</button>
+    <button mat-raised-button (click)="onNext(f.value)" [disabled]="disableNextButton" [tabindex]="(numberOfGames * 2) + 6">Save & Next</button>
+    <span fxFlex></span>
+    <button mat-raised-button color="primary" (click)="onSave(f.value)" [tabindex]="(numberOfGames * 2) + 7">Save</button>
 </mat-dialog-actions>
 
