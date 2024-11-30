@@ -162,8 +162,8 @@ public class RankingReportService {
         } else {
             rankedEvents = new ArrayList<>();
             for (TournamentEvent tournamentEvent : allTournamentEvents) {
-                if (tournamentEvent.getName().equals("Open Singles") || tournamentEvent.getName().equals("Womens")) {
-//                if (!tournamentEvent.getEligibilityRestriction().equals(EligibilityRestriction.OPEN)) {
+//                if (tournamentEvent.getName().equals("Open Singles") || tournamentEvent.getName().equals("Womens")) {
+                if (!tournamentEvent.getEligibilityRestriction().equals(EligibilityRestriction.OPEN)) {
                     rankedEvents.add(tournamentEvent);
                 }
             }
