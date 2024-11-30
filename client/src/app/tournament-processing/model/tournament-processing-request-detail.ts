@@ -25,6 +25,7 @@ export class TournamentProcessingRequestDetail {
   pathMembershipList: string;
   pathMatchResults: string;
   pathDeclarationOfCompliance: string;
+  pathRankingReport: string;
 
   // flags to indicate which reports to generate
   generateTournamentReport: boolean;
@@ -33,6 +34,10 @@ export class TournamentProcessingRequestDetail {
   generateMatchResults: boolean;
   generateMembershipList: boolean;
   generateDeclarationOfCompliance: boolean;
+  // State or regional championship ranking report
+  generateRankingReport: boolean;
+  // tournament id assigned by USATT to this tournament
+  rankingReportTournamentId: number;
 
   // id of the payment used to pay for this request (i.e. tournament report)
   paymentId: number;

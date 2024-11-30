@@ -24,6 +24,10 @@ export class GenerateReportsDialogComponent implements OnInit {
   public generateMatchResults: boolean;
   public generateMembershipList: boolean;
   public generateDeclarationOfCompliance: boolean;
+  // State or regional championship ranking report
+  public generateRankingReport: boolean;
+  // tournament id assigned by USATT to this tournament
+  public rankingReportTournamentId: number;
 
   constructor(public dialogRef: MatDialogRef<GenerateReportsDialogComponent>) { }
 
@@ -36,7 +40,8 @@ export class GenerateReportsDialogComponent implements OnInit {
       formValues.generatePlayerList ||
       formValues.generateMatchResults ||
       formValues.generateMembershipList ||
-      formValues.generateDeclarationOfCompliance;
+      formValues.generateDeclarationOfCompliance ||
+      formValues.generateRankingReport;
   }
 
   onOk(formValues): void {
@@ -49,7 +54,9 @@ export class GenerateReportsDialogComponent implements OnInit {
       generatePlayerList: formValues.generatePlayerList,
       generateMatchResults: formValues.generateMatchResults,
       generateMembershipList: formValues.generateMembershipList,
-      generateDeclarationOfCompliance: formValues.generateDeclarationOfCompliance
+      generateDeclarationOfCompliance: formValues.generateDeclarationOfCompliance,
+      generateRankingReport: formValues.generateRankingReport,
+      rankingReportTournamentId: formValues.rankingReportTournamentId
     });
   }
 

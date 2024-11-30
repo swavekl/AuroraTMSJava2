@@ -21,6 +21,9 @@
       <mat-checkbox name="generateDeclarationOfCompliance" [(ngModel)]="generateDeclarationOfCompliance">
         Declaration of Compliance
       </mat-checkbox>
+      <mat-checkbox name="generateRankingReport" [(ngModel)]="generateRankingReport">
+        Ranking report
+      </mat-checkbox>
     </div>
     <div fxFlex="60%" fxLayout="column" fxLayoutAlign="start start">
       <mat-form-field fxFlexFill>
@@ -33,7 +36,15 @@
         <mat-label>Last 4 Digits of Credit Card on File</mat-label>
         <input matInput type="text" name="ccLast4Digits" placeholder="1234"
                [(ngModel)]="ccLast4Digits" maxlength="4" pattern="\d{0,4}">
-        <mat-error *ngIf="f.form.controls['ccLast4Digits']?.errors?.pattern">Invalid cc number</mat-error>    </mat-form-field>
+        <mat-error *ngIf="f.form.controls['ccLast4Digits']?.errors?.pattern">Invalid cc number</mat-error>
+      </mat-form-field>
+      <mat-form-field fxFlexFill>
+        <mat-label>Ranking Report Tournament Id</mat-label>
+        <input matInput type="text" name="rankingReportTournamentId" placeholder="36"
+               [required]="generateRankingReport" [disabled]="!generateRankingReport"
+               [(ngModel)]="rankingReportTournamentId" maxlength="4" pattern="\d{0,4}">
+        <mat-error *ngIf="f.form.controls['rankingReportTournamentId']?.errors?.pattern">Invalid tournament report</mat-error>
+      </mat-form-field>
     </div>
   </form>
 </mat-dialog-content>
