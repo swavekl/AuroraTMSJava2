@@ -314,7 +314,7 @@ public class EventEntryStatusService {
         EventEntryCommand eventEntryCommand = eventEntryInfo.getEventEntryCommand();
         EventEntryStatus currentStatus = (eventEntryInfo.getEventEntryFk() != null) ? eventEntryInfo.getStatus() : EventEntryStatus.NOT_ENTERED;
         EventEntryStatus nextEventEntryStatus = determineNextStatus(currentStatus, eventEntryCommand);
-        log.info(String.format("Changing status for event entry for tournament entry id %d, cart session id %s", tournamentEntryId, eventEntryInfo.getCartSessionId()));
+        log.info(String.format("Changing status for event entry for tournament entry id %d, into event with id %d, cart session id %s", tournamentEntryId, eventEntryInfo.getEventFk(), eventEntryInfo.getCartSessionId()));
         log.info(String.format("Event entry with id %d status from %s to %s due to command %s.",
                 eventEntryInfo.getEventEntryFk(), currentStatus, nextEventEntryStatus, eventEntryCommand));
         TournamentEventEntry eventEntry = null;
