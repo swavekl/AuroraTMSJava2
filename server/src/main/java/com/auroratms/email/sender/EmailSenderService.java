@@ -188,13 +188,17 @@ public class EmailSenderService {
                 message.setText(body);
                 javaMailSender.send(message);
                 campaignSendingStatus.totalSent++;
+                if (campaignSendingStatus.totalSent % 5 == 0) {
+                    log.info("Sent " + campaignSendingStatus.totalSent + " emails");
+                }
             } catch (MailException e) {
+                log.error("Error sending email to " + recipient.getFirstName() + " " + recipient.getLastName() + " email " + recipient.getEmailAddress());
                 campaignSendingStatus.totalErrors++;
             }
         }
         campaignSendingStatus.endTime = System.currentTimeMillis();
         long duration = campaignSendingStatus.endTime - campaignSendingStatus.startTime;
-        log.info("Finished sending emails in " + duration + " ms.");
+        log.info("Finished sending emails in " + duration + " ms. Total sent " + campaignSendingStatus.totalSent + ", errors " + campaignSendingStatus.totalErrors);
         // update status
         emailCampaign.setEmailsCount(campaignSendingStatus.totalSent);
         this.emailCampaignService.save(emailCampaign);
