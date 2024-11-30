@@ -56,6 +56,10 @@
                 [matTooltip]="isUserLockedOut(userProfile) ? 'Unlock' : ''" style="margin-right: 20px" >
           <mat-icon matListItemIcon>lock_open</mat-icon>
         </button>
+        <button *ngIf="isUserSuspended(userProfile)" mat-icon-button (click)="onActivateUser(userProfile)" [disabled]="!isUserSuspended(userProfile)"
+                [matTooltip]="isUserSuspended(userProfile) ? 'Activate' : ''" style="margin-right: 20px" >
+          <mat-icon matListItemIcon>verified_user</mat-icon>
+        </button>
       </mat-cell>
     </ng-container>
     <mat-header-row *matHeaderRowDef="displayColumns; sticky: true"></mat-header-row>

@@ -127,6 +127,29 @@ export class UserListComponent {
       );
   }
 
+  isUserSuspended (profile: Profile) {
+    return profile?.userStatus === 'SUSPENDED';
+  }
+
+  onActivateUser(profile: Profile) {
+    this.profileService.activateProfile(profile)
+      .pipe(first())
+      .subscribe({
+          next: (updatedProfile: Profile) => {
+            // refresh the page
+            this.dataSource.loadPage(null);
+          },
+          error: (error: any) => {
+            try {
+              const msg = JSON.parse(error.error.text);
+              console.error(msg);
+            } catch (e) {
+            }
+          }
+        }
+      );
+  }
+
   getStatusList(): string [] {
     return OktaUserStatusPipe.getAllStatus();
   }

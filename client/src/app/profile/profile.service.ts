@@ -148,6 +148,25 @@ export class ProfileService {
     );
   }
 
+  activateProfile(profile: Profile): Observable<Profile> {
+    this.setLoading(true);
+    const url = `${this.baseUrl}/${profile.userId}/activate`;
+    return this.http.put<Profile>(url, profile, {
+      headers: new HttpHeaders({
+        'Content-Type': 'application/json'
+      })
+    }).pipe(
+      tap({
+        next: () => {
+          this.setLoading(false);
+        },
+        error: err => {
+          this.setLoading(false);
+        }
+      })
+    );
+  }
+
   getUserRoles(profileId: string): Observable<string[]> {
     this.setLoading(true);
     const url = `${this.baseUrl}/${profileId}/roles`;
