@@ -63,6 +63,9 @@ public class ReportEventListener {
     private DeclarationOfComplianceReportService declarationOfComplianceReportService;
 
     @Autowired
+    private RankingReportService rankingReportService;
+
+    @Autowired
     private FileRepositoryFactory fileRepositoryFactory;
 
     @Autowired
@@ -200,6 +203,12 @@ public class ReportEventListener {
                     String path = this.declarationOfComplianceReportService.generateReport(tournamentId);
                     String repositoryUrl = copyReportsToRepository(path, repositoryFolder);
                     detail.setPathDeclarationOfCompliance(repositoryUrl);
+                }
+
+                if (detail.isGenerateRankingReport()) {
+                    String path = rankingReportService.generateReport(tournamentId, detail.getRankingReportTournamentId());
+                    String repositoryUrl = copyReportsToRepository(path, repositoryFolder);
+                    detail.setPathRankingReport(repositoryUrl);
                 }
 
                 detail.setCreatedOn(createdOn);

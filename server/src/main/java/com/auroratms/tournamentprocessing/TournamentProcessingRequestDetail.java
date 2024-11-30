@@ -34,6 +34,7 @@ public class TournamentProcessingRequestDetail implements Serializable {
     private String pathMembershipList;
     private String pathMatchResults;
     private String pathDeclarationOfCompliance;
+    private String pathRankingReport;
 
     // flags to indicate which reports to generate
     private boolean generateTournamentReport;
@@ -44,6 +45,11 @@ public class TournamentProcessingRequestDetail implements Serializable {
 
     // Tournament Director Declaration of Compliance with USATT Safe Sport Policy
     private boolean generateDeclarationOfCompliance;
+
+    // State or regional championship ranking report
+    private boolean generateRankingReport;
+    // tournament id assigned by USATT to this tournament
+    private int rankingReportTournamentId;
 
     // id of the payment to pay for this request (i.e. tournament report)
     private Long paymentId;
@@ -217,5 +223,29 @@ public class TournamentProcessingRequestDetail implements Serializable {
 
     public void setGenerateDeclarationOfCompliance(boolean generateDeclarationOfCompliance) {
         this.generateDeclarationOfCompliance = generateDeclarationOfCompliance;
+    }
+
+    public String getPathRankingReport() {
+        return pathRankingReport;
+    }
+
+    public void setPathRankingReport(String pathRankingReport) {
+        this.pathRankingReport = pathRankingReport;
+    }
+
+    public boolean isGenerateRankingReport() {
+        return generateRankingReport;
+    }
+
+    public void setGenerateRankingReport(boolean generateRankingReport) {
+        this.generateRankingReport = generateRankingReport;
+    }
+
+    public int getRankingReportTournamentId() {
+        return rankingReportTournamentId;
+    }
+
+    public void setRankingReportTournamentId(int rankingReportTournamentId) {
+        this.rankingReportTournamentId = rankingReportTournamentId;
     }
 }
