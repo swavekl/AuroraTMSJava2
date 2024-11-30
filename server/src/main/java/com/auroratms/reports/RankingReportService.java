@@ -162,8 +162,8 @@ public class RankingReportService {
         } else {
             rankedEvents = new ArrayList<>();
             for (TournamentEvent tournamentEvent : allTournamentEvents) {
-//                if (tournamentEvent.getName().equals("Open Singles") || tournamentEvent.getName().equals("Womens")) {
-                if (!tournamentEvent.getEligibilityRestriction().equals(EligibilityRestriction.OPEN)) {
+                if (tournamentEvent.getName().equals("Open Singles") || tournamentEvent.getName().equals("Womens")) {
+//                if (!tournamentEvent.getEligibilityRestriction().equals(EligibilityRestriction.OPEN)) {
                     rankedEvents.add(tournamentEvent);
                 }
             }
@@ -184,8 +184,10 @@ public class RankingReportService {
         List<MatchCard> singleEliminationEventMatchCards = matchCardService.findAllForEventAndDrawTypeWithPlayerMap(tournamentEvent.getId(), DrawType.SINGLE_ELIMINATION);
         int numberOfGames = tournamentEvent.getNumberOfGames();
         int pointsPerGame = tournamentEvent.getPointsPerGame();
+        int playersToAdvance = tournamentEvent.getPlayersToAdvance();
+        System.out.println("playersToAdvance = " + playersToAdvance);
         for (MatchCard matchCard : singleEliminationEventMatchCards) {
-            addMatchCardReportInfos(matchCard, reportLineInfos, numberOfGames, pointsPerGame);
+            addMatchCardReportInfos(matchCard, reportLineInfos, numberOfGames, pointsPerGame, playersToAdvance);
         }
 
         // sort 1st through nth place
@@ -195,7 +197,7 @@ public class RankingReportService {
         List<MatchCard> roundRobinEventMatchCards = matchCardService.findAllForEventAndDrawTypeWithPlayerMap(tournamentEvent.getId(), DrawType.ROUND_ROBIN);
         List<ReportLineInfo> rrReportLineInfos = new ArrayList<>();
         for (MatchCard matchCard : roundRobinEventMatchCards) {
-            addMatchCardReportInfos(matchCard, rrReportLineInfos, numberOfGames, pointsPerGame);
+            addMatchCardReportInfos(matchCard, rrReportLineInfos, numberOfGames, pointsPerGame, playersToAdvance);
         }
         // sort them by number of matches won - 2 first, 1 second.
         rrReportLineInfos.sort(Comparator.comparing(ReportLineInfo::getMatchesWon).reversed());
@@ -252,8 +254,9 @@ public class RankingReportService {
      * @param reportLineInfos
      * @param numberOfGames
      * @param pointsPerGame
+     * @param playersToAdvance
      */
-    private void addMatchCardReportInfos(MatchCard matchCard, List<ReportLineInfo> reportLineInfos, int numberOfGames, int pointsPerGame) {
+    private void addMatchCardReportInfos(MatchCard matchCard, List<ReportLineInfo> reportLineInfos, int numberOfGames, int pointsPerGame, int playersToAdvance) {
         Map<Integer, String> playerRankingsAsMap = matchCard.getPlayerRankingsAsMap();
         Map<String, String> profileIdToNameMap = matchCard.getProfileIdToNameMap();
         for (Integer rank : playerRankingsAsMap.keySet()) {
@@ -278,10 +281,18 @@ public class RankingReportService {
             System.out.println(playerName + " won " + reportLineInfo.getMatchesWon() + " matches.");
             reportLineInfo.rank = rank;
             reportLineInfo.strRank = getStrRank(reportLineInfo.round, reportLineInfo.rank, reportLineInfo.matchesWon, matchCard.getDrawType());
-            addReportLineInfo(reportLineInfo, reportLineInfos, matchCard.getDrawType());
+            addReportLineInfo(reportLineInfo, reportLineInfos, matchCard.getDrawType(), playersToAdvance);
         }
     }
 
+    /**
+     * Calculates number of matches won by the player with this profile id
+     * @param profileId
+     * @param matches
+     * @param numberOfGames
+     * @param pointsPerGame
+     * @return
+     */
     private int getMatchesWonCount(String profileId, List<Match> matches, int numberOfGames, int pointsPerGame) {
         int matchWonCount = 0;
         for (Match match : matches) {
@@ -301,8 +312,9 @@ public class RankingReportService {
      * @param reportLineInfoToAdd
      * @param reportLineInfos
      * @param drawType
+     * @param playersToAdvance
      */
-    private void addReportLineInfo(ReportLineInfo reportLineInfoToAdd, List<ReportLineInfo> reportLineInfos, DrawType drawType) {
+    private void addReportLineInfo(ReportLineInfo reportLineInfoToAdd, List<ReportLineInfo> reportLineInfos, DrawType drawType, int playersToAdvance) {
         Iterator<ReportLineInfo> iterator = reportLineInfos.iterator();
         boolean add = false;
         boolean foundAlready = false;
@@ -326,7 +338,7 @@ public class RankingReportService {
             add = true;
         } else if (drawType == DrawType.ROUND_ROBIN) {
             System.out.println("reportLineInfoToAdd = " + reportLineInfoToAdd.getRank() + " matchesWon " + reportLineInfoToAdd.getMatchesWon());
-            if (reportLineInfoToAdd.getRank() != 1 && reportLineInfoToAdd.getMatchesWon() >= 1) {
+            if (reportLineInfoToAdd.getRank() > playersToAdvance && reportLineInfoToAdd.getMatchesWon() >= 1) {
                 if (!foundAlready) {
                     add = true;
                 }
