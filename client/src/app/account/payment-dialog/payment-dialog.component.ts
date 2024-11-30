@@ -96,8 +96,11 @@ export class PaymentDialogComponent implements OnInit, OnDestroy {
   formGroup: UntypedFormGroup;
 
   // payment in progress indicator
-  private paymentInProgressSubject: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
-  paymentInProgress$: Observable<boolean>;
+  // private paymentInProgressSubject: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
+  // paymentInProgress$: Observable<boolean>;
+
+  // plain flag
+  paymentInProgress: boolean;
 
   // Stripe service
   stripeInstance: StripeInstance;
@@ -138,7 +141,8 @@ export class PaymentDialogComponent implements OnInit, OnDestroy {
     this.stripeInstance = data.stripeInstance;
     this.paymentRequest = data.paymentRequest;
     this.currencyCode = data.paymentRequest.currencyCode;
-    this.paymentInProgress$ = this.paymentInProgressSubject.asObservable().pipe(distinctUntilChanged());
+    // this.paymentInProgress$ = this.paymentInProgressSubject.asObservable().pipe(distinctUntilChanged());
+    this.paymentInProgress = false;
     this.creditCardValid = false;
     this.expirationDateValid = false;
     this.CVCValid = false;
@@ -159,7 +163,8 @@ export class PaymentDialogComponent implements OnInit, OnDestroy {
   }
 
   private setPaymentInProgress(inProgress: boolean) {
-    this.paymentInProgressSubject.next(inProgress);
+    // this.paymentInProgressSubject.next(inProgress);
+    this.paymentInProgress = inProgress;
   }
 
   ngOnDestroy(): void {
@@ -195,7 +200,7 @@ export class PaymentDialogComponent implements OnInit, OnDestroy {
    * Confirms the payment
    */
   onPay(): void {
-    if (this.isFormValid()) {
+    if (this.isFormValid() && !this.paymentInProgress) {
       this.setPaymentInProgress(true);
       // prepare data
       const postalCode = this.formGroup.value['postalCode'];

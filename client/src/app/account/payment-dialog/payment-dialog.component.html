@@ -41,7 +41,7 @@
     </div>
   </ngx-stripe-card-group>
   <div class="linear-progress-indicator">
-    <mat-progress-bar *ngIf="paymentInProgress$ | async; else elseblock" mode="indeterminate" color="accent"
+    <mat-progress-bar *ngIf="paymentInProgress; else elseblock" mode="indeterminate" color="accent"
                       style="height: 8px; width: 100%;"></mat-progress-bar>
     <ng-template #elseblock>
       <div style="height: 8px; width: 100%; background-color: white;"></div>
@@ -51,10 +51,10 @@
 </div>
 <mat-dialog-actions>
   <div fxLayout="row" fxLayoutAlign="space-between start" style="width: 100%; margin: 0 8px">
-    <button [style.display]="paymentComplete ? 'none' : 'block'" mat-raised-button (click)="onCancel()" [disabled]="this.paymentInProgress$ | async">Cancel</button>
+    <button [style.display]="paymentComplete ? 'none' : 'block'" mat-raised-button (click)="onCancel()" [disabled]="this.paymentInProgress">Cancel</button>
     <span fxFlex></span>
     <button [style.display]="paymentComplete ? 'none' : 'block'" mat-raised-button color="primary" type="submit" (debounceClick)="onPay()" debounceClicks
-            [disabled]="!this.isFormValid() || (this.paymentInProgress$ | async)">
+            [disabled]="!this.isFormValid() || this.paymentInProgress">
       Submit</button>
     <button [style.display]="!paymentComplete ? 'none' : 'block'" mat-raised-button color="primary" (click)="onClose()">
       Continue</button>
