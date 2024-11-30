@@ -228,11 +228,13 @@ public class UserProfileService {
                     if (profileObject != null && !profileObject.isJsonNull()) {
                         userProfile.setFirstName(getProfileValue(profileObject, "firstName"));
                         userProfile.setLastName(getProfileValue(profileObject, "lastName"));
+                        userProfile.setGender(getProfileValue(profileObject, "gender"));
                         userProfile.setZipCode(getProfileValue(profileObject, "zipCode"));
                         userProfile.setMobilePhone(getProfileValue(profileObject, "mobilePhone"));
                         userProfile.setState(getProfileValue(profileObject, "state"));
                         userProfile.setCountryCode(getProfileValue(profileObject, "countryCode"));
-                        userProfile.setEmail(getProfileValue(profileObject, "login"));
+                        userProfile.setLogin(getProfileValue(profileObject, "login"));
+                        userProfile.setEmail(getProfileValue(profileObject, "email"));
                         try {
                             String dateOfBirth = getProfileValue(profileObject, "birthdate");
                             if (dateOfBirth != null) {

@@ -304,4 +304,23 @@ public class UserProfileController extends AbstractOktaController {
             return ResponseEntity.internalServerError().build();
         }
     }
+
+    @PutMapping("/profiles/{userId}/activate")
+    @ResponseBody
+    @PreAuthorize("hasAuthority('TournamentDirectors') or hasAuthority('Admins')")
+    public ResponseEntity<UserProfile> activate(@RequestBody UserProfile userProfile,
+                                                @PathVariable String userId) {
+        try {
+            logger.info("Activating user named " + userProfile.getFirstName() + " " + userProfile.getLastName() + " with profileId " + userId );
+            String unlockUrl = oktaServiceBase + "/api/v1/users/" + userId + "/lifecycle/unsuspend";
+            String response = makePostRequest(unlockUrl, null);
+            // update profile so the cache gets evicted
+            UserProfile updatedProfile = userProfileService.updateProfile(userProfile);
+            return ResponseEntity.ok(updatedProfile);
+        } catch (IOException e) {
+            logger.error("Error activating user", e);
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
 }
