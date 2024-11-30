@@ -372,24 +372,49 @@ export class TableUsageComponent implements OnInit, OnChanges {
     }
   }
 
-  getTableTooltip(tableUsage: TableUsage): string {
-    const matchCardId = tableUsage.matchCardFk;
-    return this.getMatchIdentifierText(matchCardId);
+  getMatchIdentifier(tableUsage: TableUsage): string {
+    const matchCard = this.findMatchCard(tableUsage.matchCardFk);
+    if (matchCard != null) {
+      const eventName = this.getEventName(matchCard.eventFk);
+      return MatchCard.getFullMatchName(eventName, matchCard.drawType, matchCard.round, matchCard.groupNum);
+    } else {
+      return '';
+    }
   }
 
-  public getMatchIdentifierText(matchCardId: number) {
-    // console.log('getMatchIdentifierText ', matchCardId);
-    let matchIdentifierText = '';
+  getPlayerNames(tableUsage: TableUsage): string {
+    const matchCard = this.findMatchCard(tableUsage.matchCardFk);
+    if (matchCard != null) {
+      const separator = (matchCard.drawType === DrawType.SINGLE_ELIMINATION) ? ' vs ' : ' | ';
+      let playerNames: string = '';
+      for (const profileId in matchCard.profileIdToNameMap) {
+        playerNames += playerNames.length === 0 ? '': separator;
+        playerNames += matchCard.profileIdToNameMap[profileId];
+      }
+      return playerNames;
+    } else {
+      return '';
+    }
+  }
+
+  findMatchCard(matchCardId: number): MatchCard {
     if (this.allTodaysMatchCards && matchCardId !== 0) {
       for (let i = 0; i < this.allTodaysMatchCards.length; i++) {
         const matchCard = this.allTodaysMatchCards[i];
         if (matchCard.id === matchCardId) {
-          const eventName = this.getEventName(matchCard.eventFk);
-          matchIdentifierText = MatchCard.getFullMatchName(eventName, matchCard.drawType, matchCard.round, matchCard.groupNum);
-          break;
+          return matchCard;
         }
       }
-      // console.log(matchCardId + ' -> ' + matchIdentifierText);
+    }
+    return null;
+  }
+
+  public getMatchIdentifierText(matchCardId: number) {
+    let matchIdentifierText = '';
+    const matchCard = this.findMatchCard(matchCardId);
+    if (matchCard != null) {
+      const eventName = this.getEventName(matchCard.eventFk);
+      matchIdentifierText = MatchCard.getFullMatchName(eventName, matchCard.drawType, matchCard.round, matchCard.groupNum);
     }
     return matchIdentifierText;
   }

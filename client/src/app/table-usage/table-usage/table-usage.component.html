@@ -11,17 +11,24 @@
   <span class="toolbar-spacer-2"></span>
   <button type="button" mat-raised-button (click)="onStartEventMatches()" [disabled]="selectedEventId === 0">Start RR Matches</button>
   <span class="toolbar-spacer-2"></span>
-  <button type="button" mat-raised-button (click)="onPrintEventMatchCards()" [disabled]="selectedEventId === 0">Print RR Match Cards</button>
-  <span class="toolbar-spacer-2"></span>
+<!--  <button type="button" mat-raised-button (click)="onPrintEventMatchCards()" [disabled]="selectedEventId === 0">Print RR Match Cards</button>-->
+<!--  <span class="toolbar-spacer-2"></span>-->
   <button type="button" mat-raised-button (click)="onStartSelectedMatch()" [disabled]="!isSelectedMatchReady()">Start Match</button>
   <span class="toolbar-spacer-2"></span>
-  <button type="button" mat-raised-button (click)="onPrintSelectedMatch()" [disabled]="this.selectedMatchCardIds?.length === 0">Print Match Card</button>
-  <span class="toolbar-spacer-2"></span>
+<!--  <button type="button" mat-raised-button (click)="onPrintSelectedMatch()" [disabled]="this.selectedMatchCardIds?.length === 0">Print Match Card</button>-->
+<!--  <span class="toolbar-spacer-2"></span>-->
   <button type="button" mat-raised-button (click)="onStopMatch()" [disabled]="this.selectedMatchCardIds?.length === 0">Stop Match</button>
   <span class="toolbar-spacer-2"></span>
-  <button type="button" mat-raised-button (click)="onMove()" [disabled]="this.selectedMatchCardIds?.length === 0">Move</button>
+  <button type="button" mat-raised-button (click)="onMove()" [disabled]="this.selectedMatchCardIds?.length === 0">Move Match</button>
   <span class="toolbar-spacer-2"></span>
   <button type="button" mat-raised-button (click)="onRefresh()">Refresh</button>
+  <span class="toolbar-spacer-2"></span>
+  <button mat-raised-button [matMenuTriggerFor]="printMenu">Print</button>
+  <mat-menu #printMenu="matMenu">
+    <button mat-menu-item (click)="onPrintEventMatchCards()" [disabled]="selectedEventId === 0" >Print RR Match Cards</button>
+    <button mat-menu-item (click)="onPrintSelectedMatch()" [disabled]="this.selectedMatchCardIds?.length === 0">Print Match Card</button>
+  </mat-menu>
+
 </mat-toolbar>
 <div fxLayout="row" class="table-usage">
   <div fxFlex="20%" class="matches-list">
@@ -45,10 +52,10 @@
         </div>
         <div [ngClass]="isTableSelected(tableUsage) ? 'selected-table-container' : 'table-container'" (click)="selectUsedTable(tableUsage)">
           <div class="table-top" [ngClass]="tableUsage.tableStatus === 'Free' ? 'table-free': 'table-in-use'"
-               [matTooltip]="getTableTooltip(tableUsage)" matTooltipPosition="below"
+               [matTooltip]="getPlayerNames(tableUsage)" matTooltipPosition="below"
                matTooltipClass="match-identifier-tooltip"
           >
-            <div>{{ getTableTooltip(tableUsage) }}</div>
+            <div>{{ getMatchIdentifier(tableUsage) }}</div>
           </div>
           <div class="table-net"></div>
           <div class="table-bottom" [ngClass]="tableUsage.tableStatus === 'Free' ? 'table-free': 'table-in-use'">

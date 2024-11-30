@@ -21,6 +21,7 @@ import {MatSlideToggleModule} from '@angular/material/slide-toggle';
 import {DragDropModule} from '@angular/cdk/drag-drop';
 import {MatchAssignmentDialogComponent} from './util/match-assignment-dialog.component';
 import {MatDialogModule} from '@angular/material/dialog';
+import {MatMenu, MatMenuItem, MatMenuTrigger} from '@angular/material/menu';
 
 
 @NgModule({
@@ -44,7 +45,10 @@ import {MatDialogModule} from '@angular/material/dialog';
     SharedModule,
     MatSlideToggleModule,
     DragDropModule,
-    MatDialogModule
+    MatDialogModule,
+    MatMenu,
+    MatMenuTrigger,
+    MatMenuItem
   ]
 })
 export class TableUsageModule {
