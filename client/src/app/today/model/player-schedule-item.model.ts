@@ -1,4 +1,5 @@
 import {PlayerDetail} from './player-detail.model';
+import {ScheduleItemStatus} from './schedule-item-status.model';
 
 /**
  * Information about the round-robin round group opponents
@@ -36,4 +37,7 @@ export class PlayerScheduleItem {
 
   // details of each player in this item (group or match)
   playerDetails: PlayerDetail[];
+
+  // status of this schedule item to let player know if he/she can start playing
+  status: ScheduleItemStatus;
 }

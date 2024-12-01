@@ -4,6 +4,7 @@ import {PlayerDaySchedule} from '../model/player-day-schedule.model';
 import {TournamentInfo} from '../../tournament/model/tournament-info.model';
 import {Router} from '@angular/router';
 import {DateUtils} from '../../shared/date-utils';
+import {ScheduleItemStatus} from '../model/schedule-item-status.model';
 
 @Component({
   selector: 'app-player-schedule',
@@ -95,5 +96,17 @@ export class PlayerScheduleComponent implements OnInit, OnChanges {
 
   back() {
     this.router.navigateByUrl('/ui/home');
+  }
+
+  getStatusColor(status: ScheduleItemStatus) {
+    switch (status) {
+      case ScheduleItemStatus.NotReady: return 'orange';
+      case ScheduleItemStatus.NotStarted: return 'red';
+      case ScheduleItemStatus.Started: return 'green';
+      case ScheduleItemStatus.InProgress: return 'blue';
+      case ScheduleItemStatus.Completed: return 'purple';
+      default: return 'black';
+
+    }
   }
 }

@@ -10,8 +10,12 @@ import com.auroratms.match.MatchCard;
 import com.auroratms.match.MatchCardService;
 import com.auroratms.playerschedule.model.PlayerDetail;
 import com.auroratms.playerschedule.model.PlayerScheduleItem;
+import com.auroratms.playerschedule.model.ScheduleItemStatus;
 import com.auroratms.status.PlayerStatus;
 import com.auroratms.status.PlayerStatusService;
+import com.auroratms.tableusage.TableStatus;
+import com.auroratms.tableusage.TableUsage;
+import com.auroratms.tableusage.TableUsageService;
 import com.auroratms.tournament.CheckInType;
 import com.auroratms.tournament.Tournament;
 import com.auroratms.tournament.TournamentService;
@@ -20,6 +24,7 @@ import com.auroratms.tournamentevententry.TournamentEventEntryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.thymeleaf.util.StringUtils;
 
 import java.util.*;
 
@@ -47,6 +52,9 @@ public class PlayerScheduleService {
 
     @Autowired
     private TournamentService tournamentService;
+
+    @Autowired
+    private TableUsageService tableUsageService;
 
     /**
      * Gets player schedule for all days of the tournament he/she entered
@@ -83,6 +91,7 @@ public class PlayerScheduleService {
                         if (eventEntity.getId().equals(matchCard.getEventFk())) {
                             PlayerScheduleItem playerScheduleItem = toPlayerScheduleItem(matchCard, eventEntity,
                                     false);
+                            determineScheduleItemStatus(matchCard, eventEntity, playerScheduleItem);
                             playerScheduleItems.add(playerScheduleItem);
                             break;
                         }
@@ -101,6 +110,7 @@ public class PlayerScheduleService {
                                 if (eventEntity.getId().equals(matchCard.getEventFk())) {
                                     PlayerScheduleItem playerScheduleItem = toPlayerScheduleItem(matchCard, eventEntity,
                                             false);
+                                    determineScheduleItemStatus(matchCard, eventEntity, playerScheduleItem);
                                     playerScheduleItems.add(playerScheduleItem);
                                     found = true;
                                     break;
@@ -131,6 +141,51 @@ public class PlayerScheduleService {
         });
 
         return playerScheduleItems;
+    }
+
+    /**
+     * Calculates the status of a given match
+     *
+     * @param matchCard
+     * @param tournamentEvent
+     * @param playerScheduleItem
+     */
+    private void determineScheduleItemStatus(MatchCard matchCard, TournamentEvent tournamentEvent, PlayerScheduleItem playerScheduleItem) {
+        final String TBD_PROFILE_ID = "TBD";
+
+        boolean allPlayersDetermined = true;
+        List<Match> matches = matchCard.getMatches();
+        boolean anyScoreEntered = false;
+        for (Match match : matches) {
+            // check if all players are determined
+            if (match.getPlayerAProfileId().equals(TBD_PROFILE_ID) ||
+                    match.getPlayerBProfileId().equals(TBD_PROFILE_ID)) {
+                allPlayersDetermined = false;
+            }
+
+            // check if any game scores were entered
+            if (match.getGame1ScoreSideA() != 0 || match.getGame1ScoreSideB() != 0) {
+                anyScoreEntered = true;
+            }
+        }
+
+        ScheduleItemStatus scheduleItemStatus = ScheduleItemStatus.NotReady;
+        boolean rankingsDetermined = !StringUtils.isEmpty(matchCard.getPlayerRankings());
+        if (rankingsDetermined) {
+            scheduleItemStatus = ScheduleItemStatus.Completed;
+        } else if (anyScoreEntered) {
+            scheduleItemStatus = ScheduleItemStatus.InProgress;
+        } else if (allPlayersDetermined) {
+            boolean startedOnTables = false;
+            List<TableUsage> tableUsages = this.tableUsageService.findAllByMatchCardFk(matchCard.getId());
+            for (TableUsage tableUsage : tableUsages) {
+                if (tableUsage.getTableStatus() == TableStatus.InUse) {
+                    startedOnTables = true;
+                }
+            }
+            scheduleItemStatus = startedOnTables ? ScheduleItemStatus.Started : ScheduleItemStatus.NotStarted;
+        }
+        playerScheduleItem.setStatus(scheduleItemStatus);
     }
 
     /**

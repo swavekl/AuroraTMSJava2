@@ -43,4 +43,6 @@ public class PlayerScheduleItem {
     // details of each player in this item (group or match)
     private List<PlayerDetail> playerDetails;
 
+    // status of this schedule item to let player know if he/she can start playing
+    private ScheduleItemStatus status;
 }

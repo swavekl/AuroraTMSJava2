@@ -22,6 +22,8 @@
                       <span style="font-weight: bold">{{ playerScheduleItem.startTime | startTime }}</span>&nbsp;&nbsp;
                       <span
                         *ngIf="playerScheduleItem.assignedTables">{{ (playerScheduleItem.assignedTables.indexOf(',') !== -1) ? 'Tables:' : 'Table:'}} {{ playerScheduleItem.assignedTables}}</span>
+                    <span>&nbsp;&nbsp;Status: </span>
+                      <span [style.color]="getStatusColor(playerScheduleItem.status)">{{ playerScheduleItem.status }}</span>
                     </div>
                     <div matListItemLine>{{playerScheduleItem.eventName}}</div>
                     <div matListItemLine>
