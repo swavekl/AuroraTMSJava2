@@ -48,8 +48,12 @@ public class TableAvailabilityMatrix {
         int tableIndex = tableNum - 1;
         boolean[] tableTimeSlots = this.availableTableTimeSlotsMatrix[tableIndex];
         for (int i = startTimeSlotIndex; i < endTimeSlotIndex; i++) {
-            // mark it as unavailable
-            tableTimeSlots[i] = false;
+            if (startTimeSlotIndex >= 0 && endTimeSlotIndex < tableTimeSlots.length) {
+                // mark it as unavailable
+                tableTimeSlots[i] = false;
+            } else {
+                log.error("Unable to mark table " + tableNum + " time slot " + i + " as unavailable because index is out of range of " + tableTimeSlots.length);
+            }
         }
     }
 
