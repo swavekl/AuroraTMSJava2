@@ -100,11 +100,23 @@ export class PlayerScheduleComponent implements OnInit, OnChanges {
 
   getStatusColor(status: ScheduleItemStatus) {
     switch (status) {
-      case ScheduleItemStatus.NotReady: return 'orange';
+      case ScheduleItemStatus.NotReady: return 'black';
       case ScheduleItemStatus.NotStarted: return 'red';
       case ScheduleItemStatus.Started: return 'green';
       case ScheduleItemStatus.InProgress: return 'blue';
       case ScheduleItemStatus.Completed: return 'purple';
+      default: return 'black';
+
+    }
+  }
+
+  getStatusText(status: ScheduleItemStatus) {
+    switch (status) {
+      case ScheduleItemStatus.NotReady: return 'Not Ready';
+      case ScheduleItemStatus.NotStarted: return 'No Tables'; // 'Not Started';
+      case ScheduleItemStatus.Started: return 'Started';
+      case ScheduleItemStatus.InProgress: return 'In Progress';
+      case ScheduleItemStatus.Completed: return 'Completed';
       default: return 'black';
 
     }

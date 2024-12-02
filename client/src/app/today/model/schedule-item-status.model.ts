@@ -6,7 +6,7 @@ export enum ScheduleItemStatus {
   // match started on the table
   Started = 'Started',
   // some matches have been played already
-  InProgress = 'In Progress',
+  InProgress = 'InProgress',
   // all matches are completed
   Completed = 'Completed'
 }

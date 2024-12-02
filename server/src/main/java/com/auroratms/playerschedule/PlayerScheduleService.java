@@ -8,6 +8,7 @@ import com.auroratms.event.TournamentEventEntityService;
 import com.auroratms.match.Match;
 import com.auroratms.match.MatchCard;
 import com.auroratms.match.MatchCardService;
+import com.auroratms.match.MatchCardStatus;
 import com.auroratms.playerschedule.model.PlayerDetail;
 import com.auroratms.playerschedule.model.PlayerScheduleItem;
 import com.auroratms.playerschedule.model.ScheduleItemStatus;
@@ -151,21 +152,30 @@ public class PlayerScheduleService {
      * @param playerScheduleItem
      */
     private void determineScheduleItemStatus(MatchCard matchCard, TournamentEvent tournamentEvent, PlayerScheduleItem playerScheduleItem) {
-        final String TBD_PROFILE_ID = "TBD";
-
-        boolean allPlayersDetermined = true;
-        List<Match> matches = matchCard.getMatches();
+        // check if any game scores were entered which indicates that it is in progress
         boolean anyScoreEntered = false;
+        List<Match> matches = matchCard.getMatches();
         for (Match match : matches) {
-            // check if all players are determined
-            if (match.getPlayerAProfileId().equals(TBD_PROFILE_ID) ||
-                    match.getPlayerBProfileId().equals(TBD_PROFILE_ID)) {
-                allPlayersDetermined = false;
-            }
-
-            // check if any game scores were entered
             if (match.getGame1ScoreSideA() != 0 || match.getGame1ScoreSideB() != 0) {
                 anyScoreEntered = true;
+                break;
+            }
+        }
+
+        // first round after round robin will have names but the rounds feeding into it may be not finalized
+        boolean allPlayersDetermined = true;
+        if (matchCard.getDrawType() == DrawType.SINGLE_ELIMINATION) {
+            int playerAGroupNum = matchCard.getPlayerAGroupNum();
+            int playerBGroupNum = matchCard.getPlayerBGroupNum();
+            // todo - second S.E. round is fed from S.E. matches not RR matches
+            List<MatchCard> priorRoundMatchCards = matchCardService.findAllForEventAndDrawType(tournamentEvent.getId(), DrawType.ROUND_ROBIN);
+            for (MatchCard priorRoundMatchCard : priorRoundMatchCards) {
+                if (priorRoundMatchCard.getGroupNum() == playerAGroupNum || priorRoundMatchCard.getGroupNum() == playerBGroupNum) {
+                    if (priorRoundMatchCard.getStatus() != MatchCardStatus.COMPLETED) {
+                        allPlayersDetermined = false;
+                        break;
+                    }
+                }
             }
         }
 
