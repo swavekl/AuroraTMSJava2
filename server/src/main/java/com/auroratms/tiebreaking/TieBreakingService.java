@@ -450,8 +450,10 @@ public class TieBreakingService {
             PlayerTieBreakingInfo playerBTieBreakingInfo = getPlayerTieBreakingInfo(playerTieBreakingInfoList, playerBCode);
             List<Integer> playerAGamesList = (isPlayerAMatchWinner) ? winnerCompactMatchNotation : loserCompactMatchNotation;
             List<Integer> playerBGamesList = (isPlayerBMatchWinner) ? winnerCompactMatchNotation : loserCompactMatchNotation;
-            playerATieBreakingInfo.setMatchResult(playerBCode, playerAGamesList, playerAMatchStatus);
-            playerBTieBreakingInfo.setMatchResult(playerACode, playerBGamesList, playerBMatchStatus);
+            if (playerATieBreakingInfo != null)
+                playerATieBreakingInfo.setMatchResult(playerBCode, playerAGamesList, playerAMatchStatus);
+            if (playerBTieBreakingInfo != null)
+                playerBTieBreakingInfo.setMatchResult(playerACode, playerBGamesList, playerBMatchStatus);
         }
     }
 
