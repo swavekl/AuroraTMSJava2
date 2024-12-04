@@ -131,6 +131,9 @@ export class EntryWizardComponent implements OnInit, OnChanges, OnDestroy {
   // indicates if user made any changes
   private dirty: boolean;
 
+  // last time cart session was updated - to be able to prevent paying for expired sessions
+  private cartSessionLastUpdate: Date = null;
+
   private membershipUtil: MembershipUtil;
   public membershipOptions: any [] = [];
 
@@ -156,6 +159,7 @@ export class EntryWizardComponent implements OnInit, OnChanges, OnDestroy {
     this.currencyExchangeRate = 1.0;
     this.currencyRateRetrieved = false;
     this.dirty = false;
+    this.cartSessionLastUpdate = null;
     this.visitedEvents = false;
     this.subscriptions = new Subscription ();
     this.membershipUtil = new MembershipUtil();
@@ -290,6 +294,7 @@ export class EntryWizardComponent implements OnInit, OnChanges, OnDestroy {
           event: undefined
         };
         this.dirty = true;
+        this.updateCartSessionLastUpdate(new Date());
         this.eventEntryChanged.emit(withdrawEntry);
       }
     }
@@ -306,6 +311,7 @@ export class EntryWizardComponent implements OnInit, OnChanges, OnDestroy {
           event: undefined
         };
         this.dirty = true;
+        this.updateCartSessionLastUpdate(new Date());
         this.eventEntryChanged.emit(eventEntryInfo);
       }
     }
@@ -449,6 +455,10 @@ export class EntryWizardComponent implements OnInit, OnChanges, OnDestroy {
    * @param payByCreditCard if true show payment by credit card, otherwise by check/cash
    */
   onPayPlayerTotalInCurrency(balanceInPlayerCurrency: number, balanceInTournamentCurrency: number, currencyOfPayment: string, payByCreditCard: boolean = true) {
+    if (this.isCartSessionExpired()) {
+      this.showExpiredSessionWarning();
+      return;
+    }
     const amount: number = balanceInPlayerCurrency * 100;
     const amountInAccountCurrency: number = balanceInTournamentCurrency * 100;
     const fullName = this.playerProfile.firstName + ' ' + this.playerProfile.lastName;
@@ -505,6 +515,11 @@ export class EntryWizardComponent implements OnInit, OnChanges, OnDestroy {
    * Confirms changes when there is no balance due
    */
   onConfirmWithoutPayment() {
+    if (this.isCartSessionExpired()) {
+      this.showExpiredSessionWarning();
+      return;
+    }
+
     this.confirmEntry();
   }
 
@@ -564,6 +579,7 @@ export class EntryWizardComponent implements OnInit, OnChanges, OnDestroy {
       confirm: true
     };
     this.dirty = false;
+    this.updateCartSessionLastUpdate(null);
     this.confirmEntries.emit(confirmEntry);
   }
 
@@ -811,7 +827,35 @@ export class EntryWizardComponent implements OnInit, OnChanges, OnDestroy {
     dialogRef.afterClosed().subscribe(result => {
       if (result === 'ok') {
         // tell them what to expect in dialog
-        this.discard.emit(null);
+        this.discard.emit(true);
+      }
+    });
+  }
+
+  public updateCartSessionLastUpdate (newDate: Date) {
+    this.cartSessionLastUpdate = newDate;
+  }
+
+  public isCartSessionExpired(): boolean {
+    const now = new Date();
+    const timeDifference = new DateUtils().getTimeDifference(this.cartSessionLastUpdate, now);
+    return timeDifference >= 30;
+  }
+
+  private showExpiredSessionWarning() {
+    const dialogRef = this.dialog.open(ConfirmationPopupComponent, {
+      width: '300px', height: '300px',
+      data: {
+        message: "Expired cart sessions are removed by the system after 30 minutes of inactivity, " +
+          " so you must complete your entry with payment or confirmation before that time.",
+        contentAreaHeight: '180px', title: 'Expired Cart Session', okText: 'Start Over', showCancel: false }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result === 'ok') {
+        // finish without saving, cleanup process already cleaned up
+        this.clean();
+        this.finish.emit(null);
       }
     });
   }

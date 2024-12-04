@@ -1,4 +1,4 @@
-import {Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {AfterViewInit, Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {combineLatest, Observable, of, Subscription} from 'rxjs';
 import {first, map} from 'rxjs/operators';
@@ -42,7 +42,7 @@ import {OriginalEntryInfo} from '../model/original-entry-info';
   `,
   styles: []
 })
-export class EntryWizardContainerComponent implements OnInit, OnDestroy {
+export class EntryWizardContainerComponent implements OnInit, OnDestroy, AfterViewInit {
 
   private entryId: number;
   private tournamentId: number;
@@ -105,6 +105,10 @@ export class EntryWizardContainerComponent implements OnInit, OnDestroy {
     this.subscriptions.add(subscription);
   }
 
+  ngAfterViewInit(): void {
+    this.startCartSession(this.entryId);
+  }
+
   ngOnInit(): void {
     this.entryId = this.activatedRoute.snapshot.params['entryId'] || 0;
     this.tournamentId = this.activatedRoute.snapshot.params['tournamentId'] || 0;
@@ -116,7 +120,6 @@ export class EntryWizardContainerComponent implements OnInit, OnDestroy {
     this.selectEntry(this.entryId);
     this.loadEventEntriesInfos(this.entryId);
     this.loadPaymentRefunds(this.entryId);
-    this.startCartSession(this.entryId);
   }
 
   /**
@@ -321,9 +324,9 @@ export class EntryWizardContainerComponent implements OnInit, OnDestroy {
       .pipe(
         first(),
         map((cartSessionId: string) => {
-          const now = new Date();
-          console.log(`Started cartSessionId ${cartSessionId} at ${now}`);
           this.cartSessionId = cartSessionId;
+          console.log(`Started cartSessionId ${cartSessionId}`);
+          this.updateCartSessionLastUpdate(new Date());
         })
       ).subscribe();
     this.subscriptions.add(subscription);
@@ -339,6 +342,8 @@ export class EntryWizardContainerComponent implements OnInit, OnDestroy {
         .pipe(first())
         .subscribe((success: boolean) => {
           this.entryWizardComponent.clean();
+          this.updateCartSessionLastUpdate(null);
+
           // reload the entry after changes
           this.tournamentEntryService.getByKey(this.entryId);
           this.onFinish(null);
@@ -354,6 +359,12 @@ export class EntryWizardContainerComponent implements OnInit, OnDestroy {
       this.discardChangesInfo.usattDonation = tournamentEntry.usattDonation;
       this.discardChangesInfo.membershipType = tournamentEntry.membershipOption;
       this.discardChangesInfo.withdrawing = this.withdrawing;
+    }
+  }
+
+  private updateCartSessionLastUpdate(date: Date) {
+    if (this.entryWizardComponent != null) {
+     this.entryWizardComponent.updateCartSessionLastUpdate(date);
     }
   }
 }
