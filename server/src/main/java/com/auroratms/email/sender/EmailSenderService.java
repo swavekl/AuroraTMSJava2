@@ -191,8 +191,17 @@ public class EmailSenderService {
                 if (campaignSendingStatus.totalSent % 5 == 0) {
                     log.info("Sent " + campaignSendingStatus.totalSent + " emails");
                 }
+                // throttle sending so we get fewer errors
+                try {
+                    Thread.sleep(5000);
+                } catch (InterruptedException ignored) {
+
+                }
             } catch (MailException e) {
-                log.error("Error sending email to " + recipient.getFirstName() + " " + recipient.getLastName() + " email " + recipient.getEmailAddress());
+                log.error("Error sending email to " + recipient.getFirstName() + " " + recipient.getLastName() + " email " + recipient.getEmailAddress() + " cause " + e.getMessage());
+                if (campaignSendingStatus.totalErrors == 0) {
+                    log.error("Email error", e);
+                }
                 campaignSendingStatus.totalErrors++;
             }
         }
