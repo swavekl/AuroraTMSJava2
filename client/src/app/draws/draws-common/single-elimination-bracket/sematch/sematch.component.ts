@@ -26,11 +26,11 @@ export class SEMatchComponent implements OnInit {
   }
 
   getConflictClass(drawItem: DrawItem) {
-    return ConflictRendererHelper.getConflictClass(drawItem.conflictType);
+    return ConflictRendererHelper.getConflictClass(drawItem?.conflictType);
   }
 
   getConflictTooltipText(drawItem: DrawItem) {
-    return ConflictRendererHelper.getConflictTooltipText(drawItem.conflictType);
+    return ConflictRendererHelper.getConflictTooltipText(drawItem?.conflictType);
   }
 
 }
