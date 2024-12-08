@@ -17,43 +17,43 @@
       Press <mat-icon aria-label="3 bars menu">menu</mat-icon> button to access menu
     </div>
     <div *ngIf="hasTournamentToday" fxLayout="column" fxLayoutAlign="center center" fxLayoutGap="20px">
-      <h2>You are playing in </h2>
+      <h2>Today you are playing in </h2>
       <div class="mat-headline-5">{{tournamentName}}</div>
-      <!--    <button mat-raised-button color="primary" [routerLink]="todayService.todayUrl">-->
-      <!--      See Details...-->
-      <!--    </button>-->
-      <div fxLayout="row wrap" fxLayoutAlign="center center" fxLayoutGap="40px">
+      <div fxLayout="row wrap" fxLayoutAlign="center center" fxLayoutGap="40px" style="padding-top: 20px;">
         <div fxLayout="column" fxLayoutAlign="start center">
-          <button type="button" class="icon-button" mat-button color="" (click)="directionsToVenue()">
+          <button type="button" mat-fab color="" (click)="directionsToVenue()">
             <mat-icon>assistant_direction</mat-icon>
           </button>
-          <div (click)="directionsToVenue()">Directions</div>
+          <div class="button-subscript">Directions</div>
+          <div class="button-subscript-line2">to the venue</div>
         </div>
         <div *ngIf="tournamentInfo?.checkInType === 'DAILY'" fxLayout="column" fxLayoutAlign="start center">
-          <button type="button" class="icon-button" mat-button color="" (click)="checkInCommunicate()">
+          <button type="button" mat-fab color="" (click)="checkInCommunicate()">
             <mat-icon>how_to_reg</mat-icon>
           </button>
-          <div>Check-In /</div>
-          <div>Communicate</div>
+          <div class="button-subscript">Check-In &</div>
+          <div class="button-subscript-line2">Communicate</div>
         </div>
         <div fxLayout="column" fxLayoutAlign="start center">
-          <button type="button" class="icon-button" mat-button color="" (click)="todaysSchedule()">
+          <button type="button" mat-fab color="" (click)="todaysSchedule()">
             <mat-icon>schedule</mat-icon>
           </button>
-          <div>Schedule /</div>
-          <div>Score Entry</div>
+          <div class="button-subscript">Schedule &</div>
+          <div class="button-subscript-line2">Score Entry</div>
         </div>
         <div fxLayout="column" fxLayoutAlign="start center">
-          <button type="button" class="icon-button" mat-button color="" (click)="tournamentDraws()">
+          <button type="button" mat-fab color="" (click)="tournamentDraws()">
             <mat-icon>grid_view</mat-icon>
           </button>
-          <div>Draws</div>
+          <div class="button-subscript">Draws</div>
+          <div class="button-subscript-line2">&nbsp;</div>
         </div>
         <div fxLayout="column" fxLayoutAlign="start center">
-          <button type="button" class="icon-button" mat-button color="" (click)="showMyResults()">
+          <button type="button" color="" mat-fab (click)="showMyResults()">
             <mat-icon>grading</mat-icon>
           </button>
-          <div>My Results</div>
+          <div class="button-subscript">My Results</div>
+          <div class="button-subscript-line2">&nbsp;</div>
         </div>
       </div>
     </div>
