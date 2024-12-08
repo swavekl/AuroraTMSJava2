@@ -33,6 +33,9 @@ export class DrawsComponent implements OnInit, OnChanges {
   @Input()
   tournamentName: string;
 
+  @Input()
+  returnUrl: string;
+
   @Output()
   private drawsAction: EventEmitter<any> = new EventEmitter<any>();
 
@@ -50,6 +53,8 @@ export class DrawsComponent implements OnInit, OnChanges {
 
   @ViewChild(TabbedDrawsPanelComponent)
   tabbedDrawsPanelComponent!: TabbedDrawsPanelComponent;
+
+
 
   constructor(private dialog: MatDialog) {
     this.expandedView = false;

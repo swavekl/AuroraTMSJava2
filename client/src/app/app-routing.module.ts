@@ -164,6 +164,13 @@ const routes: Routes = [
     data: {
       roles: [UserRoles.ROLE_ADMINS, UserRoles.ROLE_UMPIRES]
     }
+  },
+  {
+    path: 'ui/refereedashboard',
+    loadChildren: () => import('./referee-dashboard/referee-dashboard.module').then(m => m.RefereeDashboardModule),
+    data: {
+      roles: [UserRoles.ROLE_ADMINS, UserRoles.ROLE_REFEREES]
+    }
   }
 ];
 

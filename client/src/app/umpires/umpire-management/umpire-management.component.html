@@ -1,5 +1,6 @@
 <div class="mat-headline-6" style="padding-left: 8px; width: 95%;">Umpire Management - {{tournamentName}}</div>
-<mat-toolbar>
+<mat-toolbar fxLayout="row" fxLayoutGap="10px">
+  <button type="button" mat-raised-button [routerLink]="['/ui/refereedashboard']">Back</button>
   <button type="button" mat-raised-button (click)="onAssignUmpire()">Assign Umpires</button>
 </mat-toolbar>
 <div fxLayout="column" fxLayoutAlign="start start" class="umpiring-list-container">

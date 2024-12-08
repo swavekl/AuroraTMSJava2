@@ -32,6 +32,7 @@ import {MatchCardInfo} from '../../../matches/model/match-card-info.model';
                  [playerStatusList]="playerStatusList$ | async"
                  [matchCardInfos]="matchCardInfos$ | async"
                  [tournamentName]="tournamentName$ | async"
+                 [returnUrl]="returnUrl"
                  (drawsAction)="onDrawsAction($event)">
       </app-draws>
   `,
@@ -52,6 +53,8 @@ export class DrawsContainerComponent implements OnInit, OnDestroy {
   playerStatusList$: Observable<PlayerStatus[]>;
 
   tournamentName$: Observable<string>;
+
+  returnUrl: string;
 
   private tournamentId: number;
 
@@ -74,6 +77,7 @@ export class DrawsContainerComponent implements OnInit, OnDestroy {
               private dialog: MatDialog) {
     const strTournamentId = this.activatedRoute.snapshot.params['tournamentId'] || 0;
     this.tournamentId = Number(strTournamentId);
+    this.returnUrl = (history?.state?.returnUrl) ? history?.state?.returnUrl : '/ui/tournamentsconfig';
     this.setupProgressIndicator();
     this.loadTournamentEvents(this.tournamentId);
     this.loadTournamentName(this.tournamentId);

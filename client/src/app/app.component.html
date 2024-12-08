@@ -23,8 +23,8 @@
       <mat-list-item *ngIf="isLinkVisible('/ui/tableusage')" [disabled]="!isProfileComplete()" (click)="closeAndNavigateToRoute('/ui/tableusage')" routerLinkActive="active">
         <a matListItemTitle>Manage Tables</a>
       </mat-list-item>
-      <mat-list-item *ngIf="isLinkVisible('/ui/umpiremanagement')" [disabled]="!isProfileComplete()" (click)="closeAndNavigateToRoute('/ui/umpiremanagement/list')" routerLinkActive="active">
-        <a matListItemTitle>Manage Umpires</a>
+      <mat-list-item *ngIf="isLinkVisible('/ui/refereedashboard')" [disabled]="!isProfileComplete()" (click)="closeAndNavigateToRoute('/ui/refereedashboard')" routerLinkActive="active">
+        <a matListItemTitle>Referee Dashboard</a>
       </mat-list-item>
       <mat-list-item *ngIf="isLinkVisible('/ui/umpirebook')" [disabled]="!isProfileComplete()" (click)="closeAndNavigateToRoute('/ui/umpirebook/view')" routerLinkActive="active">
         <a matListItemTitle>Umpire Book</a>

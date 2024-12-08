@@ -26,7 +26,7 @@ public class UserRolesHelper {
     }
 
     public static boolean isTournamentReferee() {
-        return UserRolesHelper.hasRole(UserRoles.Umpires);
+        return UserRolesHelper.hasRole(UserRoles.Referees);
     }
 
     public static boolean isTournamentUmpire() {

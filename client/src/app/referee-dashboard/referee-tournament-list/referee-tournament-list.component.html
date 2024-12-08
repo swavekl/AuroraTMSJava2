@@ -1,0 +1,28 @@
+<div fxLayout="column">
+  <mat-card *ngFor="let tournament of tournaments">
+    <mat-card-header>
+      <mat-card-title>
+        <h3>{{tournament.name}}</h3>
+      </mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <h3>{{[tournament.startDate, tournament.endDate] | dateRange }}</h3>
+      <h4>{{ tournament.city }}, {{tournament.state}} </h4>
+    </mat-card-content>
+    <mat-card-actions fxLayout="row" fxLayoutGap="10px">
+      <button mat-raised-button type="button" [routerLink]="['/ui/draws', tournament.id]"
+              [state]="{returnUrl: '/ui/refereedashboard' }"
+              matTooltip="Generate Draws">
+        <mat-icon matListItemIcon>grid_view</mat-icon>
+        Draws
+      </button>
+      <button mat-raised-button type="button" [routerLink]="['/ui/umpiremanagement/list']"
+              [state]="{returnUrl: '/ui/refereedashboard' }"
+              matTooltip="Mange Umpires">
+        <mat-icon matListItemIcon>group</mat-icon>
+        Manage Umpires
+      </button>
+    </mat-card-actions>
+  </mat-card>
+
+</div>

@@ -12,7 +12,7 @@
     <div fxFlex>
       <mat-toolbar>
         <mat-toolbar-row>
-          <button mat-raised-button type="button" [routerLink]="['/ui/tournamentsconfig']" >Back</button>
+          <button mat-raised-button type="button" [routerLink]="returnUrl">Back</button>
           <span class="toolbar-spacer-2"></span>
           <button type="button" color="primary" mat-raised-button (click)="generateDraw()"
                   [disabled]="selectedEvent == null">
