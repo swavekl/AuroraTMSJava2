@@ -254,7 +254,7 @@ public class TournamentResultsService {
         }
 
         int roundMatches = roundOf / 2;
-        List<EventResults> byeResults = new ArrayList<>(roundMatches - existingGroupNums.size());
+        List<EventResults> byeResults = new ArrayList<>();
         for (int groupNum = 1; groupNum <= roundMatches; groupNum++) {
             boolean found = existingGroupNums.contains(groupNum);
             if (!found) {
