@@ -1,4 +1,4 @@
-<div class="mat-headline-6" style="padding-left: 8px; width: 95%;">Umpire Management - {{tournamentName}}</div>
+<div class="mat-headline-6" style="padding-left: 8px; width: 95%;">Umpire Management - {{tournamentName}} &nbsp;&nbsp;&nbsp;&nbsp; Referee - {{ getRefereeNames() }}</div>
 <mat-toolbar fxLayout="row" fxLayoutGap="10px">
   <button type="button" mat-raised-button [routerLink]="['/ui/refereedashboard']">Back</button>
   <button type="button" mat-raised-button (click)="onAssignUmpire()">Assign Umpires</button>

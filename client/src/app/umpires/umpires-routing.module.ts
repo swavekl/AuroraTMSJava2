@@ -5,7 +5,7 @@ import {UmpireBookComponent} from './umpire-book/umpire-book.component';
 
 const routes: Routes = [
   {
-    path: 'list', component: UmpireManagementContainerComponent
+    path: 'list/:tournamentId', component: UmpireManagementContainerComponent
   },
   {
     path: 'view', component: UmpireBookComponent

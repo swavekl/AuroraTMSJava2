@@ -12,13 +12,14 @@
     <mat-card-actions fxLayout="row" fxLayoutGap="10px">
       <button mat-raised-button type="button" [routerLink]="['/ui/draws', tournament.id]"
               [state]="{returnUrl: '/ui/refereedashboard' }"
-              matTooltip="Generate Draws">
+              matTooltip="Draws">
         <mat-icon matListItemIcon>grid_view</mat-icon>
         Draws
       </button>
-      <button mat-raised-button type="button" [routerLink]="['/ui/umpiremanagement/list']"
+      <button mat-raised-button type="button" [routerLink]="['/ui/umpiremanagement/list', tournament.id]"
               [state]="{returnUrl: '/ui/refereedashboard' }"
-              matTooltip="Mange Umpires">
+              matTooltip="Mange Umpires"
+      [disabled]="!isManageUmpiresEnabled(tournament.id)">
         <mat-icon matListItemIcon>group</mat-icon>
         Manage Umpires
       </button>

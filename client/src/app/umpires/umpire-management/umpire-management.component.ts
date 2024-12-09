@@ -1,4 +1,4 @@
-import {Component, Input, ViewChild} from '@angular/core';
+import {AfterViewInit, Component, Input, ViewChild} from '@angular/core';
 import {MatDialog, MatDialogConfig} from '@angular/material/dialog';
 import {AssignUmpiresDialogComponent} from '../assign-umpires-dialog/assign-umpires-dialog.component';
 import {Personnel} from '../../tournament/tournament-config/model/personnel.model';
@@ -12,7 +12,7 @@ import {UmpiredMatchInfo} from '../model/umpired-match-info.model';
   templateUrl: './umpire-management.component.html',
   styleUrl: './umpire-management.component.scss'
 })
-export class UmpireManagementComponent {
+export class UmpireManagementComponent implements AfterViewInit {
 
   @Input()
   tournamentId: number;
@@ -26,14 +26,22 @@ export class UmpireManagementComponent {
   @Input()
   umpireList!: Personnel[];
 
+  @Input()
+  refereeList!: Personnel[];
+
   @ViewChild(UmpireSummaryTableComponent)
   umpireSummaryTableComponent: UmpireSummaryTableComponent;
-
   umpireMatchInfos: UmpiredMatchInfo[] = [];
   selectedUmpireName: string;
 
   constructor(private umpiringService: UmpiringService,
               private dialog: MatDialog) {
+  }
+
+  ngAfterViewInit(): void {
+    if (this.umpireSummaryTableComponent != null) {
+      this.umpireSummaryTableComponent.refresh();
+    }
   }
 
   onViewUmpireDetails(umpireProfileId: string) {
@@ -72,11 +80,21 @@ export class UmpireManagementComponent {
           .pipe(
             first(),
             tap(() => {
-              console.log('Refreshing summary table after assignment');
               this.umpireSummaryTableComponent.refresh();
             })
           ).subscribe();
       }
     });
+  }
+
+  public getRefereeNames(): string {
+    let refereeNames = '';
+    if (this.refereeList != null) {
+      for (const personnel of this.refereeList) {
+        refereeNames += (refereeNames.length === 0) ? '' : ', ';
+        refereeNames += personnel.name;
+      }
+    }
+    return refereeNames;
   }
 }
