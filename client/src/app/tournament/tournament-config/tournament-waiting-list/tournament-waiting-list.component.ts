@@ -162,8 +162,6 @@ export class TournamentWaitingListComponent implements OnInit, OnChanges {
         }
       );
 
-      console.log('before ', eventWithPlayers.playersOnWaitingList);
-      console.log('after  ', sortedByDateNames);
       eventWithPlayers.playersOnWaitingList = sortedByDateNames;
     }
     this.totalWaitedSpots = totalWaitedSpots;
