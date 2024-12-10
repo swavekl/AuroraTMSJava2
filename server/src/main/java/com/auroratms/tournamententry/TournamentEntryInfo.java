@@ -3,6 +3,7 @@ package com.auroratms.tournamententry;
 import lombok.Data;
 
 import java.util.List;
+import java.util.Date;
 
 @Data
 public class TournamentEntryInfo {
@@ -28,6 +29,9 @@ public class TournamentEntryInfo {
 
     // ids of events player is waiting on
     private List<Long> waitingListEventIds;
+
+    // date when entered this event waiting list
+    private List<Date> waitingListEnteredDates;
 
     // ids of events in pending confirmation state
     private List<Long> pendingEventIds;

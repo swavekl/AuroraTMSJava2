@@ -226,6 +226,14 @@ public class TournamentEntryInfoService {
                             info.setWaitingListEventIds(waitingListEventIds);
                         }
                         waitingListEventIds.add(eventFk);
+                        // get the dates too so we can sort in the order in which they entered waiting list
+                        List<Date> waitingListEnteredDates = info.getWaitingListEnteredDates();
+                        if (waitingListEnteredDates == null) {
+                            waitingListEnteredDates = new ArrayList<>();
+                            info.setWaitingListEnteredDates(waitingListEnteredDates);
+                        }
+                        Date dateEntered = eventEntry.getDateEntered() != null ? eventEntry.getDateEntered() : new Date();
+                        waitingListEnteredDates.add(dateEntered);
                     } else if (eventEntry.getStatus() == EventEntryStatus.PENDING_CONFIRMATION){
                         List<Long> pendingList = info.getPendingEventIds();
                         if (pendingList == null) {

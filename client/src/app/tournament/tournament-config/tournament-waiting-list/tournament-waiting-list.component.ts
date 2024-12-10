@@ -1,6 +1,7 @@
 import {Component, Input, OnChanges, OnInit, SimpleChange, SimpleChanges} from '@angular/core';
 import {TournamentEntryInfo} from '../../model/tournament-entry-info.model';
 import {TournamentEvent} from '../tournament-event.model';
+import {DateUtils} from '../../../shared/date-utils';
 
 @Component({
   selector: 'app-tournament-waiting-list',
@@ -103,7 +104,7 @@ export class TournamentWaitingListComponent implements OnInit, OnChanges {
     for (let i = 0; i < this.tournamentEntryInfos.length; i++) {
       const tei: TournamentEntryInfo = this.tournamentEntryInfos[i];
       const fullPlayerName = tei.lastName + ', ' + tei.firstName;
-
+      let waitingListEventIndex = 0;
       for (const waitingListEventId of tei.waitingListEventIds) {
         let foundEventWithPlayers: EventWithPlayers = null;
         for (const eventWithPlayers of this.eventWithPlayersList) {
@@ -121,6 +122,13 @@ export class TournamentWaitingListComponent implements OnInit, OnChanges {
           this.eventWithPlayersList.push(foundEventWithPlayers);
         }
         foundEventWithPlayers.playersOnWaitingList.push(fullPlayerName);
+
+        if (waitingListEventIndex < tei?.waitingListEnteredDates.length) {
+          let wlEnteredDate: Date = tei.waitingListEnteredDates[waitingListEventIndex];
+          wlEnteredDate = wlEnteredDate ?? new Date();
+          foundEventWithPlayers.playersDatesEnteredWL.push(wlEnteredDate);
+        }
+        waitingListEventIndex++;
       }
     }
 
@@ -132,6 +140,31 @@ export class TournamentWaitingListComponent implements OnInit, OnChanges {
     let totalWaitedSpots = 0;
     for (const eventWithPlayers of this.eventWithPlayersList) {
       totalWaitedSpots += eventWithPlayers.playersOnWaitingList.length;
+    }
+
+    const dateUtils = new DateUtils();
+    for (const eventWithPlayers of this.eventWithPlayersList) {
+      let playersToSort: PlayerAndDate [] = [];
+      for (let i = 0; i < eventWithPlayers.playersOnWaitingList.length; i++) {
+        const playerName: string = eventWithPlayers.playersOnWaitingList[i];
+        const enteredDate: Date = eventWithPlayers.playersDatesEnteredWL[i];
+        const pad: PlayerAndDate = {playerName: playerName, enteredDate: enteredDate};
+        playersToSort.push(pad);
+      }
+      playersToSort.sort((playerAndDate1: PlayerAndDate, playerAndDate2: PlayerAndDate) => {
+        const enteredDate1: Date = playerAndDate1.enteredDate;
+        const enteredDate2: Date = playerAndDate2.enteredDate;
+        return dateUtils.isDateBefore(enteredDate1, enteredDate2) ? -1 : 1;
+      });
+      const sortedByDateNames: string [] = playersToSort.map(
+        (playerAndDate: PlayerAndDate) => {
+          return playerAndDate.playerName;
+        }
+      );
+
+      console.log('before ', eventWithPlayers.playersOnWaitingList);
+      console.log('after  ', sortedByDateNames);
+      eventWithPlayers.playersOnWaitingList = sortedByDateNames;
     }
     this.totalWaitedSpots = totalWaitedSpots;
   }
@@ -145,4 +178,10 @@ export class EventWithPlayers {
   ordinalNumber: number;
   eventName: string;
   playersOnWaitingList: string [] = [];
+  playersDatesEnteredWL: Date [] = [];
+}
+
+export class PlayerAndDate {
+  playerName: string;
+  enteredDate: Date;
 }
