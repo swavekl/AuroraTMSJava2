@@ -24,6 +24,12 @@ public class FilterConfiguration implements Serializable {
     // recipients to remove from the list
     private List<Recipient> removedRecipients;
 
+    // if true ignore recipient filter and get all recipients in the database
+    private Boolean allRecipients;
+
+    // if true exclude those from the list who are already registered for this tournament
+    private Boolean excludeRegistered;
+
     public List<Long> getRecipientFilters() {
         return (recipientFilters != null) ? recipientFilters : Collections.emptyList();
     }
@@ -38,6 +44,23 @@ public class FilterConfiguration implements Serializable {
 
     public void setRemovedRecipients(List<Recipient> removedRecipients) {
         this.removedRecipients = removedRecipients;
+    }
+
+
+    public Boolean getAllRecipients() {
+        return allRecipients;
+    }
+
+    public void setAllRecipients(Boolean allRecipients) {
+        this.allRecipients = allRecipients;
+    }
+
+    public Boolean getExcludeRegistered() {
+        return excludeRegistered;
+    }
+
+    public void setExcludeRegistered(Boolean excludeRegistered) {
+        this.excludeRegistered = excludeRegistered;
     }
 
     public String convertToJSON () {

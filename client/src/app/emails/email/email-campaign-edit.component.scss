@@ -28,7 +28,8 @@ textarea {
   width: 99%;
 }
 
-$list-height:  calc(100vh - 300px);
+$list-height:  calc(100vh - 320px);
+$events-list-height:  calc(100vh - 400px);
 
 div.email-template-container {
   //border: 1px solid mediumpurple;
@@ -42,7 +43,7 @@ div.recipients-container {
   //border: 1px solid deepskyblue;
 
   .event-list {
-    height: $list-height;
+    height: $events-list-height;
     overflow-y: auto;
   }
 

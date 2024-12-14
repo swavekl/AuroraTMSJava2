@@ -8,7 +8,7 @@
       <button mat-raised-button type="button" color="primary" (click)="onSave()" [disabled]="f.invalid">Save</button>
       <button mat-raised-button type="button" (click)="onSendEmails()" [disabled]="f.invalid || emailCampaign?.id == null">Send Emails</button>
       <button mat-raised-button type="button" (click)="onSendTestEmail()" [disabled]="f.invalid || emailCampaign?.id == null">Send Test Email</button>
-      <button mat-raised-button type="button" (click)="copyRecipients()" [disabled]="!(filteredRecipients?.length > 0)">Copy Recipients</button>
+      <button mat-raised-button type="button" (click)="copyRecipients()" [disabled]="!(filteredRecipients?.length > 0) || emailCampaign.allRecipients">Copy Recipients</button>
     </mat-toolbar>
     <mat-tab-group class="email-generator-container-work">
       <mat-tab label="Email Template">
@@ -50,9 +50,16 @@
       <mat-tab label="Recipients">
         <div fxLayout="row" fxLayoutAlign="start stretch" class="recipients-container">
           <div fxFlex="20%">
+            <mat-checkbox name="allRecipients" [(ngModel)]="emailCampaign.allRecipients" (change)="onAllRecipientsChanged($event)">
+              All users
+            </mat-checkbox>
+            <mat-checkbox name="excludeRegistered" [(ngModel)]="emailCampaign.excludeRegistered" (change)="onExcludeRegisteredChanged($event)"
+            [disabled]="!emailCampaign?.allRecipients">
+              Exclude Already Registered
+            </mat-checkbox>
             <div class="mat-headline-6">Filter Recipients by:</div>
             <mat-selection-list matInput name="events_filter" [(ngModel)]="emailCampaign.recipientFilters"
-                                class="event-list">
+                                class="event-list" [disabled]="emailCampaign?.allRecipients">
               <mat-list-option [value]="0" (click)="onSelectEvent(0)">All Events</mat-list-option>
               <mat-list-option *ngFor="let event of tournamentEvents" [value]="event.id"
                                (click)="onSelectEvent(event.id)">

@@ -105,8 +105,9 @@ export class EmailCampaignEditContainerComponent implements OnDestroy {
               emailCampaignToEdit.name = emailCampaignToEdit.name + " Copy";
             }
             this.emailCampaign$ = of(emailCampaignToEdit);
-            if (emailCampaignToEdit.recipientFilters?.length > 0) {
-              this.loadRecipients(emailCampaignToEdit.recipientFilters, emailCampaignToEdit.removedRecipients);
+            if (emailCampaignToEdit.recipientFilters?.length > 0 || emailCampaignToEdit?.allRecipients === true) {
+              this.loadRecipients(emailCampaignToEdit.recipientFilters, emailCampaignToEdit.removedRecipients,
+                emailCampaignToEdit?.allRecipients, emailCampaignToEdit?.excludeRegistered);
             }
           }
         });
@@ -139,7 +140,7 @@ export class EmailCampaignEditContainerComponent implements OnDestroy {
         complete: () => {}});
     } else if (action === 'filter') {
       // console.log('recipientFilters', $event.recipientFilters);
-      this.loadRecipients($event.recipientFilters, $event.removedRecipients);
+      this.loadRecipients($event.recipientFilters, $event.removedRecipients, $event.allRecipients, $event.excludeRegistered);
     } else if (action === 'sendemails') {
       const emailCampaign: EmailCampaign = $event.value;
       this.sendEmailCampaign(this.tournamentId, emailCampaign, false);
@@ -160,8 +161,8 @@ export class EmailCampaignEditContainerComponent implements OnDestroy {
     this.subscriptions.unsubscribe();
   }
 
-  private loadRecipients(recipientFilters: number [], removedRecipients: Recipient[]) {
-    this.emailSenderService.getRecipientEmails(this.tournamentId, recipientFilters, removedRecipients)
+  private loadRecipients(recipientFilters: number [], removedRecipients: Recipient[], allRecipients: boolean, excludeRegistered: boolean) {
+    this.emailSenderService.getRecipientEmails(this.tournamentId, recipientFilters, removedRecipients, allRecipients, excludeRegistered)
       .pipe(
         switchMap(
           (recipients: Recipient []) => {

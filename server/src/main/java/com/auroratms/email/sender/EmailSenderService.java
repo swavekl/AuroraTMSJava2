@@ -32,6 +32,7 @@ import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 import java.util.*;
+import java.util.function.Predicate;
 
 @Service
 @Slf4j
@@ -59,11 +60,35 @@ public class EmailSenderService {
 
     public List<FilterConfiguration.Recipient> getFilteredRecipients(long tournamentId, FilterConfiguration filterConfiguration) {
 
+        boolean isGetAllRecipients = Boolean.TRUE.equals(filterConfiguration.getAllRecipients());
+        boolean isExcludeRegistered = Boolean.TRUE.equals(filterConfiguration.getExcludeRegistered());
+
         // if all events
         Map<Long, String> tournamentEntryIdToProfileIdMap = new HashMap<>();
-        List<TournamentEntry> tournamentEntries = entryService.listForTournament(tournamentId);
-        for (TournamentEntry tournamentEntry : tournamentEntries) {
-            tournamentEntryIdToProfileIdMap.put(tournamentEntry.getId(), tournamentEntry.getProfileId());
+        if (!isGetAllRecipients || isExcludeRegistered) {
+            List<TournamentEntry> tournamentEntries = entryService.listForTournament(tournamentId);
+            for (TournamentEntry tournamentEntry : tournamentEntries) {
+                tournamentEntryIdToProfileIdMap.put(tournamentEntry.getId(), tournamentEntry.getProfileId());
+            }
+        }
+
+        // get all recipients
+        List<UserProfile> filteredAllUserProfiles = new ArrayList<>();
+        if (isGetAllRecipients) {
+            Collection<UserProfile> allUserProfiles = userProfileService.list();
+            for (UserProfile userProfile : allUserProfiles) {
+                // skip test user profiles
+                if (!userProfile.getEmail().matches("swaveklorenc\\+(.*)@gmail\\.com")) {
+                    if (isExcludeRegistered) {
+                        boolean alreadyInTournament = tournamentEntryIdToProfileIdMap.values().stream().anyMatch(Predicate.isEqual(userProfile.getUserId()));
+                        if (!alreadyInTournament) {
+                            filteredAllUserProfiles.add(userProfile);
+                        }
+                    } else {
+                        filteredAllUserProfiles.add(userProfile);
+                    }
+                }
+            }
         }
 
         List<String> playerProfileIds = new ArrayList<>();
@@ -94,15 +119,25 @@ public class EmailSenderService {
 
         // get profiles which contain email addresses and convert them into recipients (full name + email)
         List<FilterConfiguration.Recipient> recipients = new ArrayList<>(playerProfileIds.size());
-        Collection<UserProfile> userProfiles = this.userProfileService.listByProfileIds(playerProfileIds);
-        List<FilterConfiguration.Recipient> removedRecipients = filterConfiguration.getRemovedRecipients();
-        for (UserProfile userProfile : userProfiles) {
-            FilterConfiguration.Recipient recipient = new FilterConfiguration.Recipient();
-            recipient.setEmailAddress(userProfile.getEmail());
-            recipient.setFirstName(userProfile.getFirstName());
-            recipient.setLastName(userProfile.getLastName());
-            if (!removedRecipients.contains(recipient)) {
+        if (isGetAllRecipients) {
+            for (UserProfile filteredAllUserProfile : filteredAllUserProfiles) {
+                FilterConfiguration.Recipient recipient = new FilterConfiguration.Recipient();
+                recipient.setEmailAddress(filteredAllUserProfile.getEmail());
+                recipient.setFirstName(filteredAllUserProfile.getFirstName());
+                recipient.setLastName(filteredAllUserProfile.getLastName());
                 recipients.add(recipient);
+            }
+        } else {
+            Collection<UserProfile> userProfiles = this.userProfileService.listByProfileIds(playerProfileIds);
+            List<FilterConfiguration.Recipient> removedRecipients = filterConfiguration.getRemovedRecipients();
+            for (UserProfile userProfile : userProfiles) {
+                FilterConfiguration.Recipient recipient = new FilterConfiguration.Recipient();
+                recipient.setEmailAddress(userProfile.getEmail());
+                recipient.setFirstName(userProfile.getFirstName());
+                recipient.setLastName(userProfile.getLastName());
+                if (!removedRecipients.contains(recipient)) {
+                    recipients.add(recipient);
+                }
             }
         }
 

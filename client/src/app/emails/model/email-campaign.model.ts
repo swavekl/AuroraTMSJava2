@@ -27,6 +27,12 @@ export class EmailCampaign {
   // recipients to remove from the list
   removedRecipients: Recipient [];
 
+  // if true ignore recipient filter and get all recipients in the database
+  allRecipients: boolean;
+
+  // if true exclude those from the list who are already registered for this tournament
+  excludeRegistered: boolean;
+
   // treat body of this email as html when sending
   htmlEmail: boolean;
 }

@@ -31,9 +31,9 @@ export class EmailSenderService {
    * @param recipientFilters
    * @param removedRecipients
    */
-  public getRecipientEmails(tournamentId: number, recipientFilters: number[], removedRecipients: Recipient[]): Observable<Recipient[]> {
+  public getRecipientEmails(tournamentId: number, recipientFilters: number[], removedRecipients: Recipient[], allRecipients: boolean, excludeRegistered: boolean): Observable<Recipient[]> {
     this.setLoading(true);
-    const body = {recipientFilters: recipientFilters, removedRecipients: removedRecipients};
+    const body = {recipientFilters: recipientFilters, removedRecipients: removedRecipients, allRecipients: allRecipients, excludeRegistered: excludeRegistered};
     return this.httpClient.post(`${this.API_BASE_URL}/${tournamentId}`, body)
       .pipe(
         tap(

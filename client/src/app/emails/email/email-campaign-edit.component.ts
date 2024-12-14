@@ -2,6 +2,7 @@ import {Component, ElementRef, EventEmitter, Input, Output, SimpleChanges, ViewC
 import {EmailCampaign, Recipient} from '../model/email-campaign.model';
 import {TournamentEvent} from '../../tournament/tournament-config/tournament-event.model';
 import {MatSnackBar} from '@angular/material/snack-bar';
+import {MatCheckboxChange} from '@angular/material/checkbox';
 
 @Component({
   selector: 'app-email-campaign-edit',
@@ -97,7 +98,45 @@ export class EmailCampaignEditComponent  {
         this.emailCampaign.recipientFilters = this.emailCampaign.recipientFilters.filter((e, i) => i !== allIndex);
       }
     }
-    this.eventEmitter.emit({action: 'filter', recipientFilters: this.emailCampaign.recipientFilters, removedRecipients: this.emailCampaign.removedRecipients});
+    this.emailCampaign = {
+      ...this.emailCampaign,
+      recipientFilters: this.emailCampaign.recipientFilters,
+      removedRecipients: this.emailCampaign.removedRecipients,
+      allRecipients: false,
+      excludeRegistered: false
+    };
+    this.emitFilterEvent();
+  }
+
+  onAllRecipientsChanged(event: MatCheckboxChange) {
+    this.emailCampaign = {
+      ...this.emailCampaign,
+      recipientFilters: [],
+      removedRecipients: [],
+      allRecipients: event.checked,
+      excludeRegistered: !event.checked ? false : this.emailCampaign.excludeRegistered
+    };
+    this.emitFilterEvent();
+  }
+
+  onExcludeRegisteredChanged(event: MatCheckboxChange) {
+    this.emailCampaign = {
+      ...this.emailCampaign,
+      recipientFilters: [],
+      removedRecipients: [],
+      excludeRegistered: event.checked
+    };
+    this.emitFilterEvent();
+  }
+
+
+  private emitFilterEvent() {
+    this.eventEmitter.emit({action: 'filter',
+      recipientFilters: this.emailCampaign.recipientFilters,
+      removedRecipients: this.emailCampaign.removedRecipients,
+      allRecipients: this.emailCampaign.allRecipients,
+      excludeRegistered: this.emailCampaign.excludeRegistered
+    });
   }
 
   onRemoveRecipient() {
