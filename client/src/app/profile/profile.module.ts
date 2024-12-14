@@ -29,6 +29,7 @@ import {ClubModule} from '../club/club/club.module';
 import {ProfileAddByTDComponent} from './profile-add-by-td/profile-add-by-td.component';
 import {ProfileAddByTdContainerComponent} from './profile-add-by-td/profile-add-by-td-container.component';
 import {ProfileRoutingModule} from './profile-routing.module';
+import {MatTooltip} from '@angular/material/tooltip';
 
 @NgModule({
   declarations: [
@@ -45,28 +46,29 @@ import {ProfileRoutingModule} from './profile-routing.module';
   exports: [
     ProfileFindPopupComponent
   ],
-  imports: [
-    CommonModule,
-    ProfileRoutingModule,
-    MatButtonModule,
-    MatCardModule,
-    MatInputModule,
-    MatListModule,
-    MatToolbarModule,
-    HttpClientModule,
-    FormsModule,
-    MatIconModule,
-    MatDatepickerModule,
-    MatNativeDateModule,
-    MatSelectModule,
-    FlexLayoutModule,
-    MatDialogModule,
-    SharedModule,
-    MatRadioModule,
-    MatProgressBarModule,
-    MatAutocompleteModule,
-    ClubModule
-  ]
+    imports: [
+        CommonModule,
+        ProfileRoutingModule,
+        MatButtonModule,
+        MatCardModule,
+        MatInputModule,
+        MatListModule,
+        MatToolbarModule,
+        HttpClientModule,
+        FormsModule,
+        MatIconModule,
+        MatDatepickerModule,
+        MatNativeDateModule,
+        MatSelectModule,
+        FlexLayoutModule,
+        MatDialogModule,
+        SharedModule,
+        MatRadioModule,
+        MatProgressBarModule,
+        MatAutocompleteModule,
+        ClubModule,
+        MatTooltip
+    ]
 })
 export class ProfileModule {
 }
