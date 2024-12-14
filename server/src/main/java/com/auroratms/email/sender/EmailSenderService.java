@@ -26,8 +26,11 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.mail.Address;
 import javax.mail.Message;
 import javax.mail.MessagingException;
+import javax.mail.Multipart;
 import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
+import javax.mail.internet.MimeMultipart;
 import java.util.*;
 
 @Service
@@ -141,7 +144,7 @@ public class EmailSenderService {
         return mailSender;
     }
 
-    public void sendCampaign(Long tournamentId, EmailCampaign emailCampaign, CampaignSendingStatus campaignSendingStatus, String currentUserName) {
+    public void sendCampaign(Long tournamentId, EmailCampaign emailCampaign, CampaignSendingStatus campaignSendingStatus, String currentUserName, Boolean sendTestEmail) {
         campaignSendingStatus.phase = "Getting recipients and variables information";
 
         // retrieve email server configuration for current user (i.e. Tournament director)
@@ -150,11 +153,21 @@ public class EmailSenderService {
 
         JavaMailSenderImpl javaMailSender = getJavaMailSender(emailServerConfiguration);
 
-        // get recipients per
-        FilterConfiguration filterConfiguration = new FilterConfiguration();
-        filterConfiguration.setRecipientFilters(emailCampaign.getRecipientFilters());
-        filterConfiguration.setRemovedRecipients(emailCampaign.getRemovedRecipients());
-        List<FilterConfiguration.Recipient> recipients = getFilteredRecipients(tournamentId, filterConfiguration);
+        List<FilterConfiguration.Recipient> recipients = new ArrayList<>();
+        if (sendTestEmail) {
+            UserProfile userProfile = userProfileService.getProfile(profileByLoginId);
+            FilterConfiguration.Recipient recipient = new FilterConfiguration.Recipient();
+            recipient.setEmailAddress(userProfile.getEmail());
+            recipient.setFirstName(userProfile.getFirstName());
+            recipient.setLastName(userProfile.getLastName());
+            recipients.add(recipient);
+        } else {
+            // get recipients per
+            FilterConfiguration filterConfiguration = new FilterConfiguration();
+            filterConfiguration.setRecipientFilters(emailCampaign.getRecipientFilters());
+            filterConfiguration.setRemovedRecipients(emailCampaign.getRemovedRecipients());
+            recipients = getFilteredRecipients(tournamentId, filterConfiguration);
+        }
 
         Tournament tournament = tournamentService.getByKey(tournamentId);
         String tournamentName = tournament.getName();
@@ -170,6 +183,8 @@ public class EmailSenderService {
         emailCampaign.setEmailsCount(0);
         this.emailCampaignService.save(emailCampaign);
 
+        boolean htmlEmail = emailCampaign.isHtmlEmail();
+
         for (FilterConfiguration.Recipient recipient : recipients) {
             try {
                 variables.put("${last_name}", recipient.getLastName());
@@ -181,12 +196,29 @@ public class EmailSenderService {
                 String body = emailCampaign.getBody();
                 body = replaceVariables(body, variables);
 
-                SimpleMailMessage message = new SimpleMailMessage();
-                message.setFrom(emailServerConfiguration.getUserId());
-                message.setTo(recipient.getEmailAddress());
-                message.setSubject(subject);
-                message.setText(body);
-                javaMailSender.send(message);
+                if (htmlEmail) {
+                    MimeMessage message = javaMailSender.createMimeMessage();
+                    message.setFrom(emailServerConfiguration.getUserId());
+                    message.setRecipient(Message.RecipientType.TO, new InternetAddress(recipient.getEmailAddress()));
+                    message.setSubject(subject);
+
+                    MimeBodyPart mimeBodyPart = new MimeBodyPart();
+                    mimeBodyPart.setContent(body, "text/html; charset=utf-8");
+
+                    Multipart multipart = new MimeMultipart();
+                    multipart.addBodyPart(mimeBodyPart);
+
+                    message.setContent(multipart);
+                    javaMailSender.send(message);
+                } else {
+                    SimpleMailMessage message = new SimpleMailMessage();
+                    message.setFrom(emailServerConfiguration.getUserId());
+                    message.setTo(recipient.getEmailAddress());
+                    message.setSubject(subject);
+                    message.setText(body);
+                    javaMailSender.send(message);
+                }
+
                 campaignSendingStatus.totalSent++;
                 if (campaignSendingStatus.totalSent % 5 == 0) {
                     log.info("Sent " + campaignSendingStatus.totalSent + " emails");
@@ -197,7 +229,7 @@ public class EmailSenderService {
                 } catch (InterruptedException ignored) {
 
                 }
-            } catch (MailException e) {
+            } catch (MailException | MessagingException e) {
                 log.error("Error sending email to " + recipient.getFirstName() + " " + recipient.getLastName() + " email " + recipient.getEmailAddress() + " cause " + e.getMessage());
                 if (campaignSendingStatus.totalErrors == 0) {
                     log.error("Email error", e);

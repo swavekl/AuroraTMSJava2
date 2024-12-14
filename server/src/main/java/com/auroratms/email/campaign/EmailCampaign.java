@@ -33,6 +33,9 @@ public class EmailCampaign implements Serializable {
     // recipients to remove from the list
     private List<FilterConfiguration.Recipient> removedRecipients;
 
+    // treat body of this email as html when sending
+    boolean htmlEmail;
+
     public EmailCampaign() {
     }
 
@@ -109,6 +112,14 @@ public class EmailCampaign implements Serializable {
         this.removedRecipients = removedRecipients;
     }
 
+    public boolean isHtmlEmail() {
+        return htmlEmail;
+    }
+
+    public void setHtmlEmail(boolean htmlEmail) {
+        this.htmlEmail = htmlEmail;
+    }
+
     public EmailCampaignEntity convertToEntity() {
         EmailCampaignEntity emailCampaignEntity = new EmailCampaignEntity();
         emailCampaignEntity.setId(this.getId());
@@ -123,6 +134,7 @@ public class EmailCampaign implements Serializable {
         filterConfiguration.setRemovedRecipients(this.getRemovedRecipients());
         String content = filterConfiguration.convertToJSON();
         emailCampaignEntity.setFilterContentsJSON(content);
+        emailCampaignEntity.setHtmlEmail(this.isHtmlEmail());
 
         return emailCampaignEntity;
     }
@@ -139,6 +151,7 @@ public class EmailCampaign implements Serializable {
         FilterConfiguration filterConfiguration = FilterConfiguration.convertFromJSON(content);
         this.recipientFilters = filterConfiguration.getRecipientFilters();
         this.removedRecipients = filterConfiguration.getRemovedRecipients();
+        this.htmlEmail = emailCampaignEntity.isHtmlEmail();
 
         return this;
     }

@@ -24,6 +24,7 @@ import {MatIconModule} from '@angular/material/icon';
 import {MatListModule} from '@angular/material/list';
 import {EmailCampaignListContainerComponent} from './email-campaign-list/email-campaign-list-container.component';
 import {MatTabsModule} from '@angular/material/tabs';
+import {MatCheckbox} from '@angular/material/checkbox';
 
 
 @NgModule({
@@ -34,26 +35,27 @@ import {MatTabsModule} from '@angular/material/tabs';
     EmailCampaignListComponent,
     EmailCampaignListContainerComponent
   ],
-  imports: [
-    CommonModule,
-    EmailRoutingModule,
-    MatToolbarModule,
-    MatButtonModule,
-    FlexLayoutModule,
-    FormsModule,
-    MatTooltipModule,
-    MatDialogModule,
-    MatFormFieldModule,
-    MatInputModule,
-    SharedModule,
-    MatProgressBarModule,
-    MatTableModule,
-    MatSortModule,
-    MatPaginatorModule,
-    MatIconModule,
-    MatListModule,
-    MatTabsModule
-  ]
+    imports: [
+        CommonModule,
+        EmailRoutingModule,
+        MatToolbarModule,
+        MatButtonModule,
+        FlexLayoutModule,
+        FormsModule,
+        MatTooltipModule,
+        MatDialogModule,
+        MatFormFieldModule,
+        MatInputModule,
+        SharedModule,
+        MatProgressBarModule,
+        MatTableModule,
+        MatSortModule,
+        MatPaginatorModule,
+        MatIconModule,
+        MatListModule,
+        MatTabsModule,
+        MatCheckbox
+    ]
 })
 export class EmailModule {
 }

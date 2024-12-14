@@ -45,6 +45,10 @@ export class EmailCampaignEditComponent  {
     this.eventEmitter.emit({action: 'sendemails', value: this.emailCampaign});
   }
 
+  onSendTestEmail() {
+    this.eventEmitter.emit({action: 'sendtestemail', value: this.emailCampaign});
+  }
+
   onCancel() {
     this.eventEmitter.emit({action: 'cancel', value: null});
   }

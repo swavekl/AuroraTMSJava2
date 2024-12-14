@@ -37,6 +37,9 @@ public class EmailCampaignEntity implements Serializable {
     @Column(length = 9000)
     String filterContentsJSON;
 
+    // treat body of this email as html when sending
+    private boolean htmlEmail;
+
     public Long getId() {
         return id;
     }
@@ -99,6 +102,14 @@ public class EmailCampaignEntity implements Serializable {
 
     public void setFilterContentsJSON(String filterContentsJSON) {
         this.filterContentsJSON = filterContentsJSON;
+    }
+
+    public boolean isHtmlEmail() {
+        return htmlEmail;
+    }
+
+    public void setHtmlEmail(boolean htmlEmail) {
+        this.htmlEmail = htmlEmail;
     }
 }
 

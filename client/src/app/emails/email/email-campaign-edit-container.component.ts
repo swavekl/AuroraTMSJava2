@@ -142,8 +142,11 @@ export class EmailCampaignEditContainerComponent implements OnDestroy {
       this.loadRecipients($event.recipientFilters, $event.removedRecipients);
     } else if (action === 'sendemails') {
       const emailCampaign: EmailCampaign = $event.value;
-      this.sendEmailCampaign(this.tournamentId, emailCampaign);
+      this.sendEmailCampaign(this.tournamentId, emailCampaign, false);
       // this.back();
+    } else if (action === 'sendtestemail') {
+      const emailCampaign: EmailCampaign = $event.value;
+      this.sendEmailCampaign(this.tournamentId, emailCampaign, true);
     } else {
       this.back();
     }
@@ -184,15 +187,17 @@ export class EmailCampaignEditContainerComponent implements OnDestroy {
       );
   }
 
-  private sendEmailCampaign(tournamentId: number, emailCampaign: EmailCampaign) {
-    this.emailSenderService.sendCampaign(tournamentId, emailCampaign)
+  private sendEmailCampaign(tournamentId: number, emailCampaign: EmailCampaign, sendTestEmail: boolean) {
+    this.emailSenderService.sendCampaign(tournamentId, emailCampaign, sendTestEmail)
       .pipe(first())
       .subscribe({
         next: (response: any) => {
           const config = {
             width: '450px', height: '190px', data: {
               contentAreaHeight: 140, showCancel: false, okText: 'Close', title: 'Information',
-              message: `Email sending was initiated successfully.  It will take a while to send emails.`
+              message: (sendTestEmail)
+                ? 'Email was sent to your email address.'
+                : `Email sending was initiated successfully.  It will take a while to send emails.`
             }
           };
           const dialogRef = this.dialog.open(ConfirmationPopupComponent, config);

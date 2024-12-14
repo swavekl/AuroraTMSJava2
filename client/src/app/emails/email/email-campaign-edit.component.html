@@ -7,6 +7,7 @@
       <button mat-raised-button type="button" (click)="onCancel()">Cancel</button>
       <button mat-raised-button type="button" color="primary" (click)="onSave()" [disabled]="f.invalid">Save</button>
       <button mat-raised-button type="button" (click)="onSendEmails()" [disabled]="f.invalid || emailCampaign?.id == null">Send Emails</button>
+      <button mat-raised-button type="button" (click)="onSendTestEmail()" [disabled]="f.invalid || emailCampaign?.id == null">Send Test Email</button>
       <button mat-raised-button type="button" (click)="copyRecipients()" [disabled]="!(filteredRecipients?.length > 0)">Copy Recipients</button>
     </mat-toolbar>
     <mat-tab-group class="email-generator-container-work">
@@ -24,6 +25,7 @@
             <button mat-raised-button type="button" (click)="onInsertVariable('last_name')">Last Name</button>
             <button mat-raised-button type="button" (click)="onInsertVariable('tournament_name')">Tournament Name
             </button>
+            <mat-checkbox name="htmlEmail" [(ngModel)]="emailCampaign.htmlEmail">HTML Email</mat-checkbox>
           </mat-toolbar>
           <mat-form-field>
             <mat-label>Subject</mat-label>

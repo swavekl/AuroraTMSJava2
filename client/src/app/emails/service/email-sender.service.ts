@@ -69,8 +69,8 @@ export class EmailSenderService {
         ));
   }
 
-  public sendCampaign(tournamentId: number, emailCampaign: EmailCampaign): Observable<string> {
-    return this.httpClient.post(`${this.API_BASE_URL}/sendcampaign/${tournamentId}`, emailCampaign)
+  public sendCampaign(tournamentId: number, emailCampaign: EmailCampaign, sendTestEmail: boolean): Observable<string> {
+    return this.httpClient.post(`${this.API_BASE_URL}/sendcampaign/${tournamentId}/${sendTestEmail}`, emailCampaign)
       .pipe(
         tap({
             next: (value: string) => {

@@ -26,6 +26,9 @@ export class EmailCampaign {
 
   // recipients to remove from the list
   removedRecipients: Recipient [];
+
+  // treat body of this email as html when sending
+  htmlEmail: boolean;
 }
 
 /**

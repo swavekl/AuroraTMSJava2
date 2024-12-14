@@ -57,9 +57,10 @@ public class EmailSenderController {
      * @param emailCampaign
      * @return
      */
-    @PostMapping("/sendcampaign/{tournamentId}")
+    @PostMapping("/sendcampaign/{tournamentId}/{sendTestEmail}")
     public @ResponseBody ResponseEntity<String> getRecipients(@PathVariable Long tournamentId,
-                                                              @RequestBody EmailCampaign emailCampaign) {
+                                                              @RequestBody EmailCampaign emailCampaign,
+                                                              @PathVariable Boolean sendTestEmail) {
         final String currentUserName = UserRolesHelper.getCurrentUsername();
         CampaignSendingStatus campaignSendingStatus = new CampaignSendingStatus();
         campaignSendingStatus.phase = String.format("Staring email campaign generation for user %s", currentUserName);
@@ -81,7 +82,7 @@ public class EmailSenderController {
                 public void run() {
                     SecurityContextHolder.getContext().setAuthentication(authentication);
 
-                    emailSenderService.sendCampaign(tournamentId, emailCampaign, campaignSendingStatus, currentUserName);
+                    emailSenderService.sendCampaign(tournamentId, emailCampaign, campaignSendingStatus, currentUserName, sendTestEmail);
                     log.info("Finished campaign for username " + currentUserName);
                     statusPerThread.remove(campaignSendingStatus.id);
                 }
