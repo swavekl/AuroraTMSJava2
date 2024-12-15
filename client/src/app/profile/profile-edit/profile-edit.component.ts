@@ -255,13 +255,15 @@ export class ProfileEditComponent implements OnInit, OnChanges, AfterViewInit, O
     this.cdr.markForCheck();
   }
 
-  onAddClub() {
+  onAddClub(formValues: any) {
     const callbackParams: ClubEditCallbackData = {
       successCallbackFn: this.onAddClubOKCallback,
       cancelCallbackFn: null,
       callbackScope: this
     };
     const newClub: Club = new Club();
+    newClub.state = formValues?.state;
+    newClub.countryCode = formValues?.countryCode;
     this.clubEditPopupService.showPopup(newClub, callbackParams);
   }
 

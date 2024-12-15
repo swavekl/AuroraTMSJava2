@@ -20,7 +20,8 @@ export class ClubEditComponent implements OnInit {
 
   constructor(public dialogRef: MatDialogRef<ClubEditComponent>,
               @Inject(MAT_DIALOG_DATA) public club: Club) {
-    this.statesList = StatesList.getCountryStatesList('US');
+    const countryCode: string = (club?.countryCode != null) ? club.countryCode : 'US';
+    this.statesList = StatesList.getCountryStatesList(countryCode);
   }
 
   ngOnInit(): void {
