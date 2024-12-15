@@ -3,6 +3,8 @@ import {EmailCampaign, Recipient} from '../model/email-campaign.model';
 import {TournamentEvent} from '../../tournament/tournament-config/tournament-event.model';
 import {MatSnackBar} from '@angular/material/snack-bar';
 import {MatCheckboxChange} from '@angular/material/checkbox';
+import {ConfirmationPopupComponent} from '../../shared/confirmation-popup/confirmation-popup.component';
+import {MatDialog} from '@angular/material/dialog';
 
 @Component({
   selector: 'app-email-campaign-edit',
@@ -38,12 +40,27 @@ export class EmailCampaignEditComponent  {
   private selectedRecipient: Recipient;
   private removedRecipient: Recipient;
 
-  constructor(private snackBar: MatSnackBar) {
+  constructor(private snackBar: MatSnackBar,
+              private dialog: MatDialog) {
 
   }
 
   onSendEmails() {
-    this.eventEmitter.emit({action: 'sendemails', value: this.emailCampaign});
+    if (this.filteredRecipients?.length > 450) {
+      const config = {
+        width: '450px', height: '230px', data: {
+          contentAreaHeight: 130, showCancel: false, okText: 'Close', title: 'Warning',
+          message: `Your email provider account has a limit of 450 emails per day.
+          You are trying to send ${this.filteredRecipients.length} emails so some emails would not be sent.
+          Please reduce the list or split it in chunks i.e. A - F today, G - M tomorrow, etc.`
+        }
+      };
+      const dialogRef = this.dialog.open(ConfirmationPopupComponent, config);
+      dialogRef.afterClosed().subscribe(result => {
+      });
+    } else {
+      this.eventEmitter.emit({action: 'sendemails', value: this.emailCampaign});
+    }
   }
 
   onSendTestEmail() {

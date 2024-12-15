@@ -36,6 +36,7 @@ export class EmailCampaignEditContainerComponent implements OnDestroy {
   public emailCampaign$: Observable<EmailCampaign>;
   public tournamentEvents$: Observable<TournamentEvent[]>;
   public filteredRecipients$: Observable<Recipient[]>;
+  private totalFilteredRecipients: number;
 
   private creating: boolean;
   private loading$: Observable<boolean>;
@@ -177,6 +178,7 @@ export class EmailCampaignEditContainerComponent implements OnDestroy {
       .subscribe({
           next: (filteredRecipients: Recipient[]) => {
             this.filteredRecipients$ = of(filteredRecipients);
+            this.totalFilteredRecipients = filteredRecipients.length;
           },
           error: (error: any) => {
             console.log('error', error);
@@ -193,12 +195,13 @@ export class EmailCampaignEditContainerComponent implements OnDestroy {
       .pipe(first())
       .subscribe({
         next: (response: any) => {
+          const timeToSend: number = Math.floor((this.totalFilteredRecipients * 6) / 60);
           const config = {
-            width: '450px', height: '190px', data: {
-              contentAreaHeight: 140, showCancel: false, okText: 'Close', title: 'Information',
+            width: '450px', height: '200px', data: {
+              contentAreaHeight: 120, showCancel: false, okText: 'Close', title: 'Information',
               message: (sendTestEmail)
                 ? 'Email was sent to your email address.'
-                : `Email sending was initiated successfully.  It will take a while to send emails.`
+                : `Email sending was initiated successfully.  It will take a approximately ${timeToSend} minutes to send ${this.totalFilteredRecipients} emails.`
             }
           };
           const dialogRef = this.dialog.open(ConfirmationPopupComponent, config);
