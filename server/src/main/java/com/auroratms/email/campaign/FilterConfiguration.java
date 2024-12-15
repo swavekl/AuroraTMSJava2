@@ -30,6 +30,9 @@ public class FilterConfiguration implements Serializable {
     // if true exclude those from the list who are already registered for this tournament
     private Boolean excludeRegistered;
 
+    // state abbreviations to filter by
+    private List<String> stateFilters;
+
     public List<Long> getRecipientFilters() {
         return (recipientFilters != null) ? recipientFilters : Collections.emptyList();
     }
@@ -61,6 +64,14 @@ public class FilterConfiguration implements Serializable {
 
     public void setExcludeRegistered(Boolean excludeRegistered) {
         this.excludeRegistered = excludeRegistered;
+    }
+
+    public List<String> getStateFilters() {
+        return stateFilters;
+    }
+
+    public void setStateFilters(List<String> stateFilters) {
+        this.stateFilters = stateFilters;
     }
 
     public String convertToJSON () {

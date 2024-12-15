@@ -5,6 +5,7 @@ import {MatSnackBar} from '@angular/material/snack-bar';
 import {MatCheckboxChange} from '@angular/material/checkbox';
 import {ConfirmationPopupComponent} from '../../shared/confirmation-popup/confirmation-popup.component';
 import {MatDialog} from '@angular/material/dialog';
+import {StatesList} from '../../shared/states/states-list';
 
 @Component({
   selector: 'app-email-campaign-edit',
@@ -40,9 +41,14 @@ export class EmailCampaignEditComponent  {
   private selectedRecipient: Recipient;
   private removedRecipient: Recipient;
 
+  // states to filter by if filtering not by event
+  public statesList: any [];
+  public readonly ALL_STATES: string= 'ALL';
+
   constructor(private snackBar: MatSnackBar,
               private dialog: MatDialog) {
-
+    let countryCode = 'US';
+    this.statesList = StatesList.getCountryStatesList(countryCode);
   }
 
   onSendEmails() {
@@ -52,7 +58,7 @@ export class EmailCampaignEditComponent  {
           contentAreaHeight: 130, showCancel: false, okText: 'Close', title: 'Warning',
           message: `Your email provider account has a limit of 450 emails per day.
           You are trying to send ${this.filteredRecipients.length} emails so some emails would not be sent.
-          Please reduce the list or split it in chunks i.e. A - F today, G - M tomorrow, etc.`
+          Please reduce the list or split it into chunks by state AL - FL today, GA - MN tomorrow, etc.`
         }
       };
       const dialogRef = this.dialog.open(ConfirmationPopupComponent, config);
@@ -120,7 +126,8 @@ export class EmailCampaignEditComponent  {
       recipientFilters: this.emailCampaign.recipientFilters,
       removedRecipients: this.emailCampaign.removedRecipients,
       allRecipients: false,
-      excludeRegistered: false
+      excludeRegistered: false,
+      stateFilters: []
     };
     this.emitFilterEvent();
   }
@@ -131,7 +138,8 @@ export class EmailCampaignEditComponent  {
       recipientFilters: [],
       removedRecipients: [],
       allRecipients: event.checked,
-      excludeRegistered: !event.checked ? false : this.emailCampaign.excludeRegistered
+      excludeRegistered: !event.checked ? false : this.emailCampaign.excludeRegistered,
+      stateFilters: [this.ALL_STATES]
     };
     this.emitFilterEvent();
   }
@@ -146,13 +154,31 @@ export class EmailCampaignEditComponent  {
     this.emitFilterEvent();
   }
 
+  onClickState(stateAbbreviation: string) {
+    let stateFilters: string [] = this.emailCampaign.stateFilters || [];
+    if (stateAbbreviation === this.ALL_STATES || stateFilters?.length === 0) {
+      stateFilters = [this.ALL_STATES];
+    } else {
+      const allIndex: number = stateFilters.indexOf(this.ALL_STATES);
+      if (allIndex != -1) {
+        stateFilters = stateFilters.filter((e, i) => i !== allIndex);
+      }
+    }
+    console.log('stateFilters: ' + stateFilters);
+    this.emailCampaign = {
+      ...this.emailCampaign,
+      stateFilters: stateFilters
+    };
+    this.emitFilterEvent();
+  }
 
   private emitFilterEvent() {
     this.eventEmitter.emit({action: 'filter',
       recipientFilters: this.emailCampaign.recipientFilters,
       removedRecipients: this.emailCampaign.removedRecipients,
       allRecipients: this.emailCampaign.allRecipients,
-      excludeRegistered: this.emailCampaign.excludeRegistered
+      excludeRegistered: this.emailCampaign.excludeRegistered,
+      stateFilters: this.emailCampaign.stateFilters
     });
   }
 

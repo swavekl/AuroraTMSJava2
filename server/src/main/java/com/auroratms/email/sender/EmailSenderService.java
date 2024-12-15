@@ -75,8 +75,20 @@ public class EmailSenderService {
         // get all recipients
         List<UserProfile> filteredAllUserProfiles = new ArrayList<>();
         if (isGetAllRecipients) {
-            Collection<UserProfile> allUserProfiles = userProfileService.list();
-            for (UserProfile userProfile : allUserProfiles) {
+            Collection<UserProfile> userProfileList;
+            List<String> stateFilters = filterConfiguration.getStateFilters();
+            boolean allStates = stateFilters == null || (stateFilters != null && stateFilters.stream().anyMatch(new Predicate<String>() {
+                @Override
+                public boolean test(String state) {
+                    return "ALL".equals(state);
+                }
+            }));
+            if (allStates) {
+                userProfileList = userProfileService.list();
+            } else {
+                userProfileList = userProfileService.listByStates(stateFilters);
+            }
+            for (UserProfile userProfile : userProfileList) {
                 // skip test user profiles
                 if (!userProfile.getEmail().matches("swaveklorenc\\+(.*)@gmail\\.com")) {
                     if (isExcludeRegistered) {

@@ -33,6 +33,9 @@ export class EmailCampaign {
   // if true exclude those from the list who are already registered for this tournament
   excludeRegistered: boolean;
 
+  // state abbreviations to filter by
+  stateFilters: string [];
+
   // treat body of this email as html when sending
   htmlEmail: boolean;
 }

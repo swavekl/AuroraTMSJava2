@@ -105,10 +105,13 @@ export class EmailCampaignEditContainerComponent implements OnDestroy {
               emailCampaignToEdit.id = null;
               emailCampaignToEdit.name = emailCampaignToEdit.name + " Copy";
             }
+            if (emailCampaignToEdit?.stateFilters?.length > 0) {
+              emailCampaignToEdit.allRecipients = true;
+            }
             this.emailCampaign$ = of(emailCampaignToEdit);
-            if (emailCampaignToEdit.recipientFilters?.length > 0 || emailCampaignToEdit?.allRecipients === true) {
+            if (emailCampaignToEdit.recipientFilters?.length > 0 || emailCampaignToEdit?.stateFilters?.length > 0) {
               this.loadRecipients(emailCampaignToEdit.recipientFilters, emailCampaignToEdit.removedRecipients,
-                emailCampaignToEdit?.allRecipients, emailCampaignToEdit?.excludeRegistered);
+                emailCampaignToEdit?.allRecipients, emailCampaignToEdit?.excludeRegistered, emailCampaignToEdit?.stateFilters);
             }
           }
         });
@@ -141,7 +144,7 @@ export class EmailCampaignEditContainerComponent implements OnDestroy {
         complete: () => {}});
     } else if (action === 'filter') {
       // console.log('recipientFilters', $event.recipientFilters);
-      this.loadRecipients($event.recipientFilters, $event.removedRecipients, $event.allRecipients, $event.excludeRegistered);
+      this.loadRecipients($event.recipientFilters, $event.removedRecipients, $event.allRecipients, $event.excludeRegistered, $event.stateFilters);
     } else if (action === 'sendemails') {
       const emailCampaign: EmailCampaign = $event.value;
       this.sendEmailCampaign(this.tournamentId, emailCampaign, false);
@@ -162,8 +165,8 @@ export class EmailCampaignEditContainerComponent implements OnDestroy {
     this.subscriptions.unsubscribe();
   }
 
-  private loadRecipients(recipientFilters: number [], removedRecipients: Recipient[], allRecipients: boolean, excludeRegistered: boolean) {
-    this.emailSenderService.getRecipientEmails(this.tournamentId, recipientFilters, removedRecipients, allRecipients, excludeRegistered)
+  private loadRecipients(recipientFilters: number[], removedRecipients: Recipient[], allRecipients: boolean, excludeRegistered: boolean, stateFilters: string[]) {
+    this.emailSenderService.getRecipientEmails(this.tournamentId, recipientFilters, removedRecipients, allRecipients, excludeRegistered, stateFilters)
       .pipe(
         switchMap(
           (recipients: Recipient []) => {

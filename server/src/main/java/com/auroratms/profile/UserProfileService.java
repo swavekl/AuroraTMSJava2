@@ -126,6 +126,42 @@ public class UserProfileService {
     }
 
     /**
+     * Lists users by state
+     * @param statesList
+     * @return
+     */
+    public Collection<UserProfile> listByStates (List<String> statesList) {
+        Client client = getClient();
+        List<UserProfile> profileList = new ArrayList<>();
+        if (!statesList.isEmpty()) {
+            int batchSize = 10;
+            int fromIndex = 0;
+            int toIndex = fromIndex + batchSize;
+            toIndex = Math.min(toIndex, statesList.size());
+            while(true) {
+                List<String> statesBatch = statesList.subList(fromIndex, toIndex);
+                StringBuilder search = new StringBuilder();
+                for (String state : statesBatch) {
+                    search.append((search.length() > 0) ? " or " : "");
+                    search.append(String.format("(profile.state eq \"%s\")", state));
+                }
+
+                UserList users = client.listUsers(null, null, search.toString(), null, null);
+                Collection<UserProfile> userProfilesBatch = toUserProfileList(users);
+                profileList.addAll(userProfilesBatch);
+
+                fromIndex = toIndex;
+                if (toIndex == statesList.size()) {
+                    break;
+                }
+                toIndex = fromIndex + batchSize;
+                toIndex = Math.min(toIndex, statesList.size());
+            }
+        }
+        return profileList;
+    }
+
+    /**
      * Gets specified profiles in bulk
      * @param profileIds
      * @return

@@ -36,6 +36,9 @@ public class EmailCampaign implements Serializable {
     // treat body of this email as html when sending
     boolean htmlEmail;
 
+    // state abbreviations to filter by
+    private List<String> stateFilters;
+
     public EmailCampaign() {
     }
 
@@ -120,6 +123,14 @@ public class EmailCampaign implements Serializable {
         this.htmlEmail = htmlEmail;
     }
 
+    public List<String> getStateFilters() {
+        return stateFilters;
+    }
+
+    public void setStateFilters(List<String> stateFilters) {
+        this.stateFilters = stateFilters;
+    }
+
     public EmailCampaignEntity convertToEntity() {
         EmailCampaignEntity emailCampaignEntity = new EmailCampaignEntity();
         emailCampaignEntity.setId(this.getId());
@@ -132,6 +143,7 @@ public class EmailCampaign implements Serializable {
         FilterConfiguration filterConfiguration = new FilterConfiguration();
         filterConfiguration.setRecipientFilters(this.getRecipientFilters());
         filterConfiguration.setRemovedRecipients(this.getRemovedRecipients());
+        filterConfiguration.setStateFilters(this.getStateFilters());
         String content = filterConfiguration.convertToJSON();
         emailCampaignEntity.setFilterContentsJSON(content);
         emailCampaignEntity.setHtmlEmail(this.isHtmlEmail());
@@ -151,6 +163,7 @@ public class EmailCampaign implements Serializable {
         FilterConfiguration filterConfiguration = FilterConfiguration.convertFromJSON(content);
         this.recipientFilters = filterConfiguration.getRecipientFilters();
         this.removedRecipients = filterConfiguration.getRemovedRecipients();
+        this.stateFilters = filterConfiguration.getStateFilters();
         this.htmlEmail = emailCampaignEntity.isHtmlEmail();
 
         return this;

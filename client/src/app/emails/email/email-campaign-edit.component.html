@@ -57,15 +57,27 @@
             [disabled]="!emailCampaign?.allRecipients">
               Exclude Already Registered
             </mat-checkbox>
-            <div class="mat-headline-6">Filter Recipients by:</div>
-            <mat-selection-list matInput name="events_filter" [(ngModel)]="emailCampaign.recipientFilters"
-                                class="event-list" [disabled]="emailCampaign?.allRecipients">
-              <mat-list-option [value]="0" (click)="onSelectEvent(0)">All Events</mat-list-option>
-              <mat-list-option *ngFor="let event of tournamentEvents" [value]="event.id"
-                               (click)="onSelectEvent(event.id)">
-                {{ event.name }}
-              </mat-list-option>
-            </mat-selection-list>
+            <ng-container *ngIf="emailCampaign?.allRecipients; else elseblock">
+              <div class="mat-headline-6">Filter Recipients by States:</div>
+              <mat-selection-list matInput name="state_filter" [(ngModel)]="emailCampaign.stateFilters"
+                                  class="event-list" [disabled]="!emailCampaign?.allRecipients">
+                <mat-list-option [value]="this.ALL_STATES" (click)="onClickState(ALL_STATES)">All States</mat-list-option>
+                <mat-list-option *ngFor="let state of statesList" value="{{state.abbreviation}}"
+                (click)="onClickState(state.abbbreviation)">{{state.name}}
+                </mat-list-option>
+              </mat-selection-list>
+            </ng-container>
+            <ng-template #elseblock>
+              <div class="mat-headline-6">Filter Recipients by Events:</div>
+              <mat-selection-list matInput name="events_filter" [(ngModel)]="emailCampaign.recipientFilters"
+                                  class="event-list" [disabled]="emailCampaign?.allRecipients">
+                <mat-list-option [value]="0" (click)="onSelectEvent(0)">All Events</mat-list-option>
+                <mat-list-option *ngFor="let event of tournamentEvents" [value]="event.id"
+                                 (click)="onSelectEvent(event.id)">
+                  {{ event.name }}
+                </mat-list-option>
+              </mat-selection-list>
+            </ng-template>
           </div>
           <div fxFlex="35%">
             <div class="mat-headline-6">Selected Recipients ({{filteredRecipients?.length ?? 0}})</div>
