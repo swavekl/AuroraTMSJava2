@@ -1,7 +1,7 @@
 import {Component, OnDestroy} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 import {combineLatest, Observable, of, Subscription} from 'rxjs';
-import {first, switchMap} from 'rxjs/operators';
+import {first, map, switchMap} from 'rxjs/operators';
 import {createSelector} from '@ngrx/store';
 
 import {LinearProgressBarService} from '../../shared/linear-progress-bar/linear-progress-bar.service';
@@ -13,6 +13,7 @@ import {TournamentEventConfigService} from '../../tournament/tournament-config/t
 import {EmailSenderService} from '../service/email-sender.service';
 import {ConfirmationPopupComponent} from '../../shared/confirmation-popup/confirmation-popup.component';
 import {MatDialog} from '@angular/material/dialog';
+import {error} from '@angular/compiler-cli/src/transformers/util';
 
 @Component({
   selector: 'app-email-campaign-edit-container',
@@ -147,11 +148,11 @@ export class EmailCampaignEditContainerComponent implements OnDestroy {
       this.loadRecipients($event.recipientFilters, $event.removedRecipients, $event.allRecipients, $event.excludeRegistered, $event.stateFilters);
     } else if (action === 'sendemails') {
       const emailCampaign: EmailCampaign = $event.value;
-      this.sendEmailCampaign(this.tournamentId, emailCampaign, false);
+      this.saveAndSendEmailCampaign(this.tournamentId, emailCampaign, false);
       // this.back();
     } else if (action === 'sendtestemail') {
       const emailCampaign: EmailCampaign = $event.value;
-      this.sendEmailCampaign(this.tournamentId, emailCampaign, true);
+      this.saveAndSendEmailCampaign(this.tournamentId, emailCampaign, true);
     } else {
       this.back();
     }
@@ -193,7 +194,35 @@ export class EmailCampaignEditContainerComponent implements OnDestroy {
       );
   }
 
-  private sendEmailCampaign(tournamentId: number, emailCampaign: EmailCampaign, sendTestEmail: boolean) {
+  /**
+   * Saves campaign and sends it
+   * @param tournamentId
+   * @param emailCampaign
+   * @param sendTestEmail
+   * @private
+   */
+  private saveAndSendEmailCampaign(tournamentId: number, emailCampaign: EmailCampaign, sendTestEmail: boolean) {
+    this.emailCampaignService.upsert(emailCampaign)
+      .pipe(
+        first(),
+        switchMap((savedCampaign: EmailCampaign): Observable<any> => {
+          this.doSendCampaign(tournamentId, savedCampaign, sendTestEmail);
+          return of('');
+        })
+      )
+      .subscribe({
+        next: (result: string) => {
+        },
+        error: (error: any) => {
+          const errorMessage: string = (error.error?.message) ?? error.message;
+          this.errorMessagePopupService.showError(errorMessage, null, null, 'Error Saving Campaign');
+        },
+        complete: () => {
+        }
+      });
+  }
+
+  private doSendCampaign(tournamentId: number, emailCampaign: EmailCampaign, sendTestEmail: boolean): void {
     this.emailSenderService.sendCampaign(tournamentId, emailCampaign, sendTestEmail)
       .pipe(first())
       .subscribe({
@@ -209,18 +238,19 @@ export class EmailCampaignEditContainerComponent implements OnDestroy {
           };
           const dialogRef = this.dialog.open(ConfirmationPopupComponent, config);
           dialogRef.afterClosed().subscribe(result => {
-            if (result === 'ok') {
+            if (result === 'ok' && !sendTestEmail) {
               this.back();
             }
           });
         },
         error: (error: any) => {
           const errorMessage = error.error?.message ?? error.message;
-          this.errorMessagePopupService.showError(errorMessage, null, null, "Error sending email campaign");
+          this.errorMessagePopupService.showError(errorMessage, null, null, 'Error sending email campaign');
         },
         complete: () => {
 
         }
       });
+
   }
 }
