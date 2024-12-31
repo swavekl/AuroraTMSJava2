@@ -9,6 +9,7 @@ import {AuthenticationService} from '../../user/authentication.service';
 import {UserRoles} from '../../user/user-roles.enum';
 import {FileRepositoryService} from '../../shared/upload-button/file-repository.service';
 import {ConfirmationPopupComponent} from '../../shared/confirmation-popup/confirmation-popup.component';
+import {Router} from '@angular/router';
 
 @Component({
   selector: 'app-tournament-processing-detail',
@@ -39,7 +40,8 @@ export class TournamentProcessingDetailComponent implements OnInit, OnChanges {
 
   constructor(private dialog: MatDialog,
               private authenticationService: AuthenticationService,
-              private fileRepositoryService: FileRepositoryService) {
+              private fileRepositoryService: FileRepositoryService,
+              private router: Router) {
   }
 
   ngOnInit(): void {
@@ -181,5 +183,12 @@ export class TournamentProcessingDetailComponent implements OnInit, OnChanges {
   onDownloadDFile(fileUrl: string): boolean {
     this.fileRepositoryService.download(fileUrl);
     return false;
+  }
+
+  verifyMemberships() {
+    const url = `/ui/processing/verifymemberships/${this.tournamentProcessingRequest.tournamentId}/${this.tournamentProcessingRequest.tournamentName}`;
+    const returnURL = `/ui/processing/detail/submit/${this.tournamentProcessingRequest.tournamentId}/${this.tournamentProcessingRequest.tournamentName}`;
+    const extras = {state: {returnUrl: returnURL }};
+    this.router.navigateByUrl(url, extras);
   }
 }

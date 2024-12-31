@@ -1,0 +1,85 @@
+<div class="page-container">
+  <div class="mat-headline-6" style="padding-left: 8px; width: 100%;">Verify Memberships: {{ tournamentName }}</div>
+  <mat-toolbar fxLayout="row" fxLayoutGap="10">
+    <button mat-raised-button type="button" [routerLink]="returnUrl">Back</button>
+  </mat-toolbar>
+  <div class="membership-info-container" *ngIf="membershipInfos != null">
+    <table class="membership-info-table">
+      <thead>
+      <tr>
+        <th>Player Name</th>
+        <th>Membership Id</th>
+        <th>Membership Expires</th>
+        <th>Membership Purchased</th>
+        <th>Entry</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let membershipInfo of membershipInfos">
+        <td>
+          <a [routerLink]="['/ui/userprofile/edit', membershipInfo.profileId]"
+             [state]="{waitingListReturnUrl: thisUrl}">{{ membershipInfo.playerName }}</a>
+        </td>
+        <td>{{ membershipInfo.membershipId }}</td>
+        <td [class]="isUnpaid(membershipInfo.expirationDate, membershipInfo.membershipType) ? 'unpaid-membership' : ''">{{ membershipInfo.expirationDate | date }}</td>
+        <td>{{ getMembershipOptionLabel(membershipInfo.membershipType) }}</td>
+        <td>
+          <a [routerLink]="['/ui/entries/entryview/', tournamentId, 'edit', membershipInfo.entryId]"
+             [state]="{returnUrl: thisUrl}">View</a>
+        </td>
+      </tr>
+      </tbody>
+      <tfoot>
+      <tr>
+        <th>&nbsp;</th>
+        <th>&nbsp;</th>
+        <th>&nbsp;</th>
+        <th class="important-header">Purchased Membership Totals</th>
+        <th>&nbsp;</th>
+      </tr>
+      <tr>
+        <th>&nbsp;</th>
+        <th>&nbsp;</th>
+        <th>&nbsp;</th>
+        <th>{{getMembershipOptionLabel(MembershipType.TOURNAMENT_PASS_ADULT)}}</th>
+        <th>{{ countPassAdult }}</th>
+      </tr>
+      <tr>
+        <th>&nbsp;</th>
+        <th>&nbsp;</th>
+        <th>&nbsp;</th>
+        <th>{{getMembershipOptionLabel(MembershipType.TOURNAMENT_PASS_JUNIOR)}}</th>
+        <th>{{ countPassJunior }}</th>
+      </tr>
+      <tr>
+        <th>&nbsp;</th>
+        <th>&nbsp;</th>
+        <th>&nbsp;</th>
+        <th>{{getMembershipOptionLabel(MembershipType.BASIC_PLAN)}}</th>
+        <th>{{ countBasic }}</th>
+      </tr>
+      <tr>
+        <th>&nbsp;</th>
+        <th>&nbsp;</th>
+        <th>&nbsp;</th>
+        <th>{{getMembershipOptionLabel(MembershipType.PRO_PLAN)}}</th>
+        <th>{{ countPro }}</th>
+      </tr>
+      <tr>
+        <th>&nbsp;</th>
+        <th>&nbsp;</th>
+        <th>&nbsp;</th>
+        <th>{{getMembershipOptionLabel(MembershipType.LIFETIME)}}</th>
+        <th>{{ countLifetime }}</th>
+      </tr>
+      <tr>
+        <th>&nbsp;</th>
+        <th>&nbsp;</th>
+        <th>&nbsp;</th>
+        <th class="important-header">All Memberships</th>
+        <th class="important-header">{{ countPassAdult + countPassJunior + countBasic + countPro + countLifetime }}</th>
+      </tr>
+      </tfoot>
+    </table>
+  </div>
+</div>

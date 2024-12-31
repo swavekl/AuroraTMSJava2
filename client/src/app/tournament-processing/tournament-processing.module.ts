@@ -22,6 +22,8 @@ import {
 } from './tournament-processing-detail/tournament-processing-detail-container.component';
 import {GenerateReportsDialogComponent} from './generate-reports-dialog/generate-reports-dialog.component';
 import {AccountModule} from '../account/account.module';
+import { VerifyMembershipsComponent } from './verify-memberships/verify-memberships.component';
+import { VerifyMembershipsContainerComponent } from './verify-memberships/verify-memberships-container.component';
 
 
 @NgModule({
@@ -29,7 +31,9 @@ import {AccountModule} from '../account/account.module';
     TournamentProcessingListComponent,
     TournamentProcessingDetailComponent,
     TournamentProcessingDetailContainerComponent,
-    GenerateReportsDialogComponent
+    GenerateReportsDialogComponent,
+    VerifyMembershipsComponent,
+    VerifyMembershipsContainerComponent
   ],
     imports: [
         CommonModule,

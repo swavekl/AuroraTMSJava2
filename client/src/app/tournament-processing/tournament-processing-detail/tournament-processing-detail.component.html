@@ -6,6 +6,10 @@
     <mat-icon matListItemIcon>note_add</mat-icon>
     Generate Reports
   </button>
+  <button type="button" mat-raised-button (click)="verifyMemberships()">
+    <mat-icon matListItemIcon>fact_check</mat-icon>
+    Verify Memberships
+  </button>
 </mat-toolbar>
 <div *ngIf="tournamentProcessingRequest != null">
   <ng-container

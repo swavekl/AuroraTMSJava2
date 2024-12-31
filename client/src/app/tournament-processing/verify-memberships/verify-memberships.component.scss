@@ -1,0 +1,50 @@
+div.page-container {
+  width: 98%;
+  overflow: hidden;
+  height: calc(100vh - 72px);
+}
+
+div.membership-info-container {
+  width: 70vw;
+  margin-left: auto;
+  margin-right: auto;
+  overflow: auto;
+  height: calc(100vh - 185px);
+}
+
+table.membership-info-table {
+  width: 100%;
+  font-size: 16px;
+
+  thead tr th {
+    text-align: left;
+    font-weight: bold;
+    padding: 8px;
+    border-bottom: 1px solid black;
+  }
+
+  tfoot tr th {
+    text-align: left;
+    padding: 8px;
+
+    &.important-header {
+      font-weight: bold;
+    }
+  }
+
+
+  tbody tr {
+
+    &:nth-child(odd) td {
+      background: rgba(143, 126, 126, 0.18);
+    }
+
+    td {
+      padding: 8px;
+
+      &.unpaid-membership {
+        color: red;
+      }
+    }
+  }
+}

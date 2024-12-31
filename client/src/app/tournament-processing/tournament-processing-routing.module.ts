@@ -6,6 +6,7 @@ import {
   TournamentProcessingDetailContainerComponent
 } from './tournament-processing-detail/tournament-processing-detail-container.component';
 import {AuthGuard} from '../guards/auth.guard';
+import {VerifyMembershipsContainerComponent} from './verify-memberships/verify-memberships-container.component';
 
 const routes: Routes = [
   {
@@ -26,6 +27,13 @@ const routes: Routes = [
     path: 'detail/submit/:tournamentId/:tournamentName', component: TournamentProcessingDetailContainerComponent,
     data: {
       roles: [UserRoles.ROLE_USATT_TOURNAMENT_MANAGERS, UserRoles.ROLE_ADMINS, UserRoles.ROLE_TOURNAMENT_DIRECTORS]
+    },
+    canActivate: [AuthGuard]
+  },
+  {
+    path: 'verifymemberships/:tournamentId/:tournamentName', component: VerifyMembershipsContainerComponent,
+    data: {
+      roles: [UserRoles.ROLE_ADMINS, UserRoles.ROLE_TOURNAMENT_DIRECTORS]
     },
     canActivate: [AuthGuard]
   }
