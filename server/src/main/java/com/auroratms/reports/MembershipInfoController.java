@@ -7,6 +7,9 @@ import com.auroratms.profile.UserProfileService;
 import com.auroratms.tournamententry.MembershipType;
 import com.auroratms.tournamententry.TournamentEntry;
 import com.auroratms.tournamententry.TournamentEntryService;
+import com.auroratms.tournamentevententry.EventEntryStatus;
+import com.auroratms.tournamentevententry.TournamentEventEntry;
+import com.auroratms.tournamentevententry.TournamentEventEntryService;
 import com.auroratms.usatt.UsattDataService;
 import com.auroratms.usatt.UsattPlayerRecord;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +34,9 @@ public class MembershipInfoController {
     private TournamentEntryService tournamentEntryService;
 
     @Autowired
+    private TournamentEventEntryService tournamentEventEntryService;
+
+    @Autowired
     private UserProfileService userProfileService;
 
     @Autowired
@@ -49,35 +55,37 @@ public class MembershipInfoController {
     @ResponseBody
     public ResponseEntity<List<MembershipInfo>> list(@PathVariable long tournamentId) {
 
-        long start = System.currentTimeMillis();
+        // build map of entry ids showing which have any confirmed entries
+        // we want to exclude the players who withdrew
+        Map<Long, Boolean> entryIdToEnteredMap = new HashMap<>();
+        List<TournamentEventEntry> tournamentEventEntries = tournamentEventEntryService.listAllForTournament(tournamentId);
+        for (TournamentEventEntry tournamentEventEntry : tournamentEventEntries) {
+            EventEntryStatus status = tournamentEventEntry.getStatus();
+            if (status == EventEntryStatus.ENTERED) {
+                entryIdToEnteredMap.put(tournamentEventEntry.getTournamentEntryFk(), Boolean.TRUE);
+            }
+        }
+
         // get all tournament entries for this tournament and collect player profiles ids
         List<TournamentEntry> tournamentEntries = tournamentEntryService.listForTournament(tournamentId);
         Set<String> uniqueProfileIdsSet = new HashSet<>();
         Map<String, MembershipType> profileIdToPurchasedMembershipTypesMap = new HashMap<>();
         for (TournamentEntry tournamentEntry : tournamentEntries) {
-            MembershipType membershipOption = tournamentEntry.getMembershipOption();
-            uniqueProfileIdsSet.add(tournamentEntry.getProfileId());
-            profileIdToPurchasedMembershipTypesMap.put(tournamentEntry.getProfileId(), membershipOption);
+            if (entryIdToEnteredMap.containsKey(tournamentEntry.getId())) {
+                MembershipType membershipOption = tournamentEntry.getMembershipOption();
+                uniqueProfileIdsSet.add(tournamentEntry.getProfileId());
+                profileIdToPurchasedMembershipTypesMap.put(tournamentEntry.getProfileId(), membershipOption);
+            }
         }
-        long end = System.currentTimeMillis();
-        System.out.println("reading tournament entries took " + (end - start));
-        start = end;
 
         // get profile information for those who bought it
         List<String> profileIds = new ArrayList<>(uniqueProfileIdsSet);
         Collection<UserProfile> userProfiles = userProfileService.listByProfileIds(profileIds);
 
-        end = System.currentTimeMillis();
-        System.out.println("reading user profiles took " + (end - start));
-        start = end;
-
         List<UserProfile> userProfileList = new ArrayList<>(userProfiles);
         Comparator<UserProfile> comparator = Comparator.comparing(UserProfile::getLastName)
                 .thenComparing(UserProfile::getFirstName);
         Collections.sort(userProfileList, comparator);
-        end = System.currentTimeMillis();
-        System.out.println("sorting user profiles took " + (end - start));
-        start = end;
 
         // get profile id to membership id map
         Map<String, UserProfileExt> profileIdToUserExtProfileMap = userProfileExtService.findByProfileIds(profileIds);
@@ -86,15 +94,9 @@ public class MembershipInfoController {
         for (UserProfileExt userProfileExt : profileIdToUserExtProfileMap.values()) {
             membershipIds.add(userProfileExt.getMembershipId());
         }
-        end = System.currentTimeMillis();
-        System.out.println("reading ext user profiles took " + (end - start));
-        start = end;
 
         // get expiration dates
         List<UsattPlayerRecord> usattPlayerRecordList = usattDataService.findAllByMembershipIdIn(membershipIds);
-        end = System.currentTimeMillis();
-        System.out.println("reading USATT records took " + (end - start));
-        start = end;
 
         // build membership infos
         List<MembershipInfo> membershipInfoList = new ArrayList<>(tournamentEntries.size());
@@ -123,8 +125,6 @@ public class MembershipInfoController {
                 }
             }
         }
-        end = System.currentTimeMillis();
-        System.out.println("preparing final results took " + (end - start));
 
         return ResponseEntity.ok(membershipInfoList);
     }
