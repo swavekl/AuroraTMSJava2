@@ -7,6 +7,14 @@
   <mat-toolbar>
     <button mat-raised-button type="button" [routerLink]="['/ui/tournamentsconfig']" >Back</button>
     <span class="toolbar-spacer-2"></span>
+    <mat-form-field>
+      <mat-label>Filter</mat-label>
+      <input matInput name="filterName" type="text" [(ngModel)]="filterName" (ngModelChange)="onFilterChange($event)">
+      <button matSuffix mat-icon-button aria-label="Clear" (click)="clearFilter()">
+        <mat-icon>close</mat-icon>
+      </button>
+    </mat-form-field>
+    <span class="toolbar-spacer-2"></span>
     <button type="button" mat-raised-button (click)="onRegisterPlayer()" [disabled]="!isTournamentReady()">
       <mat-icon>add</mat-icon>Register Player
     </button>
