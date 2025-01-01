@@ -71,6 +71,9 @@ export class ScoreEntryDialogComponent implements OnInit {
   // current match dirty state
   private dirty: boolean = false;
 
+  // both defaulted
+  bothDefaulted: boolean;
+
   constructor(public dialogRef: MatDialogRef<ScoreEntryDialogComponent>,
               private cdr: ChangeDetectorRef,
               @Inject(MAT_DIALOG_DATA) public data: ScoreEntryDialogData,
@@ -95,6 +98,7 @@ export class ScoreEntryDialogComponent implements OnInit {
     this.numberOfGames = data.numberOfGames;
     this.games = Array(this.numberOfGames);
     this.match = this.deepCloneMatch(data.match);
+    this.bothDefaulted = this.match.sideADefaulted && this.match.sideBDefaulted;
     this.playerAName = data.playerAName;
     this.playerBName = data.playerBName;
     this.playerARating = data.playerARating;
@@ -254,6 +258,17 @@ export class ScoreEntryDialogComponent implements OnInit {
     this.dirty = true;
     this.anyMatchChanged = true;
     this.match = Match.defaultMatch(this.match, defaultedPlayerIndex, this.numberOfGames, this.pointsPerGame);
+  }
+
+  onDefaultBothValueChange($event: MatCheckboxChange) {
+    const defaultAction = $event.checked;
+    this.match = {
+      ...this.match,
+      sideADefaulted: defaultAction,
+      sideBDefaulted: defaultAction
+    }
+    this.dirty = true;
+    this.anyMatchChanged = true;
   }
 
   isMatchWinner(profileId: string): boolean {
