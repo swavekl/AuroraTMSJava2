@@ -22,6 +22,7 @@ import com.auroratms.usatt.UsattPlayerRecord;
 import com.auroratms.utils.EmailService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationListener;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
@@ -70,6 +71,9 @@ public class RatingsProcessingEventListener implements ApplicationListener<Ratin
 
     @Autowired
     private EmailService emailService;
+
+    @Value("${client.host.url}")
+    private String clientHostUrl;
 
     @TransactionalEventListener(phase= TransactionPhase.AFTER_COMMIT)
     @Override
@@ -149,6 +153,7 @@ public class RatingsProcessingEventListener implements ApplicationListener<Ratin
         // get all latest usatt records with latest tournament ratings
         Map<String, List<String>> playerProfileIdToDisqualifiedEventsMap = new HashMap<>();
         Map<String, Integer> playerProfileIdToEligibitiyRatingMap = new HashMap<>();
+        Map<String, String> playerProfileIdToEntryUrlMap = new HashMap<>();
         List<UsattPlayerRecord> allLatestRecords = usattDataService.findAllByMembershipIdIn(membershipIds);
         List<RatingHistoryRecord> eligibilityRatingsList = ratingHistoryRecordRepository.getBatchPlayerRatingsAsOfDate(membershipIds, eligibilityDate);
         log.info ("Got " + allLatestRecords.size() + " latest ratings records and " + eligibilityRatingsList.size() + " history ratings records");
@@ -199,6 +204,9 @@ public class RatingsProcessingEventListener implements ApplicationListener<Ratin
                     // check if this player is still eligible for all events he/she entered, if not notify player and TD
                     if (eligibilityRatingChanged) {
                         log.info("Eligibility rating for player " + playerFullName + " with membership id " + membershipId + " changed from " + oldEligibilityRating + " to " + eligibilityRating + ". Checking events eligibility...");
+                        String eventEntryUrl = String.format("%s/ui/entries/entryview/%d/edit/%d",
+                                this.clientHostUrl, tournamentEntry.getTournamentFk(), tournamentEntry.getId());
+                        playerProfileIdToEntryUrlMap.put(profileId, eventEntryUrl);
                         List<TournamentEventEntry> tournamentEventEntries = tournamentEventEntryService.listAllForTournamentEntry(tournamentEntry.getId());
                         for (TournamentEventEntry tournamentEventEntry : tournamentEventEntries) {
                             TournamentEvent tournamentEvent = eventIdToEventMap.get(tournamentEventEntry.getTournamentEventFk());
@@ -235,19 +243,21 @@ public class RatingsProcessingEventListener implements ApplicationListener<Ratin
         // check if any players were disqualified
         if (!playerProfileIdToDisqualifiedEventsMap.isEmpty()) {
             // get all profiles in one shot
-            sendDisqualificationsEmails(playerProfileIdToDisqualifiedEventsMap, playerProfileIdToEligibitiyRatingMap, tournament, beforeEligibilityDate);
+            sendDisqualificationsEmails(playerProfileIdToDisqualifiedEventsMap, playerProfileIdToEligibitiyRatingMap,
+                    playerProfileIdToEntryUrlMap, tournament, beforeEligibilityDate);
         }
     }
 
     /**
      * @param playerProfileIdToDisqualifiedEventsMap
      * @param playerProfileIdToEligibitiyRatingMap
+     * @param playerProfileIdToEntryUrlMap
      * @param tournament
      * @param beforeEligibilityDate
      */
     private void sendDisqualificationsEmails(Map<String, List<String>> playerProfileIdToDisqualifiedEventsMap,
                                              Map<String, Integer> playerProfileIdToEligibitiyRatingMap,
-                                             Tournament tournament, boolean beforeEligibilityDate) {
+                                             Map<String, String> playerProfileIdToEntryUrlMap, Tournament tournament, boolean beforeEligibilityDate) {
         Set<String> disqualifiedProfileIds = playerProfileIdToDisqualifiedEventsMap.keySet();
         List<String> profileIdsToFetch = new ArrayList<>(disqualifiedProfileIds);
         Collection<UserProfile> playerUserProfiles = userProfileService.listByProfileIds(profileIdsToFetch);
@@ -264,7 +274,9 @@ public class RatingsProcessingEventListener implements ApplicationListener<Ratin
                 if (userProfile.getUserId().equals(profileId)) {
                     List<String> eventNames = playerProfileIdToDisqualifiedEventsMap.get(profileId);
                     Integer eligibilityRating = playerProfileIdToEligibitiyRatingMap.get(profileId);
-                    sendEmailToPlayerAndTD(userProfile, tdUserProfile, eventNames, tournament, eligibilityRating, beforeEligibilityDate);
+                    String entryURL = playerProfileIdToEntryUrlMap.get(profileId);
+                    sendEmailToPlayerAndTD(userProfile, tdUserProfile, eventNames, tournament, eligibilityRating,
+                            beforeEligibilityDate, entryURL);
                 }
             }
         }
@@ -277,9 +289,10 @@ public class RatingsProcessingEventListener implements ApplicationListener<Ratin
      * @param tournament
      * @param eligibilityRating
      * @param beforeEligibilityDate
+     * @param entryURL
      */
     private void sendEmailToPlayerAndTD(UserProfile userProfile, UserProfile tdUserProfile, List<String> eventNames,
-                                        Tournament tournament, Integer eligibilityRating, boolean beforeEligibilityDate) {
+                                        Tournament tournament, Integer eligibilityRating, boolean beforeEligibilityDate, String entryURL) {
         try {
             log.info ("Sending email to " + userProfile.getFirstName() + " " + userProfile.getLastName());
             String tournamentName = tournament.getName();
@@ -296,6 +309,7 @@ public class RatingsProcessingEventListener implements ApplicationListener<Ratin
             templateModel.put ("eventNames", eventNames);
             templateModel.put ("eligibilityRating", eligibilityRating);
             templateModel.put ("beforeEligibilityDate", beforeEligibilityDate);
+            templateModel.put ("entryURL", entryURL);
 //templateModel.put ("beforeEligibilityDate", false);
 
             emailService.sendMessageUsingThymeleafTemplate(playerEmail, tournamentDirectorEmail,
