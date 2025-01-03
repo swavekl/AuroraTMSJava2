@@ -164,7 +164,6 @@ export class EmailCampaignEditComponent  {
         stateFilters = stateFilters.filter((e, i) => i !== allIndex);
       }
     }
-    console.log('stateFilters: ' + stateFilters);
     this.emailCampaign = {
       ...this.emailCampaign,
       stateFilters: stateFilters

@@ -227,7 +227,7 @@ export class EmailCampaignEditContainerComponent implements OnDestroy {
       .pipe(first())
       .subscribe({
         next: (response: any) => {
-          const timeToSend: number = Math.floor((this.totalFilteredRecipients * 3) / 60);
+          const timeToSend: number = Math.floor((this.totalFilteredRecipients * 4) / 60); // 3 plus 1 second to send
           const config = {
             width: '450px', height: '200px', data: {
               contentAreaHeight: 120, showCancel: false, okText: 'Close', title: 'Information',
