@@ -80,8 +80,8 @@ public class EmailSenderController {
                 @Override
                 @Transactional
                 public void run() {
+                    log.info("Starting campaign for username " + currentUserName);
                     SecurityContextHolder.getContext().setAuthentication(authentication);
-
                     emailSenderService.sendCampaign(tournamentId, emailCampaign, campaignSendingStatus, currentUserName, sendTestEmail);
                     log.info("Finished campaign for username " + currentUserName);
                     statusPerThread.remove(campaignSendingStatus.id);

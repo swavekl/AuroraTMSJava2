@@ -193,6 +193,7 @@ public class EmailSenderService {
 
     public void sendCampaign(Long tournamentId, EmailCampaign emailCampaign, CampaignSendingStatus campaignSendingStatus, String currentUserName, Boolean sendTestEmail) {
         campaignSendingStatus.phase = "Getting recipients and variables information";
+        log.info("Getting recipients and variables information for campaign " + emailCampaign.toString());
 
         // retrieve email server configuration for current user (i.e. Tournament director)
         String profileByLoginId = userProfileService.getProfileByLoginId(currentUserName);
@@ -209,10 +210,8 @@ public class EmailSenderService {
             recipient.setLastName(userProfile.getLastName());
             recipients.add(recipient);
         } else {
-            // get recipients per
-            FilterConfiguration filterConfiguration = new FilterConfiguration();
-            filterConfiguration.setRecipientFilters(emailCampaign.getRecipientFilters());
-            filterConfiguration.setRemovedRecipients(emailCampaign.getRemovedRecipients());
+            // get recipients per filter configuration
+            FilterConfiguration filterConfiguration = emailCampaign.getFilterConfiguration();
             recipients = getFilteredRecipients(tournamentId, filterConfiguration);
         }
 
@@ -221,6 +220,7 @@ public class EmailSenderService {
         Map<String, String> variables = new HashMap<>();
         variables.put("${tournament_name}", tournamentName);
 
+        log.info(String.format("Got %d recipients. Sending emails", recipients.size()));
         campaignSendingStatus.phase = String.format("Got %d recipients. Sending emails", recipients.size());
         campaignSendingStatus.totalSent = 0;
         campaignSendingStatus.totalErrors = 0;
@@ -272,7 +272,7 @@ public class EmailSenderService {
                 }
                 // throttle sending so we get fewer errors
                 try {
-                    Thread.sleep(5000);
+                    Thread.sleep(3000);
                 } catch (InterruptedException ignored) {
 
                 }

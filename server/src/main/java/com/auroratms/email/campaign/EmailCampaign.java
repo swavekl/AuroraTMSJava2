@@ -33,6 +33,12 @@ public class EmailCampaign implements Serializable {
     // recipients to remove from the list
     private List<FilterConfiguration.Recipient> removedRecipients;
 
+    // if true ignore recipient filter and get all recipients in the database
+    private boolean allRecipients;
+
+    // if true exclude those from the list who are already registered for this tournament
+    private boolean excludeRegistered;
+
     // treat body of this email as html when sending
     boolean htmlEmail;
 
@@ -131,6 +137,22 @@ public class EmailCampaign implements Serializable {
         this.stateFilters = stateFilters;
     }
 
+    public boolean isAllRecipients() {
+        return allRecipients;
+    }
+
+    public void setAllRecipients(boolean allRecipients) {
+        this.allRecipients = allRecipients;
+    }
+
+    public boolean isExcludeRegistered() {
+        return excludeRegistered;
+    }
+
+    public void setExcludeRegistered(boolean excludeRegistered) {
+        this.excludeRegistered = excludeRegistered;
+    }
+
     public EmailCampaignEntity convertToEntity() {
         EmailCampaignEntity emailCampaignEntity = new EmailCampaignEntity();
         emailCampaignEntity.setId(this.getId());
@@ -140,15 +162,22 @@ public class EmailCampaign implements Serializable {
         emailCampaignEntity.setDateSent(this.getDateSent());
         emailCampaignEntity.setTournamentName(this.getTournamentName());
         emailCampaignEntity.setEmailsCount(this.getEmailsCount());
-        FilterConfiguration filterConfiguration = new FilterConfiguration();
-        filterConfiguration.setRecipientFilters(this.getRecipientFilters());
-        filterConfiguration.setRemovedRecipients(this.getRemovedRecipients());
-        filterConfiguration.setStateFilters(this.getStateFilters());
+        FilterConfiguration filterConfiguration = getFilterConfiguration();
         String content = filterConfiguration.convertToJSON();
         emailCampaignEntity.setFilterContentsJSON(content);
         emailCampaignEntity.setHtmlEmail(this.isHtmlEmail());
 
         return emailCampaignEntity;
+    }
+
+    public FilterConfiguration getFilterConfiguration() {
+        FilterConfiguration filterConfiguration = new FilterConfiguration();
+        filterConfiguration.setRecipientFilters(this.getRecipientFilters());
+        filterConfiguration.setRemovedRecipients(this.getRemovedRecipients());
+        filterConfiguration.setStateFilters(this.getStateFilters());
+        filterConfiguration.setAllRecipients(this.isAllRecipients());
+        filterConfiguration.setExcludeRegistered(this.isExcludeRegistered());
+        return filterConfiguration;
     }
 
     public EmailCampaign convertFromEntity(EmailCampaignEntity emailCampaignEntity) {
@@ -164,9 +193,34 @@ public class EmailCampaign implements Serializable {
         this.recipientFilters = filterConfiguration.getRecipientFilters();
         this.removedRecipients = filterConfiguration.getRemovedRecipients();
         this.stateFilters = filterConfiguration.getStateFilters();
+        if (filterConfiguration.getAllRecipients() != null) {
+            this.allRecipients = filterConfiguration.getAllRecipients();
+        } else {
+            this.allRecipients = this.stateFilters != null && !this.stateFilters.isEmpty();
+        }
+        this.excludeRegistered = (filterConfiguration.getExcludeRegistered() != null) ? filterConfiguration.getExcludeRegistered() : false;
         this.htmlEmail = emailCampaignEntity.isHtmlEmail();
 
         return this;
+    }
+
+    @Override
+    public String toString() {
+        return "EmailCampaign{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", dateSent=" + dateSent +
+                ", tournamentName='" + tournamentName + '\'' +
+                ", emailsCount=" + emailsCount +
+                ", recipientFilters=" + recipientFilters +
+                ", removedRecipients=" + removedRecipients +
+                ", allRecipients=" + allRecipients +
+                ", excludeRegistered=" + excludeRegistered +
+                ", stateFilters=" + stateFilters +
+                ", htmlEmail=" + htmlEmail +
+                ", subject='" + subject + '\'' +
+                ", body='" + body + '\'' +
+                '}';
     }
 }
 
