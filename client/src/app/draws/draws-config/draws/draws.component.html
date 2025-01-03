@@ -38,6 +38,11 @@
             Status
           </mat-slide-toggle>
           <span class="toolbar-spacer-2"></span>
+          <button type="button" mat-raised-button (click)="onReplacePlayer()" [disabled]="selectedEvent == null">
+            <mat-icon matListItemIcon>published_with_changes</mat-icon>
+            Replace Player
+          </button>
+          <span class="toolbar-spacer-2"></span>
           <button type="button" mat-raised-button (click)="onPrintMatchCards()" [disabled]="selectedEvent == null">
             <mat-icon matListItemIcon>print</mat-icon>
             Print RR Match Cards

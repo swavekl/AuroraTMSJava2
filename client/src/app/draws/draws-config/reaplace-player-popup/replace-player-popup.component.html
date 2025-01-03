@@ -1,0 +1,54 @@
+<h2 mat-dialog-title>Replace Player</h2>
+<mat-dialog-content>
+  <ng-container  *ngIf="isLoading; else not_testing">
+    <mat-progress-bar color="accent" mode="indeterminate"></mat-progress-bar>
+  </ng-container>
+  <ng-template #not_testing>
+    <div style="height: 4px; width: 100%;"></div>
+  </ng-template>
+  <form name="form" #f="ngForm" novalidate>
+    <div fxLayout="row" fxLayoutGap="10px" fxFlexAlign="start stretch" style="height: 100%;">
+      <div fxLayout="column" fxLayoutGap="10px" fxFlex="50%" fxFlexAlign="start stretch">
+        <mat-label>Player To Remove</mat-label>
+        <mat-form-field style="width: 100%;">
+          <mat-label>Select Group</mat-label>
+          <mat-select name="selectedGroup" [(ngModel)]="selectedGroup" (selectionChange)="onGroupChange($event)" required>
+            <mat-option *ngFor="let drawGroupNum of drawGroups; let idx = index;"
+                        [value]="idx + 1">Group {{ idx + 1 }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+        <div>
+          <mat-selection-list class="remove-player" matInput name="playerToRemove" [(ngModel)]="playerToRemove"
+                              required multiple="false">
+            <mat-list-option *ngFor="let player of groupPlayers" [value]="player.profileId"
+                             (click)="onSelectPlayerToRemove(player.profileId)">
+              {{ player.playerName }} ({{ player.rating }})
+            </mat-list-option>
+          </mat-selection-list>
+        </div>
+      </div>
+      <div fxLayout="column" fxLayoutGap="10px" fxFlex="50%" fxFlexAlign="start stretch">
+        <mat-label>Player To Add</mat-label>
+        <div>
+          <mat-selection-list class="add-player" matInput name="playerToAdd" [(ngModel)]="playerToAdd"
+                              multiple="false" required>
+            <mat-list-option *ngFor="let player of filteredPlayers" [value]="player.profileId"
+                             (click)="onSelectPlayerToAdd(player.profileId)">
+              {{ player.playerName }} ({{ player.rating }})
+            </mat-list-option>
+          </mat-selection-list>
+        </div>
+      </div>
+    </div>
+    <div>
+      Entry Cost Adult/Junior: {{ tournamentEvent?.feeAdult }} / {{ tournamentEvent?.feeJunior}}
+    </div>
+  </form>
+</mat-dialog-content>
+<mat-dialog-actions>
+  <div fxLayout="row" fxLayoutAlign="space-between start" style="width: 100%; margin: 0 10px;">
+    <button mat-raised-button type="button" (click)="onCancel()">Cancel</button>
+    <div fxFlex="1"></div>
+    <button mat-raised-button color="primary" [disabled]="f.invalid" (click)="onReplace()">Replace</button>
+  </div>
+</mat-dialog-actions>

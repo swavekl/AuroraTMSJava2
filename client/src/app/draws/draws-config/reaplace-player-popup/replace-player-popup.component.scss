@@ -1,0 +1,12 @@
+mat-selection-list {
+  //border: 1px solid green;
+  overflow-y: scroll;
+
+  &.remove-player {
+    height: 300px;
+  }
+
+  &.add-player {
+    height: 390px;
+  }
+}

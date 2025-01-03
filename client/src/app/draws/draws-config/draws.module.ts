@@ -17,11 +17,17 @@ import {DrawsCommonModule} from '../draws-common/draws-common.module';
 import {DrawsRoutingModule} from './draws-routing.module';
 import {DrawsComponent} from './draws/draws.component';
 import {DrawsContainerComponent} from './draws/draws-container.component';
+import {ReplacePlayerPopupComponent} from './reaplace-player-popup/replace-player-popup.component';
+import {MatDialogActions, MatDialogContent, MatDialogTitle} from '@angular/material/dialog';
+import {MatFormField, MatLabel, MatOption, MatSelect, MatSuffix} from '@angular/material/select';
+import {MatInput} from '@angular/material/input';
+import {MatProgressBar} from '@angular/material/progress-bar';
 
 @NgModule({
   declarations: [
     DrawsComponent,
-    DrawsContainerComponent
+    DrawsContainerComponent,
+    ReplacePlayerPopupComponent
   ],
   exports: [],
   imports: [
@@ -38,7 +44,17 @@ import {DrawsContainerComponent} from './draws/draws-container.component';
     MatTooltipModule,
     FormsModule,
     MatSlideToggleModule,
-    DrawsCommonModule
+    DrawsCommonModule,
+    MatDialogActions,
+    MatDialogContent,
+    MatSelect,
+    MatOption,
+    MatDialogTitle,
+    MatFormField,
+    MatLabel,
+    MatInput,
+    MatSuffix,
+    MatProgressBar
   ]
 })
 export class DrawsModule {

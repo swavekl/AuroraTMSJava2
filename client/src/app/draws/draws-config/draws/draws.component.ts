@@ -10,6 +10,7 @@ import {ConfirmationPopupComponent} from '../../../shared/confirmation-popup/con
 import {TabbedDrawsPanelComponent} from '../../draws-common/tabbed-draws-panel/tabbed-draws-panel.component';
 import {PlayerStatus} from '../../../today/model/player-status.model';
 import {MatchCardInfo} from '../../../matches/model/match-card-info.model';
+import {ReplacePlayerPopupComponent, ReplacePlayerPopupData} from '../reaplace-player-popup/replace-player-popup.component';
 
 @Component({
   selector: 'app-draws',
@@ -227,5 +228,25 @@ export class DrawsComponent implements OnInit, OnChanges {
       payload: {drawType: drawType}
     };
     this.drawsAction.emit(action);
+  }
+
+  onReplacePlayer() {
+    const data: ReplacePlayerPopupData = {
+      drawItems: this.draws,
+      tournamentEvent: this.selectedEvent
+    };
+
+    const config = {
+      width: '700px', height: '600px', data: data
+    };
+    const dialogRef = this.dialog.open(ReplacePlayerPopupComponent, config);
+    dialogRef.afterClosed().subscribe(result => {
+      if (result?.action === 'ok') {
+        const request = result.request;
+        console.log('request', request);
+      }
+    });
+
+
   }
 }
