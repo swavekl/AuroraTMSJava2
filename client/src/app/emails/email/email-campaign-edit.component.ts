@@ -1,4 +1,4 @@
-import {Component, ElementRef, EventEmitter, Input, Output, SimpleChanges, ViewChild} from '@angular/core';
+import {Component, ElementRef, EventEmitter, Input, Output, ViewChild} from '@angular/core';
 import {EmailCampaign, Recipient} from '../model/email-campaign.model';
 import {TournamentEvent} from '../../tournament/tournament-config/tournament-event.model';
 import {MatSnackBar} from '@angular/material/snack-bar';
@@ -181,19 +181,24 @@ export class EmailCampaignEditComponent  {
     });
   }
 
-  onRemoveRecipient() {
-    if (this.selectedRecipient != null) {
+  private sortRecipients(modifiedRecipients: Recipient[]) {
+    return modifiedRecipients.sort((recipient1: Recipient, recipient2: Recipient) => {
+      const fullName1 = this.getFullName(recipient1);
+      const fullName2 = this.getFullName(recipient2);
+      return fullName1.localeCompare(fullName2);
+    });
+  }
+
+  onRemoveRecipient(clickedRecipient: Recipient) {
+    const recipientToRemove = (clickedRecipient != null) ? clickedRecipient : this.selectedRecipient;
+    if (recipientToRemove != null) {
       this.filteredRecipients = this.filteredRecipients.filter((recipient: Recipient) => {
-        return (recipient.emailAddress != this.selectedRecipient?.emailAddress)
+        return (recipient.emailAddress != recipientToRemove?.emailAddress)
       });
 
       let modifiedRecipients: Recipient[] = this.emailCampaign.removedRecipients || [];
-      modifiedRecipients.push(this.selectedRecipient);
-      modifiedRecipients.sort((recipient1: Recipient, recipient2: Recipient) => {
-        const fullName1 = this.getFullName(recipient1);
-        const fullName2 = this.getFullName(recipient2);
-        return fullName1.localeCompare(fullName2)
-      });
+      modifiedRecipients.push(recipientToRemove);
+      modifiedRecipients = this.sortRecipients(modifiedRecipients);
       this.emailCampaign.removedRecipients = modifiedRecipients;
       this.selectedRecipient = null;
     }
@@ -203,25 +208,45 @@ export class EmailCampaignEditComponent  {
     return `${recipient.lastName}, ${recipient.firstName}`;
   }
 
-  onRestoreRecipient() {
-    if (this.removedRecipient != null) {
+  onRestoreRecipient(recipient: Recipient) {
+    const recipientToRestore = (recipient != null) ? recipient : this.removedRecipient;
+    if (recipientToRestore != null) {
       // remove from list
       this.emailCampaign.removedRecipients = this.emailCampaign.removedRecipients.filter((recipient: Recipient) => {
-        return (recipient.emailAddress != this.removedRecipient?.emailAddress)
+        return (recipient.emailAddress != recipientToRestore?.emailAddress)
       });
 
       // add to the other list and sort
       let modifiedRecipients: Recipient[] = this.filteredRecipients || [];
-      modifiedRecipients.push(this.removedRecipient);
-      modifiedRecipients.sort((recipient1: Recipient, recipient2: Recipient) => {
-        const fullName1 = this.getFullName(recipient1);
-        const fullName2 = this.getFullName(recipient2);
-        return fullName1.localeCompare(fullName2)
-      });
+      modifiedRecipients.push(recipientToRestore);
+      modifiedRecipients = this.sortRecipients(modifiedRecipients);
       this.filteredRecipients = modifiedRecipients;
       this.removedRecipient = null;
     }
   }
+
+  onRemoveAllRecipients() {
+    let modifiedRecipients: Recipient[] = this.emailCampaign.removedRecipients || [];
+    modifiedRecipients = modifiedRecipients.concat(this.filteredRecipients);
+    modifiedRecipients = this.sortRecipients(modifiedRecipients);
+    this.filteredRecipients = [];
+    this.emailCampaign = {
+      ...this.emailCampaign,
+      removedRecipients: modifiedRecipients
+    };
+  }
+
+  onRestoreAllRecipients() {
+    let modifiedRecipients: Recipient[] = this.filteredRecipients || [];
+    modifiedRecipients = modifiedRecipients.concat(this.emailCampaign.removedRecipients);
+    modifiedRecipients = this.sortRecipients(modifiedRecipients);
+    this.filteredRecipients = modifiedRecipients;
+    this.emailCampaign = {
+      ...this.emailCampaign,
+      removedRecipients: []
+    };
+  }
+
 
   onSelectedRecipientClick(recipient: Recipient) {
     this.selectedRecipient = recipient;

@@ -131,17 +131,19 @@ public class EmailSenderService {
 
         // get profiles which contain email addresses and convert them into recipients (full name + email)
         List<FilterConfiguration.Recipient> recipients = new ArrayList<>(playerProfileIds.size());
+        List<FilterConfiguration.Recipient> removedRecipients = filterConfiguration.getRemovedRecipients();
         if (isGetAllRecipients) {
             for (UserProfile filteredAllUserProfile : filteredAllUserProfiles) {
                 FilterConfiguration.Recipient recipient = new FilterConfiguration.Recipient();
                 recipient.setEmailAddress(filteredAllUserProfile.getEmail());
                 recipient.setFirstName(filteredAllUserProfile.getFirstName());
                 recipient.setLastName(filteredAllUserProfile.getLastName());
-                recipients.add(recipient);
+                if (!removedRecipients.contains(recipient)) {
+                    recipients.add(recipient);
+                }
             }
         } else {
             Collection<UserProfile> userProfiles = this.userProfileService.listByProfileIds(playerProfileIds);
-            List<FilterConfiguration.Recipient> removedRecipients = filterConfiguration.getRemovedRecipients();
             for (UserProfile userProfile : userProfiles) {
                 FilterConfiguration.Recipient recipient = new FilterConfiguration.Recipient();
                 recipient.setEmailAddress(userProfile.getEmail());

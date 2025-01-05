@@ -84,6 +84,7 @@
             <mat-list dense class="recipient-list" #selectedRecipientsCtrl>
               <mat-list-item *ngFor="let recipient of filteredRecipients"
                              (click)="onSelectedRecipientClick(recipient)"
+                             (dblclick)="onRemoveRecipient(recipient)"
                              [matTooltip]="recipient.emailAddress">
                 {{ getFullName(recipient) }}
               </mat-list-item>
@@ -92,8 +93,10 @@
           <div fxFlex="10%">
             <div class="mat-headline-6">&nbsp;</div>
             <div class="buttons-panel" fxLayout="column" fxLayoutAlign="center center" fxLayoutGap="20px">
-              <button mat-raised-button type="button" (click)="onRemoveRecipient()">Remove >></button>
-              <button mat-raised-button type="button" (click)="onRestoreRecipient()"><< Restore</button>
+              <button mat-raised-button type="button" (click)="onRemoveAllRecipients()">Remove All >></button>
+              <button mat-raised-button type="button" (click)="onRemoveRecipient(null)">Remove >></button>
+              <button mat-raised-button type="button" (click)="onRestoreRecipient(null)"><< Restore</button>
+              <button mat-raised-button type="button" (click)="onRestoreAllRecipients()"><< Restore All</button>
             </div>
           </div>
           <div fxFlex="35%">
@@ -101,6 +104,7 @@
             <mat-list dense class="recipient-list" #removedRecipientsCtrl>
               <mat-list-item *ngFor="let recipient of emailCampaign.removedRecipients"
                              (click)="onRemovedRecipientClick(recipient)"
+                             (dblclick)="onRestoreRecipient(recipient)"
                              [matTooltip]="recipient.emailAddress">
                 {{ getFullName(recipient) }}
               </mat-list-item>
