@@ -46,6 +46,7 @@ export class SignInComponent implements OnInit, OnDestroy {
   ngOnInit() {
     // subscription for indicating progress on global toolbar
     const subscription = this.loginInProgress$.subscribe((loading: boolean) => {
+      // console.log('loginProgress', loading);
       this.linearProgressBarService.setLoading(loading);
     });
     this.subscriptions.add(subscription);
@@ -58,9 +59,10 @@ export class SignInComponent implements OnInit, OnDestroy {
     this.store.dispatch(new ResetStore());
     this.authenticationService.login(this.email, this.password)
       .pipe(first())
-      .subscribe((loginSuccessful) => {
-        // console.log ('login completed with result', loginSuccessful);
-        // hide progress right away
+      .subscribe({
+        next: (loginSuccessful) => {
+          // console.log('login completed with result', loginSuccessful);
+          // hide progress right away
           if (loginSuccessful === true) {
             this.status = 'Success';
             this.isSuccess = true;
@@ -69,9 +71,9 @@ export class SignInComponent implements OnInit, OnDestroy {
             this.status = 'Invalid username and/or password.';
           }
         },
-        error => {
+        error: (error) => {
           // hide progress right away
-          console.log ('error logging in', error._body);
+          console.log('error logging in', error);
           if (error._body) {
             this.status = error._body;
           } else if (error?.error?.error != null) {
@@ -79,9 +81,10 @@ export class SignInComponent implements OnInit, OnDestroy {
             this.status = 'Invalid username and/or password.';
           }
         },
-        () => {
+        complete: () => {
           this.loginInProgress$.next(false);
-        });
+        }
+      });
   }
 
   ngOnDestroy(): void {

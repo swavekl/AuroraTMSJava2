@@ -46,6 +46,10 @@ export class AuthenticationService {
     return (url.indexOf('/api/users/') !== -1);
   }
 
+  isLoginRequest(url: string): boolean {
+    return this.getFullUrl('/api/users/login') === url;
+  }
+
   /**
    * Register (Sign up a new user)
    */
@@ -116,17 +120,22 @@ export class AuthenticationService {
     const requestBody = {email: username, password: password};
     this.http.post(this.getFullUrl('/api/users/login'), requestBody)
       .pipe(first())
-      .subscribe(
-        (response: any) => {
+      .subscribe({
+        next: (response: any) => {
           // console.log('login response', response);
           // login successful if there's a jwt token in the response
           this.processLoginResponse(response);
         },
-        (error: any) => {
-          console.log ('got login error', error);
+        error: (error: any) => {
+          // console.log('got login error', error);
           this.isAuthenticated$.next(false);
           this.loginStatus$.next(false);
-        });
+        },
+        complete: () => {
+
+        }
+      }
+    );
     return this.loginStatus$;
   }
 

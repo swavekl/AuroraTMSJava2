@@ -31,7 +31,9 @@ export class AuthInterceptor implements HttpInterceptor {
 
     return next.handle(request).pipe(
       catchError((error: HttpErrorResponse) => {
-        if (error && error.status === 401) {
+        // multiple logins with 401 result in 401 error so just propagate the error so login method can process the error
+        const isLoginRequest = this.authenticationService.isLoginRequest(request.urlWithParams);
+        if (!isLoginRequest && error && error.status === 401) {
           // 401 errors are most likely going to be because we have an expired token that we need to refresh.
           if (this.quiteLoginInProgress) {
             // If quiteLoginInProgress is true, we will wait until refreshTokenSubject has a non-null value
@@ -46,7 +48,7 @@ export class AuthInterceptor implements HttpInterceptor {
                   } else {
                     // console.log('(1) refresh failed so ....');
                     this.router.navigate(['/ui/login']);
-                    return throwError(error);
+                  return throwError(() => error);
                   }
                 }
               )
@@ -69,7 +71,7 @@ export class AuthInterceptor implements HttpInterceptor {
                   // refreshing access token failed - our only option is to ask user to login
                   // console.log('(2) refresh failed so ....');
                   this.router.navigate(['/ui/login']);
-                  return throwError(error);
+                  return throwError(() => error);
                 }
               }),
               // When the call to refreshToken completes we reset the quiteLoginInProgress to false
@@ -78,7 +80,7 @@ export class AuthInterceptor implements HttpInterceptor {
             );
           }
         } else {
-          return throwError(error);
+          return throwError(() => error);
         }
       })
     );
