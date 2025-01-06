@@ -23,6 +23,7 @@ import {ClubEditPopupService} from './service/club-edit-popup.service';
 import {ClubSearchDialogComponent} from './club-search-dialog/club-search-dialog.component';
 import {ClubSearchPopupService} from './service/club-search-popup.service';
 import {MatProgressBarModule} from '@angular/material/progress-bar';
+import {MatTooltip} from '@angular/material/tooltip';
 
 
 @NgModule({
@@ -50,7 +51,8 @@ import {MatProgressBarModule} from '@angular/material/progress-bar';
         MatInputModule,
         MatDialogModule,
         FlexLayoutModule,
-        MatProgressBarModule
+        MatProgressBarModule,
+        MatTooltip
     ],
   providers: [
     ClubEditPopupService,

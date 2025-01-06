@@ -1,7 +1,7 @@
 <div class="mat-headline-6" style="padding-left: 8px; width: 100%;">Clubs</div>
 <mat-toolbar fxLayout="row" fxLayoutGap="10">
   <form>
-    <button type="button" mat-raised-button color="" (click)="addClub()" [disabled]="canAddClub()">
+    <button type="button" mat-raised-button color="" (click)="addClub()" [hidden]="!canAddEditClub()">
       <mat-icon matListItemIcon>add</mat-icon>
       Add Club
     </button>
@@ -38,6 +38,16 @@
     <ng-container matColumnDef="state">
       <mat-header-cell *matHeaderCellDef mat-sort-header>State</mat-header-cell>
       <mat-cell *matCellDef="let row">{{row.state}}</mat-cell>
+    </ng-container>
+
+    <ng-container matColumnDef="actions">
+      <mat-header-cell *matHeaderCellDef>{{ canAddEditClub() ? 'Actions' : ''}}</mat-header-cell>
+      <mat-cell *matCellDef="let row">
+        <button mat-icon-button (click)="onEditClub(row)" matTooltip="Edit" style="margin-right: 20px"
+                [hidden]="!canAddEditClub()">
+          <mat-icon matListItemIcon>edit</mat-icon>
+        </button>
+      </mat-cell>
     </ng-container>
 
     <mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></mat-header-row>

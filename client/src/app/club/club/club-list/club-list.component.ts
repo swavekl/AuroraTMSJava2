@@ -28,7 +28,7 @@ export class ClubListComponent implements AfterViewInit {
   filterState: string;
 
   /** Columns displayed in the table. Columns IDs can be added, removed, or reordered. */
-  displayedColumns = ['clubName', 'city', 'state'];
+  displayedColumns = ['clubName', 'city', 'state', 'actions'];
 
   statesList: any[] = [];
 
@@ -66,22 +66,30 @@ export class ClubListComponent implements AfterViewInit {
     this.table.dataSource = this.dataSource;
   }
 
-  canAddClub() {
-    return this.authenticationService.hasCurrentUserRole([UserRoles.ROLE_ADMINS, UserRoles.ROLE_USATT_CLUB_MANAGERS]);
-  }
-
-  canEditClub(clubId: number) {
-    return this.authenticationService.hasCurrentUserRole([UserRoles.ROLE_ADMINS, UserRoles.ROLE_USATT_CLUB_MANAGERS]);
+  canAddEditClub() {
+    return this.authenticationService.hasCurrentUserRole(
+      [UserRoles.ROLE_ADMINS, UserRoles.ROLE_USATT_CLUB_MANAGERS, UserRoles.ROLE_TOURNAMENT_DIRECTORS]
+    );
   }
 
   addClub() {
+    const newClub: Club = new Club();
+    this.onAddEditClub(newClub);
+  }
+
+  onEditClub(club: Club) {
+    const clubToEdit: Club = {...club};
+    this.onAddEditClub(clubToEdit);
+  }
+
+  private onAddEditClub(club: Club) {
+    // show dialog
     const callbackParams: ClubEditCallbackData = {
       successCallbackFn: this.onAddClubOKCallback,
       cancelCallbackFn: null,
       callbackScope: this
     };
-    const newClub: Club = new Club();
-    this.clubEditPopupService.showPopup(newClub, callbackParams);
+    this.clubEditPopupService.showPopup(club, callbackParams);
   }
 
   onAddClubOKCallback(scope: any, club: Club) {
