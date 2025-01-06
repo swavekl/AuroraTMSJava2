@@ -233,11 +233,12 @@ export class DrawsComponent implements OnInit, OnChanges {
   onReplacePlayer() {
     const data: ReplacePlayerPopupData = {
       drawItems: this.draws,
-      tournamentEvent: this.selectedEvent
+      tournamentEvent: this.selectedEvent,
+      tournamentName: this.tournamentName
     };
 
     const config = {
-      width: '700px', height: '600px', data: data
+      width: '800px', height: '600px', data: data
     };
     const dialogRef = this.dialog.open(ReplacePlayerPopupComponent, config);
     dialogRef.afterClosed().subscribe(result => {

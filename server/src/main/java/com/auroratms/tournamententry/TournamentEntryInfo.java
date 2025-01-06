@@ -18,6 +18,9 @@ public class TournamentEntryInfo {
     private String firstName;
     private String lastName;
 
+    // player gender
+    private String gender;
+
     // rating as of eligibility date
     private int eligibilityRating;
 

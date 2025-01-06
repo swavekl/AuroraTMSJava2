@@ -11,6 +11,9 @@ export class TournamentEntryInfo {
   firstName: string;
   lastName: string;
 
+  // player gender
+  gender: string;
+
   // rating as of eligibility date
   eligibilityRating: number;
 

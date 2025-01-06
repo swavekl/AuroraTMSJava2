@@ -114,6 +114,7 @@ public class TournamentEntryInfoService {
                 if (tournamentEntryInfo != null) {
                     tournamentEntryInfo.setFirstName(playerRecord.getFirstName());
                     tournamentEntryInfo.setLastName(playerRecord.getLastName());
+                    tournamentEntryInfo.setGender(playerRecord.getGender() != null ? playerRecord.getGender() : "M");
                     // fill club name
                     UserProfileExt userProfileExt = userProfileExtMap.get(profileId);
                     if (userProfileExt != null && userProfileExt.getClubFk() != null) {
@@ -141,6 +142,7 @@ public class TournamentEntryInfoService {
                 if (tournamentEntryInfo != null) {
                     tournamentEntryInfo.setFirstName(userProfile.getFirstName());
                     tournamentEntryInfo.setLastName(userProfile.getLastName());
+                    tournamentEntryInfo.setGender(userProfile.getGender());
                     // find rating if it is missing
                     UsattPlayerRecord playerRecord = usattPlayerRecordRepository.getFirstByFirstNameAndLastName(
                                     userProfile.getFirstName(), userProfile.getLastName());

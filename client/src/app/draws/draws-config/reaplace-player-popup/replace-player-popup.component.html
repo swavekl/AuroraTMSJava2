@@ -1,4 +1,4 @@
-<h2 mat-dialog-title>Replace Player</h2>
+<h2 mat-dialog-title>Replace Player in {{tournamentEvent?.name}}</h2>
 <mat-dialog-content>
   <ng-container  *ngIf="isLoading; else not_testing">
     <mat-progress-bar color="accent" mode="indeterminate"></mat-progress-bar>
@@ -22,7 +22,7 @@
                               required multiple="false">
             <mat-list-option *ngFor="let player of groupPlayers" [value]="player.profileId"
                              (click)="onSelectPlayerToRemove(player.profileId)">
-              {{ player.playerName }} ({{ player.rating }})
+              {{ player.placeInGroup}}) {{ player.playerName }} ({{ player.rating }})
             </mat-list-option>
           </mat-selection-list>
         </div>
@@ -40,7 +40,7 @@
         </div>
       </div>
     </div>
-    <div>
+    <div style="padding: 8px;">
       Entry Cost Adult/Junior: {{ tournamentEvent?.feeAdult }} / {{ tournamentEvent?.feeJunior}}
     </div>
   </form>
@@ -49,6 +49,8 @@
   <div fxLayout="row" fxLayoutAlign="space-between start" style="width: 100%; margin: 0 10px;">
     <button mat-raised-button type="button" (click)="onCancel()">Cancel</button>
     <div fxFlex="1"></div>
-    <button mat-raised-button color="primary" [disabled]="f.invalid" (click)="onReplace()">Replace</button>
+    <button mat-raised-button type="button" (click)="onRecordPayment()" [disabled]="f.invalid">Record Payment</button>
+    <div fxFlex="1"></div>
+    <button mat-raised-button color="primary" [disabled]="f.invalid || !paymentRecorded" (click)="onReplace()">Replace</button>
   </div>
 </mat-dialog-actions>
