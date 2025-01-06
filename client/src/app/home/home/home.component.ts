@@ -176,7 +176,7 @@ export class HomeComponent implements OnInit, OnDestroy {
           first(),
           map(
             (tournamentEntries: TournamentEntry[]) => {
-              // console.log('got today tournament entries', tournamentEntries);
+              console.log('got today tournament entries', tournamentEntries);
               this.hasTournamentToday = (tournamentEntries.length > 0);
               if (this.hasTournamentToday) {
                 for (const tournamentEntry of tournamentEntries) {

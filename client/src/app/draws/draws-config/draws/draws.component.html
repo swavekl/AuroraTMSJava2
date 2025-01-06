@@ -1,3 +1,4 @@
+<div class="mat-headline-6" style="padding-left: 8px; width: 95%;">Draws: {{tournamentName}}</div>
 <div fxLayout="row" class="draws-container">
   <div>
     <h2>Events</h2>
@@ -47,8 +48,6 @@
             <mat-icon matListItemIcon>print</mat-icon>
             Print RR Match Cards
           </button>
-          <span fxFlex></span>
-          <span class="mat-h2" style="padding-top: 12px;">{{tournamentName}}</span>
         </mat-toolbar-row>
       </mat-toolbar>
       <div class="all-draws-panel-edit" *ngIf="selectedEvent != null; else noselection">

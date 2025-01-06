@@ -51,6 +51,10 @@ export class RoundRobinDrawsPanelComponent implements OnChanges {
   @Output()
   private updateFlagEE: EventEmitter<number> = new EventEmitter<number>();
 
+  // height of the panel
+  @Input()
+  bracketsHeight!: string;
+
   // array of group objects with group
   groups: DrawGroup [] = [];
 

@@ -3,6 +3,8 @@
 h2 {
   padding-left: 16px;
   padding-top: 16px;
+  font-size: 16px;
+  font-weight: bold;
 }
 
 .toolbar-spacer-2 {
@@ -10,12 +12,12 @@ h2 {
 }
 
 mat-toolbar {
-  min-width: calc(100vw - 430px);
+  min-width: calc(100vw - 440px);
 }
 
 .event-list {
   width: 220px;
-  height: calc(100vh - 140px);
+  height: calc(100vh - 172px);
   overflow-y: auto;
 }
 
@@ -32,13 +34,10 @@ mat-list-item:hover {
 }
 
 draws-container {
-  height: calc(100vh - 132px);
-  //height: 100%;
-  //border: 2px solid greenyellow;
+  height: calc(100vh - 194px);
+  overflow: hidden;
 }
 
 .all-draws-panel-edit {
-  height: calc(100vh - 135px);
-  //overflow: auto;
-  //border: 1px solid deeppink;
+  height: calc(100vh - 180px);
 }

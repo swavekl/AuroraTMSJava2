@@ -10,6 +10,7 @@
             [playerStatusList]="playerStatusList"
             [matchCardInfos]="matchCardInfos"
             [selectedEvent]="selectedEvent"
+            [bracketsHeight]="getBracketsHeight('rr')"
             (drawsAction)="onRRDrawsAction($event)"
             (updateFlagEE)="onUpdateEEFlag($event)">
           </app-round-robin-draws-panel>
@@ -18,7 +19,7 @@
       <mat-tab [label]="(isHandset$ | async) ? 'Single Elim.' : 'Single Elimination'">
         <div class="tab-contents">
           <app-single-elimination-bracket
-            [bracketsHeight]="getBracketsHeight()"
+            [bracketsHeight]="getBracketsHeight('se')"
             [draws]="draws"
             [playerStatusList]="playerStatusList"
             [matchCardInfos]="matchCardInfos"
@@ -42,6 +43,7 @@
             [playerStatusList]="playerStatusList"
             [matchCardInfos]="matchCardInfos"
             [selectedEvent]="selectedEvent"
+            [bracketsHeight]="getBracketsHeight('rr')"
             (drawsAction)="onRRDrawsAction($event)"
             (updateFlagEE)="onUpdateEEFlag($event)">
           </app-round-robin-draws-panel>
@@ -50,7 +52,7 @@
         <app-single-elimination-bracket
           [editMode]="editMode"
           [allowDrawChanges]="allowDrawChanges"
-          [bracketsHeight]="getBracketsHeight()"
+          [bracketsHeight]="getBracketsHeight('se')"
           [draws]="draws"
           [playerStatusList]="playerStatusList"
           [matchCardInfos]="matchCardInfos"

@@ -79,11 +79,11 @@ export class TabbedDrawsPanelComponent {
     return this.hasRRRound && this.hasSERound;
   }
 
-  getBracketsHeight(): string {
+  getBracketsHeight(round: string): string {
     const toolbarHeight = (this.editMode) ? 64 : 0;
     const tabsHeight = this.showTwoRounds() ? 48 : 0;
-    // const diff = (this.editMode) ? 224 : 160;
-    const diff = 112 + toolbarHeight + tabsHeight;
+    const seHeaderHeight = round === 'se' ? 42 : 0;
+    const diff = 112 + toolbarHeight + tabsHeight + seHeaderHeight;
     const strHeight = (window.innerHeight - diff) + 'px';
     // console.log('editMode ' + this.editMode + ' -> strHeight' + strHeight);
     return strHeight;
