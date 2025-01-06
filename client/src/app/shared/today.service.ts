@@ -59,14 +59,14 @@ export class TodayService {
     // const utcMoment = moment([2023, 0, 13, 0, 0, 0]);
     // const utcMoment = moment([2023, 0, 12, 0, 0, 0]);  // day before
     // Prisco Mini - Single Elimination
-    const utcMoment = moment([2023, 8, 30, 5, 0, 0]);
+    // const utcMoment = moment([2023, 8, 30, 5, 0, 0]);
     // Aurora Fall Open - Giant RR
     // const utcMoment = moment([2023, 10, 25, 0, 0, 0]);
     // 2023 Aurora Spring Open - Giant RR
     // const utcMoment = moment([2023, 10, 25, 0, 0, 0]);
     // 2024 Regional Championships
     // const utcMoment = moment([2024, 9, 1, 0, 0, 0]);
-    return utcMoment.toDate();
-    // return new Date();
+    // return utcMoment.toDate();
+    return new Date();
   }
 }
