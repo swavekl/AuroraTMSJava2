@@ -1,7 +1,7 @@
 <div class="mat-headline-6" style="padding-left: 8px; width: 95%;">Draws: {{tournamentName}}</div>
 <div fxLayout="row" class="draws-container">
   <div>
-    <h2>Events</h2>
+    <h2>Select Event</h2>
     <mat-list dense class="event-list">
       <mat-list-item *ngFor="let tournamentEvent of tournamentEvents" (click)="onSelectEvent(tournamentEvent)"
                      [ngClass]="isSelected (tournamentEvent) ? 'selected' : 'not-selected'">

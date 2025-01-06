@@ -1,7 +1,7 @@
 <div fxLayout="row wrap"
      fxLayoutGap="32px" [style.height]="bracketsHeight"
-     fxLayoutAlign="flex-start" cdkDropListGroup class="rr-draws-panel-inner">
-  <div *ngFor="let group of groups; let idx = index;">
+     fxLayoutAlign="start start" cdkDropListGroup class="rr-draws-panel-inner">
+  <div *ngFor="let group of groups; let idx = index;" fxFlex="none">
     <table>
       <thead>
       <tr>
