@@ -21,7 +21,7 @@
           <mat-selection-list class="remove-player" matInput name="playerToRemove" [(ngModel)]="playerToRemove"
                               required multiple="false">
             <mat-list-option *ngFor="let player of groupPlayers" [value]="player.profileId"
-                             (click)="onSelectPlayerToRemove(player.profileId)">
+                             (click)="onSelectPlayerToRemove(player.profileId, player.placeInGroup)">
               {{ player.placeInGroup}}) {{ player.playerName }} ({{ player.rating }})
             </mat-list-option>
           </mat-selection-list>
@@ -51,6 +51,7 @@
     <div fxFlex="1"></div>
     <button mat-raised-button type="button" (click)="onRecordPayment()" [disabled]="f.invalid">Record Payment</button>
     <div fxFlex="1"></div>
+<!--    <button mat-raised-button color="primary" [disabled]="f.invalid" (click)="onReplace()">Replace</button>-->
     <button mat-raised-button color="primary" [disabled]="f.invalid || !paymentRecorded" (click)="onReplace()">Replace</button>
   </div>
 </mat-dialog-actions>

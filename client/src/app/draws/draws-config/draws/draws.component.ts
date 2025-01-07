@@ -234,7 +234,8 @@ export class DrawsComponent implements OnInit, OnChanges {
     const data: ReplacePlayerPopupData = {
       drawItems: this.draws,
       tournamentEvent: this.selectedEvent,
-      tournamentName: this.tournamentName
+      tournamentName: this.tournamentName,
+      drawType: DrawType.ROUND_ROBIN
     };
 
     const config = {
@@ -244,7 +245,13 @@ export class DrawsComponent implements OnInit, OnChanges {
     dialogRef.afterClosed().subscribe(result => {
       if (result?.action === 'ok') {
         const request = result.request;
-        console.log('request', request);
+        const action: DrawAction = {
+          actionType: DrawActionType.DRAW_ACTION_REPLACE_PLAYER,
+          eventId: this.selectedEvent.id,
+          payload: {replaceRequest: request}
+        };
+        this.drawsAction.emit(action);
+
       }
     });
 

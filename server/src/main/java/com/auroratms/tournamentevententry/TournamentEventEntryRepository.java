@@ -22,6 +22,9 @@ public interface TournamentEventEntryRepository extends JpaRepository<Tournament
     // gets all event entries for a particular tournament entry i.e. player
     List<TournamentEventEntry> findAllByTournamentEntryFk(Long tournamentEntryId);
 
+    // get entry by in given event
+    TournamentEventEntry getTournamentEventEntryByTournamentEventFkEqualsAndTournamentEntryFkEquals(Long tournamentEventFk, Long TournamentEntryFk);
+
     // count of all event entries in one particular event that are in several different statuses
     long countByTournamentEventFkEqualsAndStatusIn(Long tournamentEventFk, List<EventEntryStatus> statusList);
 

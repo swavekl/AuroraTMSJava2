@@ -13,10 +13,12 @@ import com.auroratms.profile.UserProfileExtService;
 import com.auroratms.profile.UserProfileService;
 import com.auroratms.tournamententry.TournamentEntry;
 import com.auroratms.tournamententry.TournamentEntryService;
+import com.auroratms.tournamentevententry.EventEntryStatus;
 import com.auroratms.tournamentevententry.TournamentEventEntry;
 import com.auroratms.tournamentevententry.TournamentEventEntryService;
 import com.auroratms.usatt.UsattDataService;
 import com.auroratms.usatt.UsattPlayerRecord;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -30,6 +32,7 @@ import java.util.*;
 /**
  * Rest API controller for manipulating event draws
  */
+@Slf4j
 @RestController
 @RequestMapping("api/draws")
 @PreAuthorize("isAuthenticated()")
@@ -516,6 +519,90 @@ public class DrawController {
             if (thisEvent.getPlayersToAdvance() > 0) {
                 this.drawService.deleteDraws(eventId, DrawType.SINGLE_ELIMINATION);
             }
+        }
+    }
+
+    @PutMapping("/replace")
+    @PreAuthorize("hasAuthority('TournamentDirectors') or hasAuthority('Admins') or hasAuthority('Referees')")
+    public @ResponseBody ResponseEntity<Void>
+    replaceDrawItem(@RequestBody DrawItem drawItem,
+                    @RequestParam(name = "playerToAddEntryId") Long playerToAddEntryId) {
+        try {
+            // find player to remove entry so we can remove him from the event confirmed state
+            // to waiting list - needed to keep the payment ?
+            long playerToRemoveEntryId = drawItem.getEntryId();
+            if (playerToRemoveEntryId != 0) {
+                TournamentEntry tournamentEntry = entryService.get(playerToRemoveEntryId);
+                TournamentEventEntry tournamentEventEntry = eventEntryService.getByTournamentEventIdAndTournamentEntryId(
+                        drawItem.getEventFk(), tournamentEntry.getId());
+                tournamentEventEntry.setStatus(EventEntryStatus.ENTERED_WAITING_LIST);
+                tournamentEventEntry.setDateEntered(new Date());
+                log.info("moved player event entry onto waiting list " + tournamentEventEntry);
+                eventEntryService.update(tournamentEventEntry);
+            }
+
+            long eventFk = drawItem.getEventFk();
+            // find out if the added player is possibly on the waiting list
+            List<TournamentEventEntry> tournamentEventEntries = eventEntryService.listAllForTournamentEntry(playerToAddEntryId);
+            TournamentEventEntry eventEntryToAdd = null;
+            for (TournamentEventEntry tournamentEventEntry : tournamentEventEntries) {
+                if (tournamentEventEntry.getTournamentEventFk() == drawItem.getEventFk()) {
+                    eventEntryToAdd = tournamentEventEntry;
+                    log.info("found entry into this event on the waiting list: " + eventEntryToAdd);
+                    break;
+                }
+            }
+
+            if (eventEntryToAdd == null) {
+                eventEntryToAdd = new TournamentEventEntry();
+            }
+
+            TournamentEntry tournamentEntry = entryService.get(playerToAddEntryId);
+            TournamentEvent tournamentEvent = eventService.get(eventFk);
+            double feeAdult = tournamentEvent.getFeeAdult();
+            eventEntryToAdd.setTournamentFk(tournamentEntry.getTournamentFk());
+            eventEntryToAdd.setTournamentEntryFk(playerToAddEntryId);
+            eventEntryToAdd.setTournamentEventFk(eventFk);
+            eventEntryToAdd.setDateEntered(new Date());
+            eventEntryToAdd.setStatus(EventEntryStatus.ENTERED);
+            eventEntryToAdd.setCartSessionId(null);
+            eventEntryToAdd.setPrice(feeAdult);
+            eventEntryToAdd.setDoublesPartnerProfileId(null);
+            if (eventEntryToAdd.getId() == null) {
+                TournamentEventEntry tournamentEventEntry = eventEntryService.create(eventEntryToAdd);
+                log.info("Created entry " + tournamentEventEntry);
+            } else {
+                eventEntryService.update(eventEntryToAdd);
+                log.info("Updated event entry: " + eventEntryToAdd);
+            }
+
+            boolean replacingEmptySpot = drawItem.getId() == 0;
+            if (replacingEmptySpot) {
+                log.info("Updating count of players in the event");
+                int numEntries = tournamentEvent.getNumEntries();
+                tournamentEvent.setNumEntries(numEntries + 1);
+                eventService.update(tournamentEvent);
+            }
+
+            // finally update the draw item
+            drawItem.setPlayerId(tournamentEntry.getProfileId());
+            List<DrawItem> existingDrawItems = this.drawService.list(tournamentEvent.getId(), drawItem.getDrawType());
+            for (DrawItem existingDrawItem : existingDrawItems) {
+                if (drawItem.getDrawType() == DrawType.ROUND_ROBIN) {
+                    if (existingDrawItem.getGroupNum() == drawItem.getGroupNum() &&
+                            existingDrawItem.getPlaceInGroup() == drawItem.getPlaceInGroup()) {
+                        log.info("Deleting existing draw item: " + existingDrawItem);
+                        this.drawService.deleteDrawItem(existingDrawItem);
+                    }
+                }
+            }
+            drawItem.setRating(tournamentEntry.getSeedRating());
+            DrawItem updatedDrawItem = this.drawService.save(drawItem);
+            log.info("Updated draw item " + updatedDrawItem);
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            log.error("Error during replace player: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
     }
 }

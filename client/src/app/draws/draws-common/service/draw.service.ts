@@ -71,4 +71,13 @@ import {tap} from 'rxjs/operators';
   updateDrawItems(drawItems: DrawItem[]): Observable<DrawItem> {
     return this.drawDataService.updateItems(drawItems);
   }
+
+  /**
+   * Replaces player in the draw item with player of given tournament entry id
+   * @param drawItem
+   * @param playerToAddEntryId
+   */
+  replacePlayerInDraw(drawItem: DrawItem, playerToAddEntryId: number): Observable<DrawItem> {
+    return this.drawDataService.replacePlayerInDraw(drawItem, playerToAddEntryId);
+  }
 }

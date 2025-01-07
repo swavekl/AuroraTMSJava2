@@ -125,6 +125,16 @@ public class TournamentEventEntryService {
         return repository.findAllByTournamentEntryFk(tournamentEntryId);
     }
 
+    /**
+     * Gets single event entry
+     * @param tournamentEventId
+     * @param tournamentEntryId
+     * @return
+     */
+    public TournamentEventEntry getByTournamentEventIdAndTournamentEntryId(Long tournamentEventId, Long tournamentEntryId) {
+        return repository.getTournamentEventEntryByTournamentEventFkEqualsAndTournamentEntryFkEquals(tournamentEventId, tournamentEntryId);
+    }
+
     public List<TournamentEventEntry> listAllForCartSession(String cartSessionUUID) {
         return repository.findAllByCartSessionId(cartSessionUUID);
     }

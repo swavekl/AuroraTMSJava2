@@ -19,10 +19,11 @@ import {ConfirmationPopupComponent} from '../../../shared/confirmation-popup/con
 import {MatDialog} from '@angular/material/dialog';
 import {PlayerStatusService} from '../../../today/service/player-status.service';
 import {PlayerStatus} from '../../../today/model/player-status.model';
-import {TodayService} from '../../../shared/today.service';
 import {CheckInType} from '../../../tournament/model/check-in-type.enum';
 import {MatchCardInfoService} from '../../../matches/service/match-card-info.service';
 import {MatchCardInfo} from '../../../matches/model/match-card-info.model';
+import {ReplacePlayerRequest} from '../reaplace-player-popup/replace-player-popup.component';
+import {ErrorMessagePopupService} from '../../../shared/error-message-dialog/error-message-popup.service';
 
 @Component({
   selector: 'app-draws-container',
@@ -74,6 +75,7 @@ export class DrawsContainerComponent implements OnInit, OnDestroy {
               private matchCardService: MatchCardService,
               private matchCardInfoService: MatchCardInfoService,
               private playerStatusService: PlayerStatusService,
+              private errorMessagePopupService: ErrorMessagePopupService,
               private dialog: MatDialog) {
     const strTournamentId = this.activatedRoute.snapshot.params['tournamentId'] || 0;
     this.tournamentId = Number(strTournamentId);
@@ -182,6 +184,9 @@ export class DrawsContainerComponent implements OnInit, OnDestroy {
         break;
       case DrawActionType.DRAW_ACTION_LOAD_STATUS:
         this.onLoadStatus(drawAction.eventId, drawAction.payload?.tournamentDay);
+        break;
+      case DrawActionType.DRAW_ACTION_REPLACE_PLAYER:
+        this.onReplacePlayer(drawAction.eventId, drawAction.payload);
         break;
     }
   }
@@ -306,5 +311,22 @@ export class DrawsContainerComponent implements OnInit, OnDestroy {
     this.playerStatusList$ = this.playerStatusService.entities$;
     let params = `tournamentId=${this.tournamentId}&tournamentDay=${tournamentDay}&eventId=${eventId}&isDailyCheckin=${this.isDailyCheckin}`;
     this.playerStatusService.loadWithQuery(params);
+  }
+
+  private onReplacePlayer(eventId: number, payload: any) {
+    const replaceRequest: ReplacePlayerRequest = payload.replaceRequest;
+    const drawType = replaceRequest.drawItem.drawType;
+    this.drawService.replacePlayerInDraw(replaceRequest.drawItem, replaceRequest.playerToAddEntryId)
+      .pipe(first())
+      .subscribe(
+        {
+          next: (updatedDrawItem: DrawItem) => {
+            this.updateEventFlag(eventId);
+            this.onLoadDraw(eventId, drawType);
+          },
+          error: (error: any) => {
+            this.errorMessagePopupService.showError(error);
+          }
+        });
   }
 }

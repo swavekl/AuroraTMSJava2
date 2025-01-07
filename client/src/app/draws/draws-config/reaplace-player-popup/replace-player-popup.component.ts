@@ -16,6 +16,7 @@ import {CallbackData} from '../../../account/model/callback-data';
 import {ProfileService} from '../../../profile/profile.service';
 import {Profile} from '../../../profile/profile';
 import {ErrorMessagePopupService} from '../../../shared/error-message-dialog/error-message-popup.service';
+import {ConflictType} from '../../draws-common/model/conflict-type.enum';
 
 @Component({
   selector: 'app-replace-player-popup',
@@ -27,7 +28,6 @@ export class ReplacePlayerPopupComponent {
   selectedGroup: number = 1;
   playerToRemove: string;
   playerToAdd: string;
-  playerToRemoveEntryId: number;
   playerToAddEntryId: number;
   groupPlayers: PlayerInfo [] = [];
   filteredPlayers: PlayerInfo [] = [];
@@ -44,6 +44,12 @@ export class ReplacePlayerPopupComponent {
   // indicates if payment was recorded for this entry
   paymentRecorded: boolean;
 
+  // draw item id which needs to be replaced
+  private drawItemToRemove: DrawItem;
+
+  // type of draw we will be modifying
+  private drawType: DrawType;
+
   constructor(public dialogRef: MatDialogRef<ReplacePlayerPopupComponent>,
               @Inject(MAT_DIALOG_DATA) public data: ReplacePlayerPopupData,
               private tournamentEntryInfoService: TournamentEntryInfoService,
@@ -51,15 +57,22 @@ export class ReplacePlayerPopupComponent {
               private profileService: ProfileService,
               private errorMessagePopupService: ErrorMessagePopupService) {
     this.tournamentEvent = data.tournamentEvent;
-    this.drawItems = data.drawItems;
     this.tournamentName = data.tournamentName;
-    this.paymentRecorded = false;
+    this.drawType = data.drawType;
+    // get only draw items of given type
     const drawItems = data.drawItems || [];
+    this.drawItems = drawItems.filter((drawItem: DrawItem) => {
+      return drawItem.drawType === this.drawType;
+    });
+
+    // find max group number
     let maxGroups = 0;
-    for (const drawItem of drawItems) {
+    this.drawItems.forEach((drawItem: DrawItem) => {
       maxGroups = Math.max(drawItem.groupNum, maxGroups);
-    }
+    });
     this.drawGroups = new Array(maxGroups);
+
+    this.paymentRecorded = false;
     this.fetchAllPlayers(this.tournamentEvent.tournamentFk);
     this.onGroupChange({value: 1});
   }
@@ -69,21 +82,15 @@ export class ReplacePlayerPopupComponent {
   }
 
   onReplace() {
-    const playerToAdd = this.playerToAdd[0];
-    const playerToRemove = this.playerToRemove[0];
     const request: ReplacePlayerRequest = {
-      playerToAdd: playerToAdd,
-      playerToRemove: playerToRemove,
-      tournamentEventId: this.tournamentEvent.id,
-      playerToAddEntryId: this.playerToAddEntryId,
-      playerToRemoveEntryId: this.playerToRemoveEntryId
+      drawItem: this.drawItemToRemove,
+      playerToAddEntryId: this.playerToAddEntryId
     };
     this.dialogRef.close({action: 'ok', request: request});
   }
 
-  onSelectPlayerToRemove(profileId: string) {
-    const entryInfo = this.findEntryInfo(profileId);
-    this.playerToRemoveEntryId = entryInfo.entryId;
+  onSelectPlayerToRemove(profileId: string, placeInGroup: number) {
+    this.drawItemToRemove = this.findDrawItem(profileId, this.selectedGroup, placeInGroup);
   }
 
   onSelectPlayerToAdd(profileId: any) {
@@ -97,11 +104,21 @@ export class ReplacePlayerPopupComponent {
   onGroupChange($event: any) {
     const groupNum = $event.value;
     let groupPlayers: PlayerInfo[] = this.drawItems.filter((drawItem: DrawItem): boolean => {
-      return (drawItem.groupNum === groupNum) && drawItem.drawType === DrawType.ROUND_ROBIN
-        && drawItem.playerName != null && drawItem.playerId != null;
+      return (drawItem.groupNum === groupNum) && drawItem.playerName != null && drawItem.playerId != null;
     }).map((drawItem: DrawItem): PlayerInfo => {
       return {profileId: drawItem.playerId, playerName: drawItem.playerName, rating: drawItem.rating, placeInGroup: drawItem.placeInGroup};
     });
+
+    if (this.tournamentEvent.playersPerGroup > groupPlayers.length) {
+      const groupLen = groupPlayers.length;
+      for (let i = groupLen; i < this.tournamentEvent.playersPerGroup; i++) {
+        groupPlayers.push({profileId: 'TBD', playerName: 'None', rating: 0, placeInGroup: i + 1});
+        if (this.tournamentEvent.doubles) {
+          groupPlayers.push({profileId: 'TBD', playerName: 'None', rating: 0, placeInGroup: i + 1});
+        }
+      }
+    }
+
     if (this.tournamentEvent.doubles) {
       let doublesPlayers: any [] = [];
       for (const doublesTeamPlayers of groupPlayers) {
@@ -279,20 +296,50 @@ export class ReplacePlayerPopupComponent {
       }
     }
     return entryToReturn;
-  }}
+  }
+
+  private findDrawItem(profileId: string, groupNum: number, placeInGroup: number): DrawItem {
+    const playerDrawItems = this.drawItems.filter(
+      (drawItem: DrawItem) => {
+        return drawItem.playerId === profileId && drawItem.groupNum == groupNum;
+      });
+    // console.log('playerDrawItems', playerDrawItems);
+    return (playerDrawItems?.length === 1) ? playerDrawItems[0] : this.makeEmptyDrawItem(profileId, placeInGroup);
+  }
+
+  private makeEmptyDrawItem(profileId: string, placeInGroup: number): DrawItem {
+    return {
+      id: null,
+      eventFk: this.tournamentEvent.id,
+      groupNum: this.selectedGroup,
+      round: 0,
+      placeInGroup: placeInGroup,
+      seSeedNumber: 0,
+      byeNum: 0,
+      drawType: this.drawType,
+      playerId: profileId,
+      // transient values
+      playerName: null,
+      rating: 0,
+      clubName: null,
+      state: null,
+      conflictType: ConflictType.NO_CONFLICT
+    };
+  }
+}
 
 export interface ReplacePlayerPopupData {
   drawItems: DrawItem[];
   tournamentEvent: TournamentEvent;
   tournamentName: string;
+  drawType: DrawType;
 }
 
 export interface ReplacePlayerRequest {
-  playerToRemove: string;
-  playerToAdd: string;
-  tournamentEventId: number;
-  playerToAddEntryId: number,
-  playerToRemoveEntryId: number
+  // draw item to replace
+  drawItem: DrawItem;
+  // entry id of a player to be placed in this draw item
+  playerToAddEntryId: number;
 }
 
 export interface PlayerInfo {

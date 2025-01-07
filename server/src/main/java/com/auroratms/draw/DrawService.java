@@ -122,6 +122,12 @@ public class DrawService {
     }
 
     @Transactional(readOnly = true)
+    public DrawItem get(long drawItemId) {
+        return this.drawRepository.findById(drawItemId)
+                .orElseThrow(() -> new ResourceNotFoundException("Unable to find draw item"));
+    }
+
+    @Transactional(readOnly = true)
     public List<DrawItem> listByProfileIdAndEventFkIn(String profileId, List<Long> eventIdList) {
         return this.drawRepository.findAllByPlayerIdContainsAndEventFkIsIn(profileId, eventIdList);
     }
@@ -365,5 +371,10 @@ public class DrawService {
         drawItem.setPlayerId(playerProfileId);
         drawItem.setRating(rating);
         this.save(drawItem);
+    }
+
+    public void deleteDrawItem(DrawItem drawItem) {
+        this.drawRepository.delete(drawItem);
+//        this.drawsEventPublisher.publishEvent(drawItem.getEventFk(), DrawAction.DELETED, drawItem.getDrawType(), null);
     }
 }
