@@ -60,6 +60,29 @@ export class TournamentEntryInfoService {
       );
   }
 
+  /**
+   * Gets all tournament entry infos for one event
+   * @param eventId
+   */
+  getReplacementPlayersForEvent(eventId: number): Observable<TournamentEntryInfo[]> {
+    this.setLoading(true);
+    const url = `/api/replacemententries/${eventId}`;
+    return this.httpClient.get<TournamentEntryInfo []>(url)
+      .pipe(
+        tap({
+            next: (value: any) => {
+              this.setLoading(false);
+            },
+            error: (error) => {
+              this.setLoading(false);
+            },
+            complete: () => {
+            }
+          }
+        )
+      );
+  }
+
   getWaitingListEntries(tournamentId: number): Observable<TournamentEntryInfo[]> {
     this.setLoading(true);
     const url = `/api/waitinglistentries/${tournamentId}`;

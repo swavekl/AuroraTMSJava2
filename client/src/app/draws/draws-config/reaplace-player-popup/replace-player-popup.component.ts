@@ -6,8 +6,7 @@ import {TournamentEntryInfoService} from '../../../tournament/service/tournament
 import {first} from 'rxjs/operators';
 import {TournamentEntryInfo} from '../../../tournament/model/tournament-entry-info.model';
 import {DrawType} from '../../draws-common/model/draw-type.enum';
-import {GenderRestriction} from '../../../tournament/tournament-config/model/gender-restriction.enum';
-import {AgeRestrictionType} from '../../../tournament/tournament-config/model/age-restriction-type.enum';
+import {PaymentDialogService} from '../../../account/service/payment-dialog.service';
 import {CheckCashPaymentDialogService} from '../../../account/service/check-cash-payment-dialog.service';
 import {PaymentRequest} from '../../../account/model/payment-request.model';
 import {PaymentRefundFor} from '../../../account/model/payment-refund-for.enum';
@@ -41,8 +40,8 @@ export class ReplacePlayerPopupComponent {
   // tournament name needed for recording payment
   private tournamentName: string;
 
-  // indicates if payment was recorded for this entry
-  paymentRecorded: boolean;
+  // indicates if payment was completed for this entry
+  paymentCompleted: boolean;
 
   // draw item id which needs to be replaced
   private drawItemToRemove: DrawItem;
@@ -50,9 +49,16 @@ export class ReplacePlayerPopupComponent {
   // type of draw we will be modifying
   private drawType: DrawType;
 
+  // todo - get it from the tournament country
+  protected tournamentCurrency: string = 'USD';
+
+  // to be determined player profile id same as matches/match.model.ts
+  public readonly TBD_PROFILE_ID = 'TBD';
+
   constructor(public dialogRef: MatDialogRef<ReplacePlayerPopupComponent>,
               @Inject(MAT_DIALOG_DATA) public data: ReplacePlayerPopupData,
               private tournamentEntryInfoService: TournamentEntryInfoService,
+              private paymentDialogService: PaymentDialogService,
               private checkCashPaymentDialogService: CheckCashPaymentDialogService,
               private profileService: ProfileService,
               private errorMessagePopupService: ErrorMessagePopupService) {
@@ -72,8 +78,8 @@ export class ReplacePlayerPopupComponent {
     });
     this.drawGroups = new Array(maxGroups);
 
-    this.paymentRecorded = false;
-    this.fetchAllPlayers(this.tournamentEvent.tournamentFk);
+    this.paymentCompleted = false;
+    this.fetchReplacementPlayers(this.tournamentEvent.id);
     this.onGroupChange({value: 1});
   }
 
@@ -95,12 +101,16 @@ export class ReplacePlayerPopupComponent {
 
   onSelectPlayerToAdd(profileId: any) {
     if (this.playerToAdd != profileId) {
-      this.paymentRecorded = false;
+      this.paymentCompleted = false;
     }
     const entryInfo = this.findEntryInfo(profileId);
     this.playerToAddEntryId = entryInfo.entryId;
   }
 
+  /**
+   * Gets player infos for currently selected group
+   * @param $event
+   */
   onGroupChange($event: any) {
     const groupNum = $event.value;
     let groupPlayers: PlayerInfo[] = this.drawItems.filter((drawItem: DrawItem): boolean => {
@@ -112,9 +122,9 @@ export class ReplacePlayerPopupComponent {
     if (this.tournamentEvent.playersPerGroup > groupPlayers.length) {
       const groupLen = groupPlayers.length;
       for (let i = groupLen; i < this.tournamentEvent.playersPerGroup; i++) {
-        groupPlayers.push({profileId: 'TBD', playerName: 'None', rating: 0, placeInGroup: i + 1});
+        groupPlayers.push({profileId: this.TBD_PROFILE_ID, playerName: '(empty)', rating: -1, placeInGroup: i + 1});
         if (this.tournamentEvent.doubles) {
-          groupPlayers.push({profileId: 'TBD', playerName: 'None', rating: 0, placeInGroup: i + 1});
+          groupPlayers.push({profileId: this.TBD_PROFILE_ID, playerName: '(empty)', rating: -1, placeInGroup: i + 1});
         }
       }
     }
@@ -134,11 +144,15 @@ export class ReplacePlayerPopupComponent {
     }
 
     this.groupPlayers = groupPlayers;
-    // this.groupPlayers = groupPlayers.sort((pi1: PlayerInfo, pi2: PlayerInfo) => {
-    //   return pi1.playerName.localeCompare(pi2.playerName);
-    // });
   }
 
+  /**
+   * Finds player info for doubles player so we can show individual player ratings
+   * @param profileId
+   * @param playerName
+   * @param placeInGroup
+   * @private
+   */
   private findPlayerInfo(profileId: string, playerName: string, placeInGroup: number) {
     let playerInfo: PlayerInfo = {profileId: profileId, playerName: playerName, rating: 0, placeInGroup: placeInGroup};
     // console.log('Finding player rating in doubles', playerName);
@@ -155,18 +169,17 @@ export class ReplacePlayerPopupComponent {
 
   /**
    *
-   * @param tournamentId
+   * @param eventId
    * @private
    */
-  private fetchAllPlayers(tournamentId: number) {
+  private fetchReplacementPlayers(eventId: number) {
     this.isLoading = true;
-    this.tournamentEntryInfoService.getAll(tournamentId)
+    this.tournamentEntryInfoService.getReplacementPlayersForEvent(eventId)
       .pipe(first())
       .subscribe({
         next: (entryInfos: TournamentEntryInfo[]) => {
-          let filteredEntryInfos = this.filterPlayerForEvent(entryInfos);
-          this.entryInfos = filteredEntryInfos;
-          const filteredPlayers = filteredEntryInfos.map((entryInfo: TournamentEntryInfo) => {
+          this.entryInfos = entryInfos;
+          const filteredPlayers = entryInfos.map((entryInfo: TournamentEntryInfo) => {
             const playerInfo: PlayerInfo = {
               playerName: `${entryInfo.lastName}, ${entryInfo.firstName}`,
               profileId: entryInfo.profileId,
@@ -191,39 +204,15 @@ export class ReplacePlayerPopupComponent {
   }
 
   /**
-   * Removes ineligible players from the list of infos
-   * @param entryInfos
-   * @private
+   * Pays payment
+   * @param payByCreditCard
    */
-  private filterPlayerForEvent(entryInfos: TournamentEntryInfo[]) {
-    let filteredEntryInfos = entryInfos;
-    if (!this.tournamentEvent?.doubles) {
-      if (this.tournamentEvent.maxPlayerRating > 0) {
-        filteredEntryInfos = filteredEntryInfos.filter((entryInfo: TournamentEntryInfo) => {
-          return entryInfo.eligibilityRating < this.tournamentEvent.maxPlayerRating;
-        });
-      }
-
-      if (this.tournamentEvent.genderRestriction !== GenderRestriction.NONE) {
-        const genderToAccept: string = this.tournamentEvent.genderRestriction == GenderRestriction.FEMALE ? 'F' : 'M';
-        filteredEntryInfos = filteredEntryInfos.filter((entryInfo: TournamentEntryInfo) => {
-            return entryInfo.gender == genderToAccept;
-        });
-      }
-
-      if (this.tournamentEvent.ageRestrictionType !== AgeRestrictionType.NONE) {
-        // todo - get age and filter out
-      }
-    }
-    return filteredEntryInfos;
-  }
-
-  onRecordPayment() {
+  onPay(payByCreditCard: boolean) {
     this.profileService.getProfile(this.playerToAdd)
       .pipe(first())
       .subscribe({
         next: (profile: Profile) => {
-          this.recordPaymentInternal(profile);
+          this.doPayment(profile, payByCreditCard);
         },
         error: (error: any) => {
           const message = 'Error getting profile ' + this.playerToAdd + ' ' + error;
@@ -233,18 +222,29 @@ export class ReplacePlayerPopupComponent {
       });
   }
 
-
+  /**
+   *
+   * @param scope
+   */
   onPaymentSuccessful(scope: any) {
     const thisPopup: ReplacePlayerPopupComponent = scope;
-    thisPopup.paymentRecorded = true;
+    thisPopup.paymentCompleted = true;
   }
 
+  /**
+   *
+   * @param scope
+   */
   onPaymentCanceled(scope: any) {
-    const thisPopup: ReplacePlayerPopupComponent = scope;
-    thisPopup.paymentRecorded = true;
   }
 
-  private recordPaymentInternal(profile: Profile) {
+  /**
+   *
+   * @param profile
+   * @param payByCreditCard
+   * @private
+   */
+  private doPayment(profile: Profile, payByCreditCard: boolean) {
     const entryInfo = this.findEntryInfo(this.playerToAdd);
     const balanceInPlayerCurrency = this.tournamentEvent.feeAdult;
     const balanceInTournamentCurrency = this.tournamentEvent.feeAdult;
@@ -259,7 +259,7 @@ export class ReplacePlayerPopupComponent {
       accountItemId: this.tournamentEvent.tournamentFk,
       transactionItemId: entryInfo.entryId,
       amount: amount,
-      currencyCode: 'USD',  // todo
+      currencyCode: this.tournamentCurrency,
       amountInAccountCurrency: amountInAccountCurrency,
       statementDescriptor: tournamentName,
       fullName: fullName,
@@ -277,12 +277,12 @@ export class ReplacePlayerPopupComponent {
       cancelCallbackFn: this.onPaymentCanceled,
       callbackScope: this
     };
-    // if (payByCreditCard == true) {
-    //   this.paymentDialogService.showPaymentDialog(paymentDialogData, callbackData);
-    // } else {
-    this.checkCashPaymentDialogService.showPaymentDialog(paymentDialogData, callbackData);
-    // }
 
+    if (payByCreditCard == true) {
+      this.paymentDialogService.showPaymentDialog(paymentDialogData, callbackData);
+    } else {
+      this.checkCashPaymentDialogService.showPaymentDialog(paymentDialogData, callbackData);
+    }
   }
 
   private findEntryInfo (profileId: string): TournamentEntryInfo {

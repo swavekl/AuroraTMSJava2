@@ -2,23 +2,35 @@ package com.auroratms.tournamententry;
 
 import com.auroratms.club.ClubEntity;
 import com.auroratms.club.ClubService;
+import com.auroratms.event.AgeRestrictionType;
+import com.auroratms.event.GenderRestriction;
+import com.auroratms.event.TournamentEvent;
+import com.auroratms.event.TournamentEventEntityService;
 import com.auroratms.profile.UserProfile;
 import com.auroratms.profile.UserProfileExt;
 import com.auroratms.profile.UserProfileExtService;
 import com.auroratms.profile.UserProfileService;
+import com.auroratms.tournament.EligibilityRestriction;
+import com.auroratms.tournament.Tournament;
+import com.auroratms.tournament.TournamentService;
 import com.auroratms.tournamentevententry.EventEntryStatus;
 import com.auroratms.tournamentevententry.TournamentEventEntry;
 import com.auroratms.tournamentevententry.TournamentEventEntryService;
+import com.auroratms.tournamentevententry.policy.*;
 import com.auroratms.usatt.UsattDataService;
 import com.auroratms.usatt.UsattPlayerRecord;
 import com.auroratms.usatt.UsattPlayerRecordRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
+@Slf4j
 @Service
 @Transactional
 public class TournamentEntryInfoService {
@@ -34,13 +46,15 @@ public class TournamentEntryInfoService {
     private final UsattDataService usattDataService;
     private final UsattPlayerRecordRepository usattPlayerRecordRepository;
     private final ClubService clubService;
+    private final TournamentEventEntityService tournamentEventEntityService;
+    private final TournamentService tournamentService;
 
     public TournamentEntryInfoService(TournamentEntryService tournamentEntryService,
                                       TournamentEventEntryService tournamentEventEntryService,
                                       UserProfileExtService userProfileExtService,
                                       UsattDataService usattDataService,
                                       UserProfileService userProfileService,
-                                      UsattPlayerRecordRepository usattPlayerRecordRepository, ClubService clubService) {
+                                      UsattPlayerRecordRepository usattPlayerRecordRepository, ClubService clubService, TournamentEventEntityService tournamentEventEntityService, TournamentService tournamentService) {
         this.tournamentEntryService = tournamentEntryService;
         this.tournamentEventEntryService = tournamentEventEntryService;
         this.userProfileExtService = userProfileExtService;
@@ -48,6 +62,8 @@ public class TournamentEntryInfoService {
         this.userProfileService = userProfileService;
         this.usattPlayerRecordRepository = usattPlayerRecordRepository;
         this.clubService = clubService;
+        this.tournamentEventEntityService = tournamentEventEntityService;
+        this.tournamentService = tournamentService;
     }
 
     /**
@@ -180,6 +196,112 @@ public class TournamentEntryInfoService {
                 eventIds.add(tournamentEventEntry.getTournamentEventFk());
             }
         }
+
+        return tournamentEntryInfos;
+    }
+
+    /**
+     * Gets entry infos for players who qualify for this specific event in this event's tournament
+     * @param eventId
+     * @return
+     */
+    public List<TournamentEntryInfo> getEntryInfosForReplacementInEvent(Long eventId) {
+        log.info("in getEntryInfosForReplacementInEvent");
+        final TournamentEvent tournamentEvent = tournamentEventEntityService.get(eventId);
+        final Tournament tournament = tournamentService.getByKey(tournamentEvent.getTournamentFk());
+        List<TournamentEventEntry> tournamentEventEntries = tournamentEventEntryService.listAllForEvent(eventId);
+        log.info("Found " + tournamentEventEntries.size() + " event entries");
+        List<Long> entryIds = tournamentEventEntries.stream().map(TournamentEventEntry::getTournamentEntryFk)
+                .collect(Collectors.toList());
+        List<TournamentEntry> allTournamentEntries = tournamentEntryService.listForTournament(tournamentEvent.getTournamentFk());
+        log.info("Found " + allTournamentEntries.size() + " all tournament entries");
+        // filter out those already in the event
+        List<TournamentEntry> otherTournamentEntries = allTournamentEntries.stream().filter(tournamentEntry ->
+            !entryIds.contains(tournamentEntry.getId())
+        ).collect(Collectors.toList());
+        log.info ("remaining " + otherTournamentEntries.size() + " other entries after removing those already in the event");
+
+        if (tournamentEvent.getMinPlayerRating() > 0 || tournamentEvent.getMaxPlayerRating() > 0) {
+            otherTournamentEntries = otherTournamentEntries.stream().filter(tournamentEntry ->
+                            !RatingRestrictionEventPolicy.isEntryDenied(tournamentEntry.getEligibilityRating(), tournamentEvent))
+                    .collect(Collectors.toList());
+        }
+        log.info ("Remaining entries after rating restriction " + otherTournamentEntries.size());
+        long start = System.currentTimeMillis();
+        // get profile ids of all remaining players
+        List<String> profileIds = otherTournamentEntries.stream().map(TournamentEntry::getProfileId)
+                .collect(Collectors.toList());
+
+        // get full user profiles - this is slow
+        // TODO - make it faster
+        Collection<UserProfile> userProfiles = userProfileService.listByProfileIds(profileIds);
+        long duration = System.currentTimeMillis() - start;
+        log.info("Reading user profiles took " + duration + " ms");
+        log.info ("Got " + userProfiles.size() + " user profiles");
+
+        if (tournamentEvent.getGenderRestriction() != GenderRestriction.NONE ||
+                tournamentEvent.getAgeRestrictionType() != AgeRestrictionType.NONE ||
+                tournamentEvent.getEligibilityRestriction() != EligibilityRestriction.OPEN) {
+            // filter them by gender
+            if (tournamentEvent.getGenderRestriction() != GenderRestriction.NONE) {
+                userProfiles = userProfiles.stream().filter(
+                                userProfile -> !GenderRestrictedEventPolicy.isEntryDenied(
+                                        "M".equals(userProfile.getGender()) ? "MALE" : "FEMALE", tournamentEvent))
+                        .collect(Collectors.toList());
+                log.info("User profiles after gender filtering " + userProfiles.size());
+            }
+
+            if (tournamentEvent.getEligibilityRestriction() != EligibilityRestriction.OPEN) {
+                String tournamentState = tournament.getState();
+                String tournamentCountry = "US";  // TODO get it from address
+                userProfiles = userProfiles.stream().filter(
+                                userProfile -> !ClosedOpenRestrictionEventPolicy.isEntryDenied(
+                                        tournamentState, userProfile.getState(),
+                                        tournamentCountry, userProfile.getCountryCode(),
+                                        tournamentEvent))
+                        .collect(Collectors.toList());
+                log.info("User profiles after eligibility filtering " + userProfiles.size());
+            }
+
+            if (tournamentEvent.getAgeRestrictionType() != AgeRestrictionType.NONE) {
+                Date tournamentStartDate = tournament.getStartDate();
+                userProfiles = userProfiles.stream().filter(
+                                userProfile -> !AgeRestrictionEventPolicy.isEntryDenied(
+                                        tournamentStartDate, userProfile.getDateOfBirth(), tournamentEvent))
+                        .collect(Collectors.toList());
+                log.info("User profiles after age restriction filtering " + userProfiles.size());
+            }
+
+            List<String> eligibleProfileIds = userProfiles.stream().map(UserProfile::getUserId).collect(Collectors.toList());
+            otherTournamentEntries = otherTournamentEntries.stream().filter(
+                    tournamentEntry -> eligibleProfileIds.contains(tournamentEntry.getProfileId())
+            ).collect(Collectors.toList());
+        }
+        log.info ("otherTournamentEntries after all filtering " + otherTournamentEntries.size());
+
+        // convert to entry infos
+        List<TournamentEntryInfo> tournamentEntryInfos = new ArrayList<>(otherTournamentEntries.size());
+        for (TournamentEntry tournamentEntry : otherTournamentEntries) {
+            Optional<UserProfile> result = userProfiles.stream().filter(
+                    userProfile -> userProfile.getUserId().equals(tournamentEntry.getProfileId()))
+                    .findFirst();
+            if (result.isPresent()) {
+                UserProfile userProfile = result.get();
+
+                TournamentEntryInfo tournamentEntryInfo = new TournamentEntryInfo();
+                tournamentEntryInfo.setEntryId(tournamentEntry.getId());
+                tournamentEntryInfo.setProfileId(tournamentEntry.getProfileId());
+                tournamentEntryInfo.setEligibilityRating(tournamentEntry.getEligibilityRating());
+                tournamentEntryInfo.setSeedRating(tournamentEntry.getSeedRating());
+
+                tournamentEntryInfo.setFirstName(userProfile.getFirstName());
+                tournamentEntryInfo.setLastName(userProfile.getLastName());
+                tournamentEntryInfo.setGender(userProfile.getGender());
+                tournamentEntryInfo.setState(userProfile.getState());
+                tournamentEntryInfos.add(tournamentEntryInfo);
+            }
+        }
+        log.info ("tournamentEntryInfos " + tournamentEntryInfos.size());
 
         return tournamentEntryInfos;
     }

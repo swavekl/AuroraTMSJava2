@@ -58,4 +58,12 @@ public class ClosedOpenRestrictionEventPolicy implements IEventPolicy{
     public AvailabilityStatus getStatus() {
         return availabilityStatus;
     }
+
+    public static boolean isEntryDenied(String tournamentState, String playerState,
+                                 String tournamentCountryCode, String playerCountryCode,
+                                 TournamentEvent event) {
+        ClosedOpenRestrictionEventPolicy policy = new ClosedOpenRestrictionEventPolicy(tournamentState,
+                playerState, tournamentCountryCode, playerCountryCode);
+        return policy.isEntryDenied(event);
+    }
 }

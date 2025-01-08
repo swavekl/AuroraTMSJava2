@@ -1,11 +1,5 @@
 <h2 mat-dialog-title>Replace Player in {{tournamentEvent?.name}}</h2>
 <mat-dialog-content>
-  <ng-container  *ngIf="isLoading; else not_testing">
-    <mat-progress-bar color="accent" mode="indeterminate"></mat-progress-bar>
-  </ng-container>
-  <ng-template #not_testing>
-    <div style="height: 4px; width: 100%;"></div>
-  </ng-template>
   <form name="form" #f="ngForm" novalidate>
     <div fxLayout="row" fxLayoutGap="10px" fxFlexAlign="start stretch" style="height: 100%;">
       <div fxLayout="column" fxLayoutGap="10px" fxFlex="50%" fxFlexAlign="start stretch">
@@ -22,7 +16,7 @@
                               required multiple="false">
             <mat-list-option *ngFor="let player of groupPlayers" [value]="player.profileId"
                              (click)="onSelectPlayerToRemove(player.profileId, player.placeInGroup)">
-              {{ player.placeInGroup}}) {{ player.playerName }} ({{ player.rating }})
+              {{ player.placeInGroup}}) {{ player.playerName }} {{ player.rating < 0 ? '' : '(' + player.rating + ')' }}
             </mat-list-option>
           </mat-selection-list>
         </div>
@@ -30,6 +24,12 @@
       <div fxLayout="column" fxLayoutGap="10px" fxFlex="50%" fxFlexAlign="start stretch">
         <mat-label>Player To Add</mat-label>
         <div>
+          <ng-container  *ngIf="isLoading; else not_testing">
+            <mat-progress-bar color="accent" mode="indeterminate"></mat-progress-bar>
+          </ng-container>
+          <ng-template #not_testing>
+            <div style="height: 4px; width: 100%;"></div>
+          </ng-template>
           <mat-selection-list class="add-player" matInput name="playerToAdd" [(ngModel)]="playerToAdd"
                               multiple="false" required>
             <mat-list-option *ngFor="let player of filteredPlayers" [value]="player.profileId"
@@ -40,18 +40,19 @@
         </div>
       </div>
     </div>
-    <div style="padding: 8px;">
-      Entry Cost Adult/Junior: {{ tournamentEvent?.feeAdult }} / {{ tournamentEvent?.feeJunior}}
+    <div style="padding-top: 10px;">
+      Event Entry Fee: {{ tournamentEvent?.feeAdult | currency: tournamentCurrency }}
     </div>
   </form>
 </mat-dialog-content>
 <mat-dialog-actions>
-  <div fxLayout="row" fxLayoutAlign="space-between start" style="width: 100%; margin: 0 10px;">
+  <div fxLayout="row" fxLayoutAlign="space-between start" style="width: 100%; margin: 0 10px 10px 10px;">
     <button mat-raised-button type="button" (click)="onCancel()">Cancel</button>
     <div fxFlex="1"></div>
-    <button mat-raised-button type="button" (click)="onRecordPayment()" [disabled]="f.invalid">Record Payment</button>
+    <button mat-raised-button type="button" (click)="onPay(true)" [disabled]="f.invalid || paymentCompleted">Pay by Credit Card</button>
     <div fxFlex="1"></div>
-<!--    <button mat-raised-button color="primary" [disabled]="f.invalid" (click)="onReplace()">Replace</button>-->
-    <button mat-raised-button color="primary" [disabled]="f.invalid || !paymentRecorded" (click)="onReplace()">Replace</button>
+    <button mat-raised-button type="button" (click)="onPay(false)" [disabled]="f.invalid || paymentCompleted">Pay By Check/Cash</button>
+    <div fxFlex="1"></div>
+    <button mat-raised-button color="primary" [disabled]="f.invalid || !paymentCompleted" (click)="onReplace()">Replace</button>
   </div>
 </mat-dialog-actions>

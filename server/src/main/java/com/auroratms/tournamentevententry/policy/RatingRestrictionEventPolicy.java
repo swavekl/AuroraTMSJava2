@@ -36,4 +36,9 @@ public class RatingRestrictionEventPolicy implements IEventPolicy {
     public AvailabilityStatus getStatus() {
         return status;
     }
+
+    public static boolean isEntryDenied (int playerRating, TournamentEvent tournamentEvent) {
+        RatingRestrictionEventPolicy policy = new RatingRestrictionEventPolicy(playerRating);
+        return policy.isEntryDenied(tournamentEvent);
+    }
 }

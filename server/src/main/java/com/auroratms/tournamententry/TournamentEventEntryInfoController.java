@@ -61,4 +61,19 @@ public class TournamentEventEntryInfoController {
             return new ResponseEntity(e, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    /**
+     * Gets tournament entry infos for players who can replace another player in the specified event
+     * @param eventId event id
+     * @return
+     */
+    @GetMapping("/replacemententries/{eventId}")
+    public ResponseEntity<List<TournamentEntryInfo>> getReplacementEntries(@PathVariable Long eventId) {
+        try {
+            List<TournamentEntryInfo> entryInfosForReplacementInEvent = this.tournamentEntryInfoService.getEntryInfosForReplacementInEvent(eventId);
+            return ResponseEntity.ok(entryInfosForReplacementInEvent);
+        } catch (Exception e) {
+            return new ResponseEntity(e, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 }

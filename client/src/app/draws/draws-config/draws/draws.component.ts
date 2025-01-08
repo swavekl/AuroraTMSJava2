@@ -239,7 +239,7 @@ export class DrawsComponent implements OnInit, OnChanges {
     };
 
     const config = {
-      width: '800px', height: '600px', data: data
+      width: '800px', height: '620px', data: data
     };
     const dialogRef = this.dialog.open(ReplacePlayerPopupComponent, config);
     dialogRef.afterClosed().subscribe(result => {

@@ -80,4 +80,10 @@ public class AgeRestrictionEventPolicy implements IEventPolicy {
     public AvailabilityStatus getStatus() {
         return availabilityStatus;
     }
+
+    public static boolean isEntryDenied (Date tournamentStartDate, Date dateOfBirth,
+                                         TournamentEvent event) {
+        AgeRestrictionEventPolicy policy = new AgeRestrictionEventPolicy(tournamentStartDate, dateOfBirth);
+        return policy.isEntryDenied(event);
+    }
 }

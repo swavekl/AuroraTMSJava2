@@ -9,6 +9,10 @@ public class GenderRestrictedEventPolicy implements IEventPolicy {
     private GenderRestriction playerGender = GenderRestriction.NONE;
 
     public GenderRestrictedEventPolicy(String playerGender) {
+        toGenderRestriction(playerGender);
+    }
+
+    private void toGenderRestriction(String playerGender) {
         if ("MALE".equalsIgnoreCase(playerGender)) {
             this.playerGender = GenderRestriction.MALE;
         } else if ("FEMALE".equalsIgnoreCase(playerGender)) {
@@ -28,5 +32,10 @@ public class GenderRestrictedEventPolicy implements IEventPolicy {
     @Override
     public AvailabilityStatus getStatus() {
         return AvailabilityStatus.DISQUALIFIED_BY_GENDER;
+    }
+
+    public static boolean isEntryDenied(String playerGender, TournamentEvent tournamentEvent) {
+        GenderRestrictedEventPolicy policy = new GenderRestrictedEventPolicy(playerGender);
+        return policy.isEntryDenied(tournamentEvent);
     }
 }

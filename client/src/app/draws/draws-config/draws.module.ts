@@ -22,6 +22,7 @@ import {MatDialogActions, MatDialogContent, MatDialogTitle} from '@angular/mater
 import {MatFormField, MatLabel, MatOption, MatSelect, MatSuffix} from '@angular/material/select';
 import {MatInput} from '@angular/material/input';
 import {MatProgressBar} from '@angular/material/progress-bar';
+import {AccountModule} from '../../account/account.module';
 
 @NgModule({
   declarations: [
@@ -54,7 +55,8 @@ import {MatProgressBar} from '@angular/material/progress-bar';
     MatLabel,
     MatInput,
     MatSuffix,
-    MatProgressBar
+    MatProgressBar,
+    AccountModule
   ]
 })
 export class DrawsModule {
