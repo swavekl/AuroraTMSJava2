@@ -246,7 +246,7 @@ public class TournamentEntryInfoService {
             if (tournamentEvent.getGenderRestriction() != GenderRestriction.NONE) {
                 userProfiles = userProfiles.stream().filter(
                                 userProfile -> !GenderRestrictedEventPolicy.isEntryDenied(
-                                        "M".equals(userProfile.getGender()) ? "MALE" : "FEMALE", tournamentEvent))
+                                        userProfile.getGender(), tournamentEvent))
                         .collect(Collectors.toList());
                 log.info("User profiles after gender filtering " + userProfiles.size());
             }
