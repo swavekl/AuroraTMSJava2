@@ -45,4 +45,19 @@ public class TournamentEventEntry implements Serializable {
     // if this entry is into doubles event - this is doubles partner profile id and represents requested partner
     // pairing up is done only after both players agree to play as a team see DoublesPair class
     private String doublesPartnerProfileId;
+
+    @Override
+    public String toString() {
+        return "TournamentEventEntry{" +
+                "id=" + id +
+                ", tournamentFk=" + tournamentFk +
+                ", tournamentEntryFk=" + tournamentEntryFk +
+                ", tournamentEventFk=" + tournamentEventFk +
+                ", dateEntered=" + dateEntered +
+                ", status=" + status +
+                ", cartSessionId='" + cartSessionId + '\'' +
+                ", price=" + price +
+                ", doublesPartnerProfileId='" + doublesPartnerProfileId + '\'' +
+                '}';
+    }
 }
