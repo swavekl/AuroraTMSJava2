@@ -526,19 +526,24 @@ public class DrawController {
     @PreAuthorize("hasAuthority('TournamentDirectors') or hasAuthority('Admins') or hasAuthority('Referees')")
     public @ResponseBody ResponseEntity<Void>
     replaceDrawItem(@RequestBody DrawItem drawItem,
-                    @RequestParam(name = "playerToAddEntryId") Long playerToAddEntryId) {
+                    @RequestParam(name = "playerToAddEntryId") Long playerToAddEntryId,
+                    @RequestParam(name = "tournamentId") Long tournamentId) {
         try {
             // find player to remove entry so we can remove him from the event confirmed state
             // to waiting list - needed to keep the payment ?
-            long playerToRemoveEntryId = drawItem.getEntryId();
-            if (playerToRemoveEntryId != 0) {
-                TournamentEntry tournamentEntry = entryService.get(playerToRemoveEntryId);
-                TournamentEventEntry tournamentEventEntry = eventEntryService.getByTournamentEventIdAndTournamentEntryId(
-                        drawItem.getEventFk(), tournamentEntry.getId());
-                tournamentEventEntry.setStatus(EventEntryStatus.ENTERED_WAITING_LIST);
-                tournamentEventEntry.setDateEntered(new Date());
-                log.info("moved player event entry onto waiting list " + tournamentEventEntry);
-                eventEntryService.update(tournamentEventEntry);
+            boolean replacingEmptySpot = drawItem.getId() == 0;
+            if (!replacingEmptySpot) {
+                String profileId = drawItem.getPlayerId();
+                List<TournamentEntry> tournamentEntries = entryService.listForTournamentAndUser(tournamentId, profileId);
+                if (!tournamentEntries.isEmpty()) {
+                    TournamentEntry tournamentEntry = tournamentEntries.get(0);
+                    TournamentEventEntry tournamentEventEntry = eventEntryService.getByTournamentEventIdAndTournamentEntryId(
+                            drawItem.getEventFk(), tournamentEntry.getId());
+                    tournamentEventEntry.setStatus(EventEntryStatus.ENTERED_WAITING_LIST);
+                    tournamentEventEntry.setDateEntered(new Date());
+                    log.info("moved player event entry onto waiting list " + tournamentEventEntry);
+                    eventEntryService.update(tournamentEventEntry);
+                }
             }
 
             long eventFk = drawItem.getEventFk();
@@ -576,7 +581,6 @@ public class DrawController {
                 log.info("Updated event entry: " + eventEntryToAdd);
             }
 
-            boolean replacingEmptySpot = drawItem.getId() == 0;
             if (replacingEmptySpot) {
                 log.info("Updating count of players in the event");
                 int numEntries = tournamentEvent.getNumEntries();

@@ -211,7 +211,9 @@ public class TournamentEntryInfoService {
         final Tournament tournament = tournamentService.getByKey(tournamentEvent.getTournamentFk());
         List<TournamentEventEntry> tournamentEventEntries = tournamentEventEntryService.listAllForEvent(eventId);
         log.info("Found " + tournamentEventEntries.size() + " event entries");
-        List<Long> entryIds = tournamentEventEntries.stream().map(TournamentEventEntry::getTournamentEntryFk)
+        List<Long> entryIds = tournamentEventEntries.stream()
+                .filter(tournamentEventEntry -> tournamentEventEntry.getStatus() == EventEntryStatus.ENTERED)
+                .map(TournamentEventEntry::getTournamentEntryFk)
                 .collect(Collectors.toList());
         List<TournamentEntry> allTournamentEntries = tournamentEntryService.listForTournament(tournamentEvent.getTournamentFk());
         log.info("Found " + allTournamentEntries.size() + " all tournament entries");

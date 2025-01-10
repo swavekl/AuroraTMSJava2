@@ -316,7 +316,7 @@ export class DrawsContainerComponent implements OnInit, OnDestroy {
   private onReplacePlayer(eventId: number, payload: any) {
     const replaceRequest: ReplacePlayerRequest = payload.replaceRequest;
     const drawType = replaceRequest.drawItem.drawType;
-    this.drawService.replacePlayerInDraw(replaceRequest.drawItem, replaceRequest.playerToAddEntryId)
+    this.drawService.replacePlayerInDraw(replaceRequest.drawItem, replaceRequest.playerToAddEntryId, this.tournamentId)
       .pipe(first())
       .subscribe(
         {

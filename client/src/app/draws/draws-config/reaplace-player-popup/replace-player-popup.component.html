@@ -30,13 +30,18 @@
           <ng-template #not_testing>
             <div style="height: 4px; width: 100%;"></div>
           </ng-template>
-          <mat-selection-list class="add-player" matInput name="playerToAdd" [(ngModel)]="playerToAdd"
-                              multiple="false" required>
-            <mat-list-option *ngFor="let player of filteredPlayers" [value]="player.profileId"
-                             (click)="onSelectPlayerToAdd(player.profileId)">
-              {{ player.playerName }} ({{ player.rating }})
-            </mat-list-option>
-          </mat-selection-list>
+          <ng-container *ngIf="filteredPlayers?.length > 0; else empty_list">
+            <mat-selection-list class="add-player" matInput name="playerToAdd" [(ngModel)]="playerToAdd"
+                                multiple="false" required>
+              <mat-list-option *ngFor="let player of filteredPlayers" [value]="player.profileId"
+                               (click)="onSelectPlayerToAdd(player.profileId)">
+                {{ player.playerName }} ({{ player.rating }})
+              </mat-list-option>
+            </mat-selection-list>
+          </ng-container>
+          <ng-template #empty_list>
+            <div class="empty-list" *ngIf="!isLoading">No players are eligible for this event</div>
+          </ng-template>
         </div>
       </div>
     </div>
@@ -53,6 +58,7 @@
     <div fxFlex="1"></div>
     <button mat-raised-button type="button" (click)="onPay(false)" [disabled]="f.invalid || paymentCompleted">Pay By Check/Cash</button>
     <div fxFlex="1"></div>
+<!--    <button mat-raised-button color="primary" [disabled]="f.invalid" (click)="onReplace()">Replace</button>-->
     <button mat-raised-button color="primary" [disabled]="f.invalid || !paymentCompleted" (click)="onReplace()">Replace</button>
   </div>
 </mat-dialog-actions>

@@ -245,7 +245,8 @@ export class ReplacePlayerPopupComponent {
    * @private
    */
   private doPayment(profile: Profile, payByCreditCard: boolean) {
-    const entryInfo = this.findEntryInfo(this.playerToAdd);
+    const profileId = this.playerToAdd[0];
+    const entryInfo = this.findEntryInfo(profileId);
     const balanceInPlayerCurrency = this.tournamentEvent.feeAdult;
     const balanceInTournamentCurrency = this.tournamentEvent.feeAdult;
     const amount: number = balanceInPlayerCurrency * 100;
@@ -289,7 +290,7 @@ export class ReplacePlayerPopupComponent {
     let entryToReturn  = null;
     if (this.entryInfos != null) {
       const foundEI = this.entryInfos.filter((entryInfo: TournamentEntryInfo) => {
-        return entryInfo.profileId == profileId;
+        return entryInfo.profileId === profileId;
       });
       if (foundEI?.length === 1) {
         entryToReturn = foundEI[0];

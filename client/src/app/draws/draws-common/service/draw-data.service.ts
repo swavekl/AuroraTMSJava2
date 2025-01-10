@@ -72,8 +72,8 @@ export class DrawDataService extends DefaultDataService<DrawItem> {
     return this.execute('DELETE', url);
   }
 
-  replacePlayerInDraw(drawItem: DrawItem, playerToAddEntryId: number): Observable<DrawItem> {
-    const queryParams = `playerToAddEntryId=${playerToAddEntryId}`;
+  replacePlayerInDraw(drawItem: DrawItem, playerToAddEntryId: number, tournamentId: number): Observable<DrawItem> {
+    const queryParams = `playerToAddEntryId=${playerToAddEntryId}&tournamentId=${tournamentId}`;
     const url = `/api/draws/replace?${queryParams}`;
     return this.execute('PUT', url, drawItem);
   }
