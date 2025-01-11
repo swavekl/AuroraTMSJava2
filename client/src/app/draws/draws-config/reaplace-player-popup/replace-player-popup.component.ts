@@ -55,6 +55,9 @@ export class ReplacePlayerPopupComponent {
   // to be determined player profile id same as matches/match.model.ts
   public readonly TBD_PROFILE_ID = 'TBD';
 
+  // for single elimination first round players infos
+  firstRoundPlayers: PlayerInfo[];
+
   constructor(public dialogRef: MatDialogRef<ReplacePlayerPopupComponent>,
               @Inject(MAT_DIALOG_DATA) public data: ReplacePlayerPopupData,
               private tournamentEntryInfoService: TournamentEntryInfoService,
@@ -65,22 +68,41 @@ export class ReplacePlayerPopupComponent {
     this.tournamentEvent = data.tournamentEvent;
     this.tournamentName = data.tournamentName;
     this.drawType = data.drawType;
+
     // get only draw items of given type
     const drawItems = data.drawItems || [];
+
+    // find the first round number of single elimination type of event
+    // for round robin it is 0
+    let maxRound = 0;
+    if (this.tournamentEvent.singleElimination) {
+      maxRound = Math.max(...drawItems.map(drawItem => drawItem.round), 0);
+    }
+
     this.drawItems = drawItems.filter((drawItem: DrawItem) => {
-      return drawItem.drawType === this.drawType;
+        return drawItem.drawType === this.drawType;
+    }).filter((drawItem: DrawItem) => {
+        return drawItem.round === maxRound;
     });
 
-    // find max group number
-    let maxGroups = 0;
-    this.drawItems.forEach((drawItem: DrawItem) => {
-      maxGroups = Math.max(drawItem.groupNum, maxGroups);
-    });
-    this.drawGroups = new Array(maxGroups);
+    if (!this.tournamentEvent.singleElimination) {
+      // find max group number
+      let maxGroups = 0;
+      this.drawItems.forEach((drawItem: DrawItem) => {
+        maxGroups = Math.max(drawItem.groupNum, maxGroups);
+      });
+      this.drawGroups = new Array(maxGroups);
+    } else {
+      this.drawGroups = [];
+    }
 
     this.paymentCompleted = false;
     this.fetchReplacementPlayers(this.tournamentEvent.id);
-    this.onGroupChange({value: 1});
+    if (this.drawType === DrawType.ROUND_ROBIN) {
+      this.onGroupChange({value: 1});
+    } else {
+      this.getFirstRoundPlayerInfos();
+    }
   }
 
   onCancel() {
@@ -95,12 +117,14 @@ export class ReplacePlayerPopupComponent {
     this.dialogRef.close({action: 'ok', request: request});
   }
 
-  onSelectPlayerToRemove(profileId: string, placeInGroup: number) {
-    this.drawItemToRemove = this.findDrawItem(profileId, this.selectedGroup, placeInGroup);
+  onSelectPlayerToRemove(playerInfo: PlayerInfo) {
+    this.drawItemToRemove = this.findDrawItem(playerInfo);
+    // console.log('this.drawItemToRemove', this.drawItemToRemove);
   }
 
   onSelectPlayerToAdd(profileId: any) {
-    if (this.playerToAdd != profileId) {
+    const currentProfileId = this.getPlayerToAddProfileId();
+    if (currentProfileId != profileId) {
       this.paymentCompleted = false;
     }
     const entryInfo = this.findEntryInfo(profileId);
@@ -116,15 +140,15 @@ export class ReplacePlayerPopupComponent {
     let groupPlayers: PlayerInfo[] = this.drawItems.filter((drawItem: DrawItem): boolean => {
       return (drawItem.groupNum === groupNum) && drawItem.playerName != null && drawItem.playerId != null;
     }).map((drawItem: DrawItem): PlayerInfo => {
-      return {profileId: drawItem.playerId, playerName: drawItem.playerName, rating: drawItem.rating, placeInGroup: drawItem.placeInGroup};
+      return {profileId: drawItem.playerId, playerName: drawItem.playerName, rating: drawItem.rating, placeInGroup: drawItem.placeInGroup, byeNum: 0, seSeedNumber: 0, singleEliminationLineNum: 0};
     });
 
     if (this.tournamentEvent.playersPerGroup > groupPlayers.length) {
       const groupLen = groupPlayers.length;
       for (let i = groupLen; i < this.tournamentEvent.playersPerGroup; i++) {
-        groupPlayers.push({profileId: this.TBD_PROFILE_ID, playerName: '(empty)', rating: -1, placeInGroup: i + 1});
+        groupPlayers.push({profileId: this.TBD_PROFILE_ID, playerName: '(empty)', rating: -1, placeInGroup: i + 1, byeNum: 0, seSeedNumber: 0, singleEliminationLineNum: 0});
         if (this.tournamentEvent.doubles) {
-          groupPlayers.push({profileId: this.TBD_PROFILE_ID, playerName: '(empty)', rating: -1, placeInGroup: i + 1});
+          groupPlayers.push({profileId: this.TBD_PROFILE_ID, playerName: '(empty)', rating: -1, placeInGroup: i + 1, byeNum: 0, seSeedNumber: 0, singleEliminationLineNum: 0});
         }
       }
     }
@@ -146,7 +170,41 @@ export class ReplacePlayerPopupComponent {
     this.groupPlayers = groupPlayers;
   }
 
-  /**
+  private getFirstRoundPlayerInfos() {
+    // console.log('drawItems', this.drawItems);
+
+    let firstRoundPlayers = this.drawItems.map((drawItem: DrawItem): PlayerInfo => {
+      return {
+        profileId: drawItem.playerId,
+        playerName: (drawItem.byeNum != 0) ? `Bye #${drawItem.byeNum}` : drawItem.playerName,
+        rating: drawItem.rating,
+        placeInGroup: drawItem.placeInGroup,
+        byeNum: drawItem.byeNum,
+        seSeedNumber: drawItem.seSeedNumber,
+        singleEliminationLineNum: drawItem.singleElimLineNum
+      };
+    });
+
+    // console.log('firstRoundPlayers', firstRoundPlayers);
+
+    if (this.tournamentEvent.doubles) {
+      let doublesPlayers: any [] = [];
+      for (const doublesTeamPlayers of firstRoundPlayers) {
+        const playerIds: string[] = doublesTeamPlayers.profileId.split(';');
+        const playerNames: string[] = doublesTeamPlayers.playerName.split(' / ');
+        const placeInGroup = doublesTeamPlayers.placeInGroup;
+        if (playerIds?.length === 2 && playerNames?.length === 2) {
+          doublesPlayers.push(this.findPlayerInfo(playerIds[0], playerNames[0], placeInGroup));
+          doublesPlayers.push(this.findPlayerInfo(playerIds[1], playerNames[1], placeInGroup));
+        }
+      }
+      firstRoundPlayers = doublesPlayers;
+    }
+
+    this.firstRoundPlayers = firstRoundPlayers;
+  }
+
+/**
    * Finds player info for doubles player so we can show individual player ratings
    * @param profileId
    * @param playerName
@@ -154,7 +212,7 @@ export class ReplacePlayerPopupComponent {
    * @private
    */
   private findPlayerInfo(profileId: string, playerName: string, placeInGroup: number) {
-    let playerInfo: PlayerInfo = {profileId: profileId, playerName: playerName, rating: 0, placeInGroup: placeInGroup};
+    let playerInfo: PlayerInfo = {profileId: profileId, playerName: playerName, rating: 0, placeInGroup: placeInGroup, byeNum: 0, seSeedNumber: 0, singleEliminationLineNum: 0};
     // console.log('Finding player rating in doubles', playerName);
     if (this.filteredPlayers != null) {
       const foundPlayers: PlayerInfo[] = this.filteredPlayers.filter((pi: PlayerInfo): boolean => {
@@ -184,7 +242,7 @@ export class ReplacePlayerPopupComponent {
               playerName: `${entryInfo.lastName}, ${entryInfo.firstName}`,
               profileId: entryInfo.profileId,
               rating: entryInfo.seedRating,
-              placeInGroup: 0
+              placeInGroup: 0, byeNum: 0, seSeedNumber: 0, singleEliminationLineNum: 0
             };
             return playerInfo;
           });
@@ -208,18 +266,23 @@ export class ReplacePlayerPopupComponent {
    * @param payByCreditCard
    */
   onPay(payByCreditCard: boolean) {
-    this.profileService.getProfile(this.playerToAdd)
+    const profileId = this.getPlayerToAddProfileId();
+    this.profileService.getProfile(profileId)
       .pipe(first())
       .subscribe({
         next: (profile: Profile) => {
           this.doPayment(profile, payByCreditCard);
         },
         error: (error: any) => {
-          const message = 'Error getting profile ' + this.playerToAdd + ' ' + error;
+          const message = 'Error getting profile ' + profileId + ' ' + error;
           this.errorMessagePopupService.showError(message);
         },
         complete: () => {}
       });
+  }
+
+  private getPlayerToAddProfileId (): string {
+    return this.playerToAdd[0];
   }
 
   /**
@@ -245,7 +308,7 @@ export class ReplacePlayerPopupComponent {
    * @private
    */
   private doPayment(profile: Profile, payByCreditCard: boolean) {
-    const profileId = this.playerToAdd[0];
+    const profileId = this.getPlayerToAddProfileId();
     const entryInfo = this.findEntryInfo(profileId);
     const balanceInPlayerCurrency = this.tournamentEvent.feeAdult;
     const balanceInTournamentCurrency = this.tournamentEvent.feeAdult;
@@ -299,15 +362,31 @@ export class ReplacePlayerPopupComponent {
     return entryToReturn;
   }
 
-  private findDrawItem(profileId: string, groupNum: number, placeInGroup: number): DrawItem {
+  /**
+   *
+   * @param playerInfo
+   * @private
+   */
+  private findDrawItem(playerInfo: PlayerInfo): DrawItem {
     const playerDrawItems = this.drawItems.filter(
       (drawItem: DrawItem) => {
-        return drawItem.playerId === profileId && drawItem.groupNum == groupNum;
+        if (this.drawType === DrawType.ROUND_ROBIN) {
+          return drawItem.playerId === playerInfo.profileId && drawItem.groupNum == this.selectedGroup;
+        } else {
+          return drawItem.playerId === playerInfo.profileId && drawItem.singleElimLineNum === playerInfo.singleEliminationLineNum;
+        }
       });
     // console.log('playerDrawItems', playerDrawItems);
-    return (playerDrawItems?.length === 1) ? playerDrawItems[0] : this.makeEmptyDrawItem(profileId, placeInGroup);
+    return (playerDrawItems?.length === 1) ? playerDrawItems[0] : this.makeEmptyDrawItem(
+      playerInfo.profileId, playerInfo.placeInGroup);
   }
 
+  /**
+   *
+   * @param profileId
+   * @param placeInGroup
+   * @private
+   */
   private makeEmptyDrawItem(profileId: string, placeInGroup: number): DrawItem {
     return {
       id: null,
@@ -317,16 +396,19 @@ export class ReplacePlayerPopupComponent {
       placeInGroup: placeInGroup,
       seSeedNumber: 0,
       byeNum: 0,
+      singleElimLineNum: 0,
       drawType: this.drawType,
       playerId: profileId,
+      conflictType: ConflictType.NO_CONFLICT,
+      rating: 0,
       // transient values
       playerName: null,
-      rating: 0,
       clubName: null,
       state: null,
-      conflictType: ConflictType.NO_CONFLICT
+      entryId: 0
     };
   }
+
 }
 
 export interface ReplacePlayerPopupData {
@@ -348,4 +430,7 @@ export interface PlayerInfo {
   playerName: string;
   profileId: string;
   rating: number;
+  byeNum: number;
+  seSeedNumber: number;
+  singleEliminationLineNum: number;
 }

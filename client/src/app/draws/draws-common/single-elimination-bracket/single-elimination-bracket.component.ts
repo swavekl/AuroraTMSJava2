@@ -128,7 +128,7 @@ export class SingleEliminationBracketComponent implements OnInit, OnChanges {
             drawItem = {
               id: 0, eventFk: eventFK, drawType: DrawType.SINGLE_ELIMINATION, groupNum: groupNum, placeInGroup: placeInGroup,
               state: null, rating: 0, clubName: null, playerName: null, playerId: this.TBD_PROFILE_ID, conflictType: ConflictType.NO_CONFLICT,
-              byeNum: 0, round: drawRound.round, seSeedNumber: 0
+              byeNum: 0, round: drawRound.round, seSeedNumber: 0, singleElimLineNum: 0, entryId: 0
             };
             drawRound.drawItems.push(drawItem);
           }
@@ -143,7 +143,7 @@ export class SingleEliminationBracketComponent implements OnInit, OnChanges {
               drawItem = {
                 id: 0, eventFk: eventFK, drawType: DrawType.SINGLE_ELIMINATION, groupNum: groupNum, placeInGroup: placeInGroup,
                 state: null, rating: 0, clubName: null, playerName: null, playerId: this.TBD_PROFILE_ID, conflictType: ConflictType.NO_CONFLICT,
-                byeNum: 0, round: 2, seSeedNumber: 0
+                byeNum: 0, round: 2, seSeedNumber: 0, singleElimLineNum: 0, entryId: 0
               };
               drawRound.drawItems.push(drawItem);
             }

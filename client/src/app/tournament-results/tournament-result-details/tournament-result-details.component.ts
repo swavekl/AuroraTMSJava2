@@ -69,7 +69,9 @@ export class TournamentResultDetailsComponent implements OnInit, OnChanges {
             round: eventResults.round,
             rating: playerResult.rating,
             seSeedNumber: playerResult.seSeedNumber,
-            state: null // todo
+            state: null, // todo
+            singleElimLineNum: 0,
+            entryId: 0
           };
           tempSeDrawItems.push(drawItem);
         }

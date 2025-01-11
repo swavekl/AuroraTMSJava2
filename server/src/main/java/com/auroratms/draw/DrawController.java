@@ -28,6 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Rest API controller for manipulating event draws
@@ -591,13 +592,33 @@ public class DrawController {
             // finally update the draw item
             drawItem.setPlayerId(tournamentEntry.getProfileId());
             List<DrawItem> existingDrawItems = this.drawService.list(tournamentEvent.getId(), drawItem.getDrawType());
+            // get only the first round of single elimination round
+            if (drawItem.getDrawType() == DrawType.SINGLE_ELIMINATION) {
+                int firstRoundNum = existingDrawItems.stream()
+                        .mapToInt(DrawItem::getRound)
+                        .max()
+                        .orElseThrow(NoSuchElementException::new);
+                existingDrawItems = existingDrawItems.stream()
+                        .filter(drawItem1 -> drawItem1.getRound() == firstRoundNum)
+                        .collect(Collectors.toList());
+            }
+            DrawItem drawItemToDelete = null;
             for (DrawItem existingDrawItem : existingDrawItems) {
                 if (drawItem.getDrawType() == DrawType.ROUND_ROBIN) {
                     if (existingDrawItem.getGroupNum() == drawItem.getGroupNum() &&
                             existingDrawItem.getPlaceInGroup() == drawItem.getPlaceInGroup()) {
-                        log.info("Deleting existing draw item: " + existingDrawItem);
-                        this.drawService.deleteDrawItem(existingDrawItem);
+                        drawItemToDelete = existingDrawItem;
                     }
+                } else {
+                    // single elimination type
+                    if (drawItem.getSingleElimLineNum() == existingDrawItem.getSingleElimLineNum()) {
+                        drawItemToDelete = existingDrawItem;
+                    }
+                }
+                if (drawItemToDelete != null) {
+                    log.info("Deleting existing draw item: " + existingDrawItem);
+                    this.drawService.deleteDrawItem(existingDrawItem);
+                    break;
                 }
             }
             drawItem.setRating(tournamentEntry.getSeedRating());

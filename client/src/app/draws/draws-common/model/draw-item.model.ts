@@ -27,6 +27,9 @@ export interface DrawItem {
   // bye number if this draw item represents a bye (e.g. 1, 2, 3 etc), 0 otherwise
   byeNum: number;
 
+  // single elimination line number for preserving order of the bracket -
+  singleElimLineNum: number;
+
   drawType: DrawType;
 
   // id of the player (Okta) for fetching state, club etc.
@@ -46,4 +49,7 @@ export interface DrawItem {
 
   // name of the table tennis club where player plays
   clubName: string;
+
+  // tournament entry id for lookup of above geographical player information
+  entryId: number;
 }

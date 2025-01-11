@@ -15,6 +15,7 @@ import {DrawType} from '../../draws-common/model/draw-type.enum';
 import {MatchCardPrinterService} from '../../../matches/service/match-card-printer.service';
 import {MatchCardService} from '../../../matches/service/match-card.service';
 import {MatchCard} from '../../../matches/model/match-card.model';
+import {Match} from '../../../matches/model/match.model';
 import {ConfirmationPopupComponent} from '../../../shared/confirmation-popup/confirmation-popup.component';
 import {MatDialog} from '@angular/material/dialog';
 import {PlayerStatusService} from '../../../today/service/player-status.service';
@@ -269,18 +270,40 @@ export class DrawsContainerComponent implements OnInit, OnDestroy {
     let subscription = this.matchCardService.loadForEvent(eventId, true)
       .pipe(
         switchMap((matchCards: MatchCard[]) => {
-          const roundMatchCards: number [] = [];
-          let tablesAssigned: boolean = true;
-          for (let i = 0; i < matchCards.length; i++) {
-            if (matchCards[i].drawType === drawType) {
-                roundMatchCards.push(matchCards[i].id);
-                if (matchCards[i].assignedTables == null) {
-                  tablesAssigned = false;
-                }
-            }
+          // for single elimination match cards just print the first round for now
+          let maxRoundNum = 0;
+          if (drawType === DrawType.SINGLE_ELIMINATION) {
+            matchCards.forEach((matchCard: MatchCard) => {
+              maxRoundNum = Math.max(matchCard.round, maxRoundNum);
+            });
           }
+
+          const matchCardIdsToPrint: number [] = [];
+          let tablesAssigned: boolean = true;
+          matchCards.forEach((matchCard: MatchCard) => {
+            if (matchCard.drawType === drawType) {
+              if (matchCard.drawType === DrawType.ROUND_ROBIN) {
+                matchCardIdsToPrint.push(matchCard.id);
+              } else {
+                if (matchCard.round === maxRoundNum) {
+                  const match = matchCard.matches[0];
+                  // skip match cards for bye matches - or those from other rounds
+                  if (match.playerAProfileId !== Match.TBD_PROFILE_ID &&
+                    match.playerBProfileId !== Match.TBD_PROFILE_ID) {
+                    matchCardIdsToPrint.push(matchCard.id);
+                  }
+                }
+              }
+
+              // find out if any matches don't have a scheduled table
+              if (matchCard.assignedTables == null) {
+                tablesAssigned = false;
+              }
+            }
+          });
+
           if (tablesAssigned) {
-            this.matchCardPrinterService.downloadAndPrint(this.tournamentId, eventId, roundMatchCards);
+            this.matchCardPrinterService.downloadAndPrint(this.tournamentId, eventId, matchCardIdsToPrint);
           } else {
             const message = "Some match cards don't have assigned table numbers. " +
               "You can assign tables on the Schedule screen. " +
@@ -294,11 +317,11 @@ export class DrawsContainerComponent implements OnInit, OnDestroy {
             const dialogRef = this.dialog.open(ConfirmationPopupComponent, config);
             dialogRef.afterClosed().subscribe(result => {
               if (result === 'ok') {
-                this.matchCardPrinterService.downloadAndPrint(this.tournamentId, eventId, roundMatchCards);
+                this.matchCardPrinterService.downloadAndPrint(this.tournamentId, eventId, matchCardIdsToPrint);
               }
             });
           }
-          return roundMatchCards;
+          return matchCardIdsToPrint;
         }),
         first())
       .subscribe();

@@ -235,7 +235,7 @@ export class DrawsComponent implements OnInit, OnChanges {
       drawItems: this.draws,
       tournamentEvent: this.selectedEvent,
       tournamentName: this.tournamentName,
-      drawType: DrawType.ROUND_ROBIN
+      drawType: this.selectedEvent.singleElimination ? DrawType.SINGLE_ELIMINATION : DrawType.ROUND_ROBIN
     };
 
     const config = {
