@@ -55,10 +55,32 @@ export class VerifyMembershipsComponent {
     return 'Unknown Membership Type'; //membershipType.valueOf();
   }
 
+  /**
+   * Checks if marked as current but not paid
+   * @param expirationDate
+   * @param membershipType
+   */
   isUnpaid(expirationDate: Date, membershipType: MembershipType) {
     if (membershipType === MembershipType.NO_MEMBERSHIP_REQUIRED) {
       if (expirationDate != null && this.tournamentStartDate != null) {
         return this.dateUtils.isDateBefore(expirationDate, this.tournamentStartDate)
+      } else {
+        return false;
+      }
+    } else {
+      return false;
+    }
+  }
+
+  /**
+   * Checks if membership was paid before tournament and will not be necessary at the tournament
+   * @param expirationDate
+   * @param membershipType
+   */
+  isPaidUnnecessarily(expirationDate: Date, membershipType: MembershipType): boolean {
+    if (membershipType !== MembershipType.NO_MEMBERSHIP_REQUIRED) {
+      if (expirationDate != null && this.tournamentStartDate != null) {
+        return this.dateUtils.isDateBefore(this.tournamentStartDate, expirationDate)
       } else {
         return false;
       }

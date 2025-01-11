@@ -45,6 +45,10 @@ table.membership-info-table {
       &.unpaid-membership {
         color: red;
       }
+
+      &.paid-unnecessarily-membership {
+        color: green;
+      }
     }
   }
 }

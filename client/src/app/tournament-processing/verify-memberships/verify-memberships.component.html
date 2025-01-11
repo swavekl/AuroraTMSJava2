@@ -23,7 +23,8 @@
              [state]="{waitingListReturnUrl: thisUrl}">{{ membershipInfo.playerName }}</a>
         </td>
         <td>{{ membershipInfo.membershipId }}</td>
-        <td [class]="isUnpaid(membershipInfo.expirationDate, membershipInfo.membershipType) ? 'unpaid-membership' : ''">{{ membershipInfo.expirationDate | date }}</td>
+        <td [class]="isUnpaid(membershipInfo.expirationDate, membershipInfo.membershipType) ? 'unpaid-membership' :
+         (isPaidUnnecessarily(membershipInfo.expirationDate, membershipInfo.membershipType) ? 'paid-unnecessarily-membership' : '')">{{ membershipInfo.expirationDate | date }}</td>
         <td>{{ getMembershipOptionLabel(membershipInfo.membershipType) }}</td>
         <td>
           <a [routerLink]="['/ui/entries/entryview/', tournamentId, 'edit', membershipInfo.entryId]"
