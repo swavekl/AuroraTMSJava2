@@ -19,7 +19,9 @@ and <span th:if="${removedTournamentEntry == true}">was removed by the system.</
 <p>
 Entries must be finalized by payment, refund or confirmation of changes if the changes don't result in balance.
 The entry must be finalized within 30 minutes of starting entry modification.
-If you intended to make these changes, find your entry or create a new one, make the changes and finalize them.
+If you intended to make these changes, <span th:if="${removedTournamentEntry == false}">view <a th:href="${tournamentEntryUrl}">your entry</a></span>
+ or create a new one, then make the changes and finalize them.
+
 </p>
 <p>
 We apologize for any inconvenience this may caused you.

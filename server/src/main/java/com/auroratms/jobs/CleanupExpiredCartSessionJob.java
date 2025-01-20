@@ -20,6 +20,7 @@ import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -60,6 +61,9 @@ public class CleanupExpiredCartSessionJob implements Job {
     @Autowired
     private PaymentRefundService paymentRefundService;
 
+    @Value("${client.host.url}")
+    private String clientHostUrl;
+
     @Override
     public void execute(JobExecutionContext context) throws JobExecutionException {
         SystemPrincipalExecutor task = new SystemPrincipalExecutor() {
@@ -88,13 +92,23 @@ public class CleanupExpiredCartSessionJob implements Job {
                 List<Long> playerEventsToDelete = new ArrayList<>();
                 for (TournamentEventEntry tournamentEventEntry : unfinishedTournamentEventEntries) {
                     tournamentEntryId = tournamentEventEntry.getTournamentEntryFk();
-                    log.info("Deleting unfinished event entry " + tournamentEventEntry.getId() + " whose status is " + tournamentEventEntry.getStatus());
-                    playerEventsToDelete.add(tournamentEventEntry.getTournamentEventFk());
-                    tournamentEventEntryService.delete(tournamentEventEntry.getId());
+                    TournamentEvent tournamentEvent = tournamentEventEntityService.get(tournamentEventEntry.getTournamentEventFk());
+                    EventEntryStatus eventEntryStatus = tournamentEventEntry.getStatus();
+                    log.info("Found unfinished " + tournamentEvent.getName() + " event entry with id: " + tournamentEventEntry.getId() + " whose status is " + eventEntryStatus);
+                    if (eventEntryStatus == EventEntryStatus.PENDING_CONFIRMATION || eventEntryStatus == EventEntryStatus.PENDING_WAITING_LIST) {
+                        log.info("Deleting unfinished event entry " + tournamentEventEntry.getId() + " whose status is " + eventEntryStatus);
+                        playerEventsToDelete.add(tournamentEventEntry.getTournamentEventFk());
+                        tournamentEventEntryService.delete(tournamentEventEntry.getId());
+                    } else {
+                        if (eventEntryStatus == EventEntryStatus.PENDING_DELETION) {
+                            tournamentEventEntry.setStatus(EventEntryStatus.ENTERED);
+                            log.info("Restoring unfinished event entry " + tournamentEventEntry.getId() + " whose status is " + eventEntryStatus + " to status " + tournamentEventEntry.getStatus());
+                            tournamentEventEntryService.update(tournamentEventEntry);
+                        }
+                    }
 
-                    if (tournamentEventEntry.getStatus() != EventEntryStatus.PENDING_WAITING_LIST) {
+                    if (eventEntryStatus != EventEntryStatus.PENDING_WAITING_LIST && eventEntryStatus != EventEntryStatus.PENDING_DELETION) {
                         // update count of entries in event
-                        TournamentEvent tournamentEvent = tournamentEventEntityService.get(tournamentEventEntry.getTournamentEventFk());
                         long countValidEntriesInEvent = tournamentEventEntryService.getCountValidEntriesInEvent(tournamentEventEntry.getTournamentEventFk());
                         int numEntries = tournamentEvent.getNumEntries() - 1;
                         log.info("Updating count of entries in " + tournamentEvent.getName() + " event to " + numEntries + ".  Count of valid entries is " + countValidEntriesInEvent);
@@ -142,21 +156,27 @@ public class CleanupExpiredCartSessionJob implements Job {
                     }
                 }
 
-                // send email to player and cc TD
-                Map<String, Object> templateModel = new HashMap<>();
-                templateModel.put("playerFirstName", playerFirstName);
-                templateModel.put("playerLastName", playerLastName);
-                templateModel.put("tournamentName", tournamentName);
-                templateModel.put("tournamentDirectorName", contactName);
-                templateModel.put("tournamentDirectorPhone", contactPhone);
-                templateModel.put("tournamentDirectorEmail", contactEmail);
-                templateModel.put("removedEvents", deletedTournamentEvents);
-                templateModel.put("removedTournamentEntry", removedTournamentEntry);
-                String emailSubject = String.format("Unfinished entry into '%s'", tournamentName );
+                if (!deletedTournamentEvents.isEmpty() || removedTournamentEntry) {
+                    // send email to player and cc TD
+                    Map<String, Object> templateModel = new HashMap<>();
+                    templateModel.put("playerFirstName", playerFirstName);
+                    templateModel.put("playerLastName", playerLastName);
+                    templateModel.put("tournamentName", tournamentName);
+                    templateModel.put("tournamentDirectorName", contactName);
+                    templateModel.put("tournamentDirectorPhone", contactPhone);
+                    templateModel.put("tournamentDirectorEmail", contactEmail);
+                    templateModel.put("removedEvents", deletedTournamentEvents);
+                    templateModel.put("removedTournamentEntry", removedTournamentEntry);
+                    String tournamentEntryUrl = String.format("%s/ui/entries/entryview/%d/edit/%d",
+                            this.clientHostUrl, tournamentFk, tournamentEntry.getId());
+                    templateModel.put("tournamentEntryUrl", tournamentEntryUrl);
+                    String emailSubject = String.format("Unfinished entry into '%s'", tournamentName );
 
-                log.info("Sending email to " + playerEmail + " about entries for " + tournamentName);
-                emailService.sendMessageUsingThymeleafTemplate(playerEmail, contactEmail, emailSubject,
-                        "cleanup-job/player-entries-removed.html", templateModel);
+                    log.info("Sending email to " + playerEmail + " about entries for " + tournamentName);
+                    emailService.sendMessageUsingThymeleafTemplate(playerEmail, contactEmail, emailSubject,
+                            "cleanup-job/player-entries-removed.html", templateModel);
+                }
+
             }
         } catch (Exception e) {
             log.error("Error cleaning up cart session " + expiredSession.getSessionUUID(), e);
