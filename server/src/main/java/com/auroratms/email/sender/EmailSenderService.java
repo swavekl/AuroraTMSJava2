@@ -14,6 +14,11 @@ import com.auroratms.tournamententry.TournamentEntryService;
 import com.auroratms.tournamentevententry.EventEntryStatus;
 import com.auroratms.tournamentevententry.TournamentEventEntry;
 import com.auroratms.tournamentevententry.TournamentEventEntryService;
+import com.auroratms.utils.filerepo.FileInfo;
+import com.auroratms.utils.filerepo.FileRepositoryException;
+import com.auroratms.utils.filerepo.FileRepositoryFactory;
+import com.auroratms.utils.filerepo.IFileRepository;
+import com.opencsv.CSVReader;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +36,7 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
+import java.io.InputStreamReader;
 import java.util.*;
 import java.util.function.Predicate;
 
@@ -56,6 +62,9 @@ public class EmailSenderService {
 
     @Autowired
     private EmailCampaignService emailCampaignService;
+
+    @Autowired
+    private FileRepositoryFactory fileRepositoryFactory;
 
 
     public List<FilterConfiguration.Recipient> getFilteredRecipients(long tournamentId, FilterConfiguration filterConfiguration) {
@@ -155,7 +164,81 @@ public class EmailSenderService {
             }
         }
 
+        // load recipients from a file if requested
+        boolean includeUploadedRecipients = Boolean.TRUE.equals(filterConfiguration.isIncludeUploadedRecipients());
+        if (includeUploadedRecipients && StringUtils.isNotEmpty(filterConfiguration.getUploadedRecipientsFile())) {
+            try {
+                log.info ("Reading recipients file from " + filterConfiguration.getUploadedRecipientsFile());
+                IFileRepository fileRepository = this.fileRepositoryFactory.getFileRepository();
+                FileInfo fileInfo = fileRepository.read(filterConfiguration.getUploadedRecipientsFile());
+                List<FilterConfiguration.Recipient> recipientsFromFile = readRecipientsFile(fileInfo);
+                int skippedRecipients = 0;
+                for (FilterConfiguration.Recipient recipient : recipientsFromFile) {
+                    if (!removedRecipients.contains(recipient) && !recipients.contains(recipient)) {
+                        recipients.add(recipient);
+                    } else {
+                        skippedRecipients++;
+                    }
+                }
+                if (skippedRecipients > 0) {
+                    log.info ("Didn't add " + skippedRecipients + " uploaded recipients because they were either removed or duplicate");
+                }
+            } catch (FileRepositoryException e) {
+                log.error("Error opening uploaded recipients file", e);
+            }
+        }
+
         return recipients;
+    }
+
+    /**
+     *
+     * @param fileInfo
+     * @return
+     */
+    private List<FilterConfiguration.Recipient> readRecipientsFile(FileInfo fileInfo) {
+        List<FilterConfiguration.Recipient> recipientList = new ArrayList();
+        try (CSVReader csvReader = new CSVReader(new InputStreamReader(fileInfo.getFileInputStream(), "UTF-8"));) {
+            String[] values = null;
+            int rowNumber = 0;
+            while ((values = csvReader.readNext()) != null) {
+                int columnNum = 0;
+                rowNumber++;
+                FilterConfiguration.Recipient recipient = new FilterConfiguration.Recipient();
+                for (String text : values) {
+                    switch (columnNum) {
+                        case 0:
+                            recipient.setLastName(text);
+                            break;
+                        case 1:
+                            recipient.setFirstName(text);
+                            break;
+                        case 2:
+                            if (text.contains("@")) {
+                                recipient.setEmailAddress(text);
+                            }
+                            break;
+                        default:
+                            break;
+                    }
+                    columnNum++;
+                    if (columnNum > 2) {
+                        break;
+                    }
+                }
+                if (StringUtils.isNotEmpty(recipient.getLastName()) &&
+                        StringUtils.isNotEmpty(recipient.getFirstName()) &&
+                        StringUtils.isNotEmpty(recipient.getEmailAddress())) {
+                    recipientList.add(recipient);
+                } else {
+                    log.warn("Didn't add recipient " + recipient.getLastName() + " " + recipient.getFirstName() );
+                }
+            }
+            log.info("Read " + rowNumber + " rows from recipients file.");
+        } catch (Exception e) {
+            log.error("Error reading uploaded recipients file from " + fileInfo.getFilename());
+        }
+        return recipientList;
     }
 
     /**

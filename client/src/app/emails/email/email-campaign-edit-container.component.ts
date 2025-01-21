@@ -111,8 +111,16 @@ export class EmailCampaignEditContainerComponent implements OnDestroy {
             }
             this.emailCampaign$ = of(emailCampaignToEdit);
             if (emailCampaignToEdit.recipientFilters?.length > 0 || emailCampaignToEdit?.stateFilters?.length > 0) {
-              this.loadRecipients(emailCampaignToEdit.recipientFilters, emailCampaignToEdit.removedRecipients,
-                emailCampaignToEdit?.allRecipients, emailCampaignToEdit?.excludeRegistered, emailCampaignToEdit?.stateFilters);
+              const filterConfiguration = {
+                recipientFilters: emailCampaignToEdit.recipientFilters,
+                removedRecipients: emailCampaignToEdit.removedRecipients,
+                allRecipients: emailCampaignToEdit?.allRecipients,
+                excludeRegistered: emailCampaignToEdit?.excludeRegistered,
+                stateFilters: emailCampaignToEdit?.stateFilters,
+                uploadedRecipientsFile: emailCampaignToEdit?.uploadedRecipientsFile,
+                includeUploadedRecipients: emailCampaignToEdit?.includeUploadedRecipients
+              };
+              this.loadRecipients(filterConfiguration);
             }
           }
         });
@@ -145,7 +153,16 @@ export class EmailCampaignEditContainerComponent implements OnDestroy {
         complete: () => {}});
     } else if (action === 'filter') {
       // console.log('recipientFilters', $event.recipientFilters);
-      this.loadRecipients($event.recipientFilters, $event.removedRecipients, $event.allRecipients, $event.excludeRegistered, $event.stateFilters);
+      const filterConfiguration = {
+        recipientFilters: $event.recipientFilters,
+        removedRecipients: $event.removedRecipients,
+        allRecipients: $event?.allRecipients,
+        excludeRegistered: $event?.excludeRegistered,
+        stateFilters: $event?.stateFilters,
+        uploadedRecipientsFile: $event?.uploadedRecipientsFile,
+        includeUploadedRecipients: $event?.includeUploadedRecipients
+      };
+      this.loadRecipients(filterConfiguration);
     } else if (action === 'sendemails') {
       const emailCampaign: EmailCampaign = $event.value;
       this.saveAndSendEmailCampaign(this.tournamentId, emailCampaign, false);
@@ -166,8 +183,8 @@ export class EmailCampaignEditContainerComponent implements OnDestroy {
     this.subscriptions.unsubscribe();
   }
 
-  private loadRecipients(recipientFilters: number[], removedRecipients: Recipient[], allRecipients: boolean, excludeRegistered: boolean, stateFilters: string[]) {
-    this.emailSenderService.getRecipientEmails(this.tournamentId, recipientFilters, removedRecipients, allRecipients, excludeRegistered, stateFilters)
+  private loadRecipients(filterConfiguration: any) {
+    this.emailSenderService.getRecipientEmails(this.tournamentId, filterConfiguration)
       .pipe(
         switchMap(
           (recipients: Recipient []) => {

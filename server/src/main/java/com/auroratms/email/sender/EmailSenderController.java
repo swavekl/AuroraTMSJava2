@@ -58,9 +58,9 @@ public class EmailSenderController {
      * @return
      */
     @PostMapping("/sendcampaign/{tournamentId}/{sendTestEmail}")
-    public @ResponseBody ResponseEntity<String> getRecipients(@PathVariable Long tournamentId,
-                                                              @RequestBody EmailCampaign emailCampaign,
-                                                              @PathVariable Boolean sendTestEmail) {
+    public @ResponseBody ResponseEntity<String> sendCampaign(@PathVariable Long tournamentId,
+                                                             @RequestBody EmailCampaign emailCampaign,
+                                                             @PathVariable Boolean sendTestEmail) {
         final String currentUserName = UserRolesHelper.getCurrentUsername();
         CampaignSendingStatus campaignSendingStatus = new CampaignSendingStatus();
         campaignSendingStatus.phase = String.format("Staring email campaign generation for user %s", currentUserName);

@@ -33,6 +33,12 @@ public class FilterConfiguration implements Serializable {
     // state abbreviations to filter by
     private List<String> stateFilters;
 
+    // path of the uploaded file containing recipients last name, first name and email address
+    private String uploadedRecipientsFile;
+
+    // if true send email to uploaded recipients
+    private Boolean includeUploadedRecipients;
+
     public List<Long> getRecipientFilters() {
         return (recipientFilters != null) ? recipientFilters : Collections.emptyList();
     }
@@ -72,6 +78,22 @@ public class FilterConfiguration implements Serializable {
 
     public void setStateFilters(List<String> stateFilters) {
         this.stateFilters = stateFilters;
+    }
+
+    public String getUploadedRecipientsFile() {
+        return uploadedRecipientsFile;
+    }
+
+    public void setUploadedRecipientsFile(String uploadedRecipientsFile) {
+        this.uploadedRecipientsFile = uploadedRecipientsFile;
+    }
+
+    public Boolean isIncludeUploadedRecipients() {
+        return includeUploadedRecipients;
+    }
+
+    public void setIncludeUploadedRecipients(Boolean includeUploadedRecipients) {
+        this.includeUploadedRecipients = includeUploadedRecipients;
     }
 
     public String convertToJSON () {

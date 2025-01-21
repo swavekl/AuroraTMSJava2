@@ -9,6 +9,13 @@
       <button mat-raised-button type="button" (click)="onSendEmails()" [disabled]="f.invalid || emailCampaign?.id == null">Send Emails</button>
       <button mat-raised-button type="button" (click)="onSendTestEmail()" [disabled]="f.invalid || emailCampaign?.id == null">Send Test Email</button>
       <button mat-raised-button type="button" (click)="copyRecipients()" [disabled]="!(filteredRecipients?.length > 0) || emailCampaign.allRecipients">Copy Recipients</button>
+      <app-upload-file-component
+        [disabledBtn]="false"
+        [uploadButtonLabel]="'Upload Recipients File'"
+        (uploadFinished)="onRecipientsUploadFinished($event)"
+        [storagePath]="getRecipientsFileStoragePath()">
+      </app-upload-file-component>
+
     </mat-toolbar>
     <mat-tab-group class="email-generator-container-work">
       <mat-tab label="Email Template">
@@ -56,6 +63,10 @@
             <mat-checkbox name="excludeRegistered" [(ngModel)]="emailCampaign.excludeRegistered" (change)="onExcludeRegisteredChanged($event)"
             [disabled]="!emailCampaign?.allRecipients">
               Exclude Already Registered
+            </mat-checkbox>
+            <mat-checkbox name="toUploadedRecipients" [(ngModel)]="emailCampaign.includeUploadedRecipients"
+                          (change)="onIncludeUploadedRecipients($event)">
+              Include Uploaded Recipients
             </mat-checkbox>
             <ng-container *ngIf="emailCampaign?.allRecipients; else elseblock">
               <div class="mat-headline-6">Filter Recipients by States:</div>

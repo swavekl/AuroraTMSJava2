@@ -28,15 +28,11 @@ export class EmailSenderService {
   /**
    * Gets email recipients for the whole tournament or selected events without removed recipients
    * @param tournamentId
-   * @param recipientFilters
-   * @param removedRecipients
-   * @param allRecipients
-   * @param excludeRegistered
+   * @param filterConfiguration
    */
-  public getRecipientEmails(tournamentId: number, recipientFilters: number[], removedRecipients: Recipient[], allRecipients: boolean, excludeRegistered: boolean, stateFilters: string []): Observable<Recipient[]> {
+  public getRecipientEmails(tournamentId: number, filterConfiguration: any): Observable<Recipient[]> {
     this.setLoading(true);
-    const body = {recipientFilters: recipientFilters, removedRecipients: removedRecipients, allRecipients: allRecipients, excludeRegistered: excludeRegistered, stateFilters: stateFilters};
-    return this.httpClient.post(`${this.API_BASE_URL}/${tournamentId}`, body)
+    return this.httpClient.post(`${this.API_BASE_URL}/${tournamentId}`, filterConfiguration)
       .pipe(
         tap(
           (recipients: Recipient []) => {

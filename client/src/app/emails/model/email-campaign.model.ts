@@ -38,6 +38,12 @@ export class EmailCampaign {
 
   // treat body of this email as html when sending
   htmlEmail: boolean;
+
+  // path of the uploaded file containing recipients last name, first name and email address
+  uploadedRecipientsFile: string;
+
+  // if true send email to uploaded recipients
+  includeUploadedRecipients: boolean;
 }
 
 /**

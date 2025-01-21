@@ -154,6 +154,31 @@ export class EmailCampaignEditComponent  {
     this.emitFilterEvent();
   }
 
+  onIncludeUploadedRecipients($event: MatCheckboxChange) {
+    this.emailCampaign = {
+      ...this.emailCampaign,
+      recipientFilters: [],
+      removedRecipients: [],
+      includeUploadedRecipients: $event.checked
+    };
+    this.emitFilterEvent();
+
+    if (this.emailCampaign.includeUploadedRecipients && !this.emailCampaign.uploadedRecipientsFile) {
+      const config = {
+        width: '450px', height: '230px', data: {
+          message: `File was not uploaded for this email campaign.
+          Please upload a comma separated values file with the following columns:
+           lastName, firstName, emailAddress`, contentAreaHeight: '100px', showCancel: false
+        }
+      };
+      const dialogRef = this.dialog.open(ConfirmationPopupComponent, config);
+      dialogRef.afterClosed().subscribe(result => {
+        if (result === 'ok') {
+        }
+      });
+    }
+  }
+
   onClickState(stateAbbreviation: string) {
     let stateFilters: string [] = this.emailCampaign.stateFilters || [];
     if (stateAbbreviation === this.ALL_STATES || stateFilters?.length === 0) {
@@ -177,7 +202,9 @@ export class EmailCampaignEditComponent  {
       removedRecipients: this.emailCampaign.removedRecipients,
       allRecipients: this.emailCampaign.allRecipients,
       excludeRegistered: this.emailCampaign.excludeRegistered,
-      stateFilters: this.emailCampaign.stateFilters
+      stateFilters: this.emailCampaign.stateFilters,
+      uploadedRecipientsFile: this.emailCampaign?.uploadedRecipientsFile,
+      includeUploadedRecipients: this.emailCampaign?.includeUploadedRecipients
     });
   }
 
@@ -279,5 +306,22 @@ export class EmailCampaignEditComponent  {
         verticalPosition: 'top', duration: 2500
       });
     }
+  }
+
+  onRecipientsUploadFinished(downloadUrl: any) {
+    const ratingsFileRepoPath: string = downloadUrl.substring(downloadUrl.indexOf("path=") + "path=".length);
+    this.emailCampaign = {
+      ...this.emailCampaign,
+      uploadedRecipientsFile: ratingsFileRepoPath,
+      includeUploadedRecipients: true
+    };
+    this.emitFilterEvent();
+  }
+
+  /**
+   * gets name of subfolder in repository where the file should be stored
+   */
+  getRecipientsFileStoragePath(): string {
+    return `emailcampaignrecipients/${this.emailCampaign.id}`;
   }
 }

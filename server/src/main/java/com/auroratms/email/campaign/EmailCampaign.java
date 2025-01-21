@@ -39,11 +39,17 @@ public class EmailCampaign implements Serializable {
     // if true exclude those from the list who are already registered for this tournament
     private boolean excludeRegistered;
 
+    // state abbreviations to filter by
+    private List<String> stateFilters;
+
     // treat body of this email as html when sending
     boolean htmlEmail;
 
-    // state abbreviations to filter by
-    private List<String> stateFilters;
+    // path of the uploaded file containing recipients last name, first name and email address
+    private String uploadedRecipientsFile;
+
+    // if true send email to uploaded recipients
+    private boolean includeUploadedRecipients;
 
     public EmailCampaign() {
     }
@@ -153,6 +159,22 @@ public class EmailCampaign implements Serializable {
         this.excludeRegistered = excludeRegistered;
     }
 
+    public String getUploadedRecipientsFile() {
+        return uploadedRecipientsFile;
+    }
+
+    public void setUploadedRecipientsFile(String uploadedRecipientsFile) {
+        this.uploadedRecipientsFile = uploadedRecipientsFile;
+    }
+
+    public boolean isIncludeUploadedRecipients() {
+        return includeUploadedRecipients;
+    }
+
+    public void setIncludeUploadedRecipients(boolean includeUploadedRecipients) {
+        this.includeUploadedRecipients = includeUploadedRecipients;
+    }
+
     public EmailCampaignEntity convertToEntity() {
         EmailCampaignEntity emailCampaignEntity = new EmailCampaignEntity();
         emailCampaignEntity.setId(this.getId());
@@ -177,6 +199,8 @@ public class EmailCampaign implements Serializable {
         filterConfiguration.setStateFilters(this.getStateFilters());
         filterConfiguration.setAllRecipients(this.isAllRecipients());
         filterConfiguration.setExcludeRegistered(this.isExcludeRegistered());
+        filterConfiguration.setUploadedRecipientsFile(this.getUploadedRecipientsFile());
+        filterConfiguration.setIncludeUploadedRecipients(this.isIncludeUploadedRecipients());
         return filterConfiguration;
     }
 
@@ -200,6 +224,8 @@ public class EmailCampaign implements Serializable {
         }
         this.excludeRegistered = (filterConfiguration.getExcludeRegistered() != null) ? filterConfiguration.getExcludeRegistered() : false;
         this.htmlEmail = emailCampaignEntity.isHtmlEmail();
+        this.uploadedRecipientsFile = filterConfiguration.getUploadedRecipientsFile();
+        this.includeUploadedRecipients = filterConfiguration.isIncludeUploadedRecipients() != null ? filterConfiguration.isIncludeUploadedRecipients() : false;
 
         return this;
     }
@@ -218,6 +244,8 @@ public class EmailCampaign implements Serializable {
                 ", excludeRegistered=" + excludeRegistered +
                 ", stateFilters=" + stateFilters +
                 ", htmlEmail=" + htmlEmail +
+                ", uploadedRecipientsFile=" + uploadedRecipientsFile +
+                ", toUploadedRecipients=" + includeUploadedRecipients +
                 ", subject='" + subject + '\'' +
                 ", body='" + body + '\'' +
                 '}';
