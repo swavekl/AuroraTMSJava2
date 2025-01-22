@@ -10,6 +10,7 @@ import com.auroratms.tournamententry.notification.TournamentEventPublisher;
 import com.auroratms.tournamentevententry.TournamentEventEntryService;
 import com.auroratms.usatt.UsattDataService;
 import com.auroratms.usatt.UsattPlayerRecord;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -24,6 +25,7 @@ import java.util.List;
 @RequestMapping("api")
 @PreAuthorize("isAuthenticated()")
 @Transactional
+@Slf4j
 public class TournamentEntryController {
 
     @Autowired
@@ -152,8 +154,8 @@ public class TournamentEntryController {
      */
     private void updateTournamentStatistics(long tournamentFk) {
         Tournament tournament = tournamentService.getByKey(tournamentFk);
-        int countOfEntries = tournamentEntryService.getCountOfEntries(tournamentFk);
-//        System.out.println("countOfEntries = " + countOfEntries);
+        int countOfEntries = tournamentEventEntryService.countValidTournamentEntries(tournamentFk);
+        log.info("countOfEntries = " + countOfEntries);
 
         // get all events for tournament
         int maxNumEventEntries = 0;
