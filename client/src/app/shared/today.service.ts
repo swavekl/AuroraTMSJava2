@@ -64,6 +64,8 @@ export class TodayService {
     // const utcMoment = moment([2023, 10, 25, 0, 0, 0]);
     // 2023 Aurora Spring Open - Giant RR
     // const utcMoment = moment([2023, 10, 25, 0, 0, 0]);
+    // 2025 Illinois State Championships
+    // const utcMoment = moment([2024, 11, 1, 0, 0, 0]);
     // 2024 Regional Championships
     // const utcMoment = moment([2024, 9, 1, 0, 0, 0]);
     // return utcMoment.toDate();
