@@ -16,6 +16,7 @@ import {EmailCampaign} from '../model/email-campaign.model';
 import {EmailServerConfigDialogComponent} from '../email-server-config-dialog/email-server-config-dialog.component';
 import {EmailServerConfiguration} from '../model/email-server-configuration.model';
 import {UntypedFormControl} from '@angular/forms';
+import {CampaignInitData, EmailAddDialogComponent} from '../email-add-dialog/email-add-dialog.component';
 
 @Component({
   selector: 'app-email-campaign-list',
@@ -41,6 +42,9 @@ export class EmailCampaignListComponent implements AfterViewInit, OnDestroy {
 
   @Output()
   private emailConfigSave: EventEmitter<EmailServerConfiguration> = new EventEmitter<EmailServerConfiguration>();
+
+  @Output()
+  private addCampaign: EventEmitter<CampaignInitData> = new EventEmitter<CampaignInitData>();
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
@@ -139,5 +143,18 @@ export class EmailCampaignListComponent implements AfterViewInit, OnDestroy {
 
   isServerConfigured() {
     return this.emailServerConfiguration != null;
+  }
+
+  onAddEmail() {
+    const config = {
+      width: '300px', height: '430px', data: {
+      }
+    };
+    const dialogRef = this.dialog.open(EmailAddDialogComponent, config);
+    dialogRef.afterClosed().subscribe(result => {
+      if (result.action === 'ok') {
+        this.addCampaign.emit(result.campaignInitData);
+      }
+    });
   }
 }

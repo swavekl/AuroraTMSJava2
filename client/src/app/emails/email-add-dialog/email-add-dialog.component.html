@@ -1,0 +1,43 @@
+<form #f="ngForm" name="form" fxFlexFill>
+  <h2 mat-dialog-title>Add Email Template</h2>
+  <mat-dialog-content>
+    <div fxLayout="column" fxLayoutAlign="start start">
+
+      <mat-checkbox [(ngModel)]="htmlEmail" name="htmlEmail" style="margin-bottom: 15px">HTML Email</mat-checkbox>
+
+      <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="20px">
+        <ngx-colors ngx-colors-trigger [(ngModel)]="backgroundColor" [disabled]="!htmlEmail" name="backgroundColorPicker"></ngx-colors>
+        <mat-form-field>
+          <mat-label>Background Color</mat-label>
+          <input matInput [(ngModel)]="backgroundColor" name="backgroundColor" #backgroundColorCtrl="ngModel"
+                 [pattern]="HEX_COLOR_PATTERN" maxlength="7">
+          <mat-error *ngIf="backgroundColorCtrl?.errors?.pattern">Enter valid hex value</mat-error>
+        </mat-form-field>
+      </div>
+      <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="20px">
+        <ngx-colors ngx-colors-trigger [(ngModel)]="textColor" [disabled]="!htmlEmail" name="textColorPicker"></ngx-colors>
+        <mat-form-field>
+          <mat-label>Text Color</mat-label>
+          <input matInput [(ngModel)]="textColor" name="textColor" #textColorCtrl="ngModel"
+                 [pattern]="HEX_COLOR_PATTERN" maxlength="7">
+          <mat-error *ngIf="textColorCtrl?.errors?.pattern">Enter valid hex value</mat-error>
+        </mat-form-field>
+      </div>
+      <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="20px">
+        <ngx-colors ngx-colors-trigger [(ngModel)]="linkColor" [disabled]="!htmlEmail" name="linkColorPicker"></ngx-colors>
+        <mat-form-field>
+          <mat-label>Link Color</mat-label>
+          <input matInput [(ngModel)]="linkColor" name="linkColor"#linkColorCtrl="ngModel"
+                 [pattern]="HEX_COLOR_PATTERN" maxlength="7">
+          <mat-error *ngIf="linkColorCtrl?.errors?.pattern">Enter valid hex value</mat-error>
+        </mat-form-field>
+      </div>
+    </div>
+  </mat-dialog-content>
+  <mat-dialog-actions>
+    <div fxLayout="row" fxLayoutAlign="space-between" style="width: 100%; margin: 0 10px;">
+      <button mat-raised-button cdkFocusInitial type="button" (click)="onCancel()">Cancel</button>
+      <button mat-raised-button type="button" color="primary" [disabled]="!f.valid" (click)="onAdd()">Add</button>
+    </div>
+  </mat-dialog-actions>
+</form>

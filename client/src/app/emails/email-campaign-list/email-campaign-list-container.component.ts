@@ -8,6 +8,7 @@ import {EmailServerConfiguration} from '../model/email-server-configuration.mode
 import {EmailServerConfigurationService} from '../service/email-server-configuration.service';
 import {AuthenticationService} from '../../user/authentication.service';
 import {createSelector} from '@ngrx/store';
+import {CampaignInitData} from '../email-add-dialog/email-add-dialog.component';
 
 @Component({
   selector: 'app-email-container',
@@ -18,6 +19,7 @@ import {createSelector} from '@ngrx/store';
               [emailAddresses]="emailAddresses"
               [emailServerConfiguration]="emailServerConfiguration$ | async"
               (eventEmitter)="onEvent($event)"
+              (addCampaign)="onAddCampaign($event)"
               (emailConfigSave)="onEmailConfigSave($event)">
       </app-email-campaign-list>
   `,
@@ -79,6 +81,16 @@ export class EmailCampaignListContainerComponent implements OnDestroy {
       const returnUrl: string = `/ui/tournamentsconfig`;
       this.router.navigateByUrl(returnUrl);
     }
+  }
+
+  onAddCampaign(campaignInitData: CampaignInitData) {
+    const extras = {
+      state: {
+        campaignInitData: campaignInitData
+      }
+    };
+    const url = `/ui/email/emailcampaign/create/${this.tournamentId}/0`;
+    this.router.navigateByUrl(url, extras);
   }
 
   ngOnDestroy(): void {

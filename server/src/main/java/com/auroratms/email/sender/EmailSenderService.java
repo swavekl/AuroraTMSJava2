@@ -22,6 +22,7 @@ import com.opencsv.CSVReader;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.MailException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
@@ -66,6 +67,8 @@ public class EmailSenderService {
     @Autowired
     private FileRepositoryFactory fileRepositoryFactory;
 
+    @Value("${client.host.url}")
+    private String clientHostUrl;
 
     public List<FilterConfiguration.Recipient> getFilteredRecipients(long tournamentId, FilterConfiguration filterConfiguration) {
 
@@ -302,8 +305,14 @@ public class EmailSenderService {
 
         Tournament tournament = tournamentService.getByKey(tournamentId);
         String tournamentName = tournament.getName();
+
+        String playerListUrl = String.format("%s/ui/tournaments/playerlist/%s", this.clientHostUrl, tournamentId);
+        String registrationUrl = String.format("%s/ui/tournaments/view/%s",  this.clientHostUrl, tournamentId);
         Map<String, String> variables = new HashMap<>();
         variables.put("${tournament_name}", tournamentName);
+        variables.put("${tournament_director_name}", tournament.getContactName());
+        variables.put("${player_list_url}", playerListUrl);
+        variables.put("${tournament_registration_url}", registrationUrl);
 
         log.info(String.format("Got %d recipients. Sending emails", recipients.size()));
         campaignSendingStatus.phase = String.format("Got %d recipients. Sending emails", recipients.size());

@@ -26,7 +26,8 @@ import {EmailCampaignListContainerComponent} from './email-campaign-list/email-c
 import {MatTabsModule} from '@angular/material/tabs';
 import {MatCheckbox} from '@angular/material/checkbox';
 import {MatOption} from '@angular/material/autocomplete';
-
+import { EmailAddDialogComponent } from './email-add-dialog/email-add-dialog.component';
+import { NgxColorsModule } from 'ngx-colors';
 
 @NgModule({
   declarations: [
@@ -34,7 +35,8 @@ import {MatOption} from '@angular/material/autocomplete';
     EmailCampaignEditContainerComponent,
     EmailServerConfigDialogComponent,
     EmailCampaignListComponent,
-    EmailCampaignListContainerComponent
+    EmailCampaignListContainerComponent,
+    EmailAddDialogComponent
   ],
   imports: [
     CommonModule,
@@ -56,7 +58,8 @@ import {MatOption} from '@angular/material/autocomplete';
     MatListModule,
     MatTabsModule,
     MatCheckbox,
-    MatOption
+    MatOption,
+    NgxColorsModule
   ]
 })
 export class EmailModule {
