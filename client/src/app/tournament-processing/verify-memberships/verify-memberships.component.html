@@ -2,6 +2,7 @@
   <div class="mat-headline-6" style="padding-left: 8px; width: 100%;">Verify Memberships: {{ tournamentName }}</div>
   <mat-toolbar fxLayout="row" fxLayoutGap="10">
     <button mat-raised-button type="button" [routerLink]="returnUrl">Back</button>
+    <button mat-raised-button type="button" (click)="onContactPlayers()">Contact Players by Email</button>
   </mat-toolbar>
   <div class="membership-info-container" *ngIf="membershipInfos != null">
     <table class="membership-info-table">

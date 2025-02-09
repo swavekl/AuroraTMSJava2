@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns="http://www.w3.org/1999/html">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <title></title>
+</head>
+<body>
+Hello <span th:text="${playerFirstName}"></span>,
+<p th:if="${willExpire == true}">
+    Your USATT membership expires on <span th:if="${expirationDate != null}" th:text="${#dates.format(expirationDate,'MM/dd/yyyy')}">
+    </span> before the '<span th:text="${tournamentName}"></span>', which will take place on <span
+        th:if="${tournamentDate != null}" th:text="${#dates.format(tournamentDate,'MM/dd/yyyy')}">
+</span>. You must have a current membership in order to participate in this tournament.
+</p>
+<p th:if="${willExpire == true}">
+    Please, find your entry <a th:href="${entryURL}">here</a>, choose 'Modify' and select one of the membership options.
+    Then Press Next, Next, Next until you arrive on the last page where you can pay the balance.
+</p>
+<p th:if="${willExpire == false}">
+    Your USATT membership was updated before the '<span th:text="${tournamentName}"></span>' tournament which will take place on <span
+        th:if="${tournamentDate != null}" th:text="${#dates.format(tournamentDate,'MM/dd/yyyy')}"></span>.  Since you updated your membership through
+    another tournament, you are eligible for a refund for this portion of your registration.
+</p>
+<p th:if="${willExpire == false}">
+    Please, find your entry <a th:href="${entryURL}">here</a>, choose 'Modify' and select 'My Membership is current' option on the first step.
+    Then Press Next, Next, Next until you arrive on the last page where you can obtain a refund.
+</p>
+<p>Thank you,</p>
+<p>
+    <span th:text="${tournamentDirectorName}"></span><br>
+    Tournament Director<br>
+    <span th:text="${tournamentName}"></span><br>
+</p>
+</body>
+</html>

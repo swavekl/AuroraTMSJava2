@@ -1,6 +1,6 @@
 import {Component, OnDestroy} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
-import {tap} from 'rxjs/operators';
+import {first, tap} from 'rxjs/operators';
 import {combineLatest, Observable, Subscription} from 'rxjs';
 import {createSelector} from '@ngrx/store';
 
@@ -26,6 +26,7 @@ import {TournamentConfigService} from '../../tournament/tournament-config/tourna
       [countLifetime]="countLifetime"
       [returnUrl]="returnUrl"
       [thisUrl]="thisUrl"
+      (contactPlayers)="contactPlayers($event)"
     >
     </app-verify-memberships>
   `,
@@ -136,5 +137,15 @@ export class VerifyMembershipsContainerComponent implements OnDestroy {
         }
       });
     this.subscriptions.add(subscription);
+  }
+
+  /**
+   * Sends emails to
+   * @param membershipInfos
+   */
+  contactPlayers(membershipInfos: MembershipInfo[]) {
+    this.membershipInfoService.contactPlayers(this.tournamentId, membershipInfos)
+      .pipe(first())
+      .subscribe();
   }
 }

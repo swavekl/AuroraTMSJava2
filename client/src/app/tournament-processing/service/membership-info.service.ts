@@ -38,4 +38,21 @@ export class MembershipInfoService {
         })
       );
   }
+
+  contactPlayers(tournamentId: number, membershipInfos: MembershipInfo[]): Observable<any> {
+    this.setLoading(true);
+    const url = `${this.baseUrl}/contactplayers/${tournamentId}`;
+    return this.http.post(url, membershipInfos)
+      .pipe(
+        tap({
+          next: (response: any) => {
+            this.setLoading(false);
+          },
+          error: (error) => {
+            this.setLoading(false);
+            console.error(error);
+          }
+        })
+      );
+  }
 }
