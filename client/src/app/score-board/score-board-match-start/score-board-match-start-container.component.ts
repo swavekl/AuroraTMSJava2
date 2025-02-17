@@ -109,6 +109,7 @@ export class ScoreBoardMatchStartContainerComponent implements OnDestroy {
         const allMatches = matchCard.matches;
         if (this.matchIndex < allMatches.length) {
           const match = allMatches[matchIndex];
+          console.log('match umpired ', match.matchUmpired);
           const cloneOfMatch: Match = JSON.parse(JSON.stringify(match));
           this.match$ = of(cloneOfMatch);
           this.saveMatchState(match);

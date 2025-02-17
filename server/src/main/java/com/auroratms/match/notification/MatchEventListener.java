@@ -55,19 +55,18 @@ public class MatchEventListener {
         Match matchBefore = matchUpdateEvent.getMatchBefore();
         long matchCardId = matchBefore.getMatchCard().getId();
         Match matchAfter = matchUpdateEvent.getMatchAfter();
-        if (matchAfter.isMatchUmpired()) {
-            log.info("Begin processing match update event in MatchEventListener " + matchCardId + " match # " + matchAfter.getMatchNum());
-            try {
-                // record who made a change and the score after the change
-                makeAuditEntry(matchUpdateEvent.getProfileId(), matchBefore, matchAfter);
+        log.info("Begin processing match update event in MatchEventListener " + matchCardId + " match # " + matchAfter.getMatchNum());
+        try {
+            // record who made a change and the score after the change
+            makeAuditEntry(matchUpdateEvent.getProfileId(), matchBefore, matchAfter);
 
+            // send match info to update monitor displays
+            if (matchAfter.isMatchUmpired()) {
                 this.matchStatusPublisher.publishMatchUpdate(matchCardId, matchAfter);
-                log.info("Finished processing match update event for match card with id " + matchCardId + " match # " + matchAfter.getMatchNum());
-            } catch (Exception e) {
-                log.error("Unable to update match status for match # " + matchAfter.getMatchNum() + " on match card with id " + matchCardId, e);
             }
-        } else {
-            log.info("Match # " + matchAfter.getMatchNum() + " on match card with id " + matchCardId + " is not umpired");
+            log.info("Finished processing match update event for match card with id " + matchCardId + " match # " + matchAfter.getMatchNum());
+        } catch (Exception e) {
+            log.error("Unable to update match status for match # " + matchAfter.getMatchNum() + " on match card with id " + matchCardId, e);
         }
     }
 

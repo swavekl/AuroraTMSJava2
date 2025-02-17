@@ -9,6 +9,7 @@ import {Match} from '../../matches/model/match.model';
 import {TournamentEvent} from '../../tournament/tournament-config/tournament-event.model';
 import {MatchService} from '../../matches/service/match.service';
 import {first} from 'rxjs/operators';
+import {MatchCardService} from '../../matches/service/match-card.service';
 
 @Component({
   selector: 'app-score-board',
@@ -34,7 +35,8 @@ export class ScoreBoardMatchSelectionComponent implements OnInit {
 
   constructor(private monitorService: MonitorService,
               private router: Router,
-              private matchService: MatchService) { }
+              private matchService: MatchService,
+              private matchCardService: MatchCardService) { }
 
   ngOnInit(): void {
   }
@@ -86,6 +88,8 @@ export class ScoreBoardMatchSelectionComponent implements OnInit {
     };
 
     // if (!currentMatch.matchUmpired) {
+    // remove this match card and the match it contains so the matches are reread
+       this.matchCardService.removeOneFromCache(matchCard);
       // starting a match
       this.matchService.update(currentMatch)
         .pipe(first())
