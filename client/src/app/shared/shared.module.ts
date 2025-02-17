@@ -32,6 +32,7 @@ import { PhonePipe } from './pipes/phone.pipe';
 import {TimerDisplayComponent} from './timer-display/timer-display.component';
 import {TimerFormatterPipe} from './pipes/timer-formatter.pipe';
 import {CardsDisplayComponent} from './cards-display/cards-display.component';
+import {PasswordStrengthComponent} from './password-strength/password-strength.component';
 
 
 @NgModule({
@@ -56,7 +57,8 @@ import {CardsDisplayComponent} from './cards-display/cards-display.component';
     ValuesMatchDirective,
     PhonePipe,
     TimerDisplayComponent,
-    CardsDisplayComponent
+    CardsDisplayComponent,
+    PasswordStrengthComponent
   ],
   exports: [
     LinearProgressBarComponent,
@@ -78,7 +80,8 @@ import {CardsDisplayComponent} from './cards-display/cards-display.component';
     ValuesMatchDirective,
     PhonePipe,
     TimerDisplayComponent,
-    CardsDisplayComponent
+    CardsDisplayComponent,
+    PasswordStrengthComponent
   ],
   imports: [
     CommonModule,
