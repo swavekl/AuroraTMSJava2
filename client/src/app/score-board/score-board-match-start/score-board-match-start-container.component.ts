@@ -102,6 +102,7 @@ export class ScoreBoardMatchStartContainerComponent implements OnDestroy {
       });
     const matchCard$: Observable<MatchCard> = this.matchCardService.store.select(selectedEntrySelector);
     const subscription = matchCard$.subscribe((matchCard: MatchCard) => {
+      console.log('loaded match card', matchCard);
       if (matchCard == null) {
         // get from the server if not cached yet
         this.matchCardService.getByKey(matchCardId);
@@ -132,13 +133,18 @@ export class ScoreBoardMatchStartContainerComponent implements OnDestroy {
    */
   onServerReceiverEvent(event: any) {
     const updatedMatch: Match = event.updatedMatch;
+    const backToMatchCard: boolean = event?.backToMatchCard;
     this.matchService.update(updatedMatch)
       .pipe(first(),
         tap({
           next: () => {
             this.saveMatchState(updatedMatch);
+            this.matchService.removeOneFromCache(updatedMatch);
             this.matchCardService.clearCache();
             // this.sendMonitorUpdate(updatedMatch);
+            if (backToMatchCard === true) {
+              this.onMatchEvent({action: 'back'});
+            }
           }
         })
       ).subscribe();

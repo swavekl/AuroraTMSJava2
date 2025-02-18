@@ -1,0 +1,11 @@
+@use "src/my-theme.scss" as *;
+
+h2.dialog-title {
+  padding-left: 20px;
+}
+
+mat-dialog-content {
+  padding-top: 10px!important;
+  min-width: 480px;
+}
+

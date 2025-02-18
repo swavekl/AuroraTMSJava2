@@ -1,0 +1,28 @@
+<h2 mat-dialog-title class="dialog-title">Match End Reason</h2>
+<mat-dialog-content>
+  <form name="form" #f="ngForm" novalidate>
+    <div fxLayout="column" fxLayoutAlign="start start">
+      <mat-label>Match Winner</mat-label>
+      <mat-radio-group [(ngModel)]="winningSide" name="winningSide">
+        <div fxLayout="column" fxLayoutAlign="start start">
+          <mat-radio-button value="A">{{ playerAName }}</mat-radio-button>
+          <mat-radio-button value="B">{{ playerBName }}</mat-radio-button>
+        </div>
+      </mat-radio-group>
+      <mat-label>Reason</mat-label>
+      <mat-radio-group [(ngModel)]="endReason" name="endReason">
+        <div fxLayout="column" fxLayoutAlign="start start">
+          <mat-radio-button value="NormalEnd">Normal End</mat-radio-button>
+          <mat-radio-button [disabled]="matchStarted" value="WalkOver">Walk over</mat-radio-button>
+          <mat-radio-button value="Injury">Injury</mat-radio-button>
+        </div>
+      </mat-radio-group>
+    </div>
+  </form>
+</mat-dialog-content>
+<mat-dialog-actions>
+  <div fxLayout="row" fxLayoutAlign="space-between start" style="width: 100%; margin: 10px;">
+    <button mat-raised-button type="button" [mat-dialog-close]="false">Cancel</button>
+    <button mat-raised-button color="primary" type="button" cdkFocusInitial (click)="onOk()">Save</button>
+  </div>
+</mat-dialog-actions>

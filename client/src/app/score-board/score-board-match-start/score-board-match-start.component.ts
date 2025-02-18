@@ -7,6 +7,7 @@ import {TimerPopupComponent} from '../timer-popup/timer-popup.component';
 import {CardsInfo} from '../../shared/cards-display/cards-info.model';
 import {CardsPopupComponent} from '../cards-popup/cards-popup.component';
 import {MonitorMessageType} from '../../monitor/model/monitor-message-type';
+import {EndMatchPopupComponent} from '../end-match-popup/end-match-popup.component';
 
 @Component({
   selector: 'app-score-board-match-start',
@@ -602,7 +603,33 @@ export class ScoreBoardMatchStartComponent implements OnChanges {
   }
 
   endMatch() {
-    // todo - default, scratches injury etc.
+    const matchFinished: boolean = Match.isMatchFinished(this.match, this.numberOfGames, this.pointsPerGame);
+    let winningSide: string = 'A';
+    if (matchFinished) {
+      winningSide = Match.isMatchWinner(this.match.playerAProfileId, this.match, this.numberOfGames, this.pointsPerGame) ? 'A' : 'B';
+    }
+    const matchStarted = !(this.match.game1ScoreSideA === 0 && this.match.game1ScoreSideB === 0);
+    const config = {
+      data: {
+        playerAName: this.playerAName,
+        playerBName: this.playerBName,
+        winningSide: winningSide,
+        matchFinished: matchFinished,
+        matchStarted: matchStarted
+      }
+    };
+    const dialogRef = this.dialog.open(EndMatchPopupComponent, config);
+    dialogRef.afterClosed().subscribe(result => {
+        if (result?.endReason != null) {
+          if (result.endReason !== 'NormalEnd') {
+            const defaultedPlayerIndex: number = result.winningSide === 'A' ? 1 : 0;
+            this.match = Match.defaultMatch(this.match, defaultedPlayerIndex, this.numberOfGames, this.pointsPerGame);
+          }
+          this.saveMatch.emit({updatedMatch: this.match, backToMatchCard: true});
+          this.back();
+        }
+      }
+    );
   }
 
   isGameFinished() {
