@@ -78,7 +78,8 @@ public class ServerApplication {
                 http.authorizeRequests()
                         .antMatchers("/", "/ui/**", "/publicapi/**",
                                 "/images/**", "/api/users/**", fileRepoUrlPattern,
-                                "/index.html", "/*.css", "/*.css.map", "/*.ico", "/*.js", "/*.js.map", "/assets/**")
+                                "/index.html", "/*.css", "/*.css.map", "/*.ico", "/*.js", "/*.js.map",
+                                "/assets/**", "/media/**")
                         .permitAll()
                         .anyRequest().authenticated()  // authenticate everything else!;
                         .and()
