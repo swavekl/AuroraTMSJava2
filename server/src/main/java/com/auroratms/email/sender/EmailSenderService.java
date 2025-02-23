@@ -78,10 +78,26 @@ public class EmailSenderService {
         // if all events
         Map<Long, String> tournamentEntryIdToProfileIdMap = new HashMap<>();
         if (!isGetAllRecipients || isExcludeRegistered) {
-            List<TournamentEntry> tournamentEntries = entryService.listForTournament(tournamentId);
-            for (TournamentEntry tournamentEntry : tournamentEntries) {
-                tournamentEntryIdToProfileIdMap.put(tournamentEntry.getId(), tournamentEntry.getProfileId());
+            // get all tournament entries which still have events entered
+            Set<Long> entriesWithEventsIds = new HashSet<>();
+            List<TournamentEventEntry> tournamentEventEntries = tournamentEventEntryService.listAllForTournament(tournamentId);
+            for (TournamentEventEntry eventEntry : tournamentEventEntries) {
+                if (eventEntry.getStatus() == EventEntryStatus.ENTERED) {
+                    entriesWithEventsIds.add(eventEntry.getTournamentEntryFk());
+                }
             }
+            log.info("Players with valid entries in tournament: " + entriesWithEventsIds.size());
+
+            // get all entries
+            List<TournamentEntry> tournamentEntries = entryService.listForTournament(tournamentId);
+            log.info("All entries in tournament " + tournamentEntries.size());
+            for (TournamentEntry tournamentEntry : tournamentEntries) {
+                // only add those who are still entered in some event
+                if (entriesWithEventsIds.contains(tournamentEntry.getId())) {
+                    tournamentEntryIdToProfileIdMap.put(tournamentEntry.getId(), tournamentEntry.getProfileId());
+                }
+            }
+            log.info("Entry id to profile map for valid entries size: " + tournamentEntryIdToProfileIdMap.size());
         }
 
         // get all recipients
@@ -117,6 +133,7 @@ public class EmailSenderService {
 
         List<String> playerProfileIds = new ArrayList<>();
         List<Long> eventIdsToFilterBy = filterConfiguration.getRecipientFilters();
+        // get players from all events
         if (eventIdsToFilterBy.contains(0L)) {
             List<TournamentEventEntry> tournamentEventEntries = tournamentEventEntryService.listAllForTournament(tournamentId);
             for (TournamentEventEntry eventEntry : tournamentEventEntries) {
@@ -129,6 +146,7 @@ public class EmailSenderService {
                 }
             }
         } else {
+            // get players from selected events only
             for (Long eventId : eventIdsToFilterBy) {
                 List<TournamentEventEntry> allEventEntries = this.tournamentEventEntryService.listAllForEvent(eventId);
                 for (TournamentEventEntry eventEntry : allEventEntries) {
