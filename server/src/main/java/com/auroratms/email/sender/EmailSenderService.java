@@ -74,122 +74,51 @@ public class EmailSenderService {
 
         boolean isGetAllRecipients = Boolean.TRUE.equals(filterConfiguration.getAllRecipients());
         boolean isExcludeRegistered = Boolean.TRUE.equals(filterConfiguration.getExcludeRegistered());
+        log.info("isGetAllRecipients = " + isGetAllRecipients + ", isExcludeRegistered = " + isExcludeRegistered);
 
-        // if all events
+        // not all users (i.e. only selected events) or exclude those already registered
         Map<Long, String> tournamentEntryIdToProfileIdMap = new HashMap<>();
         if (!isGetAllRecipients || isExcludeRegistered) {
-            // get all tournament entries which still have events entered
-            Set<Long> entriesWithEventsIds = new HashSet<>();
-            List<TournamentEventEntry> tournamentEventEntries = tournamentEventEntryService.listAllForTournament(tournamentId);
-            for (TournamentEventEntry eventEntry : tournamentEventEntries) {
-                if (eventEntry.getStatus() == EventEntryStatus.ENTERED) {
-                    entriesWithEventsIds.add(eventEntry.getTournamentEntryFk());
-                }
-            }
-            log.info("Players with valid entries in tournament: " + entriesWithEventsIds.size());
-
-            // get all entries
-            List<TournamentEntry> tournamentEntries = entryService.listForTournament(tournamentId);
-            log.info("All entries in tournament " + tournamentEntries.size());
-            for (TournamentEntry tournamentEntry : tournamentEntries) {
-                // only add those who are still entered in some event
-                if (entriesWithEventsIds.contains(tournamentEntry.getId())) {
-                    tournamentEntryIdToProfileIdMap.put(tournamentEntry.getId(), tournamentEntry.getProfileId());
-                }
-            }
-            log.info("Entry id to profile map for valid entries size: " + tournamentEntryIdToProfileIdMap.size());
+            tournamentEntryIdToProfileIdMap = getTournamentEntryToProfileIdMap(tournamentId);
         }
 
-        // get all recipients
-        List<UserProfile> filteredAllUserProfiles = new ArrayList<>();
+        // get user profiles
+        Collection<UserProfile> userProfileList = new ArrayList<>();
         if (isGetAllRecipients) {
-            Collection<UserProfile> userProfileList;
-            List<String> stateFilters = filterConfiguration.getStateFilters();
-            boolean allStates = stateFilters == null || (stateFilters != null && stateFilters.stream().anyMatch(new Predicate<String>() {
-                @Override
-                public boolean test(String state) {
-                    return "ALL".equals(state);
-                }
-            }));
-            if (allStates) {
-                userProfileList = userProfileService.list();
-            } else {
-                userProfileList = userProfileService.listByStates(stateFilters);
-            }
-            for (UserProfile userProfile : userProfileList) {
-                // skip test user profiles
-                if (!userProfile.getEmail().matches("swaveklorenc\\+(.*)@gmail\\.com")) {
-                    if (isExcludeRegistered) {
-                        boolean alreadyInTournament = tournamentEntryIdToProfileIdMap.values().stream().anyMatch(Predicate.isEqual(userProfile.getUserId()));
-                        if (!alreadyInTournament) {
-                            filteredAllUserProfiles.add(userProfile);
-                        }
-                    } else {
-                        filteredAllUserProfiles.add(userProfile);
-                    }
-                }
-            }
-        }
-
-        List<String> playerProfileIds = new ArrayList<>();
-        List<Long> eventIdsToFilterBy = filterConfiguration.getRecipientFilters();
-        // get players from all events
-        if (eventIdsToFilterBy.contains(0L)) {
-            List<TournamentEventEntry> tournamentEventEntries = tournamentEventEntryService.listAllForTournament(tournamentId);
-            for (TournamentEventEntry eventEntry : tournamentEventEntries) {
-                long tournamentEntryFk = eventEntry.getTournamentEntryFk();
-                if (eventEntry.getStatus() == EventEntryStatus.ENTERED) {
-                    String profileId = tournamentEntryIdToProfileIdMap.get(tournamentEntryFk);
-                    if (profileId != null && !playerProfileIds.contains(profileId)) {
-                        playerProfileIds.add(profileId);
-                    }
-                }
-            }
+            userProfileList = getUserProfiles(filterConfiguration.getStateFilters(), isExcludeRegistered, tournamentEntryIdToProfileIdMap);
         } else {
-            // get players from selected events only
-            for (Long eventId : eventIdsToFilterBy) {
-                List<TournamentEventEntry> allEventEntries = this.tournamentEventEntryService.listAllForEvent(eventId);
-                for (TournamentEventEntry eventEntry : allEventEntries) {
-                    long tournamentEntryFk = eventEntry.getTournamentEntryFk();
-                    String profileId = tournamentEntryIdToProfileIdMap.get(tournamentEntryFk);
-                    if (profileId != null && !playerProfileIds.contains(profileId)) {
-                        playerProfileIds.add(profileId);
-                    }
-                }
+            // or filter by events
+            log.info ("Getting players in all or selected events");
+            List<String> playerProfileIds = new ArrayList<>();
+            List<Long> eventIdsToFilterBy = filterConfiguration.getRecipientFilters();
+            if (!eventIdsToFilterBy.isEmpty()) {
+                playerProfileIds = getProfilesOfPlayersInEvents(tournamentId, eventIdsToFilterBy, tournamentEntryIdToProfileIdMap);
+                log.info("playerProfileIds with " + playerProfileIds.size() + " profiles");
             }
+            userProfileList = userProfileService.listByProfileIds(playerProfileIds);
+            log.info("Got " + userProfileList.size() + " user profiles for events");
         }
 
-        // get profiles which contain email addresses and convert them into recipients (full name + email)
-        List<FilterConfiguration.Recipient> recipients = new ArrayList<>(playerProfileIds.size());
+        // convert profiles which contain email addresses and convert them into recipients (full name + email)
+        log.info("Converting " + userProfileList.size() + " user profiles to recipients");
         List<FilterConfiguration.Recipient> removedRecipients = filterConfiguration.getRemovedRecipients();
-        if (isGetAllRecipients) {
-            for (UserProfile filteredAllUserProfile : filteredAllUserProfiles) {
-                FilterConfiguration.Recipient recipient = new FilterConfiguration.Recipient();
-                recipient.setEmailAddress(filteredAllUserProfile.getEmail());
-                recipient.setFirstName(filteredAllUserProfile.getFirstName());
-                recipient.setLastName(filteredAllUserProfile.getLastName());
-                if (!removedRecipients.contains(recipient)) {
-                    recipients.add(recipient);
-                }
-            }
-        } else {
-            Collection<UserProfile> userProfiles = this.userProfileService.listByProfileIds(playerProfileIds);
-            for (UserProfile userProfile : userProfiles) {
-                FilterConfiguration.Recipient recipient = new FilterConfiguration.Recipient();
-                recipient.setEmailAddress(userProfile.getEmail());
-                recipient.setFirstName(userProfile.getFirstName());
-                recipient.setLastName(userProfile.getLastName());
-                if (!removedRecipients.contains(recipient)) {
-                    recipients.add(recipient);
-                }
+        List<FilterConfiguration.Recipient> recipients = new ArrayList<>();
+        for (UserProfile userProfile : userProfileList) {
+            FilterConfiguration.Recipient recipient = new FilterConfiguration.Recipient();
+            recipient.setEmailAddress(userProfile.getEmail());
+            recipient.setFirstName(userProfile.getFirstName());
+            recipient.setLastName(userProfile.getLastName());
+            if (!removedRecipients.contains(recipient)) {
+                recipients.add(recipient);
             }
         }
 
         // load recipients from a file if requested
         boolean includeUploadedRecipients = Boolean.TRUE.equals(filterConfiguration.isIncludeUploadedRecipients());
         if (includeUploadedRecipients && StringUtils.isNotEmpty(filterConfiguration.getUploadedRecipientsFile())) {
+            int recipientsBefore = recipients.size();
             try {
-                log.info ("Reading recipients file from " + filterConfiguration.getUploadedRecipientsFile());
+                log.info("Reading additional recipients file from " + filterConfiguration.getUploadedRecipientsFile());
                 IFileRepository fileRepository = this.fileRepositoryFactory.getFileRepository();
                 FileInfo fileInfo = fileRepository.read(filterConfiguration.getUploadedRecipientsFile());
                 List<FilterConfiguration.Recipient> recipientsFromFile = readRecipientsFile(fileInfo);
@@ -202,18 +131,133 @@ public class EmailSenderService {
                     }
                 }
                 if (skippedRecipients > 0) {
-                    log.info ("Didn't add " + skippedRecipients + " uploaded recipients because they were either removed or duplicate");
+                    log.info("Didn't add " + skippedRecipients + " uploaded recipients because they were either removed or duplicate");
                 }
             } catch (FileRepositoryException e) {
                 log.error("Error opening uploaded recipients file", e);
             }
+            log.info("Added " + (recipients.size() - recipientsBefore) + " additional recipients from file. Total recipients " + recipients.size());
         }
 
         return recipients;
     }
 
     /**
+     * Gets a list of profile
      *
+     * @param tournamentId
+     * @param eventIdsToFilterBy
+     * @param tournamentEntryIdToProfileIdMap
+     * @return
+     */
+    private List<String> getProfilesOfPlayersInEvents(long tournamentId,
+                                                      List<Long> eventIdsToFilterBy,
+                                                      Map<Long, String> tournamentEntryIdToProfileIdMap) {
+        List<String> playerProfileIds = new ArrayList<>();
+        // get players from all events
+        if (eventIdsToFilterBy.contains(0L)) {
+            log.info("Getting all events");
+            List<TournamentEventEntry> tournamentEventEntries = tournamentEventEntryService.listAllForTournament(tournamentId);
+            for (TournamentEventEntry eventEntry : tournamentEventEntries) {
+                long tournamentEntryFk = eventEntry.getTournamentEntryFk();
+                if (eventEntry.getStatus() == EventEntryStatus.ENTERED) {
+                    String profileId = tournamentEntryIdToProfileIdMap.get(tournamentEntryFk);
+                    if (profileId != null && !playerProfileIds.contains(profileId)) {
+                        playerProfileIds.add(profileId);
+                    }
+                }
+            }
+        } else {
+            log.info("Filtering users by selected events only " + eventIdsToFilterBy);
+            // get players from selected events only
+            for (Long eventId : eventIdsToFilterBy) {
+                List<TournamentEventEntry> allEventEntries = this.tournamentEventEntryService.listAllForEvent(eventId);
+                for (TournamentEventEntry eventEntry : allEventEntries) {
+                    long tournamentEntryFk = eventEntry.getTournamentEntryFk();
+                    String profileId = tournamentEntryIdToProfileIdMap.get(tournamentEntryFk);
+                    if (profileId != null && !playerProfileIds.contains(profileId)) {
+                        playerProfileIds.add(profileId);
+                    }
+                }
+            }
+        }
+        return playerProfileIds;
+    }
+
+    /**
+     * Gets a map of tournament entry id to profile id
+     *
+     * @param tournamentId tournament id of a tournament to get entries for
+     * @return
+     */
+    private Map<Long, String> getTournamentEntryToProfileIdMap(long tournamentId) {
+        Map<Long, String> tournamentEntryIdToProfileIdMap = new HashMap<>();
+        // get all tournament entries which still have events entered
+        Set<Long> entriesWithEventsIds = new HashSet<>();
+        List<TournamentEventEntry> tournamentEventEntries = tournamentEventEntryService.listAllForTournament(tournamentId);
+        for (TournamentEventEntry eventEntry : tournamentEventEntries) {
+            if (eventEntry.getStatus() == EventEntryStatus.ENTERED) {
+                entriesWithEventsIds.add(eventEntry.getTournamentEntryFk());
+            }
+        }
+        log.info("Players with valid entries in tournament: " + entriesWithEventsIds.size());
+
+        // get all entries
+        List<TournamentEntry> tournamentEntries = entryService.listForTournament(tournamentId);
+        log.info("All entries in tournament " + tournamentEntries.size());
+        for (TournamentEntry tournamentEntry : tournamentEntries) {
+            // only add those who are still entered in some event
+            if (entriesWithEventsIds.contains(tournamentEntry.getId())) {
+                tournamentEntryIdToProfileIdMap.put(tournamentEntry.getId(), tournamentEntry.getProfileId());
+            }
+        }
+        log.info("Entry id to profile map for valid entries size: " + tournamentEntryIdToProfileIdMap.size());
+
+        return tournamentEntryIdToProfileIdMap;
+    }
+
+    /**
+     * Gets profiles of users and optionally removes those who are already in the tournament
+     *
+     * @param stateFilters                    state names or ALL states
+     * @param isExcludeRegistered             if true excludes profiles of players already registered for this tournament
+     * @param tournamentEntryIdToProfileIdMap tournament entry id to profile id map
+     */
+    private List<UserProfile> getUserProfiles(List<String> stateFilters, boolean isExcludeRegistered, Map<Long, String> tournamentEntryIdToProfileIdMap) {
+        List<UserProfile> filteredAllUserProfiles = new ArrayList<>();
+        Collection<UserProfile> userProfileList;
+        boolean allStates = stateFilters == null || stateFilters.stream().anyMatch(new Predicate<String>() {
+            @Override
+            public boolean test(String state) {
+                return "ALL".equals(state);
+            }
+        });
+        log.info("Getting user profiles list.  allStates is " + allStates);
+        if (allStates) {
+            userProfileList = userProfileService.list();
+        } else {
+            userProfileList = userProfileService.listByStates(stateFilters);
+        }
+        log.info("Got user profile list with " + userProfileList.size() + " user profiles.");
+        log.info("Removing test users and isExcludeRegistered = " + isExcludeRegistered);
+        for (UserProfile userProfile : userProfileList) {
+            // skip test user profiles
+            if (!userProfile.getEmail().matches("swaveklorenc\\+(.*)@gmail\\.com")) {
+                if (isExcludeRegistered) {
+                    boolean alreadyInTournament = tournamentEntryIdToProfileIdMap.values().stream().anyMatch(Predicate.isEqual(userProfile.getUserId()));
+                    if (!alreadyInTournament) {
+                        filteredAllUserProfiles.add(userProfile);
+                    }
+                } else {
+                    filteredAllUserProfiles.add(userProfile);
+                }
+            }
+        }
+        log.info("Final filtered user profiles list " + filteredAllUserProfiles.size());
+        return filteredAllUserProfiles;
+    }
+
+    /**
      * @param fileInfo
      * @return
      */
@@ -252,7 +296,7 @@ public class EmailSenderService {
                         StringUtils.isNotEmpty(recipient.getEmailAddress())) {
                     recipientList.add(recipient);
                 } else {
-                    log.warn("Didn't add recipient " + recipient.getLastName() + " " + recipient.getFirstName() );
+                    log.warn("Didn't add recipient " + recipient.getLastName() + " " + recipient.getFirstName());
                 }
             }
             log.info("Read " + rowNumber + " rows from recipients file.");
@@ -264,6 +308,7 @@ public class EmailSenderService {
 
     /**
      * Sends test email via SMTP host defined by config
+     *
      * @param config
      * @throws MessagingException
      */
@@ -297,6 +342,15 @@ public class EmailSenderService {
         return mailSender;
     }
 
+    /**
+     * Sends email campaign or test email
+     *
+     * @param tournamentId
+     * @param emailCampaign
+     * @param campaignSendingStatus
+     * @param currentUserName
+     * @param sendTestEmail
+     */
     public void sendCampaign(Long tournamentId, EmailCampaign emailCampaign, CampaignSendingStatus campaignSendingStatus, String currentUserName, Boolean sendTestEmail) {
         campaignSendingStatus.phase = "Getting recipients and variables information";
         log.info("Getting recipients and variables information for campaign " + emailCampaign.toString());
@@ -315,17 +369,19 @@ public class EmailSenderService {
             recipient.setFirstName(userProfile.getFirstName());
             recipient.setLastName(userProfile.getLastName());
             recipients.add(recipient);
+            log.info("Sending test email to " + recipient.getFirstName() + " " + recipient.getLastName() + " email: " + recipient.getEmailAddress());
         } else {
             // get recipients per filter configuration
             FilterConfiguration filterConfiguration = emailCampaign.getFilterConfiguration();
             recipients = getFilteredRecipients(tournamentId, filterConfiguration);
+            log.info("Sending email campaign to " + recipients.size() + " recipients");
         }
 
         Tournament tournament = tournamentService.getByKey(tournamentId);
         String tournamentName = tournament.getName();
 
         String playerListUrl = String.format("%s/ui/tournaments/playerlist/%s", this.clientHostUrl, tournamentId);
-        String registrationUrl = String.format("%s/ui/tournaments/view/%s",  this.clientHostUrl, tournamentId);
+        String registrationUrl = String.format("%s/ui/tournaments/view/%s", this.clientHostUrl, tournamentId);
         Map<String, String> variables = new HashMap<>();
         variables.put("${tournament_name}", tournamentName);
         variables.put("${tournament_director_name}", tournament.getContactName());
@@ -405,8 +461,8 @@ public class EmailSenderService {
     }
 
     private String replaceVariables(String text, Map<String, String> variables) {
-        String [] searchList = new String[variables.size()];
-        String [] replacementList = new String[variables.size()];
+        String[] searchList = new String[variables.size()];
+        String[] replacementList = new String[variables.size()];
         int i = 0;
         for (String variable : variables.keySet()) {
             String value = variables.get(variable);
