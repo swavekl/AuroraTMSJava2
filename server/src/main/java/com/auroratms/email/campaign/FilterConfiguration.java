@@ -104,11 +104,40 @@ public class FilterConfiguration implements Serializable {
             mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
             mapper.writeValue(stringWriter, this);
             content = stringWriter.toString();
+            content = minify(content);
         } catch (IOException e) {
             log.error("Error serializing filter configuration", e);
             throw new RuntimeException(e);
         }
         return content;
+    }
+
+    private String minify(String content) {
+        String minifiedContent = content;
+        if (minifiedContent != null) {
+            int lengthBefore = minifiedContent.length();
+            minifiedContent = minifiedContent.replaceAll("\"lastName\"", "\"l\"");
+            minifiedContent = minifiedContent.replaceAll("\"firstName\"", "\"f\"");
+            minifiedContent = minifiedContent.replaceAll("\"emailAddress\"", "\"e\"");
+            minifiedContent = minifiedContent.replaceAll("\"state\"", "\"s\"");
+            int lengthAfter = minifiedContent.length();
+            log.info("Minified filter configuration size from {} to {}", lengthBefore, lengthAfter);
+        }
+        return minifiedContent;
+    }
+
+    private static String deminify(String content) {
+        String deminifiedContent = content;
+        if (deminifiedContent != null) {
+            int lengthBefore = deminifiedContent.length();
+            deminifiedContent = deminifiedContent.replaceAll("\"l\"", "\"lastName\"");
+            deminifiedContent = deminifiedContent.replaceAll("\"f\"", "\"firstName\"");
+            deminifiedContent = deminifiedContent.replaceAll("\"e\"", "\"emailAddress\"");
+            deminifiedContent = deminifiedContent.replaceAll("\"s\"", "\"state\"");
+            int lengthAfter = deminifiedContent.length();
+            log.info("Deminified filter configuration size from {} to {}", lengthBefore, lengthAfter);
+        }
+        return deminifiedContent;
     }
 
     public static FilterConfiguration convertFromJSON(String content) {
@@ -117,6 +146,7 @@ public class FilterConfiguration implements Serializable {
                 // convert from JSON to configuration
                 ObjectMapper mapper = new ObjectMapper();
                 mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+                content = deminify(content);
                 return mapper.readValue(content,FilterConfiguration.class);
             } catch (JsonProcessingException e) {
                 log.error("Error deserializing filter configuration", e);

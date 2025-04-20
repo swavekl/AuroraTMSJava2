@@ -148,7 +148,7 @@ export class EmailCampaignEditComponent  {
     this.emailCampaign = {
       ...this.emailCampaign,
       recipientFilters: [],
-      removedRecipients: [],
+      // removedRecipients: [],
       excludeRegistered: event.checked
     };
     this.emitFilterEvent();
@@ -158,7 +158,7 @@ export class EmailCampaignEditComponent  {
     this.emailCampaign = {
       ...this.emailCampaign,
       recipientFilters: [],
-      removedRecipients: [],
+      // removedRecipients: [],
       includeUploadedRecipients: $event.checked
     };
     this.emitFilterEvent();

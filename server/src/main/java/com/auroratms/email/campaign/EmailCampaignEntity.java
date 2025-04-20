@@ -34,7 +34,7 @@ public class EmailCampaignEntity implements Serializable {
     private int emailsCount;
 
     // recipient filters and removed recipients
-    @Column(length = 9000)
+    @Column(length = 65535, columnDefinition = "TEXT")
     String filterContentsJSON;
 
     // treat body of this email as html when sending

@@ -102,6 +102,7 @@ public class EmailSenderService {
         // convert profiles which contain email addresses and convert them into recipients (full name + email)
         log.info("Converting " + userProfileList.size() + " user profiles to recipients");
         List<FilterConfiguration.Recipient> removedRecipients = filterConfiguration.getRemovedRecipients();
+        log.info("Removed recipients count " + removedRecipients.size());
         List<FilterConfiguration.Recipient> recipients = new ArrayList<>();
         for (UserProfile userProfile : userProfileList) {
             FilterConfiguration.Recipient recipient = new FilterConfiguration.Recipient();
