@@ -137,6 +137,8 @@ public class FilterConfiguration implements Serializable {
 
         private String emailAddress;
 
+        private String state;
+
         public String getEmailAddress() {
             return emailAddress;
         }
@@ -161,6 +163,14 @@ public class FilterConfiguration implements Serializable {
             this.firstName = firstName;
         }
 
+        public String getState() {
+            return state;
+        }
+
+        public void setState(String state) {
+            this.state = state;
+        }
+
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;
@@ -169,12 +179,12 @@ public class FilterConfiguration implements Serializable {
 
             Recipient recipient = (Recipient) o;
 
-            return new EqualsBuilder().append(lastName, recipient.lastName).append(firstName, recipient.firstName).append(emailAddress, recipient.emailAddress).isEquals();
+            return new EqualsBuilder().append(lastName, recipient.lastName).append(firstName, recipient.firstName).append(emailAddress, recipient.emailAddress).append(state, recipient.state).isEquals();
         }
 
         @Override
         public int hashCode() {
-            return new HashCodeBuilder(17, 37).append(lastName).append(firstName).append(emailAddress).toHashCode();
+            return new HashCodeBuilder(17, 37).append(lastName).append(firstName).append(emailAddress).append(state).toHashCode();
         }
     }
 

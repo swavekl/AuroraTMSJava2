@@ -117,4 +117,20 @@ export class VerifyMembershipsComponent {
       });
     }
   }
+
+  getUnpaidCount() {
+    const unpaidMemberships: MembershipInfo[] = this.membershipInfos.filter(
+      (membershipInfo: MembershipInfo): boolean => {
+        return this.isUnpaid(membershipInfo.expirationDate, membershipInfo.membershipType);
+      });
+    return unpaidMemberships.length;
+  }
+
+  getUnnecessaryPaidCount() {
+    const unnecessarilyPaidMemberships: MembershipInfo[] = this.membershipInfos.filter(
+      (membershipInfo: MembershipInfo): boolean => {
+        return this.isPaidUnnecessarily(membershipInfo.expirationDate, membershipInfo.membershipType);
+      });
+    return unnecessarilyPaidMemberships.length;
+  }
 }

@@ -231,6 +231,10 @@ export class EmailCampaignEditComponent  {
     }
   }
 
+  getRecipientTooltip(recipient: Recipient): string {
+    return recipient.emailAddress + ((recipient.state != null) ? ' (' + recipient.state + ')' : '');
+  }
+
   public getFullName(recipient: Recipient) {
     return `${recipient.lastName}, ${recipient.firstName}`;
   }
@@ -294,7 +298,7 @@ export class EmailCampaignEditComponent  {
       let recipientsCount = 0;
       if (this.filteredRecipients != null && this.filteredRecipients.length > 0) {
         for (const recipient of this.filteredRecipients) {
-          clipboardText += `${recipient.firstName}, ${recipient.lastName}, ${recipient.emailAddress}\n`;
+          clipboardText += `${recipient.firstName}, ${recipient.lastName}, ${recipient.emailAddress}, ${recipient.state}\n`;
         }
         recipientsCount = this.filteredRecipients.length;
       }

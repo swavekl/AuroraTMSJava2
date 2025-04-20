@@ -108,6 +108,7 @@ public class EmailSenderService {
             recipient.setEmailAddress(userProfile.getEmail());
             recipient.setFirstName(userProfile.getFirstName());
             recipient.setLastName(userProfile.getLastName());
+            recipient.setState(userProfile.getState());
             if (!removedRecipients.contains(recipient)) {
                 recipients.add(recipient);
             }
@@ -123,9 +124,15 @@ public class EmailSenderService {
                 FileInfo fileInfo = fileRepository.read(filterConfiguration.getUploadedRecipientsFile());
                 List<FilterConfiguration.Recipient> recipientsFromFile = readRecipientsFile(fileInfo);
                 int skippedRecipients = 0;
+                List<String> stateFilters = filterConfiguration.getStateFilters();
+                boolean isAllStates = isAllStatesSelected(stateFilters);
                 for (FilterConfiguration.Recipient recipient : recipientsFromFile) {
                     if (!removedRecipients.contains(recipient) && !recipients.contains(recipient)) {
-                        recipients.add(recipient);
+                        if (stateFilters == null || isAllStates) {
+                            recipients.add(recipient);
+                        } else if (stateFilters.contains(recipient.getState())) {
+                            recipients.add(recipient);
+                        }
                     } else {
                         skippedRecipients++;
                     }
@@ -226,12 +233,7 @@ public class EmailSenderService {
     private List<UserProfile> getUserProfiles(List<String> stateFilters, boolean isExcludeRegistered, Map<Long, String> tournamentEntryIdToProfileIdMap) {
         List<UserProfile> filteredAllUserProfiles = new ArrayList<>();
         Collection<UserProfile> userProfileList;
-        boolean allStates = stateFilters == null || stateFilters.stream().anyMatch(new Predicate<String>() {
-            @Override
-            public boolean test(String state) {
-                return "ALL".equals(state);
-            }
-        });
+        boolean allStates = isAllStatesSelected(stateFilters);
         log.info("Getting user profiles list.  allStates is " + allStates);
         if (allStates) {
             userProfileList = userProfileService.list();
@@ -255,6 +257,15 @@ public class EmailSenderService {
         }
         log.info("Final filtered user profiles list " + filteredAllUserProfiles.size());
         return filteredAllUserProfiles;
+    }
+
+    private boolean isAllStatesSelected (List<String> stateFilters) {
+        return stateFilters == null || stateFilters.stream().anyMatch(new Predicate<String>() {
+            @Override
+            public boolean test(String state) {
+                return "ALL".equals(state);
+            }
+        });
     }
 
     /**
@@ -283,11 +294,13 @@ public class EmailSenderService {
                                 recipient.setEmailAddress(text);
                             }
                             break;
+                        case 3:
+                            recipient.setState(text != null ? text.trim() : null);
                         default:
                             break;
                     }
                     columnNum++;
-                    if (columnNum > 2) {
+                    if (columnNum > 3) {
                         break;
                     }
                 }

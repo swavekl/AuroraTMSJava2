@@ -30,6 +30,14 @@ table.membership-info-table {
     &.important-header {
       font-weight: bold;
     }
+
+    &.unpaid-membership {
+      color: red;
+    }
+
+    &.paid-unnecessarily-membership {
+      color: green;
+    }
   }
 
 

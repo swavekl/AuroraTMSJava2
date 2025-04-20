@@ -13,7 +13,9 @@ Hello <span th:text="${playerFirstName}"></span>,
 </span>. You must have a current membership in order to participate in this tournament.
 </p>
 <p th:if="${willExpire == true}">
-    Please, find your entry <a th:href="${entryURL}">here</a>, choose 'Modify' and select one of the membership options.
+    If you entered another tournament and paid for your membership through it you can ignore this message.
+    If you didn't, you need to pay through this tournament. To do this please find your entry <a th:href="${entryURL}">here</a>,
+    choose 'Modify' and select one of the membership options.
     Then Press Next, Next, Next until you arrive on the last page where you can pay the balance.
 </p>
 <p th:if="${willExpire == false}">

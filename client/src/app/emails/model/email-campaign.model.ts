@@ -56,6 +56,8 @@ export class Recipient {
 
   emailAddress: string;
 
+  state: string;
+
   public getFullName() {
     return `${this.lastName}, ${this.firstName}`
   }

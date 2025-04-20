@@ -36,59 +36,48 @@
       <tfoot>
       <tr>
         <th colspan="4">&nbsp;</th>
-        <!--        <th>&nbsp;</th>-->
-        <!--        <th>&nbsp;</th>-->
-        <!--        <th>&nbsp;</th>-->
         <th class="important-header">Purchased Membership Totals</th>
         <th>&nbsp;</th>
       </tr>
       <tr>
         <th colspan="4">&nbsp;</th>
-        <!--        <th>&nbsp;</th>-->
-        <!--        <th>&nbsp;</th>-->
-        <!--        <th>&nbsp;</th>-->
         <th>{{getMembershipOptionLabel(MembershipType.TOURNAMENT_PASS_ADULT)}}</th>
         <th>{{ countPassAdult }}</th>
       </tr>
       <tr>
         <th colspan="4">&nbsp;</th>
-        <!--        <th>&nbsp;</th>-->
-        <!--        <th>&nbsp;</th>-->
-        <!--        <th>&nbsp;</th>-->
         <th>{{getMembershipOptionLabel(MembershipType.TOURNAMENT_PASS_JUNIOR)}}</th>
         <th>{{ countPassJunior }}</th>
       </tr>
       <tr>
         <th colspan="4">&nbsp;</th>
-<!--        <th>&nbsp;</th>-->
-<!--        <th>&nbsp;</th>-->
-<!--        <th>&nbsp;</th>-->
         <th>{{getMembershipOptionLabel(MembershipType.BASIC_PLAN)}}</th>
         <th>{{ countBasic }}</th>
       </tr>
       <tr>
         <th colspan="4">&nbsp;</th>
-        <!--        <th>&nbsp;</th>-->
-        <!--        <th>&nbsp;</th>-->
-        <!--        <th>&nbsp;</th>-->
         <th>{{getMembershipOptionLabel(MembershipType.PRO_PLAN)}}</th>
         <th>{{ countPro }}</th>
       </tr>
       <tr>
         <th colspan="4">&nbsp;</th>
-        <!--        <th>&nbsp;</th>-->
-        <!--        <th>&nbsp;</th>-->
-        <!--        <th>&nbsp;</th>-->
         <th>{{getMembershipOptionLabel(MembershipType.LIFETIME)}}</th>
         <th>{{ countLifetime }}</th>
       </tr>
       <tr>
         <th colspan="4">&nbsp;</th>
-        <!--        <th>&nbsp;</th>-->
-        <!--        <th>&nbsp;</th>-->
-        <!--        <th>&nbsp;</th>-->
         <th class="important-header">All Memberships</th>
         <th class="important-header">{{ countPassAdult + countPassJunior + countBasic + countPro + countLifetime }}</th>
+      </tr>
+      <tr>
+        <th colspan="4">&nbsp;</th>
+        <th class="unpaid-membership">Total unpaid</th>
+        <th>{{ getUnpaidCount() }}</th>
+      </tr>
+      <tr>
+        <th colspan="4">&nbsp;</th>
+        <th class="paid-unnecessarily-membership">Total paid unnecessarily</th>
+        <th>{{ getUnnecessaryPaidCount() }}</th>
       </tr>
       </tfoot>
     </table>

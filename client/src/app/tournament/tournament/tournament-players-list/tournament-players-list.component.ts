@@ -196,7 +196,12 @@ export class TournamentPlayersListComponent implements OnInit, OnChanges {
         element.players = element.players.sort(sortByRatingFn);
       }
     }
-    return categorizedCollection;
+
+    // sort the same way as sorted on the blank entry form
+    return categorizedCollection.sort((tep1: TournamentEventWithPlayers, tep2: TournamentEventWithPlayers) => {
+      return (tep1.event.ordinalNumber === tep2.event.ordinalNumber)
+        ? 0 : (tep1.event.ordinalNumber < tep2.event.ordinalNumber) ? -1 : 1;
+    });
   }
 
   /**
