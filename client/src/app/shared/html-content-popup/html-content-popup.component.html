@@ -1,0 +1,12 @@
+<h2 mat-dialog-title>{{title}}</h2>
+<mat-dialog-content [style.max-height]="contentAreaHeight" [style.height]="contentAreaHeight">
+  <div [innerHTML]="message"></div>
+</mat-dialog-content>
+<mat-dialog-actions>
+  <div fxLayout="row" fxLayoutAlign="space-between start" style="width: 100%; margin: 0 10px;">
+    <div fxFlex="1"></div>
+    <button mat-raised-button color="primary" (click)="onOk()">Close</button>
+  </div>
+</mat-dialog-actions>
+
+

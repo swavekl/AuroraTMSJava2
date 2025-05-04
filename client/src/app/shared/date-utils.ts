@@ -45,6 +45,11 @@ export class DateUtils {
     return localMoment.format('dddd');
   }
 
+  getDateAsString (startDate: Date) {
+    const localMoment = moment(startDate);
+    return localMoment.format('MM/DD/YYYY');
+  }
+
   getTimeAsString(startDate: Date, startTime: number) {
     const fractionOfHour = (startTime % 1).toFixed(2);
     // @ts-ignore

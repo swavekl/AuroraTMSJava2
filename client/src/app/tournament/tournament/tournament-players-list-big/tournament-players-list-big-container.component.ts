@@ -11,7 +11,8 @@ import {TournamentInfoService} from '../../service/tournament-info.service';
 import {UsattRecordSearchCallbackData, UsattRecordSearchPopupService} from '../../../profile/service/usatt-record-search-popup.service';
 import {RecordSearchData} from '../../../profile/usatt-record-search-popup/usatt-record-search-popup.component';
 import {MatDialog} from '@angular/material/dialog';
-import {ConfirmationPopupComponent} from '../../../shared/confirmation-popup/confirmation-popup.component';
+import {HtmlContentPopupComponent} from '../../../shared/html-content-popup/html-content-popup.component';
+import {DateUtils} from '../../../shared/date-utils';
 
 @Component({
   selector: 'app-tournament-players-list-big-container',
@@ -167,13 +168,24 @@ export class TournamentPlayersListBigContainerComponent implements OnInit, OnDes
 
   findPlayerSuccessCallback (scope: any, result: any) {
     const me = scope;
-    let playerInfo = JSON.stringify(result, null, 2);
+    const expirationDate = new DateUtils().getDateAsString(result.membershipExpirationDate);
+    let playerInfoHtml = '<table><tbody>';
+    playerInfoHtml += '<tr><td>First Name</td><td>' + result.firstName + '</td></tr>';
+    playerInfoHtml += '<tr><td>Last Name</td><td>' + result.lastName + '</td></tr>';
+    playerInfoHtml += '<tr><td>Gender</td><td>' + result.gender + '</td></tr>';
+    playerInfoHtml += '<tr><td>State</td><td>' + result.state + '</td></tr>';
+    playerInfoHtml += '<tr><td>Zip code</td><td>' + result.zip + '</td></tr>';
+    playerInfoHtml += '<tr><td>Membership ID</td><td>' + result.membershipId + '</td></tr>';
+    playerInfoHtml += '<tr><td>Expiration Date</td><td>' + expirationDate + '</td></tr>';
+    playerInfoHtml += '<tr><td>Tournament Rating</td><td>' + result.tournamentRating + '</td></tr>';
+    playerInfoHtml += '</tbody></table>';
+
     const config = {
-      width: '500px', height: '350px', data: {
-        message: playerInfo, showCancel: false, okText: 'Close', contentAreaHeight: '200px', title: 'Player USATT Record'
+      width: '450px', height: '420px', data: {
+        message: playerInfoHtml, contentAreaHeight: '350px', title: 'Player USATT Record'
       }
     };
-    const dialogRef = me.dialog.open(ConfirmationPopupComponent, config);
+    const dialogRef = me.dialog.open(HtmlContentPopupComponent, config);
     const subscription = dialogRef.afterClosed().subscribe(result => {
     });
     me.subscriptions.add(subscription);
