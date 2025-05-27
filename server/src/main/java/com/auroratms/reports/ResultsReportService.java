@@ -99,7 +99,7 @@ public class ResultsReportService {
                         for (Match match : matchesForEvent) {
                             long matchCardId2 = match.getMatchCard().getId();
                             if (matchCardId == matchCardId2) {
-                                boolean matchFinished = match.isMatchFinished(tournamentEvent.getNumberOfGames(), tournamentEvent.getPointsPerGame());
+                                boolean matchFinished = match.isMatchFinished(matchCard.getNumberOfGames(), tournamentEvent.getPointsPerGame());
                                 boolean isDefaulted = match.isSideADefaulted() || match.isSideBDefaulted();
                                 if (matchFinished && !isDefaulted) {
                                     String reportLine = generateLine(matchCard, match, tournamentEvent, userProfileExtMap);
@@ -143,13 +143,18 @@ public class ResultsReportService {
     private String generateLine(MatchCard matchCard, Match match, TournamentEvent tournamentEvent, Map<String, UserProfileExt> userProfileExtMap) {
         UserProfileExt playerAUserProfileExt = userProfileExtMap.get(match.getPlayerAProfileId());
         UserProfileExt playerBUserProfileExt = userProfileExtMap.get(match.getPlayerBProfileId());
-        boolean playerAIsMatchWinner = match.isMatchWinner(match.getPlayerAProfileId(), tournamentEvent.getNumberOfGames(), tournamentEvent.getPointsPerGame());
-        Long winnerMembershipId = (playerAIsMatchWinner) ? playerAUserProfileExt.getMembershipId() : playerBUserProfileExt.getMembershipId();
-        Long loserMembershipId = (!playerAIsMatchWinner) ? playerAUserProfileExt.getMembershipId() : playerBUserProfileExt.getMembershipId();
-        String compactResult = match.getCompactResult(matchCard.getNumberOfGames(), tournamentEvent.getPointsPerGame());
-        String drawType = (matchCard.getDrawType() == DrawType.ROUND_ROBIN) ? "RR" : "SE";
-        String roundName = (matchCard.getDrawType() == DrawType.ROUND_ROBIN) ? "" : matchCard.getRoundName();
-        String division = String.format("%s %s %s ", tournamentEvent.getName(), drawType, roundName);
-        return String.format("0,%d,%d,\"%s\",%s\n", winnerMembershipId, loserMembershipId, compactResult, division);
+        if (playerAUserProfileExt != null && playerBUserProfileExt != null) {
+            boolean playerAIsMatchWinner = match.isMatchWinner(match.getPlayerAProfileId(), tournamentEvent.getNumberOfGames(), tournamentEvent.getPointsPerGame());
+            Long winnerMembershipId = (playerAIsMatchWinner) ? playerAUserProfileExt.getMembershipId() : playerBUserProfileExt.getMembershipId();
+            Long loserMembershipId = (!playerAIsMatchWinner) ? playerAUserProfileExt.getMembershipId() : playerBUserProfileExt.getMembershipId();
+            String compactResult = match.getCompactResult(matchCard.getNumberOfGames(), tournamentEvent.getPointsPerGame());
+            String drawType = (matchCard.getDrawType() == DrawType.ROUND_ROBIN) ? "RR" : "SE";
+            String roundName = (matchCard.getDrawType() == DrawType.ROUND_ROBIN) ? "" : matchCard.getRoundName();
+            String division = String.format("%s %s %s ", tournamentEvent.getName(), drawType, roundName);
+            return String.format("0,%d,%d,\"%s\",%s\n", winnerMembershipId, loserMembershipId, compactResult, division);
+        } else {
+            log.warn("Unable to find user profile for match " + match.getId() + " profile A '" + match.getPlayerAProfileId() + "' or profile B '" + match.getPlayerBProfileId() + "'");
+            return "";
+        }
     }
 }
