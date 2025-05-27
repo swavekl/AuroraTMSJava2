@@ -71,16 +71,7 @@ public class MembershipReportService {
     private TournamentEntryService tournamentEntryService;
 
     @Autowired
-    private TournamentEventEntityService tournamentEventEntityService;
-
-    @Autowired
-    private MatchCardService matchCardService;
-
-    @Autowired
     private TournamentEventEntryService tournamentEventEntryService;
-
-    @Autowired
-    private MatchService matchService;
 
     @Autowired
     private TournamentService tournamentService;
@@ -297,7 +288,6 @@ public class MembershipReportService {
     }
 
     /**
-     * @param s
      * @param canvas
      * @param document
      * @param pageSize
