@@ -1,11 +1,14 @@
 package com.auroratms.reports;
 
 import com.auroratms.profile.UserProfile;
+import com.auroratms.profile.UserProfileService;
 import com.auroratms.tournament.Tournament;
 import com.auroratms.tournament.TournamentService;
 import com.auroratms.tournamententry.MembershipType;
 import com.auroratms.tournamententry.TournamentEntry;
 import com.auroratms.tournamententry.TournamentEntryService;
+import com.auroratms.tournamentevententry.EventEntryStatus;
+import com.auroratms.tournamentevententry.TournamentEventEntryService;
 import com.itextpdf.io.font.constants.StandardFonts;
 import com.itextpdf.io.image.ImageData;
 import com.itextpdf.io.image.ImageDataFactory;
@@ -40,10 +43,7 @@ import java.io.File;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static com.auroratms.tournamententry.MembershipType.*;
 
@@ -59,6 +59,9 @@ public class TournamentReportService {
     private TournamentService tournamentService;
 
     @Autowired
+    private TournamentEventEntryService tournamentEventEntryService;
+
+    @Autowired
     ResourceLoader resourceLoader;
 
     static final int FONT_SIZE = 10;
@@ -71,6 +74,8 @@ public class TournamentReportService {
     private DateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
 
     final String CURRENCY_FORMAT = "%s%,.2f";
+    @Autowired
+    private UserProfileService userProfileService;
 
     /**
      *
@@ -89,8 +94,24 @@ public class TournamentReportService {
             Tournament tournament = tournamentService.getByKey(tournamentId);
 
             // collect the data
-            List<TournamentEntry> tournamentEntries = tournamentEntryService.listForTournament(tournamentId);
-            List<MembershipTableData> membershipTableData = getPurchasedMembershipInformation(tournamentEntries);
+            // get all tournament entry ids based on events that were confirmed -
+            // this will filer out those who withdrew completely
+            Set<Long> tournamentEntryIds = new HashSet<>();
+            this.tournamentEventEntryService.listAllForTournament(tournamentId).forEach(tournamentEventEntry -> {
+                if (tournamentEventEntry.getStatus() == EventEntryStatus.ENTERED) {
+                    tournamentEntryIds.add(tournamentEventEntry.getTournamentEntryFk());
+                }
+            });
+            // filter out those who don't have user profile specified
+            List<TournamentEntry> tournamentEntries = this.tournamentEntryService.listEntries(new ArrayList<>(tournamentEntryIds));
+            log.info("Collected " + tournamentEntries.size() + " tournament entries for tournament " + tournamentId);
+            Set<String> userIds = new HashSet<>();
+            for (TournamentEntry tournamentEntry : tournamentEntries) {
+                userIds.add(tournamentEntry.getProfileId());
+            }
+            Collection<UserProfile> userProfiles = userProfileService.listByProfileIds(new ArrayList<>(userIds));
+
+            List<MembershipTableData> membershipTableData = getPurchasedMembershipInformation(tournamentEntries, userProfiles);
             double totalDonations = getTotalDonations(tournamentEntries);
 
 //            String card4Digits = getCreditCardForPayment (tournament);
@@ -420,9 +441,10 @@ public class TournamentReportService {
 
     /**
      * @param tournamentEntries
+     * @param userProfiles
      * @return
      */
-    private List<MembershipTableData> getPurchasedMembershipInformation(List<TournamentEntry> tournamentEntries) {
+    private List<MembershipTableData> getPurchasedMembershipInformation(List<TournamentEntry> tournamentEntries, Collection<UserProfile> userProfiles) {
 
         List<MembershipTableData> membershipTableData = new ArrayList<>();
         MembershipTableData data = new MembershipTableData();
@@ -472,6 +494,10 @@ public class TournamentReportService {
         for (TournamentEntry tournamentEntry : tournamentEntries) {
             MembershipType membershipOption = tournamentEntry.getMembershipOption();
             if (membershipOption != MembershipType.NO_MEMBERSHIP_REQUIRED) {
+                userProfiles.forEach(userProfile -> { if (userProfile.getUserId().equals(tournamentEntry.getProfileId()) ) {
+                    System.out.println(userProfile.getLastName() + ", " + userProfile.getFirstName() + " bought " + membershipOption.name());
+                }
+                });
                 Integer count = membershipTypeToCountMap.get(membershipOption);
                 count++;
                 membershipTypeToCountMap.put(membershipOption, count);
@@ -487,6 +513,33 @@ public class TournamentReportService {
 
         return membershipTableData;
     }
+
+    /**
+     * Gets profile ids of all players who entered any event
+     * @param tournamentId
+     * @return
+     */
+    private Set<String> getPlayersWhoEnteredAnyEvent(long tournamentId){
+        Set<String> uniqueProfileIdsSet = new HashSet<>();
+
+        // find all confirmed entries into events
+        Set<Long> tournamentEntryIds = new HashSet<>();
+        this.tournamentEventEntryService.listAllForTournament(tournamentId).forEach(tournamentEventEntry -> {
+            if (tournamentEventEntry.getStatus() == EventEntryStatus.ENTERED) {
+                tournamentEntryIds.add(tournamentEventEntry.getTournamentEntryFk());
+            }
+        });
+
+        this.tournamentEntryService.listEntries(new ArrayList<>(tournamentEntryIds)).forEach(tournamentEntry -> {
+            if (!StringUtils.isEmpty(tournamentEntry.getProfileId())) {
+                uniqueProfileIdsSet.add(tournamentEntry.getProfileId());
+            }
+        });
+
+        log.info("Found " + uniqueProfileIdsSet.size() + " unique player ids who entered any event for tournament " + tournamentId);
+        return uniqueProfileIdsSet;
+    }
+
 
     private class MembershipTableData {
         MembershipType membershipType;

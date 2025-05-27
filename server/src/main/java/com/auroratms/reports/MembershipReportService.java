@@ -328,7 +328,7 @@ public class MembershipReportService {
      * @return
      */
     private List<ReportData> prepareReportData(long tournamentId) {
-        Set<String> playersWhoPlayedProfileIds = getPlayersWhoEnteredAnyEvent(tournamentId);
+        Set<String> playersWhoEnteredAnyEvent = getPlayersWhoEnteredAnyEvent(tournamentId);
 
         // get all tournament entries for this tournament and collect player profiles ids
         // of players who bought some type of membership
@@ -337,7 +337,7 @@ public class MembershipReportService {
         for (TournamentEntry tournamentEntry : tournamentEntries) {
             MembershipType membershipOption = tournamentEntry.getMembershipOption();
             if (membershipOption != MembershipType.NO_MEMBERSHIP_REQUIRED) {
-                if (playersWhoPlayedProfileIds.contains(tournamentEntry.getProfileId())) {
+                if (playersWhoEnteredAnyEvent.contains(tournamentEntry.getProfileId())) {
                     profileIdToPurchasedMembershipTypesMap.put(tournamentEntry.getProfileId(), membershipOption);
                 }
             }
