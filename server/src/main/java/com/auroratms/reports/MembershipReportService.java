@@ -2,6 +2,9 @@ package com.auroratms.reports;
 
 import com.auroratms.club.ClubEntity;
 import com.auroratms.club.ClubService;
+import com.auroratms.event.TournamentEventEntityService;
+import com.auroratms.match.MatchCardService;
+import com.auroratms.match.MatchService;
 import com.auroratms.profile.UserProfile;
 import com.auroratms.profile.UserProfileExt;
 import com.auroratms.profile.UserProfileExtService;
@@ -11,6 +14,8 @@ import com.auroratms.tournament.TournamentService;
 import com.auroratms.tournamententry.MembershipType;
 import com.auroratms.tournamententry.TournamentEntry;
 import com.auroratms.tournamententry.TournamentEntryService;
+import com.auroratms.tournamentevententry.EventEntryStatus;
+import com.auroratms.tournamentevententry.TournamentEventEntryService;
 import com.auroratms.usatt.UsattDataService;
 import com.auroratms.usatt.UsattPlayerRecord;
 import com.itextpdf.io.font.constants.StandardFonts;
@@ -64,6 +69,18 @@ public class MembershipReportService {
 
     @Autowired
     private TournamentEntryService tournamentEntryService;
+
+    @Autowired
+    private TournamentEventEntityService tournamentEventEntityService;
+
+    @Autowired
+    private MatchCardService matchCardService;
+
+    @Autowired
+    private TournamentEventEntryService tournamentEventEntryService;
+
+    @Autowired
+    private MatchService matchService;
 
     @Autowired
     private TournamentService tournamentService;
@@ -321,21 +338,23 @@ public class MembershipReportService {
      * @return
      */
     private List<ReportData> prepareReportData(long tournamentId) {
+        Set<String> playersWhoPlayedProfileIds = getPlayersWhoEnteredAnyEvent(tournamentId);
+
         // get all tournament entries for this tournament and collect player profiles ids
         // of players who bought some type of membership
         List<TournamentEntry> tournamentEntries = tournamentEntryService.listForTournament(tournamentId);
-        Set<String> uniqueProfileIdsSet = new HashSet<>();
         Map<String, MembershipType> profileIdToPurchasedMembershipTypesMap = new HashMap<>();
         for (TournamentEntry tournamentEntry : tournamentEntries) {
             MembershipType membershipOption = tournamentEntry.getMembershipOption();
             if (membershipOption != MembershipType.NO_MEMBERSHIP_REQUIRED) {
-                uniqueProfileIdsSet.add(tournamentEntry.getProfileId());
-                profileIdToPurchasedMembershipTypesMap.put(tournamentEntry.getProfileId(), membershipOption);
+                if (playersWhoPlayedProfileIds.contains(tournamentEntry.getProfileId())) {
+                    profileIdToPurchasedMembershipTypesMap.put(tournamentEntry.getProfileId(), membershipOption);
+                }
             }
         }
 
         // get profile information for those who bought it
-        List<String> profileIds = new ArrayList<>(uniqueProfileIdsSet);
+        List<String> profileIds = new ArrayList<>(profileIdToPurchasedMembershipTypesMap.keySet());
         Collection<UserProfile> userProfiles = userProfileService.listByProfileIds(profileIds);
         List<UserProfile> userProfileList = new ArrayList<>(userProfiles);
         Comparator<UserProfile> comparator = Comparator.comparing(UserProfile::getLastName)
@@ -382,6 +401,32 @@ public class MembershipReportService {
         List<Long> clubIds = new ArrayList<>(uniqueClubIds);
         allMemberClubs = clubService.findAllByIdIn(clubIds);
         return reportDataList;
+    }
+
+    /**
+     * Gets profile ids of all players who entered any event
+     * @param tournamentId
+     * @return
+     */
+    private Set<String> getPlayersWhoEnteredAnyEvent(long tournamentId){
+        Set<String> uniqueProfileIdsSet = new HashSet<>();
+
+        // find all confirmed entries into events
+        Set<Long> tournamentEntryIds = new HashSet<>();
+        this.tournamentEventEntryService.listAllForTournament(tournamentId).forEach(tournamentEventEntry -> {
+            if (tournamentEventEntry.getStatus() == EventEntryStatus.ENTERED) {
+                tournamentEntryIds.add(tournamentEventEntry.getTournamentEntryFk());
+            }
+        });
+
+        this.tournamentEntryService.listEntries(new ArrayList<>(tournamentEntryIds)).forEach(tournamentEntry -> {
+            if (!StringUtils.isEmpty(tournamentEntry.getProfileId())) {
+                uniqueProfileIdsSet.add(tournamentEntry.getProfileId());
+            }
+        });
+
+        log.info("Found " + uniqueProfileIdsSet.size() + " unique player ids who entered any event for tournament " + tournamentId);
+        return uniqueProfileIdsSet;
     }
 
     private class ReportData {

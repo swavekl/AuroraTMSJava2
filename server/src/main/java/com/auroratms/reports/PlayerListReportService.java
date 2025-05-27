@@ -379,10 +379,20 @@ public class PlayerListReportService {
             playerReportInfo.zipCode = (userProfile.getZipCode() != null) ? userProfile.getZipCode() : "";
 
             UserProfileExt userProfileExt = profileIdToUserExtProfileMap.get(playerProfileId);
-            playerReportInfo.membershipId = userProfileExt.getMembershipId();
+            if (userProfileExt != null) {
+                playerReportInfo.membershipId = userProfileExt.getMembershipId();
+            } else {
+                playerReportInfo.membershipId = 0;
+                log.warn("Unable to find membership id for player " + playerProfileId + " ( " + userProfile.getLastName() + ", "
+                        + userProfile.getFirstName() + ") - setting membership id to 0 and skipping this player's data in the report");
+            }
 
-            Date membershipExpirationDate = membershipIdToExpirationDateMap.get(playerReportInfo.membershipId);
-            playerReportInfo.membershipExpirationDate = (membershipExpirationDate != null) ? dateFormat.format(membershipExpirationDate) : "T.B.D.";
+            if (playerReportInfo.membershipId != 0) {
+                Date membershipExpirationDate = membershipIdToExpirationDateMap.get(playerReportInfo.membershipId);
+                playerReportInfo.membershipExpirationDate = (membershipExpirationDate != null) ? dateFormat.format(membershipExpirationDate) : "T.B.D.";
+            } else {
+                playerReportInfo.membershipExpirationDate = "T.B.D.";
+            }
 
             profileIdToReportInfoMap.put(playerProfileId, playerReportInfo);
         }
