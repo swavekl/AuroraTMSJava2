@@ -317,7 +317,8 @@ public class PlayerListReportService {
                 Collections.sort(allMatchCardsForEvent, comparator);
                 List<Match> matchesForEvent = matchService.findAllByMatchCardIn(allMatchCardsForEvent);
                 for (Match match : matchesForEvent) {
-                    if (match.isMatchFinished(tournamentEvent.getNumberOfGames(), tournamentEvent.getPointsPerGame())) {
+                    MatchCard matchCard = match.getMatchCard();
+                    if (match.isMatchFinished(matchCard.getNumberOfGames(), tournamentEvent.getPointsPerGame())) {
                         if (!match.isSideADefaulted()) {
                             uniqueProfileIdsSet.add(match.getPlayerAProfileId());
                         }

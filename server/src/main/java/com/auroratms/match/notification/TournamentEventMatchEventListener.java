@@ -67,7 +67,7 @@ public class TournamentEventMatchEventListener {
             boolean oldMatchScoresEntered = matchScoresEntered;
 
             Match matchAfter = matchUpdateEvent.getMatchAfter();
-            boolean matchFinished = matchAfter.isMatchFinished(tournamentEvent.getNumberOfGames(), tournamentEvent.getPointsPerGame());
+            boolean matchFinished = matchAfter.isMatchFinished(matchCard.getNumberOfGames(), tournamentEvent.getPointsPerGame());
             boolean updateEvent = false;
             if (!matchFinished) {
                 List<MatchCard> allMatchCards = matchCardService.findAllForEvent(eventFk);
@@ -75,7 +75,7 @@ public class TournamentEventMatchEventListener {
                 log.info("Got " + allMatchesForEvent.size() + " matches for " + allMatchCards.size() + " match cards");
                 int countEnteredMatches = 0;
                 for (Match match : allMatchesForEvent) {
-                    if (match.isMatchFinished(tournamentEvent.getNumberOfGames(),tournamentEvent.getPointsPerGame())) {
+                    if (match.isMatchFinished(matchCard.getNumberOfGames(), tournamentEvent.getPointsPerGame())) {
                         countEnteredMatches++;
                     }
                 }

@@ -144,7 +144,7 @@ public class ResultsReportService {
         UserProfileExt playerAUserProfileExt = userProfileExtMap.get(match.getPlayerAProfileId());
         UserProfileExt playerBUserProfileExt = userProfileExtMap.get(match.getPlayerBProfileId());
         if (playerAUserProfileExt != null && playerBUserProfileExt != null) {
-            boolean playerAIsMatchWinner = match.isMatchWinner(match.getPlayerAProfileId(), tournamentEvent.getNumberOfGames(), tournamentEvent.getPointsPerGame());
+            boolean playerAIsMatchWinner = match.isMatchWinner(match.getPlayerAProfileId(), matchCard.getNumberOfGames(), tournamentEvent.getPointsPerGame());
             Long winnerMembershipId = (playerAIsMatchWinner) ? playerAUserProfileExt.getMembershipId() : playerBUserProfileExt.getMembershipId();
             Long loserMembershipId = (!playerAIsMatchWinner) ? playerAUserProfileExt.getMembershipId() : playerBUserProfileExt.getMembershipId();
             String compactResult = match.getCompactResult(matchCard.getNumberOfGames(), tournamentEvent.getPointsPerGame());
