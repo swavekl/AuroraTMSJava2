@@ -75,7 +75,8 @@ public class TournamentEventMatchEventListener {
                 log.info("Got " + allMatchesForEvent.size() + " matches for " + allMatchCards.size() + " match cards");
                 int countEnteredMatches = 0;
                 for (Match match : allMatchesForEvent) {
-                    if (match.isMatchFinished(matchCard.getNumberOfGames(), tournamentEvent.getPointsPerGame())) {
+                    MatchCard matchCardOfMatch = match.getMatchCard();
+                    if (match.isMatchFinished(matchCardOfMatch.getNumberOfGames(), tournamentEvent.getPointsPerGame())) {
                         countEnteredMatches++;
                     }
                 }
