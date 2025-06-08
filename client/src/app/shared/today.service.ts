@@ -58,6 +58,12 @@ export class TodayService {
     // const utcMoment = moment([2023, 0, 14, 0, 0, 0]);
     // const utcMoment = moment([2023, 0, 13, 0, 0, 0]);
     // const utcMoment = moment([2023, 0, 12, 0, 0, 0]);  // day before
+    // 2025 Aurora Cup Real - RR & Single Elimination May 23-25, 2025
+    // const utcMoment = moment([2025, 4, 26, 0, 0, 0]);  // results
+    // const utcMoment = moment([2025, 4, 25, 0, 0, 0]);
+    // const utcMoment = moment([2025, 4, 24, 0, 0, 0]);
+    // const utcMoment = moment([2025, 4, 23, 0, 0, 0]);
+    // const utcMoment = moment([2025, 4, 22, 0, 0, 0]);  // day before
     // Prisco Mini - Single Elimination
     // const utcMoment = moment([2023, 8, 30, 5, 0, 0]);
     // Aurora Fall Open - Giant RR

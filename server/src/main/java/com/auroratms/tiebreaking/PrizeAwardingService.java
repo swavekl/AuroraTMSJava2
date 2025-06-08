@@ -5,6 +5,7 @@ import com.auroratms.event.DrawMethod;
 import com.auroratms.event.PrizeInfo;
 import com.auroratms.event.TournamentEvent;
 import com.auroratms.event.TournamentEventEntityService;
+import com.auroratms.match.Match;
 import com.auroratms.match.MatchCard;
 import com.auroratms.match.MatchCardService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -17,6 +18,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static com.auroratms.draw.DrawItem.TBD_PROFILE_ID;
 
 @Service
 @Slf4j
@@ -171,6 +174,29 @@ public class PrizeAwardingService {
 
                             String winningPlayerProfileId = playerRankingsMap.get(Integer.toString(1));
                             finalPlayerRankings.put(1, winningPlayerProfileId);
+                        }
+                    }
+                } else {
+                    // if there is no 4th player to play a match for 3rd nd 4th place, so there is no player rankings map
+                    // just get this player's profile id and put him/her in the 3rd place
+                    if (roundToAssignPrizes == 2 && tournamentEvent.isPlay3rd4thPlace() && matchCard.getGroupNum() == 2) {
+                        List<Match> matches = matchCard.getMatches();
+                        if (!matches.isEmpty()) {
+                            Match match = matches.get(0);
+                            String playerAProfileId = match.getPlayerAProfileId();
+                            if (TBD_PROFILE_ID.equals(playerAProfileId)) {
+                                List<MatchCard> matchCardsForRoundOf4 = getMatchCardsForRound(seMatchCards, 4);
+                                // when a player gets a bye there is no match card for it.
+                                // the match in a round of 4 feeding into this match is in group 1 but if we only see a match in group 2
+                                // there won't be a result from match 1 so we shouldn't wait, just assign 3 place
+                                if (matchCardsForRoundOf4.size() == 1) {
+                                    MatchCard onlyMatchCard = matchCardsForRoundOf4.get(0);
+                                    if (onlyMatchCard.getGroupNum() == 2) {
+                                        String playerBProfileId = match.getPlayerBProfileId();
+                                        finalPlayerRankings.put(3, playerBProfileId);
+                                    }
+                                }
+                            }
                         }
                     }
                 }
