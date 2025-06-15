@@ -46,6 +46,15 @@ export class ReplacePlayerPopupComponent {
   // draw item id which needs to be replaced
   private drawItemToRemove: DrawItem;
 
+  private readonly PLAYER_A_EMPTY = '(empty) A';
+  private readonly PLAYER_B_EMPTY = '(empty) B';
+
+  private readonly PLAYER_A_SIDE = 'A';
+  private readonly PLAYER_B_SIDE = 'B';
+
+  // in doubles events 'A' or 'B', in singles events null
+  private playerSideToRemove: string;
+
   // type of draw we will be modifying
   private drawType: DrawType;
 
@@ -112,13 +121,15 @@ export class ReplacePlayerPopupComponent {
   onReplace() {
     const request: ReplacePlayerRequest = {
       drawItem: this.drawItemToRemove,
-      playerToAddEntryId: this.playerToAddEntryId
+      playerToAddEntryId: this.playerToAddEntryId,
+      playerSideToRemove: this.playerSideToRemove
     };
     this.dialogRef.close({action: 'ok', request: request});
   }
 
   onSelectPlayerToRemove(playerInfo: PlayerInfo) {
     this.drawItemToRemove = this.findDrawItem(playerInfo);
+    this.playerSideToRemove = playerInfo.playerSide;
     // console.log('this.drawItemToRemove', this.drawItemToRemove);
   }
 
@@ -129,6 +140,36 @@ export class ReplacePlayerPopupComponent {
     }
     const entryInfo = this.findEntryInfo(profileId);
     this.playerToAddEntryId = entryInfo.entryId;
+
+    // todo - finish eligibility rating check
+    // if (this.tournamentEvent.doubles && this.tournamentEvent.maxPlayerRating) {
+    //   const maxTeamRating = this.tournamentEvent.maxPlayerRating;
+    //   // check if they will exceed
+    //   let sideAPlayerRating = 0;
+    //   let sideBPlayerRating = 0;
+    //   const playerProfiles = (this.drawItemToRemove?.playerId != null) ? this.drawItemToRemove.playerId.split(';') : [];
+    //   const playerNames = (this.drawItemToRemove?.playerName != null) ? this.drawItemToRemove.playerName.split('/') : [];
+    //   if (this.playerSideToRemove === this.PLAYER_A_SIDE) {
+    //     sideAPlayerRating = entryInfo.eligibilityRating;
+    //     if (playerProfiles.length > 1 && playerProfiles[1] != this.TBD_PROFILE_ID) {
+    //       const sideBPlayerProfile = playerProfiles[1];
+    //       const sideBPlayerName = (playerNames.length > 1) ? playerNames[1] : this.PLAYER_B_EMPTY;
+    //       const sideBPlayerInfo = this.findPlayerInfo(sideBPlayerProfile, sideBPlayerName, this.drawItemToRemove.placeInGroup, this.PLAYER_B_SIDE);
+    //       sideBPlayerRating = sideBPlayerInfo.rating;
+    //     }
+    //   } else {
+    //     if (playerProfiles.length > 0 && playerProfiles[0] != this.TBD_PROFILE_ID) {
+    //       const sideAPlayerProfile = playerProfiles[0];
+    //       const sideAPlayerName = (playerNames.length > 0) ? playerNames[0] : this.PLAYER_A_EMPTY;
+    //       const sideAPlayerInfo = this.findPlayerInfo(sideAPlayerProfile, sideAPlayerName, this.drawItemToRemove.placeInGroup, this.PLAYER_A_SIDE);
+    //       sideAPlayerRating = sideAPlayerInfo.rating;
+    //     }
+    //     sideBPlayerRating = entryInfo.eligibilityRating;
+    //   }
+    //   if (sideAPlayerRating + sideBPlayerRating >= this.tournamentEvent.maxPlayerRating) {
+    //     console.log('Max rating exceeded' + (sideAPlayerRating + sideBPlayerRating) + ', max is: ' + this.tournamentEvent.maxPlayerRating);
+    //   }
+    // }
   }
 
   /**
@@ -140,18 +181,9 @@ export class ReplacePlayerPopupComponent {
     let groupPlayers: PlayerInfo[] = this.drawItems.filter((drawItem: DrawItem): boolean => {
       return (drawItem.groupNum === groupNum) && drawItem.playerName != null && drawItem.playerId != null;
     }).map((drawItem: DrawItem): PlayerInfo => {
-      return {profileId: drawItem.playerId, playerName: drawItem.playerName, rating: drawItem.rating, placeInGroup: drawItem.placeInGroup, byeNum: 0, seSeedNumber: 0, singleEliminationLineNum: 0};
+      return {profileId: drawItem.playerId, playerName: drawItem.playerName, rating: drawItem.rating, placeInGroup: drawItem.placeInGroup, byeNum: 0,
+        seSeedNumber: 0, singleEliminationLineNum: 0, playerSide: null};
     });
-
-    if (this.tournamentEvent.playersPerGroup > groupPlayers.length) {
-      const groupLen = groupPlayers.length;
-      for (let i = groupLen; i < this.tournamentEvent.playersPerGroup; i++) {
-        groupPlayers.push({profileId: this.TBD_PROFILE_ID, playerName: '(empty)', rating: -1, placeInGroup: i + 1, byeNum: 0, seSeedNumber: 0, singleEliminationLineNum: 0});
-        if (this.tournamentEvent.doubles) {
-          groupPlayers.push({profileId: this.TBD_PROFILE_ID, playerName: '(empty)', rating: -1, placeInGroup: i + 1, byeNum: 0, seSeedNumber: 0, singleEliminationLineNum: 0});
-        }
-      }
-    }
 
     if (this.tournamentEvent.doubles) {
       let doublesPlayers: any [] = [];
@@ -160,11 +192,34 @@ export class ReplacePlayerPopupComponent {
         const playerNames: string[] = doublesTeamPlayers.playerName.split(' / ');
         const placeInGroup = doublesTeamPlayers.placeInGroup;
         if (playerIds?.length === 2 && playerNames?.length === 2) {
-          doublesPlayers.push(this.findPlayerInfo(playerIds[0], playerNames[0], placeInGroup));
-          doublesPlayers.push(this.findPlayerInfo(playerIds[1], playerNames[1], placeInGroup));
+          doublesPlayers.push(this.findPlayerInfo(playerIds[0], playerNames[0], placeInGroup, this.PLAYER_A_SIDE));
+          if (playerNames[1] !== '') {
+            doublesPlayers.push(this.findPlayerInfo(playerIds[1], playerNames[1], placeInGroup, this.PLAYER_B_SIDE));
+          }
+        }
+      }
+      const doublesPlayersPerGroup  = this.tournamentEvent.playersPerGroup * 2
+      const doublesPlayersLen = doublesPlayers.length;
+      if (doublesPlayersPerGroup > doublesPlayersLen) {
+        for (let i = doublesPlayersLen; i < doublesPlayersPerGroup; i++) {
+          const placeInGroup = Math.floor(i / 2) + 1;
+          const playerName = (i % 2 === 0) ? this.PLAYER_A_EMPTY : this.PLAYER_B_EMPTY;
+          const playerSide = (i % 2 === 0) ? this.PLAYER_A_SIDE: this.PLAYER_B_SIDE;
+          doublesPlayers.push({profileId: this.TBD_PROFILE_ID,
+            playerName: playerName, rating: -1, placeInGroup: placeInGroup,
+            byeNum: 0, seSeedNumber: 0, singleEliminationLineNum: 0, playerSide: playerSide});
         }
       }
       groupPlayers = doublesPlayers;
+    } else {
+      if (this.tournamentEvent.playersPerGroup > groupPlayers.length) {
+        const groupLen = groupPlayers.length;
+        for (let i = groupLen; i < this.tournamentEvent.playersPerGroup; i++) {
+          groupPlayers.push({profileId: this.TBD_PROFILE_ID, playerName: '(empty)', rating: -1, placeInGroup: i + 1, byeNum: 0, seSeedNumber: 0,
+            singleEliminationLineNum: 0,
+            playerSide: null});
+        }
+      }
     }
 
     this.groupPlayers = groupPlayers;
@@ -181,7 +236,8 @@ export class ReplacePlayerPopupComponent {
         placeInGroup: drawItem.placeInGroup,
         byeNum: drawItem.byeNum,
         seSeedNumber: drawItem.seSeedNumber,
-        singleEliminationLineNum: drawItem.singleElimLineNum
+        singleEliminationLineNum: drawItem.singleElimLineNum,
+        playerSide: null
       };
     });
 
@@ -194,8 +250,8 @@ export class ReplacePlayerPopupComponent {
         const playerNames: string[] = doublesTeamPlayers.playerName.split(' / ');
         const placeInGroup = doublesTeamPlayers.placeInGroup;
         if (playerIds?.length === 2 && playerNames?.length === 2) {
-          doublesPlayers.push(this.findPlayerInfo(playerIds[0], playerNames[0], placeInGroup));
-          doublesPlayers.push(this.findPlayerInfo(playerIds[1], playerNames[1], placeInGroup));
+          doublesPlayers.push(this.findPlayerInfo(playerIds[0], playerNames[0], placeInGroup, this.PLAYER_A_SIDE));
+          doublesPlayers.push(this.findPlayerInfo(playerIds[1], playerNames[1], placeInGroup, this.PLAYER_B_SIDE));
         }
       }
       firstRoundPlayers = doublesPlayers;
@@ -205,14 +261,16 @@ export class ReplacePlayerPopupComponent {
   }
 
 /**
-   * Finds player info for doubles player so we can show individual player ratings
-   * @param profileId
-   * @param playerName
-   * @param placeInGroup
-   * @private
-   */
-  private findPlayerInfo(profileId: string, playerName: string, placeInGroup: number) {
-    let playerInfo: PlayerInfo = {profileId: profileId, playerName: playerName, rating: 0, placeInGroup: placeInGroup, byeNum: 0, seSeedNumber: 0, singleEliminationLineNum: 0};
+ * Finds player info for doubles player so we can show individual player ratings
+ * @param profileId
+ * @param playerName
+ * @param placeInGroup
+ * @param playerSide
+ * @private
+ */
+  private findPlayerInfo(profileId: string, playerName: string, placeInGroup: number, playerSide: string) {
+    let playerInfo: PlayerInfo = {profileId: profileId, playerName: playerName, rating: 0, placeInGroup: placeInGroup, byeNum: 0,
+      seSeedNumber: 0, singleEliminationLineNum: 0, playerSide: playerSide};
     // console.log('Finding player rating in doubles', playerName);
     if (this.filteredPlayers != null) {
       const foundPlayers: PlayerInfo[] = this.filteredPlayers.filter((pi: PlayerInfo): boolean => {
@@ -240,6 +298,7 @@ export class ReplacePlayerPopupComponent {
           const filteredPlayers = entryInfos.map((entryInfo: TournamentEntryInfo) => {
             const playerInfo: PlayerInfo = {
               playerName: `${entryInfo.lastName}, ${entryInfo.firstName}`,
+              playerSide: null,
               profileId: entryInfo.profileId,
               rating: entryInfo.seedRating,
               placeInGroup: 0, byeNum: 0, seSeedNumber: 0, singleEliminationLineNum: 0
@@ -370,24 +429,33 @@ export class ReplacePlayerPopupComponent {
   private findDrawItem(playerInfo: PlayerInfo): DrawItem {
     const playerDrawItems = this.drawItems.filter(
       (drawItem: DrawItem) => {
-        if (this.drawType === DrawType.ROUND_ROBIN) {
-          return drawItem.playerId === playerInfo.profileId && drawItem.groupNum == this.selectedGroup;
+        if (this.tournamentEvent.doubles) {
+          if (this.drawType === DrawType.ROUND_ROBIN) {
+            return (drawItem.playerId.indexOf(playerInfo.profileId) !== -1) && drawItem.groupNum == this.selectedGroup;
+          } else {
+            return (drawItem.playerId.indexOf(playerInfo.profileId) !== -1) && drawItem.singleElimLineNum === playerInfo.singleEliminationLineNum;
+          }
         } else {
-          return drawItem.playerId === playerInfo.profileId && drawItem.singleElimLineNum === playerInfo.singleEliminationLineNum;
+          if (this.drawType === DrawType.ROUND_ROBIN) {
+            return drawItem.playerId === playerInfo.profileId && drawItem.groupNum == this.selectedGroup;
+          } else {
+            return drawItem.playerId === playerInfo.profileId && drawItem.singleElimLineNum === playerInfo.singleEliminationLineNum;
+          }
         }
       });
     // console.log('playerDrawItems', playerDrawItems);
     return (playerDrawItems?.length === 1) ? playerDrawItems[0] : this.makeEmptyDrawItem(
-      playerInfo.profileId, playerInfo.placeInGroup);
+      playerInfo.profileId, playerInfo.placeInGroup, playerInfo.playerName);
   }
 
   /**
-   *
+   * Makes an empty draw item
    * @param profileId
    * @param placeInGroup
+   * @param playerName
    * @private
    */
-  private makeEmptyDrawItem(profileId: string, placeInGroup: number): DrawItem {
+  private makeEmptyDrawItem(profileId: string, placeInGroup: number, playerName: string): DrawItem {
     return {
       id: null,
       eventFk: this.tournamentEvent.id,
@@ -402,7 +470,7 @@ export class ReplacePlayerPopupComponent {
       conflictType: ConflictType.NO_CONFLICT,
       rating: 0,
       // transient values
-      playerName: null,
+      playerName: playerName,
       clubName: null,
       state: null,
       entryId: 0
@@ -423,10 +491,13 @@ export interface ReplacePlayerRequest {
   drawItem: DrawItem;
   // entry id of a player to be placed in this draw item
   playerToAddEntryId: number;
+  // player side to replace in doubles A or B, null in singles
+  playerSideToRemove: string;
 }
 
 export interface PlayerInfo {
   placeInGroup: number;
+  playerSide: string;  // for doubles A or B, for singles null
   playerName: string;
   profileId: string;
   rating: number;

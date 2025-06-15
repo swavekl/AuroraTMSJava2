@@ -76,8 +76,10 @@ import {tap} from 'rxjs/operators';
    * Replaces player in the draw item with player of given tournament entry id
    * @param drawItem
    * @param playerToAddEntryId
+   * @param tournamentId
+   * @param playerSideToRemove
    */
-  replacePlayerInDraw(drawItem: DrawItem, playerToAddEntryId: number, tournamentId: number): Observable<DrawItem> {
-    return this.drawDataService.replacePlayerInDraw(drawItem, playerToAddEntryId, tournamentId);
+  replacePlayerInDraw(drawItem: DrawItem, playerToAddEntryId: number, tournamentId: number, playerSideToRemove: string): Observable<DrawItem> {
+    return this.drawDataService.replacePlayerInDraw(drawItem, playerToAddEntryId, tournamentId, playerSideToRemove);
   }
 }

@@ -40,6 +40,9 @@ import java.util.stream.Collectors;
 @Transactional
 public class DrawController {
 
+    public static final String PLAYER_A_SIDE = "A";
+    public static final String PLAYER_B_SIDE = "B";
+
     private DrawService drawService;
 
     private TournamentEventEntityService eventService;
@@ -191,12 +194,16 @@ public class DrawController {
      * @param profileIds
      */
     private void fillDoublesTeamPlayerNames(Map<String, UserProfileExt> userProfileExtMap, List<UsattPlayerRecord> usattPlayerRecordList, DrawItem drawItem, String [] profileIds) {
-        fillPlayerNameAndState(userProfileExtMap, usattPlayerRecordList, drawItem, profileIds[0]);
+        String playerAProfileId = (profileIds.length >= 1) ? profileIds[0] : DrawItem.TBD_PROFILE_ID;
+        String playerBProfileId = (profileIds.length == 2) ? profileIds[1] : DrawItem.TBD_PROFILE_ID;
+        fillPlayerNameAndState(userProfileExtMap, usattPlayerRecordList, drawItem, playerAProfileId);
         String playerAState = (!StringUtils.isEmpty(drawItem.getState())) ? drawItem.getState() : "N/A";
         String playerAName = drawItem.getPlayerName();
-        fillPlayerNameAndState(userProfileExtMap, usattPlayerRecordList, drawItem, profileIds[1]);
-        String playerBState = (!StringUtils.isEmpty(drawItem.getState())) ? drawItem.getState() : "N/A";
-        String playerBName = drawItem.getPlayerName();
+        if (profileIds.length == 2) {
+            fillPlayerNameAndState(userProfileExtMap, usattPlayerRecordList, drawItem, playerBProfileId);
+        }
+        String playerBState = (profileIds.length == 2 && !StringUtils.isEmpty(drawItem.getState())) ? drawItem.getState() : "N/A";
+        String playerBName = (profileIds.length == 2) ? drawItem.getPlayerName() : "";
 
         String teamPlayerNames = playerAName + " / " + playerBName;
         drawItem.setPlayerName(teamPlayerNames);
@@ -235,10 +242,14 @@ public class DrawController {
      * @param profileIds
      */
     private void fillDoublesTeamClubNames(Map<String, UserProfileExt> userProfileExtMap, List<ClubEntity> clubEntityList, DrawItem drawItem, String [] profileIds) {
-        fillClubName(userProfileExtMap, clubEntityList, drawItem, profileIds[0]);
+        String playerAProfileId = (profileIds.length >= 1) ? profileIds[0] : DrawItem.TBD_PROFILE_ID;
+        String playerBProfileId = (profileIds.length == 2) ? profileIds[1] : DrawItem.TBD_PROFILE_ID;
+        fillClubName(userProfileExtMap, clubEntityList, drawItem, playerAProfileId);
         String playerAClubName = (!StringUtils.isEmpty(drawItem.getClubName())) ? drawItem.getClubName() : "N/A";
-        fillClubName(userProfileExtMap, clubEntityList, drawItem, profileIds[1]);
-        String playerBClubName = (!StringUtils.isEmpty(drawItem.getClubName())) ? drawItem.getClubName() : "N/A";
+        if (profileIds.length == 2) {
+            fillClubName(userProfileExtMap, clubEntityList, drawItem, playerBProfileId);
+        }
+        String playerBClubName = (profileIds.length == 2 && !StringUtils.isEmpty(drawItem.getClubName())) ? drawItem.getClubName() : "N/A";
         String teamClubNames = playerAClubName + " / " + playerBClubName;
         drawItem.setClubName(teamClubNames);
     }
@@ -525,10 +536,11 @@ public class DrawController {
 
     @PutMapping("/replace")
     @PreAuthorize("hasAuthority('TournamentDirectors') or hasAuthority('Admins') or hasAuthority('Referees')")
-    public @ResponseBody ResponseEntity<Void>
+    public @ResponseBody ResponseEntity
     replaceDrawItem(@RequestBody DrawItem drawItem,
                     @RequestParam(name = "playerToAddEntryId") Long playerToAddEntryId,
-                    @RequestParam(name = "tournamentId") Long tournamentId) {
+                    @RequestParam(name = "tournamentId") Long tournamentId,
+                    @RequestParam(name = "playerSideToRemove", required = false) String playerSideToRemove) {
         try {
             // find player to remove entry so we can remove him from the event confirmed state
             // to waiting list - needed to keep the payment ?
@@ -589,8 +601,6 @@ public class DrawController {
                 eventService.update(tournamentEvent);
             }
 
-            // finally update the draw item
-            drawItem.setPlayerId(tournamentEntry.getProfileId());
             List<DrawItem> existingDrawItems = this.drawService.list(tournamentEvent.getId(), drawItem.getDrawType());
             // get only the first round of single elimination round
             if (drawItem.getDrawType() == DrawType.SINGLE_ELIMINATION) {
@@ -615,19 +625,60 @@ public class DrawController {
                         drawItemToDelete = existingDrawItem;
                     }
                 }
+
                 if (drawItemToDelete != null) {
-                    log.info("Deleting existing draw item: " + existingDrawItem);
-                    this.drawService.deleteDrawItem(existingDrawItem);
                     break;
                 }
             }
-            drawItem.setRating(tournamentEntry.getSeedRating());
+
+            // finally update the draw item
+            String profileId = tournamentEntry.getProfileId();
+            int rating = tournamentEntry.getSeedRating();
+            if (tournamentEvent.isDoubles()) {
+                String teamPlayerName = drawItem.getPlayerName();
+                String playerAProfileId = "";
+                String playerBProfileId = "";
+                if (PLAYER_A_SIDE.equals(playerSideToRemove)) {
+                    playerAProfileId = tournamentEntry.getProfileId();
+                } else if (PLAYER_B_SIDE.equals(playerSideToRemove)) {
+                    playerBProfileId = tournamentEntry.getProfileId() ;
+                }
+
+                if (drawItemToDelete != null) {
+                    String oldPlayerId = drawItemToDelete.getPlayerId();
+                    String[] oldPlayerIds = oldPlayerId.split(";");
+                    String partnerProfileId = null;
+                    if (PLAYER_A_SIDE.equals(playerSideToRemove)) {
+                        playerBProfileId = oldPlayerIds[1];
+                        partnerProfileId = playerBProfileId;
+                    } else if (PLAYER_B_SIDE.equals(playerSideToRemove)) {
+                        playerAProfileId = oldPlayerIds[0];
+                        partnerProfileId = playerAProfileId;
+                    }
+                    int partnerSeedRating = 0;
+                    if (!StringUtils.isEmpty(partnerProfileId)) {
+                        List<TournamentEntry> tournamentEntries = entryService.listForTournamentAndUser(tournamentId, partnerProfileId);
+                        if (!tournamentEntries.isEmpty()) {
+                            TournamentEntry partnerTournamentEntry = tournamentEntries.get(0);
+                            partnerSeedRating = partnerTournamentEntry.getSeedRating();
+                        }
+                    }
+                    rating = tournamentEntry.getSeedRating() + partnerSeedRating;
+                }
+                profileId = String.format("%s;%s", playerAProfileId, playerBProfileId);
+            }
+            drawItem.setPlayerId(profileId);
+            drawItem.setRating(rating);
+            if (drawItemToDelete != null) {
+                log.info("Deleting existing draw item: " + drawItemToDelete);
+                this.drawService.deleteDrawItem(drawItemToDelete);
+            }
             DrawItem updatedDrawItem = this.drawService.save(drawItem);
             log.info("Updated draw item " + updatedDrawItem);
             return ResponseEntity.ok().build();
         } catch (Exception e) {
-            log.error("Error during replace player: " + e.getMessage());
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+            log.error("Error during replace player: ", e);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e);
         }
     }
 }
