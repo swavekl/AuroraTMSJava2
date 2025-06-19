@@ -24,10 +24,10 @@
   </mat-toolbar>
 </form>
 <div class="table-container">
-  <mat-table matSort matSortActive="name" matSortDirection="desc" aria-label="Email Campaigns">
+  <mat-table matSort matSortActive="dateSent" matSortDirection="desc" aria-label="Email Campaigns">
     <!-- Name Column -->
     <ng-container matColumnDef="name">
-      <mat-header-cell *matHeaderCellDef>Template Name</mat-header-cell>
+      <mat-header-cell *matHeaderCellDef mat-sort-header>Template Name</mat-header-cell>
       <mat-cell *matCellDef="let emailCampaign"
                 [routerLink]="['/ui/email/emailcampaign/edit', tournamentId, emailCampaign.id]"
                 [state]="{ tournamentName: tournamentName }"
@@ -35,7 +35,7 @@
       </mat-cell>
     </ng-container>
     <ng-container matColumnDef="tournamentName">
-      <mat-header-cell *matHeaderCellDef>Sent for Tournament</mat-header-cell>
+      <mat-header-cell *matHeaderCellDef mat-sort-header>Sent for Tournament</mat-header-cell>
       <mat-cell *matCellDef="let emailCampaign"
                 [routerLink]="['/ui/email/emailcampaign/edit', tournamentId, emailCampaign.id]"
                 [state]="{ tournamentName: tournamentName }"
@@ -43,7 +43,7 @@
       </mat-cell>
     </ng-container>
     <ng-container matColumnDef="dateSent">
-      <mat-header-cell *matHeaderCellDef>Date Sent</mat-header-cell>
+      <mat-header-cell *matHeaderCellDef mat-sort-header>Date Sent</mat-header-cell>
       <mat-cell *matCellDef="let emailCampaign"
                 [routerLink]="['/ui/email/emailcampaign/edit', tournamentId, emailCampaign.id]"
                 [state]="{ tournamentName: tournamentName }"
@@ -51,7 +51,7 @@
       </mat-cell>
     </ng-container>
     <ng-container matColumnDef="emailsCount">
-      <mat-header-cell *matHeaderCellDef>Emails Sent</mat-header-cell>
+      <mat-header-cell *matHeaderCellDef mat-sort-header>Emails Sent</mat-header-cell>
       <mat-cell *matCellDef="let emailCampaign"
                 [routerLink]="['/ui/email/emailcampaign/edit', tournamentId, emailCampaign.id]"
                 [state]="{ tournamentName: tournamentName }"
