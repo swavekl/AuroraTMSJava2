@@ -93,34 +93,36 @@
           </div>
           <div fxFlex="35%">
             <div class="mat-headline-6">Selected Recipients ({{filteredRecipients?.length ?? 0}})</div>
-            <mat-list dense class="recipient-list" #selectedRecipientsCtrl>
-              <mat-list-item *ngFor="let recipient of filteredRecipients"
-                             (click)="onSelectedRecipientClick(recipient)"
-                             (dblclick)="onRemoveRecipient(recipient)"
-                             [matTooltip]="getRecipientTooltip(recipient)">
+            <mat-selection-list class="recipient-list"
+                                multiple="true" aria-label="selected recipients"
+                                (selectionChange)="onSelectedRecipientsSelectionChange($event)">
+              <mat-list-option *ngFor="let recipient of filteredRecipients"
+                               [value]="recipient.emailAddress"
+                               [matTooltip]="getRecipientTooltip(recipient)">
                 {{ getFullName(recipient) }}
-              </mat-list-item>
-            </mat-list>
+              </mat-list-option>
+            </mat-selection-list>
           </div>
           <div fxFlex="10%">
             <div class="mat-headline-6">&nbsp;</div>
             <div class="buttons-panel" fxLayout="column" fxLayoutAlign="center center" fxLayoutGap="20px">
               <button mat-raised-button type="button" (click)="onRemoveAllRecipients()">Remove All >></button>
-              <button mat-raised-button type="button" (click)="onRemoveRecipient(null)">Remove >></button>
-              <button mat-raised-button type="button" (click)="onRestoreRecipient(null)"><< Restore</button>
+              <button mat-raised-button type="button" (click)="onRemoveSelectedRecipients()">Remove >></button>
+              <button mat-raised-button type="button" (click)="onRestoreSelectedRecipients()"><< Restore</button>
               <button mat-raised-button type="button" (click)="onRestoreAllRecipients()"><< Restore All</button>
             </div>
           </div>
           <div fxFlex="35%">
             <div class="mat-headline-6">Removed Recipients ({{emailCampaign?.removedRecipients?.length ?? 0}})</div>
-            <mat-list dense class="recipient-list" #removedRecipientsCtrl>
-              <mat-list-item *ngFor="let recipient of emailCampaign.removedRecipients"
-                             (click)="onRemovedRecipientClick(recipient)"
-                             (dblclick)="onRestoreRecipient(recipient)"
-                             [matTooltip]="getRecipientTooltip(recipient)">
+            <mat-selection-list class="recipient-list"
+                                multiple="true" aria-label="removed recipients"
+                                (selectionChange)="onRemovedRecipientsSelectionChange($event)">
+              <mat-list-option *ngFor="let recipient of emailCampaign.removedRecipients"
+                               [value]="recipient.emailAddress"
+                               [matTooltip]="getRecipientTooltip(recipient)">
                 {{ getFullName(recipient) }}
-              </mat-list-item>
-            </mat-list>
+              </mat-list-option>
+            </mat-selection-list>
           </div>
         </div>
       </mat-tab>

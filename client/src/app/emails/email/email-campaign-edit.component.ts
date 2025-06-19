@@ -6,6 +6,7 @@ import {MatCheckboxChange} from '@angular/material/checkbox';
 import {ConfirmationPopupComponent} from '../../shared/confirmation-popup/confirmation-popup.component';
 import {MatDialog} from '@angular/material/dialog';
 import {StatesList} from '../../shared/states/states-list';
+import {MatSelectionListChange} from '@angular/material/list';
 
 @Component({
   selector: 'app-email-campaign-edit',
@@ -38,8 +39,9 @@ export class EmailCampaignEditComponent  {
   // which of the two fields (subject or body) currently has focus and should receive inserted variable.
   private selectedFieldName: string;
 
-  private selectedRecipient: Recipient;
-  private removedRecipient: Recipient;
+  // emails of selelcted recipients from left and right lists
+  private selectedRecipientEmails: string[] = [];
+  private removedRecipientEmails: string[] = [];
 
   // states to filter by if filtering not by event
   public statesList: any [];
@@ -216,44 +218,12 @@ export class EmailCampaignEditComponent  {
     });
   }
 
-  onRemoveRecipient(clickedRecipient: Recipient) {
-    const recipientToRemove = (clickedRecipient != null) ? clickedRecipient : this.selectedRecipient;
-    if (recipientToRemove != null) {
-      this.filteredRecipients = this.filteredRecipients.filter((recipient: Recipient) => {
-        return (recipient.emailAddress != recipientToRemove?.emailAddress)
-      });
-
-      let modifiedRecipients: Recipient[] = this.emailCampaign.removedRecipients || [];
-      modifiedRecipients.push(recipientToRemove);
-      modifiedRecipients = this.sortRecipients(modifiedRecipients);
-      this.emailCampaign.removedRecipients = modifiedRecipients;
-      this.selectedRecipient = null;
-    }
-  }
-
   getRecipientTooltip(recipient: Recipient): string {
     return recipient.emailAddress + ((recipient.state != null) ? ' (' + recipient.state + ')' : '');
   }
 
   public getFullName(recipient: Recipient) {
     return `${recipient.lastName}, ${recipient.firstName}`;
-  }
-
-  onRestoreRecipient(recipient: Recipient) {
-    const recipientToRestore = (recipient != null) ? recipient : this.removedRecipient;
-    if (recipientToRestore != null) {
-      // remove from list
-      this.emailCampaign.removedRecipients = this.emailCampaign.removedRecipients.filter((recipient: Recipient) => {
-        return (recipient.emailAddress != recipientToRestore?.emailAddress)
-      });
-
-      // add to the other list and sort
-      let modifiedRecipients: Recipient[] = this.filteredRecipients || [];
-      modifiedRecipients.push(recipientToRestore);
-      modifiedRecipients = this.sortRecipients(modifiedRecipients);
-      this.filteredRecipients = modifiedRecipients;
-      this.removedRecipient = null;
-    }
   }
 
   onRemoveAllRecipients() {
@@ -276,15 +246,6 @@ export class EmailCampaignEditComponent  {
       ...this.emailCampaign,
       removedRecipients: []
     };
-  }
-
-
-  onSelectedRecipientClick(recipient: Recipient) {
-    this.selectedRecipient = recipient;
-  }
-
-  onRemovedRecipientClick(recipient: Recipient) {
-    this.removedRecipient = recipient;
   }
 
   copyRecipients() {
@@ -328,4 +289,65 @@ export class EmailCampaignEditComponent  {
   getRecipientsFileStoragePath(): string {
     return `emailcampaignrecipients/${this.emailCampaign.id}`;
   }
+
+  onSelectedRecipientsSelectionChange(event: MatSelectionListChange) {
+    this.selectedRecipientEmails = event.source.selectedOptions.selected.map(item => item.value);
+  }
+
+  onRemoveSelectedRecipients() {
+    // collect recipients to be removed
+    const selectedRecipientEmails = this.selectedRecipientEmails || [];
+    if (selectedRecipientEmails.length > 0) {
+      const recipientsToRemove = this.filteredRecipients.filter((recipient: Recipient) => {
+        return selectedRecipientEmails.includes(recipient.emailAddress);
+      });
+
+      // remove recipients
+      this.filteredRecipients = this.filteredRecipients.filter((recipient: Recipient) => {
+        return !selectedRecipientEmails.includes(recipient.emailAddress);
+      });
+
+      // add them to a removed list
+      let newRemovedRecipients: Recipient[] = this.emailCampaign.removedRecipients || [];
+      newRemovedRecipients = newRemovedRecipients.concat(recipientsToRemove);
+      newRemovedRecipients = this.sortRecipients(newRemovedRecipients);
+      this.emailCampaign = {
+        ...this.emailCampaign,
+        removedRecipients: newRemovedRecipients
+      };
+
+      this.selectedRecipientEmails = [];
+    }
+  }
+
+  onRemovedRecipientsSelectionChange(event: MatSelectionListChange) {
+    this.removedRecipientEmails = event.source.selectedOptions.selected.map(item => item.value);
+  }
+
+  onRestoreSelectedRecipients() {
+    const removedRecipientEmails = this.removedRecipientEmails || [];
+    if (removedRecipientEmails.length > 0) {
+      // collect recipients to be restored
+      const currentRemovedRecipients = this.emailCampaign.removedRecipients || [];
+      const recipientsToRestore = currentRemovedRecipients.filter((recipient: Recipient) => {
+        return removedRecipientEmails.includes(recipient.emailAddress);
+      });
+
+      // restore recipients
+      const updatedRemovedRecipients = currentRemovedRecipients.filter((recipient: Recipient) => {
+        return !removedRecipientEmails.includes(recipient.emailAddress);
+      });
+      this.emailCampaign = {
+        ...this.emailCampaign,
+        removedRecipients: updatedRemovedRecipients
+      };
+      this.removedRecipientEmails = [];
+
+      // add them to a filtered list
+      let updatedFilteredRecipients: Recipient[] = this.filteredRecipients || [];
+      updatedFilteredRecipients = updatedFilteredRecipients.concat(recipientsToRestore);
+      this.filteredRecipients = this.sortRecipients(updatedFilteredRecipients);
+    }
+  }
+
 }
