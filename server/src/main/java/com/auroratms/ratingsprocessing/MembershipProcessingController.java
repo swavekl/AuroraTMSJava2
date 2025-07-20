@@ -88,8 +88,8 @@ public class MembershipProcessingController {
                         if (usattPlayerRecords.size() > 0) {
                             usattDataService.insertNewMembers(usattPlayerRecords, membershipsProcessorStatus);
                         }
-                        membershipsProcessorStatus.phase = "Finished";
                     } finally {
+                        membershipsProcessorStatus.phase = "Finished";
                         membershipsProcessorStatus.endTime = System.currentTimeMillis();
                         processingTask = null;
                         // clean up
