@@ -555,7 +555,13 @@ public class UsattDataService {
             }
 
             if (batchOfExistingRecords.size() > 0) {
-                this.playerRecordRepository.saveAllAndFlush(batchOfExistingRecords);
+                try {
+                    this.playerRecordRepository.saveAllAndFlush(batchOfExistingRecords);
+                } catch (Exception e) {
+                    System.out.println("batchOfExistingRecords = " + batchOfExistingRecords);
+
+                    throw new RuntimeException(e);
+                }
             }
 
             if (!newRecords.isEmpty()) {

@@ -165,14 +165,21 @@ public class RatingsProcessingEventListener implements ApplicationListener<Ratin
                 TournamentEntry tournamentEntry = profileIdToEntryMap.get(profileId);
                 if (tournamentEntry != null) {
                     // update rating
-                    int seedRating = usattPlayerRecord.getTournamentRating();
+                    // keep estimated rating if player didn't play in another tournament yet
+                    boolean estimatedRatingAssigned = (tournamentEntry.getEligibilityRating() == 0 && tournamentEntry.getSeedRating() > 0);
+                    int seedRating = (!estimatedRatingAssigned && usattPlayerRecord.getTournamentRating() > 0)
+                            ? usattPlayerRecord.getTournamentRating()
+                            : tournamentEntry.getSeedRating();
+//                    log.info("estimatedRatingAssigned = " + estimatedRatingAssigned + " seedRating = " + seedRating);
                     boolean seedRatingChanged = (tournamentEntry.getSeedRating() != seedRating);
                     int eligibilityRating = tournamentEntry.getEligibilityRating();
                     int oldEligibilityRating = eligibilityRating;
                     boolean eligibilityRatingChanged = false;
                     if (beforeEligibilityDate) {
                         eligibilityRatingChanged = (eligibilityRating != seedRating);
-                        eligibilityRating = seedRating;
+                        if (!estimatedRatingAssigned && usattPlayerRecord.getTournamentRating() > 0) {
+                            eligibilityRating = seedRating;
+                        }
                     } else {
                         // today is after eligibility date so look through historical records - they may have changed
                         boolean eligibilityRatingFound = false;
