@@ -547,7 +547,7 @@ public class MatchCardService {
         Map<String, String> profileIdToNameMapForEvent = buildProfileIdToNameMap(allMatches);
         long duration = System.currentTimeMillis() - start;
         System.out.println("profileIdToNameMapForEvent.size() = " + profileIdToNameMapForEvent.size());
-        System.out.println("buildProfileIdToNameMap for " + allMatches.size() + " took " + duration);
+        System.out.println("buildProfileIdToNameMap for " + allMatches.size() + " matches took " + duration);
         // optimize retrieval of profile id to player full names map by grouping match cards for each event together
         for (MatchCard matchCard : matchCards) {
             long matchCardId = matchCard.getId();

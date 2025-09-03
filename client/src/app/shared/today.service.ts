@@ -74,6 +74,8 @@ export class TodayService {
     // const utcMoment = moment([2024, 11, 1, 0, 0, 0]);
     // 2024 Regional Championships
     // const utcMoment = moment([2024, 9, 1, 0, 0, 0]);
+    // 2025 Aurora Fall OPen RR - 9/7/2025
+    // const utcMoment = moment([2025, 8, 7, 0, 0, 0]);
     // return utcMoment.toDate();
     return new Date();
   }
