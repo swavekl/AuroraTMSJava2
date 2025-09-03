@@ -12,7 +12,6 @@ import com.auroratms.profile.UserProfileExtService;
 import com.auroratms.profile.UserProfileService;
 import com.auroratms.usatt.UsattDataService;
 import com.auroratms.usatt.UsattPlayerRecord;
-import org.apache.commons.collections.list.TreeList;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
@@ -20,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Service for managing march cards which contain individual matches
@@ -496,59 +496,83 @@ public class MatchCardService {
         return this.matchCardRepository.findMatchCardByEventFkInAndDayOrderByEventFkAscStartTimeAscGroupNumAsc(eventIds, day);
     }
 
-    public void fillPlayerIdToNameMapForAllMatches (List<MatchCard> matchCards) {
-        Set<Long> eventsForMatchCards = new HashSet<>();
-        for (MatchCard matchCard : matchCards) {
-            eventsForMatchCards.add(matchCard.getEventFk());
-        }
+    public void fillPlayerIdToNameMapForAllMatches (List<MatchCard> matchCards, long tournamentId) {
 
+        List<TournamentEvent> doublesEvents = tournamentEventEntityService.listDoublesEvents(tournamentId);
+        List<Long> doublesEventIds = doublesEvents.stream().map(TournamentEvent::getId).collect(Collectors.toList());
+
+        // separate singles and doubles events because player profile ids are combined in doubles events and need to be separated for retrieval
+        Set<Long> singlesEventsForMatchCards = new HashSet<>();
+        Set<Long> doublesEventsForMatchCards = new HashSet<>();
+        for (MatchCard matchCard : matchCards) {
+            long eventFk = matchCard.getEventFk();
+            if (doublesEventIds.contains(eventFk)) {
+                doublesEventsForMatchCards.add(eventFk);
+            } else {
+                singlesEventsForMatchCards.add(eventFk);
+            }
+        }
+        System.out.println("singlesEventsForMatchCards.size() = " + singlesEventsForMatchCards.size());
+        System.out.println("doublesEventsForMatchCards.size() = " + doublesEventsForMatchCards.size());
+
+        List<MatchCard> singlesMatchCards = matchCards.stream()
+                .filter(matchCard -> singlesEventsForMatchCards.contains(matchCard.getEventFk()))
+                .collect(Collectors.toList());
+        List<MatchCard> doublesMatchCards = matchCards.stream()
+                .filter(matchCard -> doublesEventsForMatchCards.contains(matchCard.getEventFk()))
+                .collect(Collectors.toList());
+        System.out.println("singlesMatchCards.size() = " + singlesMatchCards.size());
+        System.out.println("doublesMatchCards.size() = " + doublesMatchCards.size());
+
+        if (!singlesMatchCards.isEmpty()) {
+            fillPlayerProfileForMatchCards(singlesMatchCards, singlesEventsForMatchCards);
+        }
+        if (!doublesMatchCards.isEmpty()) {
+            fillPlayerProfileForMatchCards(doublesMatchCards, doublesEventsForMatchCards);
+        }
+    }
+
+    /**
+     *
+     * @param matchCards
+     * @param eventsForMatchCards
+     */
+    private void fillPlayerProfileForMatchCards(List<MatchCard> matchCards, Set<Long> eventsForMatchCards) {
         // get all matches in one query for all match cards passed in
         // otherwise Hibernate would execute a query to get matches for each match card separately
         List<Match> allMatches = this.matchService.findAllByMatchCardIn(matchCards);
+
+        // produce the map for all matches from these matches
+        long start = System.currentTimeMillis();
+        Map<String, String> profileIdToNameMapForEvent = buildProfileIdToNameMap(allMatches);
+        long duration = System.currentTimeMillis() - start;
+        System.out.println("profileIdToNameMapForEvent.size() = " + profileIdToNameMapForEvent.size());
+        System.out.println("buildProfileIdToNameMap for " + allMatches.size() + " took " + duration);
         // optimize retrieval of profile id to player full names map by grouping match cards for each event together
-        for (Long eventFk : eventsForMatchCards) {
-            List<Match> matchesForThisEvent = new ArrayList<>();
-            // collect matches from all match cards for this event
-            for (MatchCard matchCard : matchCards) {
-                if (matchCard.getEventFk() == eventFk) {
-                    long matchCardId = matchCard.getId();
-                    for (Match match : allMatches) {
-                        if (match.getMatchCard().getId() == matchCardId) {
-                            matchesForThisEvent.add(match);
+        for (MatchCard matchCard : matchCards) {
+            long matchCardId = matchCard.getId();
+            // build profile to name map for all matches for this match card
+            Map<String, String> profileIdNameMap = new HashMap<>();
+            for (Match match : allMatches) {
+                if (match.getMatchCard().getId() == matchCardId) {
+                    String playerAProfileId = match.getPlayerAProfileId();
+                    String playerBProfileId = match.getPlayerBProfileId();
+                    if (playerAProfileId != null && !playerAProfileId.equals(DrawItem.TBD_PROFILE_ID)) {
+                        String playerAFullName = profileIdToNameMapForEvent.get(playerAProfileId);
+                        if (playerAFullName != null) {
+                            profileIdNameMap.put(playerAProfileId, playerAFullName);
+                        }
+                    }
+                    if (playerBProfileId != null && !playerBProfileId.equals(DrawItem.TBD_PROFILE_ID)) {
+                        String playerBFullName = profileIdToNameMapForEvent.get(playerBProfileId);
+                        if (playerBFullName != null) {
+                            profileIdNameMap.put(playerBProfileId, playerBFullName);
                         }
                     }
                 }
             }
-            // produce the map for all matches from these matches
-            Map<String, String> profileIdToNameMapForEvent = buildProfileIdToNameMap(matchesForThisEvent);
-            // split the map by match card
-            for (MatchCard matchCard : matchCards) {
-                if (matchCard.getEventFk() == eventFk) {
-                    long matchCardId = matchCard.getId();
-                    // build profile to name map for all matches for this match card
-                    Map<String, String> profileIdNameMap = new HashMap<>();
-                    for (Match match : allMatches) {
-                        if (match.getMatchCard().getId() == matchCardId) {
-                            String playerAProfileId = match.getPlayerAProfileId();
-                            String playerBProfileId = match.getPlayerBProfileId();
-                            if (playerAProfileId != null && !playerAProfileId.equals(DrawItem.TBD_PROFILE_ID)) {
-                                String playerAFullName = profileIdToNameMapForEvent.get(playerAProfileId);
-                                if (playerAFullName != null) {
-                                    profileIdNameMap.put(playerAProfileId, playerAFullName);
-                                }
-                            }
-                            if (playerBProfileId != null && !playerBProfileId.equals(DrawItem.TBD_PROFILE_ID)) {
-                                String playerBFullName = profileIdToNameMapForEvent.get(playerBProfileId);
-                                if (playerBFullName != null) {
-                                    profileIdNameMap.put(playerBProfileId, playerBFullName);
-                                }
-                            }
-                        }
-                    }
-                    // save to match card
-                    matchCard.setProfileIdToNameMap(profileIdNameMap);
-                }
-            }
+            // save to match card
+            matchCard.setProfileIdToNameMap(profileIdNameMap);
         }
     }
 
@@ -616,7 +640,8 @@ public class MatchCardService {
 //            String fullName = userProfile.getLastName() + ", " + userProfile.getFirstName();
 //            profileIdToNameMap.put(userProfile.getUserId(), fullName);
 //        }
-
+        System.out.println("playerProfileIds.size() = " + playerProfileIds.size());
+        long start = System.currentTimeMillis();
         // get all player names - as if event was an individual event, not doubles event
         List<String> uniquePlayerProfiles = new ArrayList<>(playerProfileIds);
         Map<String, UserProfileExt> userProfileExtMap = this.userProfileExtService.findByProfileIds(uniquePlayerProfiles);
@@ -624,8 +649,13 @@ public class MatchCardService {
         for (UserProfileExt userProfileExt : userProfileExtMap.values()) {
             membershipIdToProfileIdMap.put(userProfileExt.getMembershipId(), userProfileExt.getProfileId());
         }
+        long duration = System.currentTimeMillis() - start;
+        System.out.println("userProfileExtService.findByProfileIds duration = " + duration);
+        start = System.currentTimeMillis();
         List<Long> membershipIds = new ArrayList<>(membershipIdToProfileIdMap.keySet());
         List<UsattPlayerRecord> usattPlayerRecordList = this.usattDataService.findAllByMembershipIdIn(membershipIds);
+        duration = System.currentTimeMillis() - start;
+        System.out.println("usattDataService.findAllByMembershipIdIn duration = " + duration);
 
         Map<String, String> profileIdToNameMap = new HashMap<>();
         for (UsattPlayerRecord usattPlayerRecord : usattPlayerRecordList) {

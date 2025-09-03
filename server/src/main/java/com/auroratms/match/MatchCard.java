@@ -16,7 +16,9 @@ import java.util.List;
 import java.util.Map;
 
 @Entity
-@Table(name = "matchcard")
+@Table(name = "matchcard", indexes = {
+        @Index(name = "idx_eventfk", columnList = "eventFk")
+})
 @Data
 @NoArgsConstructor
 public class MatchCard implements Serializable {

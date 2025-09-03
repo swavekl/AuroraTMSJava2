@@ -11,7 +11,9 @@ import javax.persistence.*;
  * Persistent entity for representing event draw items (round robin or single elimination)
  */
 @Entity
-@Table(name = "drawitem")
+@Table(name = "drawitem", indexes = {
+        @Index(name = "idx_eventfk", columnList = "eventFk")
+})
 @Data
 @NoArgsConstructor
 public class DrawItem {

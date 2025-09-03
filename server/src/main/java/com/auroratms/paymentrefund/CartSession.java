@@ -10,6 +10,10 @@ import java.util.Date;
  * were associated with such sessions.
  */
 @Entity
+@Table(name = "cart_session", indexes = {
+        @Index(name = "idx_sessionid", columnList = "sessionUUID"),
+        @Index(name = "idx_paymentandobjectid", columnList = "paymentRefundFor,objectId")
+})
 public class CartSession {
 
     // unique id

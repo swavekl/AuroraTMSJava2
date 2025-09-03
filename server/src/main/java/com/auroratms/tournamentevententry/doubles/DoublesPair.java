@@ -10,7 +10,9 @@ import javax.persistence.*;
  * Represents information about doubles pair
  */
 @Entity
-@Table(name = "doublespair")
+@Table(name = "doublespair", indexes = {
+        @Index(name = "idx_tournamenteventfk", columnList = "tournamentEventFk")
+})
 @NoArgsConstructor
 @Getter
 @Setter

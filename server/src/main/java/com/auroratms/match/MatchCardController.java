@@ -41,13 +41,16 @@ public class MatchCardController {
             if (eventId != null) {
                 matchCards = matchCardService.findAllForEvent(eventId);
             } else if (tournamentId != null && day != null) {
+//                long start = System.currentTimeMillis();
                 matchCards = matchCardService.findAllForTournamentAndDay(tournamentId, day);
+//                long duration = System.currentTimeMillis() - start;
+//                System.out.println("match cards query duration = " + duration + " found " + matchCards.size() + " match cards");
             }
             if (matchCards != null && Boolean.TRUE.equals(includePlayerNames)) {
 //                    long start = System.currentTimeMillis();
-                matchCardService.fillPlayerIdToNameMapForAllMatches(matchCards);
+                matchCardService.fillPlayerIdToNameMapForAllMatches(matchCards, tournamentId);
 //                    long duration = System.currentTimeMillis() - start;
-//                    System.out.println("optimized duration = " + duration);
+//                    System.out.println("fill player names duration = " + duration);
             }
             return new ResponseEntity<>(matchCards, HttpStatus.OK);
         } catch (Exception e) {

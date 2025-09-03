@@ -14,7 +14,9 @@ import java.io.Serializable;
 @Data
 @NoArgsConstructor
 @Entity
-@Table(name = "userprofileext")
+@Table(name = "userprofileext", indexes = {
+        @Index(name = "idx_profileid", columnList = "profileId")
+})
 public class UserProfileExt implements Serializable {
 
     // Okta profile id

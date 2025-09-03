@@ -99,7 +99,7 @@ public class TournamentResultsService {
     public List<EventResults> getEventResults(long eventId) {
         TournamentEvent tournamentEvent = this.tournamentEventEntityService.get(eventId);
         List<MatchCard> matchCards = this.matchCardService.findAllForEvent(eventId);
-        this.matchCardService.fillPlayerIdToNameMapForAllMatches(matchCards);
+        this.matchCardService.fillPlayerIdToNameMapForAllMatches(matchCards, tournamentEvent.getTournamentFk());
         List<EventResults> resultsList = new ArrayList<>(matchCards.size());
         List<EventResults> seResultsList = new ArrayList<>(matchCards.size());
         Map<String, String> matchToCompactNotationResultMap = new HashMap<>();

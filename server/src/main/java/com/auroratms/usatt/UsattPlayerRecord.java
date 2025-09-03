@@ -14,7 +14,9 @@ import java.util.Objects;
 @RequiredArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "usattplayerrecord")
+@Table(name = "usattplayerrecord", indexes = {
+        @Index(name = "idx_membershipid", columnList = "membershipId")
+})
 public class UsattPlayerRecord {
 
     @Id

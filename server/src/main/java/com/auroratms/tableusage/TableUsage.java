@@ -10,6 +10,9 @@ import java.util.Date;
  * Class which keeps track of table usage at the tournament
  */
 @Entity
+@Table(name = "table_usage", indexes = {
+        @Index(name = "idx_tournamentfk", columnList = "tournamentFk")
+})
 public class TableUsage implements Serializable {
 
     // unique id

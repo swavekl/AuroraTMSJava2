@@ -10,7 +10,9 @@ import java.util.Date;
 import java.util.Objects;
 
 @Entity
-@Table(name = "tournamententry")
+@Table(name = "tournamententry", indexes = {
+    @Index(name = "idx_tournamentfk", columnList = "tournamentFk")
+})
 @NoArgsConstructor
 @Getter
 @Setter
