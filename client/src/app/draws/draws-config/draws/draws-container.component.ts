@@ -267,7 +267,7 @@ export class DrawsContainerComponent implements OnInit, OnDestroy {
   }
 
   private onPrintMatchCards(eventId: number, drawType: DrawType) {
-    let subscription = this.matchCardService.loadForEvent(eventId, true)
+    let subscription = this.matchCardService.loadForEvent(eventId, this.tournamentId, true)
       .pipe(
         switchMap((matchCards: MatchCard[]) => {
           // for single elimination match cards just print the first round for now

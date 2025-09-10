@@ -10,7 +10,9 @@ import java.util.Date;
  * This is needed to be able to get payment intent id in case user wants a refund
  */
 @Entity
-@Table(name = "paymentrefund")
+@Table(name = "paymentrefund", indexes = {
+        @Index(name = "idx_itemidpaymentrefundfor", columnList = "itemId,paymentRefundFor")
+})
 @Data
 @NoArgsConstructor
 public class PaymentRefund {

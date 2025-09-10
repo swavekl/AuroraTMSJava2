@@ -30,6 +30,8 @@ export class PrizeListContainerComponent implements OnInit, OnDestroy {
 
   finishedRRMatchCards$: Observable<MatchCard[]>;
 
+  private tournamentId: number;
+
   private subscriptions: Subscription = new Subscription();
 
   constructor(private tournamentConfigService: TournamentConfigService,
@@ -78,9 +80,9 @@ export class PrizeListContainerComponent implements OnInit, OnDestroy {
       .pipe(
         switchMap((todaysTournaments: Tournament[]) => {
             if (todaysTournaments?.length > 0) {
-              const tournamentId = todaysTournaments[0].id;
+              this.tournamentId = todaysTournaments[0].id;
               // this will be subscribed by the template
-              return this.tournamentEventConfigService.loadTournamentEvents(tournamentId)
+              return this.tournamentEventConfigService.loadTournamentEvents(this.tournamentId)
                 .pipe(
                   first(),
                   tap((events: TournamentEvent[]) => {
@@ -101,7 +103,7 @@ export class PrizeListContainerComponent implements OnInit, OnDestroy {
     for (let i = 0; i < events.length; i++) {
       const event = events[i];
       if (event.drawMethod === DrawMethod.DIVISION && event.playersToAdvance === 0) {
-        this.matchCardService.loadForEvent(event.id, true)
+        this.matchCardService.loadForEvent(event.id, this.tournamentId, true)
           .pipe(
             first(),
             tap((matchCards: MatchCard[]) => {

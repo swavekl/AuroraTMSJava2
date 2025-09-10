@@ -10,7 +10,10 @@ import javax.persistence.*;
  * In order to facilitate check in process for each tournament day or tournament event
  */
 @Entity
-@Table(name = "playerstatus")
+@Table(name = "playerstatus", indexes = {
+        @Index(name = "idx_playerprofileid", columnList = "playerProfileId"),
+        @Index(name = "idx_tournamentidtournamentday", columnList = "tournamentId,tournamentDay")
+})
 @Data
 @NoArgsConstructor
 public class PlayerStatus {

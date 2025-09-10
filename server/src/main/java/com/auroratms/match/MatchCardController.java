@@ -54,6 +54,7 @@ public class MatchCardController {
             }
             return new ResponseEntity<>(matchCards, HttpStatus.OK);
         } catch (Exception e) {
+            log.error("Error getting match cards", e);
             return new ResponseEntity(e, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }

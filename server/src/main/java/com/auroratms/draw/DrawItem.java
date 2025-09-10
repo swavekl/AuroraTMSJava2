@@ -12,7 +12,8 @@ import javax.persistence.*;
  */
 @Entity
 @Table(name = "drawitem", indexes = {
-        @Index(name = "idx_eventfk", columnList = "eventFk")
+        @Index(name = "idx_eventfk", columnList = "eventFk"),
+        @Index(name = "idx_eventfkdrawtype", columnList = "eventFk,drawType")
 })
 @Data
 @NoArgsConstructor
