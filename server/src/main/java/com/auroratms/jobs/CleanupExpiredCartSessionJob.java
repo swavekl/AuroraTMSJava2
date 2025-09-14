@@ -167,10 +167,10 @@ public class CleanupExpiredCartSessionJob implements Job {
                     templateModel.put("tournamentDirectorEmail", contactEmail);
                     templateModel.put("removedEvents", deletedTournamentEvents);
                     templateModel.put("removedTournamentEntry", removedTournamentEntry);
-                    String tournamentEntryUrl = String.format("%s/ui/entries/entryview/%d/edit/%d",
+                    String tournamentEntryUrl = "%s/ui/entries/entryview/%d/edit/%d".formatted(
                             this.clientHostUrl, tournamentFk, tournamentEntry.getId());
                     templateModel.put("tournamentEntryUrl", tournamentEntryUrl);
-                    String emailSubject = String.format("Unfinished entry into '%s'", tournamentName );
+                    String emailSubject = "Unfinished entry into '%s'".formatted(tournamentName);
 
                     log.info("Sending email to " + playerEmail + " about entries for " + tournamentName);
                     emailService.sendMessageUsingThymeleafTemplate(playerEmail, contactEmail, emailSubject,

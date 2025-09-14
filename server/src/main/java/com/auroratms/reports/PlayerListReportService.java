@@ -280,8 +280,7 @@ public class PlayerListReportService {
                     Rectangle pageSize = page.getPageSize();
                     float x = document.getLeftMargin();
                     float y = pageSize.getBottom() + 30;
-                    String footerText = String.format(
-                    "Powered by Aurora TMS                                                Page %d of %d                                          %s",
+                    String footerText = "Powered by Aurora TMS                                                Page %d of %d                                          %s".formatted(
                             pageNumber, numPages, generatedOnDate);
                     Paragraph footerPara = new Paragraph(footerText).setFont(font).setFontSize(10);
                     document.showTextAligned(footerPara, x, y, pageNumber, TextAlignment.LEFT, VerticalAlignment.TOP, 0);

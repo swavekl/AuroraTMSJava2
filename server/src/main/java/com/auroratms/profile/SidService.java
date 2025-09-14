@@ -1,5 +1,6 @@
 package com.auroratms.profile;
 
+import org.springframework.boot.sql.init.dependency.DependsOnDatabaseInitialization;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.acls.jdbc.JdbcMutableAclService;
 import org.springframework.security.acls.jdbc.LookupStrategy;
@@ -14,6 +15,7 @@ import javax.sql.DataSource;
  * profile's email.  Okta doesn't support separating login id from email so we are
  * forced to do this.
  */
+@DependsOnDatabaseInitialization
 @Service
 public class SidService extends JdbcMutableAclService {
 

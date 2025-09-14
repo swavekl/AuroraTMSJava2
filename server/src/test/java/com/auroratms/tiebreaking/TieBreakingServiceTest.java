@@ -7,13 +7,13 @@ import com.auroratms.tiebreaking.model.GroupTieBreakingInfo;
 import com.auroratms.tiebreaking.model.MatchStatus;
 import com.auroratms.tiebreaking.model.PlayerTieBreakingInfo;
 import org.apache.commons.lang3.ArrayUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 @Transactional
 public class TieBreakingServiceTest extends AbstractServiceTest {
@@ -28,16 +28,18 @@ public class TieBreakingServiceTest extends AbstractServiceTest {
         Match match = makeMatch('A', 'B', ArrayUtils.toArray(7, -7, 8, -9, -8), true);
 
         boolean isAWinner = tieBreakingService.isMatchWinner(makePlayerProfileId('A'), match, numberOfGames, pointsPerGame);
-        assertFalse("A should be a loser", isAWinner);
+        assertFalse(isAWinner, "A should be a loser");
         boolean isBWinner = tieBreakingService.isMatchWinner(makePlayerProfileId('B'), match, numberOfGames, pointsPerGame);
-        assertTrue("B should be winner", isBWinner);
+        assertTrue(isBWinner, "B should be winner");
 
         List<Integer> winnerCompactMatchNotation = tieBreakingService.createCompactMatchNotation(match, numberOfGames, false);
         List<Integer> loserCompactMatchNotation = tieBreakingService.createOppositeCompactMatchNotation(winnerCompactMatchNotation);
-        assertEquals("player A games list wrong", ArrayUtils.toArray(7, -7, 8, -9, -8),
-                loserCompactMatchNotation.toArray());
-        assertEquals("player B games list wrong", ArrayUtils.toArray(-7, 7, -8, 9, 8),
-                winnerCompactMatchNotation.toArray());
+        assertArrayEquals(ArrayUtils.toArray(7, -7, 8, -9, -8),
+                loserCompactMatchNotation.toArray(),
+                "player A games list wrong");
+        assertArrayEquals(ArrayUtils.toArray(-7, 7, -8, 9, 8),
+                winnerCompactMatchNotation.toArray(),
+                "player B games list wrong");
     }
 
     @Test
@@ -47,16 +49,18 @@ public class TieBreakingServiceTest extends AbstractServiceTest {
         Match match = makeMatch('A', 'B', ArrayUtils.toArray(7, -7, -8, 0), false);
 
         boolean isAWinner = tieBreakingService.isMatchWinner(makePlayerProfileId('A'), match, numberOfGames, pointsPerGame);
-        assertFalse("A should be a loser", isAWinner);
+        assertFalse(isAWinner, "A should be a loser");
         boolean isBWinner = tieBreakingService.isMatchWinner(makePlayerProfileId('B'), match, numberOfGames, pointsPerGame);
-        assertTrue("B should be winner", isBWinner);
+        assertTrue(isBWinner, "B should be winner");
 
         List<Integer> winnerCompactMatchNotation = tieBreakingService.createCompactMatchNotation(match, numberOfGames, false);
         List<Integer> loserCompactMatchNotation = tieBreakingService.createOppositeCompactMatchNotation(winnerCompactMatchNotation);
-        assertEquals("player A games list wrong", ArrayUtils.toArray(7, -7, -8, 0),
-                loserCompactMatchNotation.toArray());
-        assertEquals("player B games list wrong", ArrayUtils.toArray(-7, 7, 8, 0),
-                winnerCompactMatchNotation.toArray());
+        assertArrayEquals(ArrayUtils.toArray(7, -7, -8, 0),
+                loserCompactMatchNotation.toArray(),
+                "player A games list wrong");
+        assertArrayEquals(ArrayUtils.toArray(-7, 7, 8, 0),
+                winnerCompactMatchNotation.toArray(),
+                "player B games list wrong");
     }
 
     @Test
@@ -65,16 +69,18 @@ public class TieBreakingServiceTest extends AbstractServiceTest {
         int numberOfGames = 5;
         Match match = makeMatch('A', 'D', ArrayUtils.toArray(-9, 9, 4, -9, 7), true);
         boolean isAWinner = tieBreakingService.isMatchWinner(makePlayerProfileId('A'), match, numberOfGames, pointsPerGame);
-        assertTrue("A should be a loser", isAWinner);
+        assertTrue(isAWinner, "A should be a loser");
         boolean isDWinner = tieBreakingService.isMatchWinner(makePlayerProfileId('D'), match, numberOfGames, pointsPerGame);
-        assertFalse("D should be winner", isDWinner);
+        assertFalse(isDWinner, "D should be winner");
 
         List<Integer> winnerCompactMatchNotation = tieBreakingService.createCompactMatchNotation(match, numberOfGames, true);
         List<Integer> loserCompactMatchNotation = tieBreakingService.createOppositeCompactMatchNotation(winnerCompactMatchNotation);
-        assertEquals("player A games list wrong", ArrayUtils.toArray(-9, 9, 4, -9, 7),
-                winnerCompactMatchNotation.toArray());
-        assertEquals("player D games list wrong", ArrayUtils.toArray(9, -9, -4, 9, -7),
-                loserCompactMatchNotation.toArray());
+        assertArrayEquals(ArrayUtils.toArray(-9, 9, 4, -9, 7),
+                winnerCompactMatchNotation.toArray(),
+                "player A games list wrong");
+        assertArrayEquals(ArrayUtils.toArray(9, -9, -4, 9, -7),
+                loserCompactMatchNotation.toArray(),
+                "player D games list wrong");
 
     }
 
@@ -84,16 +90,18 @@ public class TieBreakingServiceTest extends AbstractServiceTest {
         int numberOfGames = 5;
         Match match = makeMatch('A', 'D', ArrayUtils.toArray(-9, 9, 4, -9, 0), true);
         boolean isAWinner = tieBreakingService.isMatchWinner(makePlayerProfileId('A'), match, numberOfGames, pointsPerGame);
-        assertTrue("A should be a loser", isAWinner);
+        assertTrue(isAWinner, "A should be a loser");
         boolean isDWinner = tieBreakingService.isMatchWinner(makePlayerProfileId('D'), match, numberOfGames, pointsPerGame);
-        assertFalse("D should be winner", isDWinner);
+        assertFalse(isDWinner, "D should be winner");
 
         List<Integer> winnerCompactMatchNotation = tieBreakingService.createCompactMatchNotation(match, numberOfGames, true);
         List<Integer> loserCompactMatchNotation = tieBreakingService.createOppositeCompactMatchNotation(winnerCompactMatchNotation);
-        assertEquals("player A games list wrong", ArrayUtils.toArray(-9, 9, 4, -9, 0),
-                winnerCompactMatchNotation.toArray());
-        assertEquals("player D games list wrong", ArrayUtils.toArray(9, -9, -4, 9, 0),
-                loserCompactMatchNotation.toArray());
+        assertArrayEquals(ArrayUtils.toArray(-9, 9, 4, -9, 0),
+                winnerCompactMatchNotation.toArray(),
+                "player A games list wrong");
+        assertArrayEquals(ArrayUtils.toArray(9, -9, -4, 9, 0),
+                loserCompactMatchNotation.toArray(),
+                "player D games list wrong");
 
     }
 
@@ -105,16 +113,18 @@ public class TieBreakingServiceTest extends AbstractServiceTest {
         Match match = makeMatch('A', 'C', unfinishedMatch, true, false, true);
 
         boolean isAWinner = tieBreakingService.isMatchWinner(makePlayerProfileId('A'), match, numberOfGames, pointsPerGame);
-        assertTrue("A should be a winner by default", isAWinner);
+        assertTrue(isAWinner, "A should be a winner by default");
         boolean isCWinner = tieBreakingService.isMatchWinner(makePlayerProfileId('C'), match, numberOfGames, pointsPerGame);
-        assertFalse("C should be loser by default", isCWinner);
+        assertFalse(isCWinner, "C should be loser by default");
 
         List<Integer> winnerCompactMatchNotation = tieBreakingService.createCompactMatchNotation(match, numberOfGames, false);
         List<Integer> loserCompactMatchNotation = tieBreakingService.createOppositeCompactMatchNotation(winnerCompactMatchNotation);
-        assertEquals("player A games list wrong", unfinishedMatch,
-                loserCompactMatchNotation.toArray());
-        assertEquals("player C games list wrong", unfinishedMatch,
-                winnerCompactMatchNotation.toArray());
+        assertArrayEquals(unfinishedMatch,
+                loserCompactMatchNotation.toArray(),
+                "player A games list wrong");
+        assertArrayEquals(unfinishedMatch,
+                winnerCompactMatchNotation.toArray(),
+                "player C games list wrong");
 
     }
 
@@ -126,16 +136,18 @@ public class TieBreakingServiceTest extends AbstractServiceTest {
         Match match = makeMatch('A', 'E', unfinishedMatch, true, true, true);
 
         boolean isAWinner = tieBreakingService.isMatchWinner(makePlayerProfileId('A'), match, numberOfGames, pointsPerGame);
-        assertFalse("A should NOT be a winner by default", isAWinner);
+        assertFalse(isAWinner, "A should NOT be a winner by default");
         boolean isEWinner = tieBreakingService.isMatchWinner(makePlayerProfileId('E'), match, numberOfGames, pointsPerGame);
-        assertFalse("C should NOT be loser by default", isEWinner);
+        assertFalse(isEWinner, "C should NOT be loser by default");
 
         List<Integer> winnerCompactMatchNotation = tieBreakingService.createCompactMatchNotation(match, numberOfGames, false);
         List<Integer> loserCompactMatchNotation = tieBreakingService.createOppositeCompactMatchNotation(winnerCompactMatchNotation);
-        assertEquals("player A games list wrong", unfinishedMatch,
-                loserCompactMatchNotation.toArray());
-        assertEquals("player C games list wrong", unfinishedMatch,
-                winnerCompactMatchNotation.toArray());
+        assertArrayEquals(unfinishedMatch,
+                loserCompactMatchNotation.toArray(),
+                "player A games list wrong");
+        assertArrayEquals(unfinishedMatch,
+                winnerCompactMatchNotation.toArray(),
+                "player C games list wrong");
 
     }
 
@@ -150,11 +162,11 @@ public class TieBreakingServiceTest extends AbstractServiceTest {
         List<Integer> A_vs_D_gamesResults = Arrays.asList(-9, 9, 4, -9, 7);
         playerTieBreakingInfo.setMatchResult('D', A_vs_D_gamesResults, MatchStatus.WIN);
         tieBreakingService.calculateGamesWonToLostRatio(playerTieBreakingInfo);
-        assertEquals("wrong games won calculation", 5, playerTieBreakingInfo.getGamesWon());
-        assertEquals("wrong games lost calculation", 5, playerTieBreakingInfo.getGamesLost());
+        assertEquals(5, playerTieBreakingInfo.getGamesWon(), "wrong games won calculation");
+        assertEquals(5, playerTieBreakingInfo.getGamesLost(), "wrong games lost calculation");
         tieBreakingService.calculatePointsWonToLost(playerTieBreakingInfo, pointsPerGame);
-        assertEquals("wrong points won calculation", 97, playerTieBreakingInfo.getPointsWon());
-        assertEquals("wrong points lost calculation", 90, playerTieBreakingInfo.getPointsLost());
+        assertEquals(97, playerTieBreakingInfo.getPointsWon(), "wrong points won calculation");
+        assertEquals(90, playerTieBreakingInfo.getPointsLost(), "wrong points lost calculation");
     }
 
     @Test
@@ -169,12 +181,12 @@ public class TieBreakingServiceTest extends AbstractServiceTest {
         playerTieBreakingInfo.setMatchResult('D', A_vs_D_gamesResults, MatchStatus.LOSS);
 
         tieBreakingService.calculateGamesWonToLostRatio(playerTieBreakingInfo);
-        assertEquals("wrong games won calculation", 5, playerTieBreakingInfo.getGamesWon());
-        assertEquals("wrong games lost calculation", 5, playerTieBreakingInfo.getGamesLost());
+        assertEquals(5, playerTieBreakingInfo.getGamesWon(), "wrong games won calculation");
+        assertEquals(5, playerTieBreakingInfo.getGamesLost(), "wrong games lost calculation");
 
         tieBreakingService.calculatePointsWonToLost(playerTieBreakingInfo, pointsPerGame);
-        assertEquals("wrong points won calculation", 100, playerTieBreakingInfo.getPointsWon());
-        assertEquals("wrong points lost calculation", 98, playerTieBreakingInfo.getPointsLost());
+        assertEquals(100, playerTieBreakingInfo.getPointsWon(), "wrong points won calculation");
+        assertEquals(98, playerTieBreakingInfo.getPointsLost(), "wrong points lost calculation");
     }
 
     @Test
@@ -188,11 +200,11 @@ public class TieBreakingServiceTest extends AbstractServiceTest {
         List<Integer> A_vs_D_gamesResults = Arrays.asList(-7, 10, 9, -9, 11);
         playerTieBreakingInfo.setMatchResult('B', A_vs_D_gamesResults, MatchStatus.WIN);
         tieBreakingService.calculateGamesWonToLostRatio(playerTieBreakingInfo);
-        assertEquals("wrong games won calculation", 5, playerTieBreakingInfo.getGamesWon());
-        assertEquals("wrong games lost calculation", 5, playerTieBreakingInfo.getGamesLost());
+        assertEquals(5, playerTieBreakingInfo.getGamesWon(), "wrong games won calculation");
+        assertEquals(5, playerTieBreakingInfo.getGamesLost(), "wrong games lost calculation");
         tieBreakingService.calculatePointsWonToLost(playerTieBreakingInfo, pointsPerGame);
-        assertEquals("wrong points won calculation", 94, playerTieBreakingInfo.getPointsWon());
-        assertEquals("wrong points lost calculation", 103, playerTieBreakingInfo.getPointsLost());
+        assertEquals(94, playerTieBreakingInfo.getPointsWon(), "wrong points won calculation");
+        assertEquals(103, playerTieBreakingInfo.getPointsLost(), "wrong points lost calculation");
     }
 
     @Test
@@ -206,11 +218,11 @@ public class TieBreakingServiceTest extends AbstractServiceTest {
         List<Integer> B_vs_E_gamesResults = Arrays.asList(-9, 5, 9, 7);
         playerTieBreakingInfo.setMatchResult('E', B_vs_E_gamesResults, MatchStatus.WIN);
         tieBreakingService.calculateGamesWonToLostRatio(playerTieBreakingInfo);
-        assertEquals("wrong games won calculation", 5, playerTieBreakingInfo.getGamesWon());
-        assertEquals("wrong games lost calculation", 4, playerTieBreakingInfo.getGamesLost());
+        assertEquals(5, playerTieBreakingInfo.getGamesWon(), "wrong games won calculation");
+        assertEquals(4, playerTieBreakingInfo.getGamesLost(), "wrong games lost calculation");
         tieBreakingService.calculatePointsWonToLost(playerTieBreakingInfo, pointsPerGame);
-        assertEquals("wrong points won calculation", 94, playerTieBreakingInfo.getPointsWon());
-        assertEquals("wrong points lost calculation", 84, playerTieBreakingInfo.getPointsLost());
+        assertEquals(94, playerTieBreakingInfo.getPointsWon(), "wrong points won calculation");
+        assertEquals(84, playerTieBreakingInfo.getPointsLost(), "wrong points lost calculation");
     }
 
     @Test
@@ -224,11 +236,11 @@ public class TieBreakingServiceTest extends AbstractServiceTest {
         List<Integer> D_vs_E_gamesResults = Arrays.asList(7, -8, 9, 6);
         playerTieBreakingInfo.setMatchResult('E', D_vs_E_gamesResults, MatchStatus.WIN);
         tieBreakingService.calculateGamesWonToLostRatio(playerTieBreakingInfo);
-        assertEquals("wrong games won calculation", 6, playerTieBreakingInfo.getGamesWon());
-        assertEquals("wrong games lost calculation", 3, playerTieBreakingInfo.getGamesLost());
+        assertEquals(6, playerTieBreakingInfo.getGamesWon(), "wrong games won calculation");
+        assertEquals(3, playerTieBreakingInfo.getGamesLost(), "wrong games lost calculation");
         tieBreakingService.calculatePointsWonToLost(playerTieBreakingInfo, pointsPerGame);
-        assertEquals("wrong points won calculation", 93, playerTieBreakingInfo.getPointsWon());
-        assertEquals("wrong points lost calculation", 85, playerTieBreakingInfo.getPointsLost());
+        assertEquals(93, playerTieBreakingInfo.getPointsWon(), "wrong points won calculation");
+        assertEquals(85, playerTieBreakingInfo.getPointsLost(), "wrong points lost calculation");
     }
 
     @Test
@@ -259,9 +271,9 @@ public class TieBreakingServiceTest extends AbstractServiceTest {
         for (PlayerTieBreakingInfo playerTieBreakingInfo : playerTieBreakingInfoList) {
             char playerCode = playerTieBreakingInfo.getPlayerCode();
             int expectedRank = playerCodeToExpectedRankMap.get(playerCode);
-            assertEquals("wrong overall rank", expectedRank, playerTieBreakingInfo.getRank());
+            assertEquals(expectedRank, playerTieBreakingInfo.getRank(), "wrong overall rank");
             int expectedMatchPoints = playerCodeToExpectedMatchPointsMap.get(playerCode);
-            assertEquals("wrong match points", expectedMatchPoints, playerTieBreakingInfo.getMatchPoints());
+            assertEquals(expectedMatchPoints, playerTieBreakingInfo.getMatchPoints(), "wrong match points");
         }
 
         Map<String, List<PlayerTieBreakingInfo>> nWayTieBreakingInfoMap = groupTieBreakingInfo.getNWayTieBreakingInfosMap();
@@ -300,9 +312,9 @@ public class TieBreakingServiceTest extends AbstractServiceTest {
         for (PlayerTieBreakingInfo playerTieBreakingInfo : playerTieBreakingInfoList) {
             char playerCode = playerTieBreakingInfo.getPlayerCode();
             int expectedRank = playerCodeToExpectedRankMap.get(playerCode);
-            assertEquals("wrong overall rank", expectedRank, playerTieBreakingInfo.getRank());
+            assertEquals(expectedRank, playerTieBreakingInfo.getRank(), "wrong overall rank");
             int expectedMatchPoints = playerCodeToExpectedMatchPointsMap.get(playerCode);
-            assertEquals("wrong match points", expectedMatchPoints, playerTieBreakingInfo.getMatchPoints());
+            assertEquals(expectedMatchPoints, playerTieBreakingInfo.getMatchPoints(), "wrong match points");
         }
 
         Map<String, List<PlayerTieBreakingInfo>> nWayTieBreakingInfoMap = groupTieBreakingInfo.getNWayTieBreakingInfosMap();
@@ -341,9 +353,9 @@ public class TieBreakingServiceTest extends AbstractServiceTest {
         for (PlayerTieBreakingInfo playerTieBreakingInfo : playerTieBreakingInfoList) {
             char playerCode = playerTieBreakingInfo.getPlayerCode();
             int expectedRank = playerCodeToExpectedRankMap.get(playerCode);
-            assertEquals("wrong overall rank", expectedRank, playerTieBreakingInfo.getRank());
+            assertEquals(expectedRank, playerTieBreakingInfo.getRank(), "wrong overall rank");
             int expectedMatchPoints = playerCodeToExpectedMatchPointsMap.get(playerCode);
-            assertEquals("wrong match points", expectedMatchPoints, playerTieBreakingInfo.getMatchPoints());
+            assertEquals(expectedMatchPoints, playerTieBreakingInfo.getMatchPoints(), "wrong match points");
         }
 
         Map<String, List<PlayerTieBreakingInfo>> nWayTieBreakingInfoMap = groupTieBreakingInfo.getNWayTieBreakingInfosMap();
@@ -372,9 +384,9 @@ public class TieBreakingServiceTest extends AbstractServiceTest {
         for (PlayerTieBreakingInfo playerTieBreakingInfo : playerTieBreakingInfoList) {
             char playerCode = playerTieBreakingInfo.getPlayerCode();
             int expectedRank = playerCodeToExpectedRankMap.get(playerCode);
-            assertEquals("wrong overall rank", expectedRank, playerTieBreakingInfo.getRank());
+            assertEquals(expectedRank, playerTieBreakingInfo.getRank(), "wrong overall rank");
             int expectedMatchPoints = playerCodeToExpectedMatchPointsMap.get(playerCode);
-            assertEquals("wrong match points", expectedMatchPoints, playerTieBreakingInfo.getMatchPoints());
+            assertEquals(expectedMatchPoints, playerTieBreakingInfo.getMatchPoints(), "wrong match points");
         }
 
         Map<String, List<PlayerTieBreakingInfo>> nWayTieBreakingInfoMap = groupTieBreakingInfo.getNWayTieBreakingInfosMap();
@@ -386,13 +398,13 @@ public class TieBreakingServiceTest extends AbstractServiceTest {
      * @param expectedPlayerCodes
      * @param nWayTieBreakingInfoMap */
     private void checkTieBreakingDetails(String[] expectedPlayerCodes, Map<String, List<PlayerTieBreakingInfo>> nWayTieBreakingInfoMap) {
-        assertEquals("wrong number of tie braking", expectedPlayerCodes.length, nWayTieBreakingInfoMap.size());
+        assertEquals(expectedPlayerCodes.length, nWayTieBreakingInfoMap.size(), "wrong number of tie braking");
         int index = 0;
         for (String key : nWayTieBreakingInfoMap.keySet()) {
             List<PlayerTieBreakingInfo> playerTieBreakingInfos = nWayTieBreakingInfoMap.get(key);
-            String expectedKeyStart = String.format("%d) %d-way", (index + 1), playerTieBreakingInfos.size());
-            assertTrue("wrong key", key.startsWith(expectedKeyStart));
-            assertTrue("wrong players in a tie break", key.contains(expectedPlayerCodes[index]));
+            String expectedKeyStart = "%d) %d-way".formatted((index + 1), playerTieBreakingInfos.size());
+            assertTrue(key.startsWith(expectedKeyStart), "wrong key");
+            assertTrue(key.contains(expectedPlayerCodes[index]), "wrong players in a tie break");
             index++;
         }
     }

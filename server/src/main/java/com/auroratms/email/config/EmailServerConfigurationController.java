@@ -29,7 +29,7 @@ public class EmailServerConfigurationController {
         try {
             boolean creating = !emailServerConfigurationService.existsById(emailServerConfigurationEntity.getProfileId());
             EmailServerConfigurationEntity savedEntity = emailServerConfigurationService.save(emailServerConfigurationEntity);
-            URI uri = new URI(String.format("/api/emailserverconfig/%s", savedEntity.getProfileId()));
+            URI uri = new URI("/api/emailserverconfig/%s".formatted(savedEntity.getProfileId()));
             return (creating)
                     ? ResponseEntity.created(uri).body(savedEntity)
                     : ResponseEntity.ok(savedEntity);

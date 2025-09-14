@@ -4,7 +4,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 /**
  * In order to facilitate check in process for each tournament day or tournament event

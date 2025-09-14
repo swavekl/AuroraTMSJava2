@@ -3,8 +3,8 @@ package com.auroratms.server;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Component;
 
-import javax.servlet.*;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.*;
+import jakarta.servlet.http.HttpServletRequest;
 import java.io.IOException;
 
 /**
@@ -24,6 +24,7 @@ public class ForwardServletFilter implements Filter {
         if (!servletPath.startsWith("/ui")) {
             chain.doFilter(myRequest, response);
         } else {
+            System.out.println("redirecting to index.html a servletPath = " + servletPath);
             RequestDispatcher dispatcher = myRequest.getServletContext()
                     .getRequestDispatcher("/index.html");
             dispatcher.forward(myRequest, response);

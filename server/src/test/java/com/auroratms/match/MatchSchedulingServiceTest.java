@@ -4,12 +4,12 @@ import com.auroratms.AbstractServiceTest;
 import com.auroratms.draw.DrawType;
 import com.auroratms.event.TournamentEvent;
 import com.auroratms.event.TournamentEventEntityService;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class MatchSchedulingServiceTest extends AbstractServiceTest {
 
@@ -42,25 +42,20 @@ public class MatchSchedulingServiceTest extends AbstractServiceTest {
     private void checkMatchCard(TournamentEvent tournamentEvent, int numTablesPerGroup, MatchCard matchCard, long eventFk) {
         String assignedTables = matchCard.getAssignedTables();
         int groupNum = matchCard.getGroupNum();
-        assertNotEquals("tables are not assigned for match for group " + groupNum + " in event " + tournamentEvent.getName(),
-                "", assignedTables);
+        assertNotEquals("", assignedTables, "tables are not assigned for match for group " + groupNum + " in event " + tournamentEvent.getName());
         String[] tableNumbers = assignedTables.split(",");
         int numMatches = matchCard.getMatches().size();
         System.out.println("groupNum " + groupNum + " numMatches " + numMatches);
         if (matchCard.getDrawType() == DrawType.ROUND_ROBIN) {
             int expectedAssignedTablesCount = (numMatches == 6) ? ((numTablesPerGroup == 2) ? 2 : 1) : 1;
-            assertEquals("wrong number of tables for group " + groupNum + " in event " + tournamentEvent.getName(),
-                    expectedAssignedTablesCount, tableNumbers.length);
+            assertEquals(expectedAssignedTablesCount, tableNumbers.length, "wrong number of tables for group " + groupNum + " in event " + tournamentEvent.getName());
             int expectedDuration = (numMatches == 6) ? ((numTablesPerGroup == 2) ? 90 : 180) : 90;
-            assertEquals("wrong matches duration for group " + groupNum,
-                    expectedDuration, matchCard.getDuration());
+            assertEquals(expectedDuration, matchCard.getDuration(), "wrong matches duration for group " + groupNum);
         } else {
-            assertEquals("wrong number of tables for group " + groupNum,
-                    1, tableNumbers.length);
+            assertEquals(1, tableNumbers.length, "wrong number of tables for group " + groupNum);
             int numberOfGames = matchCard.getNumberOfGames();
             int expectedDuration = (numberOfGames == 3) ? 20 : ((numberOfGames == 5) ? 30 : 60);
-            assertEquals("wrong matches duration for group " + groupNum,
-                    expectedDuration, matchCard.getDuration());
+            assertEquals(expectedDuration, matchCard.getDuration(), "wrong matches duration for group " + groupNum);
         }
     }
 }

@@ -25,7 +25,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
-import javax.mail.MessagingException;
+import jakarta.mail.MessagingException;
 import java.util.*;
 
 /**
@@ -131,7 +131,7 @@ public class MembershipInfoController {
         for (UserProfile userProfile : userProfileList) {
             MembershipInfo membershipInfo = new MembershipInfo();
             membershipInfoList.add(membershipInfo);
-            String fullName = String.format("%s, %s", userProfile.getLastName(), userProfile.getFirstName());
+            String fullName = "%s, %s".formatted(userProfile.getLastName(), userProfile.getFirstName());
             membershipInfo.setPlayerName(fullName);
             String profileId = userProfile.getUserId();
             membershipInfo.setProfileId(profileId);
@@ -182,7 +182,7 @@ public class MembershipInfoController {
                             String profileId = membershipInfo.getProfileId();
                             if (profileId.equals(userProfile.getUserId())) {
                                 // create a link to this player's entry
-                                String entryURL = String.format("%s/ui/entries/entryview/%d/edit/%d",
+                                String entryURL = "%s/ui/entries/entryview/%d/edit/%d".formatted(
                                         clientHostUrl, tournamentId, membershipInfo.getEntryId());
                                 sendEmail(membershipInfo, userProfile, entryURL, tournament);
                                 // throttle sending so we get fewer errors

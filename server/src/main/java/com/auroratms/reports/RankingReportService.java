@@ -90,7 +90,7 @@ public class RankingReportService {
                 String eventCode = getEventCode(tournamentEvent);
                 List<ReportLineInfo> reportLineInfos = generateEventReportLineInfos(tournamentEvent);
                 for (ReportLineInfo reportLineInfo : reportLineInfos) {
-                    String reportLine = String.format("%d,%d,%s,%s,%s,%s,%s\n",
+                    String reportLine = "%d,%d,%s,%s,%s,%s,%s\n".formatted(
                             rankingReportTournamentId, reportLineInfo.memberId, reportLineInfo.fullName,
                             reportLineInfo.dateOfBirth, reportLineInfo.gender, eventCode, reportLineInfo.strRank);
                     if (!reportLine.isEmpty()) {
@@ -367,7 +367,7 @@ public class RankingReportService {
             } else {// e.g. 3-4, 5-8, 9-16 etc.
                 int startRank = (round / 2) + 1;
                 int endRank = round;
-                strRank = String.format("%d-%d", startRank, endRank);
+                strRank = "%d-%d".formatted(startRank, endRank);
             }
         } else {
             if (matchesWon >= 1) {

@@ -75,7 +75,7 @@ public class EntrySorter {
         List<TournamentEventEntry> sortedEntries = new ArrayList<>(entries.size());
         for (PlayerEntryWrapper playerEntryWrapper : playerEntryWrappers) {
             sortedEntries.add(playerEntryWrapper.getTournamentEventEntry());
-            System.out.println(String.format("\"%25s\",\t%d, \"%s\", \"%s\", \"%s\", %2d, %2d",
+            System.out.println("\"%25s\",\t%d, \"%s\", \"%s\", \"%s\", %2d, %2d".formatted(
                     playerEntryWrapper.getPlayerName(), playerEntryWrapper.getRating(),
                     playerEntryWrapper.getClub(), playerEntryWrapper.getCity(), playerEntryWrapper.getState(),
                     playerEntryWrapper.getSeedNumber(), playerEntryWrapper.getCountOfPlayers()));

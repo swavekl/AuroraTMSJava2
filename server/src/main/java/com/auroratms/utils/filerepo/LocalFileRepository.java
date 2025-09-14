@@ -35,7 +35,7 @@ public class LocalFileRepository implements IFileRepository {
      */
     @Override
     public String save(InputStream inputStream, String sourceFileName, String storagePath) throws FileRepositoryException {
-        String destinationPath = String.format("%s/%s/%s", this.repositoryRoot, storagePath, sourceFileName);
+        String destinationPath = "%s/%s/%s".formatted(this.repositoryRoot, storagePath, sourceFileName);
         File toFile = new File(destinationPath);
         File parentDirectory = toFile.getParentFile();
         if (!parentDirectory.exists()) {
@@ -83,7 +83,7 @@ public class LocalFileRepository implements IFileRepository {
      * @return
      */
     private String getRepositoryPath(String path) {
-        return String.format("%s/%s", this.repositoryRoot, path);
+        return "%s/%s".formatted(this.repositoryRoot, path);
     }
 
     /**
@@ -94,7 +94,7 @@ public class LocalFileRepository implements IFileRepository {
      */
     private String getStorageURL(String storagePath, String sourceFileName) throws UnsupportedEncodingException {
         String encodedSourceFileName = URLEncoder.encode(sourceFileName, "UTF-8");
-        return String.format("%s/download?path=%s/%s",
+        return "%s/download?path=%s/%s".formatted(
                 IFileRepository.REPOSITORY_URL_ROOT, storagePath, encodedSourceFileName);
     }
 

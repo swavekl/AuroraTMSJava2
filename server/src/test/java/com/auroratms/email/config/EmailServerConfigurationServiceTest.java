@@ -1,11 +1,11 @@
 package com.auroratms.email.config;
 
 import com.auroratms.AbstractServiceTest;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 @Transactional
 public class EmailServerConfigurationServiceTest extends AbstractServiceTest {
@@ -25,7 +25,7 @@ public class EmailServerConfigurationServiceTest extends AbstractServiceTest {
         EmailServerConfigurationEntity saved = service.save(entity);
 
         boolean existsById = service.existsById(userProfileId);
-        assertTrue("doesn't exist but should", existsById);
+        assertTrue(existsById, "doesn't exist but should");
 
         EmailServerConfigurationEntity found = service.findById(userProfileId);
 
@@ -33,10 +33,10 @@ public class EmailServerConfigurationServiceTest extends AbstractServiceTest {
         EmailServerConfigurationEntity updated = service.save(found);
 
         String password = updated.getPassword();
-        assertEquals("wrong password", "updatedPassword", password);
+        assertEquals("updatedPassword", password, "wrong password");
 
         service.delete(userProfileId);
         existsById = service.existsById(userProfileId);
-        assertFalse("Exist but shouldn't", existsById);
+        assertFalse(existsById, "Exist but shouldn't");
     }
 }

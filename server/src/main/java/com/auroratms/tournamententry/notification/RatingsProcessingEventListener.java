@@ -30,7 +30,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 
-import javax.mail.MessagingException;
+import jakarta.mail.MessagingException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -211,7 +211,7 @@ public class RatingsProcessingEventListener implements ApplicationListener<Ratin
                     // check if this player is still eligible for all events he/she entered, if not notify player and TD
                     if (eligibilityRatingChanged) {
                         log.info("Eligibility rating for player " + playerFullName + " with membership id " + membershipId + " changed from " + oldEligibilityRating + " to " + eligibilityRating + ". Checking events eligibility...");
-                        String eventEntryUrl = String.format("%s/ui/entries/entryview/%d/edit/%d",
+                        String eventEntryUrl = "%s/ui/entries/entryview/%d/edit/%d".formatted(
                                 this.clientHostUrl, tournamentEntry.getTournamentFk(), tournamentEntry.getId());
                         playerProfileIdToEntryUrlMap.put(profileId, eventEntryUrl);
                         List<TournamentEventEntry> tournamentEventEntries = tournamentEventEntryService.listAllForTournamentEntry(tournamentEntry.getId());

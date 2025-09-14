@@ -240,7 +240,7 @@ public class MatchCardPrinterService {
     private void addPageNumber(int pageNumber, int numPages, PdfFont font, Document document) {
         try {
             pageNumber = pageNumber + 1;
-            String footerText = String.format("Page %d of %d", pageNumber, numPages);
+            String footerText = "Page %d of %d".formatted(pageNumber, numPages);
             Paragraph footerPara = new Paragraph(footerText).setFont(font).setFontSize(10);
             PdfDocument pdfDocument = document.getPdfDocument();
             PdfPage page = pdfDocument.getPage(pageNumber);

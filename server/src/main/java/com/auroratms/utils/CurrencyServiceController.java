@@ -21,7 +21,7 @@ public class CurrencyServiceController {
     @GetMapping("/exchangerate/{fromToCurrencies}")
     @ResponseBody
     public ResponseEntity getExchangeRate(@PathVariable String fromToCurrencies) {
-        String url = String.format("https://free.currconv.com/api/v7/convert?q=%s&compact=ultra&apiKey=%s",
+        String url = "https://free.currconv.com/api/v7/convert?q=%s&compact=ultra&apiKey=%s".formatted(
                 fromToCurrencies, currencyServiceApiKey);
         RestTemplate restTemplate = new RestTemplate();
         ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);

@@ -1,18 +1,36 @@
 plugins {
-    id "com.palantir.docker" version "0.34.0"
+    id 'com.bmuschko.docker-remote-api' version '9.4.0'
 }
 
 allprojects {
     group = 'com.auroratms'
-    version = '0.0.1-SNAPSHOT'
+    version = '2.0.0'
 }
 
-docker {
-    tags 'latest'
-    push true
-    name "docker.io/swavekl/auroratms:latest"
-//    name "auroratms:${rootProject.version}"
-//    name "auroratms:latest"
-    files "server/build/libs/server-${rootProject.version}.jar", "kubernetes/vault-standalone/vault.properties", "kubernetes/vault-standalone/tls/ca.pem"
-    dockerfile file('docker/Dockerfile')
+import com.bmuschko.gradle.docker.tasks.image.*
+
+task copyDockerMaterials(type: Copy, dependsOn: [':server:bootJar', ':server:jar']) {
+   from file("server/build/libs/server-${rootProject.version}.jar")
+   from file ("kubernetes/vault-standalone/vault.properties")
+   from file ("kubernetes/vault-standalone/tls/ca.pem")
+   from file ("docker/Dockerfile")
+   into file ("$projectDir/build/docker")
+   doFirst {
+		println "Copying docker materials into $projectDir/build/docker"
+   }
+}
+
+task buildImage(type: DockerBuildImage, dependsOn: copyDockerMaterials) {
+    images = ["docker.io/swavekl/auroratms:${rootProject.version}", 'docker.io/swavekl/auroratms:latest']
+}
+
+task dockerPush (type: DockerPushImage, dependsOn: buildImage) {
+    images = ["docker.io/swavekl/auroratms:${rootProject.version}", 'docker.io/swavekl/auroratms:latest']
+	registryCredentials {
+        username = System.getenv("DOCKER_USERNAME")
+        password = System.getenv("DOCKER_PASSWORD")
+    }
+    doFirst {
+        println 'Executing pushImage'
+    }
 }

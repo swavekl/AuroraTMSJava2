@@ -68,10 +68,10 @@ public class DrawService {
                 if (tournamentEvent.isDoubles()) {
                     // pass doubles pairs to generator
                     List<DoublesPair> doublesPairsForEvent = this.doublesService.findDoublesPairsForEvent(tournamentEvent.getId());
-                    if (generator instanceof DoublesSnakeDrawsGenerator) {
-                        ((DoublesSnakeDrawsGenerator)generator).setDoublesPairs(doublesPairsForEvent);
-                    } else if (generator instanceof DoublesSingleEliminationDrawsGenerator) {
-                        ((DoublesSingleEliminationDrawsGenerator)generator).setDoublesPairs(doublesPairsForEvent);
+                    if (generator instanceof DoublesSnakeDrawsGenerator drawsGenerator) {
+                        drawsGenerator.setDoublesPairs(doublesPairsForEvent);
+                    } else if (generator instanceof DoublesSingleEliminationDrawsGenerator drawsGenerator) {
+                        drawsGenerator.setDoublesPairs(doublesPairsForEvent);
                     }
                 }
                 drawItemList = generator.generateDraws(eventEntries, entryIdToPlayerDrawInfo, existingDrawItems);

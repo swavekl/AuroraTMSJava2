@@ -2,10 +2,10 @@ package com.auroratms.tournamentevententry.policy;
 
 import com.auroratms.event.TournamentEvent;
 import com.auroratms.tournament.EligibilityRestriction;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ClosedOpenRestrictionEventPolicyTest {
 
@@ -16,7 +16,7 @@ public class ClosedOpenRestrictionEventPolicyTest {
         TournamentEvent event = new TournamentEvent();
         event.setEligibilityRestriction(EligibilityRestriction.CLOSED_STATE);
         boolean entryDenied = policy.isEntryDenied(event);
-        assertTrue("entryDenied should be true", entryDenied);
+        assertTrue(entryDenied, "entryDenied should be true");
     }
 
     @Test
@@ -26,7 +26,7 @@ public class ClosedOpenRestrictionEventPolicyTest {
         TournamentEvent event = new TournamentEvent();
         event.setEligibilityRestriction(EligibilityRestriction.CLOSED_STATE);
         boolean entryDenied = policy.isEntryDenied(event);
-        assertFalse("entryDenied should be false", entryDenied);
+        assertFalse(entryDenied, "entryDenied should be false");
     }
 
     @Test
@@ -36,12 +36,12 @@ public class ClosedOpenRestrictionEventPolicyTest {
         TournamentEvent event = new TournamentEvent();
         event.setEligibilityRestriction(EligibilityRestriction.CLOSED_REGIONAL);
         boolean entryDenied = policy.isEntryDenied(event);
-        assertTrue("entryDenied should be true", entryDenied);
+        assertTrue(entryDenied, "entryDenied should be true");
 
         ClosedOpenRestrictionEventPolicy policy2 = new ClosedOpenRestrictionEventPolicy(
                 "IL", "IN", "US", "US");
         boolean entryDenied2 = policy2.isEntryDenied(event);
-        assertFalse("entryDenied should be false", entryDenied2);
+        assertFalse(entryDenied2, "entryDenied should be false");
     }
 
     @Test
@@ -51,7 +51,7 @@ public class ClosedOpenRestrictionEventPolicyTest {
         TournamentEvent event = new TournamentEvent();
         event.setEligibilityRestriction(EligibilityRestriction.CLOSED_REGIONAL);
         boolean entryDenied = policy.isEntryDenied(event);
-        assertFalse("entryDenied should be false", entryDenied);
+        assertFalse(entryDenied, "entryDenied should be false");
     }
 
     @Test
@@ -61,12 +61,12 @@ public class ClosedOpenRestrictionEventPolicyTest {
         TournamentEvent event = new TournamentEvent();
         event.setEligibilityRestriction(EligibilityRestriction.CLOSED_NATIONAL);
         boolean entryDenied = policy.isEntryDenied(event);
-        assertFalse("entryDenied should be false", entryDenied);
+        assertFalse(entryDenied, "entryDenied should be false");
 
         ClosedOpenRestrictionEventPolicy policy2 = new ClosedOpenRestrictionEventPolicy(
                 "IL", "IN", "US", "US");
         boolean entryDenied2 = policy2.isEntryDenied(event);
-        assertFalse("entryDenied should be false", entryDenied2);
+        assertFalse(entryDenied2, "entryDenied should be false");
     }
 
     @Test
@@ -76,6 +76,6 @@ public class ClosedOpenRestrictionEventPolicyTest {
         TournamentEvent event = new TournamentEvent();
         event.setEligibilityRestriction(EligibilityRestriction.CLOSED_NATIONAL);
         boolean entryDenied = policy.isEntryDenied(event);
-        assertTrue("entryDenied should be true", entryDenied);
+        assertTrue(entryDenied, "entryDenied should be true");
     }
 }

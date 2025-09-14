@@ -248,11 +248,11 @@ public class UsattDataService {
     public List<UsattPlayerRecord> readMembershipFile(String filename, MembershipsProcessorStatus ratingsProcessorStatus) {
         List<UsattPlayerRecord> playerInfos = new ArrayList<>(15000);
 
+        String[] values = null;
+        int rowNumber = 0;
         try {
             logger.info("Processing memberships file " + filename);
             try (CSVReader csvReader = new CSVReader(new InputStreamReader(new FileInputStream(filename), "UTF-8"));) {
-                String[] values = null;
-                int rowNumber = 0;
                 int badRecordsNum = 0;
                 int maxLenFirstName = 0;
                 int maxLenLastName = 0;
@@ -321,7 +321,11 @@ public class UsattDataService {
                                 usattPlayerInfo.setZip(text);
                                 break;
                             case 8:
-                                usattPlayerInfo.setTournamentRating(Integer.parseInt(text));
+                                if (!text.isEmpty() && text.matches("\\d*")) {
+                                    usattPlayerInfo.setTournamentRating(Integer.parseInt(text));
+                                } else {
+                                    usattPlayerInfo.setTournamentRating(0);
+                                }
                                 break;
                             case 9:
                                 usattPlayerInfo.setLastTournamentPlayedDate(parseDate(text));
@@ -351,8 +355,8 @@ public class UsattDataService {
                 logger.info("maxLenState     = " + maxLenState);
                 logger.info("maxLenZip       = " + maxLenZip);
             }
-        } catch (IOException | CsvValidationException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            logger.error("Error processing line # " + rowNumber + " with values: " + Arrays.toString(values), e);
         }
         return playerInfos;
     }
@@ -364,7 +368,7 @@ public class UsattDataService {
             text = text.endsWith(".0") ? text.substring(0, text.length() - 2) : text;
             // zip code was treated as a number - preceed it with 0s e.g. 926 is really 00926
             if (text.length() < 5 && text.matches("\\d*")) {
-                text = String.format("%05d", Integer.parseInt(text));
+                text = "%05d".formatted(Integer.parseInt(text));
             }
         }
         return text;
@@ -475,7 +479,7 @@ public class UsattDataService {
                                 ratingHistoryRecord.setFinalRatingDate(updatedRecord.getLastTournamentPlayedDate());
                                 Optional<RatingHistoryRecord> optExistingRatingHistoryRecord = this.ratingHistoryRecordRepository.findByMembershipIdAndFinalRatingDate(
                                         ratingHistoryRecord.getMembershipId(), ratingHistoryRecord.getFinalRatingDate());
-                                if (!optExistingRatingHistoryRecord.isPresent()) {
+                                if (optExistingRatingHistoryRecord.isEmpty()) {
                                     ratingHistoryRecordList.add(ratingHistoryRecord);
                                 } else {
                                     logger.warn("Found duplicate new history record" + ratingHistoryRecord);

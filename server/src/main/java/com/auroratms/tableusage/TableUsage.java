@@ -2,7 +2,7 @@ package com.auroratms.tableusage;
 
 import lombok.NonNull;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
 

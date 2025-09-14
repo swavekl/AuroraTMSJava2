@@ -1,7 +1,7 @@
 package com.auroratms.utils.filerepo;
 
 import com.auroratms.AbstractServiceTest;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
@@ -11,7 +11,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.util.AssertionErrors.assertEquals;
 
 public class LocalFileRepositoryTest extends AbstractServiceTest {
@@ -25,7 +25,7 @@ public class LocalFileRepositoryTest extends AbstractServiceTest {
     @Test
     public void testCrud () {
         IFileRepository fileRepository = this.fileRepositoryFactory.getFileRepository();
-        assertNotNull("file repo factory is null", fileRepository);
+        assertNotNull(fileRepository, "file repo factory is null");
 
         FileInputStream fileInputStream = null;
         String sourceFileName = null;
@@ -53,7 +53,7 @@ public class LocalFileRepositoryTest extends AbstractServiceTest {
     @Test
     public void testListing () {
         IFileRepository fileRepository = this.fileRepositoryFactory.getFileRepository();
-        assertNotNull("file repo factory is null", fileRepository);
+        assertNotNull(fileRepository, "file repo factory is null");
 
         FileInputStream fileInputStream = null;
         String sourceFileName = null;
@@ -89,7 +89,7 @@ public class LocalFileRepositoryTest extends AbstractServiceTest {
             for (String imageFileResource : imageFilesResources) {
                 String filename = imageFileResource.substring("filerepofiles/".length());
                 String expectedFileURL = "api/filerepository/download?path=" + storagePath + "/" + filename;
-                assertTrue("expected image url not found", foundImageFileURLs.contains(expectedFileURL));
+                assertTrue(foundImageFileURLs.contains(expectedFileURL), "expected image url not found");
             }
         } catch (FileRepositoryException e) {
             fail("failed to list image files");

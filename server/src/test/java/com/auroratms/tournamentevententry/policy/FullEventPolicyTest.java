@@ -2,9 +2,9 @@ package com.auroratms.tournamentevententry.policy;
 
 import com.auroratms.event.TournamentEvent;
 import com.auroratms.tournamentevententry.AvailabilityStatus;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class FullEventPolicyTest {
 
@@ -15,9 +15,9 @@ public class FullEventPolicyTest {
         event.setNumEntries(30);
         event.setMaxEntries(32);
         boolean entryDenied = policy.isEntryDenied(event);
-        assertFalse("entry should not be denied", entryDenied);
+        assertFalse(entryDenied, "entry should not be denied");
 
-        assertEquals("status is wrong", AvailabilityStatus.AVAILABLE_FOR_ENTRY, policy.getStatus());
+        assertEquals(AvailabilityStatus.AVAILABLE_FOR_ENTRY, policy.getStatus(), "status is wrong");
     }
 
     @Test
@@ -27,8 +27,8 @@ public class FullEventPolicyTest {
         event.setNumEntries(32);
         event.setMaxEntries(32);
         boolean entryDenied = policy.isEntryDenied(event);
-        assertTrue("entry should be denied", entryDenied);
+        assertTrue(entryDenied, "entry should be denied");
 
-        assertEquals("status is wrong", AvailabilityStatus.EVENT_FULL, policy.getStatus());
+        assertEquals(AvailabilityStatus.EVENT_FULL, policy.getStatus(), "status is wrong");
     }
 }

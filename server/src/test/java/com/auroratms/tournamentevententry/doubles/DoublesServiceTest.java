@@ -9,7 +9,7 @@ import com.auroratms.tournamententry.TournamentEntry;
 import com.auroratms.tournamententry.TournamentEntryService;
 import com.auroratms.tournamentevententry.TournamentEventEntry;
 import com.auroratms.tournamentevententry.TournamentEventEntryService;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -18,7 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Collection;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 @Transactional
 public class DoublesServiceTest extends AbstractServiceTest {
@@ -52,7 +52,7 @@ public class DoublesServiceTest extends AbstractServiceTest {
                 break;
             }
         }
-        assertTrue("", doublesEventId != 0);
+        assertTrue(doublesEventId != 0, "");
 
         Collection<UserProfile> allPlayersProfiles = userProfileService.list(null, "Alguetti");
 //        Collection<UserProfile> playerProfiles = userProfileService.list("Gal", "Alguetti");
@@ -76,7 +76,7 @@ public class DoublesServiceTest extends AbstractServiceTest {
         long sharonsEventEntryId = 0;
         // set profile ids for player A and B
         List<TournamentEntry> sharonsTournamentEntries = tournamentEntryService.listForTournamentAndUser(tournamentFk, sharonProfileId);
-        assertEquals("", 1, sharonsTournamentEntries.size());
+        assertEquals(1, sharonsTournamentEntries.size(), "");
         long sharonsTournamentEntryId = sharonsTournamentEntries.get(0).getId();
         int sharonsEligibilityRating = sharonsTournamentEntries.get(0).getEligibilityRating();
         int sharonsSeedRating = sharonsTournamentEntries.get(0).getSeedRating();
@@ -92,7 +92,7 @@ public class DoublesServiceTest extends AbstractServiceTest {
 
         long galsEventEntryId = 0;
         List<TournamentEntry> galsTournamentEntries = tournamentEntryService.listForTournamentAndUser(tournamentFk, galProfileId);
-        assertEquals("", 1, galsTournamentEntries.size());
+        assertEquals(1, galsTournamentEntries.size(), "");
         long galsTournamentEntryId = galsTournamentEntries.get(0).getId();
         int galsEligibilityRating = galsTournamentEntries.get(0).getEligibilityRating();
         int galsSeedRating = galsTournamentEntries.get(0).getSeedRating();
@@ -107,28 +107,28 @@ public class DoublesServiceTest extends AbstractServiceTest {
         }
 
         List<DoublesPair> doublesPairList = doublesService.makeRequestedPairs(sharonsTournamentEntryId);
-        assertTrue("", doublesPairList.size() == 1);
+        assertTrue(doublesPairList.size() == 1, "");
         assertNotNull(doublesPairList);
         DoublesPair doublesPair = doublesPairList.get(0);
 
         long playerAEventEntryFk = doublesPair.getPlayerAEventEntryFk();
-        assertEquals("wrong player A event entry Id", sharonsEventEntryId, playerAEventEntryFk);
+        assertEquals(sharonsEventEntryId, playerAEventEntryFk, "wrong player A event entry Id");
 
         long playerBEventEntryFk = doublesPair.getPlayerBEventEntryFk();
-        assertEquals("wrong player B event entry Id", galsEventEntryId, playerBEventEntryFk);
+        assertEquals(galsEventEntryId, playerBEventEntryFk, "wrong player B event entry Id");
 
         int pairEligibilityRating = doublesPair.getEligibilityRating();
-        assertEquals("", sharonsEligibilityRating + galsEligibilityRating, pairEligibilityRating);
+        assertEquals(sharonsEligibilityRating + galsEligibilityRating, pairEligibilityRating, "");
 
         int pairSeedRating = doublesPair.getSeedRating();
-        assertEquals("", sharonsSeedRating + galsSeedRating, pairSeedRating);
+        assertEquals(sharonsSeedRating + galsSeedRating, pairSeedRating, "");
 
         List<DoublesPair> playerDoublesEntry = doublesService.findPlayerDoublesEntry(doublesEventId, sharonsEventEntryId);
-        assertEquals("no entry after making", 1, playerDoublesEntry.size());
+        assertEquals(1, playerDoublesEntry.size(), "no entry after making");
 
         // change the player
         Collection<UserProfile> playerProfiles = userProfileService.list("Adar", "Alguetti");
-        assertTrue("", playerProfiles.size() > 0);
+        assertTrue(playerProfiles.size() > 0, "");
         String adarsProfileId = null;
         for (UserProfile userProfile : playerProfiles) {
             if (userProfile.getFirstName().equals("Adar")) {
@@ -138,7 +138,7 @@ public class DoublesServiceTest extends AbstractServiceTest {
         assertNotNull (adarsProfileId);
 
         List<TournamentEntry> adarsTournamentEntries = tournamentEntryService.listForTournamentAndUser(tournamentFk, adarsProfileId);
-        assertEquals("", 1, adarsTournamentEntries.size());
+        assertEquals(1, adarsTournamentEntries.size(), "");
         long adarsTournamentEntryId = adarsTournamentEntries.get(0).getId();
         int adarsEligibilityRating = adarsTournamentEntries.get(0).getEligibilityRating();
         int adarsSeedRating = adarsTournamentEntries.get(0).getSeedRating();
@@ -164,26 +164,26 @@ public class DoublesServiceTest extends AbstractServiceTest {
         }
 
         doublesPairList = doublesService.makeRequestedPairs(sharonsTournamentEntryId);
-        assertTrue("", doublesPairList.size() == 1);
+        assertTrue(doublesPairList.size() == 1, "");
         assertNotNull(doublesPairList);
         doublesPair = doublesPairList.get(0);
 
         playerAEventEntryFk = doublesPair.getPlayerAEventEntryFk();
-        assertEquals("wrong player A event entry Id", sharonsEventEntryId, playerAEventEntryFk);
+        assertEquals(sharonsEventEntryId, playerAEventEntryFk, "wrong player A event entry Id");
 
         playerBEventEntryFk = doublesPair.getPlayerBEventEntryFk();
-        assertEquals("wrong player B event entry Id", adarsEventEntryId, playerBEventEntryFk);
+        assertEquals(adarsEventEntryId, playerBEventEntryFk, "wrong player B event entry Id");
 
         pairEligibilityRating = doublesPair.getEligibilityRating();
-        assertEquals("", sharonsEligibilityRating + adarsEligibilityRating, pairEligibilityRating);
+        assertEquals(sharonsEligibilityRating + adarsEligibilityRating, pairEligibilityRating, "");
 
         pairSeedRating = doublesPair.getSeedRating();
-        assertEquals("", sharonsSeedRating + adarsSeedRating, pairSeedRating);
+        assertEquals(sharonsSeedRating + adarsSeedRating, pairSeedRating, "");
 
         // break up a pair
         doublesService.deletePair(doublesPair.getId());
 
         playerDoublesEntry = doublesService.findPlayerDoublesEntry(doublesEventId, sharonsEventEntryId);
-        assertEquals("there should be no entries after break up", 0, playerDoublesEntry.size());
+        assertEquals(0, playerDoublesEntry.size(), "there should be no entries after break up");
     }
 }

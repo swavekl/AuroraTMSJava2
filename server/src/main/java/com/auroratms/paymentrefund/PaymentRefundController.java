@@ -96,7 +96,7 @@ public class PaymentRefundController {
                     return new ResponseEntity("Stripe public key is empty", HttpStatus.NOT_FOUND);
                 }
             } else {
-                String errorMessage = String.format("Stripe account for account item id %d not found", accountItemId);
+                String errorMessage = "Stripe account for account item id %d not found".formatted(accountItemId);
                 return new ResponseEntity(errorMessage, HttpStatus.NOT_FOUND);
             }
         } catch (Exception e) {
@@ -167,12 +167,12 @@ public class PaymentRefundController {
                         currencyCode.toLowerCase(), accountId, statementDescriptor, customerFullName, receiptEmail);
                 clientSecret = paymentIntent.getClientSecret();
             } else {
-                String errorMessage = String.format("Unable to find Stripe account id to %s with id %d",
+                String errorMessage = "Unable to find Stripe account id to %s with id %d".formatted(
                         paymentType, accountItemId);
                 throw new PaymentException(errorMessage, null);
             }
         } catch (Exception e) {
-            String errorMessage = String.format("Unable to make a payment to %s with id %d in the amount %d",
+            String errorMessage = "Unable to make a payment to %s with id %d in the amount %d".formatted(
                     paymentType, accountItemId, amount);
             throw new PaymentException(errorMessage, e);
         }
@@ -247,7 +247,7 @@ public class PaymentRefundController {
             log.info("Payment recorded successfully: " + paymentRefund);
             return new ResponseEntity(paymentRefundSaved, HttpStatus.CREATED);
         } catch (Exception e) {
-            String errorMessage = String.format("Unable to record payment in the amount of %d for %d, due to %s",
+            String errorMessage = "Unable to record payment in the amount of %d for %d, due to %s".formatted(
                     paymentRefund.getAmount(), paymentRefund.getItemId(), e.getMessage());
             log.error(errorMessage, e);
             return new ResponseEntity(errorMessage, HttpStatus.BAD_REQUEST);
@@ -329,7 +329,7 @@ public class PaymentRefundController {
 
             return new ResponseEntity(paymentRefundInfos, HttpStatus.OK);
         } catch (Exception e) {
-            String errorMessage = String.format("Unable to list payments and refunds for event %d.  Error: %s",
+            String errorMessage = "Unable to list payments and refunds for event %d.  Error: %s".formatted(
                     eventItemId, e.getMessage());
             return new ResponseEntity(errorMessage, HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -405,7 +405,7 @@ public class PaymentRefundController {
             log.info("Refund issued successfully " + refundRequest );
             return new ResponseEntity(resultMap, HttpStatus.CREATED);
         } catch (Exception e) {
-            String errorMessage = String.format("Unable to issue full refund %s", e.getMessage());
+            String errorMessage = "Unable to issue full refund %s".formatted(e.getMessage());
             log.error(errorMessage, e);
             return new ResponseEntity(errorMessage, HttpStatus.BAD_REQUEST);
         }

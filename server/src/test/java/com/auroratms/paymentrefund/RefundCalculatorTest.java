@@ -1,11 +1,11 @@
 package com.auroratms.paymentrefund;
 
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.*;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class RefundCalculatorTest {
 
@@ -19,14 +19,14 @@ public class RefundCalculatorTest {
         payments.add(payment);
         RefundCalculator refundCalculator = new RefundCalculator(payments, amountToRefund, 1.0);
         List<PaymentRefund> refunds = refundCalculator.determineRefunds();
-        assertEquals("wrong number of refunds", 1, refunds.size());
+        assertEquals(1, refunds.size(), "wrong number of refunds");
 
         PaymentRefund refund = refunds.get(0);
-        assertEquals("wrong refund amount", 10000, refund.getAmount());
-        assertEquals("wrong refund paid amount", 10000, refund.getPaidAmount());
-        assertEquals("wrong payment intent id", payment.getPaymentIntentId(), refund.getPaymentIntentId());
-        assertEquals("wrong status", PaymentRefundStatus.REFUND_COMPLETED, refund.getStatus());
-        assertEquals("wrong full refund status", true, refund.isRefundFully());
+        assertEquals(10000, refund.getAmount(), "wrong refund amount");
+        assertEquals(10000, refund.getPaidAmount(), "wrong refund paid amount");
+        assertEquals(payment.getPaymentIntentId(), refund.getPaymentIntentId(), "wrong payment intent id");
+        assertEquals(PaymentRefundStatus.REFUND_COMPLETED, refund.getStatus(), "wrong status");
+        assertEquals(true, refund.isRefundFully(), "wrong full refund status");
     }
 
     @Test
@@ -40,15 +40,15 @@ public class RefundCalculatorTest {
         int amountToRefund = 6000;
         RefundCalculator refundCalculator = new RefundCalculator(payments, amountToRefund, 1.0);
         List<PaymentRefund> refunds = refundCalculator.determineRefunds();
-        assertEquals("wrong number of refunds", 1, refunds.size());
+        assertEquals(1, refunds.size(), "wrong number of refunds");
 
         PaymentRefund refund = refunds.get(0);
-        assertEquals("wrong refund amount", amountToRefund, refund.getAmount());
-        assertEquals("wrong refund amount", amountToRefund, refund.getPaidAmount());
-        assertEquals("wrong payment intent id", payment.getPaymentIntentId(), refund.getPaymentIntentId());
-        assertEquals("wrong status", PaymentRefundStatus.REFUND_COMPLETED, refund.getStatus());
-        assertEquals("wrong item id", payment.getItemId(), refund.getItemId());
-        assertFalse("wrong full refund status", refund.isRefundFully());
+        assertEquals(amountToRefund, refund.getAmount(), "wrong refund amount");
+        assertEquals(amountToRefund, refund.getPaidAmount(), "wrong refund amount");
+        assertEquals(payment.getPaymentIntentId(), refund.getPaymentIntentId(), "wrong payment intent id");
+        assertEquals(PaymentRefundStatus.REFUND_COMPLETED, refund.getStatus(), "wrong status");
+        assertEquals(payment.getItemId(), refund.getItemId(), "wrong item id");
+        assertFalse(refund.isRefundFully(), "wrong full refund status");
     }
 
     @Test
@@ -63,15 +63,15 @@ public class RefundCalculatorTest {
             int amountToRefund = 6000;
             RefundCalculator refundCalculator = new RefundCalculator(payments, amountToRefund, 1.0);
             List<PaymentRefund> refunds = refundCalculator.determineRefunds();
-            assertEquals("wrong number of refunds", 1, refunds.size());
+            assertEquals(1, refunds.size(), "wrong number of refunds");
 
             PaymentRefund refund = refunds.get(0);
-            assertEquals("wrong refund amount", amountToRefund, refund.getAmount());
-            assertEquals("wrong refund paid amount", amountToRefund, refund.getPaidAmount());
-            assertEquals("wrong payment intent id", payment.getPaymentIntentId(), refund.getPaymentIntentId());
-            assertEquals("wrong status", PaymentRefundStatus.REFUND_COMPLETED, refund.getStatus());
-            assertEquals("wrong item id", payment.getItemId(), refund.getItemId());
-            assertFalse("wrong full refund status", refund.isRefundFully());
+            assertEquals(amountToRefund, refund.getAmount(), "wrong refund amount");
+            assertEquals(amountToRefund, refund.getPaidAmount(), "wrong refund paid amount");
+            assertEquals(payment.getPaymentIntentId(), refund.getPaymentIntentId(), "wrong payment intent id");
+            assertEquals(PaymentRefundStatus.REFUND_COMPLETED, refund.getStatus(), "wrong status");
+            assertEquals(payment.getItemId(), refund.getItemId(), "wrong item id");
+            assertFalse(refund.isRefundFully(), "wrong full refund status");
 
             // 'persist' refund
             payments.addAll(refunds);
@@ -81,15 +81,15 @@ public class RefundCalculatorTest {
             int amountToRefund = 4000;
             RefundCalculator refundCalculator = new RefundCalculator(payments, amountToRefund, 1.0);
             List<PaymentRefund> refunds = refundCalculator.determineRefunds();
-            assertEquals("wrong number of refunds", 1, refunds.size());
+            assertEquals(1, refunds.size(), "wrong number of refunds");
 
             PaymentRefund refund = refunds.get(0);
-            assertEquals("wrong refund amount", amountToRefund, refund.getAmount());
-            assertEquals("wrong refund paid amount", amountToRefund, refund.getPaidAmount());
-            assertEquals("wrong payment intent id", payment.getPaymentIntentId(), refund.getPaymentIntentId());
-            assertEquals("wrong status", PaymentRefundStatus.REFUND_COMPLETED, refund.getStatus());
-            assertEquals("wrong item id", payment.getItemId(), refund.getItemId());
-            assertTrue("wrong full refund status", refund.isRefundFully());
+            assertEquals(amountToRefund, refund.getAmount(), "wrong refund amount");
+            assertEquals(amountToRefund, refund.getPaidAmount(), "wrong refund paid amount");
+            assertEquals(payment.getPaymentIntentId(), refund.getPaymentIntentId(), "wrong payment intent id");
+            assertEquals(PaymentRefundStatus.REFUND_COMPLETED, refund.getStatus(), "wrong status");
+            assertEquals(payment.getItemId(), refund.getItemId(), "wrong item id");
+            assertTrue(refund.isRefundFully(), "wrong full refund status");
         }
     }
 
@@ -111,24 +111,24 @@ public class RefundCalculatorTest {
             int amountToRefund = 25000;
             RefundCalculator refundCalculator = new RefundCalculator(payments, amountToRefund, 1.0);
             List<PaymentRefund> refunds = refundCalculator.determineRefunds();
-            assertEquals("wrong number of refunds", 2, refunds.size());
+            assertEquals(2, refunds.size(), "wrong number of refunds");
 
             // refund most recent first
             PaymentRefund refund2 = refunds.get(0);
-            assertEquals("wrong payment intent id", payment2.getPaymentIntentId(), refund2.getPaymentIntentId());
-            assertEquals("wrong refund amount", 10000, refund2.getAmount());
-            assertEquals("wrong refund paid amount", 10000, refund2.getPaidAmount());
-            assertEquals("wrong status", PaymentRefundStatus.REFUND_COMPLETED, refund2.getStatus());
-            assertEquals("wrong item id", payment2.getItemId(), refund2.getItemId());
-            assertTrue("wrong full refund status", refund2.isRefundFully());
+            assertEquals(payment2.getPaymentIntentId(), refund2.getPaymentIntentId(), "wrong payment intent id");
+            assertEquals(10000, refund2.getAmount(), "wrong refund amount");
+            assertEquals(10000, refund2.getPaidAmount(), "wrong refund paid amount");
+            assertEquals(PaymentRefundStatus.REFUND_COMPLETED, refund2.getStatus(), "wrong status");
+            assertEquals(payment2.getItemId(), refund2.getItemId(), "wrong item id");
+            assertTrue(refund2.isRefundFully(), "wrong full refund status");
 
             PaymentRefund refund1 = refunds.get(1);
-            assertEquals("wrong payment intent id", payment1.getPaymentIntentId(), refund1.getPaymentIntentId());
-            assertEquals("wrong refund amount", 15000, refund1.getAmount());
-            assertEquals("wrong refund paid amount", 15000, refund1.getPaidAmount());
-            assertEquals("wrong status", PaymentRefundStatus.REFUND_COMPLETED, refund1.getStatus());
-            assertEquals("wrong item id", payment1.getItemId(), refund1.getItemId());
-            assertTrue("wrong full refund status", refund1.isRefundFully());
+            assertEquals(payment1.getPaymentIntentId(), refund1.getPaymentIntentId(), "wrong payment intent id");
+            assertEquals(15000, refund1.getAmount(), "wrong refund amount");
+            assertEquals(15000, refund1.getPaidAmount(), "wrong refund paid amount");
+            assertEquals(PaymentRefundStatus.REFUND_COMPLETED, refund1.getStatus(), "wrong status");
+            assertEquals(payment1.getItemId(), refund1.getItemId(), "wrong item id");
+            assertTrue(refund1.isRefundFully(), "wrong full refund status");
         }
     }
 
@@ -149,15 +149,15 @@ public class RefundCalculatorTest {
             int amountToRefund = 8000;
             RefundCalculator refundCalculator = new RefundCalculator(payments, amountToRefund, 1.0);
             List<PaymentRefund> refunds = refundCalculator.determineRefunds();
-            assertEquals("wrong number of refunds", 1, refunds.size());
+            assertEquals(1, refunds.size(), "wrong number of refunds");
 
             PaymentRefund refund1 = refunds.get(0);
-            assertEquals("wrong payment intent id", payment2.getPaymentIntentId(), refund1.getPaymentIntentId());
-            assertEquals("wrong refund amount", 8000, refund1.getAmount());
-            assertEquals("wrong refund paid amount", 8000, refund1.getPaidAmount());
-            assertEquals("wrong status", PaymentRefundStatus.REFUND_COMPLETED, refund1.getStatus());
-            assertEquals("wrong item id", payment2.getItemId(), refund1.getItemId());
-            assertFalse("wrong full refund status", refund1.isRefundFully());
+            assertEquals(payment2.getPaymentIntentId(), refund1.getPaymentIntentId(), "wrong payment intent id");
+            assertEquals(8000, refund1.getAmount(), "wrong refund amount");
+            assertEquals(8000, refund1.getPaidAmount(), "wrong refund paid amount");
+            assertEquals(PaymentRefundStatus.REFUND_COMPLETED, refund1.getStatus(), "wrong status");
+            assertEquals(payment2.getItemId(), refund1.getItemId(), "wrong item id");
+            assertFalse(refund1.isRefundFully(), "wrong full refund status");
 
         }
     }
@@ -179,15 +179,15 @@ public class RefundCalculatorTest {
             int amountToRefund = 8000;
             RefundCalculator refundCalculator = new RefundCalculator(payments, amountToRefund, 1.0);
             List<PaymentRefund> refunds = refundCalculator.determineRefunds();
-            assertEquals("wrong number of refunds", 1, refunds.size());
+            assertEquals(1, refunds.size(), "wrong number of refunds");
 
             PaymentRefund refund1 = refunds.get(0);
-            assertEquals("wrong payment intent id", payment2.getPaymentIntentId(), refund1.getPaymentIntentId());
-            assertEquals("wrong refund amount", 8000, refund1.getAmount());
-            assertEquals("wrong refund paid amount", 8000, refund1.getPaidAmount());
-            assertEquals("wrong status", PaymentRefundStatus.REFUND_COMPLETED, refund1.getStatus());
-            assertEquals("wrong item id", payment2.getItemId(), refund1.getItemId());
-            assertFalse("wrong full refund status", refund1.isRefundFully());
+            assertEquals(payment2.getPaymentIntentId(), refund1.getPaymentIntentId(), "wrong payment intent id");
+            assertEquals(8000, refund1.getAmount(), "wrong refund amount");
+            assertEquals(8000, refund1.getPaidAmount(), "wrong refund paid amount");
+            assertEquals(PaymentRefundStatus.REFUND_COMPLETED, refund1.getStatus(), "wrong status");
+            assertEquals(payment2.getItemId(), refund1.getItemId(), "wrong item id");
+            assertFalse(refund1.isRefundFully(), "wrong full refund status");
 
             // persist refund
             payments.addAll(refunds);
@@ -198,25 +198,25 @@ public class RefundCalculatorTest {
             int amountToRefund = 17000;
             RefundCalculator refundCalculator = new RefundCalculator(payments, amountToRefund, 1.0);
             List<PaymentRefund> refunds = refundCalculator.determineRefunds();
-            assertEquals("wrong number of refunds", 2, refunds.size());
+            assertEquals(2, refunds.size(), "wrong number of refunds");
 
             // full refund of more recent one
             PaymentRefund refund2 = refunds.get(0);
-            assertEquals("wrong payment intent id", payment2.getPaymentIntentId(), refund2.getPaymentIntentId());
-            assertEquals("wrong refund amount", 2000, refund2.getAmount());
-            assertEquals("wrong refund paid amount", 2000, refund2.getPaidAmount());
-            assertEquals("wrong status", PaymentRefundStatus.REFUND_COMPLETED, refund2.getStatus());
-            assertEquals("wrong item id", payment2.getItemId(), refund2.getItemId());
-            assertTrue("wrong full refund status", refund2.isRefundFully());
+            assertEquals(payment2.getPaymentIntentId(), refund2.getPaymentIntentId(), "wrong payment intent id");
+            assertEquals(2000, refund2.getAmount(), "wrong refund amount");
+            assertEquals(2000, refund2.getPaidAmount(), "wrong refund paid amount");
+            assertEquals(PaymentRefundStatus.REFUND_COMPLETED, refund2.getStatus(), "wrong status");
+            assertEquals(payment2.getItemId(), refund2.getItemId(), "wrong item id");
+            assertTrue(refund2.isRefundFully(), "wrong full refund status");
 
             // refund remainder for the earlier one
             PaymentRefund refund1 = refunds.get(1);
-            assertEquals("wrong payment intent id", payment1.getPaymentIntentId(), refund1.getPaymentIntentId());
-            assertEquals("wrong refund amount", 15000, refund1.getAmount());
-            assertEquals("wrong refund paid amount", 15000, refund1.getPaidAmount());
-            assertEquals("wrong status", PaymentRefundStatus.REFUND_COMPLETED, refund1.getStatus());
-            assertEquals("wrong item id", payment1.getItemId(), refund1.getItemId());
-            assertTrue("wrong full refund status", refund1.isRefundFully());
+            assertEquals(payment1.getPaymentIntentId(), refund1.getPaymentIntentId(), "wrong payment intent id");
+            assertEquals(15000, refund1.getAmount(), "wrong refund amount");
+            assertEquals(15000, refund1.getPaidAmount(), "wrong refund paid amount");
+            assertEquals(PaymentRefundStatus.REFUND_COMPLETED, refund1.getStatus(), "wrong status");
+            assertEquals(payment1.getItemId(), refund1.getItemId(), "wrong item id");
+            assertTrue(refund1.isRefundFully(), "wrong full refund status");
         }
     }
 
@@ -255,14 +255,14 @@ public class RefundCalculatorTest {
         payments.add(payment);
         RefundCalculator refundCalculator = new RefundCalculator(payments, amountToRefundInAccountCurrency, refundDayExchangeRate);
         List<PaymentRefund> refunds = refundCalculator.determineRefunds();
-        assertEquals("wrong number of refunds", 1, refunds.size());
+        assertEquals(1, refunds.size(), "wrong number of refunds");
 
         PaymentRefund refund = refunds.get(0);
-        assertEquals("wrong refund amount", amountToRefundInAccountCurrency, refund.getAmount());
-        assertEquals("wrong refund paid amount", amountToRefund, refund.getPaidAmount());
-        assertEquals("wrong payment intent id", payment.getPaymentIntentId(), refund.getPaymentIntentId());
-        assertEquals("wrong status", PaymentRefundStatus.REFUND_COMPLETED, refund.getStatus());
-        assertTrue("wrong full refund status", refund.isRefundFully());
+        assertEquals(amountToRefundInAccountCurrency, refund.getAmount(), "wrong refund amount");
+        assertEquals(amountToRefund, refund.getPaidAmount(), "wrong refund paid amount");
+        assertEquals(payment.getPaymentIntentId(), refund.getPaymentIntentId(), "wrong payment intent id");
+        assertEquals(PaymentRefundStatus.REFUND_COMPLETED, refund.getStatus(), "wrong status");
+        assertTrue(refund.isRefundFully(), "wrong full refund status");
     }
 
     @Test
@@ -284,14 +284,14 @@ public class RefundCalculatorTest {
         payments.add(payment);
         RefundCalculator refundCalculator = new RefundCalculator(payments, amountToRefundInAccountCurrency, refundDayExchangeRate);
         List<PaymentRefund> refunds = refundCalculator.determineRefunds();
-        assertEquals("wrong number of refunds", 1, refunds.size());
+        assertEquals(1, refunds.size(), "wrong number of refunds");
 
         PaymentRefund refund = refunds.get(0);
-        assertEquals("wrong refund amount", amountToRefundInAccountCurrency, refund.getAmount());
-        assertEquals("wrong refund amount", amountToRefundToday, refund.getPaidAmount());
-        assertEquals("wrong payment intent id", payment.getPaymentIntentId(), refund.getPaymentIntentId());
-        assertEquals("wrong status", PaymentRefundStatus.REFUND_COMPLETED, refund.getStatus());
-        assertEquals("wrong full refund status", false, refund.isRefundFully());
+        assertEquals(amountToRefundInAccountCurrency, refund.getAmount(), "wrong refund amount");
+        assertEquals(amountToRefundToday, refund.getPaidAmount(), "wrong refund amount");
+        assertEquals(payment.getPaymentIntentId(), refund.getPaymentIntentId(), "wrong payment intent id");
+        assertEquals(PaymentRefundStatus.REFUND_COMPLETED, refund.getStatus(), "wrong status");
+        assertEquals(false, refund.isRefundFully(), "wrong full refund status");
     }
 
     @Test
@@ -324,15 +324,15 @@ public class RefundCalculatorTest {
 
             RefundCalculator refundCalculator = new RefundCalculator(payments, amountToRefundInAccountCurrency, refundDayExchangeRate);
             List<PaymentRefund> refunds = refundCalculator.determineRefunds();
-            assertEquals("wrong number of refunds", 1, refunds.size());
+            assertEquals(1, refunds.size(), "wrong number of refunds");
 
             PaymentRefund refund = refunds.get(0);
-            assertEquals("wrong refund amount", amountToRefundInAccountCurrency, refund.getAmount());
-            assertEquals("wrong refund amount", amountToRefundToday, refund.getPaidAmount());
+            assertEquals(amountToRefundInAccountCurrency, refund.getAmount(), "wrong refund amount");
+            assertEquals(amountToRefundToday, refund.getPaidAmount(), "wrong refund amount");
             // refund more recent first
-            assertEquals("wrong payment intent id", payment2.getPaymentIntentId(), refund.getPaymentIntentId());
-            assertEquals("wrong status", PaymentRefundStatus.REFUND_COMPLETED, refund.getStatus());
-            assertFalse("wrong full refund status", refund.isRefundFully());
+            assertEquals(payment2.getPaymentIntentId(), refund.getPaymentIntentId(), "wrong payment intent id");
+            assertEquals(PaymentRefundStatus.REFUND_COMPLETED, refund.getStatus(), "wrong status");
+            assertFalse(refund.isRefundFully(), "wrong full refund status");
 
             // persist these refunds
             payments.addAll(refunds);
@@ -347,14 +347,14 @@ public class RefundCalculatorTest {
 
             RefundCalculator refundCalculator = new RefundCalculator(payments, amountToRefundInAccountCurrency, refundDayExchangeRate);
             List<PaymentRefund> refunds = refundCalculator.determineRefunds();
-            assertEquals("wrong number of refunds", 1, refunds.size());
+            assertEquals(1, refunds.size(), "wrong number of refunds");
 
             PaymentRefund refund = refunds.get(0);
-            assertEquals("wrong refund amount", amountToRefundInAccountCurrency, refund.getAmount());
-            assertEquals("wrong refund paid amount", amountToRefundToday, refund.getPaidAmount());
-            assertEquals("wrong payment intent id", payment2.getPaymentIntentId(), refund.getPaymentIntentId());
-            assertEquals("wrong status", PaymentRefundStatus.REFUND_COMPLETED, refund.getStatus());
-            assertTrue("wrong full refund status", refund.isRefundFully());
+            assertEquals(amountToRefundInAccountCurrency, refund.getAmount(), "wrong refund amount");
+            assertEquals(amountToRefundToday, refund.getPaidAmount(), "wrong refund paid amount");
+            assertEquals(payment2.getPaymentIntentId(), refund.getPaymentIntentId(), "wrong payment intent id");
+            assertEquals(PaymentRefundStatus.REFUND_COMPLETED, refund.getStatus(), "wrong status");
+            assertTrue(refund.isRefundFully(), "wrong full refund status");
         }
     }
 
@@ -389,25 +389,25 @@ public class RefundCalculatorTest {
 
             RefundCalculator refundCalculator = new RefundCalculator(payments, amountToRefundInAccountCurrency, refundDayExchangeRate);
             List<PaymentRefund> refunds = refundCalculator.determineRefunds();
-            assertEquals("wrong number of refunds", 2, refunds.size());
+            assertEquals(2, refunds.size(), "wrong number of refunds");
 
             // refund mor recent payment first
             PaymentRefund refund1 = refunds.get(0);
-            assertEquals("wrong refund amount", amount2, refund1.getAmount());
-            assertEquals("wrong refund amount", amount2ToRefundToday, refund1.getPaidAmount());
+            assertEquals(amount2, refund1.getAmount(), "wrong refund amount");
+            assertEquals(amount2ToRefundToday, refund1.getPaidAmount(), "wrong refund amount");
             // refund more recent first
-            assertEquals("wrong payment intent id", payment2.getPaymentIntentId(), refund1.getPaymentIntentId());
-            assertEquals("wrong status", PaymentRefundStatus.REFUND_COMPLETED, refund1.getStatus());
-            assertTrue("wrong full refund status", refund1.isRefundFully());
+            assertEquals(payment2.getPaymentIntentId(), refund1.getPaymentIntentId(), "wrong payment intent id");
+            assertEquals(PaymentRefundStatus.REFUND_COMPLETED, refund1.getStatus(), "wrong status");
+            assertTrue(refund1.isRefundFully(), "wrong full refund status");
 
             // the the older payment second
             PaymentRefund refund2 = refunds.get(1);
-            assertEquals("wrong refund amount", amount1, refund2.getAmount());
-            assertEquals("wrong refund amount", amount1ToRefundToday, refund2.getPaidAmount());
+            assertEquals(amount1, refund2.getAmount(), "wrong refund amount");
+            assertEquals(amount1ToRefundToday, refund2.getPaidAmount(), "wrong refund amount");
             // refund more recent first
-            assertEquals("wrong payment intent id", payment1.getPaymentIntentId(), refund2.getPaymentIntentId());
-            assertEquals("wrong status", PaymentRefundStatus.REFUND_COMPLETED, refund2.getStatus());
-            assertTrue("wrong full refund status", refund2.isRefundFully());
+            assertEquals(payment1.getPaymentIntentId(), refund2.getPaymentIntentId(), "wrong payment intent id");
+            assertEquals(PaymentRefundStatus.REFUND_COMPLETED, refund2.getStatus(), "wrong status");
+            assertTrue(refund2.isRefundFully(), "wrong full refund status");
         }
     }
 
@@ -444,25 +444,25 @@ public class RefundCalculatorTest {
 
             RefundCalculator refundCalculator = new RefundCalculator(payments, amountToRefundInAccountCurrency, refundDayExchangeRate);
             List<PaymentRefund> refunds = refundCalculator.determineRefunds();
-            assertEquals("wrong number of refunds", 2, refunds.size());
+            assertEquals(2, refunds.size(), "wrong number of refunds");
 
             // refund more recent payment first - fully
             PaymentRefund refund1 = refunds.get(0);
-            assertEquals("wrong refund amount", amount2, refund1.getAmount());
-            assertEquals("wrong refund amount", amount2ToRefundToday, refund1.getPaidAmount());
+            assertEquals(amount2, refund1.getAmount(), "wrong refund amount");
+            assertEquals(amount2ToRefundToday, refund1.getPaidAmount(), "wrong refund amount");
             // refund more recent first
-            assertEquals("wrong payment intent id", payment2.getPaymentIntentId(), refund1.getPaymentIntentId());
-            assertEquals("wrong status", PaymentRefundStatus.REFUND_COMPLETED, refund1.getStatus());
-            assertTrue("wrong full refund status", refund1.isRefundFully());
+            assertEquals(payment2.getPaymentIntentId(), refund1.getPaymentIntentId(), "wrong payment intent id");
+            assertEquals(PaymentRefundStatus.REFUND_COMPLETED, refund1.getStatus(), "wrong status");
+            assertTrue(refund1.isRefundFully(), "wrong full refund status");
 
             // the the older payment second - partially
             PaymentRefund refund2 = refunds.get(1);
-            assertEquals("wrong refund amount", partOfAmount1, refund2.getAmount());
-            assertEquals("wrong refund amount", amount1ToRefundToday, refund2.getPaidAmount());
+            assertEquals(partOfAmount1, refund2.getAmount(), "wrong refund amount");
+            assertEquals(amount1ToRefundToday, refund2.getPaidAmount(), "wrong refund amount");
             // refund more recent first
-            assertEquals("wrong payment intent id", payment1.getPaymentIntentId(), refund2.getPaymentIntentId());
-            assertEquals("wrong status", PaymentRefundStatus.REFUND_COMPLETED, refund2.getStatus());
-            assertFalse("wrong full refund status", refund2.isRefundFully());
+            assertEquals(payment1.getPaymentIntentId(), refund2.getPaymentIntentId(), "wrong payment intent id");
+            assertEquals(PaymentRefundStatus.REFUND_COMPLETED, refund2.getStatus(), "wrong status");
+            assertFalse(refund2.isRefundFully(), "wrong full refund status");
 
             // 'persist' refunds
             payments.addAll(refunds);
@@ -478,16 +478,16 @@ public class RefundCalculatorTest {
 
             RefundCalculator refundCalculator = new RefundCalculator(payments, amountToRefundInAccountCurrency, refundDayExchangeRate);
             List<PaymentRefund> refunds = refundCalculator.determineRefunds();
-            assertEquals("wrong number of refunds", 1, refunds.size());
+            assertEquals(1, refunds.size(), "wrong number of refunds");
 
             // refund the remaining older payment fully
             PaymentRefund refund1 = refunds.get(0);
-            assertEquals("wrong refund amount", amountToRefundInAccountCurrency, refund1.getAmount());
-            assertEquals("wrong refund amount", amount1ToRefundToday, refund1.getPaidAmount());
+            assertEquals(amountToRefundInAccountCurrency, refund1.getAmount(), "wrong refund amount");
+            assertEquals(amount1ToRefundToday, refund1.getPaidAmount(), "wrong refund amount");
             // refund more recent first
-            assertEquals("wrong payment intent id", payment1.getPaymentIntentId(), refund1.getPaymentIntentId());
-            assertEquals("wrong status", PaymentRefundStatus.REFUND_COMPLETED, refund1.getStatus());
-            assertTrue("wrong full refund status", refund1.isRefundFully());
+            assertEquals(payment1.getPaymentIntentId(), refund1.getPaymentIntentId(), "wrong payment intent id");
+            assertEquals(PaymentRefundStatus.REFUND_COMPLETED, refund1.getStatus(), "wrong status");
+            assertTrue(refund1.isRefundFully(), "wrong full refund status");
         }
     }
 

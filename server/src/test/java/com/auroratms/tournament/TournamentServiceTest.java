@@ -3,9 +3,8 @@ package com.auroratms.tournament;
 import com.auroratms.event.TournamentEvent;
 import com.auroratms.server.ServerApplication;
 import com.auroratms.users.UserRoles;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -19,7 +18,6 @@ import org.springframework.security.test.context.support.WithSecurityContextTest
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.junit4.AbstractJUnit4SpringContextTests;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
 import org.springframework.test.context.support.DirtiesContextTestExecutionListener;
 import org.springframework.test.context.transaction.TransactionalTestExecutionListener;
@@ -29,9 +27,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
-@RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = {ServerApplication.class})
 @ContextConfiguration
 @WebAppConfiguration(value = "src/test/resources")
@@ -53,15 +50,15 @@ public class TournamentServiceTest extends AbstractJUnit4SpringContextTests {
         for (Tournament tournament : list) {
             System.out.println("tournament.getName() = " + tournament.getName());
         }
-        assertTrue ("wrong count of tournaments", list.size() > 0);
+        assertTrue (list.size() > 0, "wrong count of tournaments");
 
         int sizeBefore = list.size();
         Tournament tournament = makeTournament("2020 Aurora Fall Open");
         Tournament saveTournament = tournamentService.saveTournament(tournament);
-        assertNotNull("tournament id is null", saveTournament.getId());
+        assertNotNull(saveTournament.getId(), "tournament id is null");
         Collection<Tournament> newList = tournamentService.list();
         int sizeAfter = newList.size();
-        assertTrue("", sizeBefore < sizeAfter);
+        assertTrue(sizeBefore < sizeAfter, "");
     }
 
     @Test
@@ -87,10 +84,10 @@ public class TournamentServiceTest extends AbstractJUnit4SpringContextTests {
         int resultIndex = 0;
         for (int i = 0; i < 3; i++) {
             Collection<Tournament> tournaments = tournamentService.listOwned(i, 3);
-            assertTrue("page of tournaments empty", tournaments.size() > 0);
+            assertTrue(tournaments.size() > 0, "page of tournaments empty");
             for (Tournament tournament : tournaments) {
                 String expectedTournamentName = tournamentNames[resultIndex];
-                assertEquals("wrong tournament name", expectedTournamentName, tournament.getName());
+                assertEquals(expectedTournamentName, tournament.getName(), "wrong tournament name");
                 resultIndex++;
             }
         }
@@ -102,7 +99,7 @@ public class TournamentServiceTest extends AbstractJUnit4SpringContextTests {
 
         // check they were deleted
         Collection<Tournament> tournaments = tournamentService.listOwned(0, 100);
-        assertEquals("tournaments left after deletion",0,  tournaments.size());
+        assertEquals(0,  tournaments.size(),  "tournaments left after deletion");
     }
 
     private void addPersonnel (String profileId, String fullName, String userRole, Tournament tournament) {
@@ -161,7 +158,7 @@ public class TournamentServiceTest extends AbstractJUnit4SpringContextTests {
                     break;
                 }
             }
-            assertTrue(tournamentName + " tournament is not visible to Admin", contains);
+            assertTrue(contains, tournamentName + " tournament is not visible to Admin");
         }
         for (String tournamentName : tournamentsForEnglebert) {
             boolean contains = false;
@@ -171,13 +168,13 @@ public class TournamentServiceTest extends AbstractJUnit4SpringContextTests {
                     break;
                 }
             }
-            assertTrue(tournamentName + " tournament is not visible to Admin", contains);
+            assertTrue(contains, tournamentName + " tournament is not visible to Admin");
         }
 
         int expectedCount = tournamentsForEnglebert.length + tournamentForEd.length;
 //        assertEquals("not all tournaments were accessible to admin", expectedCount, list.size());
         Collection<Tournament> listAll = tournamentService.list();
-        assertTrue("More tournaments should be visible", listAll.size() > expectedCount);
+        assertTrue(listAll.size() > expectedCount, "More tournaments should be visible");
     }
 
     private void checkEngelbertsTournaments(String[] tournamentNames) {
@@ -204,9 +201,9 @@ public class TournamentServiceTest extends AbstractJUnit4SpringContextTests {
                     break;
                 }
             }
-            assertTrue("Tournament '" + tournamentName + "' not found", found);
+            assertTrue(found, "Tournament '" + tournamentName + "' not found");
         }
-        assertEquals("not found", countFound, tournamentNames.length);
+        assertEquals(countFound, tournamentNames.length, "not found");
     }
 
     private String[] makeTournamentsForEnglebert() {
@@ -256,7 +253,7 @@ public class TournamentServiceTest extends AbstractJUnit4SpringContextTests {
     }
 
     @Test
-    @Ignore
+    @Disabled
     @WithMockUser(username="mario", authorities = {UserRoles.TournamentDirectors})
     public void testEvents () {
         Tournament tournament = makeTournament("2020 Aurora Summer Open with events");
@@ -272,7 +269,7 @@ public class TournamentServiceTest extends AbstractJUnit4SpringContextTests {
         Tournament savedTournament = tournamentService.saveTournament(tournament);
         Tournament returnedTournament = tournamentService.getByKey(savedTournament.getId());
         Set<TournamentEvent> savedEvents = returnedTournament.getEvents();
-        assertEquals("wrong number of events", eventNames.length, savedEvents.size());
+        assertEquals(eventNames.length, savedEvents.size(), "wrong number of events");
 
         savedEvents.add(makeEvent("U1400"));
         savedEvents.add(makeEvent("U1200"));
@@ -281,7 +278,7 @@ public class TournamentServiceTest extends AbstractJUnit4SpringContextTests {
         tournamentService.saveTournament(returnedTournament);
         Tournament anotherTournament = tournamentService.getByKey(savedTournament.getId());
         Set<TournamentEvent> events1 = anotherTournament.getEvents();
-        assertEquals("wrong events after addition", (eventNames.length + 4), events1.size());
+        assertEquals((eventNames.length + 4), events1.size(), "wrong events after addition");
     }
 
     private TournamentEvent makeEvent(String eventName) {
@@ -320,7 +317,7 @@ public class TournamentServiceTest extends AbstractJUnit4SpringContextTests {
         Collection<Tournament> tournamentsForUma2 = tournamentService.listOwned(0, 100);
         SecurityContextHolder.getContext().setAuthentication(savedAuthentication);
 
-        assertEquals("wrong number of tournaments", 0, tournamentsForUma2.size());
+        assertEquals(0, tournamentsForUma2.size(), "wrong number of tournaments");
 
     }
 }

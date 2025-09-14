@@ -3,11 +3,11 @@ package com.auroratms.usatt;
 import com.auroratms.AbstractServiceTest;
 import com.auroratms.profile.UserProfile;
 import com.auroratms.users.UserRoles;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class UsattPersonnelServiceTest extends AbstractServiceTest {
 
@@ -20,8 +20,8 @@ public class UsattPersonnelServiceTest extends AbstractServiceTest {
         assertNotNull(personInRole);
         String firstName = personInRole.getFirstName();
         String lastName = personInRole.getLastName();
-        assertEquals("wrong first name", "Tina", firstName);
-        assertEquals("wrong last name", "Ren", lastName);
+        assertEquals("Tina", firstName, "wrong first name");
+        assertEquals("Ren", lastName, "wrong last name");
     }
 
     @Test
@@ -30,21 +30,21 @@ public class UsattPersonnelServiceTest extends AbstractServiceTest {
         assertNotNull(midwestCoordinator);
         String firstName = midwestCoordinator.getFirstName();
         String lastName = midwestCoordinator.getLastName();
-        assertEquals("wrong first name", "Ed", firstName);
-        assertEquals("wrong last name", "Hogshead", lastName);
+        assertEquals("Ed", firstName, "wrong first name");
+        assertEquals("Hogshead", lastName, "wrong last name");
 
         UserProfile nationalCoordinator = usattPersonnelService.getSanctionCoordinator("National");
         assertNotNull(nationalCoordinator);
         firstName = nationalCoordinator.getFirstName();
         lastName = nationalCoordinator.getLastName();
-        assertEquals("wrong first name", "Larry", firstName);
-        assertEquals("wrong last name", "Thoman", lastName);
+        assertEquals("Larry", firstName, "wrong first name");
+        assertEquals("Thoman", lastName, "wrong last name");
 
         UserProfile montainCoordinator = usattPersonnelService.getSanctionCoordinator("Mountain");
         assertNotNull(montainCoordinator);
         firstName = montainCoordinator.getFirstName();
         lastName = montainCoordinator.getLastName();
-        assertEquals("wrong first name", "Larry", firstName);
-        assertEquals("wrong last name", "Thoman", lastName);
+        assertEquals("Larry", firstName, "wrong first name");
+        assertEquals("Thoman", lastName, "wrong last name");
     }
 }

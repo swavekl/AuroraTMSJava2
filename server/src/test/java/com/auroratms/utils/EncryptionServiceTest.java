@@ -1,12 +1,12 @@
 package com.auroratms.utils;
 
 import com.auroratms.AbstractServiceTest;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @Transactional
 public class EncryptionServiceTest extends AbstractServiceTest {
@@ -18,9 +18,9 @@ public class EncryptionServiceTest extends AbstractServiceTest {
     public void testEncryptionAndDecryption() {
         String plainText = "my super secret text";
         String encryptText = this.encryptionService.encryptText(plainText);
-        assertTrue("Encrypted text is not right", encryptText.startsWith("vault:v1:"));
+        assertTrue(encryptText.startsWith("vault:v1:"), "Encrypted text is not right");
 
         String decryptText = this.encryptionService.decryptText(encryptText);
-        assertEquals("wrong text", plainText, decryptText);
+        assertEquals(plainText, decryptText, "wrong text");
     }
 }

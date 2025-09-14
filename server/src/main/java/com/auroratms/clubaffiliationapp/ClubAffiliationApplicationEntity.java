@@ -1,6 +1,6 @@
 package com.auroratms.clubaffiliationapp;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.util.Date;
 import java.util.Objects;
 

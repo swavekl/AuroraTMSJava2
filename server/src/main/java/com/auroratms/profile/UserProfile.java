@@ -3,7 +3,7 @@ package com.auroratms.profile;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.Id;
+import jakarta.persistence.Id;
 import java.io.Serializable;
 import java.util.Date;
 

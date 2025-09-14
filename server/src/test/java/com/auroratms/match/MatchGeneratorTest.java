@@ -1,10 +1,10 @@
  package com.auroratms.match;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class MatchGeneratorTest {
 
@@ -395,7 +395,7 @@ public class MatchGeneratorTest {
             String actualMatch = leftSide + " - " + rightSide;
             String expectedMatch = expectedMatchOrder[index];
             index++;
-            assertEquals("wrong match order at index " + index, expectedMatch, actualMatch);
+            assertEquals(expectedMatch, actualMatch, "wrong match order at index " + index);
         }
     }
 }

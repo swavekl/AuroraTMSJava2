@@ -1,6 +1,6 @@
 package com.auroratms.sanction;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
 

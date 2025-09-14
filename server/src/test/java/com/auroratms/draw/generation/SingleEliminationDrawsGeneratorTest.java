@@ -6,12 +6,12 @@ import com.auroratms.draw.generation.singleelim.SingleEliminationEntriesConverte
 import com.auroratms.event.DrawMethod;
 import com.auroratms.event.TournamentEvent;
 import com.auroratms.tournamentevententry.TournamentEventEntry;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.*;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class SingleEliminationDrawsGeneratorTest extends AbstractDrawsGeneratorTest {
 
@@ -30,20 +30,20 @@ public class SingleEliminationDrawsGeneratorTest extends AbstractDrawsGeneratorT
         List<DrawItem> existingDrawItems = Collections.emptyList();
         IDrawsGenerator rrRoundGenerator = DrawGeneratorFactory.makeGenerator(tournamentEvent, DrawType.ROUND_ROBIN);
         List<DrawItem> rrDrawItems = rrRoundGenerator.generateDraws(eventEntries, entryIdToPlayerDrawInfo, existingDrawItems);
-        assertEquals("wrong RR draws", 23, rrDrawItems.size());
+        assertEquals(23, rrDrawItems.size(), "wrong RR draws");
 
         // pick top n players to advance and get their entries
         List<TournamentEventEntry> seEventEntries = SingleEliminationEntriesConverter.generateSEEventEntriesFromDraws(
                 rrDrawItems, eventEntries, tournamentEvent, entryIdToPlayerDrawInfo);
         SingleEliminationEntriesConverter.fillRRGroupNumberForSEPlayers(rrDrawItems, entryIdToPlayerDrawInfo, tournamentEvent);
-        assertEquals("wrong number of advancing player entries", 6, seEventEntries.size());
+        assertEquals(6, seEventEntries.size(), "wrong number of advancing player entries");
 
         // make SE draws
         IDrawsGenerator seRoundGenerator = DrawGeneratorFactory.makeGenerator(tournamentEvent, DrawType.SINGLE_ELIMINATION);
-        assertNotNull("SE round generator is null", seRoundGenerator);
+        assertNotNull(seRoundGenerator, "SE round generator is null");
 
         List<DrawItem> seDrawItems = seRoundGenerator.generateDraws(seEventEntries, entryIdToPlayerDrawInfo, existingDrawItems);
-        assertEquals("wrong number of SE entries", 14, seDrawItems.size());
+        assertEquals(14, seDrawItems.size(), "wrong number of SE entries");
 
         int i = 0;
         int[] expectedSeedNumbers = {1, 8, 6, 3, 4, 5, 7, 2};
@@ -52,11 +52,11 @@ public class SingleEliminationDrawsGeneratorTest extends AbstractDrawsGeneratorT
             int seedNumber = drawItem.getSeSeedNumber();
 //            System.out.print(seedNumber + ", ");
             int expectedSeedNum = expectedSeedNumbers[i];
-            assertEquals("wrong seed number", expectedSeedNum, seedNumber);
+            assertEquals(expectedSeedNum, seedNumber, "wrong seed number");
 
             int expectedBye = expectedByes[i];
             if (expectedBye != 0) {
-                assertEquals("wrong bye ", expectedBye, drawItem.getByeNum());
+                assertEquals(expectedBye, drawItem.getByeNum(), "wrong bye ");
             }
             System.out.println("drawItem = " + drawItem.getPlayerName());
 
@@ -96,10 +96,10 @@ public class SingleEliminationDrawsGeneratorTest extends AbstractDrawsGeneratorT
         // make SE draws
 //        SingleEliminationEntriesConverter.fillRRGroupNumberForSEPlayers(rrDrawItems, entryIdToPlayerDrawInfo, tournamentEventEntity);
         IDrawsGenerator seRoundGenerator = DrawGeneratorFactory.makeGenerator(tournamentEvent, DrawType.SINGLE_ELIMINATION);
-        assertNotNull("SE round generator is null", seRoundGenerator);
+        assertNotNull(seRoundGenerator, "SE round generator is null");
 
         List<DrawItem> seDrawItems = seRoundGenerator.generateDraws(seEventEntries, entryIdToPlayerDrawInfo, existingDrawItems);
-        assertEquals("wrong number of SE entries", 64, seDrawItems.size());
+        assertEquals(64, seDrawItems.size(), "wrong number of SE entries");
 
         int i = 0;
         int[] expectedSeedNumbers = {1, 8, 5, 3, 4, 6, 7, 2};
@@ -119,9 +119,9 @@ public class SingleEliminationDrawsGeneratorTest extends AbstractDrawsGeneratorT
 //                assertEquals("wrong bye at index " + i, expectedBye, drawItem.getByeNum());
 //            }
             if (drawItem.getByeNum() == 0) {
-                System.out.println(String.format("%2d)\t%25s,%4d", (i + 1), drawItem.getPlayerName(), drawItem.getRating()));
+                System.out.println("%2d)\t%25s,%4d".formatted((i + 1), drawItem.getPlayerName(), drawItem.getRating()));
             } else {
-                System.out.println(String.format("%2d)\t%23s %d, 0", (i + 1), "Bye", drawItem.getByeNum()));
+                System.out.println("%2d)\t%23s %d, 0".formatted((i + 1), "Bye", drawItem.getByeNum()));
             }
 
             i++;

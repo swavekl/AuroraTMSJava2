@@ -3,16 +3,14 @@ package com.auroratms.usatt;
 import com.auroratms.ratingsprocessing.MembershipsProcessorStatus;
 import com.auroratms.ratingsprocessing.RatingsProcessorStatus;
 import com.auroratms.server.ServerApplication;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.test.context.support.WithSecurityContextTestExecutionListener;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.junit4.AbstractJUnit4SpringContextTests;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
 import org.springframework.test.context.support.DirtiesContextTestExecutionListener;
 import org.springframework.test.context.transaction.TransactionalTestExecutionListener;
@@ -22,9 +20,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Calendar;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
-@RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = {ServerApplication.class})
 @ContextConfiguration
 @TestExecutionListeners(listeners={ServletTestExecutionListener.class,
@@ -38,64 +35,64 @@ public class UsattDataServiceTest extends AbstractJUnit4SpringContextTests {
     @Autowired
     private UsattDataService usattDataService;
 
-    @Test ()
+    @Test
     public void testFetchOneUser () {
         String filename = "C:\\myprojects\\data\\DubinaRecords.csv";
         RatingsProcessorStatus ratingsProcessorStatus = new RatingsProcessorStatus();
         List<UsattPlayerRecord> usattPlayerInfos = usattDataService.readAllPlayersFromFile(filename, ratingsProcessorStatus);
-        assertEquals("wrong count of records inserted into db", 11, usattPlayerInfos.size());
+        assertEquals(11, usattPlayerInfos.size(), "wrong count of records inserted into db");
 
         usattDataService.insertPlayerData(usattPlayerInfos, ratingsProcessorStatus);
         long count = usattDataService.getTotalCount();
-        assertTrue("wrong count of records inserted into db", count > 68000);
+        assertTrue(count > 68000, "wrong count of records inserted into db");
 
         UsattPlayerRecord playerInfo = usattDataService.getPlayerByNames("Samson", "Dubina");
-        assertNotNull("wrong count", playerInfo);
-        assertEquals ("wrong first name", playerInfo.getFirstName(), "Samson");
-        assertEquals ("wrong last name", playerInfo.getLastName(), "Dubina");
-        assertEquals ("wrong membership id", playerInfo.getMembershipId().longValue(), 9051L);
+        assertNotNull(playerInfo, "wrong count");
+        assertEquals (playerInfo.getFirstName(), "Samson", "wrong first name");
+        assertEquals (playerInfo.getLastName(), "Dubina", "wrong last name");
+        assertEquals (playerInfo.getMembershipId().longValue(), 9051L, "wrong membership id");
 
         UsattPlayerRecord playerInfo2 = usattDataService.getPlayerByNames("SAMSON", "DUBINA");
-        assertNotNull("wrong count", playerInfo2);
-        assertEquals ("wrong first name", playerInfo2.getFirstName(), "Samson");
-        assertEquals ("wrong last name", playerInfo2.getLastName(), "Dubina");
-        assertEquals ("wrong membership id", playerInfo2.getMembershipId().longValue(), 9051L);
+        assertNotNull(playerInfo2, "wrong count");
+        assertEquals (playerInfo2.getFirstName(), "Samson", "wrong first name");
+        assertEquals (playerInfo2.getLastName(), "Dubina", "wrong last name");
+        assertEquals (playerInfo2.getMembershipId().longValue(), 9051L, "wrong membership id");
 
         UsattPlayerRecord playerInfo3 = usattDataService.getPlayerByNames("SAMSON", "DUBINA ");
-        assertNotNull("wrong count", playerInfo3);
-        assertEquals ("wrong first name", playerInfo3.getFirstName(), "Samson");
-        assertEquals ("wrong last name", playerInfo3.getLastName(), "Dubina");
-        assertEquals ("wrong membership id", playerInfo3.getMembershipId().longValue(), 9051L);
+        assertNotNull(playerInfo3, "wrong count");
+        assertEquals (playerInfo3.getFirstName(), "Samson", "wrong first name");
+        assertEquals (playerInfo3.getLastName(), "Dubina", "wrong last name");
+        assertEquals (playerInfo3.getMembershipId().longValue(), 9051L, "wrong membership id");
 
         UsattPlayerRecord playerByMembershipId = usattDataService.getPlayerByMembershipId(9051L);
-        assertNotNull("didn't find player", playerByMembershipId);
-        assertEquals ("wrong first name", playerInfo3.getFirstName(), "Samson");
-        assertEquals ("wrong last name", playerInfo3.getLastName(), "Dubina");
-        assertEquals ("wrong membership id", playerInfo3.getMembershipId().longValue(), 9051L);
+        assertNotNull(playerByMembershipId, "didn't find player");
+        assertEquals (playerInfo3.getFirstName(), "Samson", "wrong first name");
+        assertEquals (playerInfo3.getLastName(), "Dubina", "wrong last name");
+        assertEquals (playerInfo3.getMembershipId().longValue(), 9051L, "wrong membership id");
 
     }
 
     @Test
-    @Ignore
+    @Disabled
     public void testReadingFromCSV () {
         String filename = "C:\\myprojects\\TD Ratings File 9.26.2019.csv";
         RatingsProcessorStatus ratingsProcessorStatus = new RatingsProcessorStatus();
         List<UsattPlayerRecord> usattPlayerInfos = usattDataService.readAllPlayersFromFile(filename, ratingsProcessorStatus);
-        assertTrue("wrong number of records", (usattPlayerInfos.size() > 60000));
+        assertTrue((usattPlayerInfos.size() > 60000), "wrong number of records");
         for (UsattPlayerRecord usattPlayerInfo : usattPlayerInfos) {
-            assertNotNull("first name is null", usattPlayerInfo.getFirstName());
-            assertNotNull("last name is null", usattPlayerInfo.getLastName());
-            assertNotNull("Gender is null", usattPlayerInfo.getGender());
+            assertNotNull(usattPlayerInfo.getFirstName(), "first name is null");
+            assertNotNull(usattPlayerInfo.getLastName(), "last name is null");
+            assertNotNull(usattPlayerInfo.getGender(), "Gender is null");
         }
 
         usattDataService.insertPlayerData(usattPlayerInfos, ratingsProcessorStatus);
         long count = usattDataService.getTotalCount();
-        assertEquals("wrong count of records inserted into db", usattPlayerInfos.size(), count);
+        assertEquals(usattPlayerInfos.size(), count, "wrong count of records inserted into db");
 
     }
 
     @Test
-    @Ignore
+    @Disabled
     public void testRating() {
         // Samson's rating as of
 //        INSERT INTO auroratmstest.usattratinghistory
@@ -119,45 +116,45 @@ public class UsattDataServiceTest extends AbstractJUnit4SpringContextTests {
         calendar.set(2020, Calendar.MARCH, 9, 0, 0 ,0);
         calendar.set(Calendar.MILLISECOND, 0);
         playerRatingAsOfDate = usattDataService.getPlayerRatingAsOfDate(membershipId,  calendar.getTime());
-        assertEquals("wrong rating as of " + calendar.getTime(), 2443, playerRatingAsOfDate);
+        assertEquals(2443, playerRatingAsOfDate, "wrong rating as of " + calendar.getTime());
 
         calendar.set(2020, Calendar.MARCH, 8, 0, 0 ,0);
         playerRatingAsOfDate = usattDataService.getPlayerRatingAsOfDate(membershipId,  calendar.getTime());
-        assertEquals("wrong rating as of " + calendar.getTime(), 2443, playerRatingAsOfDate);
+        assertEquals(2443, playerRatingAsOfDate, "wrong rating as of " + calendar.getTime());
 
         calendar.set(2020, Calendar.FEBRUARY, 28, 0, 0 ,0);
         playerRatingAsOfDate = usattDataService.getPlayerRatingAsOfDate(membershipId,  calendar.getTime());
-        assertEquals("wrong rating as of " + calendar.getTime(), 2551, playerRatingAsOfDate);
+        assertEquals(2551, playerRatingAsOfDate, "wrong rating as of " + calendar.getTime());
 
         calendar.set(2020, Calendar.FEBRUARY, 27, 0, 0 ,0);
         playerRatingAsOfDate = usattDataService.getPlayerRatingAsOfDate(membershipId,  calendar.getTime());
-        assertEquals("wrong rating as of " + calendar.getTime(), 2437, playerRatingAsOfDate);
+        assertEquals(2437, playerRatingAsOfDate, "wrong rating as of " + calendar.getTime());
 
         calendar.set(2020, Calendar.FEBRUARY, 26, 0, 0 ,0);
         playerRatingAsOfDate = usattDataService.getPlayerRatingAsOfDate(membershipId,  calendar.getTime());
-        assertEquals("wrong rating as of " + calendar.getTime(), 2437, playerRatingAsOfDate);
+        assertEquals(2437, playerRatingAsOfDate, "wrong rating as of " + calendar.getTime());
 
         calendar.set(2020, Calendar.FEBRUARY, 22, 0, 0 ,0);
         playerRatingAsOfDate = usattDataService.getPlayerRatingAsOfDate(membershipId,  calendar.getTime());
-        assertEquals("wrong rating as of " + calendar.getTime(), 2437, playerRatingAsOfDate);
+        assertEquals(2437, playerRatingAsOfDate, "wrong rating as of " + calendar.getTime());
 
         calendar.set(2020, Calendar.FEBRUARY, 21, 0, 0 ,0);
         playerRatingAsOfDate = usattDataService.getPlayerRatingAsOfDate(membershipId,  calendar.getTime());
-        assertEquals("wrong rating as of " + calendar.getTime(), 2444, playerRatingAsOfDate);
+        assertEquals(2444, playerRatingAsOfDate, "wrong rating as of " + calendar.getTime());
 
         calendar.set(2020, Calendar.FEBRUARY, 20, 0, 0 ,0);
         playerRatingAsOfDate = usattDataService.getPlayerRatingAsOfDate(membershipId,  calendar.getTime());
-        assertEquals("wrong rating as of " + calendar.getTime(), 2444, playerRatingAsOfDate);
+        assertEquals(2444, playerRatingAsOfDate, "wrong rating as of " + calendar.getTime());
 
         // get latest rating as before the first tournament
         calendar.set(2015, Calendar.DECEMBER, 12, 0, 0 ,0);
         playerRatingAsOfDate = usattDataService.getPlayerRatingAsOfDate(membershipId,  calendar.getTime());
-        assertEquals("wrong rating as of " + calendar.getTime(), 2409, playerRatingAsOfDate);
+        assertEquals(2409, playerRatingAsOfDate, "wrong rating as of " + calendar.getTime());
 
         // get latest rating as before the first tournament
         calendar.set(2021, Calendar.FEBRUARY, 26, 0, 0 ,0);
         playerRatingAsOfDate = usattDataService.getPlayerRatingAsOfDate(400000,  calendar.getTime());
-        assertEquals("wrong rating as of " + calendar.getTime(), 0, playerRatingAsOfDate);
+        assertEquals(0, playerRatingAsOfDate, "wrong rating as of " + calendar.getTime());
     }
 
     @Test
@@ -176,16 +173,16 @@ public class UsattDataServiceTest extends AbstractJUnit4SpringContextTests {
     }
 
     @Test
-    @Ignore
+    @Disabled
     public void testReadingMembership () {
         String filename = "F:\\ratings files\\currentMembersReport.csv";
         MembershipsProcessorStatus membershipsProcessorStatus = new MembershipsProcessorStatus();
         List<UsattPlayerRecord> usattPlayerInfos = usattDataService.readMembershipFile(filename, membershipsProcessorStatus);
-        assertTrue("wrong number of records", (usattPlayerInfos.size() > 13000));
+        assertTrue((usattPlayerInfos.size() > 13000), "wrong number of records");
         for (UsattPlayerRecord usattPlayerInfo : usattPlayerInfos) {
-            assertNotNull("first name is null", usattPlayerInfo.getFirstName());
-            assertNotNull("last name is null", usattPlayerInfo.getLastName());
-            assertNotNull("Gender is null", usattPlayerInfo.getGender());
+            assertNotNull(usattPlayerInfo.getFirstName(), "first name is null");
+            assertNotNull(usattPlayerInfo.getLastName(), "last name is null");
+            assertNotNull(usattPlayerInfo.getGender(), "Gender is null");
         }
 
         long countBefore = usattDataService.getTotalCount();

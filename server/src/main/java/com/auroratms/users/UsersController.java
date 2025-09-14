@@ -8,7 +8,7 @@ import com.auroratms.utils.EmailService;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.okta.sdk.resource.user.ForgotPasswordResponse;
+//import com.okta.sdk.resource.user.ForgotPasswordResponse;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -64,7 +64,7 @@ public class UsersController extends AbstractOktaController {
 
             logger.info("Sending email to admin notifying of new user creation.");
             Map<String, Object> templateModel = new HashMap<>();
-            templateModel.put("playerName", String.format("%s %s", userRegistration.getFirstName(), userRegistration.getLastName()));
+            templateModel.put("playerName", "%s %s".formatted(userRegistration.getFirstName(), userRegistration.getLastName()));
             templateModel.put("playerEmail", userRegistration.getEmail());
             emailService.sendMessageUsingThymeleafTemplate("swaveklorenc@yahoo.com", null,
                     "New User Registration", "user-registration/new-user-registration.html", templateModel);
@@ -167,7 +167,7 @@ public class UsersController extends AbstractOktaController {
         try {
             String userProfile = this.getUser(email);
             boolean isUserRegistered = (userProfile != null);
-            String response = String.format("{\"userRegistered\": %b }", isUserRegistered);
+            String response = "{\"userRegistered\": %b }".formatted(isUserRegistered);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             logger.error(e.getMessage());
@@ -208,9 +208,9 @@ public class UsersController extends AbstractOktaController {
                 if ("SUSPENDED".equals(status)) {
                     logger.info("Unsuspending user with userId " + userId);
                     unsuspendUser(userId);
-                    logger.info(String.format("Email %s was validated successfully for user %s named %s, %s.  Current user status is %s", userRegistration.getEmail(), userId, lastName, firstName, status));
+                    logger.info("Email %s was validated successfully for user %s named %s, %s.  Current user status is %s".formatted(userRegistration.getEmail(), userId, lastName, firstName, status));
                 } else {
-                    logger.info(String.format("Email %s was already validated for user %s named %s, %s.  Current user status is %s", userRegistration.getEmail(), userId, lastName, firstName, status));
+                    logger.info("Email %s was already validated for user %s named %s, %s.  Current user status is %s".formatted(userRegistration.getEmail(), userId, lastName, firstName, status));
                 }
             } else {
                 logger.info("Token from url: " + tokenFromURL + " different from token from email: " + token);
@@ -283,11 +283,11 @@ public class UsersController extends AbstractOktaController {
                 String combinedResponse = fetchUser(loginResponse, userRegistration.getEmail());
                 return new ResponseEntity<String>(combinedResponse, HttpStatus.OK);
             } else {
-                logger.error(String.format("User %s failed to login because username or password were not provided", userRegistration.getEmail()));
+                logger.error("User %s failed to login because username or password were not provided".formatted(userRegistration.getEmail()));
                 return new ResponseEntity<String>("{\"message\": \"Login failed\"}", HttpStatus.UNAUTHORIZED);
             }
         } catch (Exception e) {
-            logger.error(String.format("User %s failed to login due to: %s", userRegistration.getEmail(), e.getMessage()));
+            logger.error("User %s failed to login due to: %s".formatted(userRegistration.getEmail(), e.getMessage()));
             return new ResponseEntity<String>("{\"message\": \"Login failed\"}", HttpStatus.UNAUTHORIZED);
         }
     }
@@ -385,12 +385,12 @@ public class UsersController extends AbstractOktaController {
     public String forgotPasswordStart (@PathVariable String email) {
         try {
             logger.info("Starting Forgot password flow.  Emailing instructions to " + email);
-            ForgotPasswordResponse forgotPasswordResponse = this.getClient()
-                    .apiV1UsersUserIdCredentialsForgotPasswordPost(email);
+//            ForgotPasswordResponse forgotPasswordResponse = this.getClient()
+//                    .apiV1UsersUserIdCredentialsForgotPasswordPost(email);
             return "{ \"status\": \"SUCCESS\" }";
         } catch (Exception e) {
             logger.error("Error starting forgot password flow ", e);
-            return String.format("{ \"status\": \"ERROR\" , \"errorMessage\": \"%s\"}", e.getMessage());
+            return "{ \"status\": \"ERROR\" , \"errorMessage\": \"%s\"}".formatted(e.getMessage());
         }
     }
 
@@ -412,9 +412,9 @@ public class UsersController extends AbstractOktaController {
         } catch (Exception e) {
             logger.error("Error resetting password", e);
             String message = e.getMessage();
-            return String.format("{ \"status\": \"ERROR\" , \"errorMessage\": \"%s\"}", message);
+            return "{ \"status\": \"ERROR\" , \"errorMessage\": \"%s\"}".formatted(message);
         }
-        return String.format("{ \"status\" : \"%s\" }", status);
+        return "{ \"status\" : \"%s\" }".formatted(status);
     }
 
     /**

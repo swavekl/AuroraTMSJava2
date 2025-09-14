@@ -82,7 +82,7 @@ public class MatchEventListener {
         // Previous or Next buttons cause save but if there is no change then don't do it.
         if (!StringUtils.equals(detailsJSONBefore, detailsJSON)) {
             log.info("Match changed. Saving audit entry for match id " + matchAfter.getId());
-            String eventIdentifier = String.format("%d", matchAfter.getId());
+            String eventIdentifier = "%d".formatted(matchAfter.getId());
 
             AuditEntity auditEntity = new AuditEntity();
             auditEntity.setEventTimestamp(new Date());

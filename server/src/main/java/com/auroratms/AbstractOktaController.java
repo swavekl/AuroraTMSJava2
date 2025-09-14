@@ -4,8 +4,8 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.*;
 import com.okta.sdk.authc.credentials.TokenClientCredentials;
-import com.okta.sdk.client.Client;
 import com.okta.sdk.client.Clients;
+import com.okta.sdk.resource.client.ApiClient;
 import org.springframework.beans.factory.annotation.Value;
 
 import java.io.*;
@@ -201,7 +201,7 @@ public class AbstractOktaController {
         return "SSWS " + api_token;
     }
 
-    protected Client getClient() {
+    protected ApiClient getClient() {
         return Clients.builder()
                 .setOrgUrl(oktaServiceBase)
                 .setClientCredentials(new TokenClientCredentials(api_token))

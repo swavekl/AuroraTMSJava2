@@ -225,36 +225,36 @@ public class MembershipReportService {
         String strNew = (isNew) ? "X" : " ";
         String strRenewal = (!isNew) ? "X" : " ";
         String strMembershipId = isNew ? "" : Long.toString(reportData.userProfileExt.getMembershipId());
-        String line1 = String.format("New (%s)\tRenewal (%s)\t\t\t\t\t\t\t\t\t\tMembership Number (if renewal) %s",
+        String line1 = "New (%s)\tRenewal (%s)\t\t\t\t\t\t\t\t\t\tMembership Number (if renewal) %s".formatted(
                 strNew, strRenewal, strMembershipId);
 
         // Date of Birth: Sex: (X) Male ( ) Female
         String strDateOfBirth = (reportData.userProfile.getDateOfBirth() != null) ? dateFormat.format(reportData.userProfile.getDateOfBirth()) : "          ";
         String strMale = (reportData.userProfile.getGender().equals("Male")) ? "X" : " ";
         String strFemale = (reportData.userProfile.getGender().equals("Female")) ? "X" : " ";
-        String line2 = String.format("Date of Birth:\t\t%s\t\t\t\t\t\t\t\t\t\t\t\t\tSex: (%s) Male\t(%s) Female", strDateOfBirth, strMale, strFemale);
+        String line2 = "Date of Birth:\t\t%s\t\t\t\t\t\t\t\t\t\t\t\t\tSex: (%s) Male\t(%s) Female".formatted(strDateOfBirth, strMale, strFemale);
 
-        String line3 = String.format("Name:\t\t\t\t\t%s %s", reportData.userProfile.getFirstName(), reportData.userProfile.getLastName());
-        String line4 = String.format("Address:\t\t\t\t%s", reportData.userProfile.getStreetAddress());
+        String line3 = "Name:\t\t\t\t\t%s %s".formatted(reportData.userProfile.getFirstName(), reportData.userProfile.getLastName());
+        String line4 = "Address:\t\t\t\t%s".formatted(reportData.userProfile.getStreetAddress());
         String paddedCity = StringUtils.rightPad(reportData.userProfile.getCity(), 60);
-        String line5 = String.format("City:\t\t\t\t\t%sState: %s\tZip: %s", paddedCity, reportData.userProfile.getState(), reportData.userProfile.getZipCode());
+        String line5 = "City:\t\t\t\t\t%sState: %s\tZip: %s".formatted(paddedCity, reportData.userProfile.getState(), reportData.userProfile.getZipCode());
 
         String strExpirationDate = (membershipExpirationDate != null && !isNew) ? dateFormat.format(membershipExpirationDate) : "          ";
         String paddedPhone = StringUtils.rightPad(reportData.userProfile.getMobilePhone(), 60);
-        String line6 = String.format("Home phone:\t\t%sExpired: %s", paddedPhone, strExpirationDate);
+        String line6 = "Home phone:\t\t%sExpired: %s".formatted(paddedPhone, strExpirationDate);
 
-        String line7 = String.format("E-mail:\t\t\t\t%s", reportData.userProfile.getEmail());
+        String line7 = "E-mail:\t\t\t\t%s".formatted(reportData.userProfile.getEmail());
 
         String clubName = getClubName(reportData.userProfileExt.getClubFk());
-        String line8 = String.format("Affiliated Club:\t%s", clubName);
+        String line8 = "Affiliated Club:\t%s".formatted(clubName);
 
         // Membership: Junior Tournament Pass
         String strMembershipType = getMembershipName (reportData.membershipType);
-        String line9 = String.format("Membership:\t\t%s", strMembershipType);
+        String line9 = "Membership:\t\t%s".formatted(strMembershipType);
 
         // Sold By:
         String paddedContactName = StringUtils.rightPad(contactName, 50);
-        String line10 = String.format("Sold By:\t\t\t\t%s\t\t\t\t\tDate: %s", paddedContactName, strTournamentDate);
+        String line10 = "Sold By:\t\t\t\t%s\t\t\t\t\tDate: %s".formatted(paddedContactName, strTournamentDate);
 
         String [] lines = { line1, line2, line3, line4, line5, line6, line7, line8, line9, line10};
         for (int i = 0; i < lines.length; i++) {
@@ -450,7 +450,7 @@ public class MembershipReportService {
             int productId = getProductId(membershipType);
             int yearCount = getYearCount(membershipType);
 
-            return String.format("%d,%s,%s,%s,%s,%s,\"%s\",%s,%s,%s,%s,%s,%s,%d,%d\n", membershipId,
+            return "%d,%s,%s,%s,%s,%s,\"%s\",%s,%s,%s,%s,%s,%s,%d,%d\n".formatted(membershipId,
                     userProfile.getLastName(), userProfile.getFirstName(), formattedDOB, userProfile.getEmail(), gender,
                     userProfile.getStreetAddress(), userProfile.getCity(), userProfile.getState(), userProfile.getZipCode(), userProfile.getMobilePhone(),
                     citizenship, representingCountry, productId, yearCount);

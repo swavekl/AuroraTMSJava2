@@ -6,18 +6,25 @@
       <profile name="Gradle Imported" enabled="true">
         <outputRelativeToContentRoot value="true" />
         <processorPath useClasspath="false">
-          <entry name="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.springframework.boot/spring-boot-configuration-processor/2.6.0/18e39c77550c9ed34c81e5f376629c4fcc7b4819/spring-boot-configuration-processor-2.6.0.jar" />
-          <entry name="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.projectlombok/lombok/1.18.16/6dc192c7f93ec1853f70d59d8a6dcf94eb42866/lombok-1.18.16.jar" />
+          <entry name="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.springframework.boot/spring-boot-configuration-processor/3.5.5/ed2da901b807ff43c628cc1f165a84dacdc4cbbf/spring-boot-configuration-processor-3.5.5.jar" />
+          <entry name="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.projectlombok/lombok/1.18.36/5a30490a6e14977d97d9c73c924c1f1b5311ea95/lombok-1.18.36.jar" />
         </processorPath>
         <module name="AuroraTMSJava2.server.main" />
       </profile>
     </annotationProcessing>
-    <bytecodeTargetLevel>
+    <bytecodeTargetLevel target="17">
       <module name="client.main" target="1.8" />
       <module name="client.test" target="1.8" />
       <module name="com.auroratms.server" target="1.8" />
       <module name="com.example.demo.main" target="1.8" />
       <module name="com.example.demo.test" target="1.8" />
     </bytecodeTargetLevel>
+  </component>
+  <component name="JavacSettings">
+    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="AuroraTMSJava2.server" options="-parameters" />
+      <module name="AuroraTMSJava2.server.main" options="-parameters" />
+      <module name="AuroraTMSJava2.server.test" options="-parameters" />
+    </option>
   </component>
 </project>

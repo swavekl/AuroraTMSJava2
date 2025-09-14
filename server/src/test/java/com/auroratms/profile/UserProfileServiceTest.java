@@ -1,14 +1,14 @@
 package com.auroratms.profile;
 
 import com.auroratms.AbstractServiceTest;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class UserProfileServiceTest extends AbstractServiceTest {
 
@@ -25,7 +25,7 @@ public class UserProfileServiceTest extends AbstractServiceTest {
         Collection<UserProfile> userProfiles = userProfileService.listByProfileIds(profileIds);
         long end = System.currentTimeMillis();
         System.out.println("duration for 10 = " + (end - start));
-        assertEquals ("wrong number of profiles retrieved", arr.length, userProfiles.size());
+        assertEquals (arr.length, userProfiles.size(), "wrong number of profiles retrieved");
     }
 
     @Test
@@ -44,7 +44,7 @@ public class UserProfileServiceTest extends AbstractServiceTest {
         Collection<UserProfile> userProfiles = userProfileService.listByProfileIds(profileIds);
         long end = System.currentTimeMillis();
         System.out.println("duration for 64 = " + (end - start));
-        assertEquals ("wrong number of profiles retrieved", arr.length, userProfiles.size());
+        assertEquals (arr.length, userProfiles.size(), "wrong number of profiles retrieved");
     }
 
     @Test
@@ -55,6 +55,6 @@ public class UserProfileServiceTest extends AbstractServiceTest {
         Collection<UserProfile> userProfiles = userProfileService.listByProfileIds(profileIds);
         long end = System.currentTimeMillis();
         System.out.println("duration for 320 = " + (end - start));
-        assertEquals ("wrong number of profiles retrieved", arr.length, userProfiles.size());
+        assertEquals (arr.length, userProfiles.size(), "wrong number of profiles retrieved");
     }
 }

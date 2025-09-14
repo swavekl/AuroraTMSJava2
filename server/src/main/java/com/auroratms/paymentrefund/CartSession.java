@@ -2,7 +2,7 @@ package com.auroratms.paymentrefund;
 
 import lombok.NonNull;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.util.Date;
 
 /**

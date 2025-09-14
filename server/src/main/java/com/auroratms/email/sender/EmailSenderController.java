@@ -15,7 +15,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
-import javax.mail.MessagingException;
+import jakarta.mail.MessagingException;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -63,7 +63,7 @@ public class EmailSenderController {
                                                              @PathVariable Boolean sendTestEmail) {
         final String currentUserName = UserRolesHelper.getCurrentUsername();
         CampaignSendingStatus campaignSendingStatus = new CampaignSendingStatus();
-        campaignSendingStatus.phase = String.format("Staring email campaign generation for user %s", currentUserName);
+        campaignSendingStatus.phase = "Staring email campaign generation for user %s".formatted(currentUserName);
         campaignSendingStatus.startTime = System.currentTimeMillis();
         campaignSendingStatus.endTime = campaignSendingStatus.startTime;
         ObjectIdGenerators.UUIDGenerator uuidGenerator = new ObjectIdGenerators.UUIDGenerator();
@@ -91,7 +91,7 @@ public class EmailSenderController {
             thread.setName("email-sending-" + campaignSendingStatus.id);
             thread.start();
 
-            String responseJson = String.format("{\"campaignJob\": \"%s\"}", campaignSendingStatus.id);
+            String responseJson = "{\"campaignJob\": \"%s\"}".formatted(campaignSendingStatus.id);
             return new ResponseEntity<>(responseJson, HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity(e, HttpStatus.INTERNAL_SERVER_ERROR);

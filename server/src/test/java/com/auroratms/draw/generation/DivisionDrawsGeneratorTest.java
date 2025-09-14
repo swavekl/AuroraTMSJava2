@@ -5,12 +5,12 @@ import com.auroratms.draw.DrawType;
 import com.auroratms.event.DrawMethod;
 import com.auroratms.event.TournamentEvent;
 import com.auroratms.tournamentevententry.TournamentEventEntry;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.*;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class DivisionDrawsGeneratorTest extends AbstractDrawsGeneratorTest {
 
@@ -31,7 +31,7 @@ public class DivisionDrawsGeneratorTest extends AbstractDrawsGeneratorTest {
         List<DrawItem> existingDraws = Collections.emptyList();
         IDrawsGenerator generator = DrawGeneratorFactory.makeGenerator(tournamentEvent, DrawType.ROUND_ROBIN);
         List<DrawItem> drawItemsList = generator.generateDraws(eventEntries, entryIdToPlayerDrawInfo, existingDraws);
-        assertEquals ("wrong size of drawItemsList", eventEntries.size(), drawItemsList.size());
+        assertEquals (eventEntries.size(), drawItemsList.size(), "wrong size of drawItemsList");
 
         int [] expectedGroupCounts = {8, 8, 7};
         int [] actualGroupCounts = {0, 0, 0};
@@ -39,6 +39,6 @@ public class DivisionDrawsGeneratorTest extends AbstractDrawsGeneratorTest {
             int groupNum = drawItem.getGroupNum();
             actualGroupCounts[groupNum - 1] = actualGroupCounts[groupNum - 1] + 1;
         }
-        assertArrayEquals("wrong counts of players in groups", expectedGroupCounts, actualGroupCounts);
+        assertArrayEquals(expectedGroupCounts, actualGroupCounts, "wrong counts of players in groups");
     }
 }

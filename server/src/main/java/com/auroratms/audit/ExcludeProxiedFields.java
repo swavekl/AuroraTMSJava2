@@ -3,7 +3,7 @@ package com.auroratms.audit;
 import com.google.gson.ExclusionStrategy;
 import com.google.gson.FieldAttributes;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 public class ExcludeProxiedFields implements ExclusionStrategy {
 

@@ -4,12 +4,12 @@ import com.auroratms.event.TournamentEvent;
 import com.auroratms.tournamentevententry.AvailabilityStatus;
 import com.auroratms.tournamentevententry.EventEntryStatus;
 import com.auroratms.tournamentevententry.TournamentEventEntry;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class SchedulingConflictEventPolicyTest {
 
@@ -33,9 +33,9 @@ public class SchedulingConflictEventPolicyTest {
 
         SchedulingConflictEventPolicy policy = new SchedulingConflictEventPolicy(eventEntries, events);
         boolean entryDenied = policy.isEntryDenied(u1750);
-        assertTrue("entry was not denied", entryDenied);
+        assertTrue(entryDenied, "entry was not denied");
         AvailabilityStatus status = policy.getStatus();
-        assertEquals("should be scheduling conflict", AvailabilityStatus.SCHEDULING_CONFLICT, status);
+        assertEquals(AvailabilityStatus.SCHEDULING_CONFLICT, status, "should be scheduling conflict");
     }
 
     @Test
@@ -58,9 +58,9 @@ public class SchedulingConflictEventPolicyTest {
 
         SchedulingConflictEventPolicy policy = new SchedulingConflictEventPolicy(eventEntries, events);
         boolean entryDenied = policy.isEntryDenied(u1750);
-        assertTrue("entry was not denied", entryDenied);
+        assertTrue(entryDenied, "entry was not denied");
         AvailabilityStatus status = policy.getStatus();
-        assertEquals("should be scheduling conflict", AvailabilityStatus.SCHEDULING_CONFLICT, status);
+        assertEquals(AvailabilityStatus.SCHEDULING_CONFLICT, status, "should be scheduling conflict");
     }
 
     @Test
@@ -83,9 +83,9 @@ public class SchedulingConflictEventPolicyTest {
 
         SchedulingConflictEventPolicy policy = new SchedulingConflictEventPolicy(eventEntries, events);
         boolean entryDenied = policy.isEntryDenied(u1750);
-        assertFalse("entry was denied", entryDenied);
+        assertFalse(entryDenied, "entry was denied");
         AvailabilityStatus status = policy.getStatus();
-        assertEquals("should be scheduling conflict", AvailabilityStatus.SCHEDULING_CONFLICT, status);
+        assertEquals(AvailabilityStatus.SCHEDULING_CONFLICT, status, "should be scheduling conflict");
     }
 
     // ==========================================================================================================

@@ -51,7 +51,7 @@ public class AccountController {
             isActivated = account.isActivated();
         }
         // find out if user created an account already
-        String json = String.format("{\"accountExists\": %b, \"isActivated\": %b}", accountExists, isActivated);
+        String json = "{\"accountExists\": %b, \"isActivated\": %b}".formatted(accountExists, isActivated);
         return new ResponseEntity<String>(json, HttpStatus.OK);
     }
 
@@ -82,7 +82,7 @@ public class AccountController {
 
             AccountLink accountLink = createAccountLink(account.getId(), profile.getUserId());
             String accountLinkUrl = accountLink.getUrl();
-            String json = String.format("{\"accountLinkUrl\": \"%s\"}", accountLinkUrl);
+            String json = "{\"accountLinkUrl\": \"%s\"}".formatted(accountLinkUrl);
             return new ResponseEntity<String>(json, HttpStatus.CREATED);
         } catch (StripeException e) {
             String errorMessage = e.getMessage();
@@ -157,15 +157,15 @@ public class AccountController {
                     accountEntity.setActivated(true);
                     accountService.save(accountEntity);
                 }
-                String json = String.format("{\"accountActivated\": %b, \"detailsSubmitted\": %b}", chargesEnabled, detailsSubmitted);
+                String json = "{\"accountActivated\": %b, \"detailsSubmitted\": %b}".formatted(chargesEnabled, detailsSubmitted);
                 return new ResponseEntity<String>(json, HttpStatus.OK);
             } catch (StripeException e) {
-                String json = String.format("{\"error\": \"%s\"}", e.getMessage());
+                String json = "{\"error\": \"%s\"}".formatted(e.getMessage());
                 return new ResponseEntity<String>(json, HttpStatus.BAD_REQUEST);
             }
         } else {
             String errorMessage = "Account associated with profile " + userProfileId + " not found";
-            String json = String.format("{\"error\": \"%s\"}", errorMessage);
+            String json = "{\"error\": \"%s\"}".formatted(errorMessage);
             return new ResponseEntity<String>(json, HttpStatus.BAD_REQUEST);
         }
     }

@@ -26,12 +26,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 import org.springframework.util.FileCopyUtils;
 
-import javax.mail.MessagingException;
+import jakarta.mail.MessagingException;
 import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -41,7 +42,7 @@ import java.util.*;
  */
 @Component
 @Slf4j
-@Transactional  // place @Transactional here to avoid Lazy loading exception
+@Transactional(propagation = Propagation.REQUIRES_NEW)  // place @Transactional here to avoid Lazy loading exception
 public class ReportEventListener {
 
     @Autowired

@@ -7,13 +7,13 @@ import com.auroratms.profile.UserProfile;
 import com.auroratms.profile.UserProfileExt;
 import com.auroratms.profile.UserProfileExtService;
 import com.auroratms.profile.UserProfileService;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.File;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class TournamentReportServiceTest extends AbstractServiceTest {
 
@@ -46,12 +46,12 @@ public class TournamentReportServiceTest extends AbstractServiceTest {
         String reportFilename = result.getReportFilename();
 
         File reportFile = new File(reportFilename);
-        assertTrue("report file not created",reportFile.exists());
+        assertTrue(reportFile.exists(),"report file not created");
 
         long length = reportFile.length();
-        assertTrue("wrong length of report file", length > 100);
+        assertTrue(length > 100, "wrong length of report file");
 
         double grandTotalDue = result.getGrandTotalDue();
-        assertEquals("wrong amount due", 217.5d, grandTotalDue, 0.0d);
+        assertEquals(217.5d, grandTotalDue, 0.0d, "wrong amount due");
     }
 }

@@ -3,14 +3,12 @@ package com.auroratms.profile;
 import com.auroratms.users.UserRoles;
 import com.google.gson.*;
 import com.okta.sdk.authc.credentials.TokenClientCredentials;
-import com.okta.sdk.client.Client;
 import com.okta.sdk.client.Clients;
+import com.okta.sdk.helper.PaginationUtil;
 import com.okta.sdk.impl.resource.DefaultUserBuilder;
-import com.okta.sdk.resource.group.Group;
-import com.okta.sdk.resource.group.GroupList;
-import com.okta.sdk.resource.user.User;
-import com.okta.sdk.resource.user.UserList;
-import com.okta.sdk.resource.user.UserStatus;
+import com.okta.sdk.resource.api.*;
+import com.okta.sdk.resource.client.ApiClient;
+import com.okta.sdk.resource.model.*;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,7 +22,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.*;
 import java.net.HttpURLConnection;
+import java.net.URI;
 import java.net.URL;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
@@ -47,6 +49,8 @@ public class UserProfileService {
 
     public static final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
 
+    private static final String APPLICATION_JSON = "application/json";
+
     @Autowired
     private SidService sidService;
 
@@ -57,11 +61,9 @@ public class UserProfileService {
      */
     @Cacheable(key = "#userId")
     public UserProfile getProfile (String userId) {
-        Client client = getClient();
-
-        User user = client.getUser(userId);
-        UserProfile userProfile = fromOktaUser (user);
-        return userProfile;
+        UserApi userApi = getUserApi();
+        UserGetSingleton userGetSingleton = userApi.getUser(userId, APPLICATION_JSON, "true");
+        return fromOktaUser (userId, userGetSingleton.getProfile(), userGetSingleton.getStatus());
     }
 
     /**
@@ -70,59 +72,76 @@ public class UserProfileService {
      */
     @CachePut(key = "#result.userId")
     public UserProfile updateProfile (UserProfile userProfile) {
-        Client client = getClient();
-
         // get current user
-        User currentUser = client.getUser(userProfile.getUserId());
+        UserApi userApi = getUserApi();
+        UserGetSingleton userGetSingleton = userApi.getUser(userProfile.getUserId(), APPLICATION_JSON, "true");
         // update the profile
-        toOktaUserProfile(userProfile, currentUser);
+        com.okta.sdk.resource.model.UserProfile oktaUserProfile = toOktaUserProfile(userProfile, userGetSingleton);
 
-        User updatedOktaUser = currentUser.update();
+        UpdateUserRequest updateUserRequest = new UpdateUserRequest();
+        updateUserRequest.setProfile(oktaUserProfile);
+        User updatedOktaUser = userApi.updateUser(userProfile.getUserId(), updateUserRequest, true);
+
         // user changed email - update it in the acl_sid table
         if (!userProfile.getEmail().equals(userProfile.getLogin())) {
             this.sidService.updateSid(userProfile.getLogin(), userProfile.getEmail());
         }
-        return fromOktaUser (updatedOktaUser);
+        return fromOktaUser (userProfile.getUserId(), updatedOktaUser.getProfile(), updatedOktaUser.getStatus());
     }
 
+    /**
+     * Creates a profile
+     * @param userProfile
+     * @return
+     */
     @CachePut(key = "#result.userId")
     public UserProfile createProfile(UserProfile userProfile) {
-        Client client = getClient();
-
-        String password = userProfile.getFirstName() + "1234$";
-        Map<String, Object> properties = new HashMap<>();
-        properties.put("state", userProfile.getState());
-        properties.put("zipCode", userProfile.getZipCode());
-        properties.put("countryCode", userProfile.getCountryCode() != null ? userProfile.getCountryCode() : "US");
-        properties.put("gender", userProfile.getGender() != null ? userProfile.getGender() : "M");
-        Date dateOfBirth = userProfile.getDateOfBirth();
-        if (dateOfBirth != null) {
-            SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
-            properties.put("birthdate", dateFormat.format(dateOfBirth));
-        }
-
-        User user = new DefaultUserBuilder()
+        DefaultUserBuilder defaultUserBuilder = new DefaultUserBuilder();
+        defaultUserBuilder
                 .setFirstName(userProfile.getFirstName())
                 .setLastName(userProfile.getLastName())
                 .setEmail(userProfile.getEmail())
                 .setLogin(userProfile.getLogin())
-                .setPassword(password.toCharArray())
                 .setSecurityQuestion("What is the food you least liked as a child?")
-                .setSecurityQuestionAnswer("spinach")
-                .setProfileProperties(properties)
-                .buildAndCreate(client);
+                .setSecurityQuestionAnswer("spinach");
 
-        return fromOktaUser(user);
+        String password = userProfile.getFirstName() + "1234$";
+        defaultUserBuilder.setPassword(password.toCharArray());
+        Map<String, Object> properties = new HashMap<>();
+        defaultUserBuilder.setCustomProfileProperty("state", userProfile.getState());
+        defaultUserBuilder.setCustomProfileProperty("zipCode", userProfile.getZipCode());
+        defaultUserBuilder.setCustomProfileProperty("countryCode", userProfile.getCountryCode() != null ? userProfile.getCountryCode() : "US");
+        defaultUserBuilder.setCustomProfileProperty("gender", userProfile.getGender() != null ? userProfile.getGender() : "M");
+        Date dateOfBirth = userProfile.getDateOfBirth();
+        if (dateOfBirth != null) {
+            SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
+            defaultUserBuilder.setCustomProfileProperty("birthdate", dateFormat.format(dateOfBirth));
+        }
+
+        UserApi userApi = getUserApi();
+        User user = defaultUserBuilder.buildAndCreate(userApi);
+
+        return fromOktaUser(user.getId(), user.getProfile(), user.getStatus());
     }
 
     /**
      *
      * @return
      */
-    public Collection<UserProfile> list () {
-        Client client = getClient();
-        UserList users = client.listUsers();
-        return toUserProfileList(users);
+    public Collection<UserProfile> list() {
+        Collection<UserProfile> userProfiles = new ArrayList<>();
+
+        UserApi userApi = getUserApi();
+        String after = null;
+        do {
+            List<User> users = userApi.listUsers(APPLICATION_JSON,
+                    null, after, 200, null, null, null, null);
+            users.forEach(user -> userProfiles.add(fromOktaUser(user.getId(), user.getProfile(), user.getStatus())));
+
+            after = PaginationUtil.getAfter(userApi.getApiClient());
+        } while (StringUtils.isNotBlank(after));
+
+        return userProfiles;
     }
 
     /**
@@ -131,11 +150,11 @@ public class UserProfileService {
      * @return
      */
     public Collection<UserProfile> listByStates (List<String> statesList) {
-        Client client = getClient();
+        UserApi userApi = getUserApi();
         List<UserProfile> profileList = new ArrayList<>();
         if (!statesList.isEmpty()) {
             int batchSize = 10;
-            int fromIndex = 0;
+            int fromIndex = 0;              
             int toIndex = fromIndex + batchSize;
             toIndex = Math.min(toIndex, statesList.size());
             while(true) {
@@ -143,12 +162,16 @@ public class UserProfileService {
                 StringBuilder search = new StringBuilder();
                 for (String state : statesBatch) {
                     search.append((search.length() > 0) ? " or " : "");
-                    search.append(String.format("(profile.state eq \"%s\")", state));
+                    search.append("(profile.state eq \"%s\")".formatted(state));
                 }
+                String after = null;
+                do {
+                    List<User> users = userApi.listUsers(APPLICATION_JSON,
+                            null, after, 200, null, search.toString(), null, null);
+                    users.forEach(user -> profileList.add(fromOktaUser(user.getId(), user.getProfile(), user.getStatus())));
 
-                UserList users = client.listUsers(null, null, search.toString(), null, null);
-                Collection<UserProfile> userProfilesBatch = toUserProfileList(users);
-                profileList.addAll(userProfilesBatch);
+                    after = PaginationUtil.getAfter(userApi.getApiClient());
+                } while (StringUtils.isNotBlank(after));
 
                 fromIndex = toIndex;
                 if (toIndex == statesList.size()) {
@@ -167,7 +190,7 @@ public class UserProfileService {
      * @return
      */
     public Collection<UserProfile> listByProfileIds (List<String> profileIds) {
-        Client client = getClient();
+        UserApi userApi = getUserApi();
         List<UserProfile> profileList = new ArrayList<>(profileIds.size());
         if (profileIds.size() > 0) {
             int batchSize = 20;
@@ -179,11 +202,11 @@ public class UserProfileService {
                 String filter = "";
                 for (String profileId : profileIdsBatch) {
                     filter += (filter.length() > 0) ? " or " : "";
-                    filter += String.format("(id eq \"%s\")", profileId);
+                    filter += "(id eq \"%s\")".formatted(profileId);
                 }
-                UserList users = client.listUsers(null, filter, null, null, null);
-                Collection<UserProfile> userProfilesBatch = toUserProfileList(users);
-                profileList.addAll(userProfilesBatch);
+                List<User> users = userApi.listUsers(APPLICATION_JSON,
+                        null, null, 20, filter, null, null, null);
+                users.forEach(user -> profileList.add(fromOktaUser(user.getId(), user.getProfile(), user.getStatus())));
 
                 fromIndex = toIndex;
                 if (toIndex == profileIds.size()) {
@@ -208,11 +231,14 @@ public class UserProfileService {
         String filter = (filter1 != null) ? filter1 : "";
         filter += (filter1 != null && filter2 != null) ? " and " : "";
         filter += (filter2 != null) ? filter2 : "";
-        Client client = getClient();
-        UserList users = client.listUsers(null, filter, null, null, null);
+        UserApi userApi = getUserApi();
+        List<User> users = userApi.listUsers(APPLICATION_JSON,
+                null, null, 200, filter, null, null, null);
+        List<UserProfile> profileList = new ArrayList<>(users.size());
+        users.forEach(user -> profileList.add(fromOktaUser(user.getId(), user.getProfile(), user.getStatus())));
 
         // convert all users to user profiles
-        return toUserProfileList(users);
+        return profileList;
     }
 
     /**
@@ -284,11 +310,11 @@ public class UserProfileService {
             });
             // if this is the query for the first page
             if (after == null) {
-                Client client = getClient();
                 long usersCount = 0;
                 if (lastName == null && StringUtils.isEmpty(status)) {
                     // get the count of users in Everyone group
-                    GroupList groups = client.listGroups("Everyone", null, "stats");
+                    GroupApi groupApi = new GroupApi(getClient());
+                    List<Group> groups = groupApi.listGroups(UserRoles.Everyone, null, null, 1, "stats", null, null, null);
                     for (Group group : groups) {
                         Map<String, Object> embedded = group.getEmbedded();
                         if (embedded != null) {
@@ -314,8 +340,10 @@ public class UserProfileService {
                             filter += (filter.isEmpty()) ? "" : " and ";
                             filter += "status eq \"" + status + "\"";
                         }
-                        UserList users = client.listUsers(null, filter, null, null, null);
-                        usersCount = users.stream().count();
+                        UserApi userApi = getUserApi();
+                        List<User> users = userApi.listUsers(APPLICATION_JSON,
+                                null, null, 200, filter, null, null, null);
+                        usersCount = users.size();
                     }
                 }
                 responseMap.put("usersCount", usersCount);
@@ -343,8 +371,8 @@ public class UserProfileService {
 
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         conn.setRequestMethod("GET");
-        conn.setRequestProperty("Accept", "application/json");
-        conn.setRequestProperty("Content-Type", "application/json");
+        conn.setRequestProperty("Accept", APPLICATION_JSON);
+        conn.setRequestProperty("Content-Type", APPLICATION_JSON);
         conn.setRequestProperty("Authorization", getAuthorizationHeaderValue());
 
         if (conn.getResponseCode() != 200) {
@@ -456,31 +484,13 @@ public class UserProfileService {
     }
 
     /**
-     * Converts list of okta users to userprofiles
-     * @param users
-     * @return
-     */
-    private Collection<UserProfile> toUserProfileList(UserList users) {
-        Iterator<User> iterator = users.iterator();
-        Collection<UserProfile> userProfiles = new ArrayList<>();
-        while (iterator.hasNext()) {
-            User oktaUser = iterator.next();
-            UserProfile userProfile = fromOktaUser(oktaUser);
-            userProfiles.add(userProfile);
-        }
-        return userProfiles;
-    }
-
-    /**
      * Converts from Okta user to user profile
-     * @param user
+     *
      * @return
      */
-    private UserProfile fromOktaUser(User user) {
+    private UserProfile fromOktaUser(String userId, com.okta.sdk.resource.model.UserProfile oktaUserProfile, UserStatus userStatus) {
         UserProfile userProfile = new UserProfile();
-        userProfile.setUserId(user.getId());
-
-        com.okta.sdk.resource.user.UserProfile oktaUserProfile = user.getProfile();
+        userProfile.setUserId(userId);
         userProfile.setFirstName(oktaUserProfile.getFirstName());
         userProfile.setLastName(oktaUserProfile.getLastName());
         userProfile.setMobilePhone(oktaUserProfile.getMobilePhone());
@@ -491,9 +501,9 @@ public class UserProfileService {
         userProfile.setState(oktaUserProfile.getState());
         userProfile.setZipCode(oktaUserProfile.getZipCode());
         userProfile.setCountryCode(oktaUserProfile.getCountryCode());
-        userProfile.setGender((String) oktaUserProfile.get("gender"));
+        userProfile.setGender((String) oktaUserProfile.additionalProperties.get("gender"));
         try {
-            String dateOfBirth = (String) oktaUserProfile.get("birthdate");
+            String dateOfBirth = (String) oktaUserProfile.additionalProperties.get("birthdate");
             if (dateOfBirth != null) {
                 SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
                 userProfile.setDateOfBirth (dateFormat.parse(dateOfBirth));
@@ -502,43 +512,47 @@ public class UserProfileService {
 
         }
         userProfile.setDivision(oktaUserProfile.getDivision());
-        UserStatus userStatus = user.getStatus();
         userProfile.setUserStatus(userStatus.toString());
 
         return userProfile;
     }
 
     /**
-     *
      * @param userProfile
-     * @param currentUser
+     * @param userGetSingleton
+     * @return
      */
-    private void toOktaUserProfile(UserProfile userProfile, User currentUser) {
-        com.okta.sdk.resource.user.UserProfile oktaUserProfile = currentUser.getProfile();
+    private com.okta.sdk.resource.model.UserProfile toOktaUserProfile(UserProfile userProfile, UserGetSingleton userGetSingleton) {
+        com.okta.sdk.resource.model.UserProfile oktaUserProfile = userGetSingleton.getProfile();
         oktaUserProfile
-                .setFirstName(userProfile.getFirstName())
-                .setLastName(userProfile.getLastName())
-                .setEmail(userProfile.getEmail())
-                .setMobilePhone(userProfile.getMobilePhone())
-                .setStreetAddress(userProfile.getStreetAddress())
-                .setCity(userProfile.getCity())
-                .setState(userProfile.getState())
-                .setZipCode(userProfile.getZipCode())
-                .setCountryCode(userProfile.getCountryCode())
-                .setDivision(userProfile.getDivision());
+                .firstName(userProfile.getFirstName())
+                .lastName(userProfile.getLastName())
+                .email(userProfile.getEmail())
+                .mobilePhone(userProfile.getMobilePhone())
+                .streetAddress(userProfile.getStreetAddress())
+                .city(userProfile.getCity())
+                .state(userProfile.getState())
+                .zipCode(userProfile.getZipCode())
+                .countryCode(userProfile.getCountryCode())
+                .division(userProfile.getDivision());
         // these are custom
-        oktaUserProfile.put("gender", userProfile.getGender());
+        oktaUserProfile.getAdditionalProperties().put("gender", userProfile.getGender());
         SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
         String dateOfBirth = dateFormat.format(userProfile.getDateOfBirth());
         dateOfBirth = dateOfBirth.substring(0, dateOfBirth.lastIndexOf("T")) + "T00:00:00.000+0000";
-        oktaUserProfile.put("birthdate", dateOfBirth);
+        oktaUserProfile.getAdditionalProperties().put("birthdate", dateOfBirth);
+        return oktaUserProfile;
     }
 
-    protected Client getClient() {
+    protected ApiClient getClient() {
         return Clients.builder()
                 .setOrgUrl(oktaServiceBase)
                 .setClientCredentials(new TokenClientCredentials(api_token))
                 .build();
+    }
+
+    protected UserApi getUserApi() {
+        return new UserApi(getClient());
     }
 
     /**
@@ -548,8 +562,9 @@ public class UserProfileService {
      */
     public String getProfileByLoginId(String login) {
         String filter = "profile.login eq \"" + login + "\"";
-        Client client = getClient();
-        UserList users = client.listUsers(null, filter, null, null, null);
+        UserApi userApi = getUserApi();
+        List<User> users = userApi.listUsers(APPLICATION_JSON,
+                null, null, 10, filter, null, null, null);
         Iterator<User> iterator = users.iterator();
         String profileId = null;
         if (iterator.hasNext()) {
@@ -566,13 +581,14 @@ public class UserProfileService {
      */
     public UserProfile getUserProfileForLoginId(String login) {
         String filter = "profile.login eq \"" + login + "\"";
-        Client client = getClient();
-        UserList users = client.listUsers(null, filter, null, null, null);
+        UserApi userApi = getUserApi();
+        List<User> users = userApi.listUsers(APPLICATION_JSON,
+                null, null, 10, filter, null, null, null);
         Iterator<User> iterator = users.iterator();
         UserProfile userProfile = null;
         if (iterator.hasNext()) {
             User oktaUser = iterator.next();
-            userProfile = fromOktaUser(oktaUser);
+            userProfile = fromOktaUser(oktaUser.getId(), oktaUser.getProfile(), oktaUser.getStatus());
         }
         return userProfile;
     }
@@ -585,20 +601,21 @@ public class UserProfileService {
      */
     public List<UserProfile> listUserInRole(String groupName, String division) {
         List<UserProfile> userProfileList = new ArrayList<>();
-        Client client = getClient();
-        GroupList groupList = client.listGroups(groupName, null, null);
-        for (Group group : groupList) {
-//            System.out.println("group name: " + group.getProfile().getName());
-            UserList userList = group.listUsers();
-            for (User user : userList) {
-                com.okta.sdk.resource.user.UserProfile oktaUserProfile = user.getProfile();
-//                System.out.println("okta user: " + oktaUserProfile.getFirstName() + " " + oktaUserProfile.getLastName() + ", division: " + oktaUserProfile.getDepartment() + ", division: " + oktaUserProfile.getDivision());
-                if (division == null || oktaUserProfile.getDivision().contains(division)) {
-                    UserProfile userProfile = fromOktaUser(user);
-                    userProfileList.add(userProfile);
+
+        GroupApi groupApi = new GroupApi(getClient());
+        String after = null;
+        do {
+            List<User> groupUsers = groupApi.listGroupUsers(groupName, after, null);
+            for (User user : groupUsers) {
+                String userDivision = user.getProfile().getDivision();
+                if (division == null || (userDivision != null && userDivision.contains(division))) {
+                    userProfileList.add(fromOktaUser(user.getId(), user.getProfile(), user.getStatus()));
                 }
             }
-        }
+
+            after = PaginationUtil.getAfter(groupApi.getApiClient());
+        } while (StringUtils.isNotBlank(after));
+
         return userProfileList;
     }
 
@@ -609,12 +626,11 @@ public class UserProfileService {
      */
     public List<String> getUserRoles(String profileId) {
         List<String> userRoles = new ArrayList<>();
-        Client client = getClient();
-        User user = client.getUser(profileId);
-        GroupList groupList = user.listGroups();
-        for (Group group : groupList) {
-            String name = group.getProfile().getName();
-            userRoles.add(name);
+
+        UserResourcesApi userResourcesApi = new UserResourcesApi(getClient());
+        List<Group> groups = userResourcesApi.listUserGroups(profileId);
+        for (Group group : groups) {
+            userRoles.add(group.getProfile().getName());
         }
 
         return userRoles;
@@ -629,26 +645,29 @@ public class UserProfileService {
         if (!updatedRoles.contains(UserRoles.Everyone)) {
             updatedRoles.add(UserRoles.Everyone);
         }
-        Client client = getClient();
-        User user = client.getUser(profileId);
-        // groups in Okta are roles in this application
-        GroupList userGroupList = user.listGroups();
-        List<String> existingRoles = userGroupList.stream()
-                .map(group -> group.getProfile().getName())
-                .collect(Collectors.toList());
+
+        // Get currently assigned user roles (groups)
+        UserResourcesApi userResourcesApi = new UserResourcesApi(getClient());
+        List<Group> groups = userResourcesApi.listUserGroups(profileId);
+        List<String> existingRoles = new ArrayList<>();
+        for (Group group : groups) {
+            existingRoles.add(group.getProfile().getName());
+        }
         List<String> addedRoles = updatedRoles.stream()
                 .filter(groupName -> !existingRoles.contains(groupName))
-                .collect(Collectors.toList());
+                .toList();
         List<String> removedRoles = existingRoles.stream()
                 .filter(groupName -> !updatedRoles.contains(groupName))
-                .collect(Collectors.toList());
+                .toList();
 
-        GroupList allGroups = client.listGroups();
+        GroupApi groupApi = new GroupApi(getClient());
+        List<Group> allGroups = groupApi.listGroups(null, null, null, 50, null, null, null, null);
+
         // add new roles
         for (String addedRole : addedRoles) {
             for (Group group : allGroups) {
                 if (group.getProfile().getName().equals(addedRole)) {
-                    user.addToGroup(group.getId());
+                    groupApi.assignUserToGroup(group.getId(), profileId);
                     break;
                 }
             }
@@ -658,7 +677,7 @@ public class UserProfileService {
         for (String removedRole : removedRoles) {
             for (Group group : allGroups) {
                 if (group.getProfile().getName().equals(removedRole)) {
-                    group.removeUser(profileId);
+                    groupApi.unassignUserFromGroup(group.getId(), profileId);
                     break;
                 }
             }

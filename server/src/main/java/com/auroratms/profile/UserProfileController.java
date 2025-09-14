@@ -167,8 +167,8 @@ public class UserProfileController extends AbstractOktaController {
     }
 
     @GetMapping("/profilessearch")
-    public ResponseEntity<Collection<UserProfile>> list(@RequestParam(name = "firstName", required = false) String firstName,
-                                                        @RequestParam(name = "lastName", required = false) String lastName) {
+    public ResponseEntity<Collection<UserProfile>> list(@RequestParam(required = false) String firstName,
+                                                        @RequestParam(required = false) String lastName) {
         try {
             Collection<UserProfile> userProfiles = userProfileService.list(firstName, lastName);
             getExtendedProfileInformation(userProfiles);
@@ -180,10 +180,10 @@ public class UserProfileController extends AbstractOktaController {
 
     @GetMapping("/profileslist")
     @PreAuthorize("hasAuthority('Admins')")
-    public ResponseEntity<Map<String, Object>> listPaged(@RequestParam(name = "limit") Integer limit,
-                                                         @RequestParam(name = "after", required = false) String after,
-                                                         @RequestParam(name = "lastName", required = false) String lastName,
-                                                         @RequestParam(name = "status", required = false) String status) {
+    public ResponseEntity<Map<String, Object>> listPaged(@RequestParam Integer limit,
+                                                         @RequestParam(required = false) String after,
+                                                         @RequestParam(required = false) String lastName,
+                                                         @RequestParam(required = false) String status) {
         try {
             Map<String, Object> responseMap = userProfileService.listPaged(limit, after, lastName, status);
             return new ResponseEntity(responseMap, HttpStatus.OK);

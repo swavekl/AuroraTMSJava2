@@ -2,13 +2,13 @@ package com.auroratms.tournamentevententry.policy;
 
 import com.auroratms.event.AgeRestrictionType;
 import com.auroratms.event.TournamentEvent;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Calendar;
 import java.util.Date;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class AgeRestrictionEventPolicyTest {
 
@@ -28,7 +28,7 @@ public class AgeRestrictionEventPolicyTest {
         Date dateofBirth = getDate(2010, Calendar.FEBRUARY, 24);
         AgeRestrictionEventPolicy policy = new AgeRestrictionEventPolicy(tournamentStartDate, dateofBirth);
         boolean entryDenied = policy.isEntryDenied(ageRestrictedEvent);
-        assertFalse("player should qualify", entryDenied);
+        assertFalse(entryDenied, "player should qualify");
     }
 
     @Test
@@ -43,7 +43,7 @@ public class AgeRestrictionEventPolicyTest {
         Date dateofBirth = getDate(2009, Calendar.JANUARY, 14);
         AgeRestrictionEventPolicy policy = new AgeRestrictionEventPolicy(tournamentStartDate, dateofBirth);
         boolean entryDenied = policy.isEntryDenied(ageRestrictedEvent);
-        assertTrue("player should not qualify", entryDenied);
+        assertTrue(entryDenied, "player should not qualify");
     }
 
     @Test
@@ -58,7 +58,7 @@ public class AgeRestrictionEventPolicyTest {
         Date dateofBirth = getDate(2009, Calendar.JANUARY, 15);
         AgeRestrictionEventPolicy policy = new AgeRestrictionEventPolicy(tournamentStartDate, dateofBirth);
         boolean entryDenied = policy.isEntryDenied(ageRestrictedEvent);
-        assertFalse("player should qualify", entryDenied);
+        assertFalse(entryDenied, "player should qualify");
     }
 
     @Test
@@ -73,7 +73,7 @@ public class AgeRestrictionEventPolicyTest {
         Date dateofBirth = getDate(2008, Calendar.MARCH, 10);
         AgeRestrictionEventPolicy policy = new AgeRestrictionEventPolicy(tournamentStartDate, dateofBirth);
         boolean entryDenied = policy.isEntryDenied(ageRestrictedEvent);
-        assertTrue("player should not qualify", entryDenied);
+        assertTrue(entryDenied, "player should not qualify");
     }
 
     //====================================================================
@@ -95,7 +95,7 @@ public class AgeRestrictionEventPolicyTest {
         Date dateofBirth = getDate(2008, Calendar.MARCH, 10);
         AgeRestrictionEventPolicy policy = new AgeRestrictionEventPolicy(tournamentStartDate, dateofBirth);
         boolean entryDenied = policy.isEntryDenied(ageRestrictedEvent);
-        assertFalse("player should qualify", entryDenied);
+        assertFalse(entryDenied, "player should qualify");
     }
 
     @Test
@@ -113,7 +113,7 @@ public class AgeRestrictionEventPolicyTest {
         Date dateofBirth = getDate(2006, Calendar.DECEMBER, 10);
         AgeRestrictionEventPolicy policy = new AgeRestrictionEventPolicy(tournamentStartDate, dateofBirth);
         boolean entryDenied = policy.isEntryDenied(ageRestrictedEvent);
-        assertTrue("player should no qualify", entryDenied);
+        assertTrue(entryDenied, "player should no qualify");
     }
 
     @Test
@@ -131,7 +131,7 @@ public class AgeRestrictionEventPolicyTest {
         Date dateofBirth = getDate(2007, Calendar.JANUARY, 1);
         AgeRestrictionEventPolicy policy = new AgeRestrictionEventPolicy(tournamentStartDate, dateofBirth);
         boolean entryDenied = policy.isEntryDenied(ageRestrictedEvent);
-        assertFalse("player should qualify", entryDenied);
+        assertFalse(entryDenied, "player should qualify");
     }
 
     //====================================================================
@@ -149,7 +149,7 @@ public class AgeRestrictionEventPolicyTest {
         Date dateofBirth = getDate(1980, Calendar.JANUARY, 10);
         AgeRestrictionEventPolicy policy = new AgeRestrictionEventPolicy(tournamentStartDate, dateofBirth);
         boolean entryDenied = policy.isEntryDenied(ageRestrictedEvent);
-        assertFalse("player should qualify", entryDenied);
+        assertFalse(entryDenied, "player should qualify");
     }
 
     @Test
@@ -164,7 +164,7 @@ public class AgeRestrictionEventPolicyTest {
         Date dateofBirth = getDate(1985, Calendar.JANUARY, 10);
         AgeRestrictionEventPolicy policy = new AgeRestrictionEventPolicy(tournamentStartDate, dateofBirth);
         boolean entryDenied = policy.isEntryDenied(ageRestrictedEvent);
-        assertTrue("player should not qualify", entryDenied);
+        assertTrue(entryDenied, "player should not qualify");
     }
 
     @Test
@@ -179,7 +179,7 @@ public class AgeRestrictionEventPolicyTest {
         Date dateofBirth = getDate(1982, Calendar.DECEMBER, 31);
         AgeRestrictionEventPolicy policy = new AgeRestrictionEventPolicy(tournamentStartDate, dateofBirth);
         boolean entryDenied = policy.isEntryDenied(ageRestrictedEvent);
-        assertFalse("player should qualify", entryDenied);
+        assertFalse(entryDenied, "player should qualify");
     }
 
     private Date getDate(int year, int month, int day) {

@@ -2,8 +2,7 @@ package com.auroratms.sanction;
 
 import com.auroratms.server.ServerApplication;
 import com.auroratms.users.UserRoles;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Page;
@@ -20,7 +19,6 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.junit4.AbstractJUnit4SpringContextTests;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
 import org.springframework.test.context.support.DirtiesContextTestExecutionListener;
 import org.springframework.test.context.transaction.TransactionalTestExecutionListener;
@@ -32,9 +30,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = {ServerApplication.class})
 @ActiveProfiles("test")
 @ContextConfiguration
@@ -61,11 +58,11 @@ public class SanctionRequestServiceTest extends AbstractJUnit4SpringContextTests
 
         Page<SanctionRequestEntity> page = service.findByName("", Pageable.unpaged());
         long totalElements = page.getTotalElements();
-        assertEquals("wrong number of sanction requests", 1, totalElements);
+        assertEquals(1, totalElements, "wrong number of sanction requests");
         List<SanctionRequestEntity> sanctionRequests = page.getContent();
-        assertEquals("", 1, sanctionRequests.size());
+        assertEquals(1, sanctionRequests.size(), "");
         SanctionRequestEntity sanctionRequestEntity1 = sanctionRequests.get(0);
-        assertEquals("wrong name", saved.getTournamentName(), sanctionRequestEntity1.getTournamentName());
+        assertEquals(saved.getTournamentName(), sanctionRequestEntity1.getTournamentName(), "wrong name");
     }
 
     @Test
@@ -85,7 +82,7 @@ public class SanctionRequestServiceTest extends AbstractJUnit4SpringContextTests
             System.out.println("requestEntity.getStarLevel() = " + requestEntity.getStarLevel());
 
         }
-        assertEquals("wrong number of tournaments", 1, edVisibleSRs.getTotalElements());
+        assertEquals(1, edVisibleSRs.getTotalElements(), "wrong number of tournaments");
 
         SanctionRequestEntity sanctionRequestEntity1 = sanctionRequestsList.get(0);
         SecurityContextHolder.getContext().setAuthentication(previousUser);

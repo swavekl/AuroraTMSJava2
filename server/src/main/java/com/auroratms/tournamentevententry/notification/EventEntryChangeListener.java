@@ -33,7 +33,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 
-import javax.mail.MessagingException;
+import jakarta.mail.MessagingException;
 import java.util.*;
 
 /**
@@ -125,7 +125,7 @@ public class EventEntryChangeListener {
                 tournamentEventEntryService.update(waitingListEntry);
 
                 String playerFullName = sendEmail(waitingListEntry, futureCartSessionStartDate);
-                log.info(String.format("Moved player %s from waiting list to event entry pending payment", playerFullName));
+                log.info("Moved player %s from waiting list to event entry pending payment".formatted(playerFullName));
             }
         }
     }
@@ -179,11 +179,11 @@ public class EventEntryChangeListener {
             // get other events
             addEventsInformation(templateModel, tournament, tournamentEventEntry.getTournamentEntryFk());
 
-            String eventEntryUrl = String.format("%s/ui/entries/entrywizard/%d/edit/%d",
+            String eventEntryUrl = "%s/ui/entries/entrywizard/%d/edit/%d".formatted(
                     this.clientHostUrl, tournamentFk, tournamentEntry.getId());
             templateModel.put("eventEntryUrl", eventEntryUrl);
 
-            String emailSubject = String.format("%s - you were added to %s event", tournamentName, eventName);
+            String emailSubject = "%s - you were added to %s event".formatted(tournamentName, eventName);
 
             emailService.sendMessageUsingThymeleafTemplate(playerEmail, contactEmail, emailSubject,
                     "tournament-entry/tournament-entry-waiting-to-pending.html", templateModel);

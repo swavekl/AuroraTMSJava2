@@ -5,11 +5,11 @@ import com.auroratms.draw.DrawType;
 import com.auroratms.event.TournamentEvent;
 import com.auroratms.tournamentevententry.TournamentEventEntry;
 import com.auroratms.tournamentevententry.doubles.DoublesPair;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.*;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class DoublesSnakeDrawGeneratorTest extends AbstractDoublesDrawsGeneratorTest {
 
@@ -39,7 +39,7 @@ public class DoublesSnakeDrawGeneratorTest extends AbstractDoublesDrawsGenerator
         ((DoublesSnakeDrawsGenerator)rrRoundGenerator).setDoublesPairs(doublesPairList);
 
         List<DrawItem> drawItems = rrRoundGenerator.generateDraws(eventEntries, entryIdToPlayerDrawInfo, existingDrawItems);
-        assertEquals("wrong number of draws", 14, drawItems.size());
+        assertEquals(14, drawItems.size(), "wrong number of draws");
 
         String [] expectedResults = {
                 "1 / 1  Monteiro, Thiago Farias / Ventura Dos Anj, Bruno (5303)",
@@ -61,14 +61,14 @@ public class DoublesSnakeDrawGeneratorTest extends AbstractDoublesDrawsGenerator
         int index = 0;
         for (DrawItem drawItem : drawItems) {
             uniqueGroups.add(drawItem.getGroupNum());
-            String actualResult = String.format("%d / %d  %s (%d)",
+            String actualResult = "%d / %d  %s (%d)".formatted(
                     drawItem.getGroupNum(), drawItem.getPlaceInGroup(), drawItem.getPlayerName(), drawItem.getRating());
             String expectedResult = expectedResults[index];
             index++;
             //System.out.println(result);
-            assertEquals("wrong paring", expectedResult, actualResult);
+            assertEquals(expectedResult, actualResult, "wrong paring");
         }
-        assertEquals("wrong number of groups", expectedGroups, uniqueGroups.size());
+        assertEquals(expectedGroups, uniqueGroups.size(), "wrong number of groups");
     }
 
 }

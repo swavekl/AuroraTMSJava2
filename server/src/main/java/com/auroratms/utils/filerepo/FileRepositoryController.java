@@ -31,7 +31,7 @@ public class FileRepositoryController {
 
     @PostMapping("/upload")
     public ResponseEntity<String> upload(@RequestParam("file") MultipartFile multipartFile,
-                                         @RequestParam("storagePath") String storagePath) {
+                                         @RequestParam String storagePath) {
         try {
             IFileRepository fileRepository = fileRepositoryFactory.getFileRepository();
             InputStream inputStream = multipartFile.getInputStream();

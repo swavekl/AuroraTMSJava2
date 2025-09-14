@@ -1,9 +1,9 @@
 package com.auroratms.draw.generation.singleelim;
 
 import com.auroratms.draw.generation.PlayerDrawInfo;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class GeographicDistanceCalculatorTest {
 
@@ -14,14 +14,14 @@ public class GeographicDistanceCalculatorTest {
             PlayerDrawInfo playerDrawInfo1 = makePlayerDrawInfo("Muhammad, James", "Farmington Hills TTC", null, "MI", 1956);
             PlayerDrawInfo playerDrawInfo2 = makePlayerDrawInfo("Boghikian, Razmig", "Farmington Hills TTC", null, "", 1896);
             int distance = calculator.getDistance(playerDrawInfo1, playerDrawInfo2);
-            assertEquals("same club should be closest distance", 1, distance);
+            assertEquals(1, distance, "same club should be closest distance");
         }
 
         {
             PlayerDrawInfo playerDrawInfo3 = makePlayerDrawInfo("Loganathan, Aarthi", "Table Tennis Minnesota", null, "MN", 1907);
             PlayerDrawInfo playerDrawInfo4 = makePlayerDrawInfo("Imbo, Sam Oluoch", "MN TTC", null, "MN", 1957);
             int distance = calculator.getDistance(playerDrawInfo3, playerDrawInfo4);
-            assertEquals("different club should be larger distance", 3, distance);
+            assertEquals(3, distance, "different club should be larger distance");
         }
     }
 
@@ -33,21 +33,21 @@ public class GeographicDistanceCalculatorTest {
             PlayerDrawInfo playerDrawInfo1 = makePlayerDrawInfo("Player A", "TT Club1", "Detroit", "MI", 1956);
             PlayerDrawInfo playerDrawInfo2 = makePlayerDrawInfo("Player B", "TT Club2", "Detroit", "MI", 1896);
             int distance = calculator.getDistance(playerDrawInfo1, playerDrawInfo2);
-            assertEquals("same city should distance should be", 2, distance);
+            assertEquals(2, distance, "same city should distance should be");
         }
 
         {
             PlayerDrawInfo playerDrawInfo1 = makePlayerDrawInfo("Player A", "TT Club1", "Detroit", "MI", 1956);
             PlayerDrawInfo playerDrawInfo2 = makePlayerDrawInfo("Player B", "TT Club2", "Grand Rapids", "MI", 1896);
             int distance = calculator.getDistance(playerDrawInfo1, playerDrawInfo2);
-            assertEquals("different city in the same state", 3, distance);
+            assertEquals(3, distance, "different city in the same state");
         }
 
         {
             PlayerDrawInfo playerDrawInfo1 = makePlayerDrawInfo("Player A", "TT Club1", "Kansas City", "KS", 1956);
             PlayerDrawInfo playerDrawInfo2 = makePlayerDrawInfo("Player B", "TT Club2", "Kansas City", "MO", 1896);
             int distance = calculator.getDistance(playerDrawInfo1, playerDrawInfo2);
-            assertEquals("city with same name in different state", 4, distance);
+            assertEquals(4, distance, "city with same name in different state");
         }
     }
 
@@ -59,14 +59,14 @@ public class GeographicDistanceCalculatorTest {
             PlayerDrawInfo playerDrawInfo1 = makePlayerDrawInfo("Player A", "TT Club1", null, "MI", 1956);
             PlayerDrawInfo playerDrawInfo2 = makePlayerDrawInfo("Player B", "TT Club2", null, "MI", 1896);
             int distance = calculator.getDistance(playerDrawInfo1, playerDrawInfo2);
-            assertEquals("same city should distance should be", 3, distance);
+            assertEquals(3, distance, "same city should distance should be");
         }
 
         {
             PlayerDrawInfo playerDrawInfo1 = makePlayerDrawInfo("Player A", "TT Club1", null, "MI", 1956);
             PlayerDrawInfo playerDrawInfo2 = makePlayerDrawInfo("Player B", "TT Club2", null, "IL", 1896);
             int distance = calculator.getDistance(playerDrawInfo1, playerDrawInfo2);
-            assertEquals("same city should distance should be", 4, distance);
+            assertEquals(4, distance, "same city should distance should be");
         }
     }
 
@@ -78,7 +78,7 @@ public class GeographicDistanceCalculatorTest {
             PlayerDrawInfo playerDrawInfo1 = makePlayerDrawInfo("Player A", "TT Club1", null, null, 1956);
             PlayerDrawInfo playerDrawInfo2 = makePlayerDrawInfo("Player B", "TT Club2", null, null, 1896);
             int distance = calculator.getDistance(playerDrawInfo1, playerDrawInfo2);
-            assertEquals("same city should distance should be", 4, distance);
+            assertEquals(4, distance, "same city should distance should be");
         }
 
         {
@@ -87,7 +87,7 @@ public class GeographicDistanceCalculatorTest {
             PlayerDrawInfo playerDrawInfo2 = makePlayerDrawInfo("Player B", "TT Club2", null, null, 1896);
             playerDrawInfo2.setCountry("CA");
             int distance = calculator.getDistance(playerDrawInfo1, playerDrawInfo2);
-            assertEquals("same city should distance should be", 5, distance);
+            assertEquals(5, distance, "same city should distance should be");
         }
     }
 

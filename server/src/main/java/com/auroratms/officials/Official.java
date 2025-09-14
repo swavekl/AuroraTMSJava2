@@ -2,7 +2,7 @@ package com.auroratms.officials;
 
 import lombok.NoArgsConstructor;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 /**
  * Match official i.e. Referee or Umpire or both

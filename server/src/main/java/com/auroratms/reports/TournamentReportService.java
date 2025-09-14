@@ -272,9 +272,9 @@ public class TournamentReportService {
         double discount = 0.1 * totalMembershipFees;
         double netMembershipFees = totalMembershipFees - discount;
 
-        String strTotalMembershipFees = String.format(CURRENCY_FORMAT, currencySymbol, totalMembershipFees);
-        String strDiscount = String.format(CURRENCY_FORMAT, currencySymbol, discount);
-        String strNetMembershipFees = String.format(CURRENCY_FORMAT, currencySymbol, netMembershipFees);
+        String strTotalMembershipFees = CURRENCY_FORMAT.formatted(currencySymbol, totalMembershipFees);
+        String strDiscount = CURRENCY_FORMAT.formatted(currencySymbol, discount);
+        String strNetMembershipFees = CURRENCY_FORMAT.formatted(currencySymbol, netMembershipFees);
 
         makeTotalsRow(font, table, whiteBorder, "Total Membership Fees", strTotalMembershipFees, 5);
 
@@ -296,15 +296,15 @@ public class TournamentReportService {
             }
         }
         double totalMembershipFeesDue = netMembershipFees + nonCommisionedMembershipTotal;
-        String strTotalMembershipFeesDue = String.format(CURRENCY_FORMAT, currencySymbol, totalMembershipFeesDue);
+        String strTotalMembershipFeesDue = CURRENCY_FORMAT.formatted(currencySymbol, totalMembershipFeesDue);
         makeTotalsRow(font, table, whiteBorder, "Total Membership Fees Due", strTotalMembershipFeesDue, 5);
 
         // Total Optional Donations to TT Team USA National Program
-        String strDonationsTotal = String.format(CURRENCY_FORMAT, currencySymbol, donationsTotal);
+        String strDonationsTotal = CURRENCY_FORMAT.formatted(currencySymbol, donationsTotal);
         makeTotalsRow(font, table, whiteBorder, "Total Optional Donations to TT Team USA National Program", strDonationsTotal, 5);
 
         double grandTotalDue = totalMembershipFeesDue + donationsTotal;
-        String strGrandTotalDue = String.format(CURRENCY_FORMAT, currencySymbol, grandTotalDue);
+        String strGrandTotalDue = CURRENCY_FORMAT.formatted(currencySymbol, grandTotalDue);
         makeTotalsRow(fontBold, table, whiteBorder, "Total Amount", strGrandTotalDue, 5);
 
         // make footer row with credit card information if used to pay for tournament report
@@ -365,7 +365,7 @@ public class TournamentReportService {
         Cell cell2 = new Cell().add(new Paragraph(data.membershipTerm)
                 .setFont(font).setFontSize(FONT_SIZE).setTextAlignment(TextAlignment.LEFT)).setBorder(whiteBorder);
         table.addCell(cell2);
-        String strCost = String.format("%s%,d", currencySymbol, data.cost);
+        String strCost = "%s%,d".formatted(currencySymbol, data.cost);
         Cell cell3 = new Cell().add(new Paragraph(strCost)
                 .setFont(font).setFontSize(FONT_SIZE).setTextAlignment(TextAlignment.RIGHT)).setBorder(whiteBorder);
         table.addCell(cell3);
@@ -484,11 +484,11 @@ public class TournamentReportService {
 
         // count the number of memberships of all types
         Map<MembershipType, Integer> membershipTypeToCountMap = new HashMap<>();
-        membershipTypeToCountMap.put(TOURNAMENT_PASS_JUNIOR, new Integer(0));
-        membershipTypeToCountMap.put(MembershipType.TOURNAMENT_PASS_ADULT, new Integer(0));
-        membershipTypeToCountMap.put(BASIC_PLAN, new Integer(0));
-        membershipTypeToCountMap.put(MembershipType.PRO_PLAN, new Integer(0));
-        membershipTypeToCountMap.put(MembershipType.LIFETIME, new Integer(0));
+        membershipTypeToCountMap.put(TOURNAMENT_PASS_JUNIOR, Integer.valueOf(0));
+        membershipTypeToCountMap.put(MembershipType.TOURNAMENT_PASS_ADULT, Integer.valueOf(0));
+        membershipTypeToCountMap.put(BASIC_PLAN, Integer.valueOf(0));
+        membershipTypeToCountMap.put(MembershipType.PRO_PLAN, Integer.valueOf(0));
+        membershipTypeToCountMap.put(MembershipType.LIFETIME, Integer.valueOf(0));
         // get all tournament entries for this tournament and collect player profiles ids
         // of players who bought some type of membership
         for (TournamentEntry tournamentEntry : tournamentEntries) {

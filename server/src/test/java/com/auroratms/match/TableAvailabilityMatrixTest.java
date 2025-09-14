@@ -1,8 +1,8 @@
 package com.auroratms.match;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class TableAvailabilityMatrixTest {
 
@@ -12,8 +12,8 @@ public class TableAvailabilityMatrixTest {
         matrix.markTableAsUnavailable(1, 9.0d, 90);
 
         TableAvailabilityMatrix.AvailableTableInfo availableTable = matrix.findAvailableTable(9.0d, 60, 1, false);
-        assertEquals ("table not found", 1, availableTable.tableNum);
-        assertEquals ("wrong start time", 10.5d, availableTable.startTime, 0.0d);
+        assertEquals (1, availableTable.tableNum, "table not found");
+        assertEquals (10.5d, availableTable.startTime, 0.0d, "wrong start time");
 
     }
 
@@ -28,13 +28,13 @@ public class TableAvailabilityMatrixTest {
 
         TableAvailabilityMatrix.AvailableTableInfo availableTable = matrix.findAvailableTable(9.0d, 60);
         assertNotNull(availableTable);
-        assertEquals ("table not found", 1, availableTable.tableNum);
-        assertEquals ("wrong start time", 21.0d, availableTable.startTime, 0.0d);
+        assertEquals (1, availableTable.tableNum, "table not found");
+        assertEquals (21.0d, availableTable.startTime, 0.0d, "wrong start time");
 
         matrix.markTableAsUnavailable(1, availableTable.startTime, availableTable.duration);
         assertNotNull(availableTable);
         TableAvailabilityMatrix.AvailableTableInfo availableTable2 = matrix.findAvailableTable(9.0d, 60);
-        assertNull("wrong table", availableTable2);
+        assertNull(availableTable2, "wrong table");
     }
 
     @Test
@@ -45,14 +45,14 @@ public class TableAvailabilityMatrixTest {
 
         // find table and mark it as unavailable
         TableAvailabilityMatrix.AvailableTableInfo availableTable = matrix.findAvailableTable(10.5d, 30);
-        assertEquals ("table not found", 1, availableTable.tableNum);
-        assertEquals ("wrong start time", 10.5d, availableTable.startTime, 0.0d);
+        assertEquals (1, availableTable.tableNum, "table not found");
+        assertEquals (10.5d, availableTable.startTime, 0.0d, "wrong start time");
         matrix.markTableAsUnavailable(availableTable.tableNum, availableTable.startTime, availableTable.duration);
 
         // find another table at the same time
         TableAvailabilityMatrix.AvailableTableInfo availableTable2 = matrix.findAvailableTable(10.5d, 30);
-        assertEquals ("table not found", 2, availableTable2.tableNum);
-        assertEquals ("wrong start time", 10.5d, availableTable2.startTime, 0.0d);
+        assertEquals (2, availableTable2.tableNum, "table not found");
+        assertEquals (10.5d, availableTable2.startTime, 0.0d, "wrong start time");
 
     }
 }

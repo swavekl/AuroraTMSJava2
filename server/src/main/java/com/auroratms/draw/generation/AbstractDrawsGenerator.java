@@ -89,16 +89,16 @@ public abstract class AbstractDrawsGenerator {
             BracketLine bracketLine = bracketLines[i];
             if (drawItem != null) {
                 if (drawItem.getByeNum() == 0) {
-                    System.out.println(String.format("%2d) %2d\t%25s,%4d\t\"%s\"", (i + 1), bracketLine.getNormalizedSeedNumber(),
+                    System.out.println("%2d) %2d\t%25s,%4d\t\"%s\"".formatted((i + 1), bracketLine.getNormalizedSeedNumber(),
                             drawItem.getPlayerName(), drawItem.getRating(), drawItem.getState()));
                 } else {
-                    System.out.println(String.format("%2d) %2d\t%23s %d, 0", (i + 1), bracketLine.getNormalizedSeedNumber(), "Bye", drawItem.getByeNum()));
+                    System.out.println("%2d) %2d\t%23s %d, 0".formatted((i + 1), bracketLine.getNormalizedSeedNumber(), "Bye", drawItem.getByeNum()));
                 }
             } else {
                 if (bracketLine.isBye()) {
-                    System.out.println(String.format("%2d) %2d\t%23s %d, 0", (i + 1), bracketLine.getNormalizedSeedNumber(), "Bye", bracketLine.getByeSeedNumber()));
+                    System.out.println("%2d) %2d\t%23s %d, 0".formatted((i + 1), bracketLine.getNormalizedSeedNumber(), "Bye", bracketLine.getByeSeedNumber()));
                 } else {
-                    System.out.println(String.format("%2d) %2d", (i + 1), bracketLine.getNormalizedSeedNumber()));
+                    System.out.println("%2d) %2d".formatted((i + 1), bracketLine.getNormalizedSeedNumber()));
                 }
             }
         }

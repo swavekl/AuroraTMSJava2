@@ -1,13 +1,13 @@
 package com.auroratms.account;
 
 import com.auroratms.AbstractServiceTest;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Random;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 @Transactional
 public class AccountServiceTest extends AbstractServiceTest {
@@ -20,7 +20,7 @@ public class AccountServiceTest extends AbstractServiceTest {
         String userProfileId = new Random().toString();
         System.out.println("random userProfileId = " + userProfileId);
         boolean exists = this.accountService.existsById(userProfileId);
-        assertFalse("random account shouldn't exist", exists);
+        assertFalse(exists, "random account shouldn't exist");
 
         AccountEntity account = new AccountEntity();
         account.setAccountId("acct_1234567890");
@@ -30,19 +30,19 @@ public class AccountServiceTest extends AbstractServiceTest {
         this.accountService.save(account);
 
         boolean checkExistsAgain = this.accountService.existsById(userProfileId);
-        assertTrue("doesn't exist ", checkExistsAgain);
+        assertTrue(checkExistsAgain, "doesn't exist ");
 
         AccountEntity foundAccount = this.accountService.findById(userProfileId);
-        assertEquals("Account not the same", account, foundAccount);
+        assertEquals(account, foundAccount, "Account not the same");
 
         foundAccount.setActivated(true);
         this.accountService.save(foundAccount);
 
         AccountEntity foundAccountAgain = this.accountService.findById(userProfileId);
-        assertTrue("Should be activated", foundAccountAgain.isActivated());
+        assertTrue(foundAccountAgain.isActivated(), "Should be activated");
 
         this.accountService.delete(userProfileId);
         boolean existsNoMore = this.accountService.existsById(userProfileId);
-        assertFalse("Should be deleted", existsNoMore);
+        assertFalse(existsNoMore, "Should be deleted");
     }
 }

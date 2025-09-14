@@ -13,3 +13,5 @@ hazelcast:
         size: 20000
       backup-count: 0
       async-backup-count: 0
+  jet:
+    enabled: true

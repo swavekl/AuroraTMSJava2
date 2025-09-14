@@ -4,11 +4,11 @@ import com.auroratms.draw.DrawItem;
 import com.auroratms.event.DrawMethod;
 import com.auroratms.event.TournamentEvent;
 import com.auroratms.tournamentevententry.TournamentEventEntry;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.*;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class SnakeDrawsGeneratorTest extends AbstractDrawsGeneratorTest {
 
@@ -39,13 +39,13 @@ public class SnakeDrawsGeneratorTest extends AbstractDrawsGeneratorTest {
 
         SnakeDrawsGenerator generator = new SnakeDrawsGenerator(tournamentEvent);
         List<DrawItem> drawItems = generator.generateDraws(eventEntries, entryIdToPlayerDrawInfo, existingDrawItems);
-        assertEquals("wrong number of draws", 23, drawItems.size());
+        assertEquals(23, drawItems.size(), "wrong number of draws");
 
         Set<Integer> uniqueGroups = new HashSet<>();
         for (DrawItem drawItem : drawItems) {
             uniqueGroups.add(drawItem.getGroupNum());
         }
-        assertEquals("wrong number of groups", expectedGroups, uniqueGroups.size());
+        assertEquals(expectedGroups, uniqueGroups.size(), "wrong number of groups");
     }
 
 

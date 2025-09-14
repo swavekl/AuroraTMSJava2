@@ -383,7 +383,7 @@ public class TieBreakingService {
         }
 
         // save in the map to allow easy
-        String tieBreakingListKey = String.format("%d) %d-way tie breaking between players %s",
+        String tieBreakingListKey = "%d) %d-way tie breaking between players %s".formatted(
                 (nWayTieMap.size() + 1), playerLetterCodes.size(), playerLetterCodes);
         nWayTieMap.put(tieBreakingListKey, tiedPlayersTieBreakingInfoList);
     }

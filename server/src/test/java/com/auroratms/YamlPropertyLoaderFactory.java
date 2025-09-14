@@ -48,7 +48,7 @@ public class YamlPropertyLoaderFactory implements PropertySourceFactory {
              * Ignore resource not found.
              */
             Throwable cause = ex.getCause();
-            if (cause instanceof FileNotFoundException) throw (FileNotFoundException) cause;
+            if (cause instanceof FileNotFoundException exception) throw exception;
             throw ex;
         }
     }

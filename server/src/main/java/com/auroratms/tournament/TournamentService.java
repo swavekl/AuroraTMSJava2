@@ -134,7 +134,7 @@ public class TournamentService {
         // fetch the old tournament definition containing personnel list
         List<Personnel> oldPersonnelList = null;
         if (!isCreating) {
-            TournamentEntity oldTournamentEntity = repository.getOne(tournament.getId());
+            TournamentEntity oldTournamentEntity = repository.getReferenceById(tournament.getId());
             Tournament oldTournament = new Tournament().convertFromEntity(oldTournamentEntity);
             oldPersonnelList = oldTournament.getConfiguration().getPersonnelList();
         }
@@ -305,8 +305,8 @@ public class TournamentService {
     public String getTournamentOwner(long tournamentId) {
         Acl acl = this.securityService.readAclForObject(tournamentId, ACL_MANAGED_OBJECT_CLASS);
         Sid owner = acl.getOwner();
-        return (owner instanceof PrincipalSid)
-                ? ((PrincipalSid)owner).getPrincipal()
+        return (owner instanceof PrincipalSid ps)
+                ? ps.getPrincipal()
                 : ((GrantedAuthoritySid)owner).getGrantedAuthority();
     }
 }

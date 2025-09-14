@@ -2,14 +2,14 @@ package com.auroratms.draw.generation.singleelim;
 
 import com.auroratms.draw.generation.PlayerDrawInfo;
 import com.auroratms.tournamentevententry.TournamentEventEntry;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class EntrySorterTest {
 
@@ -20,14 +20,14 @@ public class EntrySorterTest {
         EntrySorter sorter = new EntrySorter(entryIdToPlayerDrawInfo);
         int requiredByes = 2;
         List<TournamentEventEntry> sortedEntries = sorter.sortEntries(entries, requiredByes);
-        assertEquals("sorting failed", 16, sortedEntries.size());
+        assertEquals(16, sortedEntries.size(), "sorting failed");
 
         Long[] expectedEntriesOrder = {640L, 662L, 656L, 582L, 558L, 644L, 657L, 740L, 508L, 690L, 493L, 532L, 614L, 526L, 722L, 631L};
         int index = 0;
         for (TournamentEventEntry sortedEntry : sortedEntries) {
             Long tournamentEntryId = sortedEntry.getTournamentEntryFk();
 //            System.out.print("L, " + tournamentEntryId);
-            assertEquals("", expectedEntriesOrder[index], tournamentEntryId);
+            assertEquals(expectedEntriesOrder[index], tournamentEntryId, "");
             index++;
             PlayerDrawInfo playerDrawInfo = entryIdToPlayerDrawInfo.get(tournamentEntryId);
             if (playerDrawInfo != null) {

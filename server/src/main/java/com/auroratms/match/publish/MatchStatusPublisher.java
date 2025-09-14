@@ -99,12 +99,12 @@ public class MatchStatusPublisher {
 
     private void createTopicAndSend(MonitorMessage monitorMessage, long tournamentFk, int tableNumber) {
         if (this.messageBroker.equals("inmemory")) {
-            String destination = String.format("/topic/monitor_%d_%d", tournamentFk, tableNumber);
+            String destination = "/topic/monitor_%d_%d".formatted(tournamentFk, tableNumber);
             if (this.template != null) {
                 this.template.convertAndSend(destination, monitorMessage);
             }
         } else if (messageBroker.equals("rabbitmq")) {
-            String routingKey = String.format("monitor_%d_%d", tournamentFk, tableNumber);
+            String routingKey = "monitor_%d_%d".formatted(tournamentFk, tableNumber);
 //            this.rabbitTemplate.convertAndSend(topicExchange.getName(), routingKey, monitorMessage);
             this.rabbitTemplate.convertAndSend(RabbitMQConfig.DEFAULT_TOPIC_EXCHANGE, routingKey, monitorMessage);
         }

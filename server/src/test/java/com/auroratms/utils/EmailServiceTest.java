@@ -1,11 +1,11 @@
 package com.auroratms.utils;
 
 import com.auroratms.AbstractServiceTest;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import javax.mail.MessagingException;
+import jakarta.mail.MessagingException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -15,13 +15,13 @@ public class EmailServiceTest extends AbstractServiceTest {
     private EmailService emailService;
 
     @Test
-    @Ignore
+    @Disabled
     public void sendTestEmail () {
         this.emailService.sendEmail("swaveklorenc@yahoo.com", "Silly subject", "Simple Body of email");
     }
 
     @Test
-    @Ignore
+    @Disabled
     public void sendHtmlEmail () throws MessagingException {
         Map<String, Object> templateModel = new HashMap<>();
         templateModel.put("recipientName", "Swavek Lorenc");
@@ -34,7 +34,7 @@ public class EmailServiceTest extends AbstractServiceTest {
     }
 
     @Test
-    @Ignore
+    @Disabled
     public void sentRegistrationEmail () throws MessagingException {
         Map<String, Object> templateModel = new HashMap<>();
         templateModel.put("playerName", "Julia");

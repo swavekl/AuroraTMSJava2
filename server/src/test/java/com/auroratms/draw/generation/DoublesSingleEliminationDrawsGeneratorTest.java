@@ -6,14 +6,14 @@ import com.auroratms.draw.generation.singleelim.SingleEliminationEntriesConverte
 import com.auroratms.event.TournamentEvent;
 import com.auroratms.tournamentevententry.TournamentEventEntry;
 import com.auroratms.tournamentevententry.doubles.DoublesPair;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class DoublesSingleEliminationDrawsGeneratorTest extends AbstractDoublesDrawsGeneratorTest {
 
@@ -38,20 +38,20 @@ public class DoublesSingleEliminationDrawsGeneratorTest extends AbstractDoublesD
         ((DoublesSnakeDrawsGenerator)rrRoundGenerator).setDoublesPairs(doublesPairList);
 
         List<DrawItem> rrDrawItems = rrRoundGenerator.generateDraws(eventEntries, entryIdToPlayerDrawInfo, existingDrawItems);
-        assertEquals("wrong number of draws", 14, rrDrawItems.size());
+        assertEquals(14, rrDrawItems.size(), "wrong number of draws");
 
         // now test the single elimination draws generation
         // pick top n teams to advance and get their entries
         List<TournamentEventEntry> seEventEntries = SingleEliminationEntriesConverter.generateSEEventEntriesFromDraws(
                 rrDrawItems, eventEntries, tournamentEvent, entryIdToPlayerDrawInfo);
-        assertEquals("wrong number of advancing player entries", 8, seEventEntries.size());
+        assertEquals(8, seEventEntries.size(), "wrong number of advancing player entries");
 
         // make SE draws
         IDrawsGenerator seRoundGenerator = DrawGeneratorFactory.makeGenerator(tournamentEvent, DrawType.SINGLE_ELIMINATION);
-        assertNotNull("SE round generator is null", seRoundGenerator);
+        assertNotNull(seRoundGenerator, "SE round generator is null");
         ((DoublesSingleEliminationDrawsGenerator)seRoundGenerator).setDoublesPairs(doublesPairList);
 
         List<DrawItem> seDrawItems = seRoundGenerator.generateDraws(seEventEntries, entryIdToPlayerDrawInfo, existingDrawItems);
-        assertEquals("wrong number of SE entries", 4, seDrawItems.size());
+        assertEquals(4, seDrawItems.size(), "wrong number of SE entries");
     }
 }

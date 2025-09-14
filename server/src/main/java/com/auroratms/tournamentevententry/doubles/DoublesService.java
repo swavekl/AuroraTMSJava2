@@ -67,7 +67,7 @@ public class DoublesService {
      * @return
      */
     public DoublesPair get(long doublesPairId) {
-        return this.doublesPairRepository.getOne(doublesPairId);
+        return this.doublesPairRepository.getReferenceById(doublesPairId);
     }
 
     /**

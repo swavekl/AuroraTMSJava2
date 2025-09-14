@@ -19,7 +19,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 
-import javax.mail.MessagingException;
+import jakarta.mail.MessagingException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;

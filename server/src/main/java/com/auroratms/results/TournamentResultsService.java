@@ -117,7 +117,7 @@ public class TournamentResultsService {
                 if (matches.size() == 1) {
                     Match match = matches.get(0);
                     String compactResult = match.getCompactResult(matchCard.getNumberOfGames(), tournamentEvent.getPointsPerGame());
-                    String matchKey = String.format("%d:%d", matchCard.getRound(), matchCard.getGroupNum());
+                    String matchKey = "%d:%d".formatted(matchCard.getRound(), matchCard.getGroupNum());
                     matchToCompactNotationResultMap.put(matchKey, compactResult);
                 }
                 seResultsList.add(eventResults);
@@ -151,7 +151,7 @@ public class TournamentResultsService {
                         }
                     }
                     if (matchResult != null) {
-                        String matchKey = String.format("%d:%d", eventResults.getRound(), eventResults.getGroupNumber());
+                        String matchKey = "%d:%d".formatted(eventResults.getRound(), eventResults.getGroupNumber());
                         String compactMatchResult = matchToCompactNotationResultMap.get(matchKey);
                         matchResult.setCompactMatchResult(compactMatchResult);
                     }

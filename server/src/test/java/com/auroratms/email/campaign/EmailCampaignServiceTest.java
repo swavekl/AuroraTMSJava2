@@ -2,7 +2,7 @@ package com.auroratms.email.campaign;
 
 import com.auroratms.AbstractServiceTest;
 import com.auroratms.users.UserRoles;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -14,7 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 @Transactional
 public class EmailCampaignServiceTest extends AbstractServiceTest {
@@ -27,11 +27,11 @@ public class EmailCampaignServiceTest extends AbstractServiceTest {
     public void testCRUD () {
         EmailCampaign emailCampaign = makeEmailCampaign("2023 Aurora Fall Open Campaign");
         EmailCampaign saved = service.save(emailCampaign);
-        assertNotNull("no recipient fiters", saved.getRecipientFilters() != null);
-        assertNotNull("no removed recipients", saved.getRemovedRecipients() != null);
+        assertNotNull(saved.getRecipientFilters() != null, "no recipient fiters");
+        assertNotNull(saved.getRemovedRecipients() != null, "no removed recipients");
 
         boolean existsById = service.exists(saved.getId());
-        assertTrue("doesn't exist but should", existsById);
+        assertTrue(existsById, "doesn't exist but should");
 
         EmailCampaign found = service.findById(saved.getId());
 
@@ -39,11 +39,11 @@ public class EmailCampaignServiceTest extends AbstractServiceTest {
         EmailCampaign updated = service.save(found);
 
         String subject = updated.getSubject();
-        assertEquals("wrong subject", "Registration now closed", subject);
+        assertEquals("Registration now closed", subject, "wrong subject");
 
         service.delete(updated.getId());
         existsById = service.exists(updated.getId());
-        assertFalse("Exist but shouldn't", existsById);
+        assertFalse(existsById, "Exist but shouldn't");
     }
 
     @Test
@@ -53,17 +53,17 @@ public class EmailCampaignServiceTest extends AbstractServiceTest {
         EmailCampaign saved = service.save(emailCampaign);
         Page<EmailCampaign> pageWithMyCampaigns = service.findByName(null, Pageable.unpaged());
 
-        assertEquals("wrong number of elements", 1, pageWithMyCampaigns.getTotalElements());
+        assertEquals(1, pageWithMyCampaigns.getTotalElements(), "wrong number of elements");
         List<EmailCampaign> campaignList = pageWithMyCampaigns.getContent();
         for (EmailCampaign EmailCampaign : campaignList) {
-            assertEquals("wrong campaign name", "2024 Aurora Summer Open Campaign", EmailCampaign.getName());
+            assertEquals("2024 Aurora Summer Open Campaign", EmailCampaign.getName(), "wrong campaign name");
         }
 
         Authentication previousUser = switchAuthentication("swaveklorenc+edho@gmail.com", UserRoles.USATTSanctionCoordinators);
         Page<EmailCampaign> pageWithEdsCampaigns = service.findByName(null, Pageable.unpaged());
-        assertEquals("wrong number of elements", 0, pageWithEdsCampaigns.getTotalElements());
+        assertEquals(0, pageWithEdsCampaigns.getTotalElements(), "wrong number of elements");
         List<EmailCampaign> campaignList2 = pageWithEdsCampaigns.getContent();
-        assertTrue("empty list", campaignList2.isEmpty());
+        assertTrue(campaignList2.isEmpty(), "empty list");
 
         SecurityContextHolder.getContext().setAuthentication(previousUser);
     }

@@ -1,6 +1,6 @@
 buildscript {
     ext {
-        springBootVersion = '2.6.0'
+        springBootVersion = '3.5.5'
     }
     repositories {
         mavenCentral()
@@ -10,24 +10,52 @@ buildscript {
     }
 }
 
+// used for migrating to newer versions of Spring Boot
+//plugins {
+//    id("org.openrewrite.rewrite") version("7.1.7")
+//}
+
 apply plugin: 'java'
 apply plugin: 'eclipse'
 apply plugin: 'org.springframework.boot'
 apply plugin: 'io.spring.dependency-management'
-//apply plugin: 'war'
 
 group = 'com.auroratms'
-version = '0.0.1-SNAPSHOT'
-sourceCompatibility = 1.8
+version = '2.0.0'
+sourceCompatibility = 17
+
+bootRun {
+    // when adding here you also need to update JAVA_OPTS in Dockerfile
+    jvmArgs([
+            "--add-modules",
+            "java.se",
+            "--add-exports",
+            "java.base/jdk.internal.ref=ALL-UNNAMED",
+            "--add-opens",
+            "java.base/java.lang=ALL-UNNAMED",
+            "--add-opens",
+            "java.base/sun.nio.ch=ALL-UNNAMED",
+            "--add-opens",
+            "java.base/java.net=ALL-UNNAMED",
+            "--add-opens",
+            "java.management/sun.management=ALL-UNNAMED",
+            "--add-opens",
+            "jdk.management/com.sun.management.internal=ALL-UNNAMED"
+    ])
+}
+
+//rewrite {
+//    activeRecipe("io.moderne.java.spring.boot3.UpgradeSpringBoot_3_4")
+//    setExportDatatables(true)
+//}
 
 repositories {
     mavenCentral()
 }
 
-def oktaSdkVersion = "3.0.1"
-def oktaAuthnSdkVersion = "2.0.0"
-
 dependencies {
+//    rewrite("org.openrewrite.recipe:rewrite-spring:6.2.0")
+
     implementation('org.springframework.boot:spring-boot-starter-data-jpa')
     implementation('org.springframework.boot:spring-boot-starter-data-rest')
     implementation('org.springframework.boot:spring-boot-starter-security') {
@@ -36,8 +64,7 @@ dependencies {
     implementation('org.springframework.boot:spring-boot-starter-actuator')
     implementation('org.springframework.boot:spring-boot-starter-web')
     implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
-//    // event bus for sending emails in another thread
-//    implementation("io.projectreactor:reactor-bus")
+
     // email sender support
     implementation("org.springframework.boot:spring-boot-starter-mail")
     // email template engine
@@ -50,62 +77,59 @@ dependencies {
     // Hashicorp Vault
     implementation "org.springframework.boot:spring-boot-configuration-processor"
     annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
-    implementation "org.springframework.vault:spring-vault-core:2.3.2"
+    implementation 'org.springframework.vault:spring-vault-core:3.1.2'
     // for vault CRUD repository support
     implementation "org.springframework.data:spring-data-keyvalue"
 
     // caching
-//    implementation "net.sf.ehcache:ehcache-core:2.6.11"
     // distributed
     implementation "org.springframework.boot:spring-boot-starter-cache"
-    implementation "com.hazelcast:hazelcast-all:4.2.2"
-    implementation "com.hazelcast:hazelcast-spring:4.2.2"
+    implementation "com.hazelcast:hazelcast-spring:5.5.0"  // nothing newer as of Sept 2025
+    implementation "com.hazelcast:hazelcast:5.5.0"
+    implementation "com.hazelcast:hazelcast-hibernate53:5.2.0"
 
-    implementation('com.okta.spring:okta-spring-boot-starter:2.0.0')
-    implementation('org.springframework.security.oauth.boot:spring-security-oauth2-autoconfigure:2.4.0')
+    implementation('com.okta.spring:okta-spring-boot-starter:3.0.7') // 2.1.6 from Aug 2022 or newer 3.0.7 from Jun 2024
+    implementation('org.springframework.security.oauth.boot:spring-security-oauth2-autoconfigure:2.6.8') // 2.6.8 May 2020
 
     // MySQL JDBC driver
-    runtimeOnly('mysql:mysql-connector-java')
+    runtimeOnly('com.mysql:mysql-connector-j')
     // for applying changes to database as a result of schema change
-    implementation "org.liquibase:liquibase-core:4.3.1"
+    implementation 'org.liquibase:liquibase-core:4.8.0'
 
     // lombok for generating getter sand setters
-    compileOnly('org.projectlombok:lombok:1.18.16')
-    annotationProcessor ('org.projectlombok:lombok:1.18.16')
+    compileOnly('org.projectlombok:lombok:1.18.36')
+    annotationProcessor ('org.projectlombok:lombok:1.18.36')
 
     // unit and integration testing
     testImplementation('org.springframework.boot:spring-boot-starter-test')
     // testing access control to services
     testImplementation('org.springframework.security:spring-security-test')
-    // old Junit 4 unit testing
-    implementation 'org.junit.vintage:junit-vintage-engine:5.7.0'
 
-    implementation ('com.fasterxml.jackson.core:jackson-core:2.13.0')
+    implementation ('com.fasterxml.jackson.core:jackson-core:2.18.3')
 
-    // okta APIs
-    implementation ("com.okta.sdk:okta-sdk-api:${oktaSdkVersion}")
-    implementation ("com.okta.sdk:okta-sdk-impl:${oktaSdkVersion}")
-    runtimeOnly ("com.okta.sdk:okta-sdk-httpclient:${oktaSdkVersion}")
-    implementation("com.okta.authn.sdk:okta-authn-sdk-api:${oktaAuthnSdkVersion}")
-    runtimeOnly ("com.okta.authn.sdk:okta-authn-sdk-impl:${oktaAuthnSdkVersion}")
-    runtimeOnly ('javax.validation:validation-api:2.0.0.Final')
+    implementation ("com.okta.sdk:okta-sdk-api:21.0.0")
+    implementation ("com.okta.sdk:okta-sdk-impl:21.0.0")
+    runtimeOnly ("com.okta.commons:okta-http-httpclient:2.0.1")
+
+    implementation("com.okta.authn.sdk:okta-authn-sdk-api:3.0.0")
+    runtimeOnly ("com.okta.authn.sdk:okta-authn-sdk-impl:3.0.0")
+    runtimeOnly ("jakarta.validation:jakarta.validation-api:3.0.2")
 
     // reading and parsing HTML
-    implementation ('org.jsoup:jsoup:1.13.1')
+    implementation ('org.jsoup:jsoup:1.15.3')
 
     // reading and parsing CSV files
-    implementation('com.opencsv:opencsv:5.3')
+    implementation('com.opencsv:opencsv:5.12.0')
 
     // Googl GSON parser for parsing JSON files
     implementation ('com.google.code.gson:gson:2.8.9')
 
     // credit card payments & refunds
-    implementation "com.stripe:stripe-java:19.45.0"
+    implementation "com.stripe:stripe-java:19.45.0" // 29.5.0 from Aug 2025
 
     // match cards PDF generation
     implementation 'com.itextpdf:itext7-core:7.2.5'
 
-//    testImplementation ("com.auroratms:com.aurora.server.main")
     // websocket implementation
     implementation 'org.springframework.boot:spring-boot-starter-websocket'
     implementation "org.springframework.security:spring-security-messaging"
@@ -115,28 +139,25 @@ dependencies {
 
     // For external message broker like RabbitMQ
     implementation 'org.springframework.boot:spring-boot-starter-reactor-netty'
-    implementation 'org.springframework.amqp:spring-rabbit:2.4.1'
+    implementation 'org.springframework.amqp:spring-rabbit:3.2.6'
 
     // quartz scheduler for cleanup job
     implementation 'org.springframework.boot:spring-boot-starter-quartz'
-
-    // make this project depend on building the client portion of the project
-//    implementation (project(':client'))
 }
 
-//configurations {
-//    all*.exclude module : 'spring-boot-starter-logging'
-//}
-
-task copyAngularApp (type: Copy) {
+task copyAngularApp (type: Copy, dependsOn: ':client:buildAngularApp') {
+//task copyAngularApp (type: Copy) {
     from '../client/dist/client/browser'
     into './build/resources/main/static'
 }
 
 processResources.dependsOn(copyAngularApp)
-//jar.dependsOn(copyAngularApp)
-
 
 task prepareKotlinBuildScriptModel {
 
 }
+
+tasks.withType(Test).configureEach {
+    useJUnitPlatform()
+}
+

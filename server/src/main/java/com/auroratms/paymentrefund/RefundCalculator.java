@@ -138,7 +138,7 @@ public class RefundCalculator {
         for (PaymentRefund paymentRefund : paymentRefundList) {
             if (paymentRefund.getStatus().equals(PaymentRefundStatus.PAYMENT_COMPLETED)) {
                 totalPayments += paymentRefund.getAmount();
-                balancesAvailableForRefund.put(paymentRefund.getPaymentIntentId(), new Integer(paymentRefund.getAmount()));
+                balancesAvailableForRefund.put(paymentRefund.getPaymentIntentId(), Integer.valueOf(paymentRefund.getAmount()));
             }
         }
 
@@ -157,7 +157,7 @@ public class RefundCalculator {
         // check if we have enough do a refund
         int totalAvailableForRefunds = totalPayments - totalPriorRefunds;
         if (refundAmountInAccountCurrency > totalAvailableForRefunds) {
-            String errorMessage = String.format("Requested refund amount of %d exceeds %d total transactions balance available for refund.",
+            String errorMessage = "Requested refund amount of %d exceeds %d total transactions balance available for refund.".formatted(
                     refundAmountInAccountCurrency, totalAvailableForRefunds);
             throw new RefundException(errorMessage);
         }

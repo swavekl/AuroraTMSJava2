@@ -1,9 +1,9 @@
 package com.auroratms.match;
 
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class MatchTest {
 
@@ -26,7 +26,7 @@ public class MatchTest {
         match.setGame3ScoreSideB((byte)8);
 
         String compactResult = match.getCompactResult(5, 11);
-        assertEquals("wrong match result", "7,3,8", compactResult);
+        assertEquals("7,3,8", compactResult, "wrong match result");
     }
     @Test
     public void testComplexWin () {
@@ -53,7 +53,7 @@ public class MatchTest {
         match.setGame5ScoreSideB((byte)6);
 
         String compactResult = match.getCompactResult(5, 11);
-        assertEquals("wrong match result", "7,3,-8,-10,6", compactResult);
+        assertEquals("7,3,-8,-10,6", compactResult, "wrong match result");
     }
     @Test
     public void testDefault () {
@@ -66,12 +66,12 @@ public class MatchTest {
         match.setSideADefaulted(true);
 
         String compactResult = match.getCompactResult(3, 11);
-        assertEquals("wrong match result", "0,0", compactResult);
+        assertEquals("0,0", compactResult, "wrong match result");
 
         compactResult = match.getCompactResult(5, 11);
-        assertEquals("wrong match result", "0,0,0", compactResult);
+        assertEquals("0,0,0", compactResult, "wrong match result");
 
         compactResult = match.getCompactResult(7, 11);
-        assertEquals("wrong match result", "0,0,0,0", compactResult);
+        assertEquals("0,0,0,0", compactResult, "wrong match result");
     }
 }
