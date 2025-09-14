@@ -1,5 +1,6 @@
 package com.auroratms.utils.filerepo;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.util.FileCopyUtils;
@@ -14,6 +15,7 @@ import java.util.List;
  * File repository implementation for local files
  */
 @Component
+@Slf4j
 public class LocalFileRepository implements IFileRepository {
 
     @Value("${local.repository.root.path}")
@@ -44,6 +46,7 @@ public class LocalFileRepository implements IFileRepository {
             FileCopyUtils.copy(inputStream, fileOutputStream);
             return getStorageURL(storagePath, sourceFileName);
         } catch (IOException e) {
+            log.error("Unable to copy file " + sourceFileName + " to storagePath " + storagePath, e);
             throw new FileRepositoryException("Unable to copy file to destination", e);
         }
     }
