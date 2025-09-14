@@ -8,9 +8,10 @@ import {UmpireSummaryTableComponent} from './umpire-summary-table/umpire-summary
 import {UmpiredMatchInfo} from '../model/umpired-match-info.model';
 
 @Component({
-  selector: 'app-umpire-management',
-  templateUrl: './umpire-management.component.html',
-  styleUrl: './umpire-management.component.scss'
+    selector: 'app-umpire-management',
+    templateUrl: './umpire-management.component.html',
+    styleUrl: './umpire-management.component.scss',
+    standalone: false
 })
 export class UmpireManagementComponent implements AfterViewInit {
 

@@ -7,14 +7,15 @@ import {LoginUniqueValidator} from './login-unique-validator';
  * Directive for adding async validator to template driven forms
  */
 @Directive({
-  selector: '[appLoginUnique]',
-  providers: [
-    {
-      provide: NG_ASYNC_VALIDATORS,
-      useExisting: forwardRef(() => LoginUniqueDirective),
-      multi: true
-    }
-  ]
+    selector: '[appLoginUnique]',
+    providers: [
+        {
+            provide: NG_ASYNC_VALIDATORS,
+            useExisting: forwardRef(() => LoginUniqueDirective),
+            multi: true
+        }
+    ],
+    standalone: false
 })
 export class LoginUniqueDirective implements AsyncValidator {
 

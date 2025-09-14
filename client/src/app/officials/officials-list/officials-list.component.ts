@@ -17,9 +17,10 @@ import {LinearProgressBarService} from '../../shared/linear-progress-bar/linear-
 import {StatesList} from '../../shared/states/states-list';
 
 @Component({
-  selector: 'app-officials-list',
-  templateUrl: './officials-list.component.html',
-  styleUrls: ['./officials-list.component.scss']
+    selector: 'app-officials-list',
+    templateUrl: './officials-list.component.html',
+    styleUrls: ['./officials-list.component.scss'],
+    standalone: false
 })
 export class OfficialsListComponent implements AfterViewInit, OnDestroy {
   @ViewChild(MatPaginator) paginator!: MatPaginator;

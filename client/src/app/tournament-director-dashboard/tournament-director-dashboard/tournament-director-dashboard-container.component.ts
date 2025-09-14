@@ -8,15 +8,15 @@ import {Tournament} from '../../tournament/tournament-config/tournament.model';
 import {TournamentConfigService} from '../../tournament/tournament-config/tournament-config.service';
 
 @Component({
-  selector: 'app-tournament-director-dashboard-container',
-  template: `
+    selector: 'app-tournament-director-dashboard-container',
+    template: `
     <app-tournament-director-dashboard
       [tournamentId]="tournamentId$ | async"
       [tournamentName]="tournamentName$ | async">
     </app-tournament-director-dashboard>
   `,
-  styles: [
-  ]
+    styles: [],
+    standalone: false
 })
 export class TournamentDirectorDashboardContainerComponent implements OnInit, OnDestroy {
 

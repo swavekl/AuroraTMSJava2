@@ -3,9 +3,10 @@ import {TournamentEvent} from '../../../tournament/tournament-config/tournament-
 import {Router} from '@angular/router';
 
 @Component({
-  selector: 'app-draws-view',
-  templateUrl: './draws-view-events.component.html',
-  styleUrls: ['./draws-view-events.component.scss']
+    selector: 'app-draws-view',
+    templateUrl: './draws-view-events.component.html',
+    styleUrls: ['./draws-view-events.component.scss'],
+    standalone: false
 })
 export class DrawsViewEventsComponent {
 

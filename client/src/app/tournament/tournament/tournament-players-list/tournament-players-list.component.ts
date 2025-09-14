@@ -3,10 +3,11 @@ import {TournamentEntryInfo} from '../../model/tournament-entry-info.model';
 import {TournamentEvent} from '../../tournament-config/tournament-event.model';
 
 @Component({
-  selector: 'app-tournament-players-list',
-  templateUrl: './tournament-players-list.component.html',
-  styleUrls: ['./tournament-players-list.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+    selector: 'app-tournament-players-list',
+    templateUrl: './tournament-players-list.component.html',
+    styleUrls: ['./tournament-players-list.component.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    standalone: false
 })
 export class TournamentPlayersListComponent implements OnInit, OnChanges {
 

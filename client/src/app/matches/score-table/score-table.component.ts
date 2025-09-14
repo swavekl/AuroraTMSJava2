@@ -5,9 +5,10 @@ import {Match} from '../model/match.model';
  * Table showing player names or letter codes, individual games score and game score for the match
  */
 @Component({
-  selector: 'app-match-score-table',
-  templateUrl: './score-table.component.html',
-  styleUrl: './score-table.component.scss'
+    selector: 'app-match-score-table',
+    templateUrl: './score-table.component.html',
+    styleUrl: './score-table.component.scss',
+    standalone: false
 })
 export class ScoreTableComponent implements OnChanges {
   @Input()

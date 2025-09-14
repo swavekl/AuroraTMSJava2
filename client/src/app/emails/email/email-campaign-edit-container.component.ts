@@ -16,8 +16,8 @@ import {MatDialog} from '@angular/material/dialog';
 import {CampaignInitData} from '../email-add-dialog/email-add-dialog.component';
 
 @Component({
-  selector: 'app-email-campaign-edit-container',
-  template: `
+    selector: 'app-email-campaign-edit-container',
+    template: `
       <app-email-campaign-edit
               [tournamentName]="tournamentName"
               [emailCampaign]="emailCampaign$ | async"
@@ -26,7 +26,8 @@ import {CampaignInitData} from '../email-add-dialog/email-add-dialog.component';
               (eventEmitter)="onEvent($event)">
       </app-email-campaign-edit>
   `,
-  styles: []
+    styles: [],
+    standalone: false
 })
 export class EmailCampaignEditContainerComponent implements OnDestroy {
 

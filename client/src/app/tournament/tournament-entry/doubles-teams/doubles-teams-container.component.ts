@@ -15,8 +15,8 @@ import {DoublesPairInfo} from '../model/doubles-pair-info.model';
 import {DoublesPair} from '../model/doubles-pair.model';
 
 @Component({
-  selector: 'app-doubles-teams-container',
-  template: `
+    selector: 'app-doubles-teams-container',
+    template: `
     <app-doubles-teams [doublesEvents]="doublesEvents$ | async"
                        [doublesEventEntries]="doublesEventEntries$ | async"
                        [doublesPairInfos]="doublesPairInfos$ | async"
@@ -28,7 +28,8 @@ import {DoublesPair} from '../model/doubles-pair.model';
     >
     </app-doubles-teams>
   `,
-  styles: []
+    styles: [],
+    standalone: false
 })
 export class DoublesTeamsContainerComponent implements OnInit, OnDestroy {
 

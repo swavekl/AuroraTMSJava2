@@ -10,8 +10,8 @@ import {TournamentInfoService} from '../../tournament/service/tournament-info.se
 import {CheckInType} from '../../tournament/model/check-in-type.enum';
 
 @Component({
-  selector: 'app-player-schedule-detail-container',
-  template: `
+    selector: 'app-player-schedule-detail-container',
+    template: `
     <app-player-schedule-detail [playerScheduleItem]="playerScheduleItem$ | async"
                                 [checkInType]="checkInType"
                                 [returnUrl]="returnUrl"
@@ -20,8 +20,8 @@ import {CheckInType} from '../../tournament/model/check-in-type.enum';
                                 [tournamentDay]="tournamentDay">
     </app-player-schedule-detail>
   `,
-  styles: [
-  ]
+    styles: [],
+    standalone: false
 })
 export class PlayerScheduleDetailContainerComponent implements OnInit, OnDestroy {
 

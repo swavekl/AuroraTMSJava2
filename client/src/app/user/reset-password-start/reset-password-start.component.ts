@@ -4,8 +4,8 @@ import {Subscription} from 'rxjs';
 import {Router} from '@angular/router';
 
 @Component({
-  selector: 'app-reset-password-start',
-  template: `
+    selector: 'app-reset-password-start',
+    template: `
       <app-centered-panel>
         <h2 class="mat-headline-5" style="text-align: center">Reset Password</h2>
         <div fxLayout="column" fxLayoutAlign="start center" style="text-align: left;">
@@ -44,7 +44,8 @@ import {Router} from '@angular/router';
         </div>
       </app-centered-panel>
   `,
-  styles: []
+    styles: [],
+    standalone: false
 })
 export class ResetPasswordStartComponent implements OnInit, OnDestroy {
 

@@ -6,13 +6,14 @@ import {Tournament} from '../../tournament/tournament-config/tournament.model';
 import {LinearProgressBarService} from '../../shared/linear-progress-bar/linear-progress-bar.service';
 
 @Component({
-  selector: 'app-referee-tournament-list-container',
-  template: `
+    selector: 'app-referee-tournament-list-container',
+    template: `
     <app-referee-tournament-list [tournaments]="tournaments$ | async">
       referee-tournament-list-container works!
     </app-referee-tournament-list>
   `,
-  styles: ``
+    styles: ``,
+    standalone: false
 })
 export class RefereeTournamentListContainerComponent implements OnInit, OnDestroy {
   tournaments$: Observable<Tournament[]>;

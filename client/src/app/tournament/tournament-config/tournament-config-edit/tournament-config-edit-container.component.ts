@@ -9,14 +9,15 @@ import {LinearProgressBarService} from '../../../shared/linear-progress-bar/line
 import {TournamentEventConfigService} from '../tournament-event-config.service';
 
 @Component({
-  selector: 'app-tournament-config-edit-container',
-  template: `
+    selector: 'app-tournament-config-edit-container',
+    template: `
     <app-tournament-config-edit [tournament]="tournament$ | async"
                                 (saved)="onSave($event)"
                                 (canceled)="onCancel($event)"></app-tournament-config-edit>
   `,
-  styles: [],
-  changeDetection: ChangeDetectionStrategy.OnPush
+    styles: [],
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    standalone: false
 })
 export class TournamentConfigEditContainerComponent implements OnInit, OnDestroy, AfterViewInit {
 

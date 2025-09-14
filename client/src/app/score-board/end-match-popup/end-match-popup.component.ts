@@ -2,9 +2,10 @@ import {Component, Inject} from '@angular/core';
 import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
 
 @Component({
-  selector: 'app-end-match-popup',
-  templateUrl: './end-match-popup.component.html',
-  styleUrl: './end-match-popup.component.scss'
+    selector: 'app-end-match-popup',
+    templateUrl: './end-match-popup.component.html',
+    styleUrl: './end-match-popup.component.scss',
+    standalone: false
 })
 export class EndMatchPopupComponent {
   endReason: string;

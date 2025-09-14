@@ -5,15 +5,15 @@ import {Observable, Subscription} from 'rxjs';
 import {ActivatedRoute} from '@angular/router';
 
 @Component({
-  selector: 'app-monitor-display-container',
-  template: `
+    selector: 'app-monitor-display-container',
+    template: `
     <app-monitor-display [matchData]="matchData$ | async"
                          [isConnected]="connectionStatus$ | async"
                          [tableNumber]="tableNumber"
     ></app-monitor-display>
     `,
-  styles: [
-  ]
+    styles: [],
+    standalone: false
 })
 export class MonitorDisplayContainerComponent implements OnInit, OnDestroy {
   matchData$: Observable<MonitorMessage>;

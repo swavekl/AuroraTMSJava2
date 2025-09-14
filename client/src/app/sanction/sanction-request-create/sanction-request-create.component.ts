@@ -11,9 +11,10 @@ import {ErrorMessagePopupService} from '../../shared/error-message-dialog/error-
 import {first} from 'rxjs/operators';
 
 @Component({
-  selector: 'app-sanction-request-create',
-  template: ``,
-  styles: []
+    selector: 'app-sanction-request-create',
+    template: ``,
+    styles: [],
+    standalone: false
 })
 export class SanctionRequestCreateComponent implements OnDestroy {
 

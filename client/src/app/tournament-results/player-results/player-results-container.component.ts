@@ -10,14 +10,15 @@ import {TournamentEntryService} from '../../tournament/tournament-entry/service/
 import {TournamentEntry} from '../../tournament/tournament-entry/model/tournament-entry.model';
 
 @Component({
-  selector: 'app-player-results-container',
-  template: `
+    selector: 'app-player-results-container',
+    template: `
     <app-player-results
       [playerMatchSummaryList]="playerMatchSummaries$ | async"
       [tournamentEntry]="entry$ | async">
     </app-player-results>
   `,
-  styles: []
+    styles: [],
+    standalone: false
 })
 export class PlayerResultsContainerComponent implements OnInit, OnDestroy {
 

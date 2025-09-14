@@ -4,9 +4,10 @@ import {BreakpointObserver, Breakpoints} from '@angular/cdk/layout';
 import {Router} from '@angular/router';
 
 @Component({
-  selector: 'app-tournament-director-dashboard',
-  templateUrl: './tournament-director-dashboard.component.html',
-  styleUrls: ['./tournament-director-dashboard.component.scss']
+    selector: 'app-tournament-director-dashboard',
+    templateUrl: './tournament-director-dashboard.component.html',
+    styleUrls: ['./tournament-director-dashboard.component.scss'],
+    standalone: false
 })
 export class TournamentDirectorDashboardComponent {
 

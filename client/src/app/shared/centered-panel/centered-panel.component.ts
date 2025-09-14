@@ -1,9 +1,10 @@
 import {Component, Input, OnInit} from '@angular/core';
 
 @Component({
-  selector: 'app-centered-panel',
-  templateUrl: './centered-panel.component.html',
-  styleUrls: ['./centered-panel.component.css']
+    selector: 'app-centered-panel',
+    templateUrl: './centered-panel.component.html',
+    styleUrls: ['./centered-panel.component.css'],
+    standalone: false
 })
 export class CenteredPanelComponent implements OnInit {
 

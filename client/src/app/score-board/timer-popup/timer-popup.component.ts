@@ -1,25 +1,12 @@
-import {AfterContentChecked, AfterContentInit, AfterViewInit, Component, Inject, ViewChild} from '@angular/core';
-import {SharedModule} from '../../shared/shared.module';
-import {MAT_DIALOG_DATA, MatDialogActions, MatDialogContent, MatDialogRef, MatDialogTitle} from '@angular/material/dialog';
-import {MatButton} from '@angular/material/button';
+import {AfterViewInit, Component, Inject, ViewChild} from '@angular/core';
+import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
 import {TimerDisplayComponent} from '../../shared/timer-display/timer-display.component';
-import {FlexModule} from 'ng-flex-layout';
-import {NgIf} from '@angular/common';
 
 @Component({
-  selector: 'app-timer-popup',
-  standalone: true,
-  imports: [
-    SharedModule,
-    MatDialogContent,
-    MatDialogTitle,
-    MatDialogActions,
-    MatButton,
-    FlexModule,
-    NgIf
-  ],
-  templateUrl: './timer-popup.component.html',
-  styleUrl: './timer-popup.component.scss'
+    selector: 'app-timer-popup',
+    templateUrl: './timer-popup.component.html',
+    styleUrl: './timer-popup.component.scss',
+    standalone: false
 })
 export class TimerPopupComponent implements AfterViewInit {
 

@@ -1,9 +1,10 @@
 import {Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChange, SimpleChanges} from '@angular/core';
 
 @Component({
-  selector: 'app-score-board-configure',
-  templateUrl: './score-board-configure.component.html',
-  styleUrls: ['./score-board-configure.component.scss']
+    selector: 'app-score-board-configure',
+    templateUrl: './score-board-configure.component.html',
+    styleUrls: ['./score-board-configure.component.scss'],
+    standalone: false
 })
 export class ScoreBoardConfigureComponent implements OnInit, OnChanges {
 

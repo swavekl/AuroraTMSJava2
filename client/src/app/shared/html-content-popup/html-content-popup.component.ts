@@ -2,10 +2,11 @@ import {Component, Inject, ViewEncapsulation} from '@angular/core';
 import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
 
 @Component({
-  selector: 'app-html-content-popup',
-  templateUrl: './html-content-popup.component.html',
-  styleUrl: './html-content-popup.component.scss',
-  encapsulation: ViewEncapsulation.None
+    selector: 'app-html-content-popup',
+    templateUrl: './html-content-popup.component.html',
+    styleUrl: './html-content-popup.component.scss',
+    encapsulation: ViewEncapsulation.None,
+    standalone: false
 })
 export class HtmlContentPopupComponent {
 

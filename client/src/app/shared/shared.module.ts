@@ -34,6 +34,7 @@ import {TimerFormatterPipe} from './pipes/timer-formatter.pipe';
 import {CardsDisplayComponent} from './cards-display/cards-display.component';
 import {PasswordStrengthComponent} from './password-strength/password-strength.component';
 import {HtmlContentPopupComponent} from './html-content-popup/html-content-popup.component';
+import {ServerReceiverIndicatorComponent} from './server-receiver-indicator/server-receiver-indicator.component';
 
 
 @NgModule({
@@ -60,7 +61,8 @@ import {HtmlContentPopupComponent} from './html-content-popup/html-content-popup
     TimerDisplayComponent,
     CardsDisplayComponent,
     PasswordStrengthComponent,
-    HtmlContentPopupComponent
+    HtmlContentPopupComponent,
+    ServerReceiverIndicatorComponent
   ],
   exports: [
     LinearProgressBarComponent,
@@ -84,7 +86,8 @@ import {HtmlContentPopupComponent} from './html-content-popup/html-content-popup
     TimerDisplayComponent,
     CardsDisplayComponent,
     PasswordStrengthComponent,
-    HtmlContentPopupComponent
+    HtmlContentPopupComponent,
+    ServerReceiverIndicatorComponent
   ],
   imports: [
     CommonModule,

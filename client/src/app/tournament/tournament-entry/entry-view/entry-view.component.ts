@@ -20,9 +20,10 @@ import {ChangeRatingDialogComponent} from '../change-rating-dialog/change-rating
 import {PaymentRefundStatus} from '../../../account/model/payment-refund-status.enum';
 
 @Component({
-  selector: 'app-entry-view',
-  templateUrl: './entry-view.component.html',
-  styleUrls: ['./entry-view.component.scss']
+    selector: 'app-entry-view',
+    templateUrl: './entry-view.component.html',
+    styleUrls: ['./entry-view.component.scss'],
+    standalone: false
 })
 export class EntryViewComponent implements OnInit, OnChanges, OnDestroy {
   @Input()

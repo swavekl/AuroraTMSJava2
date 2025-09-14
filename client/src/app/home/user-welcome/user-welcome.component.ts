@@ -4,9 +4,10 @@ import {ActivatedRoute, Router} from '@angular/router';
 import {AuthenticationService} from '../../user/authentication.service';
 
 @Component({
-  selector: 'app-user-welcome',
-  templateUrl: './user-welcome.component.html',
-  styleUrls: ['./user-welcome.component.css']
+    selector: 'app-user-welcome',
+    templateUrl: './user-welcome.component.html',
+    styleUrls: ['./user-welcome.component.css'],
+    standalone: false
 })
 export class UserWelcomeComponent implements OnInit {
 

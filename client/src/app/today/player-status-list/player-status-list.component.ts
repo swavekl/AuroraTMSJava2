@@ -11,9 +11,10 @@ import {EventStatusCode} from '../model/event-status-code.enum';
 import {PlayerStatusPipe} from '../pipe/player-status.pipe';
 
 @Component({
-  selector: 'app-player-status-list',
-  templateUrl: './player-status-list.component.html',
-  styleUrls: ['./player-status-list.component.scss']
+    selector: 'app-player-status-list',
+    templateUrl: './player-status-list.component.html',
+    styleUrls: ['./player-status-list.component.scss'],
+    standalone: false
 })
 export class PlayerStatusListComponent implements OnChanges, AfterViewInit {
 

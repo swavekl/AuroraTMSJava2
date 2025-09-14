@@ -16,9 +16,10 @@ import {PlayerStatusPipe} from '../../../today/pipe/player-status.pipe';
 import {MatchCardInfo} from '../../../matches/model/match-card-info.model';
 
 @Component({
-  selector: 'app-round-robin-draws-panel',
-  templateUrl: './round-robin-draws-panel.component.html',
-  styleUrls: ['./round-robin-draws-panel.component.scss']
+    selector: 'app-round-robin-draws-panel',
+    templateUrl: './round-robin-draws-panel.component.html',
+    styleUrls: ['./round-robin-draws-panel.component.scss'],
+    standalone: false
 })
 export class RoundRobinDrawsPanelComponent implements OnChanges {
 

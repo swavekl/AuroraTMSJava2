@@ -3,9 +3,10 @@ import {EventDefaults} from '../model/event-defaults';
 import {MatDialogRef} from '@angular/material/dialog';
 
 @Component({
-  selector: 'app-select-event-dialog',
-  templateUrl: './select-event-dialog.component.html',
-  styleUrls: ['./select-event-dialog.component.css']
+    selector: 'app-select-event-dialog',
+    templateUrl: './select-event-dialog.component.html',
+    styleUrls: ['./select-event-dialog.component.css'],
+    standalone: false
 })
 export class SelectEventDialogComponent implements OnInit {
 

@@ -1,11 +1,12 @@
 @use "src/my-theme.scss" as *;
+@use "sass:color";
 
 .full-width-table {
   width: 100%;
 }
 
 .mat-mdc-row:hover {
-  background-color: lighten($primary-color, 40%);
+  background-color: color.adjust($primary-color, $lightness: 40%);
   cursor: pointer;
 }
 

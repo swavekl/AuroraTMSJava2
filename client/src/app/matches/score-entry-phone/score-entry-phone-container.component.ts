@@ -11,8 +11,8 @@ import {LocalStorageService} from '../../shared/local-storage.service';
 import {switchMap} from 'rxjs/operators';
 
 @Component({
-  selector: 'app-score-entry-phone-container',
-  template: `
+    selector: 'app-score-entry-phone-container',
+    template: `
     <app-score-entry-phone
       [match]="match$ | async"
       [playerAName]="playerAName$ | async"
@@ -25,7 +25,8 @@ import {switchMap} from 'rxjs/operators';
     (cancelMatch)="onCancelMatch()">
     </app-score-entry-phone>
   `,
-  styles: []
+    styles: [],
+    standalone: false
 })
 export class ScoreEntryPhoneContainerComponent implements OnInit, OnDestroy {
 

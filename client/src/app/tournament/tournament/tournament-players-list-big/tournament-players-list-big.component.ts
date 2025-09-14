@@ -5,9 +5,10 @@ import {debounceTime, distinctUntilChanged, skip} from 'rxjs/operators';
 import {BehaviorSubject} from 'rxjs';
 
 @Component({
-  selector: 'app-tournament-players-list-big',
-  templateUrl: './tournament-players-list-big.component.html',
-  styleUrls: ['./tournament-players-list-big.component.scss']
+    selector: 'app-tournament-players-list-big',
+    templateUrl: './tournament-players-list-big.component.html',
+    styleUrls: ['./tournament-players-list-big.component.scss'],
+    standalone: false
 })
 export class TournamentPlayersListBigComponent implements OnChanges, AfterViewInit {
 

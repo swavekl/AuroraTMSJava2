@@ -7,9 +7,10 @@ import {MatSnackBar} from '@angular/material/snack-bar';
 import {PlayerDetail} from '../model/player-detail.model';
 
 @Component({
-  selector: 'app-player-schedule-detail',
-  templateUrl: './player-schedule-detail.component.html',
-  styleUrls: ['./player-schedule-detail.component.scss']
+    selector: 'app-player-schedule-detail',
+    templateUrl: './player-schedule-detail.component.html',
+    styleUrls: ['./player-schedule-detail.component.scss'],
+    standalone: false
 })
 export class PlayerScheduleDetailComponent implements OnInit, OnChanges {
 

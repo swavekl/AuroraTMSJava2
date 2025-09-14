@@ -20,17 +20,13 @@ import {ScoreBoardScoreEntryContainerComponent} from './score-board-score-entry/
 import {MatIcon} from '@angular/material/icon';
 import {TimerFormatterPipe} from '../shared/pipes/timer-formatter.pipe';
 import {ScoreBoardMatchStartComponent} from './score-board-match-start/score-board-match-start.component';
-import {
-  ScoreBoardMatchStartContainerComponent
-} from './score-board-match-start/score-board-match-start-container.component';
+import {ScoreBoardMatchStartContainerComponent} from './score-board-match-start/score-board-match-start-container.component';
 import {MatRadioButton, MatRadioGroup} from '@angular/material/radio';
-import {ScoreTableComponent} from '../matches/score-table/score-table.component';
 import {MatchesModule} from '../matches/matches.module';
-import { CardsPopupComponent } from './cards-popup/cards-popup.component';
-import {MatDialogActions, MatDialogClose, MatDialogContainer, MatDialogContent, MatDialogTitle} from '@angular/material/dialog';
-import {ServerReceiverIndicatorComponent} from '../shared/server-receiver-indicator/server-receiver-indicator.component';
-import { EndMatchPopupComponent } from './end-match-popup/end-match-popup.component';
-
+import {CardsPopupComponent} from './cards-popup/cards-popup.component';
+import {MatDialogModule} from '@angular/material/dialog';
+import {EndMatchPopupComponent} from './end-match-popup/end-match-popup.component';
+import {TimerPopupComponent} from './timer-popup/timer-popup.component';
 
 @NgModule({
   declarations: [
@@ -43,7 +39,8 @@ import { EndMatchPopupComponent } from './end-match-popup/end-match-popup.compon
     ScoreBoardMatchStartComponent,
     ScoreBoardMatchStartContainerComponent,
     CardsPopupComponent,
-    EndMatchPopupComponent
+    EndMatchPopupComponent,
+    TimerPopupComponent
   ],
   imports: [
     CommonModule,
@@ -63,12 +60,7 @@ import { EndMatchPopupComponent } from './end-match-popup/end-match-popup.compon
     MatRadioGroup,
     MatRadioButton,
     MatchesModule,
-    MatDialogContent,
-    MatDialogActions,
-    MatDialogTitle,
-    ServerReceiverIndicatorComponent,
-    MatDialogClose,
-    MatDialogContainer
+    MatDialogModule
   ]
 })
 export class ScoreBoardModule {

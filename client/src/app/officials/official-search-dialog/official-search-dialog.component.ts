@@ -8,9 +8,10 @@ import {StatesList} from '../../shared/states/states-list';
 import {UntypedFormControl} from '@angular/forms';
 
 @Component({
-  selector: 'app-official-search-dialog',
-  templateUrl: './official-search-dialog.component.html',
-  styleUrls: ['./official-search-dialog.component.scss']
+    selector: 'app-official-search-dialog',
+    templateUrl: './official-search-dialog.component.html',
+    styleUrls: ['./official-search-dialog.component.scss'],
+    standalone: false
 })
 export class OfficialSearchDialogComponent implements OnDestroy, AfterViewInit {
 

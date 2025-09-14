@@ -3,9 +3,10 @@ import {CardsInfo} from '../../shared/cards-display/cards-info.model';
 import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
 
 @Component({
-  selector: 'app-cards-popup',
-  templateUrl: './cards-popup.component.html',
-  styleUrl: './cards-popup.component.scss'
+    selector: 'app-cards-popup',
+    templateUrl: './cards-popup.component.html',
+    styleUrl: './cards-popup.component.scss',
+    standalone: false
 })
 export class CardsPopupComponent {
   public cardsInfo: CardsInfo;

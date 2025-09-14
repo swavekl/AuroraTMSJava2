@@ -12,8 +12,8 @@ import {Regions} from '../../shared/regions';
 import {UserRoles} from '../../user/user-roles.enum';
 
 @Component({
-  selector: 'app-profile-edit-container',
-  template: `
+    selector: 'app-profile-edit-container',
+    template: `
     <app-profile-edit [profile]="profile$ | async"
                       [canChangeMembershipId]="canChangeMembershipId"
                       (saved)="onSave($event)"
@@ -21,8 +21,9 @@ import {UserRoles} from '../../user/user-roles.enum';
                       (unlock)="onUnlock($event)">
     </app-profile-edit>
   `,
-  styles: [],
-  changeDetection: ChangeDetectionStrategy.OnPush
+    styles: [],
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    standalone: false
 })
 export class ProfileEditContainerComponent implements OnInit, OnDestroy {
   // this is what we edit

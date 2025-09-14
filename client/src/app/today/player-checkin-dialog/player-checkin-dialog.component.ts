@@ -3,9 +3,10 @@ import {PlayerStatus} from '../model/player-status.model';
 import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
 
 @Component({
-  selector: 'app-player-checkin-dialog',
-  templateUrl: './player-checkin-dialog.component.html',
-  styleUrls: ['./player-checkin-dialog.component.scss']
+    selector: 'app-player-checkin-dialog',
+    templateUrl: './player-checkin-dialog.component.html',
+    styleUrls: ['./player-checkin-dialog.component.scss'],
+    standalone: false
 })
 export class PlayerCheckinDialogComponent {
 

@@ -2,7 +2,8 @@ import {Pipe, PipeTransform} from '@angular/core';
 import moment from 'moment';
 
 @Pipe({
-  name: 'eventDay'
+    name: 'eventDay',
+    standalone: false
 })
 export class EventDayPipePipe implements PipeTransform {
 

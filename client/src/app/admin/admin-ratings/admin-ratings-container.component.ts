@@ -9,8 +9,8 @@ import {MembershipsProcessorStatus} from '../model/memberhips-processor-status';
 import {ErrorMessagePopupService} from '../../shared/error-message-dialog/error-message-popup.service';
 
 @Component({
-  selector: 'app-admin-ratings-container',
-  template: `
+    selector: 'app-admin-ratings-container',
+    template: `
     <app-admin-ratings [processing]="continueCheckingStatus"
                        [ratingsProcessorStatus]="status$ | async"
                        (uploaded)="onRatingsFileUploaded($event)"
@@ -18,7 +18,8 @@ import {ErrorMessagePopupService} from '../../shared/error-message-dialog/error-
                        (membershipsUploaded)="onMembershipsFileUploaded($event)">
     </app-admin-ratings>
   `,
-  styles: []
+    styles: [],
+    standalone: false
 })
 export class AdminRatingsContainerComponent implements OnInit, OnDestroy {
 

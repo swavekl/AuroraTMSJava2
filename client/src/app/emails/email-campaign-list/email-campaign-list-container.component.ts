@@ -11,8 +11,8 @@ import {createSelector} from '@ngrx/store';
 import {CampaignInitData} from '../email-add-dialog/email-add-dialog.component';
 
 @Component({
-  selector: 'app-email-container',
-  template: `
+    selector: 'app-email-container',
+    template: `
       <app-email-campaign-list
               [tournamentName]="tournamentName"
               [tournamentId]="tournamentId"
@@ -23,7 +23,8 @@ import {CampaignInitData} from '../email-add-dialog/email-add-dialog.component';
               (emailConfigSave)="onEmailConfigSave($event)">
       </app-email-campaign-list>
   `,
-  styles: []
+    styles: [],
+    standalone: false
 })
 export class EmailCampaignListContainerComponent implements OnDestroy {
 

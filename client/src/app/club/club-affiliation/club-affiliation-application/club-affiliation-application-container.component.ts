@@ -19,18 +19,19 @@ import {PaymentRefundService} from '../../../account/service/payment-refund.serv
 import {PaymentRefund} from '../../../account/model/payment-refund.model';
 
 @Component({
-  selector: 'app-club-affiliation-application-container',
-  template: `
+    selector: 'app-club-affiliation-application-container',
+    template: `
     <app-club-affiliation-application
       [clubAffiliationApplication]="clubAffiliationApplication$ | async"
       [paymentsRefunds]="paymentsRefunds$ | async"
       (saved)="onSaved($event)">
     </app-club-affiliation-application>
   `,
-  styles: [],
-  providers: [
-    PaymentDialogService
-  ]
+    styles: [],
+    providers: [
+        PaymentDialogService
+    ],
+    standalone: false
 })
 export class ClubAffiliationApplicationContainerComponent implements OnInit, OnDestroy {
 

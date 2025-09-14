@@ -5,11 +5,12 @@ import {Component, Input, OnInit} from '@angular/core';
  * or success in green.
  */
 @Component({
-  selector: 'app-message-area',
-  template: `
+    selector: 'app-message-area',
+    template: `
     <div [class]="isError ? 'message-errors' : 'message-success'" [style.min-height]="minHeight">{{ message }}</div>
   `,
-  styleUrls: ['./message-area.component.scss']
+    styleUrls: ['./message-area.component.scss'],
+    standalone: false
 })
 export class MessageAreaComponent implements OnInit {
 

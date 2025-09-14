@@ -18,9 +18,10 @@ import {UmpiringService} from '../../service/umpiring.service';
 import {UmpireWorkSummary} from '../../model/umpire-work-summary.model';
 
 @Component({
-  selector: 'app-umpire-summary-table',
-  templateUrl: './umpire-summary-table.component.html',
-  styleUrl: './umpire-summary-table.component.scss'
+    selector: 'app-umpire-summary-table',
+    templateUrl: './umpire-summary-table.component.html',
+    styleUrl: './umpire-summary-table.component.scss',
+    standalone: false
 })
 export class UmpireSummaryTableComponent implements AfterViewInit, OnChanges {
   @Input()

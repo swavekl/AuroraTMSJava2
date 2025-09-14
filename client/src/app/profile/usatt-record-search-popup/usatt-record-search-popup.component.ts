@@ -6,8 +6,9 @@ import {UsattPlayerRecord} from '../model/usatt-player-record.model';
  * Popup for searching USATT player records with name, dob and rating
  */
 @Component({
-  templateUrl: './usatt-record-search-popup.component.html',
-  styleUrls: ['./usatt-record-search-popup.component.css']
+    templateUrl: './usatt-record-search-popup.component.html',
+    styleUrls: ['./usatt-record-search-popup.component.css'],
+    standalone: false
 })
 export class UsattRecordSearchPopupComponent implements OnInit {
 

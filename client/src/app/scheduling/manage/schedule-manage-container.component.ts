@@ -14,8 +14,8 @@ import {MatchSchedulingService} from '../service/match-scheduling.service';
 import {ErrorMessagePopupService} from '../../shared/error-message-dialog/error-message-popup.service';
 
 @Component({
-  selector: 'app-schedule-manage-container',
-  template: `
+    selector: 'app-schedule-manage-container',
+    template: `
     <app-schedule-manage
       [tournament]="tournament$ | async"
       [tournamentEvents]="tournamentEvents$ | async"
@@ -27,7 +27,8 @@ import {ErrorMessagePopupService} from '../../shared/error-message-dialog/error-
     >
     </app-schedule-manage>
   `,
-  styles: []
+    styles: [],
+    standalone: false
 })
 export class ScheduleManageContainerComponent implements OnInit, OnDestroy {
 

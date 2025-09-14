@@ -1,29 +1,12 @@
 import {Component, Inject} from '@angular/core';
-import {MAT_DIALOG_DATA, MatDialogActions, MatDialogContent, MatDialogRef, MatDialogTitle} from '@angular/material/dialog';
-import {MatFormField} from '@angular/material/form-field';
-import {FlexModule} from 'ng-flex-layout';
-import {MatCheckbox} from '@angular/material/checkbox';
-import {FormsModule} from '@angular/forms';
-import {MatButton} from '@angular/material/button';
+import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
 import {UserRoles} from '../../user/user-roles.enum';
-import {CommonModule} from '@angular/common';
 
 @Component({
   selector: 'app-groups-dialog',
-  standalone: true,
-  imports: [
-    MatDialogActions,
-    MatDialogContent,
-    MatFormField,
-    FlexModule,
-    MatCheckbox,
-    FormsModule,
-    MatButton,
-    CommonModule,
-    MatDialogTitle
-  ],
   templateUrl: './roles-dialog.component.html',
-  styleUrl: './roles-dialog.component.scss'
+  styleUrls: ['./roles-dialog.component.scss'],
+  standalone: false
 })
 export class RolesDialogComponent {
 
@@ -45,7 +28,7 @@ export class RolesDialogComponent {
     UserRoles.ROLE_USATT_TOURNAMENT_MANAGERS,
     UserRoles.ROLE_ADMINS
   ];
-  public selectedRoles: boolean [] = []
+  public selectedRoles: boolean [] = [];
 
   constructor(public dialogRef: MatDialogRef<RolesDialogComponent>,
               @Inject(MAT_DIALOG_DATA) public data: any) {

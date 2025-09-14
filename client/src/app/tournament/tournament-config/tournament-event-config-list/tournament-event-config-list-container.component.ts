@@ -7,8 +7,8 @@ import {TournamentEventConfigListComponent} from './tournament-event-config-list
 import {tap} from 'rxjs/operators';
 
 @Component({
-  selector: 'app-tournament-event-config-list-container',
-  template: `
+    selector: 'app-tournament-event-config-list-container',
+    template: `
     <app-tournament-event-config-list [events]="events$ | async"
                                       [startDate]="startDate"
                                       [endDate]="endDate"
@@ -19,7 +19,8 @@ import {tap} from 'rxjs/operators';
                                       (update)="onUpdateMultiple($event)">
     </app-tournament-event-config-list>
   `,
-  styles: []
+    styles: [],
+    standalone: false
 })
 export class TournamentEventConfigListContainerComponent implements OnInit, OnChanges {
 

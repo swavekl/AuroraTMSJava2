@@ -2,8 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 
 @Component({
-  selector: 'app-reset-password-result',
-  template: `
+    selector: 'app-reset-password-result',
+    template: `
     <app-centered-panel class="mat-body-1">
       <div *ngIf="succeeded">
         <p>Reset password was successful.</p>
@@ -19,9 +19,8 @@ import {ActivatedRoute} from '@angular/router';
       </div>
     </app-centered-panel>
   `,
-  styles: [
-  ]
-
+    styles: [],
+    standalone: false
 })
 export class ResetPasswordResultComponent implements OnInit {
 

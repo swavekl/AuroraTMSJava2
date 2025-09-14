@@ -9,9 +9,10 @@ import {PlayerStatus} from '../../../today/model/player-status.model';
 import {MatchCardInfo} from '../../../matches/model/match-card-info.model';
 
 @Component({
-  selector: 'app-tabbed-draws-panel',
-  templateUrl: './tabbed-draws-panel.component.html',
-  styleUrls: ['./tabbed-draws-panel.component.scss']
+    selector: 'app-tabbed-draws-panel',
+    templateUrl: './tabbed-draws-panel.component.html',
+    styleUrls: ['./tabbed-draws-panel.component.scss'],
+    standalone: false
 })
 export class TabbedDrawsPanelComponent {
   @Input()

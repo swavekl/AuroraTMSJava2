@@ -13,8 +13,8 @@ import {MonitorMessageType} from '../../monitor/model/monitor-message-type';
 import {MonitorMessage} from '../../monitor/model/monitor-message.model';
 
 @Component({
-  selector: 'app-score-board-match-start-container',
-  template: `
+    selector: 'app-score-board-match-start-container',
+    template: `
     <app-score-board-match-start
       [match]="match$ | async"
       [playerAName]="playerAName$ | async"
@@ -30,7 +30,8 @@ import {MonitorMessage} from '../../monitor/model/monitor-message.model';
       score-board-match-start-container works!
     </app-score-board-match-start>
   `,
-  styles: ``
+    styles: ``,
+    standalone: false
 })
 export class ScoreBoardMatchStartContainerComponent implements OnDestroy {
 

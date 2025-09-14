@@ -5,8 +5,9 @@ import {AbstractControl, NG_VALIDATORS, ValidationErrors, Validator} from '@angu
  * Checks if user specified either prize money amount or trophy or both
  */
 @Directive({
-  selector: '[appPrizeInfoValidator]',
-  providers: [{provide: NG_VALIDATORS, useExisting: PrizeInfoValidatorDirective, multi: true}]
+    selector: '[appPrizeInfoValidator]',
+    providers: [{ provide: NG_VALIDATORS, useExisting: PrizeInfoValidatorDirective, multi: true }],
+    standalone: false
 })
 export class PrizeInfoValidatorDirective implements Validator {
 

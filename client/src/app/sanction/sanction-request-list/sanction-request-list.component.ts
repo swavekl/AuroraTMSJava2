@@ -14,9 +14,10 @@ import {SanctionRequest} from '../model/sanction-request.model';
 import {LinearProgressBarService} from '../../shared/linear-progress-bar/linear-progress-bar.service';
 
 @Component({
-  selector: 'app-sanction-list',
-  templateUrl: './sanction-request-list.component.html',
-  styleUrls: ['./sanction-request-list.component.scss']
+    selector: 'app-sanction-list',
+    templateUrl: './sanction-request-list.component.html',
+    styleUrls: ['./sanction-request-list.component.scss'],
+    standalone: false
 })
 export class SanctionRequestListComponent implements AfterViewInit, OnDestroy {
   @ViewChild(MatPaginator) paginator!: MatPaginator;

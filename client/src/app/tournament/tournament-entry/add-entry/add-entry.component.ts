@@ -17,9 +17,10 @@ import {ErrorMessagePopupService} from '../../../shared/error-message-dialog/err
  * Creates an entry by the tournament director
  */
 @Component({
-  selector: 'app-add-entry',
-  template: ``,
-  styles: []
+    selector: 'app-add-entry',
+    template: ``,
+    styles: [],
+    standalone: false
 })
 export class AddEntryComponent implements OnDestroy {
 

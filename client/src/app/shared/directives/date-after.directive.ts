@@ -5,8 +5,9 @@ import {AbstractControl, NG_VALIDATORS, ValidationErrors, Validator} from '@angu
  * Directive for checking if date in current control is after date of another control specified by appDateBefore
  */
 @Directive({
-  selector: '[appDateAfter]',
-  providers: [{provide: NG_VALIDATORS, useExisting: DateAfterDirective, multi: true}]
+    selector: '[appDateAfter]',
+    providers: [{ provide: NG_VALIDATORS, useExisting: DateAfterDirective, multi: true }],
+    standalone: false
 })
 export class DateAfterDirective implements Validator {
   @Input('appDateAfter')

@@ -1,9 +1,10 @@
 import {Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChange, SimpleChanges} from '@angular/core';
 
 @Component({
-  selector: 'app-monitor-connect',
-  templateUrl: './monitor-connect.component.html',
-  styleUrls: ['./monitor-connect.component.scss']
+    selector: 'app-monitor-connect',
+    templateUrl: './monitor-connect.component.html',
+    styleUrls: ['./monitor-connect.component.scss'],
+    standalone: false
 })
 export class MonitorConnectComponent implements OnInit, OnChanges {
 

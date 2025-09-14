@@ -17,9 +17,10 @@ interface Safe extends GridsterConfig {
 }
 
 @Component({
-  selector: 'app-schedule-manage',
-  templateUrl: './schedule-manage.component.html',
-  styleUrls: ['./schedule-manage.component.scss']
+    selector: 'app-schedule-manage',
+    templateUrl: './schedule-manage.component.html',
+    styleUrls: ['./schedule-manage.component.scss'],
+    standalone: false
 })
 export class ScheduleManageComponent implements OnInit, OnChanges, OnDestroy {
 

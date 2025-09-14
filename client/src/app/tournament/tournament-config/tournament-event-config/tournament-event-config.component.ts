@@ -17,10 +17,12 @@ import {MatDialog, MatDialogConfig} from '@angular/material/dialog';
 import {EligibilityRestriction} from '../model/eligibility-restriction.enum';
 
 @Component({
-  selector: 'app-tournament-event-config',
-  templateUrl: './tournament-event-config.component.html',
-  styleUrls: ['./tournament-event-config.component.scss']
-  // changeDetection: ChangeDetectionStrategy.OnPush
+    selector: 'app-tournament-event-config',
+    templateUrl: './tournament-event-config.component.html',
+    styleUrls: ['./tournament-event-config.component.scss']
+    // changeDetection: ChangeDetectionStrategy.OnPush
+    ,
+    standalone: false
 })
 export class TournamentEventConfigComponent implements OnInit, OnChanges, OnDestroy {
   @Input()

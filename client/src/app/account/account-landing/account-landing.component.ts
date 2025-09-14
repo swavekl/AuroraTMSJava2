@@ -6,9 +6,10 @@ import {LinearProgressBarService} from '../../shared/linear-progress-bar/linear-
 import {first} from 'rxjs/operators';
 
 @Component({
-  selector: 'app-account-landing',
-  templateUrl: './account-landing.component.html',
-  styleUrls: ['./account-landing.component.css']
+    selector: 'app-account-landing',
+    templateUrl: './account-landing.component.html',
+    styleUrls: ['./account-landing.component.css'],
+    standalone: false
 })
 export class AccountLandingComponent implements OnInit, OnDestroy {
 

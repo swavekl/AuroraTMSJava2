@@ -15,8 +15,8 @@ import {TournamentEvent} from '../../tournament/tournament-config/tournament-eve
 import {CheckInType} from '../../tournament/model/check-in-type.enum';
 
 @Component({
-  selector: 'app-player-status-list-container-component',
-  template: `
+    selector: 'app-player-status-list-container-component',
+    template: `
     <app-player-status-list
       [tournamentId]="tournamentId"
       [tournamentName]="tournamentName"
@@ -29,7 +29,8 @@ import {CheckInType} from '../../tournament/model/check-in-type.enum';
       (eventEmitter)="onEvent($event)">
     </app-player-status-list>
   `,
-  styles: []
+    styles: [],
+    standalone: false
 })
 export class PlayerStatusListContainerComponent implements OnDestroy {
 

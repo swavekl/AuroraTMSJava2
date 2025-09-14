@@ -41,15 +41,17 @@ import {ErrorMessagePopupService} from '../../shared/error-message-dialog/error-
 import {FileRepositoryService} from '../../shared/upload-button/file-repository.service';
 
 @Component({
-  selector: 'app-sanction-request-edit',
-  templateUrl: './sanction-request-edit.component.html',
-  styleUrls: ['./sanction-request-edit.component.scss'],
-  providers: [
-    {
-      provide: STEPPER_GLOBAL_OPTIONS,
-      useValue: {showError: true},
-    },
-  ],})
+    selector: 'app-sanction-request-edit',
+    templateUrl: './sanction-request-edit.component.html',
+    styleUrls: ['./sanction-request-edit.component.scss'],
+    providers: [
+        {
+            provide: STEPPER_GLOBAL_OPTIONS,
+            useValue: { showError: true },
+        },
+    ],
+    standalone: false
+})
 export class SanctionRequestEditComponent implements OnInit, OnChanges, AfterViewInit, OnDestroy {
   @ViewChild('ESD') ESD: ElementRef;
 

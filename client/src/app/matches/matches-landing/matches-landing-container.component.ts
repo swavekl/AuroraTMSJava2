@@ -11,13 +11,13 @@ import {DateUtils} from '../../shared/date-utils';
 import {TodayService} from '../../shared/today.service';
 
 @Component({
-  selector: 'app-matches-landing-container',
-  template: `
+    selector: 'app-matches-landing-container',
+    template: `
     <app-matches-landing [tournaments]="tournaments$ | async">
     </app-matches-landing>
   `,
-  styles: [
-  ]
+    styles: [],
+    standalone: false
 })
 export class MatchesLandingContainerComponent implements OnInit, OnDestroy {
 

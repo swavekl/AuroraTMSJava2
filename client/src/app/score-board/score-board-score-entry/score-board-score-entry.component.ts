@@ -5,9 +5,10 @@ import {takeWhile, timer} from 'rxjs';
 import {OrderOfServingCalculator} from '../../shared/serve-order/order-of-serving-calculator';
 
 @Component({
-  selector: 'app-score-board-score-entry',
-  templateUrl: './score-board-score-entry.component.html',
-  styleUrl: './score-board-score-entry.component.scss'
+    selector: 'app-score-board-score-entry',
+    templateUrl: './score-board-score-entry.component.html',
+    styleUrl: './score-board-score-entry.component.scss',
+    standalone: false
 })
 export class ScoreBoardScoreEntryComponent {
   @Input()

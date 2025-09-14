@@ -20,8 +20,8 @@ import {PaymentRefund} from '../../../account/model/payment-refund.model';
 import {PaymentRefundService} from '../../../account/service/payment-refund.service';
 
 @Component({
-  selector: 'app-entry-view-container',
-  template: `
+    selector: 'app-entry-view-container',
+    template: `
     <app-entry-view [entry]="entry$ | async"
                     [tournament]="tournament$ | async"
                     [allEventEntryInfos]="allEventEntryInfos$ | async"
@@ -33,7 +33,8 @@ import {PaymentRefundService} from '../../../account/service/payment-refund.serv
     >
     </app-entry-view>
   `,
-  styles: []
+    styles: [],
+    standalone: false
 })
 export class EntryViewContainerComponent implements OnInit, OnDestroy {
 

@@ -13,16 +13,18 @@ import {MonitorService} from '../service/monitor.service';
 import {TodayService} from '../../shared/today.service';
 
 @Component({
-  selector: 'app-monitor-connect-container',
-  template: `
+    selector: 'app-monitor-connect-container',
+    template: `
     <app-monitor-connect [isConnected]="isConnected$ | async"
                          [tournaments]="monitorTournaments$ | async"
                          (connectDisconnect)="onConnectDisconnect($event)"
     >
     </app-monitor-connect>
   `,
-  styles: []
-  // providers: [MonitorService]
+    styles: []
+    // providers: [MonitorService]
+    ,
+    standalone: false
 })
 export class MonitorConnectContainerComponent implements OnInit, OnDestroy {
   isConnected$: Observable<boolean>;

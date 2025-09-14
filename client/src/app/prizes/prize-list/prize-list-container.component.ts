@@ -13,14 +13,15 @@ import {MatchCard} from '../../matches/model/match-card.model';
 import {DateUtils} from '../../shared/date-utils';
 
 @Component({
-  selector: 'app-prize-list-container',
-  template: `
+    selector: 'app-prize-list-container',
+    template: `
     <app-prize-list
       [events]="tournamentEvents$ | async"
       [finishedRRMatchCards]="finishedRRMatchCards$ | async">
     </app-prize-list>
   `,
-  styles: []
+    styles: [],
+    standalone: false
 })
 export class PrizeListContainerComponent implements OnInit, OnDestroy {
 

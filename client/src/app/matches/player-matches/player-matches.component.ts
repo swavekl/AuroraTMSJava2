@@ -21,9 +21,10 @@ import {TournamentEvent} from '../../tournament/tournament-config/tournament-eve
 import {DefaultPlayerPhoneDialogComponent} from '../default-player-phone-dialog/default-player-phone-dialog.component';
 
 @Component({
-  selector: 'app-player-matches',
-  templateUrl: './player-matches.component.html',
-  styleUrls: ['./player-matches.component.scss']
+    selector: 'app-player-matches',
+    templateUrl: './player-matches.component.html',
+    styleUrls: ['./player-matches.component.scss'],
+    standalone: false
 })
 export class PlayerMatchesComponent implements OnInit, OnChanges {
 

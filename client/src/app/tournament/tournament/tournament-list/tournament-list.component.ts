@@ -4,9 +4,10 @@ import {Regions} from '../../../shared/regions';
 import {MatButtonToggleChange} from '@angular/material/button-toggle';
 
 @Component({
-  selector: 'app-tournament-list',
-  templateUrl: './tournament-list.component.html',
-  styleUrls: ['./tournament-list.component.scss']
+    selector: 'app-tournament-list',
+    templateUrl: './tournament-list.component.html',
+    styleUrls: ['./tournament-list.component.scss'],
+    standalone: false
 })
 export class TournamentListComponent implements OnInit {
   @Input()

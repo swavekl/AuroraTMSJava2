@@ -19,9 +19,10 @@ import {UntypedFormControl} from '@angular/forms';
 import {CampaignInitData, EmailAddDialogComponent} from '../email-add-dialog/email-add-dialog.component';
 
 @Component({
-  selector: 'app-email-campaign-list',
-  templateUrl: './email-campaign-list.component.html',
-  styleUrls: ['./email-campaign-list.component.scss']
+    selector: 'app-email-campaign-list',
+    templateUrl: './email-campaign-list.component.html',
+    styleUrls: ['./email-campaign-list.component.scss'],
+    standalone: false
 })
 export class EmailCampaignListComponent implements AfterViewInit, OnDestroy {
 

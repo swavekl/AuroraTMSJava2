@@ -10,9 +10,10 @@ import {PaymentRefund} from '../../../account/model/payment-refund.model';
 import {PaymentRefundStatus} from '../../../account/model/payment-refund-status.enum';
 
 @Component({
-  selector: 'app-club-affiliation-application',
-  templateUrl: './club-affiliation-application.component.html',
-  styleUrls: ['./club-affiliation-application.component.scss']
+    selector: 'app-club-affiliation-application',
+    templateUrl: './club-affiliation-application.component.html',
+    styleUrls: ['./club-affiliation-application.component.scss'],
+    standalone: false
 })
 export class ClubAffiliationApplicationComponent implements OnInit {
 

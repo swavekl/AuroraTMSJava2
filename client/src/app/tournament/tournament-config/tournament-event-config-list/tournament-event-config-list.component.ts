@@ -11,9 +11,10 @@ import {Subscription} from 'rxjs';
 import {Tournament} from '../tournament.model';
 
 @Component({
-  selector: 'app-tournament-event-config-list',
-  templateUrl: './tournament-event-config-list.component.html',
-  styleUrls: ['./tournament-event-config-list.component.scss']
+    selector: 'app-tournament-event-config-list',
+    templateUrl: './tournament-event-config-list.component.html',
+    styleUrls: ['./tournament-event-config-list.component.scss'],
+    standalone: false
 })
 export class TournamentEventConfigListComponent implements OnInit, OnChanges, OnDestroy {
 

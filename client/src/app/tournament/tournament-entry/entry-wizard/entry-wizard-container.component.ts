@@ -24,8 +24,8 @@ import {UserRoles} from '../../../user/user-roles.enum';
 import {OriginalEntryInfo} from '../model/original-entry-info';
 
 @Component({
-  selector: 'app-entry-wizard-container',
-  template: `
+    selector: 'app-entry-wizard-container',
+    template: `
     <app-entry-wizard [entry]="entry$ | async"
                       [tournament]="tournament$ | async"
                       [allEventEntryInfos]="allEventEntryInfos$ | async"
@@ -40,7 +40,8 @@ import {OriginalEntryInfo} from '../model/original-entry-info';
                       (discard)="discardChanges()">
     </app-entry-wizard>
   `,
-  styles: []
+    styles: [],
+    standalone: false
 })
 export class EntryWizardContainerComponent implements OnInit, OnDestroy, AfterViewInit {
 

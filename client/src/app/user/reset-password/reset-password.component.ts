@@ -5,9 +5,10 @@ import {CrossFieldErrorMatcher} from '../cross-field-error-matcher/cross-field-e
 import {PasswordCriteria} from '../password-criteria';
 
 @Component({
-  selector: 'app-reset-password',
-  templateUrl: './reset-password.component.html',
-  styleUrls: ['./reset-password.component.css']
+    selector: 'app-reset-password',
+    templateUrl: './reset-password.component.html',
+    styleUrls: ['./reset-password.component.css'],
+    standalone: false
 })
 export class ResetPasswordComponent implements OnInit {
   password: string;

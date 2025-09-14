@@ -7,9 +7,10 @@ import {DateUtils} from '../../shared/date-utils';
 import {ScheduleItemStatus} from '../model/schedule-item-status.model';
 
 @Component({
-  selector: 'app-player-schedule',
-  templateUrl: './player-schedule.component.html',
-  styleUrls: ['./player-schedule.component.scss']
+    selector: 'app-player-schedule',
+    templateUrl: './player-schedule.component.html',
+    styleUrls: ['./player-schedule.component.scss'],
+    standalone: false
 })
 export class PlayerScheduleComponent implements OnInit, OnChanges {
 

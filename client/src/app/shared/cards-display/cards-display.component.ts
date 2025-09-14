@@ -2,9 +2,10 @@ import {Component, Input} from '@angular/core';
 import {CardsInfo} from './cards-info.model';
 
 @Component({
-  selector: 'app-cards-display',
-  templateUrl: './cards-display.component.html',
-  styleUrl: './cards-display.component.scss'
+    selector: 'app-cards-display',
+    templateUrl: './cards-display.component.html',
+    styleUrl: './cards-display.component.scss',
+    standalone: false
 })
 export class CardsDisplayComponent {
 

@@ -9,8 +9,8 @@ import {ActivatedRoute} from '@angular/router';
 import {LinearProgressBarService} from '../../../shared/linear-progress-bar/linear-progress-bar.service';
 
 @Component({
-  selector: 'app-tournament-waiting-list-container',
-  template: `
+    selector: 'app-tournament-waiting-list-container',
+    template: `
     <app-tournament-waiting-list
       [tournamentEntryInfos]="tournamentEntryInfos$ | async"
       [tournamentEvents]="tournamentEvents$ | async"
@@ -18,7 +18,8 @@ import {LinearProgressBarService} from '../../../shared/linear-progress-bar/line
       [tournamentId]="tournamentId">
     </app-tournament-waiting-list>
   `,
-  styles: []
+    styles: [],
+    standalone: false
 })
 export class TournamentWaitingListContainerComponent implements OnInit, OnDestroy {
 

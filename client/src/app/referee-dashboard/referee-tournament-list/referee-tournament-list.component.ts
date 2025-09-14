@@ -4,9 +4,10 @@ import {DateUtils} from '../../shared/date-utils';
 import {TodayService} from '../../shared/today.service';
 
 @Component({
-  selector: 'app-referee-tournament-list',
-  templateUrl: './referee-tournament-list.component.html',
-  styleUrl: './referee-tournament-list.component.scss'
+    selector: 'app-referee-tournament-list',
+    templateUrl: './referee-tournament-list.component.html',
+    styleUrl: './referee-tournament-list.component.scss',
+    standalone: false
 })
 export class RefereeTournamentListComponent {
 

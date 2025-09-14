@@ -6,9 +6,10 @@ import {first} from 'rxjs/operators';
 import {LinearProgressBarService} from '../../shared/linear-progress-bar/linear-progress-bar.service';
 
 @Component({
-  selector: 'app-usatt-record-search',
-  templateUrl: './usatt-record-search.component.html',
-  styleUrls: ['./usatt-record-search.component.css']
+    selector: 'app-usatt-record-search',
+    templateUrl: './usatt-record-search.component.html',
+    styleUrls: ['./usatt-record-search.component.css'],
+    standalone: false
 })
 export class UsattRecordSearchComponent implements OnInit, OnDestroy {
   foundPlayers$: Observable<UsattPlayerRecord []>;

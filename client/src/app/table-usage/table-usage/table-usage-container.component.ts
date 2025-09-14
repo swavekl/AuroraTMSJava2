@@ -17,8 +17,8 @@ import {MatchInfo} from '../model/match-info.model';
 import {MatchCardStatusUtil} from '../util/match-card-status-util';
 
 @Component({
-  selector: 'app-table-usage-container',
-  template: `
+    selector: 'app-table-usage-container',
+    template: `
     <app-table-usage [tableUsageList]="tableUsageList$ | async"
                      [allTodaysMatchCards]="matchCards$ | async"
                      [matchesToPlayInfos]="matchesToPlayInfos$ | async"
@@ -30,7 +30,8 @@ import {MatchCardStatusUtil} from '../util/match-card-status-util';
                      (refreshUsage)="onRefresh($event)">
     </app-table-usage>
   `,
-  styles: []
+    styles: [],
+    standalone: false
 })
 export class TableUsageContainerComponent implements OnInit, OnDestroy {
 

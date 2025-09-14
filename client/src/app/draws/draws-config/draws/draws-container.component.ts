@@ -27,8 +27,8 @@ import {ReplacePlayerRequest} from '../reaplace-player-popup/replace-player-popu
 import {ErrorMessagePopupService} from '../../../shared/error-message-dialog/error-message-popup.service';
 
 @Component({
-  selector: 'app-draws-container',
-  template: `
+    selector: 'app-draws-container',
+    template: `
       <app-draws [tournamentEvents]="tournamentEvents$ | async"
                  [draws]="draws$ | async"
                  [playerStatusList]="playerStatusList$ | async"
@@ -38,7 +38,8 @@ import {ErrorMessagePopupService} from '../../../shared/error-message-dialog/err
                  (drawsAction)="onDrawsAction($event)">
       </app-draws>
   `,
-  styles: []
+    styles: [],
+    standalone: false
 })
 export class DrawsContainerComponent implements OnInit, OnDestroy {
 

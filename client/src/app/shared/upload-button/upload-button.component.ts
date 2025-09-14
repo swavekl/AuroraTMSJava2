@@ -3,8 +3,8 @@ import {FileRepositoryService} from './file-repository.service';
 import {HttpEventType} from '@angular/common/http';
 
 @Component({
-  selector: 'app-upload-file-component',
-  template: `
+    selector: 'app-upload-file-component',
+    template: `
     <div fxLayout="row" fxLayoutAlign="start start">
       <input
         style="display: none"
@@ -29,8 +29,8 @@ import {HttpEventType} from '@angular/common/http';
         done</mat-icon>
     </div>
   `,
-  styles: [
-  ]
+    styles: [],
+    standalone: false
 })
 export class UploadButtonComponent implements OnInit {
 

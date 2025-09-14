@@ -2,9 +2,10 @@ import {Component, Inject} from '@angular/core';
 import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
 
 @Component({
-  selector: 'app-default-player-phone-dialog',
-  templateUrl: './default-player-phone-dialog.component.html',
-  styleUrls: ['./default-player-phone-dialog.component.scss']
+    selector: 'app-default-player-phone-dialog',
+    templateUrl: './default-player-phone-dialog.component.html',
+    styleUrls: ['./default-player-phone-dialog.component.scss'],
+    standalone: false
 })
 export class DefaultPlayerPhoneDialogComponent {
   doubles: boolean;

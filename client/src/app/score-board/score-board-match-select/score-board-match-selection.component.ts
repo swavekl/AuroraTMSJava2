@@ -12,9 +12,10 @@ import {first} from 'rxjs/operators';
 import {MatchCardService} from '../../matches/service/match-card.service';
 
 @Component({
-  selector: 'app-score-board',
-  templateUrl: './score-board-match-selection.component.html',
-  styleUrls: ['./score-board-match-selection.component.scss']
+    selector: 'app-score-board',
+    templateUrl: './score-board-match-selection.component.html',
+    styleUrls: ['./score-board-match-selection.component.scss'],
+    standalone: false
 })
 export class ScoreBoardMatchSelectionComponent implements OnInit {
 

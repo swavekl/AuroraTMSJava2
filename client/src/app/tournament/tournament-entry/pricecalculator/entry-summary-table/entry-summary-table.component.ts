@@ -2,9 +2,10 @@ import {Component, Input} from '@angular/core';
 import {SummaryReportItem} from '../summary-report.model';
 
 @Component({
-  selector: 'app-entry-summary-table',
-  templateUrl: './entry-summary-table.component.html',
-  styleUrls: ['./entry-summary-table.component.scss']
+    selector: 'app-entry-summary-table',
+    templateUrl: './entry-summary-table.component.html',
+    styleUrls: ['./entry-summary-table.component.scss'],
+    standalone: false
 })
 export class EntrySummaryTableComponent {
   @Input()

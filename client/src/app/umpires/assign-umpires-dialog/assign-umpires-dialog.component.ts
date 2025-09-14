@@ -13,9 +13,10 @@ import {Match} from '../../matches/model/match.model';
 import {Personnel} from '../../tournament/tournament-config/model/personnel.model';
 
 @Component({
-  selector: 'app-assign-umpires-dialog',
-  templateUrl: './assign-umpires-dialog.component.html',
-  styleUrl: './assign-umpires-dialog.component.scss'
+    selector: 'app-assign-umpires-dialog',
+    templateUrl: './assign-umpires-dialog.component.html',
+    styleUrl: './assign-umpires-dialog.component.scss',
+    standalone: false
 })
 export class AssignUmpiresDialogComponent {
 

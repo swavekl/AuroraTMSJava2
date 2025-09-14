@@ -5,8 +5,9 @@ import {AbstractControl, NG_VALIDATORS, ValidationErrors, Validator} from '@angu
  * Validator for checking if two control values are the same
  */
 @Directive({
-  selector: '[appValuesMatch]',
-  providers: [{provide: NG_VALIDATORS, useExisting: ValuesMatchDirective, multi: true}]
+    selector: '[appValuesMatch]',
+    providers: [{ provide: NG_VALIDATORS, useExisting: ValuesMatchDirective, multi: true }],
+    standalone: false
 })
 export class ValuesMatchDirective implements Validator {
 

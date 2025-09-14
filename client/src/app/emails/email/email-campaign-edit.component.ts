@@ -9,9 +9,10 @@ import {StatesList} from '../../shared/states/states-list';
 import {MatSelectionListChange} from '@angular/material/list';
 
 @Component({
-  selector: 'app-email-campaign-edit',
-  templateUrl: './email-campaign-edit.component.html',
-  styleUrls: ['./email-campaign-edit.component.scss']
+    selector: 'app-email-campaign-edit',
+    templateUrl: './email-campaign-edit.component.html',
+    styleUrls: ['./email-campaign-edit.component.scss'],
+    standalone: false
 })
 export class EmailCampaignEditComponent  {
 

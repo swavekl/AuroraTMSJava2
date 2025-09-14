@@ -6,9 +6,10 @@ import {PaymentRefundService, RefundResponse} from '../service/payment-refund.se
 import {RefundRequest} from '../model/refund-request.model';
 
 @Component({
-  selector: 'app-refund-dialog',
-  templateUrl: './refund-dialog.component.html',
-  styleUrls: ['./refund-dialog.component.scss']
+    selector: 'app-refund-dialog',
+    templateUrl: './refund-dialog.component.html',
+    styleUrls: ['./refund-dialog.component.scss'],
+    standalone: false
 })
 export class RefundDialogComponent implements OnInit, OnDestroy {
   amount: number;

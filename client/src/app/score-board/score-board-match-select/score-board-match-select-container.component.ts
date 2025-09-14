@@ -9,8 +9,8 @@ import {TournamentEventConfigService} from '../../tournament/tournament-config/t
 import {TournamentEvent} from '../../tournament/tournament-config/tournament-event.model';
 
 @Component({
-  selector: 'app-score-board-container',
-  template: `
+    selector: 'app-score-board-container',
+    template: `
     <app-score-board [matchCards]="matchCards$ | async"
                      [tournamentEvents]="tournamentEvents$ | async"
                      [tournamentId]="tournamentId"
@@ -18,7 +18,8 @@ import {TournamentEvent} from '../../tournament/tournament-config/tournament-eve
                      [tournamentDay]="tournamentDay">
     </app-score-board>
   `,
-  styles: []
+    styles: [],
+    standalone: false
 })
 export class ScoreBoardMatchSelectContainerComponent implements OnInit {
 

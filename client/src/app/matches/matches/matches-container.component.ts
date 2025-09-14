@@ -8,8 +8,8 @@ import {MatchCardService} from '../service/match-card.service';
 import {MatchCard} from '../model/match-card.model';
 
 @Component({
-  selector: 'app-matches-container',
-  template: `
+    selector: 'app-matches-container',
+    template: `
     <app-matches [tournamentName]="tournamentName"
                  [tournamentEvents]="tournamentEvents$ | async"
                  [matchCards]="matchCards$ | async"
@@ -18,7 +18,8 @@ import {MatchCard} from '../model/match-card.model';
                  (matchCardEmitter)="onMatchCardSelected($event)">
     </app-matches>
   `,
-  styles: []
+    styles: [],
+    standalone: false
 })
 export class MatchesContainerComponent implements OnInit, OnDestroy {
 

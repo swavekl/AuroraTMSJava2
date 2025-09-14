@@ -3,9 +3,10 @@ import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
 import {DoublesPairInfo} from '../model/doubles-pair-info.model';
 
 @Component({
-  selector: 'app-doubles-pair-dialog',
-  templateUrl: './doubles-pair-dialog.component.html',
-  styleUrls: ['./doubles-pair-dialog.component.scss']
+    selector: 'app-doubles-pair-dialog',
+    templateUrl: './doubles-pair-dialog.component.html',
+    styleUrls: ['./doubles-pair-dialog.component.scss'],
+    standalone: false
 })
 export class DoublesPairDialogComponent implements OnInit {
 

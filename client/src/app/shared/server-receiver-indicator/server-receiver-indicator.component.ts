@@ -1,13 +1,8 @@
 import {Component, Input} from '@angular/core';
-import {CommonModule} from '@angular/common';
 
 @Component({
-  selector: 'app-server-receiver-indicator',
-  standalone: true,
-  imports: [
-    CommonModule
-  ],
-  template: `
+    selector: 'app-server-receiver-indicator',
+    template: `
       <div *ngIf="indicator != ''"
            class="server-receiver-indicator"
            [ngClass]="{
@@ -19,7 +14,8 @@ import {CommonModule} from '@angular/common';
         {{indicator}}
       </div>
   `,
-  styleUrl: './server-receiver-indicator.component.scss'
+    styleUrls: ['./server-receiver-indicator.component.scss'],
+    standalone: false
 })
 export class ServerReceiverIndicatorComponent {
   // '' - don't display anything,

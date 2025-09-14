@@ -7,16 +7,16 @@ import {Subscription} from 'rxjs';
 import {ErrorMessagePopupService} from '../../shared/error-message-dialog/error-message-popup.service';
 
 @Component({
-  selector: 'app-profile-add-by-tdcontainer',
-  template: `
+    selector: 'app-profile-add-by-tdcontainer',
+    template: `
     <app-profile-add-by-td (createProfile)="onCreateProfile($event)"
     (useProfile)="onUseProfile($event)"
     (createNewProfile)="onCreateNewProfile($event)"
     (cancel)="onCancel($event)">
     </app-profile-add-by-td>
   `,
-  styles: [
-  ]
+    styles: [],
+    standalone: false
 })
 export class ProfileAddByTdContainerComponent implements OnInit, OnDestroy {
 

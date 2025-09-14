@@ -1,4 +1,5 @@
 @use "src/my-theme.scss" as *;
+@use "sass:color";
 
 table.players-table {
   thead tr th {
@@ -99,11 +100,11 @@ table.score-table {
     }
 
     button.subtract-button {
-      background-color: lighten($primary-color, 40%);
+      background-color: color.adjust($primary-color, $lightness: 40%);
     }
 
     button.add-button {
-      background-color: lighten($primary-color, 20%);
+      background-color: color.adjust($primary-color, $lightness: 20%);
     }
 
     &.right-aligned {

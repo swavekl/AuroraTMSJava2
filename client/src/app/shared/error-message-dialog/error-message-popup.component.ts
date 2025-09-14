@@ -2,7 +2,7 @@ import {Component, Inject, OnInit} from '@angular/core';
 import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
 
 @Component({
-  template: `
+    template: `
     <h2 mat-dialog-title>{{title}}</h2>
     <mat-dialog-content>
       <div fxFlexFill>
@@ -15,8 +15,8 @@ import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
       </div>
     </mat-dialog-actions>
   `,
-  styles: [
-  ]
+    styles: [],
+    standalone: false
 })
 export class ErrorMessagePopupComponent implements OnInit {
 

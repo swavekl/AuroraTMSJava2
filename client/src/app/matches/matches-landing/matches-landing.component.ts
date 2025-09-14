@@ -2,9 +2,10 @@ import {Component, Input, OnInit} from '@angular/core';
 import {Tournament} from '../../tournament/tournament-config/tournament.model';
 
 @Component({
-  selector: 'app-matches-landing',
-  templateUrl: './matches-landing.component.html',
-  styleUrls: ['./matches-landing.component.scss']
+    selector: 'app-matches-landing',
+    templateUrl: './matches-landing.component.html',
+    styleUrls: ['./matches-landing.component.scss'],
+    standalone: false
 })
 export class MatchesLandingComponent implements OnInit {
 

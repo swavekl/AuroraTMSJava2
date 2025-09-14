@@ -13,8 +13,8 @@ import {ActivatedRoute} from '@angular/router';
 import {createSelector} from '@ngrx/store';
 
 @Component({
-  selector: 'app-umpire-management-container',
-  template: `
+    selector: 'app-umpire-management-container',
+    template: `
     <app-umpire-management [tournamentId]="tournamentId"
                            [tournamentDay]="tournamentDay"
                            [tournamentName]="tournamentName"
@@ -22,7 +22,8 @@ import {createSelector} from '@ngrx/store';
                            [refereeList]="refereeList"
     ></app-umpire-management>
   `,
-  styles: ``
+    styles: ``,
+    standalone: false
 })
 export class UmpireManagementContainerComponent implements OnInit, OnDestroy {
   tournamentId: number;

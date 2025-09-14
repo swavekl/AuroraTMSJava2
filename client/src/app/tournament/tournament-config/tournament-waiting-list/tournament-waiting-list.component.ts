@@ -4,9 +4,10 @@ import {TournamentEvent} from '../tournament-event.model';
 import {DateUtils} from '../../../shared/date-utils';
 
 @Component({
-  selector: 'app-tournament-waiting-list',
-  templateUrl: './tournament-waiting-list.component.html',
-  styleUrls: ['./tournament-waiting-list.component.scss']
+    selector: 'app-tournament-waiting-list',
+    templateUrl: './tournament-waiting-list.component.html',
+    styleUrls: ['./tournament-waiting-list.component.scss'],
+    standalone: false
 })
 export class TournamentWaitingListComponent implements OnInit, OnChanges {
 

@@ -5,9 +5,10 @@ import {DateUtils} from '../../shared/date-utils';
 import {InsuranceRequestStatus} from '../model/insurance-request-status';
 
 @Component({
-  selector: 'app-insurance',
-  templateUrl: './insurance.component.html',
-  styleUrls: ['./insurance.component.scss']
+    selector: 'app-insurance',
+    templateUrl: './insurance.component.html',
+    styleUrls: ['./insurance.component.scss'],
+    standalone: false
 })
 export class InsuranceComponent implements OnInit {
   // this is what we are editing

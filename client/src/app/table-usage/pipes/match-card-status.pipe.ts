@@ -2,7 +2,8 @@ import {Pipe, PipeTransform} from '@angular/core';
 import {MatchCardPlayabilityStatus} from '../model/match-info.model';
 
 @Pipe({
-  name: 'matchCardStatus'
+    name: 'matchCardStatus',
+    standalone: false
 })
 export class MatchCardStatusPipe implements PipeTransform {
 

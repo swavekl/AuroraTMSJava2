@@ -7,9 +7,10 @@ import {UserRoles} from '../../user/user-roles.enum';
 import {UmpiredMatchInfo} from '../model/umpired-match-info.model';
 
 @Component({
-  selector: 'app-umpire-book',
-  templateUrl: './umpire-book.component.html',
-  styleUrl: './umpire-book.component.scss'
+    selector: 'app-umpire-book',
+    templateUrl: './umpire-book.component.html',
+    styleUrl: './umpire-book.component.scss',
+    standalone: false
 })
 export class UmpireBookComponent implements OnDestroy{
 

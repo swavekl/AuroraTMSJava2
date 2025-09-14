@@ -5,9 +5,10 @@ import {EmailSenderService} from '../service/email-sender.service';
 import {first} from 'rxjs/operators';
 
 @Component({
-  selector: 'app-email-server-config-dialog',
-  templateUrl: './email-server-config-dialog.component.html',
-  styleUrls: ['./email-server-config-dialog.component.scss']
+    selector: 'app-email-server-config-dialog',
+    templateUrl: './email-server-config-dialog.component.html',
+    styleUrls: ['./email-server-config-dialog.component.scss'],
+    standalone: false
 })
 export class EmailServerConfigDialogComponent {
 

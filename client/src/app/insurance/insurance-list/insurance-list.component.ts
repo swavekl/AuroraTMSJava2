@@ -14,9 +14,10 @@ import {ConfirmationPopupComponent} from '../../shared/confirmation-popup/confir
 import {LinearProgressBarService} from '../../shared/linear-progress-bar/linear-progress-bar.service';
 
 @Component({
-  selector: 'app-insurance-list',
-  templateUrl: './insurance-list.component.html',
-  styleUrls: ['./insurance-list.component.scss']
+    selector: 'app-insurance-list',
+    templateUrl: './insurance-list.component.html',
+    styleUrls: ['./insurance-list.component.scss'],
+    standalone: false
 })
 export class InsuranceListComponent implements AfterViewInit, OnDestroy {
   @ViewChild(MatPaginator) paginator!: MatPaginator;

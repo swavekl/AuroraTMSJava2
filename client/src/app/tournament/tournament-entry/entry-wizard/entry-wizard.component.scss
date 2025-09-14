@@ -1,4 +1,5 @@
 @use "src/my-theme.scss" as *;
+@use "sass:color";
 
 .wizard-button-bar {
   padding-top: 25px;
@@ -97,7 +98,7 @@ table.ratings-table {
 }
 
 button.event-button {
-  background-color: lighten($primary-color, 30%);
+  background-color: color.adjust($primary-color, $lightness: 30%);
 }
 
 div.event-button-label {

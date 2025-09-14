@@ -48,16 +48,18 @@ import {ConfirmationPopupComponent} from '../../../shared/confirmation-popup/con
 import {CheckCashPaymentDialogService} from '../../../account/service/check-cash-payment-dialog.service';
 
 @Component({
-  selector: 'app-entry-wizard',
-  templateUrl: './entry-wizard.component.html',
-  styleUrls: ['./entry-wizard.component.scss'],
-  providers: [
-    PaymentDialogService,
-    {
-      provide: STEPPER_GLOBAL_OPTIONS,
-      useValue: {showError: true},
-    },
-  ]})
+    selector: 'app-entry-wizard',
+    templateUrl: './entry-wizard.component.html',
+    styleUrls: ['./entry-wizard.component.scss'],
+    providers: [
+        PaymentDialogService,
+        {
+            provide: STEPPER_GLOBAL_OPTIONS,
+            useValue: { showError: true },
+        },
+    ],
+    standalone: false
+})
 export class EntryWizardComponent implements OnInit, OnChanges, OnDestroy {
 
   @Input()

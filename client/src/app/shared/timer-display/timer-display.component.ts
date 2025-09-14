@@ -3,15 +3,16 @@ import {takeWhile, timer} from 'rxjs';
 import {finalize, tap} from 'rxjs/operators';
 
 @Component({
-  selector: 'app-timer-display',
-  template: `
+    selector: 'app-timer-display',
+    template: `
     <div class="timer-display" *ngIf="timerRunning">{{ label }} {{ timerValue | timerFormatter }}</div>
   `,
-  styles: `
+    styles: `
     div.timer-display {
         font-size: 60px;
     }
-  `
+  `,
+    standalone: false
 })
 export class TimerDisplayComponent {
   timerValue: number = 0;

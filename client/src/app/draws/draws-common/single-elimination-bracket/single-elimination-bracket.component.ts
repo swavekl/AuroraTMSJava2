@@ -11,9 +11,10 @@ import {PlayerStatus} from '../../../today/model/player-status.model';
 import {MatchCardInfo} from '../../../matches/model/match-card-info.model';
 
 @Component({
-  selector: 'app-single-elimination-bracket',
-  templateUrl: './single-elimination-bracket.component.html',
-  styleUrls: ['./single-elimination-bracket.component.scss']
+    selector: 'app-single-elimination-bracket',
+    templateUrl: './single-elimination-bracket.component.html',
+    styleUrls: ['./single-elimination-bracket.component.scss'],
+    standalone: false
 })
 export class SingleEliminationBracketComponent implements OnInit, OnChanges {
 

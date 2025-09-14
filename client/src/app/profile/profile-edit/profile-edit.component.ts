@@ -30,9 +30,10 @@ import {ClubSearchCallbackData, ClubSearchData, ClubSearchPopupService} from '..
 import {AuthenticationService} from '../../user/authentication.service';
 
 @Component({
-  selector: 'app-profile-edit',
-  templateUrl: './profile-edit.component.html',
-  styleUrls: ['./profile-edit.component.scss']
+    selector: 'app-profile-edit',
+    templateUrl: './profile-edit.component.html',
+    styleUrls: ['./profile-edit.component.scss'],
+    standalone: false
 })
 export class ProfileEditComponent implements OnInit, OnChanges, AfterViewInit, OnDestroy {
 

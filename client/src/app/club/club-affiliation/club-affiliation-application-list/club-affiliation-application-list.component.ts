@@ -14,9 +14,10 @@ import {ConfirmationPopupComponent} from '../../../shared/confirmation-popup/con
 import {LinearProgressBarService} from '../../../shared/linear-progress-bar/linear-progress-bar.service';
 
 @Component({
-  selector: 'app-club-affiliation-application-list',
-  templateUrl: './club-affiliation-application-list.component.html',
-  styleUrls: ['./club-affiliation-application-list.component.scss']
+    selector: 'app-club-affiliation-application-list',
+    templateUrl: './club-affiliation-application-list.component.html',
+    styleUrls: ['./club-affiliation-application-list.component.scss'],
+    standalone: false
 })
 export class ClubAffiliationApplicationListComponent implements AfterViewInit, OnDestroy {
   @ViewChild(MatPaginator) paginator!: MatPaginator;

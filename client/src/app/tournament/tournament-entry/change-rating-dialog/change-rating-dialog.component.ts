@@ -2,9 +2,10 @@ import {Component, Inject} from '@angular/core';
 import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
 
 @Component({
-  selector: 'app-change-rating-dialog',
-  templateUrl: './change-rating-dialog.component.html',
-  styleUrls: ['./change-rating-dialog.component.scss']
+    selector: 'app-change-rating-dialog',
+    templateUrl: './change-rating-dialog.component.html',
+    styleUrls: ['./change-rating-dialog.component.scss'],
+    standalone: false
 })
 export class ChangeRatingDialogComponent {
 

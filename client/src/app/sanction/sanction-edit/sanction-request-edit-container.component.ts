@@ -18,18 +18,18 @@ import {PaymentRefundService} from '../../account/service/payment-refund.service
 import {ErrorMessagePopupService} from '../../shared/error-message-dialog/error-message-popup.service';
 
 @Component({
-  selector: 'app-sanction-edit-container',
-  template: `
+    selector: 'app-sanction-edit-container',
+    template: `
     <app-sanction-request-edit [sanctionRequest]="sanctionRequest$ | async"
                                [paymentsRefunds]="paymentsRefunds$ | async"
     (saved)="onSave($event)" (canceled)="onCancel($event)">
     </app-sanction-request-edit>
   `,
-  styles: [
-  ],
-  providers: [
-    PaymentDialogService
-  ]
+    styles: [],
+    providers: [
+        PaymentDialogService
+    ],
+    standalone: false
 })
 export class SanctionRequestEditContainerComponent implements OnInit, OnDestroy {
   public sanctionRequest$: Observable<SanctionRequest>;

@@ -4,9 +4,10 @@ import {AuthenticationService} from '../../user/authentication.service';
 import {first} from 'rxjs/operators';
 
 @Component({
-  selector: 'app-account-onboard-start',
-  templateUrl: './account-onboard-start.component.html',
-  styleUrls: ['./account-onboard-start.component.css']
+    selector: 'app-account-onboard-start',
+    templateUrl: './account-onboard-start.component.html',
+    styleUrls: ['./account-onboard-start.component.css'],
+    standalone: false
 })
 export class AccountOnboardStartComponent implements OnInit {
 

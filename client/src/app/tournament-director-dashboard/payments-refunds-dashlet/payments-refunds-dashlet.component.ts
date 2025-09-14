@@ -4,9 +4,10 @@ import {PaymentRefund} from '../../account/model/payment-refund.model';
 import {PaymentRefundStatus} from '../../account/model/payment-refund-status.enum';
 
 @Component({
-  selector: 'app-payments-refunds-dashlet',
-  templateUrl: './payments-refunds-dashlet.component.html',
-  styleUrls: ['./payments-refunds-dashlet.component.scss']
+    selector: 'app-payments-refunds-dashlet',
+    templateUrl: './payments-refunds-dashlet.component.html',
+    styleUrls: ['./payments-refunds-dashlet.component.scss'],
+    standalone: false
 })
 export class PaymentsRefundsDashletComponent implements OnInit, OnChanges {
 

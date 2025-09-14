@@ -3,8 +3,8 @@ import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
 import {MatchCard} from '../../matches/model/match-card.model';
 
 @Component({
-  selector: 'app-match-assignment-dialog',
-  template: `
+    selector: 'app-match-assignment-dialog',
+    template: `
     <h2 mat-dialog-title>
       <span *ngIf="!isMove">Warning: {{conflictTables.length === 1 ? 'Table' : 'Tables'}} in Use</span>
       <span *ngIf="isMove">Move to {{ numUsedTables === 1  ? ' Another Table' : ' Other Tables'}}</span>
@@ -47,8 +47,8 @@ import {MatchCard} from '../../matches/model/match-card.model';
       </div>
     </mat-dialog-actions>
   `,
-  styles: [
-  ]
+    styles: [],
+    standalone: false
 })
 export class MatchAssignmentDialogComponent implements OnInit {
 

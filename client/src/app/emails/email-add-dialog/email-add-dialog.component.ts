@@ -2,9 +2,10 @@ import {Component, Inject} from '@angular/core';
 import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
 
 @Component({
-  selector: 'app-email-add-dialog',
-  templateUrl: './email-add-dialog.component.html',
-  styleUrl: './email-add-dialog.component.scss'
+    selector: 'app-email-add-dialog',
+    templateUrl: './email-add-dialog.component.html',
+    styleUrl: './email-add-dialog.component.scss',
+    standalone: false
 })
 export class EmailAddDialogComponent {
 

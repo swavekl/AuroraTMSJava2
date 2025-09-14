@@ -13,9 +13,10 @@ import {ClubEditCallbackData, ClubEditPopupService} from '../service/club-edit-p
 import {StatesList} from '../../../shared/states/states-list';
 
 @Component({
-  selector: 'app-club-list',
-  templateUrl: './club-list.component.html',
-  styleUrls: ['./club-list.component.scss']
+    selector: 'app-club-list',
+    templateUrl: './club-list.component.html',
+    styleUrls: ['./club-list.component.scss'],
+    standalone: false
 })
 export class ClubListComponent implements AfterViewInit {
   @ViewChild(MatPaginator) paginator!: MatPaginator;

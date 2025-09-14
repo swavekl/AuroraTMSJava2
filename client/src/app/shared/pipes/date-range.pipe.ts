@@ -10,7 +10,8 @@ import {Moment} from 'moment';
 // invoked with array representing range
 // {{ [startDate, endDate] | dateRange }}
 @Pipe({
-  name: 'dateRange'
+    name: 'dateRange',
+    standalone: false
 })
 export class DateRangePipe implements PipeTransform {
   readonly DATE_FORMAT = 'MMM D, yyyy';

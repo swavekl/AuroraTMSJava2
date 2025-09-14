@@ -5,9 +5,10 @@ import {AuthenticationService} from '../../user/authentication.service';
 import {ActivatedRoute} from '@angular/router';
 
 @Component({
-  selector: 'app-account-onboard-finish',
-  templateUrl: './account-onboard-finish.component.html',
-  styleUrls: ['./account-onboard-finish.component.css']
+    selector: 'app-account-onboard-finish',
+    templateUrl: './account-onboard-finish.component.html',
+    styleUrls: ['./account-onboard-finish.component.css'],
+    standalone: false
 })
 export class AccountOnboardFinishComponent implements OnInit {
 

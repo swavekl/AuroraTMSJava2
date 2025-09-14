@@ -10,9 +10,10 @@ import {PaymentForm} from '../model/payment-type.enum';
 import {RefundRequest} from '../model/refund-request.model';
 
 @Component({
-  selector: 'app-check-cash-payment-dialog',
-  templateUrl: './check-cash-payment-dialog.component.html',
-  styleUrls: ['./check-cash-payment-dialog.component.scss']
+    selector: 'app-check-cash-payment-dialog',
+    templateUrl: './check-cash-payment-dialog.component.html',
+    styleUrls: ['./check-cash-payment-dialog.component.scss'],
+    standalone: false
 })
 export class CheckCashPaymentDialogComponent  implements OnInit, OnDestroy {
 

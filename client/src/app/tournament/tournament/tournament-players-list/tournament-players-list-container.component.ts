@@ -15,8 +15,8 @@ import {AuthenticationService} from '../../../user/authentication.service';
 import {HttpClient} from '@angular/common/http';
 
 @Component({
-  selector: 'app-tournament-player-list-container',
-  template: `
+    selector: 'app-tournament-player-list-container',
+    template: `
     <app-tournament-players-list [entryInfos]="entryInfos$ | async"
                                  [tournamentEvents]="tournamentEvents$ | async"
                                  [tournamentStartDate]="tournamentStartDate$ | async"
@@ -24,7 +24,8 @@ import {HttpClient} from '@angular/common/http';
                                  [tournamentName]="tournamentName$ | async"
     ></app-tournament-players-list>
   `,
-  styles: []
+    styles: [],
+    standalone: false
 })
 export class TournamentPlayersListContainerComponent implements OnInit, OnDestroy {
 

@@ -15,15 +15,16 @@ import {CdkDragDrop, moveItemInArray} from '@angular/cdk/drag-drop';
 import {DrawMethod} from '../model/draw-method.enum';
 
 @Component({
-  selector: 'app-add-many-events-dialog',
-  templateUrl: './add-many-events-dialog.component.html',
-  styleUrl: './add-many-events-dialog.component.scss',
-  providers: [
-    {
-      provide: STEPPER_GLOBAL_OPTIONS,
-      useValue: {showError: true}
-    }
-  ]
+    selector: 'app-add-many-events-dialog',
+    templateUrl: './add-many-events-dialog.component.html',
+    styleUrl: './add-many-events-dialog.component.scss',
+    providers: [
+        {
+            provide: STEPPER_GLOBAL_OPTIONS,
+            useValue: { showError: true }
+        }
+    ],
+    standalone: false
 })
 export class AddManyEventsDialogComponent implements OnDestroy {
   tournamentId: number;

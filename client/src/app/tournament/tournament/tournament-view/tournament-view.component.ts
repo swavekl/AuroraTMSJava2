@@ -17,9 +17,10 @@ import {Regions} from '../../../shared/regions';
 import {StatesList} from '../../../shared/states/states-list';
 
 @Component({
-  selector: 'app-tournament-view',
-  templateUrl: './tournament-view.component.html',
-  styleUrls: ['./tournament-view.component.scss']
+    selector: 'app-tournament-view',
+    templateUrl: './tournament-view.component.html',
+    styleUrls: ['./tournament-view.component.scss'],
+    standalone: false
 })
 export class TournamentViewComponent implements OnInit, OnChanges {
   @Input()

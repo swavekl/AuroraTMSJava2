@@ -2,9 +2,10 @@ import {Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChange,
 import {PlayerStatus} from '../model/player-status.model';
 
 @Component({
-  selector: 'app-checkincommunicate',
-  templateUrl: './checkin-communicate.component.html',
-  styleUrls: ['./checkin-communicate.component.css']
+    selector: 'app-checkincommunicate',
+    templateUrl: './checkin-communicate.component.html',
+    styleUrls: ['./checkin-communicate.component.css'],
+    standalone: false
 })
 export class CheckinCommunicateComponent implements OnInit, OnChanges {
 

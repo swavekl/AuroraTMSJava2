@@ -5,9 +5,10 @@ import {DrawMethod} from '../../tournament/tournament-config/model/draw-method.e
 import {MatchCard} from '../../matches/model/match-card.model';
 
 @Component({
-  selector: 'app-prize-list',
-  templateUrl: './prize-list.component.html',
-  styleUrls: ['./prize-list.component.scss']
+    selector: 'app-prize-list',
+    templateUrl: './prize-list.component.html',
+    styleUrls: ['./prize-list.component.scss'],
+    standalone: false
 })
 export class PrizeListComponent implements OnInit, OnChanges {
 

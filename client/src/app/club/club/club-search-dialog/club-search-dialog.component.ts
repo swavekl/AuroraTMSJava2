@@ -7,9 +7,10 @@ import {Club} from '../model/club.model';
 import {ClubSearchData} from '../service/club-search-popup.service';
 
 @Component({
-  selector: 'app-club-search-dialog',
-  templateUrl: './club-search-dialog.component.html',
-  styleUrls: ['./club-search-dialog.component.scss']
+    selector: 'app-club-search-dialog',
+    templateUrl: './club-search-dialog.component.html',
+    styleUrls: ['./club-search-dialog.component.scss'],
+    standalone: false
 })
 export class ClubSearchDialogComponent implements OnInit {
 

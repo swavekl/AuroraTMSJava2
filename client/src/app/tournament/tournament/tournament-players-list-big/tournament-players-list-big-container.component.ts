@@ -15,8 +15,8 @@ import {HtmlContentPopupComponent} from '../../../shared/html-content-popup/html
 import {DateUtils} from '../../../shared/date-utils';
 
 @Component({
-  selector: 'app-tournament-players-list-big-container',
-  template: `
+    selector: 'app-tournament-players-list-big-container',
+    template: `
     <app-tournament-players-list-big [entryInfos]="entryInfos$ | async"
     [tournamentName]="tournamentName$ | async"
     [tournamentId]="tournamentId"
@@ -26,8 +26,8 @@ import {DateUtils} from '../../../shared/date-utils';
     (findPlayer)="onFindPlayer($event)">
     </app-tournament-players-list-big>
   `,
-  styles: [
-  ]
+    styles: [],
+    standalone: false
 })
 export class TournamentPlayersListBigContainerComponent implements OnInit, OnDestroy {
 

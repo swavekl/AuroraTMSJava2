@@ -1,7 +1,8 @@
 import {Pipe, PipeTransform} from '@angular/core';
 
 @Pipe({
-  name: 'eventEntryStatus'
+    name: 'eventEntryStatus',
+    standalone: false
 })
 export class EventEntryStatusPipe implements PipeTransform {
 

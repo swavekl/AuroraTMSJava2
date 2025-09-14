@@ -4,9 +4,10 @@ import {DrawItem} from '../../draws-common/model/draw-item.model';
 import {Router} from '@angular/router';
 
 @Component({
-  selector: 'app-draws-view-detail',
-  templateUrl: './draws-view-detail.component.html',
-  styleUrls: ['./draws-view-detail.component.scss']
+    selector: 'app-draws-view-detail',
+    templateUrl: './draws-view-detail.component.html',
+    styleUrls: ['./draws-view-detail.component.scss'],
+    standalone: false
 })
 export class DrawsViewDetailComponent {
 

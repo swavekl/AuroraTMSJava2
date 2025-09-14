@@ -3,7 +3,8 @@ import {Ranks} from '../model/ranks';
 import {RefereeRank} from '../model/referee-rank.enum';
 
 @Pipe({
-  name: 'refereeRank'
+    name: 'refereeRank',
+    standalone: false
 })
 export class RefereeRankPipe implements PipeTransform {
 

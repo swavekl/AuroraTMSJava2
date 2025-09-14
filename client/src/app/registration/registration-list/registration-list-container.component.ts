@@ -11,14 +11,15 @@ import {first, map} from 'rxjs/operators';
 import {RegistrationEventType} from '../model/registration-event-type.enum';
 
 @Component({
-  selector: 'app-registration-list-container',
-  template: `
+    selector: 'app-registration-list-container',
+    template: `
       <app-registration-list [registrations]="registrations$ | async"
                              (eventEmitter)="onView($event)">
 
       </app-registration-list>
   `,
-  styles: []
+    styles: [],
+    standalone: false
 })
 export class RegistrationListContainerComponent implements OnDestroy {
 

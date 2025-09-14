@@ -8,9 +8,10 @@ import {MatchCard} from '../model/match-card.model';
 import {Match} from '../model/match.model';
 
 @Component({
-  selector: 'app-ranking-results',
-  templateUrl: './ranking-results.component.html',
-  styleUrls: ['./ranking-results.component.scss']
+    selector: 'app-ranking-results',
+    templateUrl: './ranking-results.component.html',
+    styleUrls: ['./ranking-results.component.scss'],
+    standalone: false
 })
 export class RankingResultsComponent implements OnDestroy, OnChanges {
   @Input()

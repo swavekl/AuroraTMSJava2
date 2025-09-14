@@ -3,9 +3,10 @@ import {PaymentRefund} from '../model/payment-refund.model';
 import {PaymentRefundStatus} from '../model/payment-refund-status.enum';
 
 @Component({
-  selector: 'app-payments-refunds',
-  templateUrl: './payments-refunds.component.html',
-  styleUrls: ['./payments-refunds.component.scss']
+    selector: 'app-payments-refunds',
+    templateUrl: './payments-refunds.component.html',
+    styleUrls: ['./payments-refunds.component.scss'],
+    standalone: false
 })
 export class PaymentsRefundsComponent {
   @Input()

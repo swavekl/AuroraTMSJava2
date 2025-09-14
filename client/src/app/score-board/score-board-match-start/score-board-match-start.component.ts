@@ -10,9 +10,10 @@ import {MonitorMessageType} from '../../monitor/model/monitor-message-type';
 import {EndMatchPopupComponent} from '../end-match-popup/end-match-popup.component';
 
 @Component({
-  selector: 'app-score-board-match-start',
-  templateUrl: './score-board-match-start.component.html',
-  styleUrl: './score-board-match-start.component.scss'
+    selector: 'app-score-board-match-start',
+    templateUrl: './score-board-match-start.component.html',
+    styleUrl: './score-board-match-start.component.scss',
+    standalone: false
 })
 export class ScoreBoardMatchStartComponent implements OnChanges {
 

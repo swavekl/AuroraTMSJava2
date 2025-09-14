@@ -5,9 +5,10 @@ import {MatDialogRef} from '@angular/material/dialog';
  * Dialog for collecting data needed to generate reports
  */
 @Component({
-  selector: 'app-generate-reports-dialog',
-  templateUrl: './generate-reports-dialog.component.html',
-  styleUrls: ['./generate-reports-dialog.component.scss']
+    selector: 'app-generate-reports-dialog',
+    templateUrl: './generate-reports-dialog.component.html',
+    styleUrls: ['./generate-reports-dialog.component.scss'],
+    standalone: false
 })
 export class GenerateReportsDialogComponent implements OnInit {
 

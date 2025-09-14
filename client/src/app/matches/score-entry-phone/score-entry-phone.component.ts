@@ -13,9 +13,10 @@ import {Match} from '../model/match.model';
 import {MatSnackBar} from '@angular/material/snack-bar';
 
 @Component({
-  selector: 'app-score-entry-phone',
-  templateUrl: './score-entry-phone.component.html',
-  styleUrls: ['./score-entry-phone.component.scss']
+    selector: 'app-score-entry-phone',
+    templateUrl: './score-entry-phone.component.html',
+    styleUrls: ['./score-entry-phone.component.scss'],
+    standalone: false
 })
 export class ScoreEntryPhoneComponent implements OnInit, OnChanges, AfterViewInit {
 

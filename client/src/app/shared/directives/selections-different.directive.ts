@@ -5,8 +5,9 @@ import {AbstractControl, NG_VALIDATORS, ValidationErrors, Validator} from '@angu
  * Validator for checking if two control values are different
  */
 @Directive({
-  selector: '[appValuesDifferent]',
-  providers: [{provide: NG_VALIDATORS, useExisting: SelectionsDifferentDirective, multi: true}]
+    selector: '[appValuesDifferent]',
+    providers: [{ provide: NG_VALIDATORS, useExisting: SelectionsDifferentDirective, multi: true }],
+    standalone: false
 })
 export class SelectionsDifferentDirective implements Validator {
 

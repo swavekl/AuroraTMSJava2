@@ -4,9 +4,10 @@ import {TournamentEntry} from '../../tournament/tournament-entry/model/tournamen
 import {Router} from '@angular/router';
 
 @Component({
-  selector: 'app-player-results',
-  templateUrl: './player-results.component.html',
-  styleUrls: ['./player-results.component.scss']
+    selector: 'app-player-results',
+    templateUrl: './player-results.component.html',
+    styleUrls: ['./player-results.component.scss'],
+    standalone: false
 })
 export class PlayerResultsComponent implements OnInit, OnChanges {
 

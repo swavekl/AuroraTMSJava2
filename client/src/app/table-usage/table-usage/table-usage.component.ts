@@ -17,9 +17,10 @@ import {ConfirmationPopupComponent} from '../../shared/confirmation-popup/confir
 import {MatchCardStatus} from '../../matches/model/match-card-status.enum';
 
 @Component({
-  selector: 'app-table-usage',
-  templateUrl: './table-usage.component.html',
-  styleUrls: ['./table-usage.component.scss']
+    selector: 'app-table-usage',
+    templateUrl: './table-usage.component.html',
+    styleUrls: ['./table-usage.component.scss'],
+    standalone: false
 })
 export class TableUsageComponent implements OnInit, OnChanges {
 

@@ -3,9 +3,10 @@ import {NgttRound, NgttTournament} from 'ng-tournament-tree/lib/declarations/int
 import {Match} from '../model/match.model';
 
 @Component({
-  selector: 'app-single-elimination-bracket-small',
-  templateUrl: './single-elimination-bracket-small.component.html',
-  styleUrls: ['./single-elimination-bracket-small.component.scss']
+    selector: 'app-single-elimination-bracket-small',
+    templateUrl: './single-elimination-bracket-small.component.html',
+    styleUrls: ['./single-elimination-bracket-small.component.scss'],
+    standalone: false
 })
 export class SingleEliminationBracketSmallComponent implements OnInit, OnChanges {
   @Input()

@@ -9,15 +9,15 @@ import {TodayService} from '../../../shared/today.service';
 import moment from 'moment/moment';
 
 @Component({
-  selector: 'app-tournament-list-container',
-  template: `
+    selector: 'app-tournament-list-container',
+    template: `
     <app-tournament-list [tournaments]="tournaments$ | async"
                          [selectedRegion]="selectedRegion"
                          (filterChange)="onFilterChange($event)"></app-tournament-list>
   `,
-  styles: [],
-  changeDetection: ChangeDetectionStrategy.OnPush
-
+    styles: [],
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    standalone: false
 })
 export class TournamentListContainerComponent implements OnInit, OnDestroy {
 

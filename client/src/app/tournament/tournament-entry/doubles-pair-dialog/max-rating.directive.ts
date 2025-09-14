@@ -3,8 +3,10 @@ import {AbstractControl, NG_VALIDATORS, ValidationErrors, Validator} from '@angu
 import {DoublesPairingInfo} from './doubles-pair-dialog.component';
 
 @Directive({
-  selector: '[appMaxRating]',
-  providers: [{provide: NG_VALIDATORS, useExisting: MaxRatingDirective, multi: true}]})
+    selector: '[appMaxRating]',
+    providers: [{ provide: NG_VALIDATORS, useExisting: MaxRatingDirective, multi: true }],
+    standalone: false
+})
 export class MaxRatingDirective implements Validator {
 
   constructor() { }

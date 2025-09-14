@@ -4,9 +4,10 @@ import {Club} from '../model/club.model';
 import {StatesList} from '../../../shared/states/states-list';
 
 @Component({
-  selector: 'app-club-edit',
-  templateUrl: './club-edit.component.html',
-  styleUrls: ['./club-edit.component.scss']
+    selector: 'app-club-edit',
+    templateUrl: './club-edit.component.html',
+    styleUrls: ['./club-edit.component.scss'],
+    standalone: false
 })
 export class ClubEditComponent implements OnInit {
 

@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 
 @Component({
-  selector: 'app-mat-typography',
-  template: `
+    selector: 'app-mat-typography',
+    template: `
     <p>
       <a href="https://material.angular.io/guide/typography" target="_blank">Material typography</a>
     </p>
@@ -25,7 +25,8 @@ import { Component, OnInit } from '@angular/core';
     <h5>This is h5</h5>
     <h6>This is h6</h6>
   `,
-  styles: ['div, p, h1, h2, h3, h4, h5, h6 { border: 1px solid black; }']
+    styles: ['div, p, h1, h2, h3, h4, h5, h6 { border: 1px solid black; }'],
+    standalone: false
 })
 export class TypographyComponent implements OnInit {
 

@@ -4,9 +4,10 @@ import {UmpireRank} from '../model/umpire-rank.enum';
 import {Ranks} from '../model/ranks';
 
 @Component({
-  selector: 'app-official-edit',
-  templateUrl: './official-edit.component.html',
-  styleUrls: ['./official-edit.component.scss']
+    selector: 'app-official-edit',
+    templateUrl: './official-edit.component.html',
+    styleUrls: ['./official-edit.component.scss'],
+    standalone: false
 })
 export class OfficialEditComponent {
 

@@ -13,8 +13,8 @@ import {MonitorMessage} from '../../monitor/model/monitor-message.model';
 import {MonitorMessageType} from '../../monitor/model/monitor-message-type';
 
 @Component({
-  selector: 'app-score-board-score-entry-container',
-  template: `
+    selector: 'app-score-board-score-entry-container',
+    template: `
     <app-score-board-score-entry
       [match]="match$ | async"
       [playerAName]="playerAName$ | async"
@@ -27,7 +27,8 @@ import {MonitorMessageType} from '../../monitor/model/monitor-message-type';
     (timerEvent)="onTimerEvent($event)">
     </app-score-board-score-entry>
   `,
-  styles: ``
+    styles: ``,
+    standalone: false
 })
 export class ScoreBoardScoreEntryContainerComponent implements OnDestroy {
   public match$: Observable<Match>;

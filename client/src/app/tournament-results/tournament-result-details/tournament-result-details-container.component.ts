@@ -9,8 +9,8 @@ import {TournamentEvent} from '../../tournament/tournament-config/tournament-eve
 import {EventResults} from '../model/event-results';
 
 @Component({
-  selector: 'app-tournament-result-detail-container',
-  template: `
+    selector: 'app-tournament-result-detail-container',
+    template: `
     <app-tournament-result-details
       [event]="event$ | async"
       [eventName]="eventName"
@@ -18,7 +18,8 @@ import {EventResults} from '../model/event-results';
     [tournamentId]="tournamentId">
     </app-tournament-result-details>
   `,
-  styles: []
+    styles: [],
+    standalone: false
 })
 export class TournamentResultDetailsContainerComponent implements OnInit, OnDestroy {
 

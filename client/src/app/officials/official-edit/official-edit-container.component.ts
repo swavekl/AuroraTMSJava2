@@ -13,14 +13,15 @@ import {Official} from '../model/official.model';
 import {OfficialService} from '../service/official.service';
 
 @Component({
-  selector: 'app-official-edit-container',
-  template: `
+    selector: 'app-official-edit-container',
+    template: `
     <app-official-edit [official]="official$ | async"
                        (save)="onSave($event)"
     (cancel)="onCancel($event)">
     </app-official-edit>
   `,
-  styles: []
+    styles: [],
+    standalone: false
 })
 export class OfficialEditContainerComponent {
 

@@ -8,9 +8,10 @@ import {CardsInfo} from '../../shared/cards-display/cards-info.model';
 import {MonitorMessageType} from '../model/monitor-message-type';
 
 @Component({
-  selector: 'app-monitor-display',
-  templateUrl: './monitor-display.component.html',
-  styleUrls: ['./monitor-display.component.scss']
+    selector: 'app-monitor-display',
+    templateUrl: './monitor-display.component.html',
+    styleUrls: ['./monitor-display.component.scss'],
+    standalone: false
 })
 export class MonitorDisplayComponent implements OnInit, OnChanges {
 

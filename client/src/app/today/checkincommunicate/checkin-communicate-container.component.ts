@@ -9,8 +9,8 @@ import {first, map} from 'rxjs/operators';
 import {TodayService} from '../../shared/today.service';
 
 @Component({
-  selector: 'app-checkin-communicate-container-component',
-  template: `
+    selector: 'app-checkin-communicate-container-component',
+    template: `
     <app-centered-panel noTopGap="true">
       <app-checkincommunicate [playerStatus]="playerStatus$ | async"
                               [eventName]="eventName"
@@ -20,7 +20,8 @@ import {TodayService} from '../../shared/today.service';
       ></app-checkincommunicate>
     </app-centered-panel>
   `,
-  styles: []
+    styles: [],
+    standalone: false
 })
 export class CheckinCommunicateContainerComponent implements OnInit, OnDestroy {
 

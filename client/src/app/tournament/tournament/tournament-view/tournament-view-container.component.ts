@@ -12,16 +12,17 @@ import {Tournament} from '../../tournament-config/tournament.model';
 import {TournamentConfigService} from '../../tournament-config/tournament-config.service';
 
 @Component({
-  selector: 'app-tournament-view-container',
-  template: `
+    selector: 'app-tournament-view-container',
+    template: `
     <app-tournament-view [tournament]="tournament$ | async"
                          [entryId]="entryId$ | async"
                          [tournamentEvents]="tournamentEvents$ | async"
     >
     </app-tournament-view>
   `,
-  styles: [],
-  changeDetection: ChangeDetectionStrategy.OnPush
+    styles: [],
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    standalone: false
 })
 export class TournamentViewContainerComponent implements OnInit, OnDestroy {
 

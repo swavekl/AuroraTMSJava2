@@ -11,9 +11,10 @@ import {MatchResult} from '../model/match-result';
 import {ConflictType} from '../../draws/draws-common/model/conflict-type.enum';
 
 @Component({
-  selector: 'app-tournament-result-details',
-  templateUrl: './tournament-result-details.component.html',
-  styleUrls: ['./tournament-result-details.component.scss']
+    selector: 'app-tournament-result-details',
+    templateUrl: './tournament-result-details.component.html',
+    styleUrls: ['./tournament-result-details.component.scss'],
+    standalone: false
 })
 export class TournamentResultDetailsComponent implements OnInit, OnChanges {
 

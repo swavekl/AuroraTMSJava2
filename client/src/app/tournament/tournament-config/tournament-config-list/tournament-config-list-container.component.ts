@@ -6,15 +6,16 @@ import {Router} from '@angular/router';
 import {LinearProgressBarService} from '../../../shared/linear-progress-bar/linear-progress-bar.service';
 
 @Component({
-  selector: 'app-tournament-config-container-list',
-  template: `
+    selector: 'app-tournament-config-container-list',
+    template: `
     <app-tournament-config-list [tournaments]="tournaments$ | async"
                                 (add)="onAdd($event)"
                                 (delete)="onDelete($event)"
     ></app-tournament-config-list>
   `,
-  styles: [],
-  changeDetection: ChangeDetectionStrategy.OnPush
+    styles: [],
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    standalone: false
 })
 export class TournamentConfigListContainerComponent implements OnInit, OnDestroy {
 

@@ -3,9 +3,10 @@ import {RatingsProcessorStatus} from '../model/ratings-processor-status';
 import {MembershipsProcessorStatus} from '../model/memberhips-processor-status';
 
 @Component({
-  selector: 'app-admin-ratings',
-  templateUrl: './admin-ratings.component.html',
-  styleUrls: ['./admin-ratings.component.scss']
+    selector: 'app-admin-ratings',
+    templateUrl: './admin-ratings.component.html',
+    styleUrls: ['./admin-ratings.component.scss'],
+    standalone: false
 })
 export class AdminRatingsComponent {
 

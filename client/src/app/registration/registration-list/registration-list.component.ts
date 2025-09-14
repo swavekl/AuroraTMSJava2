@@ -5,9 +5,10 @@ import {DateUtils} from '../../shared/date-utils';
 import {Router} from '@angular/router';
 
 @Component({
-  selector: 'app-registration-list',
-  templateUrl: './registration-list.component.html',
-  styleUrls: ['./registration-list.component.scss']
+    selector: 'app-registration-list',
+    templateUrl: './registration-list.component.html',
+    styleUrls: ['./registration-list.component.scss'],
+    standalone: false
 })
 export class RegistrationListComponent implements OnChanges {
 

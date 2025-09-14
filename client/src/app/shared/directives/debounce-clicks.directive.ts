@@ -7,7 +7,8 @@ import {debounceTime} from 'rxjs/operators';
  * Directive for debouncing multiple clicks to avoid submitting requests
  */
 @Directive({
-  selector: '[debounceClicks]'
+    selector: '[debounceClicks]',
+    standalone: false
 })
 export class DebounceClicksDirective implements OnInit, OnDestroy {
   @Output() debounceClick = new EventEmitter();

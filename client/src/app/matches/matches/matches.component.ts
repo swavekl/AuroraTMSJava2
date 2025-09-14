@@ -12,9 +12,10 @@ import {DrawType} from '../../draws/draws-common/model/draw-type.enum';
 import {RankingResultsComponent} from '../ranking-results/ranking-results.component';
 
 @Component({
-  selector: 'app-matches',
-  templateUrl: './matches.component.html',
-  styleUrls: ['./matches.component.scss']
+    selector: 'app-matches',
+    templateUrl: './matches.component.html',
+    styleUrls: ['./matches.component.scss'],
+    standalone: false
 })
 export class MatchesComponent implements OnInit, OnChanges, OnDestroy {
 

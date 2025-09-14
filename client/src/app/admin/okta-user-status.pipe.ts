@@ -1,7 +1,8 @@
 import { Pipe, PipeTransform } from '@angular/core';
 
 @Pipe({
-  name: 'oktaUserStatus'
+    name: 'oktaUserStatus',
+    standalone: false
 })
 export class OktaUserStatusPipe implements PipeTransform {
 

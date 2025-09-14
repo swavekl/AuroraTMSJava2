@@ -12,9 +12,10 @@ import {TournamentInfo} from '../../tournament/model/tournament-info.model';
  * Page for today's task at the tournament
  */
 @Component({
-  selector: 'app-today',
-  templateUrl: './today.component.html',
-  styleUrls: ['./today.component.css']
+    selector: 'app-today',
+    templateUrl: './today.component.html',
+    styleUrls: ['./today.component.css'],
+    standalone: false
 })
 export class TodayComponent implements OnInit, OnDestroy {
 

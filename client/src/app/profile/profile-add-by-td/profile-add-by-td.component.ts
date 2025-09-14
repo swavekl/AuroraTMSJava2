@@ -9,9 +9,10 @@ import {Subscription} from 'rxjs';
 import {Profile} from '../profile';
 
 @Component({
-  selector: 'app-profile-add-by-td',
-  templateUrl: './profile-add-by-td.component.html',
-  styleUrls: ['./profile-add-by-td.component.scss']
+    selector: 'app-profile-add-by-td',
+    templateUrl: './profile-add-by-td.component.html',
+    styleUrls: ['./profile-add-by-td.component.scss'],
+    standalone: false
 })
 export class ProfileAddByTDComponent implements OnInit, OnDestroy {
 

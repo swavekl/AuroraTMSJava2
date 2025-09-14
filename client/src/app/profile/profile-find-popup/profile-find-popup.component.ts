@@ -8,9 +8,10 @@ import {Profile} from '../profile';
  * Popup for searching player profiles in OKTA
  */
 @Component({
-  selector: 'app-player-find-popup',
-  templateUrl: './profile-find-popup.component.html',
-  styleUrls: ['./profile-find-popup.component.css']
+    selector: 'app-player-find-popup',
+    templateUrl: './profile-find-popup.component.html',
+    styleUrls: ['./profile-find-popup.component.css'],
+    standalone: false
 })
 export class ProfileFindPopupComponent implements OnInit {
   // search criteria

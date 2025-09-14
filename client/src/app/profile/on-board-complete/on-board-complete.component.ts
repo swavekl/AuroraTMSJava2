@@ -1,7 +1,7 @@
 import {Component, OnInit} from '@angular/core';
 
 @Component({
-  template: `
+    template: `
     <app-centered-panel class="mat-body-1">
       <p>
         Nice job {{ firstName }}! Your on-boarding is complete.
@@ -13,7 +13,8 @@ import {Component, OnInit} from '@angular/core';
       </button>
     </app-centered-panel>
   `,
-  styles: []
+    styles: [],
+    standalone: false
 })
 export class OnBoardCompleteComponent implements OnInit {
 

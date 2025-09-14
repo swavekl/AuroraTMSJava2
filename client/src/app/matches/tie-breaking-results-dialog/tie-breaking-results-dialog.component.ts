@@ -6,9 +6,10 @@ import {PlayerTieBreakingInfo} from '../model/tie-breaking/player-tie-breaking-i
 import {PlayerMatchResults} from '../model/tie-breaking/player-match-results.model';
 
 @Component({
-  selector: 'app-tie-breaking-results-dialog',
-  templateUrl: './tie-breaking-results-dialog.component.html',
-  styleUrls: ['./tie-breaking-results-dialog.component.scss']
+    selector: 'app-tie-breaking-results-dialog',
+    templateUrl: './tie-breaking-results-dialog.component.html',
+    styleUrls: ['./tie-breaking-results-dialog.component.scss'],
+    standalone: false
 })
 export class TieBreakingResultsDialogComponent implements OnInit {
 

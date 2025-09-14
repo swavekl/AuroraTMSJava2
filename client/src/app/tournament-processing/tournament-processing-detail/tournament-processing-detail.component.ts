@@ -12,9 +12,10 @@ import {ConfirmationPopupComponent} from '../../shared/confirmation-popup/confir
 import {Router} from '@angular/router';
 
 @Component({
-  selector: 'app-tournament-processing-detail',
-  templateUrl: './tournament-processing-detail.component.html',
-  styleUrls: ['./tournament-processing-detail.component.scss']
+    selector: 'app-tournament-processing-detail',
+    templateUrl: './tournament-processing-detail.component.html',
+    styleUrls: ['./tournament-processing-detail.component.scss'],
+    standalone: false
 })
 export class TournamentProcessingDetailComponent implements OnInit, OnChanges {
 

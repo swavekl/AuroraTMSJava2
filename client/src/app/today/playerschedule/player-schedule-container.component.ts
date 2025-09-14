@@ -10,8 +10,8 @@ import {createSelector} from '@ngrx/store';
 import {TournamentInfo} from '../../tournament/model/tournament-info.model';
 
 @Component({
-  selector: 'app-player-schedule-container-component',
-  template: `
+    selector: 'app-player-schedule-container-component',
+    template: `
     <app-player-schedule
       [playerScheduleItems]="playerScheduleItems$ | async"
       [tournamentInfo]="tournamentInfo"
@@ -19,7 +19,8 @@ import {TournamentInfo} from '../../tournament/model/tournament-info.model';
       [tournamentEntryId]="tournamentEntryId">
     </app-player-schedule>
   `,
-  styles: []
+    styles: [],
+    standalone: false
 })
 export class PlayerScheduleContainerComponent implements OnInit, OnDestroy {
 

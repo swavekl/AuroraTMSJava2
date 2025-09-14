@@ -1,7 +1,8 @@
 import {Pipe, PipeTransform} from '@angular/core';
 
 @Pipe({
-  name: 'availabilityStatus'
+    name: 'availabilityStatus',
+    standalone: false
 })
 export class AvailabilityStatusPipe implements PipeTransform {
   private theMap = {

@@ -17,8 +17,8 @@ import {TournamentProcessingRequestStatus} from '../model/tournament-processing-
 import {TournamentProcessingRequestDetail} from '../model/tournament-processing-request-detail';
 
 @Component({
-  selector: 'app-tournament-processing-detail-container',
-  template: `
+    selector: 'app-tournament-processing-detail-container',
+    template: `
     <app-tournament-processing-detail [tournamentProcessingRequest]="tournamentProcessingRequest$ | async"
                                       [currencyCode]="currencyCode"
                                       [returnUrl]="returnUrl"
@@ -26,10 +26,11 @@ import {TournamentProcessingRequestDetail} from '../model/tournament-processing-
                                       (requestEvent)="onRequestEvent($event)">
     </app-tournament-processing-detail>
   `,
-  styles: [],
-  providers: [
-    PaymentDialogService
-  ]
+    styles: [],
+    providers: [
+        PaymentDialogService
+    ],
+    standalone: false
 })
 export class TournamentProcessingDetailContainerComponent implements OnInit, OnDestroy {
 

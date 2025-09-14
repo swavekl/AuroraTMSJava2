@@ -24,9 +24,10 @@ import {ErrorMessagePopupService} from '../../../shared/error-message-dialog/err
 import {EligibilityRestriction} from '../model/eligibility-restriction.enum';
 
 @Component({
-  selector: 'app-tournament-config-edit',
-  templateUrl: './tournament-config-edit.component.html',
-  styleUrls: ['./tournament-config-edit.component.scss']
+    selector: 'app-tournament-config-edit',
+    templateUrl: './tournament-config-edit.component.html',
+    styleUrls: ['./tournament-config-edit.component.scss'],
+    standalone: false
 })
 export class TournamentConfigEditComponent implements OnChanges {
 

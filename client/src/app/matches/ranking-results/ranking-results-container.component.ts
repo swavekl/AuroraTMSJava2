@@ -12,8 +12,8 @@ import {TournamentEvent} from '../../tournament/tournament-config/tournament-eve
 import {first, tap} from 'rxjs/operators';
 
 @Component({
-  selector: 'app-ranking-results-container',
-  template: `
+    selector: 'app-ranking-results-container',
+    template: `
     <mat-toolbar>
       <button type="button" mat-raised-button [routerLink]="returnUrl">Back to Schedule</button>
     </mat-toolbar>
@@ -27,7 +27,8 @@ import {first, tap} from 'rxjs/operators';
     <app-ranking-results [matchCard]="matchCard$ | async">
     </app-ranking-results>
   `,
-  styles: []
+    styles: [],
+    standalone: false
 })
 export class RankingResultsContainerComponent implements OnInit, OnDestroy, AfterViewInit {
   matchCard$: Observable<MatchCard>;

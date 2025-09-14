@@ -5,12 +5,13 @@ import {ConflictRendererHelper} from '../../model/conflict-renderer-helper.model
 import {ConflictType} from '../../model/conflict-type.enum';
 
 @Component({
-  selector: 'app-sematch',
-  templateUrl: './sematch.component.html',
-  styleUrls: ['./sematch.component.scss'],
-  // Need to remove view encapsulation so that the custom tooltip style defined in
-  // `tooltip-custom-class-example.css` will not be scoped to this component's view.
-  encapsulation: ViewEncapsulation.None,
+    selector: 'app-sematch',
+    templateUrl: './sematch.component.html',
+    styleUrls: ['./sematch.component.scss'],
+    // Need to remove view encapsulation so that the custom tooltip style defined in
+    // `tooltip-custom-class-example.css` will not be scoped to this component's view.
+    encapsulation: ViewEncapsulation.None,
+    standalone: false
 })
 export class SEMatchComponent implements OnInit {
 

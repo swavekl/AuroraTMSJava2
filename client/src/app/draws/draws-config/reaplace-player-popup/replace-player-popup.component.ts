@@ -18,9 +18,10 @@ import {ErrorMessagePopupService} from '../../../shared/error-message-dialog/err
 import {ConflictType} from '../../draws-common/model/conflict-type.enum';
 
 @Component({
-  selector: 'app-replace-player-popup',
-  templateUrl: './replace-player-popup.component.html',
-  styleUrl: './replace-player-popup.component.scss'
+    selector: 'app-replace-player-popup',
+    templateUrl: './replace-player-popup.component.html',
+    styleUrl: './replace-player-popup.component.scss',
+    standalone: false
 })
 export class ReplacePlayerPopupComponent {
   drawGroups: number [] = [];

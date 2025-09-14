@@ -7,14 +7,14 @@ import {TournamentResultsService} from '../service/tournament-results.service';
 import {EventResultStatus} from '../model/event-result-status';
 
 @Component({
-  selector: 'app-tournament-results-container',
-  template: `
+    selector: 'app-tournament-results-container',
+    template: `
     <app-tournament-results [eventResultStatusList]="eventResultStatusList$ | async"
     [tournamentId]="tournamentId">
     </app-tournament-results>
   `,
-  styles: [
-  ]
+    styles: [],
+    standalone: false
 })
 export class TournamentResultsListContainerComponent implements OnInit, OnDestroy {
 

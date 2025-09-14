@@ -12,14 +12,14 @@ import {UserRoles} from '../../user/user-roles.enum';
 import {TodayService} from '../../shared/today.service';
 
 @Component({
-  selector: 'app-score-board-configure-container',
-  template: `
+    selector: 'app-score-board-configure-container',
+    template: `
     <app-score-board-configure [tournaments]="tournamentInfos$ | async"
     (tableSelected)="onTableSelected($event)">
     </app-score-board-configure>
   `,
-  styles: [
-  ]
+    styles: [],
+    standalone: false
 })
 export class ScoreBoardConfigureContainerComponent implements OnInit, OnDestroy {
 

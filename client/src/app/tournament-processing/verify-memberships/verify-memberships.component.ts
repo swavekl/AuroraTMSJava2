@@ -7,9 +7,10 @@ import {DateUtils} from '../../shared/date-utils';
 import {ConfirmationPopupComponent} from '../../shared/confirmation-popup/confirmation-popup.component';
 
 @Component({
-  selector: 'app-verify-memberships',
-  templateUrl: './verify-memberships.component.html',
-  styleUrl: './verify-memberships.component.scss'
+    selector: 'app-verify-memberships',
+    templateUrl: './verify-memberships.component.html',
+    styleUrl: './verify-memberships.component.scss',
+    standalone: false
 })
 export class VerifyMembershipsComponent {
   // url to return to after viewing this page

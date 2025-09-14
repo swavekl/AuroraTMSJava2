@@ -10,9 +10,10 @@ import {ProfileService} from '../../profile/profile.service';
 import {Profile} from '../../profile/profile';
 
 @Component({
-  selector: 'app-score-audit-dialog',
-  templateUrl: './score-audit-dialog.component.html',
-  styleUrls: ['./score-audit-dialog.component.scss']
+    selector: 'app-score-audit-dialog',
+    templateUrl: './score-audit-dialog.component.html',
+    styleUrls: ['./score-audit-dialog.component.scss'],
+    standalone: false
 })
 export class ScoreAuditDialogComponent implements OnInit, OnDestroy {
 

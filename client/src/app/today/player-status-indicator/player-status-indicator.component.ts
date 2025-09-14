@@ -6,14 +6,14 @@ import {EventStatusCode} from '../model/event-status-code.enum';
  * Indicates status of player
  */
 @Component({
-  selector: 'app-player-status-indicator',
-  template: `
+    selector: 'app-player-status-indicator',
+    template: `
     <mat-icon [className]="getStatusIconClass()">
       {{getStatusIcon()}}
     </mat-icon>
   `,
-  styles: [
-    `
+    styles: [
+        `
       mat-icon {
         font-size: 16px;
       }
@@ -30,7 +30,8 @@ import {EventStatusCode} from '../model/event-status-code.enum';
         color: orange;
       }
     `
-  ]
+    ],
+    standalone: false
 })
 export class PlayerStatusIndicatorComponent {
 

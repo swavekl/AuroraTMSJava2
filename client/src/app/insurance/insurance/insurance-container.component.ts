@@ -9,13 +9,14 @@ import {InsuranceRequestStatus} from '../model/insurance-request-status';
 import {InsuranceRequestService} from '../service/insurance-request.service';
 
 @Component({
-  selector: 'app-insurance-container',
-  template: `
+    selector: 'app-insurance-container',
+    template: `
     <app-insurance [insuranceRequest]="insuranceRequest$ | async"
                    (saved)="onSave($event)" (canceled)="onCancel($event)">
     </app-insurance>
   `,
-  styles: []
+    styles: [],
+    standalone: false
 })
 export class InsuranceContainerComponent implements OnInit, OnDestroy {
   public insuranceRequest$: Observable<InsuranceRequest>;

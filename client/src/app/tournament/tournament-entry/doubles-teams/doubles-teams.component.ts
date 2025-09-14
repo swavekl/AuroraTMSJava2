@@ -9,9 +9,10 @@ import {TournamentEntryInfo} from '../../model/tournament-entry-info.model';
 import {MatTableDataSource} from '@angular/material/table';
 
 @Component({
-  selector: 'app-doubles-teams',
-  templateUrl: './doubles-teams.component.html',
-  styleUrls: ['./doubles-teams.component.scss']
+    selector: 'app-doubles-teams',
+    templateUrl: './doubles-teams.component.html',
+    styleUrls: ['./doubles-teams.component.scss'],
+    standalone: false
 })
 export class DoublesTeamsComponent implements OnInit, OnChanges {
 

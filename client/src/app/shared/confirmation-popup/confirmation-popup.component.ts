@@ -2,9 +2,10 @@ import {Component, Inject, OnInit} from '@angular/core';
 import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
 
 @Component({
-  selector: 'app-confirmation-popup',
-  templateUrl: './confirmation-popup.component.html',
-  styleUrls: ['./confirmation-popup.component.css']
+    selector: 'app-confirmation-popup',
+    templateUrl: './confirmation-popup.component.html',
+    styleUrls: ['./confirmation-popup.component.css'],
+    standalone: false
 })
 export class ConfirmationPopupComponent implements OnInit {
   title: string;

@@ -13,9 +13,10 @@ import {MatchCardInfo} from '../../../matches/model/match-card-info.model';
 import {ReplacePlayerPopupComponent, ReplacePlayerPopupData} from '../reaplace-player-popup/replace-player-popup.component';
 
 @Component({
-  selector: 'app-draws',
-  templateUrl: './draws.component.html',
-  styleUrls: ['./draws.component.scss'],
+    selector: 'app-draws',
+    templateUrl: './draws.component.html',
+    styleUrls: ['./draws.component.scss'],
+    standalone: false
 })
 export class DrawsComponent implements OnInit, OnChanges {
 

@@ -5,9 +5,10 @@ import {CommonRegexPatterns} from '../../../../shared/common-regex-patterns';
 import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
 
 @Component({
-  selector: 'app-prize-info-dialog',
-  templateUrl: './prize-info-dialog.component.html',
-  styleUrls: ['./prize-info-dialog.component.scss']
+    selector: 'app-prize-info-dialog',
+    templateUrl: './prize-info-dialog.component.html',
+    styleUrls: ['./prize-info-dialog.component.scss'],
+    standalone: false
 })
 export class PrizeInfoDialogComponent implements OnInit {
   prizeInfo: PrizeInfo;

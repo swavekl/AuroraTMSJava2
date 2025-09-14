@@ -12,8 +12,8 @@ import {Tournament} from '../../tournament/tournament-config/tournament.model';
 import {TournamentConfigService} from '../../tournament/tournament-config/tournament-config.service';
 
 @Component({
-  selector: 'app-verify-memberships-container',
-  template: `
+    selector: 'app-verify-memberships-container',
+    template: `
     <app-verify-memberships
       [membershipInfos]="membershipInfos$ | async"
       [tournamentStartDate]="tournamentStartDate"
@@ -30,7 +30,8 @@ import {TournamentConfigService} from '../../tournament/tournament-config/tourna
     >
     </app-verify-memberships>
   `,
-  styles: ``
+    styles: ``,
+    standalone: false
 })
 export class VerifyMembershipsContainerComponent implements OnDestroy {
 

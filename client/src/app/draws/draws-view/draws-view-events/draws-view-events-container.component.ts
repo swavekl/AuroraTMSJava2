@@ -11,14 +11,15 @@ import {TournamentConfigService} from '../../../tournament/tournament-config/tou
 import {DateUtils} from '../../../shared/date-utils';
 
 @Component({
-  selector: 'app-draws-view-container',
-  template: `
+    selector: 'app-draws-view-container',
+    template: `
       <app-draws-view [tournamentEvents]="tournamentEvents$ | async"
                       [tournamentStartDate]="tournamentStartDate$ | async"
       >
       </app-draws-view>
   `,
-  styles: []
+    styles: [],
+    standalone: false
 })
 export class DrawsViewEventsContainerComponent implements OnInit, OnDestroy {
 

@@ -5,8 +5,9 @@ import {AbstractControl, NG_VALIDATORS, ValidationErrors, Validator} from '@angu
  * Directive for checking if date in current control is before date of another control specified by appDateBefore
  */
 @Directive({
-  selector: '[appDateBefore]',
-  providers: [{provide: NG_VALIDATORS, useExisting: DateBeforeDirective, multi: true}]
+    selector: '[appDateBefore]',
+    providers: [{ provide: NG_VALIDATORS, useExisting: DateBeforeDirective, multi: true }],
+    standalone: false
 })
 export class DateBeforeDirective implements Validator {
   @Input('appDateBefore')

@@ -7,14 +7,15 @@ import {createSelector} from '@ngrx/store';
 import {first} from 'rxjs/operators';
 
 @Component({
-  selector: 'app-tournament-event-config-container',
-  template: `
+    selector: 'app-tournament-event-config-container',
+    template: `
     <app-tournament-event-config [tournamentEvent]="tournamentEvent$ | async"
                                  (saved)="onSave($event)"
                                  (canceled)="onCancel($event)">
     </app-tournament-event-config>
   `,
-  styles: []
+    styles: [],
+    standalone: false
 })
 export class TournamentEventConfigContainerComponent implements OnInit, OnDestroy {
 

@@ -3,7 +3,8 @@ import {Ranks} from '../model/ranks';
 import {UmpireRank} from '../model/umpire-rank.enum';
 
 @Pipe({
-  name: 'umpireRank'
+    name: 'umpireRank',
+    standalone: false
 })
 export class UmpireRankPipe implements PipeTransform {
 

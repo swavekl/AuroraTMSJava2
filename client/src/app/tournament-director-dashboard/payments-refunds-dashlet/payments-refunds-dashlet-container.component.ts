@@ -6,13 +6,13 @@ import {PaymentRefundFor} from '../../account/model/payment-refund-for.enum';
 import {first} from 'rxjs/operators';
 
 @Component({
-  selector: 'app-payments-refunds-dashlet-container',
-  template: `
+    selector: 'app-payments-refunds-dashlet-container',
+    template: `
     <app-payments-refunds-dashlet [paymentRefundInfos]="paymentRefundInfos$ | async">
     </app-payments-refunds-dashlet>
   `,
-  styles: [
-  ]
+    styles: [],
+    standalone: false
 })
 export class PaymentsRefundsDashletContainerComponent implements OnInit, OnDestroy {
 

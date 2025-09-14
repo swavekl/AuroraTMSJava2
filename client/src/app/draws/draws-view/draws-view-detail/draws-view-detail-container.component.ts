@@ -12,14 +12,14 @@ import {Tournament} from '../../../tournament/tournament-config/tournament.model
 import {first} from 'rxjs/operators';
 
 @Component({
-  selector: 'app-draws-view-detail-container',
-  template: `
+    selector: 'app-draws-view-detail-container',
+    template: `
     <app-draws-view-detail [selectedEvent]="tournamentEvent$ | async"
                            [draws]="draws$ | async">
     </app-draws-view-detail>
   `,
-  styles: [
-  ]
+    styles: [],
+    standalone: false
 })
 export class DrawsViewDetailContainerComponent implements OnInit, OnDestroy {
 

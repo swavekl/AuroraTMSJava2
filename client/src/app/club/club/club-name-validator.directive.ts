@@ -7,9 +7,9 @@ import {Club} from './model/club.model';
  * Validator for checking if club names are valid i.e. among the clubs loaded from server
  */
 @Directive({
-  selector: '[appClubName]',
-  providers: [{provide: NG_VALIDATORS, useExisting: ClubNameValidatorDirective, multi: true}]
-
+    selector: '[appClubName]',
+    providers: [{ provide: NG_VALIDATORS, useExisting: ClubNameValidatorDirective, multi: true }],
+    standalone: false
 })
 export class ClubNameValidatorDirective implements Validator {
   @Input('appClubName')

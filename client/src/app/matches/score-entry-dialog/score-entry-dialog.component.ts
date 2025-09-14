@@ -11,9 +11,10 @@ import {ScoreAuditDialogComponent} from '../score-audit-dialog/score-audit-dialo
  * Dialog for entering match score
  */
 @Component({
-  selector: 'app-score-entry-dialog',
-  templateUrl: './score-entry-dialog.component.html',
-  styleUrls: ['./score-entry-dialog.component.scss']
+    selector: 'app-score-entry-dialog',
+    templateUrl: './score-entry-dialog.component.html',
+    styleUrls: ['./score-entry-dialog.component.scss'],
+    standalone: false
 })
 export class ScoreEntryDialogComponent implements OnInit {
 

@@ -18,8 +18,8 @@ import {AuthenticationService} from '../../user/authentication.service';
  * List of matches for a single match card for viewing by player
  */
 @Component({
-  selector: 'app-player-matches-container',
-  template: `
+    selector: 'app-player-matches-container',
+    template: `
     <app-player-matches
       [matchCard]="matchCard$ | async"
       [tournamentId]="tournamentId"
@@ -34,7 +34,8 @@ import {AuthenticationService} from '../../user/authentication.service';
       (refresh)="onRefresh()">
     </app-player-matches>
   `,
-  styles: []
+    styles: [],
+    standalone: false
 })
 export class PlayerMatchesContainerComponent implements OnInit, OnDestroy {
 

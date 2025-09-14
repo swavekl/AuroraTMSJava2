@@ -9,9 +9,10 @@ import {TournamentProcessingService} from '../service/tournament-processing.serv
 import {TournamentProcessingRequest} from '../model/tournament-processing-request';
 
 @Component({
-  selector: 'app-tournament-processing-list',
-  templateUrl: './tournament-processing-list.component.html',
-  styleUrls: ['./tournament-processing-list.component.css']
+    selector: 'app-tournament-processing-list',
+    templateUrl: './tournament-processing-list.component.html',
+    styleUrls: ['./tournament-processing-list.component.css'],
+    standalone: false
 })
 export class TournamentProcessingListComponent implements AfterViewInit {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
