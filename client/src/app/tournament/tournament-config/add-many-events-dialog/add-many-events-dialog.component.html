@@ -84,6 +84,37 @@
           <button mat-raised-button matStepperNext type="button" color="primary">Next</button>
         </div>
       </mat-step>
+      <mat-step label="Fees" state="fees">
+        <div class="prizes-list">
+          <div fxLayout="row" fxLayoutGap="10px" class="fees-list-row">
+            <div fxFlex="33%">Event</div>
+            <div fxFlex="33%">Fee Adult</div>
+            <div fxFlex="33%">Fee Junior</div>
+          </div>
+          @for (selectedEvent of selectedEvents; track abc) {
+            <div fxLayout="column" class="fees-list-row">
+              <div fxLayout="row" fxLayoutGap="10px">
+                <div fxFlex="33%">{{ selectedEvent.name }}</div>
+                <mat-form-field fxFlex="33%">
+                  <input matInput type="text" [name]="'feeAdult'+selectedEvent.id"
+                         [(ngModel)]="selectedEvent.feeAdult"
+                         pattern="\d*">
+                </mat-form-field>
+                <mat-form-field fxFlex="33%">
+                  <input matInput type="text" [name]="'feeJunior'+selectedEvent.id"
+                         [(ngModel)]="selectedEvent.feeJunior"
+                         pattern="\d*">
+                </mat-form-field>
+              </div>
+            </div>
+          }
+        </div>
+        <div fxLayout="row" fxLayoutAlign="space-between start" class="stepper-actions">
+          <button type="button" mat-raised-button (click)="onCancel()">Cancel</button>
+          <button mat-raised-button matStepperPrevious type="button">Previous</button>
+          <button mat-raised-button matStepperNext type="button" color="primary">Next</button>
+        </div>
+      </mat-step>
       <mat-step label="Prizes" state="prizes">
         <div class="prizes-list">
           <div fxLayout="row" fxLayoutGap="10px" class="prize-list-row">
@@ -97,19 +128,16 @@
               <div fxLayout="row" fxLayoutGap="10px">
                 <div fxFlex="25%">{{ selectedEvent.name }}</div>
                 <mat-form-field fxFlex="25%">
-                  <!--                  <mat-label>1st Place</mat-label>-->
                   <input matInput type="text" [name]="'prizeone'+selectedEvent.id"
                          [(ngModel)]="selectedEvent.configuration.prizeInfoList[0].prizeMoneyAmount"
                          pattern="\d*">
                 </mat-form-field>
                 <mat-form-field fxFlex="25%">
-                  <!--                  <mat-label>2nd Place</mat-label>-->
                   <input matInput type="text" [name]="'prizetwo'+selectedEvent.id"
                          [(ngModel)]="selectedEvent.configuration.prizeInfoList[1].prizeMoneyAmount"
                          pattern="\d*">
                 </mat-form-field>
                 <mat-form-field fxFlex="25%">
-                  <!--                  <mat-label>3rd Place</mat-label>-->
                   <input matInput type="text" [name]="'prizethree'+selectedEvent.id"
                          [(ngModel)]="selectedEvent.configuration.prizeInfoList[2].prizeMoneyAmount"
                          pattern="\d*">

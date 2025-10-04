@@ -198,7 +198,7 @@ export class TournamentEventConfigListComponent implements OnInit, OnChanges, On
 
   addManyEvent() {
       const config = {
-        width: '750px', height: '580px', data: {tournamentId: this.tournamentId}
+        width: '1000px', height: '580px', data: {tournamentId: this.tournamentId}
 
       };
       const dialogRef = this.dialog.open(AddManyEventsDialogComponent, config);

@@ -73,6 +73,21 @@ div.prizes-list {
   }
 }
 
+div.fees-list {
+  height: $container-height;
+  width: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+
+  div.fees-list-row {
+    border-bottom: 1px solid lightgray;
+
+    mat-form-field {
+      margin: 0 4px;
+    }
+  }
+}
+
 div.events-order {
   //border: 1px solid red;
   height: $container-height;
