@@ -5,8 +5,10 @@
       <mat-step label="Events" state="events">
         <div fxLayout="row" fxLayoutAlign="start start">
           <mat-selection-list role="list" class="event-list" #eventList>
-            @for (availableEvent of availableEvents; track selectedEvents) {
-              <mat-list-option (click)="onSelectedEvent(availableEvent)" (selectedChange)="onSelectionChange($event)">{{ availableEvent.name }}</mat-list-option>
+            @for (availableEvent of availableEvents; track availableEvent.name) {
+              <mat-list-option (click)="onSelectedEvent(availableEvent)"
+                               (selectedChange)="onSelectionChange($event)">{{ availableEvent.name }}
+              </mat-list-option>
             }
           </mat-selection-list>
         </div>
@@ -24,13 +26,13 @@
               <mat-header-cell *matHeaderCellDef>No.</mat-header-cell>
               <mat-cell *matCellDef="let event">
                 <mat-icon class="example-drag-cursor">reorder</mat-icon>
-                <span>{{event.ordinalNumber}}</span>
+                <span>{{ event.ordinalNumber }}</span>
               </mat-cell>
             </ng-container>
             <ng-container matColumnDef="name">
               <mat-header-cell *matHeaderCellDef>Name</mat-header-cell>
               <mat-cell *matCellDef="let event">
-                <span>{{event.name}}</span>
+                <span>{{ event.name }}</span>
               </mat-cell>
             </ng-container>
             <mat-header-row *matHeaderRowDef="columnsToDisplay; sticky: true"></mat-header-row>
@@ -53,7 +55,7 @@
               <th>Day</th>
               <th>Time</th>
             </tr>
-            @for (selectedEvent of selectedEvents; track abc) {
+            @for (selectedEvent of selectedEvents; track selectedEvent.name) {
               <tr>
                 <td class="name-column">{{ selectedEvent.name }}</td>
                 <td>
@@ -85,13 +87,13 @@
         </div>
       </mat-step>
       <mat-step label="Fees" state="fees">
-        <div class="prizes-list">
+        <div class="fees-list">
           <div fxLayout="row" fxLayoutGap="10px" class="fees-list-row">
             <div fxFlex="33%">Event</div>
             <div fxFlex="33%">Fee Adult</div>
             <div fxFlex="33%">Fee Junior</div>
           </div>
-          @for (selectedEvent of selectedEvents; track abc) {
+          @for (selectedEvent of selectedEvents; track selectedEvent.name) {
             <div fxLayout="column" class="fees-list-row">
               <div fxLayout="row" fxLayoutGap="10px">
                 <div fxFlex="33%">{{ selectedEvent.name }}</div>
@@ -117,31 +119,57 @@
       </mat-step>
       <mat-step label="Prizes" state="prizes">
         <div class="prizes-list">
-          <div fxLayout="row" fxLayoutGap="10px" class="prize-list-row">
-            <div fxFlex="25%">Event</div>
-            <div fxFlex="25%">1st Place</div>
-            <div fxFlex="25%">2nd Place</div>
-            <div fxFlex="25%">3rd Place</div>
+          <div fxLayout="row" fxLayoutGap="10px" class="prizes-list-row">
+            <div fxFlex="32%">Event</div>
+            <div fxFlex="17%">1st Place</div>
+            <div fxFlex="17%">2nd Place</div>
+            <div fxFlex="17%">3rd/4th Place</div>
+            <div fxFlex="17%">5 - 8th Place</div>
           </div>
-          @for (selectedEvent of selectedEvents; track abc) {
-            <div fxLayout="column" class="prize-list-row">
-              <div fxLayout="row" fxLayoutGap="10px">
-                <div fxFlex="25%">{{ selectedEvent.name }}</div>
-                <mat-form-field fxFlex="25%">
-                  <input matInput type="text" [name]="'prizeone'+selectedEvent.id"
-                         [(ngModel)]="selectedEvent.configuration.prizeInfoList[0].prizeMoneyAmount"
-                         pattern="\d*">
-                </mat-form-field>
-                <mat-form-field fxFlex="25%">
-                  <input matInput type="text" [name]="'prizetwo'+selectedEvent.id"
-                         [(ngModel)]="selectedEvent.configuration.prizeInfoList[1].prizeMoneyAmount"
-                         pattern="\d*">
-                </mat-form-field>
-                <mat-form-field fxFlex="25%">
-                  <input matInput type="text" [name]="'prizethree'+selectedEvent.id"
-                         [(ngModel)]="selectedEvent.configuration.prizeInfoList[2].prizeMoneyAmount"
-                         pattern="\d*">
-                </mat-form-field>
+          @for (selectedEvent of selectedEvents; track selectedEvent.name) {
+            <div fxLayout="column">
+              <div fxLayout="row" fxLayoutGap="10px" class="prizes-list-row">
+                <div fxFlex="32%">{{ selectedEvent.name }}</div>
+                <div fxLayout="row"  fxFlex="17%">
+                  <mat-form-field>
+                    <input matInput type="text" [name]="'prizeone'+selectedEvent.id"
+                           [(ngModel)]="selectedEvent.configuration.prizeInfoList[0].prizeMoneyAmount"
+                           pattern="\d*">
+                  </mat-form-field>
+                  <mat-checkbox [name]="'prizeoneTrophy'+selectedEvent.id"
+                                [(ngModel)]="selectedEvent.configuration.prizeInfoList[0].awardTrophy">T
+                  </mat-checkbox>
+                </div>
+                <div fxLayout="row"  fxFlex="17%">
+                  <mat-form-field>
+                    <input matInput type="text" [name]="'prizetwo'+selectedEvent.id"
+                           [(ngModel)]="selectedEvent.configuration.prizeInfoList[1].prizeMoneyAmount"
+                           pattern="\d*">
+                  </mat-form-field>
+                  <mat-checkbox [name]="'prizetwoTrophy'+selectedEvent.id"
+                                [(ngModel)]="selectedEvent.configuration.prizeInfoList[1].awardTrophy">T
+                  </mat-checkbox>
+                </div>
+                <div fxLayout="row"  fxFlex="17%">
+                  <mat-form-field>
+                    <input matInput type="text" [name]="'prizethree'+selectedEvent.id"
+                           [(ngModel)]="selectedEvent.configuration.prizeInfoList[2].prizeMoneyAmount"
+                           pattern="\d*">
+                  </mat-form-field>
+                  <mat-checkbox [name]="'prizethtreeTrophy'+selectedEvent.id"
+                                [(ngModel)]="selectedEvent.configuration.prizeInfoList[2].awardTrophy">T
+                  </mat-checkbox>
+                </div>
+                <div fxLayout="row"  fxFlex="17%">
+                  <mat-form-field>
+                    <input matInput type="text" [name]="'prizethree'+selectedEvent.id"
+                           [(ngModel)]="selectedEvent.configuration.prizeInfoList[3].prizeMoneyAmount"
+                           pattern="\d*">
+                  </mat-form-field>
+                  <mat-checkbox [name]="'prizefourTrophy'+selectedEvent.id"
+                                [(ngModel)]="selectedEvent.configuration.prizeInfoList[3].awardTrophy">T
+                  </mat-checkbox>
+                </div>
               </div>
             </div>
           }

@@ -90,8 +90,21 @@ export class AddManyEventsDialogComponent implements OnDestroy {
   }
 
   onOk() {
+    this.selectedEvents.forEach(tournamentEvent => {
+      const prizeInfoList = tournamentEvent.configuration.prizeInfoList;
+      const tempPrizeInfoList = [];
+      for (const prizeInfo of prizeInfoList) {
+        if (prizeInfo.prizeMoneyAmount != null || prizeInfo.awardTrophy === true) {
+          tempPrizeInfoList.push(prizeInfo);
+        }
+      }
+      if (tempPrizeInfoList.length > 0) {
+        tournamentEvent.configuration.prizeInfoList = tempPrizeInfoList;
+      } else {
+        tournamentEvent.configuration.prizeInfoList = null;
+      }
+    })
     this.dialogRef.close({action: 'ok', configuredEvents: this.selectedEvents});
-
   }
 
   onSelectedEvent(selectedEvent: TournamentEvent) {
@@ -100,8 +113,19 @@ export class AddManyEventsDialogComponent implements OnDestroy {
       for (let i = 0; i < 3; i++) {
         const prizeInfo = new PrizeInfo();
         prizeInfo.awardedForPlace = i + 1;
+        if (prizeInfo.awardedForPlace === 3) {
+          prizeInfo.awardedForPlaceRangeEnd = 4;
+        }
+        prizeInfo.awardedForPlace = i + 1;
+        prizeInfo.awardTrophy = false;
         config.prizeInfoList.push(prizeInfo);
       }
+      const prizeInfo = new PrizeInfo();
+      prizeInfo.awardTrophy = false;
+      prizeInfo.awardedForPlace = 5;
+      prizeInfo.awardedForPlaceRangeEnd = 8;
+      config.prizeInfoList.push(prizeInfo);
+
       let maxOrdinalNumber = 0;
       for (const selectedEvent of this.selectedEvents) {
         maxOrdinalNumber = Math.max(maxOrdinalNumber, selectedEvent.ordinalNumber);
