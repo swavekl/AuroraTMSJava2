@@ -57,4 +57,9 @@ public class ClubService {
     public List<ClubEntity> findByNameAndState(String clubName, String state) {
         return this.clubRepository.findAllByClubNameAndState(clubName, state);
     }
+
+    public List<ClubEntity> findAll() {
+        return this.clubRepository.findAll();
+    }
+
 }

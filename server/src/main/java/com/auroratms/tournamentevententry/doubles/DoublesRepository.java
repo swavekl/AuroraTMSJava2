@@ -42,4 +42,10 @@ public interface DoublesRepository extends JpaRepository<DoublesPair, Long> {
     )
     void deleteByPlayerEventEntryId(@Param("playerEventEntryId") Long playerEventEntryId);
 
+    /**
+     * Deletes all pairs for doubles event
+     * @param tournamentEventFk
+     */
+    void deleteDoublesPairByTournamentEventFk(@Param("tournamentEventFk") Long tournamentEventFk);
+
 }

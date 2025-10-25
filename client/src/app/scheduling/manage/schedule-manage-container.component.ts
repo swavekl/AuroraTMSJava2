@@ -22,6 +22,7 @@ import {ErrorMessagePopupService} from '../../shared/error-message-dialog/error-
       [matchCards]="matchCards$ | async"
       (dayChangedEvent)="onDayChangedEvent($event)"
       (generateScheduleForEvent)="onGenerateForDay($event)"
+      (clearScheduleForEvent)="onClearForDay($event)"
       (fixUnscheduledEvents)="onFixUnscheduledEvents($event)"
       (updateMatchCardsEvent)="onUpdateMatchCards($event)"
     >
@@ -122,6 +123,20 @@ export class ScheduleManageContainerComponent implements OnInit, OnDestroy {
    */
   onGenerateForDay(day: number) {
     const subscription = this.matchSchedulingService.generateScheduleForTournamentAndDay(this.tournamentId, day)
+      .pipe(first())
+      .subscribe(
+        (matchCards: MatchCard[]) => {
+          this.matchCardService.putIntoCache(matchCards);
+        }, (error: any) => {
+          console.log('error ', error);
+          const message = error.error?.message ?? error.message;
+          this.errorMessagePopupService.showError(message);
+        });
+    this.subscriptions.add(subscription);
+  }
+
+  onClearForDay(day: number) {
+    const subscription = this.matchSchedulingService.clearScheduleForTournamentAndDay(this.tournamentId, day)
       .pipe(first())
       .subscribe(
         (matchCards: MatchCard[]) => {

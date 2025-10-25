@@ -35,6 +35,8 @@ import {EntryViewContainerComponent} from './entry-view/entry-view-container.com
 import { EntrySummaryTableComponent } from './pricecalculator/entry-summary-table/entry-summary-table.component';
 import { AddEntryComponent } from './add-entry/add-entry.component';
 import { ChangeRatingDialogComponent } from './change-rating-dialog/change-rating-dialog.component';
+import { ImportTournamentEntriesDialogComponent } from './import-tournament-entries-dialog/import-tournament-entries-dialog.component';
+import {MatProgressBar} from '@angular/material/progress-bar';
 
 @NgModule({
   declarations: [
@@ -50,7 +52,8 @@ import { ChangeRatingDialogComponent } from './change-rating-dialog/change-ratin
     EntryViewContainerComponent,
     EntrySummaryTableComponent,
     AddEntryComponent,
-    ChangeRatingDialogComponent
+    ChangeRatingDialogComponent,
+    ImportTournamentEntriesDialogComponent
   ],
     imports: [
         CommonModule,
@@ -72,7 +75,8 @@ import { ChangeRatingDialogComponent } from './change-rating-dialog/change-ratin
         MatSelectModule,
         MatCardModule,
         ProfileModule,
-        AccountModule
+        AccountModule,
+        MatProgressBar
     ],
   exports: [
     DoublesTeamsContainerComponent

@@ -14,9 +14,9 @@ public class TableAvailabilityMatrix {
     private static final Logger log = LoggerFactory.getLogger(TableAvailabilityMatrix.class);
     private boolean[][] availableTableTimeSlotsMatrix;
 
-    // first time slot is at 8 am, last at 10 pm
+    // first time slot is at 8 am, last at 11 pm
     public static final double FIRST_TIME_SLOT = 8.0d;
-    public static final double LAST_TIME_SLOT = 22.0d;
+    public static final double LAST_TIME_SLOT = 23.0d;
 
     // time slots are half an hour long
     public static final double TIME_SLOT_SIZE = 0.5d;

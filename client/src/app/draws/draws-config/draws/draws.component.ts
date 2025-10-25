@@ -1,4 +1,4 @@
-import {Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges, ViewChild} from '@angular/core';
+import {Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChange, SimpleChanges, ViewChild} from '@angular/core';
 import {MatDialog} from '@angular/material/dialog';
 import {MatSlideToggleChange} from '@angular/material/slide-toggle';
 
@@ -72,6 +72,15 @@ export class DrawsComponent implements OnInit, OnChanges {
    * @param changes changes
    */
   ngOnChanges(changes: SimpleChanges): void {
+    const tournamentEventChanges: SimpleChange = changes.tournamentEvents;
+    if (tournamentEventChanges != null) {
+      const tournamentEvents = tournamentEventChanges.currentValue;
+      if (tournamentEvents) {
+        this.tournamentEvents = tournamentEvents.sort((event1: TournamentEvent, event2: TournamentEvent) => {
+          return event1.ordinalNumber < event2.ordinalNumber ? -1 : 1;
+        });
+      }
+    }
   }
 
   /**

@@ -2,7 +2,7 @@ import {Component, OnDestroy, OnInit} from '@angular/core';
 import {LinearProgressBarService} from '../../shared/linear-progress-bar/linear-progress-bar.service';
 import {Observable, of, Subscription, takeWhile, tap, timer} from 'rxjs';
 import {RatingsProcessingService} from '../service/ratings-processing.service';
-import {first, map, switchMap} from 'rxjs/operators';
+import {catchError, first, map, switchMap} from 'rxjs/operators';
 import {RatingsProcessorStatus} from '../model/ratings-processor-status';
 import {MembershipsProcessingService} from '../service/memberships-processing.service';
 import {MembershipsProcessorStatus} from '../model/memberhips-processor-status';
@@ -68,19 +68,25 @@ export class AdminRatingsContainerComponent implements OnInit, OnDestroy {
 
     const source = timer(0, 5 * 1000);
     const subscription = source.pipe(
-      takeWhile(value => {
-          if (this.continueCheckingStatus) {
-            this.ratingsProcessingService.getStatus()
-              .pipe(first(),
-                tap((status: RatingsProcessorStatus) => {
-                  this.status$ = of (status);
-                  this.continueCheckingStatus = (status.phase !== 'Finished');
-                }))
-              .subscribe();
-          }
-          return this.continueCheckingStatus === true;
-        }
-      )).subscribe();
+      switchMap(() =>
+        this.ratingsProcessingService.getStatus()
+          .pipe(
+            tap((status: RatingsProcessorStatus) => {
+              this.status$ = of(status);
+              this.continueCheckingStatus = (status.phase !== 'Finished');
+            }),
+            catchError(error => {
+              // handle error case
+              this.continueCheckingStatus = false;
+              const message = error.error?.error ?? 'Error';
+              this.errorMessagePopupService.showError(message);
+              return of({phase: 'Error'} as RatingsProcessorStatus);
+            })
+          )
+      ),
+      takeWhile(() => this.continueCheckingStatus)
+    ).subscribe();
+
     this.subscriptions.add(subscription);
 
   }
@@ -101,21 +107,26 @@ export class AdminRatingsContainerComponent implements OnInit, OnDestroy {
           }
         });
 
-      const source = timer(0, 3 * 1000);
-      const subscription = source.pipe(
-        takeWhile(value => {
-          if (this.continueCheckingStatus) {
-              this.membershipsProcessingService.getStatus()
-                .pipe(first(),
-                  tap((status: MembershipsProcessorStatus) => {
-                    this.membershipsStatus$ = of (status);
-                    this.continueCheckingStatus = (status.phase !== 'Finished');
-                  }))
-                .subscribe();
-            }
-            return this.continueCheckingStatus === true;
-          }
-        )).subscribe();
-      this.subscriptions.add(subscription);
+    const source = timer(0, 3 * 1000);
+    const subscription = source.pipe(
+      switchMap(() =>
+        this.membershipsProcessingService.getStatus()
+          .pipe(
+            tap((status: MembershipsProcessorStatus) => {
+              this.membershipsStatus$ = of(status);
+              this.continueCheckingStatus = (status.phase !== 'Finished');
+            }),
+            catchError(error => {
+              // handle error case
+              this.continueCheckingStatus = false;
+              const message = error.error?.error ?? 'Error';
+              this.errorMessagePopupService.showError(message);
+              return of({phase: 'Error'} as MembershipsProcessorStatus);
+            })
+          )
+      ),
+      takeWhile(() => this.continueCheckingStatus)
+    ).subscribe();
+    this.subscriptions.add(subscription);
   }
 }

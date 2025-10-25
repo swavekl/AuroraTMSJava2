@@ -123,7 +123,11 @@ public class RatingsProcessingController {
         if (ratingsProcessorStatus != null) {
             ratingsProcessorStatus.endTime = System.currentTimeMillis();
             logger.info("ratingsProcessorStatus.phase = " + ratingsProcessorStatus.phase);
-            return ResponseEntity.ok(ratingsProcessorStatus);
+            if (ratingsProcessorStatus.error == null) {
+                return ResponseEntity.ok(ratingsProcessorStatus);
+            } else {
+                return ResponseEntity.internalServerError().body(ratingsProcessorStatus);
+            }
         } else {
             logger.error("Ratings processor status requested prematurely");
             return ResponseEntity.badRequest().build();

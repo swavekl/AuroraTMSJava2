@@ -17,12 +17,17 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.*;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.sql.Timestamp;
 import java.text.DateFormat;
+import java.text.Normalizer;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -93,7 +98,9 @@ public class UsattDataService {
         if (userProfileExtService.existsByMembershipId(membershipId)) {
             UserProfileExt oldUserProfileExt = userProfileExtService.getByMembershipId(membershipId);
             logger.info("Deleting oldUserProfileExt = " + oldUserProfileExt);
-            userProfileExt.setClubFk(oldUserProfileExt.getClubFk());
+            if (oldUserProfileExt.getClubFk() != null) {
+                userProfileExt.setClubFk(oldUserProfileExt.getClubFk());
+            }
             userProfileExtService.delete(oldUserProfileExt.getProfileId());
         }
         logger.info("Saving userProfileExt = " + userProfileExt);
@@ -146,6 +153,21 @@ public class UsattDataService {
                 while ((values = csvReader.readNext()) != null) {
                     rowNumber++;
                     if (rowNumber == 1) {
+                        String actualHeaders = Arrays.stream(values)
+                                .map(value -> (value == null) ? null : value.replace("\uFEFF", ""))
+                                .collect(Collectors.joining(","));
+                        // Normalize to NFC form (canonical composed)
+                        actualHeaders = Normalizer.normalize(actualHeaders, Normalizer.Form.NFC);
+                        // check headers and stop if they are not what is expected
+                        String expectedHeaders = Normalizer.normalize(
+                                "Member ID,Last Name,First Name,Rating,State,Zip,Gender,Date of Birth,Expiration Date,Last Played Date",
+                                Normalizer.Form.NFC);
+                        if (!expectedHeaders.equals(actualHeaders)) {
+                            ratingsProcessorStatus.error = "Unexpected file format\n" +
+                                    "Expected headers: " + expectedHeaders + "\n" +
+                                    "Actual headers  : " + actualHeaders;
+                            throw new RuntimeException(ratingsProcessorStatus.error);
+                        }
                         continue;
                     }
 
@@ -252,7 +274,7 @@ public class UsattDataService {
         int rowNumber = 0;
         try {
             logger.info("Processing memberships file " + filename);
-            try (CSVReader csvReader = new CSVReader(new InputStreamReader(new FileInputStream(filename), "UTF-8"));) {
+            try (CSVReader csvReader = new CSVReader(new InputStreamReader(new FileInputStream(filename), StandardCharsets.UTF_8));) {
                 int badRecordsNum = 0;
                 int maxLenFirstName = 0;
                 int maxLenLastName = 0;
@@ -261,25 +283,28 @@ public class UsattDataService {
                 while ((values = csvReader.readNext()) != null) {
                     rowNumber++;
                     if (rowNumber == 1) {
+                        String actualHeaders = Arrays.stream(values)
+                                .map(value -> (value == null) ? null : value.replace("\uFEFF", ""))
+                                .collect(Collectors.joining(","));
+                        // Normalize to NFC form (canonical composed)
+                        actualHeaders = Normalizer.normalize(actualHeaders, Normalizer.Form.NFC);
+                        // check headers and stop if they are not what is expected
+                        // as of 10/25/2025 this includes membership type
+                        String expectedHeaders = Normalizer.normalize(
+                                "USATT #,Membership Expiration Date,Membership Type,First Name,Last Name,Gender,DOB,State,Zip Code,Rating,Last Played Date",
+                                Normalizer.Form.NFC);
+                        if (!expectedHeaders.equals(actualHeaders)) {
+                            ratingsProcessorStatus.error = "Unexpected file format\n" +
+                                    "Expected headers: " + expectedHeaders + "\n" +
+                                    "Actual headers  : " + actualHeaders;
+                            throw new RuntimeException(ratingsProcessorStatus.error);
+                        }
                         continue;
                     }
 
                     int columnNum = 0;
 
                     UsattPlayerRecord usattPlayerInfo = new UsattPlayerRecord();
-//                    if (values.length != 10) {
-//                        String csvValues = StringUtils.joinWith(",", Arrays.stream(values).toArray());
-//                        logger.warn("Insufficient values in record (" + values.length + ") " + csvValues);
-//                        logger.info("Attempting parsing again");
-//                        values = csvValues.split(",");
-//                        if (values.length != 10) {
-//                            badRecordsNum++;
-//                            continue;
-//                        } else {
-//                            logger.info("Parsing succeeded");
-//                        }
-//                    }
-                    // USATT #	Membership Expiration Date	First Name	Last Name	Gender	DOB	State	Zip Code	Rating	Last Played Date
                     for (String text : values) {
                         switch (columnNum) {
                             case 0:
@@ -292,42 +317,45 @@ public class UsattDataService {
                                 }
                                 break;
                             case 2:
+                                usattPlayerInfo.setMembershipType(text);
+                                break;
+                            case 3:
                                 maxLenFirstName = Math.max(maxLenFirstName, text.length());
                                 text = cleanupName(text);
                                 usattPlayerInfo.setFirstName(text);
                                 break;
-                            case 3:
+                            case 4:
                                 maxLenLastName = Math.max(maxLenLastName, text.length());
                                 text = cleanupName(text);
                                 usattPlayerInfo.setLastName(text);
                                 break;
-                            case 4:
+                            case 5:
                                 String gender = ("female".equals(text)) ? "F" : "M";
                                 usattPlayerInfo.setGender(gender);
                                 break;
-                            case 5:
+                            case 6:
                                 usattPlayerInfo.setDateOfBirth(parseDate(text));
                                 break;
-                            case 6:
+                            case 7:
                                 maxLenState = Math.max(maxLenState, text.length());
                                 usattPlayerInfo.setState(text);
                                 if (text.length() > 2) {
                                     usattPlayerInfo.setCountry(text);
                                 }
                                 break;
-                            case 7:
+                            case 8:
                                 maxLenZip = Math.max(maxLenZip, text.length());
                                 text = cleanupZipCode(text);
                                 usattPlayerInfo.setZip(text);
                                 break;
-                            case 8:
+                            case 9:
                                 if (!text.isEmpty() && text.matches("\\d*")) {
                                     usattPlayerInfo.setTournamentRating(Integer.parseInt(text));
                                 } else {
                                     usattPlayerInfo.setTournamentRating(0);
                                 }
                                 break;
-                            case 9:
+                            case 10:
                                 usattPlayerInfo.setLastTournamentPlayedDate(parseDate(text));
                                 break;
                             default:
@@ -742,6 +770,35 @@ public class UsattDataService {
      */
     public List<UsattPlayerRecord> findAllByMembershipIdIn(List<Long> membershipIds) {
         return this.playerRecordRepository.findAllByMembershipIdIn(membershipIds);
+    }
+
+    public List<UsattPlayerRecord> findMembershipStatus(List<String> playerFullNames) {
+        List<Object[]> results = this.playerRecordRepository.findMembershipStatus(playerFullNames);
+        List<UsattPlayerRecord> membersWithStatus = new ArrayList<>(results.size());
+        for (Object[] row : results) {
+            String fullName = (String) row[0];
+            String [] nameParts = fullName.split(", ");
+            String lastName = nameParts[0];
+            String firstName = nameParts[1];
+            Long membershipId = (row[1] != null) ? ((Number) row[1]).longValue() : 0L;
+            String gender = "" + (Character) row[2];
+            String city = (String) row[3];
+            String state = (String) row[4];
+            String zip = (String) row[5];
+            int tournamentRating = (row[6] != null) ? ((Number) row[6]).intValue() : 0;
+            UsattPlayerRecord usattPlayerRecord = new UsattPlayerRecord();
+            usattPlayerRecord.setLastName(lastName);
+            usattPlayerRecord.setFirstName(firstName);
+            usattPlayerRecord.setMembershipId(membershipId);
+            usattPlayerRecord.setGender(gender);
+            usattPlayerRecord.setState(city);
+            usattPlayerRecord.setState(state);
+            usattPlayerRecord.setZip(zip);
+            usattPlayerRecord.setTournamentRating(tournamentRating);
+
+            membersWithStatus.add(usattPlayerRecord);
+        }
+        return membersWithStatus;
     }
 }
 

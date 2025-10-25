@@ -1,4 +1,4 @@
-import {Component, Input} from '@angular/core';
+import {Component, Input, OnChanges, SimpleChange, SimpleChanges} from '@angular/core';
 import {TournamentEvent} from '../../../tournament/tournament-config/tournament-event.model';
 import {Router} from '@angular/router';
 
@@ -8,7 +8,7 @@ import {Router} from '@angular/router';
     styleUrls: ['./draws-view-events.component.scss'],
     standalone: false
 })
-export class DrawsViewEventsComponent {
+export class DrawsViewEventsComponent implements OnChanges {
 
   @Input()
   public tournamentEvents: TournamentEvent[];
@@ -18,6 +18,18 @@ export class DrawsViewEventsComponent {
 
   constructor(private router: Router) {
     this.tournamentStartDate = new Date();
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    const tournamentEventChanges: SimpleChange = changes.tournamentEvents;
+    if (tournamentEventChanges != null) {
+      const tournamentEvents = tournamentEventChanges.currentValue;
+      if (tournamentEvents) {
+        this.tournamentEvents = tournamentEvents.sort((event1: TournamentEvent, event2: TournamentEvent) => {
+          return event1.ordinalNumber < event2.ordinalNumber ? -1 : 1;
+        });
+      }
+    }
   }
 
   onSelectEvent(tournamentEvent: TournamentEvent) {

@@ -40,6 +40,7 @@ import {PrizeInfoValidatorDirective} from './tournament-event-config/prize-info-
 import {TournamentWaitingListComponent} from './tournament-waiting-list/tournament-waiting-list.component';
 import {TournamentWaitingListContainerComponent} from './tournament-waiting-list/tournament-waiting-list-container.component';
 import {AddManyEventsDialogComponent} from './add-many-events-dialog/add-many-events-dialog.component';
+import { ImportTournamentDialogComponent } from './import-tournament-dialog/import-tournament-dialog.component';
 
 
 @NgModule({
@@ -57,7 +58,8 @@ import {AddManyEventsDialogComponent} from './add-many-events-dialog/add-many-ev
     PrizeInfoValidatorDirective,
     TournamentWaitingListComponent,
     TournamentWaitingListContainerComponent,
-    AddManyEventsDialogComponent
+    AddManyEventsDialogComponent,
+    ImportTournamentDialogComponent
   ],
   imports: [
     CommonModule,

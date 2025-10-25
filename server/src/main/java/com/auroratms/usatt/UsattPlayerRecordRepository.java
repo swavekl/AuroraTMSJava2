@@ -6,7 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
 
-public interface UsattPlayerRecordRepository extends JpaRepository<UsattPlayerRecord, Long> {
+public interface UsattPlayerRecordRepository extends JpaRepository<UsattPlayerRecord, Long>, UsattPlayerRecordRepositoryCustom {
 
     UsattPlayerRecord getFirstByMembershipId(Long membershipId);
 

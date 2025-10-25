@@ -65,6 +65,18 @@ public class TournamentEventEntryService {
         this.eventPublisher.publishTournamentEventDeletedEvent(tournamentId, tournamentEventId, status);
     }
 
+    public void deleteByIds(List<Long> ids) {
+        repository.deleteAllById(ids);
+        for (Long id : ids) {
+            clearFromCache(id);
+        }
+    }
+
+    @CacheEvict(key = "#id")
+    public void clearFromCache (Long id) {
+        // do nothing - just clear cache
+    }
+
     /**
      * Count of entries in one event
      *

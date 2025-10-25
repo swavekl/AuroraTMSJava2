@@ -13,6 +13,8 @@ import {RecordSearchData} from '../../../profile/usatt-record-search-popup/usatt
 import {MatDialog} from '@angular/material/dialog';
 import {HtmlContentPopupComponent} from '../../../shared/html-content-popup/html-content-popup.component';
 import {DateUtils} from '../../../shared/date-utils';
+import {TournamentImportService} from '../../tournament-entry/service/tournament-import.service';
+import {ImportTournamentEntriesDialogComponent} from '../../tournament-entry/import-tournament-entries-dialog/import-tournament-entries-dialog.component';
 
 @Component({
     selector: 'app-tournament-players-list-big-container',
@@ -23,7 +25,8 @@ import {DateUtils} from '../../../shared/date-utils';
     [tournamentReady]="tournamentReady$ | async"
     (viewEntry)="onViewEntry($event)"
     (addEntry)="onAddEntry($event)"
-    (findPlayer)="onFindPlayer($event)">
+    (findPlayer)="onFindPlayer($event)"
+    (importTournamentEntries)="onImportTournamentEntries($event)">
     </app-tournament-players-list-big>
   `,
     styles: [],
@@ -39,6 +42,7 @@ export class TournamentPlayersListBigContainerComponent implements OnInit, OnDes
   tournamentName$: Observable<string>;
   tournamentReady$: Observable<boolean>;
   tournamentId: number;
+  tournamentName: string;
 
   constructor(private tournamentEntryInfoService: TournamentEntryInfoService,
               private tournamentInfoService: TournamentInfoService,
@@ -46,7 +50,8 @@ export class TournamentPlayersListBigContainerComponent implements OnInit, OnDes
               private activatedRoute: ActivatedRoute,
               private playerFindPopupService: UsattRecordSearchPopupService,
               private dialog: MatDialog,
-              private linearProgressBarService: LinearProgressBarService) {
+              private linearProgressBarService: LinearProgressBarService,
+              private tournamentImportService: TournamentImportService) {
     this.setupProgressIndicator();
   }
 
@@ -101,6 +106,7 @@ export class TournamentPlayersListBigContainerComponent implements OnInit, OnDes
     const tournamentReady = history?.state?.tournamentReady;
     if (tournamentName != null) {
       // console.log('Tournament name PASSED from previous screen', tournamentName);
+      this.tournamentName = tournamentName;
       this.tournamentName$ = of(tournamentName);
       this.tournamentReady$ = of(tournamentReady);
     } else {
@@ -118,6 +124,7 @@ export class TournamentPlayersListBigContainerComponent implements OnInit, OnDes
           (tournamentInfo: TournamentInfo) => {
             if (tournamentInfo) {
               // console.log('got tournamentInfo from cache for tournament name');
+              this.tournamentName = tournamentInfo.name;
               this.tournamentName$ = of(tournamentInfo.name);
               this.tournamentReady$ = of(tournamentInfo.ready);
             } else {
@@ -189,6 +196,22 @@ export class TournamentPlayersListBigContainerComponent implements OnInit, OnDes
     const subscription = dialogRef.afterClosed().subscribe(result => {
     });
     me.subscriptions.add(subscription);
+  }
+
+  onImportTournamentEntries ($event: any  ) {
+    const config = {
+      width: '750px', height: '420px', data: {
+        sourceTournamentName: this.tournamentName,  // helps select the right source tournament
+        targetTournamentId: this.tournamentId
+      }
+    };
+    const dialogRef = this.dialog.open(ImportTournamentEntriesDialogComponent, config);
+    const subscription = dialogRef.afterClosed().subscribe(result => {
+      if (result.action == 'ok') {
+        // reload the entries
+        this.loadTournamentEntries(this.tournamentId);
+      }
+    });
   }
 }
 

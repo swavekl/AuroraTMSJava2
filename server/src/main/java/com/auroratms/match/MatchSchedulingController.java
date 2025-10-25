@@ -27,6 +27,14 @@ public class MatchSchedulingController {
     public MatchSchedulingController() {
     }
 
+    @GetMapping("/schedule/clear/{tournamentId}/{day}")
+    @ResponseBody
+    public ResponseEntity<List<MatchCard>> clear(@PathVariable long tournamentId,
+                                                        @PathVariable int day) {
+        List<MatchCard> daysMatchCards = matchSchedulingService.clearScheduleForDay(tournamentId, day);
+        return new ResponseEntity(daysMatchCards, HttpStatus.OK);
+    }
+
     @GetMapping("/schedule/{tournamentId}/{day}")
     @ResponseBody
     public ResponseEntity<List<MatchCard>> getMatchCard(@PathVariable long tournamentId,

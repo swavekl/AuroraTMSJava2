@@ -22,6 +22,10 @@
     <button type="button" mat-raised-button (click)="onFindPlayer()">
       <mat-icon>search</mat-icon>Find Player
     </button>
+    <span class="toolbar-spacer-2"></span>
+    <button type="button" mat-raised-button (click)="onImportPlayersFromOmnipong()">
+      <mat-icon>download</mat-icon>Import Entries
+    </button>
   </mat-toolbar>
   <div *ngIf="alphabeticalEntryInfos != null" class="inner-list-container" fxLayout="row wrap" fxLayoutAlign="start start" fxLayoutGap="20px">
     <ng-container *ngFor="let letterEntries of alphabeticalEntryInfos | keyvalue">

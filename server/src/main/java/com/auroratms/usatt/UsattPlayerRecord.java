@@ -1,9 +1,9 @@
 package com.auroratms.usatt;
 
+import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.proxy.HibernateProxy;
 
-import jakarta.persistence.*;
 import java.util.Date;
 import java.util.Objects;
 
@@ -63,6 +63,9 @@ public class UsattPlayerRecord {
 
     private int leagueRating;
     private Date lastLeaguePlayedDate;
+
+    // basicPlan, proPlan, lifetime, december2020Covid19, etc
+    private String membershipType;
 
     @Override
     public final boolean equals(Object o) {

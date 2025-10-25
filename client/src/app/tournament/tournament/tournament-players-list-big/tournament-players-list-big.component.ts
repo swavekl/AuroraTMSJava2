@@ -33,6 +33,9 @@ export class TournamentPlayersListBigComponent implements OnChanges, AfterViewIn
   @Output()
   public findPlayer: EventEmitter<any> = new EventEmitter<any>();
 
+  @Output()
+  public importTournamentEntries: EventEmitter<any> = new EventEmitter<any>();
+
   // list of entries divided by
   alphabeticalEntryInfos: Map<string, TournamentEntryInfo[]> = null;
 
@@ -155,6 +158,10 @@ export class TournamentPlayersListBigComponent implements OnChanges, AfterViewIn
 
   hasEvents(entryInfo: TournamentEntryInfo): boolean {
     return (entryInfo.eventIds?.length > 0) || (entryInfo.waitingListEventIds?.length > 0);
+  }
+
+  onImportPlayersFromOmnipong() {
+    this.importTournamentEntries.emit(this.tournamentId)
   }
 }
 

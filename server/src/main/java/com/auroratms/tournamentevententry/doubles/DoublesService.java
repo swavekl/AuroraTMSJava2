@@ -12,7 +12,6 @@ import com.auroratms.tournamentevententry.TournamentEventEntryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.thymeleaf.util.StringUtils;
 
 import java.util.*;
 
@@ -120,6 +119,23 @@ public class DoublesService {
         }
 
         return doublesPairList;
+    }
+
+    /**
+     *
+     * @param doublesEventId
+     */
+    public void deleteAllForEvent(Long doublesEventId) {
+        this.doublesPairRepository.deleteDoublesPairByTournamentEventFk(doublesEventId);
+    }
+
+    /**
+     * Saves double entries for all players who entered doubles in this tournament doubles events
+     *
+     * @param doublesPairList
+     */
+    public void saveAllPairs(List<DoublesPair> doublesPairList) {
+        this.doublesPairRepository.saveAll(doublesPairList);
     }
 
     /**

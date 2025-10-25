@@ -119,7 +119,11 @@ public class MembershipProcessingController {
         if (membershipsProcessorStatus != null) {
             membershipsProcessorStatus.endTime = System.currentTimeMillis();
             logger.info("membershipsProcessorStatus.phase = " + membershipsProcessorStatus.phase);
-            return ResponseEntity.ok(membershipsProcessorStatus);
+            if (membershipsProcessorStatus.error == null) {
+                return ResponseEntity.ok(membershipsProcessorStatus);
+            } else {
+                return ResponseEntity.internalServerError().body(membershipsProcessorStatus);
+            }
         } else {
             logger.error("Membership processor status requested prematurely");
             return ResponseEntity.badRequest().build();

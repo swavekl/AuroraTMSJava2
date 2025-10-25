@@ -11,6 +11,7 @@ import {LinearProgressBarService} from '../../../shared/linear-progress-bar/line
     <app-tournament-config-list [tournaments]="tournaments$ | async"
                                 (add)="onAdd($event)"
                                 (delete)="onDelete($event)"
+                                (refresh)="onRefresh($event)"
     ></app-tournament-config-list>
   `,
     styles: [],
@@ -35,6 +36,15 @@ export class TournamentConfigListContainerComponent implements OnInit, OnDestroy
 
   ngOnInit(): void {
     this.tournamentConfigService.getAll();
+  }
+
+  onRefresh(event: any): void {
+    if (event.action == 'ok') {
+      this.tournamentConfigService.getAll();
+    } else if (event.action == 'view') {
+      const tournamentId = event.tournamentId;
+      this.router.navigateByUrl(`/ui/tournamentsconfig/tournament/edit/${tournamentId}`);
+    }
   }
 
   onAdd(event: any) {

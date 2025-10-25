@@ -193,4 +193,25 @@ public class UsattDataServiceTest extends AbstractJUnit4SpringContextTests {
 //        assertEquals("wrong count of records inserted into db", usattPlayerInfos.size(), addedRecords);
     }
 
+    @Test
+    public void testMembershipForPlayerNameList () {
+        List<String> names = List.of("Aaron, David", "Smith, John", "Erhart, Amelia", "Johnson, Lyndon",
+                "Aastnup Olsen, Martin", "Abbott, Kylie", "Abd El-aziz, Sara", "Lardon M.d., Michael", "Lazeykin Sr., Sergey");
+        List<UsattPlayerRecord> results = usattDataService.findMembershipStatus(names);
+
+        for (UsattPlayerRecord usattPlayerRecord : results) {
+            Long membershipId = usattPlayerRecord.getMembershipId();
+            String firstName = usattPlayerRecord.getFirstName();
+            String lastName = usattPlayerRecord.getLastName();
+            String state = usattPlayerRecord.getState();
+            String gender = usattPlayerRecord.getGender();
+            String city = usattPlayerRecord.getCity();
+            String zip = usattPlayerRecord.getZip();
+            int tournamentRating = usattPlayerRecord.getTournamentRating();
+
+            System.out.println(lastName + ", " + firstName + ": " + gender + " [" + city + ", " + state + ", " + zip + "] -> " +
+                    (membershipId == 0L ? "No membership" : membershipId) + ", rating = " + tournamentRating);
+        }
+    }
+
 }

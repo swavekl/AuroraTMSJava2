@@ -2,6 +2,7 @@ import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {Tournament} from '../tournament.model';
 import {ConfirmationPopupComponent} from '../../../shared/confirmation-popup/confirmation-popup.component';
 import {MatDialog} from '@angular/material/dialog';
+import {ImportTournamentDialogComponent} from '../import-tournament-dialog/import-tournament-dialog.component';
 
 @Component({
     selector: 'app-tournament-config-list',
@@ -19,6 +20,9 @@ export class TournamentConfigListComponent implements OnInit {
 
   @Output()
   delete: EventEmitter<number> = new EventEmitter<number>();
+
+  @Output()
+  refresh: EventEmitter<any> = new EventEmitter<any>();
 
   constructor(private dialog: MatDialog) {
   }
@@ -54,5 +58,20 @@ export class TournamentConfigListComponent implements OnInit {
       dialogRef.afterClosed().subscribe(result => {
       });
     }
+  }
+
+  onImportFromOmnipong() {
+    const config = {
+      width: '750px', height: '520px', data: {
+        existingTournaments: this.tournaments
+      }
+    };
+    const dialogRef = this.dialog.open(ImportTournamentDialogComponent, config);
+    const subscription = dialogRef.afterClosed().subscribe(result => {
+      if (result.action === 'ok' || result.action === 'view') {
+        this.refresh.emit(result);
+      }
+    });
+
   }
 }

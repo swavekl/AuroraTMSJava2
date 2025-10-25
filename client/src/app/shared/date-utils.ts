@@ -149,7 +149,7 @@ export class DateUtils {
   getEventStartingTimes(): any [] {
     const startTimes: any [] = [];
     const pipe: StartTimePipe = new StartTimePipe();
-    for (let i = 8; i <= 21; i++) {
+    for (let i = 8; i <= 22; i++) {
       const fullHour = pipe.transform(i);
       startTimes.push({startTime: i, startTimeText: fullHour});
       const halfPastHour = pipe.transform(i + 0.5);

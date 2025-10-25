@@ -1,0 +1,70 @@
+<div mat-dialog-title>Import Tournament Entries from Omnipong (R)</div>
+<mat-dialog-content>
+  <form name="form" #f="ngForm">
+    <mat-horizontal-stepper linear>
+      <mat-step label="Select Tournament">
+        <mat-form-field fxFlexFill>
+          <mat-label>Select tournament to import</mat-label>
+          <mat-select name="selectedTournament" [(ngModel)]="selectedTournamentUrl" required (selectionChange)="onTournamentSelected($event)">
+            <mat-option *ngFor="let tournament of tournaments" [value]="tournament.playersUrl">
+              {{tournament.tournamentName}}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+<!--        <mat-form-field fxFlexFill>-->
+<!--          <mat-label>Select ttAurora Tournament to Import into</mat-label>-->
+<!--          <mat-select name="selectedTargetTournament" [(ngModel)]="selectedTargetTournamentId" required>-->
+<!--            <mat-option value="0">Create New Tournament</mat-option>-->
+<!--            <mat-option *ngFor="let targetTournament of existingTournaments" [value]="targetTournament.id">-->
+<!--              {{targetTournament.name}}-->
+<!--            </mat-option>-->
+<!--          </mat-select>-->
+<!--        </mat-form-field>-->
+        <div fxLayout="row" fxLayoutAlign="end">
+          <button mat-raised-button color="primary" matStepperNext type="button">Next</button>
+        </div>
+      </mat-step>
+      <mat-step label="Upload Emails">
+        <div>
+          <p>You may upload a file with names and email addresses of players who don't have accounts in ttAurora yet.  This way
+          their accounts will be created with a correct email.  They will also be notified by email to complete
+          their profile and reset password.</p>
+          <p>
+            The file has to be in comma separated values (.csv) format and have the following data: last name, first name, email address, state
+          </p>
+        </div>
+        <app-upload-file-component
+          [disabledBtn]="importStarted"
+          [uploadButtonLabel]="'Upload Emails file'"
+          (uploadFinished)="onEmailsUploadFinished($event)"
+          [storagePath]="getEmailsStoragePath()">
+        </app-upload-file-component>
+        <div fxLayout="row" fxLayoutAlign="space-between" style="margin-top: 20px;">
+          <button mat-raised-button matStepperPrevious type="button">Back</button>
+          <button mat-raised-button color="primary" matStepperNext type="button">Next</button>
+        </div>
+      </mat-step>
+      <mat-step label="Import">
+        <mat-label>Overall {{importProgressInfo?.overallCompleted}}% Complete</mat-label>
+        <mat-progress-bar [value]="importProgressInfo?.overallCompleted"
+                          style="height: 8px; width: 100%; padding-bottom: 8px">
+        </mat-progress-bar>
+        <div class="phase-name">
+          <mat-label>Phase: {{importProgressInfo?.phaseName}}</mat-label>
+        </div>
+        <mat-label>Phase {{importProgressInfo?.phaseCompleted}}% Complete</mat-label>
+        <mat-progress-bar [value]="importProgressInfo?.phaseCompleted"></mat-progress-bar>
+        <div fxLayout="row" fxLayoutAlign="space-between" style="margin-top: 20px;">
+          <button mat-raised-button matStepperPrevious type="button" [disabled]="importStarted">Back</button>
+          <span>&nbsp;&nbsp;{{formatTime(elapsedSeconds)}}</span>
+          <button mat-raised-button color="primary" type="button" (click)="startImport()" [disabled]="importStarted">Start Import</button>
+        </div>
+      </mat-step>
+    </mat-horizontal-stepper>
+  </form>
+</mat-dialog-content>
+<mat-dialog-actions fxLayout="row">
+  <button mat-raised-button [mat-dialog-close]="false" (click)="onCancel()">Cancel</button>
+  <span fxFlex></span>
+  <button mat-raised-button color="primary" [disabled]="!f.valid" (click)="onOk()">Close</button>
+</mat-dialog-actions>

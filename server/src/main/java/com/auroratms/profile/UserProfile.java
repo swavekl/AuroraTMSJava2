@@ -37,4 +37,6 @@ public class UserProfile implements Serializable {
     private String division;
     // active, locked etc.
     private String userStatus;
+    // temporary password used for bulk account creation
+    private boolean makeDefaultPassword;
 }

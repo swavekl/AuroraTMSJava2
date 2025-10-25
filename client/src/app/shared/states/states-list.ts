@@ -285,4 +285,19 @@ export class StatesList {
     }
     return false;
   }
+
+  /**
+   *
+   * @param stateName
+   * @param countryCode
+   */
+  public static convertToAbbreviation(stateName: string, countryCode: string): string {
+    const countryStatesList = StatesList.getCountryStatesList(countryCode);
+    for (const state of countryStatesList) {
+      if (state.name === stateName) {
+        return state.abbreviation;
+      }
+    }
+    return null;
+  }
 }

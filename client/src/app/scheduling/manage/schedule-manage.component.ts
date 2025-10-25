@@ -40,6 +40,9 @@ export class ScheduleManageComponent implements OnInit, OnChanges, OnDestroy {
   public generateScheduleForEvent: EventEmitter<number> = new EventEmitter<number>();
 
   @Output()
+  public clearScheduleForEvent: EventEmitter<number> = new EventEmitter<number>();
+
+  @Output()
   public fixUnscheduledEvents: EventEmitter<any> = new EventEmitter<any>();
 
   @Output()
@@ -109,7 +112,7 @@ export class ScheduleManageComponent implements OnInit, OnChanges, OnDestroy {
       gridType: GridType.Fixed,
       fixedColWidth: 60,
       fixedRowHeight: 60,
-      maxCols: 29,
+      maxCols: 31,
       displayGrid: DisplayGrid.Always,
       pushItems: true,  // we can either push or switch - push is more useful
       swap: false,
@@ -196,6 +199,11 @@ export class ScheduleManageComponent implements OnInit, OnChanges, OnDestroy {
   onGenerateSchedule() {
     this.changedMatchCards = [];
     this.generateScheduleForEvent.emit(this.selectedDay);
+  }
+
+  onClearSchedule() {
+    this.changedMatchCards = [];
+    this.clearScheduleForEvent.emit(this.selectedDay);
   }
 
   private makeGridsterItems (matchCards: MatchCard[]): GridsterItem[] {

@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -105,7 +106,7 @@ public class UserProfileService {
                 .setSecurityQuestion("What is the food you least liked as a child?")
                 .setSecurityQuestionAnswer("spinach");
 
-        String password = userProfile.getFirstName() + "1234$";
+        String password = (userProfile.isMakeDefaultPassword()) ? "Secret1234$" : userProfile.getFirstName() + "1234$";
         defaultUserBuilder.setPassword(password.toCharArray());
         Map<String, Object> properties = new HashMap<>();
         defaultUserBuilder.setCustomProfileProperty("state", userProfile.getState());
@@ -122,6 +123,16 @@ public class UserProfileService {
         User user = defaultUserBuilder.buildAndCreate(userApi);
 
         return fromOktaUser(user.getId(), user.getProfile(), user.getStatus());
+    }
+
+    /**
+     *
+     * @param userId
+     */
+    @CacheEvict(key = "#userId")
+    public void deleteProfile (String userId) {
+        UserApi userApi = getUserApi();
+        userApi.deleteUser(userId, false, null);
     }
 
     /**
