@@ -47,6 +47,27 @@ public class ImportTournamentController {
      * @param importEntriesRequest request data
      * @return
      */
+    @PostMapping("/checkaccounts")
+    public ResponseEntity<ImportProgressInfo> checkAccounts(@RequestBody ImportEntriesRequest importEntriesRequest,
+                                                            HttpSession session) {
+
+        ImportProgressInfo importProgressInfo = new ImportProgressInfo();
+        importProgressInfo.phaseName = "Starting player accounts check";
+        importProgressInfo.jobId = UUID.randomUUID().toString();
+        session.setAttribute("importProgressInfo" + importProgressInfo.jobId, importProgressInfo);
+        importTournamentService.checkAccounts(importEntriesRequest.tournamentId,
+                importEntriesRequest.playersUrl,
+                importProgressInfo);
+
+        return ResponseEntity.ok(importProgressInfo);
+    }
+
+    /**
+     * Imports entries extracted from html page in Omnipong locaated at fromUrl into tournament with toTournamentId
+     *
+     * @param importEntriesRequest request data
+     * @return
+     */
     @PostMapping("/entries")
     public ResponseEntity<ImportProgressInfo> importEntries(@RequestBody ImportEntriesRequest importEntriesRequest,
                                                                HttpSession session) {
@@ -63,7 +84,7 @@ public class ImportTournamentController {
             @Override
             @Transactional
             public void run() {
-                log.info("Starting entries importy import for " + currentUserName);
+                log.info("Starting player entries import for " + currentUserName);
                 SecurityContextHolder.getContext().setAuthentication(authentication);
                 importTournamentService.importEntries(
                         importEntriesRequest.tournamentId,

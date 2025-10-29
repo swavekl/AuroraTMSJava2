@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
 import {BehaviorSubject, Observable} from 'rxjs';
-import {distinctUntilChanged, tap} from 'rxjs/operators';
+import {distinctUntilChanged, finalize, tap} from 'rxjs/operators';
 import {HttpClient} from '@angular/common/http';
 import {ImportProgressInfo} from '../model/import-progress-info.model';
 import {ImportEntriesRequest} from '../model/import-entries-request.model';
@@ -86,5 +86,14 @@ export class TournamentImportService {
     console.log('getting status for jobid', jobId);
     const url = `/api/importtournament/status/${jobId}`;
     return this.httpClient.get<ImportProgressInfo>(url);
+  }
+
+  checkAccounts(importEntriesRequest: ImportEntriesRequest): Observable<ImportProgressInfo> {
+    this.setLoading(true);
+    const url = `/api/importtournament/checkaccounts`;
+    return this.httpClient.post<ImportProgressInfo>(url, importEntriesRequest)
+      .pipe(
+        finalize(() => this.setLoading(false))
+      );
   }
 }

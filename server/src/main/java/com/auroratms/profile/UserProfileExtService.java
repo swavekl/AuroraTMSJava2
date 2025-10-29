@@ -68,4 +68,13 @@ public class UserProfileExtService {
         }
         return map;
     }
+
+    /**
+     * Finds all user profile exts for the members with the memberhip ids in the list
+     * @param membershipIds
+     * @return
+     */
+    public List<UserProfileExt> findByMembershipIds(List<Long> membershipIds) {
+        return this.repository.findAllByMembershipIdIn(membershipIds);
+    }
 }

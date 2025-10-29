@@ -3,10 +3,12 @@ package com.auroratms.utils;
 import com.auroratms.club.ClubEntity;
 import com.auroratms.club.ClubService;
 import com.auroratms.event.*;
+import com.auroratms.playerschedule.model.PlayerDetail;
 import com.auroratms.profile.UserProfile;
 import com.auroratms.profile.UserProfileExt;
 import com.auroratms.profile.UserProfileExtService;
 import com.auroratms.profile.UserProfileService;
+import com.auroratms.reports.ReportGenerationException;
 import com.auroratms.tournament.*;
 import com.auroratms.tournamententry.MembershipType;
 import com.auroratms.tournamententry.TournamentEntry;
@@ -41,10 +43,7 @@ import org.springframework.util.FileCopyUtils;
 import org.springframework.util.StopWatch;
 import org.springframework.web.client.RestTemplate;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -2021,5 +2020,153 @@ public class ImportTournamentService {
         return java.util.Date.from(dateToConvert.atStartOfDay()
                 .atZone(ZoneId.systemDefault())
                 .toInstant());
+    }
+
+    public void checkAccounts(long tournamentId, String playersUrl, ImportProgressInfo importProgressInfo) {
+        StopWatch stopWatch = new StopWatch();
+        stopWatch.start();
+
+        String url = BASE_OMNIPONG_URL + playersUrl;
+        RestTemplate restTemplate = new RestTemplate();
+        ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
+        String playerListHTML = response.getBody();
+
+        importProgressInfo.phaseCompleted = 0;
+        importProgressInfo.overallCompleted = 0;
+        importProgressInfo.status = "RUNNING";
+        importProgressInfo.phaseName = "Parsing list of player entries";
+        Document document = Jsoup.parse(playerListHTML, BASE_OMNIPONG_URL);
+        Elements outerTableWithControls = document.select("table tr td.omnipong");
+        if (!outerTableWithControls.isEmpty()) {
+            Element firstTDElement = outerTableWithControls.first();
+            String tournamentName = firstTDElement.selectFirst("h3").text();
+            // 2025 Edgeball Chicago International Open - Players by Name
+            tournamentName = tournamentName.substring(0, tournamentName.indexOf(" - "));
+            log.info(String.format("Checking accounts for players in tournament '%s'", tournamentName));
+            Element playerEntriesTable = firstTDElement.selectFirst("table.omnipong");
+
+            List<String> playerNames = new ArrayList<>();
+            if (playerEntriesTable != null) {
+                Elements playerEntryRows = playerEntriesTable.select("tr");
+                boolean headerRow = true;
+                for (Element playerEntryRow : playerEntryRows) {
+                    if (headerRow) {
+                        headerRow = false;
+                        continue;
+                    }
+                    Elements playerEntryDetailsElement = playerEntryRow.select("td");
+                    if (!playerEntryDetailsElement.isEmpty()) {
+                        Element playerNameTD = playerEntryDetailsElement.first();
+                        String playerName = playerNameTD.text();
+                        playerName = playerName.substring(1);
+                        playerNames.add(playerName);
+                    }
+                }
+            }
+            importProgressInfo.totalEntries = playerNames.size();
+            importProgressInfo.phaseCompleted = 100;
+            importProgressInfo.overallCompleted = 40;
+            importProgressInfo.phaseCompleted = 0;
+
+            if (!playerNames.isEmpty()) {
+                List<UsattPlayerRecord> results = usattDataService.findMembershipStatus(playerNames);
+
+                List<Long> membershipIds = new ArrayList<>(results.size());
+                Map<Long, String> membershipIdToNameMap = new HashMap<>();
+
+                for (UsattPlayerRecord usattPlayerRecord : results) {
+                    Long membershipId = usattPlayerRecord.getMembershipId();
+                    String firstName = usattPlayerRecord.getFirstName();
+                    String lastName = usattPlayerRecord.getLastName();
+                    String state = usattPlayerRecord.getState();
+                    if (membershipId != 0) {
+                        membershipIds.add(membershipId);
+                        String fullNameAndState = lastName + ", " + firstName + ", " + state;
+                        membershipIdToNameMap.put(membershipId, fullNameAndState);
+                    }
+                }
+
+                List<String> missingAccountsList = new ArrayList<>();
+                List<UserProfileExt> existingUserProfiles = this.userProfileExtService.findByMembershipIds(membershipIds);
+                for (Long membershipId : membershipIdToNameMap.keySet()) {
+                    boolean profileExists = false;
+                    for (UserProfileExt userProfileExt : existingUserProfiles) {
+                        if (userProfileExt.getMembershipId().equals(membershipId)) {
+                            profileExists = true;
+                            break;
+                        }
+                    }
+                    if (!profileExists) {
+                        String fullNameAndState = membershipIdToNameMap.get(membershipId);
+                        fullNameAndState = fullNameAndState.replaceAll(", ", ",");
+                        missingAccountsList.add(fullNameAndState);
+                    }
+                }
+
+                importProgressInfo.overallCompleted = 80;
+                importProgressInfo.phaseCompleted = 0;
+
+                importProgressInfo.missingProfileFileRepoUrl = writeMissingAccountPlayersToFile(
+                        missingAccountsList, importProgressInfo.jobId, importProgressInfo.tournamentId);
+
+                importProgressInfo.phaseCompleted = 100;
+                importProgressInfo.overallCompleted = 100;
+
+                importProgressInfo.profilesExisting = existingUserProfiles.size();
+            }
+        }
+
+        stopWatch.stop();
+        log.info("Accounts check completed in " + stopWatch.toString());
+
+        importProgressInfo.phaseCompleted = 100;
+        importProgressInfo.overallCompleted = 100;
+        importProgressInfo.status = "COMPLETED";
+    }
+
+    /**
+     *
+     * @param missingAccountsList
+     * @param jobId
+     * @param tournamentId
+     * @return
+     */
+    private String writeMissingAccountPlayersToFile(List<String> missingAccountsList, String jobId, long tournamentId) {
+        String repositoryURL = null;
+        try {
+            // create report file path
+            String tempDir = System.getenv("TEMP");
+            tempDir = (StringUtils.isEmpty(tempDir)) ? System.getenv("TMP") : tempDir;
+            File tempFile = new File(tempDir + File.separator + "missing-accounts-" + jobId + ".csv");
+            String missingAccountsPath = tempFile.getCanonicalPath();
+            log.info("Writing missing accounts list for tournament " + tournamentId);
+            log.info("to " + missingAccountsPath);
+
+            missingAccountsList.sort(String::compareTo);
+
+            // write header
+            FileWriter fileWriter = new FileWriter(tempFile);
+            fileWriter.write("LastName,FirstName,State,Email\n");
+            // write players
+            for (String missingAccountInfo : missingAccountsList) {
+                fileWriter.write(missingAccountInfo + ",\n");
+            }
+            fileWriter.flush();
+            fileWriter.close();
+
+            IFileRepository fileRepository = this.fileRepositoryFactory.getFileRepository();
+
+            String filename = tempFile.getName();
+            InputStream inputStream = new FileInputStream(tempFile);
+            // write out the list of plaeyr names and states to a file in a repository so it can be downloaded
+            String repositoryFolder = "missing-accounts-" + jobId;
+            repositoryURL = fileRepository.save(inputStream, filename, repositoryFolder);
+            tempFile.delete();
+
+            return repositoryURL;
+        } catch (IOException | FileRepositoryException e) {
+            log.error("Error generating or copying missing accounts file", e);
+            throw new RuntimeException("Error generating missing accounts file", e);
+        }
     }
 }

@@ -200,7 +200,7 @@ export class TournamentPlayersListBigContainerComponent implements OnInit, OnDes
 
   onImportTournamentEntries ($event: any  ) {
     const config = {
-      width: '750px', height: '420px', data: {
+      width: '750px', height: '560px', data: {
         sourceTournamentName: this.tournamentName,  // helps select the right source tournament
         targetTournamentId: this.tournamentId
       }

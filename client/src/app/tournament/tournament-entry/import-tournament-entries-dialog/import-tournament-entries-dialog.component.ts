@@ -1,14 +1,14 @@
 import {Component, Inject, OnDestroy, OnInit} from '@angular/core';
 import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
 import {MatSelectChange} from '@angular/material/select';
-import {map, switchMap, takeUntil, tap} from 'rxjs/operators';
+import {finalize, map, switchMap, takeUntil, tap} from 'rxjs/operators';
 import {interval, Subject} from 'rxjs';
 import {TournamentImportService} from '../service/tournament-import.service';
 import {ImportEntriesRequest} from '../model/import-entries-request.model';
 import {ImportTournamentRequest} from '../model/import-tournament-request.model';
 import {ImportProgressInfo} from '../model/import-progress-info.model';
 import {ErrorMessagePopupService} from '../../../shared/error-message-dialog/error-message-popup.service';
-import {Tournament} from '../../tournament-config/tournament.model';
+import {StepperSelectionEvent} from '@angular/cdk/stepper';
 
 @Component({
   selector: 'app-omnipong-import-dialog',
@@ -19,8 +19,6 @@ import {Tournament} from '../../tournament-config/tournament.model';
 export class ImportTournamentEntriesDialogComponent implements OnInit, OnDestroy {
   // tournaments from Omnipong
   tournaments: ImportTournamentRequest[];
-  // // this tournament director's existing tournaments
-  // existingTournaments: Tournament[];
 
   selectedTournamentUrl: string;
   selectedTournamentName: string;
@@ -34,6 +32,8 @@ export class ImportTournamentEntriesDialogComponent implements OnInit, OnDestroy
   private destroy$ = new Subject<void>();
   elapsedSeconds: number = 0;
   elapsedTimeIntervalId: any;
+  protected playerAccountsCheckResults: string;
+  protected isCheckingAccounts: boolean;
 
   constructor(public dialogRef: MatDialogRef<ImportTournamentEntriesDialogComponent>,
               @Inject(MAT_DIALOG_DATA) public data: any,
@@ -133,13 +133,6 @@ export class ImportTournamentEntriesDialogComponent implements OnInit, OnDestroy
         break;
       }
     }
-
-    // for (let i = 0; i < this.existingTournaments.length; i++) {
-    //   const existingTournament = this.existingTournaments[i];
-    //   if (existingTournament.name == this.selectedTournamentName) {
-    //     this.selectedTargetTournamentId = existingTournament.id;
-    //   }
-    // }
   }
 
   onEmailsUploadFinished(downloadUrl: string) {
@@ -182,4 +175,26 @@ export class ImportTournamentEntriesDialogComponent implements OnInit, OnDestroy
     }
   }
 
+  onStepChange(event: StepperSelectionEvent): void {
+    if (event.previouslySelectedIndex === 0 && event.selectedIndex === 1) {
+      this.isCheckingAccounts = true;
+      const importEntriesRequest: ImportEntriesRequest = {
+        tournamentId: this.selectedTargetTournamentId,
+        playersUrl: this.selectedTournamentUrl,
+        emailsFileRepoPath: null
+      };
+
+      this.tournamentImportService.checkAccounts(importEntriesRequest)
+        .pipe(finalize(() => this.isCheckingAccounts = false))
+        .subscribe(importProgressInfo => {
+          if (importProgressInfo != null) {
+            this.importProgressInfo = importProgressInfo;
+            const profilesMissing = importProgressInfo.totalEntries - importProgressInfo.profilesExisting;
+            this.playerAccountsCheckResults = `We found ${importProgressInfo.totalEntries} players who entered the tournament and ${profilesMissing} of them don't have accounts in this system.`;
+          }
+        }
+      );
+    }
+  }
 }
+

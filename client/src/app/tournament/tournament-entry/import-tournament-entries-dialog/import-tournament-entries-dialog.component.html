@@ -1,7 +1,7 @@
 <div mat-dialog-title>Import Tournament Entries from Omnipong (R)</div>
 <mat-dialog-content>
   <form name="form" #f="ngForm">
-    <mat-horizontal-stepper linear>
+    <mat-horizontal-stepper linear (selectionChange)="onStepChange($event)">
       <mat-step label="Select Tournament">
         <mat-form-field fxFlexFill>
           <mat-label>Select tournament to import</mat-label>
@@ -11,34 +11,34 @@
             </mat-option>
           </mat-select>
         </mat-form-field>
-<!--        <mat-form-field fxFlexFill>-->
-<!--          <mat-label>Select ttAurora Tournament to Import into</mat-label>-->
-<!--          <mat-select name="selectedTargetTournament" [(ngModel)]="selectedTargetTournamentId" required>-->
-<!--            <mat-option value="0">Create New Tournament</mat-option>-->
-<!--            <mat-option *ngFor="let targetTournament of existingTournaments" [value]="targetTournament.id">-->
-<!--              {{targetTournament.name}}-->
-<!--            </mat-option>-->
-<!--          </mat-select>-->
-<!--        </mat-form-field>-->
         <div fxLayout="row" fxLayoutAlign="end">
           <button mat-raised-button color="primary" matStepperNext type="button">Next</button>
         </div>
       </mat-step>
-      <mat-step label="Upload Emails">
-        <div>
-          <p>You may upload a file with names and email addresses of players who don't have accounts in ttAurora yet.  This way
-          their accounts will be created with a correct email.  They will also be notified by email to complete
-          their profile and reset password.</p>
-          <p>
-            The file has to be in comma separated values (.csv) format and have the following data: last name, first name, email address, state
-          </p>
+      <mat-step label="Player Accounts">
+        <mat-label>Checking if all players have accounts</mat-label>
+        <mat-progress-bar *ngIf="isCheckingAccounts; else elseblock" mode="indeterminate"
+                          style="height: 8px; width: 100%;"></mat-progress-bar>
+        <ng-template #elseblock>
+          <div style="height: 8px; width: 100%; background-color: white;"></div>
+        </ng-template>
+        <div class="instructions"><p>{{playerAccountsCheckResults}}</p>
+          <p>It is best if accounts are created with real email addresses so the system can communicate with these players.</p>
+          <p>Download and edit the file and provide real email addresses to each player on this list.</p>
+          <p>Once completed, upload the file using the 'Select File' and 'Upload Player List' buttons.</p>
         </div>
-        <app-upload-file-component
-          [disabledBtn]="importStarted"
-          [uploadButtonLabel]="'Upload Emails file'"
-          (uploadFinished)="onEmailsUploadFinished($event)"
-          [storagePath]="getEmailsStoragePath()">
-        </app-upload-file-component>
+        <div fxLayout="row" fxLayoutAlign="space-between start" style="width: 100%;">
+        <app-download-file [buttonLabel]="'Download Player List'"
+                             [fileUrl]="importProgressInfo?.missingProfileFileRepoUrl"
+                             [disabledBtn]="importProgressInfo?.missingProfileFileRepoUrl === null">
+          </app-download-file>
+          <app-upload-file-component
+            [disabledBtn]="importStarted"
+            [uploadButtonLabel]="'Upload Player List'"
+            (uploadFinished)="onEmailsUploadFinished($event)"
+            [storagePath]="getEmailsStoragePath()">
+          </app-upload-file-component>
+        </div>
         <div fxLayout="row" fxLayoutAlign="space-between" style="margin-top: 20px;">
           <button mat-raised-button matStepperPrevious type="button">Back</button>
           <button mat-raised-button color="primary" matStepperNext type="button">Next</button>

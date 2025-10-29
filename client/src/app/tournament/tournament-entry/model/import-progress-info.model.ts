@@ -8,7 +8,12 @@ export class ImportProgressInfo {
   // percent completion
   overallCompleted: number;
   phaseCompleted: number;
+
+  // profiles information
   profilesCreated: number;
+  profilesExisting: number;
+  // file which can be downloaded  containing player names who are missing profiles
+  missingProfileFileRepoUrl: string;
 
   entriesAdded: number;
   entriesUpdated: number;
