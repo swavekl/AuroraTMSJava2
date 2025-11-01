@@ -130,6 +130,7 @@ export class ImportTournamentEntriesDialogComponent implements OnInit, OnDestroy
       const tournament = this.tournaments[i];
       if (playersURL === tournament.playersUrl) {
         this.selectedTournamentName = tournament.tournamentName;
+        this.selectedTargetTournamentId = tournament.tournamentId;
         break;
       }
     }
@@ -189,11 +190,13 @@ export class ImportTournamentEntriesDialogComponent implements OnInit, OnDestroy
         .subscribe(importProgressInfo => {
           if (importProgressInfo != null) {
             this.importProgressInfo = importProgressInfo;
-            const profilesMissing = importProgressInfo.totalEntries - importProgressInfo.profilesExisting;
+            const profilesMissing = importProgressInfo.profilesMissing;
             this.playerAccountsCheckResults = `We found ${importProgressInfo.totalEntries} players who entered the tournament and ${profilesMissing} of them don't have accounts in this system.`;
           }
         }
       );
+    } else if (event.previouslySelectedIndex === 1 && event.selectedIndex === 2) {
+      this.importProgressInfo = null;
     }
   }
 }

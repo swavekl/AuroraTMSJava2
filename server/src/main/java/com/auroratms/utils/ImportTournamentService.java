@@ -3,12 +3,10 @@ package com.auroratms.utils;
 import com.auroratms.club.ClubEntity;
 import com.auroratms.club.ClubService;
 import com.auroratms.event.*;
-import com.auroratms.playerschedule.model.PlayerDetail;
 import com.auroratms.profile.UserProfile;
 import com.auroratms.profile.UserProfileExt;
 import com.auroratms.profile.UserProfileExtService;
 import com.auroratms.profile.UserProfileService;
-import com.auroratms.reports.ReportGenerationException;
 import com.auroratms.tournament.*;
 import com.auroratms.tournamententry.MembershipType;
 import com.auroratms.tournamententry.TournamentEntry;
@@ -1008,6 +1006,19 @@ public class ImportTournamentService {
                     int badRecordsNum = 0;
                     while ((values = csvReader.readNext()) != null) {
                         rowNumber++;
+                        if (rowNumber == 1) {
+                            boolean hasHeader = false;
+                            for (String value : values) {
+                                if (value.equals("LastName")) {
+                                    hasHeader = true;
+                                    break;
+                                }
+                            }
+                            // skip header if present
+                            if (hasHeader) {
+                                continue;
+                            }
+                        }
                         int columnNum = 0;
                         if (values.length != 4) {
                             System.out.print("Insufficient values in record ");
@@ -1018,7 +1029,7 @@ public class ImportTournamentService {
                             badRecordsNum++;
                             continue;
                         }
-                        // Last Name	First Name	Email State
+                        // Last Name	First Name	State, Email
                         String lastName = "";
                         String firstName = "";
                         String email = "";
@@ -1032,10 +1043,10 @@ public class ImportTournamentService {
                                     firstName = text;
                                     break;
                                 case 2:
-                                    email = text;
+                                    state = text;
                                     break;
                                 case 3:
-                                    state = text;
+                                    email = text;
                                     break;
                                 default:
                                     break;
@@ -2022,19 +2033,144 @@ public class ImportTournamentService {
                 .toInstant());
     }
 
+    /**
+     * Checks if there are any missing accounts for a tournament and writes missing accounts to a CSV file for download
+     *
+     * @param tournamentId       tournament id to use when
+     * @param playersUrl         players url where players entries are listed
+     * @param importProgressInfo progress info
+     */
     public void checkAccounts(long tournamentId, String playersUrl, ImportProgressInfo importProgressInfo) {
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
 
+
+        importProgressInfo.phaseCompleted = 0;
+        importProgressInfo.overallCompleted = 0;
+
+        importProgressInfo.status = "RUNNING";
+        importProgressInfo.phaseName = "Parsing list of player entries";
+        List<String> playerNamesAndState = extractPlayerNamesFromHTML(playersUrl);
+        importProgressInfo.totalEntries = playerNamesAndState.size();
+        log.info("Extracted " + playerNamesAndState.size() + " total entries");
+        importProgressInfo.phaseCompleted = 100;
+        importProgressInfo.overallCompleted = 40;
+
+        importProgressInfo.phaseCompleted = 0;
+        if (!playerNamesAndState.isEmpty()) {
+            // find all player's usatt records matching them by last and first name
+            // if player has no membership then membership id is 0
+            List<UsattPlayerRecord> playerRecordsToCheckForProfiles = new ArrayList<>();
+            List<String> missingAccountsList = findPlayersWithoutProfilesByNameAndState(playerNamesAndState, playerRecordsToCheckForProfiles);
+
+            findPlayersWithoutProfilesByNameOnly(playerRecordsToCheckForProfiles, playerNamesAndState, missingAccountsList);
+            int profilesExisting = playerNamesAndState.size() - missingAccountsList.size();
+
+            // remove duplicates & sort before writing out
+            Set<String> uniqueNamesSet = new HashSet<>(missingAccountsList);
+            missingAccountsList.clear();
+            missingAccountsList.addAll(uniqueNamesSet);
+            log.info("Final unique missing accounts list has " + missingAccountsList.size());
+
+            importProgressInfo.overallCompleted = 80;
+            importProgressInfo.phaseCompleted = 0;
+
+            importProgressInfo.missingProfileFileRepoUrl = writeMissingAccountPlayersToFile(
+                    missingAccountsList, importProgressInfo.jobId, importProgressInfo.tournamentId);
+
+            importProgressInfo.phaseCompleted = 100;
+            importProgressInfo.overallCompleted = 100;
+
+            importProgressInfo.profilesExisting = profilesExisting;
+            importProgressInfo.profilesMissing = missingAccountsList.size();
+        }
+
+        stopWatch.stop();
+        log.info("Accounts check completed in " + stopWatch.toString());
+
+        importProgressInfo.phaseCompleted = 100;
+        importProgressInfo.overallCompleted = 100;
+        importProgressInfo.status = "COMPLETED";
+    }
+
+    /**
+     *
+     * @param playerRecordsToCheckForProfiles
+     * @param playerNamesAndState
+     * @param missingAccountsList
+     * @return
+     */
+    private void findPlayersWithoutProfilesByNameOnly(List<UsattPlayerRecord> playerRecordsToCheckForProfiles,
+                                                     List<String> playerNamesAndState,
+                                                     List<String> missingAccountsList) {
+        List<String> playerNames = playerNamesAndState.stream()
+                .map(playerNameAndState -> {
+                    return playerNameAndState.substring(0, playerNameAndState.lastIndexOf(","));
+                }).toList();
+
+        // some players were not found because their state in Omnipong is not the same as in USATT player record or is missing
+        // try to make another attempt to match them by looking for an existing profile
+        // Player Ponomareva, Maria, IL is not in the tournament USATT ID 286616 because in
+        log.info("Found " + playerRecordsToCheckForProfiles.size() + " who don't match fully in USATT record. Search for profiles by first and last name...");
+        int profilesExisting = 0;
+        Set<String> alreadySearchedPlayer = new HashSet<>();
+        for (UsattPlayerRecord usattPlayerRecord : playerRecordsToCheckForProfiles) {
+            boolean found = false;
+            String fullNameAndState = null;
+            String fullName = usattPlayerRecord.getLastName() + ", " + usattPlayerRecord.getFirstName();
+            if (!alreadySearchedPlayer.contains(fullName)) {
+                alreadySearchedPlayer.add(fullName);
+                log.info("Searching for profile for " + fullName);
+                Collection<UserProfile> playerUserProfiles = this.userProfileService.list(usattPlayerRecord.getFirstName(), usattPlayerRecord.getLastName());
+                for (UserProfile userProfile : playerUserProfiles) {
+                    String firstName = userProfile.getFirstName();
+                    String lastName = userProfile.getLastName();
+                    String state = userProfile.getState();
+                    state = (StringUtils.isEmpty(state)) ? "" : state;
+                    fullNameAndState = lastName + ", " + firstName + ", " + state;
+                    if (playerNamesAndState.contains(fullNameAndState)) {
+                        found = true;
+                        profilesExisting++;
+//                        log.info("Found profile for player " + fullNameAndState);
+                        break;
+                    } else if (playerNames.contains(fullName)) {
+                        // maybe state doesn't match but name matches
+                        found = true;
+                        profilesExisting++;
+                        List<String> statesList = playerNamesAndState.stream()
+                                .filter(playerNameAndState -> fullName.equals(playerNameAndState.substring(0, playerNameAndState.lastIndexOf(","))))
+                                .map(playerNameAndState -> playerNameAndState.substring(playerNameAndState.lastIndexOf(",") + 1).trim())
+                                .toList();
+                        log.info("Player " + fullName + " has a different state in the entry '" + statesList + "' than in the USATT record '" + usattPlayerRecord.getState() + "'");
+                    }
+                }
+
+                if (!found) {
+                    log.info("Profile not found for " + fullNameAndState);
+                    if (fullNameAndState != null && !missingAccountsList.contains(fullNameAndState)) {
+                        missingAccountsList.add(fullNameAndState);
+                    }
+                }
+            }
+
+        }
+        log.info("Found " + profilesExisting + " by querying UserProfiles by last and first name and confirming with state");
+        log.info("Now only " + missingAccountsList.size() + " players are still missing");
+    }
+
+    /**
+     * 
+     * @param playersUrl
+     * @return
+     */
+    private List<String> extractPlayerNamesFromHTML (String playersUrl) {
+        List<String> playerNamesAndState = new ArrayList<>();
+
+        log.info("Parsing " + playersUrl + " to find player entries");
         String url = BASE_OMNIPONG_URL + playersUrl;
         RestTemplate restTemplate = new RestTemplate();
         ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
         String playerListHTML = response.getBody();
-
-        importProgressInfo.phaseCompleted = 0;
-        importProgressInfo.overallCompleted = 0;
-        importProgressInfo.status = "RUNNING";
-        importProgressInfo.phaseName = "Parsing list of player entries";
         Document document = Jsoup.parse(playerListHTML, BASE_OMNIPONG_URL);
         Elements outerTableWithControls = document.select("table tr td.omnipong");
         if (!outerTableWithControls.isEmpty()) {
@@ -2059,69 +2195,84 @@ public class ImportTournamentService {
                         Element playerNameTD = playerEntryDetailsElement.first();
                         String playerName = playerNameTD.text();
                         playerName = playerName.substring(1);
+                        Elements stateTD = playerEntryDetailsElement.next();
+                        String state = stateTD.first().text();
                         playerNames.add(playerName);
+                        String fullNameAndState = playerName + ", " + state;
+                        playerNamesAndState.add(fullNameAndState);
                     }
                 }
-            }
-            importProgressInfo.totalEntries = playerNames.size();
-            importProgressInfo.phaseCompleted = 100;
-            importProgressInfo.overallCompleted = 40;
-            importProgressInfo.phaseCompleted = 0;
-
-            if (!playerNames.isEmpty()) {
-                List<UsattPlayerRecord> results = usattDataService.findMembershipStatus(playerNames);
-
-                List<Long> membershipIds = new ArrayList<>(results.size());
-                Map<Long, String> membershipIdToNameMap = new HashMap<>();
-
-                for (UsattPlayerRecord usattPlayerRecord : results) {
-                    Long membershipId = usattPlayerRecord.getMembershipId();
-                    String firstName = usattPlayerRecord.getFirstName();
-                    String lastName = usattPlayerRecord.getLastName();
-                    String state = usattPlayerRecord.getState();
-                    if (membershipId != 0) {
-                        membershipIds.add(membershipId);
-                        String fullNameAndState = lastName + ", " + firstName + ", " + state;
-                        membershipIdToNameMap.put(membershipId, fullNameAndState);
-                    }
-                }
-
-                List<String> missingAccountsList = new ArrayList<>();
-                List<UserProfileExt> existingUserProfiles = this.userProfileExtService.findByMembershipIds(membershipIds);
-                for (Long membershipId : membershipIdToNameMap.keySet()) {
-                    boolean profileExists = false;
-                    for (UserProfileExt userProfileExt : existingUserProfiles) {
-                        if (userProfileExt.getMembershipId().equals(membershipId)) {
-                            profileExists = true;
-                            break;
-                        }
-                    }
-                    if (!profileExists) {
-                        String fullNameAndState = membershipIdToNameMap.get(membershipId);
-                        fullNameAndState = fullNameAndState.replaceAll(", ", ",");
-                        missingAccountsList.add(fullNameAndState);
-                    }
-                }
-
-                importProgressInfo.overallCompleted = 80;
-                importProgressInfo.phaseCompleted = 0;
-
-                importProgressInfo.missingProfileFileRepoUrl = writeMissingAccountPlayersToFile(
-                        missingAccountsList, importProgressInfo.jobId, importProgressInfo.tournamentId);
-
-                importProgressInfo.phaseCompleted = 100;
-                importProgressInfo.overallCompleted = 100;
-
-                importProgressInfo.profilesExisting = existingUserProfiles.size();
             }
         }
+        return playerNamesAndState;
+    }
 
-        stopWatch.stop();
-        log.info("Accounts check completed in " + stopWatch.toString());
+    /**
+     *
+     * @param playerNamesAndState
+     * @param playerRecordsToCheckForProfiles
+     * @return
+     */
+    private List<String> findPlayersWithoutProfilesByNameAndState(List<String> playerNamesAndState, List<UsattPlayerRecord> playerRecordsToCheckForProfiles) {
 
-        importProgressInfo.phaseCompleted = 100;
-        importProgressInfo.overallCompleted = 100;
-        importProgressInfo.status = "COMPLETED";
+        // remove state from this list so we can use it for membership status call
+        List<String> playerNames = playerNamesAndState.stream()
+                .map(playerNameAndState -> {
+                    return playerNameAndState.substring(0, playerNameAndState.lastIndexOf(","));
+                }).toList();
+
+        List<UsattPlayerRecord> usattPlayerRecordsByFullName = usattDataService.findMembershipStatus(playerNames);
+        log.info("Found " + usattPlayerRecordsByFullName.size() + " USATT memberships when searching by last and first name");
+
+        Map<Long, String> membershipIdToNameMap = new HashMap<>();
+        int notMatchingCount = 0;
+        // find those who have an exact match by last name, first name and state
+        for (UsattPlayerRecord usattPlayerRecord : usattPlayerRecordsByFullName) {
+            Long membershipId = usattPlayerRecord.getMembershipId();
+            String firstName = usattPlayerRecord.getFirstName();
+            String lastName = usattPlayerRecord.getLastName();
+            String state = usattPlayerRecord.getState();
+            // check if this player is in the tournament
+            String fullName = lastName + ", " + firstName;
+            String fullNameAndState = fullName + ", " + state;
+            // include only players who's state matches as well since there are multiple players with the same last and first name
+            if (playerNamesAndState.contains(fullNameAndState)) {
+                if (membershipId != 0) {
+                    membershipIdToNameMap.put(membershipId, fullNameAndState);
+                }
+            } else {
+                log.warn(++notMatchingCount + ") Player " + fullNameAndState + " is not matching with our without state " + membershipId);
+                playerRecordsToCheckForProfiles.add(usattPlayerRecord);
+            }
+        }
+        log.info("Found " + membershipIdToNameMap.size() + " current USATT members which match entries exactly by last name, first name, state");
+
+        // find players who have a profile matched to their membership id
+        List<String> missingAccountsList = new ArrayList<>();
+        int profilesExisting = 0;
+        List<Long> membershipIds = new ArrayList<>(membershipIdToNameMap.keySet());
+        List<UserProfileExt> existingUserProfiles = this.userProfileExtService.findByMembershipIds(membershipIds);
+        for (Long membershipId : membershipIdToNameMap.keySet()) {
+            boolean profileExists = false;
+            for (UserProfileExt userProfileExt : existingUserProfiles) {
+                if (userProfileExt.getMembershipId().equals(membershipId)) {
+                    profileExists = true;
+                    break;
+                }
+            }
+            if (!profileExists) {
+                String fullNameAndState = membershipIdToNameMap.get(membershipId);
+                missingAccountsList.add(fullNameAndState);
+            } else {
+                profilesExisting++;
+            }
+        }
+        log.info("Found " + profilesExisting + " profiles which match these membership ids");
+        log.info("Found " + missingAccountsList.size() + " players which don't have profiles");
+        log.info("Found " + playerRecordsToCheckForProfiles.size() + " USATT player records to check for profile existence");
+
+        return missingAccountsList;
+
     }
 
     /**
@@ -2149,7 +2300,9 @@ public class ImportTournamentService {
             fileWriter.write("LastName,FirstName,State,Email\n");
             // write players
             for (String missingAccountInfo : missingAccountsList) {
-                fileWriter.write(missingAccountInfo + ",\n");
+                missingAccountInfo = missingAccountInfo.replaceAll(", ", ",");
+                missingAccountInfo += ",\n";
+                fileWriter.write(missingAccountInfo);
             }
             fileWriter.flush();
             fileWriter.close();

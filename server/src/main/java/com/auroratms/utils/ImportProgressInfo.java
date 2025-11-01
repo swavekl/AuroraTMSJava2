@@ -16,6 +16,7 @@ public class ImportProgressInfo {
 
     public int profilesCreated;
     public int profilesExisting;
+    public int profilesMissing;
     // file which can be downloaded  containing player names who are missing profiles
     public String missingProfileFileRepoUrl;
 

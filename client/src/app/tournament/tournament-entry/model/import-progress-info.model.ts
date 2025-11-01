@@ -12,6 +12,7 @@ export class ImportProgressInfo {
   // profiles information
   profilesCreated: number;
   profilesExisting: number;
+  profilesMissing: number;
   // file which can be downloaded  containing player names who are missing profiles
   missingProfileFileRepoUrl: string;
 
