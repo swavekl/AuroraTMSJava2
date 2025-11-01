@@ -98,6 +98,10 @@ export class ImportTournamentEntriesDialogComponent implements OnInit, OnDestroy
         tap((importProgressInfo: ImportProgressInfo) => {
           this.importProgressInfo = importProgressInfo;
           if (importProgressInfo.status === 'COMPLETED' || importProgressInfo.status === 'FAILED') {
+            if (this.isCheckingAccounts) {
+              const profilesMissing = importProgressInfo.profilesMissing;
+              this.playerAccountsCheckResults = `We found ${importProgressInfo.totalEntries} players who entered the tournament and ${profilesMissing} of them don't have accounts in this system.`;
+            }
             this.stopPolling();
           }
         })
@@ -157,8 +161,9 @@ export class ImportTournamentEntriesDialogComponent implements OnInit, OnDestroy
   }
 
   stopTimer() {
-    if (this.importStarted) {
+    if (this.importStarted || this.isCheckingAccounts) {
       this.importStarted = false;
+      this.isCheckingAccounts = false;
       clearInterval(this.elapsedTimeIntervalId);
     }
   }
@@ -178,24 +183,32 @@ export class ImportTournamentEntriesDialogComponent implements OnInit, OnDestroy
 
   onStepChange(event: StepperSelectionEvent): void {
     if (event.previouslySelectedIndex === 0 && event.selectedIndex === 1) {
+      this.playerAccountsCheckResults = '';
       this.isCheckingAccounts = true;
       const importEntriesRequest: ImportEntriesRequest = {
         tournamentId: this.selectedTargetTournamentId,
         playersUrl: this.selectedTournamentUrl,
         emailsFileRepoPath: null
       };
-
+      console.log('checking accounts');
       this.tournamentImportService.checkAccounts(importEntriesRequest)
-        .pipe(finalize(() => this.isCheckingAccounts = false))
-        .subscribe(importProgressInfo => {
-          if (importProgressInfo != null) {
-            this.importProgressInfo = importProgressInfo;
-            const profilesMissing = importProgressInfo.profilesMissing;
-            this.playerAccountsCheckResults = `We found ${importProgressInfo.totalEntries} players who entered the tournament and ${profilesMissing} of them don't have accounts in this system.`;
+        .subscribe({
+          next: (importProgressInfo: ImportProgressInfo) => {
+            if (importProgressInfo != null) {
+              this.importProgressInfo = importProgressInfo;
+              const jobId = importProgressInfo.jobId;
+              this.startPolling(jobId);
+            }
+          },
+          error: (error: any) => {
+            const errorMessage: string = (error.error?.message) ?? error.message;
+            this.errorMessagePopupService.showError(errorMessage, null, null, 'Error importing tournament');
+          },
+          complete: () => {
           }
-        }
-      );
+        });
     } else if (event.previouslySelectedIndex === 1 && event.selectedIndex === 2) {
+      // start the next page from 0% complete
       this.importProgressInfo = null;
     }
   }

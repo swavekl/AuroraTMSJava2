@@ -54,10 +54,22 @@ public class ImportTournamentController {
         ImportProgressInfo importProgressInfo = new ImportProgressInfo();
         importProgressInfo.phaseName = "Starting player accounts check";
         importProgressInfo.jobId = UUID.randomUUID().toString();
-        session.setAttribute("importProgressInfo" + importProgressInfo.jobId, importProgressInfo);
-        importTournamentService.checkAccounts(importEntriesRequest.tournamentId,
-                importEntriesRequest.playersUrl,
-                importProgressInfo);
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            @Transactional
+            public void run() {
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+
+                session.setAttribute("importProgressInfo" + importProgressInfo.jobId, importProgressInfo);
+                importTournamentService.checkAccounts(importEntriesRequest.tournamentId,
+                        importEntriesRequest.playersUrl,
+                        importProgressInfo);
+            }
+        });
+        thread.setName("CheckUserProfiles" + importProgressInfo.jobId);
+        thread.start();
 
         return ResponseEntity.ok(importProgressInfo);
     }

@@ -17,12 +17,10 @@
       </mat-step>
       <mat-step label="Player Accounts">
         <mat-label>Checking if all players have accounts</mat-label>
-        <mat-progress-bar *ngIf="isCheckingAccounts; else elseblock" mode="indeterminate"
-                          style="height: 8px; width: 100%;"></mat-progress-bar>
-        <ng-template #elseblock>
-          <div style="height: 8px; width: 100%; background-color: white;"></div>
-        </ng-template>
-        <div class="instructions"><p>{{playerAccountsCheckResults}}</p>
+        <mat-progress-bar [value]="importProgressInfo?.overallCompleted"
+                          style="height: 8px; width: 100%; padding-bottom: 8px">
+        </mat-progress-bar>
+        <div class="instructions"><p style="font-weight: bold;">{{playerAccountsCheckResults}}</p>
           <p>It is best if accounts are created with real email addresses so the system can communicate with these players.</p>
           <p>Download and edit the file and provide real email addresses to each player on this list.</p>
           <p>Once completed, upload the file using the 'Select File' and 'Upload Player List' buttons.</p>
