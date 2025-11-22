@@ -32,8 +32,6 @@ import javax.sql.DataSource;
 import java.util.Arrays;
 
 import static org.springframework.security.config.Customizer.withDefaults;
-import static org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher;
-
 
 @Configuration
 @EnableMethodSecurity(securedEnabled = true)
@@ -64,20 +62,20 @@ public class SecurityConfiguration {
         // but it is required for the rest of requests
         http.authorizeHttpRequests(requests -> requests
                         .requestMatchers(
-                                antMatcher("/"),
-                                antMatcher("/ui/**"),
-                                antMatcher("/publicapi/**"),
-                                antMatcher("/images/**"),
-                                antMatcher("/api/users/**"),
-                                antMatcher(fileRepoUrlPattern),
-                                antMatcher("/index.html"),
-                                antMatcher("/*.css"),
-                                antMatcher("/*.css.map"),
-                                antMatcher("/*.ico"),
-                                antMatcher("/*.js"),
-                                antMatcher("/*.js.map"),
-                                antMatcher("/assets/**"),
-                                antMatcher("/media/**"))
+                                "/",
+                                "/ui/**",
+                                "/publicapi/**",
+                                "/images/**",
+                                "/api/users/**",
+                                fileRepoUrlPattern,
+                                "/index.html",
+                                "/*.css",
+                                "/*.css.map",
+                                "/*.ico",
+                                "/*.js",
+                                "/*.js.map",
+                                "/assets/**",
+                                "/media/**")
                         .permitAll()
                         .anyRequest().authenticated())
                 .oauth2ResourceServer(server -> server
@@ -85,7 +83,7 @@ public class SecurityConfiguration {
                         .jwt(withDefaults()));
         // all communication except for images over secure https channel
         http.requiresChannel(channel -> channel
-                .requestMatchers(antMatcher("/images/**"), antMatcher(fileRepoUrlPattern))
+                .requestMatchers("/images/**", fileRepoUrlPattern)
                 .requiresInsecure());
         http.requiresChannel(channel -> channel
                 .anyRequest().requiresSecure());
