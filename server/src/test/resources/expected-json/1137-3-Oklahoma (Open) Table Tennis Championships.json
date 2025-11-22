@@ -1,0 +1,422 @@
+{
+  "tournament_name": "Oklahoma (Open) Table Tennis Championships",
+  "star_rating": "1",
+  "tournament_dates": ["10/25/2025", "10/25/2025"],
+  "rating_eligibility_date": "",
+  "rating_seeding_date": "10/23/2025",
+  "entry_deadline_date": "",
+  "refund_deadline_date": "10/14/2025",
+  "late_entry_date": "10/16/2025",
+  "registration_fee": "",
+  "venue_name": "South County Recreation Center",
+  "venue_address": {
+    "street": "13800 S Peoria Avenue",
+    "city": "Bixby",
+    "state": "OK",
+    "zip": "74008-4879"
+  },
+  "website_url": "",
+  "referee": {
+    "name": "",
+    "rank": ""
+  },
+  "umpires": [
+    {
+      "name": "David Correa",
+      "rank": "CU"
+    }
+  ],
+  "directors": [
+    {
+      "name": "David Correa",
+      "phone": "405 779 3284",
+      "email": "essentialbearing@gmail.com"
+    }
+  ],
+  "equipment": {
+    "tables": "12",
+    "ball_type": "Butterfly White R40+ 3 star balls"
+  },
+  "events": [
+    {
+      "event_name": "Open Singles RR",
+      "day": "1",
+      "start_time": "12:00 PM",
+      "entry_fee": "30",
+      "is_doubles": false,
+      "single_elimination": false,
+      "max_rating": "",
+      "gender_restriction": "none",
+      "age_restriction": {
+        "type": "none",
+        "age": ""
+      },
+      "players_per_group": "4",
+      "prizes": [
+        {
+          "division": "",
+          "place": "1",
+          "place_end": "",
+          "prize_money": "200",
+          "award": ""
+        },
+        {
+          "division": "",
+          "place": "2",
+          "place_end": "",
+          "prize_money": "100",
+          "award": ""
+        },
+        {
+          "division": "",
+          "place": "3",
+          "place_end": "",
+          "prize_money": "50",
+          "award": ""
+        }
+      ]
+    },
+    {
+      "event_name": "Over 50 RR",
+      "day": "1",
+      "start_time": "9:30 AM",
+      "entry_fee": "25",
+      "is_doubles": false,
+      "single_elimination": false,
+      "max_rating": "",
+      "gender_restriction": "none",
+      "age_restriction": {
+        "type": "minimum",
+        "age": "50"
+      },
+      "players_per_group": "4",
+      "prizes": [
+        {
+          "division": "",
+          "place": "1",
+          "place_end": "",
+          "prize_money": "100",
+          "award": ""
+        },
+        {
+          "division": "",
+          "place": "2",
+          "place_end": "",
+          "prize_money": "50",
+          "award": ""
+        },
+        {
+          "division": "",
+          "place": "3",
+          "place_end": "",
+          "prize_money": "25",
+          "award": ""
+        }
+      ]
+    },
+    {
+      "event_name": "Parkinsons",
+      "day": "1",
+      "start_time": "9:30 AM",
+      "entry_fee": "20",
+      "is_doubles": false,
+      "single_elimination": false,
+      "max_rating": "",
+      "gender_restriction": "none",
+      "age_restriction": {
+        "type": "none",
+        "age": ""
+      },
+      "players_per_group": "4",
+      "prizes": [
+        {
+          "division": "",
+          "place": "1",
+          "place_end": "",
+          "prize_money": "",
+          "award": "trophy"
+        },
+        {
+          "division": "",
+          "place": "2",
+          "place_end": "",
+          "prize_money": "",
+          "award": "trophy"
+        },
+        {
+          "division": "",
+          "place": "3",
+          "place_end": "",
+          "prize_money": "",
+          "award": "medal"
+        }
+      ]
+    },
+    {
+      "event_name": "U1000 RR",
+      "day": "1",
+      "start_time": "9:30 AM",
+      "entry_fee": "25",
+      "is_doubles": false,
+      "single_elimination": false,
+      "max_rating": "999",
+      "gender_restriction": "none",
+      "age_restriction": {
+        "type": "none",
+        "age": ""
+      },
+      "players_per_group": "4",
+      "prizes": [
+        {
+          "division": "",
+          "place": "1",
+          "place_end": "",
+          "prize_money": "",
+          "award": "trophy"
+        },
+        {
+          "division": "",
+          "place": "2",
+          "place_end": "",
+          "prize_money": "",
+          "award": "trophy"
+        },
+        {
+          "division": "",
+          "place": "3",
+          "place_end": "",
+          "prize_money": "",
+          "award": "medal"
+        }
+      ]
+    },
+    {
+      "event_name": "U1200 RR",
+      "day": "1",
+      "start_time": "11:00 AM",
+      "entry_fee": "25",
+      "is_doubles": false,
+      "single_elimination": false,
+      "max_rating": "1199",
+      "gender_restriction": "none",
+      "age_restriction": {
+        "type": "none",
+        "age": ""
+      },
+      "players_per_group": "4",
+      "prizes": [
+        {
+          "division": "",
+          "place": "1",
+          "place_end": "",
+          "prize_money": "",
+          "award": "trophy"
+        },
+        {
+          "division": "",
+          "place": "2",
+          "place_end": "",
+          "prize_money": "",
+          "award": "trophy"
+        },
+        {
+          "division": "",
+          "place": "3",
+          "place_end": "",
+          "prize_money": "",
+          "award": "medal"
+        }
+      ]
+    },
+    {
+      "event_name": "U1400 RR",
+      "day": "1",
+      "start_time": "1:00 PM",
+      "entry_fee": "25",
+      "is_doubles": false,
+      "single_elimination": false,
+      "max_rating": "1399",
+      "gender_restriction": "none",
+      "age_restriction": {
+        "type": "none",
+        "age": ""
+      },
+      "players_per_group": "4",
+      "prizes": [
+        {
+          "division": "",
+          "place": "1",
+          "place_end": "",
+          "prize_money": "",
+          "award": "trophy"
+        },
+        {
+          "division": "",
+          "place": "2",
+          "place_end": "",
+          "prize_money": "",
+          "award": "trophy"
+        },
+        {
+          "division": "",
+          "place": "3",
+          "place_end": "",
+          "prize_money": "",
+          "award": "medal"
+        }
+      ]
+    },
+    {
+      "event_name": "U1600 RR",
+      "day": "1",
+      "start_time": "12:00 PM",
+      "entry_fee": "25",
+      "is_doubles": false,
+      "single_elimination": false,
+      "max_rating": "1599",
+      "gender_restriction": "none",
+      "age_restriction": {
+        "type": "none",
+        "age": ""
+      },
+      "players_per_group": "4",
+      "prizes": [
+        {
+          "division": "",
+          "place": "1",
+          "place_end": "",
+          "prize_money": "",
+          "award": "trophy"
+        },
+        {
+          "division": "",
+          "place": "2",
+          "place_end": "",
+          "prize_money": "",
+          "award": "trophy"
+        },
+        {
+          "division": "",
+          "place": "3",
+          "place_end": "",
+          "prize_money": "",
+          "award": "medal"
+        }
+      ]
+    },
+    {
+      "event_name": "U1800 RR",
+      "day": "1",
+      "start_time": "11:00 AM",
+      "entry_fee": "25",
+      "is_doubles": false,
+      "single_elimination": false,
+      "max_rating": "1799",
+      "gender_restriction": "none",
+      "age_restriction": {
+        "type": "none",
+        "age": ""
+      },
+      "players_per_group": "4",
+      "prizes": [
+        {
+          "division": "",
+          "place": "1",
+          "place_end": "",
+          "prize_money": "",
+          "award": "trophy"
+        },
+        {
+          "division": "",
+          "place": "2",
+          "place_end": "",
+          "prize_money": "",
+          "award": "trophy"
+        },
+        {
+          "division": "",
+          "place": "3",
+          "place_end": "",
+          "prize_money": "",
+          "award": "medal"
+        }
+      ]
+    },
+    {
+      "event_name": "U2000 RR",
+      "day": "1",
+      "start_time": "11:00 AM",
+      "entry_fee": "25",
+      "is_doubles": false,
+      "single_elimination": false,
+      "max_rating": "1999",
+      "gender_restriction": "none",
+      "age_restriction": {
+        "type": "none",
+        "age": ""
+      },
+      "players_per_group": "4",
+      "prizes": [
+        {
+          "division": "",
+          "place": "1",
+          "place_end": "",
+          "prize_money": "",
+          "award": "trophy"
+        },
+        {
+          "division": "",
+          "place": "2",
+          "place_end": "",
+          "prize_money": "",
+          "award": "trophy"
+        },
+        {
+          "division": "",
+          "place": "3",
+          "place_end": "",
+          "prize_money": "",
+          "award": "medal"
+        }
+      ]
+    },
+    {
+      "event_name": "Open Doubles RR",
+      "day": "1",
+      "start_time": "2:00 PM",
+      "entry_fee": "15",
+      "is_doubles": true,
+      "single_elimination": false,
+      "max_rating": "",
+      "gender_restriction": "none",
+      "age_restriction": {
+        "type": "none",
+        "age": ""
+      },
+      "players_per_group": "4",
+      "prizes": [
+        {
+          "division": "",
+          "place": "1",
+          "place_end": "",
+          "prize_money": "100",
+          "award": ""
+        },
+        {
+          "division": "",
+          "place": "2",
+          "place_end": "",
+          "prize_money": "75",
+          "award": ""
+        },
+        {
+          "division": "",
+          "place": "3",
+          "place_end": "",
+          "prize_money": "",
+          "award": "medal"
+        }
+      ]
+    }
+  ]
+}

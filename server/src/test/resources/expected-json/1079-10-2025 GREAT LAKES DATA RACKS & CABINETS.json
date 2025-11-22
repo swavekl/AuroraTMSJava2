@@ -1,0 +1,422 @@
+{
+  "tournament_name": "2025 GREAT LAKES DATA RACKS & CABINETS TABLE TENNIS TOURNAMENT",
+  "star_rating": "1",
+  "tournament_dates": ["10/18/2025", "10/19/2025"],
+  "rating_eligibility_date": "10/01/2025",
+  "rating_seeding_date": "10/16/2025",
+  "entry_deadline_date": "10/15/2025",
+  "refund_deadline_date": "10/16/2025",
+  "late_entry_date": "",
+  "registration_fee": "",
+  "venue_name": "Boys & Girls Club of Erie",
+  "venue_address": {
+    "street": "1515 East Lake Road",
+    "city": "Erie",
+    "state": "PA",
+    "zip": "16511"
+  },
+  "website_url": "http://www.ErieTTC.com",
+  "referee": {
+    "name": "Sam Steiner",
+    "rank": "CR"
+  },
+  "umpires": [
+    {
+      "name": "Sam Steiner",
+      "rank": "CU"
+    }
+  ],
+  "directors": [
+    {
+      "name": "Sam Steiner",
+      "phone": "814 602 1367",
+      "email": "ErieTTC@gmail.com"
+    }
+  ],
+  "equipment": {
+    "tables": "9",
+    "ball_type": "Nittaku 3-Star Premium 40+ white balls"
+  },
+  "events": [
+    {
+      "event_name": "U1600",
+      "day": "1",
+      "start_time": "10:00 AM",
+      "entry_fee": "40",
+      "is_doubles": false,
+      "single_elimination": false,
+      "max_rating": "1599",
+      "gender_restriction": "none",
+      "age_restriction": {
+        "type": "none",
+        "age": ""
+      },
+      "players_per_group": "4",
+      "prizes": [
+        {
+          "division": "",
+          "place": "1",
+          "place_end": "",
+          "prize_money": "",
+          "award": "trophy"
+        },
+        {
+          "division": "",
+          "place": "2",
+          "place_end": "",
+          "prize_money": "",
+          "award": "trophy"
+        }
+      ]
+    },
+    {
+      "event_name": "2600 Doubles",
+      "day": "1",
+      "start_time": "12:00 PM",
+      "entry_fee": "15",
+      "is_doubles": true,
+      "single_elimination": false,
+      "max_rating": "2599",
+      "gender_restriction": "none",
+      "age_restriction": {
+        "type": "none",
+        "age": ""
+      },
+      "players_per_group": "4",
+      "prizes": [
+        {
+          "division": "",
+          "place": "1",
+          "place_end": "",
+          "prize_money": "100",
+          "award": ""
+        },
+        {
+          "division": "",
+          "place": "2",
+          "place_end": "",
+          "prize_money": "50",
+          "award": ""
+        }
+      ]
+    },
+    {
+      "event_name": "Open",
+      "day": "1",
+      "start_time": "1:00 PM",
+      "entry_fee": "45",
+      "is_doubles": false,
+      "single_elimination": false,
+      "max_rating": "",
+      "gender_restriction": "none",
+      "age_restriction": {
+        "type": "none",
+        "age": ""
+      },
+      "players_per_group": "4",
+      "prizes": [
+        {
+          "division": "",
+          "place": "1",
+          "place_end": "",
+          "prize_money": "600",
+          "award": ""
+        },
+        {
+          "division": "",
+          "place": "2",
+          "place_end": "",
+          "prize_money": "400",
+          "award": ""
+        },
+        {
+          "division": "",
+          "place": "3",
+          "place_end": "",
+          "prize_money": "250",
+          "award": ""
+        },
+        {
+          "division": "",
+          "place": "4",
+          "place_end": "",
+          "prize_money": "125",
+          "award": ""
+        },
+        {
+          "division": "",
+          "place": "5",
+          "place_end": "",
+          "prize_money": "60",
+          "award": ""
+        },
+        {
+          "division": "",
+          "place": "6",
+          "place_end": "",
+          "prize_money": "60",
+          "award": ""
+        },
+        {
+          "division": "",
+          "place": "7",
+          "place_end": "",
+          "prize_money": "60",
+          "award": ""
+        },
+        {
+          "division": "",
+          "place": "8",
+          "place_end": "",
+          "prize_money": "60",
+          "award": ""
+        }
+      ]
+    },
+    {
+      "event_name": "U1800",
+      "day": "1",
+      "start_time": "4:00 PM",
+      "entry_fee": "40",
+      "is_doubles": false,
+      "single_elimination": false,
+      "max_rating": "1799",
+      "gender_restriction": "none",
+      "age_restriction": {
+        "type": "none",
+        "age": ""
+      },
+      "players_per_group": "4",
+      "prizes": [
+        {
+          "division": "",
+          "place": "1",
+          "place_end": "",
+          "prize_money": "100",
+          "award": ""
+        },
+        {
+          "division": "",
+          "place": "2",
+          "place_end": "",
+          "prize_money": "50",
+          "award": ""
+        }
+      ]
+    },
+    {
+      "event_name": "U2200",
+      "day": "1",
+      "start_time": "7:00 PM",
+      "entry_fee": "40",
+      "is_doubles": false,
+      "single_elimination": false,
+      "max_rating": "2199",
+      "gender_restriction": "none",
+      "age_restriction": {
+        "type": "none",
+        "age": ""
+      },
+      "players_per_group": "4",
+      "prizes": [
+        {
+          "division": "",
+          "place": "1",
+          "place_end": "",
+          "prize_money": "300",
+          "award": ""
+        },
+        {
+          "division": "",
+          "place": "2",
+          "place_end": "",
+          "prize_money": "150",
+          "award": ""
+        },
+        {
+          "division": "",
+          "place": "3",
+          "place_end": "",
+          "prize_money": "50",
+          "award": ""
+        },
+        {
+          "division": "",
+          "place": "4",
+          "place_end": "",
+          "prize_money": "50",
+          "award": ""
+        }
+      ]
+    },
+    {
+      "event_name": "U1200",
+      "day": "2",
+      "start_time": "10:00 AM",
+      "entry_fee": "35",
+      "is_doubles": false,
+      "single_elimination": false,
+      "max_rating": "1199",
+      "gender_restriction": "none",
+      "age_restriction": {
+        "type": "none",
+        "age": ""
+      },
+      "players_per_group": "4",
+      "prizes": [
+        {
+          "division": "",
+          "place": "1",
+          "place_end": "",
+          "prize_money": "",
+          "award": "trophy"
+        },
+        {
+          "division": "",
+          "place": "2",
+          "place_end": "",
+          "prize_money": "",
+          "award": "trophy"
+        }
+      ]
+    },
+    {
+      "event_name": "3700 Doubles",
+      "day": "2",
+      "start_time": "10:00 AM",
+      "entry_fee": "15",
+      "is_doubles": true,
+      "single_elimination": false,
+      "max_rating": "3699",
+      "gender_restriction": "none",
+      "age_restriction": {
+        "type": "none",
+        "age": ""
+      },
+      "players_per_group": "4",
+      "prizes": [
+        {
+          "division": "",
+          "place": "1",
+          "place_end": "",
+          "prize_money": "120",
+          "award": ""
+        },
+        {
+          "division": "",
+          "place": "2",
+          "place_end": "",
+          "prize_money": "60",
+          "award": ""
+        }
+      ]
+    },
+    {
+      "event_name": "U2000",
+      "day": "2",
+      "start_time": "1:00 PM",
+      "entry_fee": "40",
+      "is_doubles": false,
+      "single_elimination": false,
+      "max_rating": "1999",
+      "gender_restriction": "none",
+      "age_restriction": {
+        "type": "none",
+        "age": ""
+      },
+      "players_per_group": "4",
+      "prizes": [
+        {
+          "division": "",
+          "place": "1",
+          "place_end": "",
+          "prize_money": "150",
+          "award": ""
+        },
+        {
+          "division": "",
+          "place": "2",
+          "place_end": "",
+          "prize_money": "75",
+          "award": ""
+        },
+        {
+          "division": "",
+          "place": "3",
+          "place_end": "",
+          "prize_money": "30",
+          "award": ""
+        },
+        {
+          "division": "",
+          "place": "4",
+          "place_end": "",
+          "prize_money": "30",
+          "award": ""
+        }
+      ]
+    },
+    {
+      "event_name": "U1000",
+      "day": "2",
+      "start_time": "4:00 PM",
+      "entry_fee": "30",
+      "is_doubles": false,
+      "single_elimination": false,
+      "max_rating": "999",
+      "gender_restriction": "none",
+      "age_restriction": {
+        "type": "none",
+        "age": ""
+      },
+      "players_per_group": "4",
+      "prizes": [
+        {
+          "division": "",
+          "place": "1",
+          "place_end": "",
+          "prize_money": "",
+          "award": "trophy"
+        },
+        {
+          "division": "",
+          "place": "2",
+          "place_end": "",
+          "prize_money": "",
+          "award": "trophy"
+        }
+      ]
+    },
+    {
+      "event_name": "U1400",
+      "day": "2",
+      "start_time": "4:00 PM",
+      "entry_fee": "35",
+      "is_doubles": false,
+      "single_elimination": false,
+      "max_rating": "1399",
+      "gender_restriction": "none",
+      "age_restriction": {
+        "type": "none",
+        "age": ""
+      },
+      "players_per_group": "4",
+      "prizes": [
+        {
+          "division": "",
+          "place": "1",
+          "place_end": "",
+          "prize_money": "",
+          "award": "trophy"
+        },
+        {
+          "division": "",
+          "place": "2",
+          "place_end": "",
+          "prize_money": "",
+          "award": "trophy"
+        }
+      ]
+    }
+  ]
+}

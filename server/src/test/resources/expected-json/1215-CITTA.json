@@ -1,0 +1,586 @@
+{
+  "tournament_name": "2025 CITTA Fall Round Robin",
+  "star_rating": "2",
+  "tournament_dates": ["11/15/2025", "11/16/2025"],
+  "rating_eligibility_date": "10/03/2025",
+  "rating_seeding_date": "11/09/2025",
+  "late_entry_date": "11/09/2025",
+  "registration_fee": "3",
+  "venue_name": "CITTA",
+  "venue_address": {
+    "street": "3660 Edison PL",
+    "city": "Rolling Meadows",
+    "state": "IL",
+    "zip": "60008"
+  },
+  "website_url": "www.omnipong.com",
+  "referee": {
+    "name": "Narasimhan Ramakrishnan",
+    "rank": "CR"
+  },
+  "umpires": [
+    {
+      "name": "Tihomir (Tim) Stoyanov",
+      "rank": "CU"
+    },
+    {
+      "name": "Nojciech Wolski",
+      "rank": "CR"
+    }
+  ],
+  "director": {
+    "name": "Narasimhan Ramakrishnan",
+    "phone": "(847) 845-2489",
+    "email": "info@chicagoitta.com"
+  },
+  "equipment": {
+    "tables": "10",
+    "ball_type": "Nittaku 3-Star Premium 40+"
+  },
+  "events": [
+    {
+      "event_name": "O1500 Div 1 Class A",
+      "day": "11/16/2025",
+      "start_time": "09:00 AM",
+      "entry_fee": "69",
+      "is_doubles": false,
+      "single_elimination": false,
+      "max_rating": "",
+      "gender_restriction": "none",
+      "age_restriction": "none",
+      "players_per_group": "8",
+      "prizes": [
+        {
+          "place": "1st place",
+          "award": "$400 + Trophy"
+        },
+        {
+          "place": "2nd place",
+          "award": "$200 + Trophy"
+        },
+        {
+          "place": "3rd place",
+          "award": "$150 + Trophy"
+        },
+        {
+          "place": "4th place",
+          "award": "$100"
+        },
+        {
+          "place": "5th-8th place",
+          "award": "$75"
+        }
+      ]
+    },
+    {
+      "event_name": "O1500 Div 1 Class B",
+      "day": "11/16/2025",
+      "start_time": "09:00 AM",
+      "entry_fee": "69",
+      "is_doubles": false,
+      "single_elimination": false,
+      "max_rating": "",
+      "gender_restriction": "none",
+      "age_restriction": "none",
+      "players_per_group": "8",
+      "prizes": [
+        {
+          "place": "1st place",
+          "award": "$175 + Trophy"
+        },
+        {
+          "place": "2nd place",
+          "award": "$125 + Trophy"
+        },
+        {
+          "place": "3rd place",
+          "award": "$100 + Trophy"
+        },
+        {
+          "place": "",
+          "award": ""
+        },
+        {
+          "place": "",
+          "award": ""
+        }
+      ]
+    },
+    {
+      "event_name": "O1500 Div 1 Class C",
+      "day": "11/16/2025",
+      "start_time": "09:00 AM",
+      "entry_fee": "69",
+      "is_doubles": false,
+      "single_elimination": false,
+      "max_rating": "",
+      "gender_restriction": "none",
+      "age_restriction": "none",
+      "players_per_group": "8",
+      "prizes": [
+        {
+          "place": "1st place",
+          "award": "$150 + Trophy"
+        },
+        {
+          "place": "2nd place",
+          "award": "$110 + Trophy"
+        },
+        {
+          "place": "3rd place",
+          "award": "$90 + Trophy"
+        },
+        {
+          "place": "",
+          "award": ""
+        },
+        {
+          "place": "",
+          "award": ""
+        }
+      ]
+    },
+    {
+      "event_name": "O1500 Div 1 Class D",
+      "day": "11/16/2025",
+      "start_time": "09:00 PM",
+      "entry_fee": "69",
+      "is_doubles": false,
+      "single_elimination": false,
+      "max_rating": "",
+      "gender_restriction": "none",
+      "age_restriction": "none",
+      "players_per_group": "8",
+      "prizes": [
+        {
+          "place": "1st place",
+          "award": "$125 + Trophy"
+        },
+        {
+          "place": "2nd place",
+          "award": "$100 + Trophy"
+        },
+        {
+          "place": "3rd place",
+          "award": "$75 + Trophy"
+        },
+        {
+          "place": "",
+          "award": ""
+        },
+        {
+          "place": "",
+          "award": ""
+        }
+      ]
+    },
+    {
+      "event_name": "O1500 Div 2 Class A",
+      "day": "11/16/2025",
+      "start_time": "03:00 PM",
+      "entry_fee": "69",
+      "is_doubles": false,
+      "single_elimination": false,
+      "max_rating": "",
+      "gender_restriction": "none",
+      "age_restriction": "none",
+      "players_per_group": "8",
+      "prizes": [
+        {
+          "place": "",
+          "award": ""
+        },
+        {
+          "place": "",
+          "award": ""
+        },
+        {
+          "place": "",
+          "award": ""
+        },
+        {
+          "place": "",
+          "award": ""
+        },
+        {
+          "place": "",
+          "award": ""
+        }
+      ]
+    },
+    {
+      "event_name": "O1500 Div 2 Class B",
+      "day": "11/16/2025",
+      "start_time": "03:00 PM",
+      "entry_fee": "69",
+      "is_doubles": false,
+      "single_elimination": false,
+      "max_rating": "",
+      "gender_restriction": "none",
+      "age_restriction": "none",
+      "players_per_group": "8",
+      "prizes": [
+        {
+          "place": "",
+          "award": ""
+        },
+        {
+          "place": "",
+          "award": ""
+        },
+        {
+          "place": "",
+          "award": ""
+        },
+        {
+          "place": "",
+          "award": ""
+        },
+        {
+          "place": "",
+          "award": ""
+        }
+      ]
+    },
+    {
+      "event_name": "O1500 Div 2 Class C",
+      "day": "11/16/2025",
+      "start_time": "03:00 PM",
+      "entry_fee": "69",
+      "is_doubles": false,
+      "single_elimination": false,
+      "max_rating": "",
+      "gender_restriction": "none",
+      "age_restriction": "none",
+      "players_per_group": "8",
+      "prizes": [
+        {
+          "place": "",
+          "award": ""
+        },
+        {
+          "place": "",
+          "award": ""
+        },
+        {
+          "place": "",
+          "award": ""
+        },
+        {
+          "place": "",
+          "award": ""
+        },
+        {
+          "place": "",
+          "award": ""
+        }
+      ]
+    },
+    {
+      "event_name": "O1500 Div 2 Class D",
+      "day": "11/16/2025",
+      "start_time": "03:00 PM",
+      "entry_fee": "69",
+      "is_doubles": false,
+      "single_elimination": false,
+      "max_rating": "",
+      "gender_restriction": "none",
+      "age_restriction": "none",
+      "players_per_group": "8",
+      "prizes": [
+        {
+          "place": "",
+          "award": ""
+        },
+        {
+          "place": "",
+          "award": ""
+        },
+        {
+          "place": "",
+          "award": ""
+        },
+        {
+          "place": "",
+          "award": ""
+        },
+        {
+          "place": "",
+          "award": ""
+        }
+      ]
+    },
+    {
+      "event_name": "U1500 Div 3 Class A",
+      "day": "11/15/2025",
+      "start_time": "03:00 PM",
+      "entry_fee": "69",
+      "is_doubles": false,
+      "single_elimination": false,
+      "max_rating": "",
+      "gender_restriction": "none",
+      "age_restriction": "none",
+      "players_per_group": "8",
+      "prizes": [
+        {
+          "place": "",
+          "award": ""
+        },
+        {
+          "place": "",
+          "award": ""
+        },
+        {
+          "place": "",
+          "award": ""
+        },
+        {
+          "place": "",
+          "award": ""
+        },
+        {
+          "place": "",
+          "award": ""
+        }
+      ]
+    },
+    {
+      "event_name": "U1500 Div 3 Class B",
+      "day": "11/15/2025",
+      "start_time": "03:00 AM",
+      "entry_fee": "69",
+      "is_doubles": false,
+      "single_elimination": false,
+      "max_rating": "",
+      "gender_restriction": "none",
+      "age_restriction": "none",
+      "players_per_group": "8",
+      "prizes": [
+        {
+          "place": "",
+          "award": ""
+        },
+        {
+          "place": "",
+          "award": ""
+        },
+        {
+          "place": "",
+          "award": ""
+        },
+        {
+          "place": "",
+          "award": ""
+        },
+        {
+          "place": "",
+          "award": ""
+        }
+      ]
+    },
+    {
+      "event_name": "U1500 Div 3 Class C",
+      "day": "11/15/2025",
+      "start_time": "03:00 PM",
+      "entry_fee": "69",
+      "is_doubles": false,
+      "single_elimination": false,
+      "max_rating": "",
+      "gender_restriction": "none",
+      "age_restriction": "none",
+      "players_per_group": "8",
+      "prizes": [
+        {
+          "place": "",
+          "award": ""
+        },
+        {
+          "place": "",
+          "award": ""
+        },
+        {
+          "place": "",
+          "award": ""
+        },
+        {
+          "place": "",
+          "award": ""
+        },
+        {
+          "place": "",
+          "award": ""
+        }
+      ]
+    },
+    {
+      "event_name": "U1500 Div 3 Class D",
+      "day": "11/15/2025",
+      "start_time": "03:00 PM",
+      "entry_fee": "69",
+      "is_doubles": false,
+      "single_elimination": false,
+      "max_rating": "",
+      "gender_restriction": "none",
+      "age_restriction": "none",
+      "players_per_group": "8",
+      "prizes": [
+        {
+          "place": "",
+          "award": ""
+        },
+        {
+          "place": "",
+          "award": ""
+        },
+        {
+          "place": "",
+          "award": ""
+        },
+        {
+          "place": "",
+          "award": ""
+        },
+        {
+          "place": "",
+          "award": ""
+        }
+      ]
+    },
+    {
+      "event_name": "U1500 Div 4 Class A",
+      "day": "11/15/2025",
+      "start_time": "09:00 AM",
+      "entry_fee": "69",
+      "is_doubles": false,
+      "single_elimination": false,
+      "max_rating": "",
+      "gender_restriction": "none",
+      "age_restriction": "none",
+      "players_per_group": "8",
+      "prizes": [
+        {
+          "place": "",
+          "award": ""
+        },
+        {
+          "place": "",
+          "award": ""
+        },
+        {
+          "place": "",
+          "award": ""
+        },
+        {
+          "place": "",
+          "award": ""
+        },
+        {
+          "place": "",
+          "award": ""
+        }
+      ]
+    },
+    {
+      "event_name": "U1500 Div 4 Class B",
+      "day": "11/15/2025",
+      "start_time": "09:00 AM",
+      "entry_fee": "69",
+      "is_doubles": false,
+      "single_elimination": false,
+      "max_rating": "",
+      "gender_restriction": "none",
+      "age_restriction": "none",
+      "players_per_group": "8",
+      "prizes": [
+        {
+          "place": "",
+          "award": ""
+        },
+        {
+          "place": "",
+          "award": ""
+        },
+        {
+          "place": "",
+          "award": ""
+        },
+        {
+          "place": "",
+          "award": ""
+        },
+        {
+          "place": "",
+          "award": ""
+        }
+      ]
+    },
+    {
+      "event_name": "U1500 Div 4 Class C",
+      "day": "11/15/2025",
+      "start_time": "09:00 AM",
+      "entry_fee": "69",
+      "is_doubles": false,
+      "single_elimination": false,
+      "max_rating": "",
+      "gender_restriction": "none",
+      "age_restriction": "none",
+      "players_per_group": "8",
+      "prizes": [
+        {
+          "place": "",
+          "award": ""
+        },
+        {
+          "place": "",
+          "award": ""
+        },
+        {
+          "place": "",
+          "award": ""
+        },
+        {
+          "place": "",
+          "award": ""
+        },
+        {
+          "place": "",
+          "award": ""
+        }
+      ]
+    },
+    {
+      "event_name": "U1500 Div 4 Class D",
+      "day": "11/15/2025",
+      "start_time": "09:00 AM",
+      "entry_fee": "69",
+      "is_doubles": false,
+      "single_elimination": false,
+      "max_rating": "",
+      "gender_restriction": "none",
+      "age_restriction": "none",
+      "players_per_group": "8",
+      "prizes": [
+        {
+          "place": "",
+          "award": ""
+        },
+        {
+          "place": "",
+          "award": ""
+        },
+        {
+          "place": "",
+          "award": ""
+        },
+        {
+          "place": "",
+          "award": ""
+        },
+        {
+          "place": "",
+          "award": ""
+        }
+      ]
+    }
+  ]
+}

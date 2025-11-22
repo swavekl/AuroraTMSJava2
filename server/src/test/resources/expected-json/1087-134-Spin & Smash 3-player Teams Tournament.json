@@ -1,0 +1,109 @@
+{
+  "tournament_name": "Spin & Smash 3-Player Teams Tournament & US Open Warm-up",
+  "star_rating": "",
+  "tournament_dates": ["12/06/2025", "12/06/2025"],
+  "rating_eligibility_date": "",
+  "rating_seeding_date": "12/04/2025",
+  "entry_deadline_date": "12/01/2025",
+  "refund_deadline_date": "12/01/2025",
+  "late_entry_date": "",
+  "registration_fee": "",
+  "venue_name": "Spin & Smash Table Tennis & Ping Pong Center",
+  "venue_address": {
+    "street": "9525 OH-161",
+    "city": "Plain City",
+    "state": "OH",
+    "zip": "43064"
+  },
+  "website_url": "",
+  "referee": {
+    "name": "Dave Fullen",
+    "rank": ""
+  },
+  "umpires": [],
+  "directors": [
+    {
+      "name": "Dave Fullen",
+      "phone": "614 937 1626",
+      "email": "Dave@play3tc.com"
+    }
+  ],
+  "equipment": {
+    "tables": "3",
+    "ball_type": "Butterfly R40"
+  },
+  "events": [
+    {
+      "event_name": "4500 Players < 1600",
+      "day": "1",
+      "start_time": "10:00 AM",
+      "entry_fee": "10",
+      "is_doubles": false,
+      "single_elimination": false,
+      "max_rating": "1599",
+      "gender_restriction": "none",
+      "age_restriction": {
+        "type": "none",
+        "age": ""
+      },
+      "players_per_group": "3",
+      "prizes": [
+        {
+          "division": "",
+          "place": "1",
+          "place_end": "",
+          "prize_money": "",
+          "award": ""
+        }
+      ]
+    },
+    {
+      "event_name": "5000 Players < 1800",
+      "day": "1",
+      "start_time": "1:00 PM",
+      "entry_fee": "15",
+      "is_doubles": false,
+      "single_elimination": false,
+      "max_rating": "1799",
+      "gender_restriction": "none",
+      "age_restriction": {
+        "type": "none",
+        "age": ""
+      },
+      "players_per_group": "3",
+      "prizes": [
+        {
+          "division": "",
+          "place": "1",
+          "place_end": "",
+          "prize_money": "",
+          "award": ""
+        }
+      ]
+    },
+    {
+      "event_name": "5500 Players < 2100",
+      "day": "1",
+      "start_time": "5:00 PM",
+      "entry_fee": "20",
+      "is_doubles": false,
+      "single_elimination": false,
+      "max_rating": "2099",
+      "gender_restriction": "none",
+      "age_restriction": {
+        "type": "none",
+        "age": ""
+      },
+      "players_per_group": "3",
+      "prizes": [
+        {
+          "division": "",
+          "place": "1",
+          "place_end": "",
+          "prize_money": "",
+          "award": ""
+        }
+      ]
+    }
+  ]
+}

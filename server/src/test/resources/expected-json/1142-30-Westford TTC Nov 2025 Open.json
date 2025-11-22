@@ -1,0 +1,250 @@
+{
+  "tournament_name": "Westford TTC Nov 2025 Open Tournament",
+  "star_rating": "0",
+  "tournament_dates": ["11/16/2025"],
+  "rating_eligibility_date": "",
+  "rating_seeding_date": "11/12/2025",
+  "late_entry_date": "",
+  "registration_fee": "5",
+  "venue_name": "Westford Table Tennis Club",
+  "venue_address": {
+    "street": "22 Town Farm Rd",
+    "city": "Westford",
+    "state": "MA",
+    "zip": "01886"
+  },
+  "website_url": "",
+  "referee": {
+    "name": "Donald Hayes",
+    "rank": "CU"
+  },
+  "umpires": [],
+  "director": {
+    "name": "Qiumars Hedayatian",
+    "phone": "617-669-5585",
+    "email": ""
+  },
+  "equipment": {
+    "tables": "10",
+    "ball_type": "Nittaku 3-star premium white plastic (40+) balls"
+  },
+  "events": [
+    {
+      "event_name": "Open Singles",
+      "day": "1",
+      "start_time": "1:00 PM",
+      "entry_fee": "40",
+      "is_doubles": false,
+      "single_elimination": false,
+      "max_rating": "",
+      "gender_restriction": "none",
+      "age_restriction": {
+        "type": "none",
+        "age": ""
+      },
+      "players_per_group": "4",
+      "prizes": [
+        {
+          "division": "",
+          "place": "1",
+          "place_end": "",
+          "prize_money": "",
+          "award": "medal"
+        },
+        {
+          "division": "",
+          "place": "2",
+          "place_end": "",
+          "prize_money": "",
+          "award": "medal"
+        }
+      ]
+    },
+    {
+      "event_name": "U-1000",
+      "day": "1",
+      "start_time": "9:00 AM",
+      "entry_fee": "30",
+      "is_doubles": false,
+      "single_elimination": false,
+      "max_rating": "999",
+      "gender_restriction": "none",
+      "age_restriction": {
+        "type": "none",
+        "age": ""
+      },
+      "players_per_group": "4",
+      "prizes": [
+        {
+          "division": "",
+          "place": "1",
+          "place_end": "",
+          "prize_money": "",
+          "award": "medal"
+        },
+        {
+          "division": "",
+          "place": "2",
+          "place_end": "",
+          "prize_money": "",
+          "award": "medal"
+        }
+      ]
+    },
+    {
+      "event_name": "U-1200",
+      "day": "1",
+      "start_time": "9:30 AM",
+      "entry_fee": "30",
+      "is_doubles": false,
+      "single_elimination": false,
+      "max_rating": "1199",
+      "gender_restriction": "none",
+      "age_restriction": {
+        "type": "none",
+        "age": ""
+      },
+      "players_per_group": "4",
+      "prizes": [
+        {
+          "division": "",
+          "place": "1",
+          "place_end": "",
+          "prize_money": "",
+          "award": "medal"
+        },
+        {
+          "division": "",
+          "place": "2",
+          "place_end": "",
+          "prize_money": "",
+          "award": "medal"
+        }
+      ]
+    },
+    {
+      "event_name": "U-1400",
+      "day": "1",
+      "start_time": "10:00 AM",
+      "entry_fee": "30",
+      "is_doubles": false,
+      "single_elimination": false,
+      "max_rating": "1399",
+      "gender_restriction": "none",
+      "age_restriction": {
+        "type": "none",
+        "age": ""
+      },
+      "players_per_group": "4",
+      "prizes": [
+        {
+          "division": "",
+          "place": "1",
+          "place_end": "",
+          "prize_money": "",
+          "award": "medal"
+        },
+        {
+          "division": "",
+          "place": "2",
+          "place_end": "",
+          "prize_money": "",
+          "award": "medal"
+        }
+      ]
+    },
+    {
+      "event_name": "U-1600",
+      "day": "1",
+      "start_time": "9:00 AM",
+      "entry_fee": "30",
+      "is_doubles": false,
+      "single_elimination": false,
+      "max_rating": "1599",
+      "gender_restriction": "none",
+      "age_restriction": {
+        "type": "none",
+        "age": ""
+      },
+      "players_per_group": "4",
+      "prizes": [
+        {
+          "division": "",
+          "place": "1",
+          "place_end": "",
+          "prize_money": "",
+          "award": "medal"
+        },
+        {
+          "division": "",
+          "place": "2",
+          "place_end": "",
+          "prize_money": "",
+          "award": "medal"
+        }
+      ]
+    },
+    {
+      "event_name": "U-1800",
+      "day": "1",
+      "start_time": "11:30 AM",
+      "entry_fee": "30",
+      "is_doubles": false,
+      "single_elimination": false,
+      "max_rating": "1799",
+      "gender_restriction": "none",
+      "age_restriction": {
+        "type": "none",
+        "age": ""
+      },
+      "players_per_group": "4",
+      "prizes": [
+        {
+          "division": "",
+          "place": "1",
+          "place_end": "",
+          "prize_money": "",
+          "award": "medal"
+        },
+        {
+          "division": "",
+          "place": "2",
+          "place_end": "",
+          "prize_money": "",
+          "award": "medal"
+        }
+      ]
+    },
+    {
+      "event_name": "U-2200",
+      "day": "1",
+      "start_time": "12:00 PM",
+      "entry_fee": "40",
+      "is_doubles": false,
+      "single_elimination": false,
+      "max_rating": "2199",
+      "gender_restriction": "none",
+      "age_restriction": {
+        "type": "none",
+        "age": ""
+      },
+      "players_per_group": "4",
+      "prizes": [
+        {
+          "division": "",
+          "place": "1",
+          "place_end": "",
+          "prize_money": "100",
+          "award": ""
+        },
+        {
+          "division": "",
+          "place": "2",
+          "place_end": "",
+          "prize_money": "50",
+          "award": ""
+        }
+      ]
+    }
+  ]
+}

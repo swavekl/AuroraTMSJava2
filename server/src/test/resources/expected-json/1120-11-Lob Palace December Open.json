@@ -1,0 +1,223 @@
+{
+  "tournament_name": "Lob Palace December Open",
+  "star_rating": "1",
+  "tournament_dates": ["12/06/2025", "12/06/2025"],
+  "rating_eligibility_date": "12/04/2025",
+  "rating_seeding_date": "12/04/2025",
+  "entry_deadline_date": "12/04/2025",
+  "refund_deadline_date": "12/04/2025",
+  "late_entry_date": "",
+  "registration_fee": "10",
+  "venue_name": "Millersville Bible Church",
+  "venue_address": {
+    "street": "1940 New Danville Pike",
+    "city": "Lancaster",
+    "state": "PA",
+    "zip": "17603"
+  },
+  "website_url": "",
+  "referee": {
+    "name": "Eric Hine",
+    "rank": "CU"
+  },
+  "umpires": [],
+  "directors": [
+    {
+      "name": "Eric Hine",
+      "phone": "717 989 5409",
+      "email": "info@mbctabletennis.com"
+    }
+  ],
+  "equipment": {
+    "tables": "8",
+    "ball_type": "Nittaku Premium 40+ 3 Star Poly Balls"
+  },
+  "events": [
+    {
+      "event_name": "Under 800 RR",
+      "day": "1",
+      "start_time": "9:00 AM",
+      "entry_fee": "15",
+      "is_doubles": false,
+      "single_elimination": false,
+      "max_rating": "799",
+      "gender_restriction": "none",
+      "age_restriction": {
+        "type": "none",
+        "age": ""
+      },
+      "players_per_group": "4",
+      "prizes": [
+        {
+          "division": "",
+          "place": "1",
+          "place_end": "",
+          "prize_money": "",
+          "award": "trophy"
+        },
+        {
+          "division": "",
+          "place": "2",
+          "place_end": "",
+          "prize_money": "",
+          "award": "trophy"
+        }
+      ]
+    },
+    {
+      "event_name": "Under 1200 RR",
+      "day": "1",
+      "start_time": "9:00 AM",
+      "entry_fee": "15",
+      "is_doubles": false,
+      "single_elimination": false,
+      "max_rating": "1199",
+      "gender_restriction": "none",
+      "age_restriction": {
+        "type": "none",
+        "age": ""
+      },
+      "players_per_group": "4",
+      "prizes": [
+        {
+          "division": "",
+          "place": "1",
+          "place_end": "",
+          "prize_money": "",
+          "award": "trophy"
+        },
+        {
+          "division": "",
+          "place": "2",
+          "place_end": "",
+          "prize_money": "",
+          "award": "trophy"
+        }
+      ]
+    },
+    {
+      "event_name": "Under 1400 RR",
+      "day": "1",
+      "start_time": "12:00 PM",
+      "entry_fee": "15",
+      "is_doubles": false,
+      "single_elimination": false,
+      "max_rating": "1399",
+      "gender_restriction": "none",
+      "age_restriction": {
+        "type": "none",
+        "age": ""
+      },
+      "players_per_group": "4",
+      "prizes": [
+        {
+          "division": "",
+          "place": "1",
+          "place_end": "",
+          "prize_money": "",
+          "award": "trophy"
+        },
+        {
+          "division": "",
+          "place": "2",
+          "place_end": "",
+          "prize_money": "",
+          "award": "trophy"
+        }
+      ]
+    },
+    {
+      "event_name": "Under 1800 RR",
+      "day": "1",
+      "start_time": "3:00 PM",
+      "entry_fee": "15",
+      "is_doubles": false,
+      "single_elimination": false,
+      "max_rating": "1799",
+      "gender_restriction": "none",
+      "age_restriction": {
+        "type": "none",
+        "age": ""
+      },
+      "players_per_group": "4",
+      "prizes": [
+        {
+          "division": "",
+          "place": "1",
+          "place_end": "",
+          "prize_money": "",
+          "award": "trophy"
+        },
+        {
+          "division": "",
+          "place": "2",
+          "place_end": "",
+          "prize_money": "",
+          "award": "trophy"
+        }
+      ]
+    },
+    {
+      "event_name": "Under 2200 RR",
+      "day": "1",
+      "start_time": "1:00 PM",
+      "entry_fee": "25",
+      "is_doubles": false,
+      "single_elimination": false,
+      "max_rating": "2199",
+      "gender_restriction": "none",
+      "age_restriction": {
+        "type": "none",
+        "age": ""
+      },
+      "players_per_group": "4",
+      "prizes": [
+        {
+          "division": "",
+          "place": "1",
+          "place_end": "",
+          "prize_money": "100",
+          "award": ""
+        },
+        {
+          "division": "",
+          "place": "2",
+          "place_end": "",
+          "prize_money": "50",
+          "award": ""
+        }
+      ]
+    },
+    {
+      "event_name": "Open RR",
+      "day": "1",
+      "start_time": "10:00 AM",
+      "entry_fee": "30",
+      "is_doubles": false,
+      "single_elimination": false,
+      "max_rating": "",
+      "gender_restriction": "none",
+      "age_restriction": {
+        "type": "none",
+        "age": ""
+      },
+      "players_per_group": "4",
+      "prizes": [
+        {
+          "division": "",
+          "place": "1",
+          "place_end": "",
+          "prize_money": "200",
+          "award": ""
+        },
+        {
+          "division": "",
+          "place": "2",
+          "place_end": "",
+          "prize_money": "150",
+          "award": ""
+        }
+      ]
+    }
+  ]
+}

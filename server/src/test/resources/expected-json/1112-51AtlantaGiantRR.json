@@ -1,0 +1,134 @@
+{
+  "tournament_name": "2025 Atlanta Fall GRR Table Tennis Tournament",
+  "star_rating": "3",
+  "tournament_dates": ["11/01/2025"],
+  "rating_eligibility_date": "10/25/2025",
+  "rating_seeding_date": "10/30/2025",
+  "late_entry_date": "",
+  "registration_fee": "15",
+  "venue_name": "Lucky Shoals Recreation Center",
+  "venue_address": {
+    "street": "4651 Britt Rd.",
+    "city": "Norcross",
+    "state": "GA",
+    "zip": "30071"
+  },
+  "website_url": "",
+  "referee": {
+    "name": "William Englebreth",
+    "rank": "IR/IU"
+  },
+  "umpires": [],
+  "director": {
+    "name": "William Englebreth",
+    "phone": "7045602441",
+    "email": "wrenglebreth@gmail.com"
+  },
+  "equipment": {
+    "tables": "16",
+    "ball_type": "Nittaku Premium 40+ (plastic) balls"
+  },
+  "events": [
+    {
+      "event_name": "Giant Round Robin",
+      "day": "1",
+      "start_time": "9:00 AM",
+      "entry_fee": "75",
+      "is_doubles": false,
+      "single_elimination": false,
+      "max_rating": "",
+      "gender_restriction": "none",
+      "age_restriction": {
+        "type": "none",
+        "age": ""
+      },
+      "players_per_group": "6",
+      "prizes": [
+        {
+          "division": "Championship",
+          "place": "1",
+          "place_end": "",
+          "prize_money": "1000",
+          "award": ""
+        },
+        {
+          "division": "Championship",
+          "place": "2",
+          "place_end": "",
+          "prize_money": "350",
+          "award": ""
+        },
+        {
+          "division": "Championship",
+          "place": "3",
+          "place_end": "4",
+          "prize_money": "100",
+          "award": ""
+        },
+        {
+          "division": "Class AA",
+          "place": "1",
+          "place_end": "",
+          "prize_money": "150",
+          "award": ""
+        },
+        {
+          "division": "Class AA",
+          "place": "2",
+          "place_end": "",
+          "prize_money": "75",
+          "award": ""
+        },
+        {
+          "division": "Class A",
+          "place": "1",
+          "place_end": "",
+          "prize_money": "75",
+          "award": ""
+        },
+        {
+          "division": "Class B",
+          "place": "1",
+          "place_end": "",
+          "prize_money": "",
+          "award": "trophy"
+        },
+        {
+          "division": "Class B",
+          "place": "2",
+          "place_end": "",
+          "prize_money": "",
+          "award": "trophy"
+        },
+        {
+          "division": "Class C",
+          "place": "1",
+          "place_end": "",
+          "prize_money": "",
+          "award": "trophy"
+        },
+        {
+          "division": "Class C",
+          "place": "2",
+          "place_end": "",
+          "prize_money": "",
+          "award": "trophy"
+        },
+        {
+          "division": "Class D",
+          "place": "1",
+          "place_end": "",
+          "prize_money": "",
+          "award": "trophy"
+        },
+        {
+          "division": "Class D",
+          "place": "2",
+          "place_end": "",
+          "prize_money": "",
+          "award": "trophy"
+        }
+      ]
+    }
+  ]
+}

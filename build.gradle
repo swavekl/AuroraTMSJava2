@@ -9,7 +9,7 @@ allprojects {
 
 import com.bmuschko.gradle.docker.tasks.image.*
 
-task copyDockerMaterials(type: Copy, dependsOn: [':server:bootJar', ':server:jar']) {
+task copyDockerMaterials(type: Copy, dependsOn: [':server:bootJar', ':server:jar',':client: buildAngularApp']) {
    from file("server/build/libs/server-${rootProject.version}.jar")
    from file ("kubernetes/vault-standalone/vault.properties")
    from file ("kubernetes/vault-standalone/tls/ca.pem")

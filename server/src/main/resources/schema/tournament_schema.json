@@ -1,0 +1,107 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Tournament Schema",
+  "type": "object",
+  "properties": {
+    "tournament_name": {
+      "type": "string"
+    },
+    "star_rating": {
+      "type": "string"
+    },
+    "tournament_dates": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^\\d{2}/\\d{2}/\\d{4}$"
+      }
+    },
+    "rating_eligibility_date": {
+      "type": "string"
+    },
+    "rating_seeding_date": {
+      "type": "string"
+    },
+    "entry_deadline_date": {
+      "type": "string"
+    },
+    "refund_deadline_date": {
+      "type": "string"
+    },
+    "late_entry_date": {
+      "type": "string"
+    },
+    "registration_fee": {
+      "type": "string"
+    },
+    "venue_name": {
+      "type": "string"
+    },
+    "venue_address": {
+      "type": "object",
+      "properties": {
+        "street": { "type": "string" },
+        "city": { "type": "string" },
+        "state": { "type": "string" },
+        "zip": { "type": "string" }
+      },
+      "required": ["street", "city", "state"]
+    },
+    "website_url": {
+      "type": "string"
+    },
+
+    "referee": {
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "rank": { "type": "string" }
+      },
+      "required": ["name", "rank"]
+    },
+
+    "umpires": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "rank": { "type": "string" }
+        },
+        "required": ["name", "rank"]
+      }
+    },
+
+    "directors": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "phone": { "type": "string" },
+          "email": { "type": "string" }
+        },
+        "required": ["name", "phone"]
+      }
+    },
+
+    "equipment": {
+      "type": "object",
+      "properties": {
+        "tables": { "type": "string" },
+        "ball_type": { "type": "string" }
+      },
+      "required": ["tables", "ball_type"]
+    }
+  },
+
+  "required": [
+    "tournament_name",
+    "tournament_dates",
+    "venue_address",
+    "referee",
+    "umpires",
+    "directors",
+    "equipment"
+  ]
+}

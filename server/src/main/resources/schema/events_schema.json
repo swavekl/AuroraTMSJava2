@@ -1,0 +1,87 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Tournament Event Extraction Schema",
+  "type": "object",
+
+  "properties": {
+    "events": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+
+          "event_name": { "type": "string" },
+          "day": { "type": "string" },
+          "start_time": { "type": "string" },
+          "entry_fee": { "type": "string" },
+
+          "is_doubles": { "type": "boolean" },
+          "single_elimination": { "type": "boolean" },
+
+          "max_rating": { "type": "string" },
+
+          "gender_restriction": {
+            "type": "string",
+            "enum": ["none", "male", "female"]
+          },
+
+          "age_restriction": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["none", "minimum", "maximum"]
+              },
+              "age": { "type": "string" }
+            },
+            "required": ["type", "age"]
+          },
+
+          "players_per_group": { "type": "string" },
+
+          "prizes": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+
+                "division": { "type": "string" },
+
+                "place": { "type": "string" },
+
+                "place_end": { "type": "string" },
+
+                "prize_money": { "type": "string" },
+
+                "award": { "type": "string" }
+              },
+              "required": [
+                "division",
+                "place",
+                "place_end",
+                "prize_money",
+                "award"
+              ]
+            }
+          }
+        },
+
+        "required": [
+          "event_name",
+          "day",
+          "start_time",
+          "entry_fee",
+          "is_doubles",
+          "single_elimination",
+          "max_rating",
+          "gender_restriction",
+          "age_restriction",
+          "players_per_group",
+          "prizes"
+        ]
+      }
+    }
+  },
+
+  "required": ["events"]
+}

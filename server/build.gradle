@@ -4,6 +4,8 @@ buildscript {
     }
     repositories {
         mavenCentral()
+        maven { url "https://repo.spring.io/milestone" }
+        maven { url "https://jitpack.io" }
     }
     dependencies {
         classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
@@ -143,6 +145,28 @@ dependencies {
 
     // quartz scheduler for cleanup job
     implementation 'org.springframework.boot:spring-boot-starter-quartz'
+
+    // Spring AI OpenAI integration (official Spring module)
+    implementation "org.springframework.ai:spring-ai-starter-model-openai:1.0.0"
+
+    // PDF text extraction
+    implementation 'org.apache.pdfbox:pdfbox:3.0.5'
+
+    // Tess4J OCR wrapper for Tesseract
+    implementation 'net.sourceforge.tess4j:tess4j:5.16.0'
+
+    // JSON Schema validation
+    implementation "com.github.erosb:everit-json-schema:1.14.1"
+    implementation "org.json:json:20240303"
+
+    // Optional JSON utilities
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.18.3'
+
+    // Logging
+    implementation 'org.springframework.boot:spring-boot-starter-logging'
+    // Force the correct logback version (1.5.x)
+    implementation 'ch.qos.logback:logback-classic:1.5.6'
+    implementation 'ch.qos.logback:logback-core:1.5.6'
 }
 
 task copyAngularApp (type: Copy, dependsOn: ':client:buildAngularApp') {

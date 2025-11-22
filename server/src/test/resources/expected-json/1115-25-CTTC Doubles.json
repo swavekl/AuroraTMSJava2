@@ -1,0 +1,254 @@
+{
+  "tournament_name": "DOUBLE THE FUN",
+  "star_rating": "",
+  "tournament_dates": ["11/01/2025", "11/01/2025"],
+  "rating_eligibility_date": "",
+  "rating_seeding_date": "10/30/2025",
+  "entry_deadline_date": "10/25/2025",
+  "refund_deadline_date": "10/27/2025",
+  "late_entry_date": "",
+  "registration_fee": "",
+  "venue_name": "Columbus Table Tennis Club",
+  "venue_address": {
+    "street": "653 E. 8th Avenue",
+    "city": "Columbus",
+    "state": "OH",
+    "zip": "43201"
+  },
+  "website_url": "",
+  "referee": {
+    "name": "Stan Kobylanski",
+    "rank": ""
+  },
+  "umpires": [],
+  "directors": [
+    {
+      "name": "Jan Lie",
+      "phone": "614 743 9491",
+      "email": "JanLieTT@Yahoo.com"
+    }
+  ],
+  "equipment": {
+    "tables": "8",
+    "ball_type": "Nittaku 3-star premium (white)"
+  },
+  "events": [
+    {
+      "event_name": "Under 4200",
+      "day": "1",
+      "start_time": "10:00 AM",
+      "entry_fee": "20",
+      "is_doubles": true,
+      "single_elimination": false,
+      "max_rating": "4199",
+      "gender_restriction": "none",
+      "age_restriction": {
+        "type": "none",
+        "age": ""
+      },
+      "players_per_group": "4",
+      "prizes": [
+        {
+          "division": "",
+          "place": "1",
+          "place_end": "",
+          "prize_money": "40",
+          "award": ""
+        },
+        {
+          "division": "",
+          "place": "2",
+          "place_end": "",
+          "prize_money": "20",
+          "award": ""
+        }
+      ]
+    },
+    {
+      "event_name": "Under 4000",
+      "day": "1",
+      "start_time": "1:00 PM",
+      "entry_fee": "20",
+      "is_doubles": true,
+      "single_elimination": false,
+      "max_rating": "3999",
+      "gender_restriction": "none",
+      "age_restriction": {
+        "type": "none",
+        "age": ""
+      },
+      "players_per_group": "4",
+      "prizes": [
+        {
+          "division": "",
+          "place": "1",
+          "place_end": "",
+          "prize_money": "40",
+          "award": ""
+        },
+        {
+          "division": "",
+          "place": "2",
+          "place_end": "",
+          "prize_money": "20",
+          "award": ""
+        }
+      ]
+    },
+    {
+      "event_name": "Under 3600",
+      "day": "1",
+      "start_time": "5:00 PM",
+      "entry_fee": "20",
+      "is_doubles": true,
+      "single_elimination": false,
+      "max_rating": "3599",
+      "gender_restriction": "none",
+      "age_restriction": {
+        "type": "none",
+        "age": ""
+      },
+      "players_per_group": "4",
+      "prizes": [
+        {
+          "division": "",
+          "place": "1",
+          "place_end": "",
+          "prize_money": "30",
+          "award": ""
+        },
+        {
+          "division": "",
+          "place": "2",
+          "place_end": "",
+          "prize_money": "15",
+          "award": ""
+        }
+      ]
+    },
+    {
+      "event_name": "Under 3200",
+      "day": "1",
+      "start_time": "1:00 PM",
+      "entry_fee": "20",
+      "is_doubles": true,
+      "single_elimination": false,
+      "max_rating": "3199",
+      "gender_restriction": "none",
+      "age_restriction": {
+        "type": "none",
+        "age": ""
+      },
+      "players_per_group": "4",
+      "prizes": [
+        {
+          "division": "",
+          "place": "1",
+          "place_end": "",
+          "prize_money": "30",
+          "award": ""
+        },
+        {
+          "division": "",
+          "place": "2",
+          "place_end": "",
+          "prize_money": "15",
+          "award": ""
+        }
+      ]
+    },
+    {
+      "event_name": "Under 2800",
+      "day": "1",
+      "start_time": "10:00 AM",
+      "entry_fee": "20",
+      "is_doubles": true,
+      "single_elimination": false,
+      "max_rating": "2799",
+      "gender_restriction": "none",
+      "age_restriction": {
+        "type": "none",
+        "age": ""
+      },
+      "players_per_group": "4",
+      "prizes": [
+        {
+          "division": "",
+          "place": "1",
+          "place_end": "",
+          "prize_money": "20",
+          "award": ""
+        },
+        {
+          "division": "",
+          "place": "2",
+          "place_end": "",
+          "prize_money": "10",
+          "award": ""
+        }
+      ]
+    },
+    {
+      "event_name": "Under 2400",
+      "day": "1",
+      "start_time": "1:00 PM",
+      "entry_fee": "20",
+      "is_doubles": true,
+      "single_elimination": false,
+      "max_rating": "2399",
+      "gender_restriction": "none",
+      "age_restriction": {
+        "type": "none",
+        "age": ""
+      },
+      "players_per_group": "4",
+      "prizes": [
+        {
+          "division": "",
+          "place": "1",
+          "place_end": "",
+          "prize_money": "20",
+          "award": ""
+        },
+        {
+          "division": "",
+          "place": "2",
+          "place_end": "",
+          "prize_money": "10",
+          "award": ""
+        }
+      ]
+    },
+    {
+      "event_name": "Under 2000",
+      "day": "1",
+      "start_time": "10:00 AM",
+      "entry_fee": "20",
+      "is_doubles": true,
+      "single_elimination": false,
+      "max_rating": "1999",
+      "gender_restriction": "none",
+      "age_restriction": {
+        "type": "none",
+        "age": ""
+      },
+      "players_per_group": "4",
+      "prizes": [
+        {
+          "division": "",
+          "place": "1",
+          "place_end": "",
+          "prize_money": "20",
+          "award": ""
+        },
+        {
+          "division": "",
+          "place": "2",
+          "place_end": "",
+          "prize_money": "10",
+          "award": ""
+        }
+      ]
+    }
+  ]
+}

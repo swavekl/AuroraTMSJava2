@@ -1,0 +1,173 @@
+{
+  "tournament_name": "2025 17th COLUMBUS TABLE TENNIS TEAM INVITATIONAL",
+  "star_rating": "",
+  "tournament_dates": ["12/13/2025", "12/13/2025"],
+  "rating_eligibility_date": "",
+  "rating_seeding_date": "12/11/2025",
+  "entry_deadline_date": "12/08/2025",
+  "refund_deadline_date": "",
+  "late_entry_date": "",
+  "registration_fee": "",
+  "venue_name": "Columbus Table Tennis Club",
+  "venue_address": {
+    "street": "653 E 8th Ave",
+    "city": "Columbus",
+    "state": "OH",
+    "zip": "43201"
+  },
+  "website_url": "",
+  "referee": {
+    "name": "",
+    "rank": ""
+  },
+  "umpires": [],
+  "directors": [
+    {
+      "name": "Sam Yang",
+      "phone": "617 750 5273",
+      "email": "xinfa@yahoo.com"
+    },
+    {
+      "name": "Stan Kobylanski",
+      "phone": "",
+      "email": "hbed@live.com"
+    }
+  ],
+  "equipment": {
+    "tables": "12",
+    "ball_type": "Nittaku 3* balls"
+  },
+  "events": [
+    {
+      "event_name": "Division A",
+      "day": "1",
+      "start_time": "12:00 PM",
+      "entry_fee": "45",
+      "is_doubles": false,
+      "single_elimination": false,
+      "max_rating": "",
+      "gender_restriction": "none",
+      "age_restriction": {
+        "type": "none",
+        "age": ""
+      },
+      "players_per_group": "4",
+      "prizes": [
+        {
+          "division": "",
+          "place": "1",
+          "place_end": "",
+          "prize_money": "",
+          "award": "trophy"
+        },
+        {
+          "division": "",
+          "place": "1",
+          "place_end": "",
+          "prize_money": "",
+          "award": "medal"
+        },
+        {
+          "division": "",
+          "place": "2",
+          "place_end": "",
+          "prize_money": "",
+          "award": "medal"
+        }
+      ]
+    },
+    {
+      "event_name": "Division B",
+      "day": "1",
+      "start_time": "9:00 AM",
+      "entry_fee": "37.5",
+      "is_doubles": false,
+      "single_elimination": false,
+      "max_rating": "1799",
+      "gender_restriction": "none",
+      "age_restriction": {
+        "type": "none",
+        "age": ""
+      },
+      "players_per_group": "4",
+      "prizes": [
+        {
+          "division": "",
+          "place": "1",
+          "place_end": "",
+          "prize_money": "",
+          "award": "trophy"
+        },
+        {
+          "division": "",
+          "place": "2",
+          "place_end": "",
+          "prize_money": "",
+          "award": "medal"
+        }
+      ]
+    },
+    {
+      "event_name": "Division C",
+      "day": "1",
+      "start_time": "9:00 AM",
+      "entry_fee": "30",
+      "is_doubles": false,
+      "single_elimination": false,
+      "max_rating": "1499",
+      "gender_restriction": "none",
+      "age_restriction": {
+        "type": "none",
+        "age": ""
+      },
+      "players_per_group": "4",
+      "prizes": [
+        {
+          "division": "",
+          "place": "1",
+          "place_end": "",
+          "prize_money": "",
+          "award": "medal"
+        },
+        {
+          "division": "",
+          "place": "2",
+          "place_end": "",
+          "prize_money": "",
+          "award": "medal"
+        }
+      ]
+    },
+    {
+      "event_name": "Division D",
+      "day": "1",
+      "start_time": "11:00 AM",
+      "entry_fee": "22.5",
+      "is_doubles": false,
+      "single_elimination": false,
+      "max_rating": "1199",
+      "gender_restriction": "none",
+      "age_restriction": {
+        "type": "none",
+        "age": ""
+      },
+      "players_per_group": "4",
+      "prizes": [
+        {
+          "division": "",
+          "place": "1",
+          "place_end": "",
+          "prize_money": "",
+          "award": "medal"
+        },
+        {
+          "division": "",
+          "place": "2",
+          "place_end": "",
+          "prize_money": "",
+          "award": "medal"
+        }
+      ]
+    }
+  ]
+}

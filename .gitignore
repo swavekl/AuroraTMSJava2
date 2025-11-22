@@ -7,3 +7,17 @@ http-client.private.env.json
 build
 
 kubernetes
+/server/src/main/resources/vault.properties
+/server/ssl-old/**/*.*
+/Umpire Touchpad system/*.*
+/client/.angular/cache/**/*.*
+/FeaturesToDo.txt
+/ProjectOnboardingInstructions.txt
+/**/gradle-wrapper.*
+/**/gradlew*
+/**/*server.crt
+/**/*server.key
+/**/*keystore.p12
+/**/vault*.properties
+/.idea/modules
+/**/application-dev.yml

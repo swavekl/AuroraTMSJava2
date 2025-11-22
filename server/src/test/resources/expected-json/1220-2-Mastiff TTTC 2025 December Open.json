@@ -1,0 +1,184 @@
+{
+  "tournament_name": "Mastiff Table Tennis Club 2025 December Open",
+  "star_rating": "1",
+  "tournament_dates": ["12/20/2025", "12/20/2025"],
+  "rating_eligibility_date": "12/18/2025",
+  "rating_seeding_date": "12/18/2025",
+  "late_entry_date": "",
+  "registration_fee": "",
+  "venue_name": "Mastiff TTC",
+  "venue_address": {
+    "street": "123 High Street",
+    "city": "Dedham",
+    "state": "MA",
+    "zip": ""
+  },
+  "website_url": "https://mastiffttc.weebly.com/about,html",
+  "referee": {
+    "name": "Phyllis Du & Henry Hu",
+    "rank": "CU"
+  },
+  "umpires": [],
+  "directors": [],
+  "equipment": {
+    "tables": "96",
+    "ball_type": "Prime 3-Star ABS"
+  },
+  "events": [
+    {
+      "event_name": "Open Singles",
+      "day": "1",
+      "start_time": "3:30 PM",
+      "entry_fee": "45",
+      "is_doubles": false,
+      "single_elimination": false,
+      "max_rating": "",
+      "gender_restriction": "none",
+      "age_restriction": {
+        "type": "none",
+        "age": ""
+      },
+      "players_per_group": "4",
+      "prizes": [
+        {
+          "division": "",
+          "place": "1",
+          "place_end": "",
+          "prize_money": "250",
+          "award": ""
+        },
+        {
+          "division": "",
+          "place": "2",
+          "place_end": "",
+          "prize_money": "125",
+          "award": ""
+        }
+      ]
+    },
+    {
+      "event_name": "U2000",
+      "day": "1",
+      "start_time": "1:00 PM",
+      "entry_fee": "40",
+      "is_doubles": false,
+      "single_elimination": false,
+      "max_rating": "1999",
+      "gender_restriction": "none",
+      "age_restriction": {
+        "type": "none",
+        "age": ""
+      },
+      "players_per_group": "4",
+      "prizes": [
+        {
+          "division": "",
+          "place": "1",
+          "place_end": "",
+          "prize_money": "150",
+          "award": ""
+        },
+        {
+          "division": "",
+          "place": "2",
+          "place_end": "",
+          "prize_money": "75",
+          "award": ""
+        }
+      ]
+    },
+    {
+      "event_name": "U1400",
+      "day": "1",
+      "start_time": "1:00 PM",
+      "entry_fee": "30",
+      "is_doubles": false,
+      "single_elimination": false,
+      "max_rating": "1399",
+      "gender_restriction": "none",
+      "age_restriction": {
+        "type": "none",
+        "age": ""
+      },
+      "players_per_group": "4",
+      "prizes": [
+        {
+          "division": "",
+          "place": "1",
+          "place_end": "",
+          "prize_money": "",
+          "award": "medal"
+        },
+        {
+          "division": "",
+          "place": "2",
+          "place_end": "",
+          "prize_money": "",
+          "award": "medal"
+        }
+      ]
+    },
+    {
+      "event_name": "U1600",
+      "day": "1",
+      "start_time": "11:00 AM",
+      "entry_fee": "35",
+      "is_doubles": false,
+      "single_elimination": false,
+      "max_rating": "1599",
+      "gender_restriction": "none",
+      "age_restriction": {
+        "type": "none",
+        "age": ""
+      },
+      "players_per_group": "4",
+      "prizes": [
+        {
+          "division": "",
+          "place": "1",
+          "place_end": "",
+          "prize_money": "",
+          "award": "medal"
+        },
+        {
+          "division": "",
+          "place": "2",
+          "place_end": "",
+          "prize_money": "",
+          "award": "medal"
+        }
+      ]
+    },
+    {
+      "event_name": "U1200",
+      "day": "1",
+      "start_time": "9:00 AM",
+      "entry_fee": "30",
+      "is_doubles": false,
+      "single_elimination": false,
+      "max_rating": "1199",
+      "gender_restriction": "none",
+      "age_restriction": {
+        "type": "none",
+        "age": ""
+      },
+      "players_per_group": "4",
+      "prizes": [
+        {
+          "division": "",
+          "place": "1",
+          "place_end": "",
+          "prize_money": "",
+          "award": "medal"
+        },
+        {
+          "division": "",
+          "place": "2",
+          "place_end": "",
+          "prize_money": "",
+          "award": "medal"
+        }
+      ]
+    }
+  ]
+}

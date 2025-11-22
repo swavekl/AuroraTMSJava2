@@ -1,0 +1,318 @@
+{
+  "tournament_name": "zm Butterfly AITTA January 2026 OPEN",
+  "star_rating": "2",
+  "tournament_dates": ["01/10/2026"],
+  "rating_eligibility_date": "",
+  "rating_seeding_date": "01/07/2026",
+  "late_entry_date": "01/07/2026",
+  "registration_fee": "10",
+  "venue_name": "Atlanta International Table Tennis Academy (AITTA)",
+  "venue_address": {
+    "street": "7230 McGinnis Ferry Rd #125",
+    "city": "Suwanee",
+    "state": "GA",
+    "zip": "30024"
+  },
+  "website_url": "https://yangtabletennis.com/",
+  "referee": {
+    "name": "Harry He",
+    "rank": "CR"
+  },
+  "umpires": [
+    {
+      "name": "Harry He",
+      "rank": "CU"
+    }
+  ],
+  "director": {
+    "name": "Shigang Yang",
+    "phone": "",
+    "email": "newgyusa@gmail.com"
+  },
+  "equipment": {
+    "tables": "25",
+    "ball_type": "Butterfly 3-star 40+mm white plastic balls"
+  },
+  "events": [
+    {
+      "event_name": "Championship",
+      "day": "1",
+      "start_time": "1:00 pm",
+      "entry_fee": "55",
+      "is_doubles": false,
+      "single_elimination": false,
+      "max_rating": "",
+      "gender_restriction": "none",
+      "age_restriction": {
+        "type": "none",
+        "age": ""
+      },
+      "players_per_group": "4",
+      "prizes": [
+        {
+          "division": "",
+          "place": "1",
+          "place_end": "",
+          "prize_money": "500",
+          "award": ""
+        },
+        {
+          "division": "",
+          "place": "2",
+          "place_end": "",
+          "prize_money": "250",
+          "award": ""
+        },
+        {
+          "division": "",
+          "place": "3",
+          "place_end": "",
+          "prize_money": "100",
+          "award": ""
+        },
+        {
+          "division": "",
+          "place": "4",
+          "place_end": "",
+          "prize_money": "",
+          "award": ""
+        }
+      ]
+    },
+    {
+      "event_name": "U2400",
+      "day": "1",
+      "start_time": "10:00 am",
+      "entry_fee": "45",
+      "is_doubles": false,
+      "single_elimination": false,
+      "max_rating": "2399",
+      "gender_restriction": "none",
+      "age_restriction": {
+        "type": "none",
+        "age": ""
+      },
+      "players_per_group": "4",
+      "prizes": [
+        {
+          "division": "",
+          "place": "1",
+          "place_end": "",
+          "prize_money": "240",
+          "award": ""
+        },
+        {
+          "division": "",
+          "place": "2",
+          "place_end": "",
+          "prize_money": "120",
+          "award": ""
+        },
+        {
+          "division": "",
+          "place": "3",
+          "place_end": "",
+          "prize_money": "",
+          "award": "trophy"
+        },
+        {
+          "division": "",
+          "place": "4",
+          "place_end": "",
+          "prize_money": "",
+          "award": "trophy"
+        }
+      ]
+    },
+    {
+      "event_name": "U2100",
+      "day": "1",
+      "start_time": "3:00 pm",
+      "entry_fee": "40",
+      "is_doubles": false,
+      "single_elimination": false,
+      "max_rating": "2099",
+      "gender_restriction": "none",
+      "age_restriction": {
+        "type": "none",
+        "age": ""
+      },
+      "players_per_group": "4",
+      "prizes": [
+        {
+          "division": "",
+          "place": "1",
+          "place_end": "",
+          "prize_money": "160",
+          "award": ""
+        },
+        {
+          "division": "",
+          "place": "2",
+          "place_end": "",
+          "prize_money": "",
+          "award": "trophy"
+        },
+        {
+          "division": "",
+          "place": "3",
+          "place_end": "",
+          "prize_money": "",
+          "award": "trophy"
+        }
+      ]
+    },
+    {
+      "event_name": "U1900",
+      "day": "1",
+      "start_time": "11:00 am",
+      "entry_fee": "35",
+      "is_doubles": false,
+      "single_elimination": false,
+      "max_rating": "1899",
+      "gender_restriction": "none",
+      "age_restriction": {
+        "type": "none",
+        "age": ""
+      },
+      "players_per_group": "4",
+      "prizes": [
+        {
+          "division": "",
+          "place": "1",
+          "place_end": "",
+          "prize_money": "",
+          "award": "gift card"
+        },
+        {
+          "division": "",
+          "place": "2",
+          "place_end": "",
+          "prize_money": "100",
+          "award": ""
+        },
+        {
+          "division": "",
+          "place": "3",
+          "place_end": "",
+          "prize_money": "",
+          "award": "trophy"
+        }
+      ]
+    },
+    {
+      "event_name": "U1700",
+      "day": "1",
+      "start_time": "2:00 pm",
+      "entry_fee": "30",
+      "is_doubles": false,
+      "single_elimination": false,
+      "max_rating": "1699",
+      "gender_restriction": "none",
+      "age_restriction": {
+        "type": "none",
+        "age": ""
+      },
+      "players_per_group": "4",
+      "prizes": [
+        {
+          "division": "",
+          "place": "1",
+          "place_end": "",
+          "prize_money": "",
+          "award": "gift card"
+        },
+        {
+          "division": "",
+          "place": "2",
+          "place_end": "",
+          "prize_money": "80",
+          "award": ""
+        },
+        {
+          "division": "",
+          "place": "3",
+          "place_end": "",
+          "prize_money": "",
+          "award": "trophy"
+        }
+      ]
+    },
+    {
+      "event_name": "U1500",
+      "day": "1",
+      "start_time": "12:00 pm",
+      "entry_fee": "25",
+      "is_doubles": false,
+      "single_elimination": false,
+      "max_rating": "1499",
+      "gender_restriction": "none",
+      "age_restriction": {
+        "type": "none",
+        "age": ""
+      },
+      "players_per_group": "4",
+      "prizes": [
+        {
+          "division": "",
+          "place": "1",
+          "place_end": "",
+          "prize_money": "",
+          "award": "gift card"
+        },
+        {
+          "division": "",
+          "place": "2",
+          "place_end": "",
+          "prize_money": "50",
+          "award": ""
+        },
+        {
+          "division": "",
+          "place": "3",
+          "place_end": "",
+          "prize_money": "",
+          "award": "trophy"
+        }
+      ]
+    },
+    {
+      "event_name": "U1000",
+      "day": "1",
+      "start_time": "",
+      "entry_fee": "25",
+      "is_doubles": false,
+      "single_elimination": false,
+      "max_rating": "999",
+      "gender_restriction": "none",
+      "age_restriction": {
+        "type": "none",
+        "age": ""
+      },
+      "players_per_group": "4",
+      "prizes": [
+        {
+          "division": "",
+          "place": "1",
+          "place_end": "",
+          "prize_money": "",
+          "award": "gift card"
+        },
+        {
+          "division": "",
+          "place": "2",
+          "place_end": "",
+          "prize_money": "50",
+          "award": ""
+        },
+        {
+          "division": "",
+          "place": "3",
+          "place_end": "",
+          "prize_money": "",
+          "award": "trophy"
+        }
+      ]
+    }
+  ]
+}

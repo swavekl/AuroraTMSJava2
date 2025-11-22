@@ -1,0 +1,106 @@
+{
+  "tournament_name": "Athens GA Table Tennis Fall Round Robin",
+  "star_rating": "0",
+  "tournament_dates": ["11/15/2025"],
+  "rating_eligibility_date": "",
+  "rating_seeding_date": "11/12/2025",
+  "late_entry_date": "11/08/2025",
+  "registration_fee": "45",
+  "venue_name": "Heard Park",
+  "venue_address": {
+    "street": "400 McKinley Dr",
+    "city": "Athens",
+    "state": "GA",
+    "zip": "30601"
+  },
+  "website_url": "http://omnipong.com",
+  "referee": {
+    "name": "Sean O’Connell",
+    "rank": "CR"
+  },
+  "umpires": [],
+  "director": {
+    "name": "Sean O’Connell",
+    "phone": "706-254-5402",
+    "email": "tabletennisathensga@gmail.com"
+  },
+  "equipment": {
+    "tables": "8",
+    "ball_type": "Nittaku Premium 3*"
+  },
+  "events": [
+    {
+      "event_name": "Athens GA Table Tennis Fall Round Robin",
+      "day": "1",
+      "start_time": "9:30 AM",
+      "entry_fee": "45",
+      "is_doubles": false,
+      "single_elimination": false,
+      "max_rating": "",
+      "gender_restriction": "none",
+      "age_restriction": {
+        "type": "none",
+        "age": ""
+      },
+      "players_per_group": "4",
+      "prizes": [
+        {
+          "division": "Championship",
+          "place": "1",
+          "place_end": "",
+          "prize_money": "180",
+          "award": ""
+        },
+        {
+          "division": "Championship",
+          "place": "2",
+          "place_end": "",
+          "prize_money": "90",
+          "award": ""
+        },
+        {
+          "division": "Championship",
+          "place": "3",
+          "place_end": "",
+          "prize_money": "45",
+          "award": ""
+        },
+        {
+          "division": "AA",
+          "place": "1",
+          "place_end": "",
+          "prize_money": "90",
+          "award": ""
+        },
+        {
+          "division": "AA",
+          "place": "2",
+          "place_end": "",
+          "prize_money": "45",
+          "award": ""
+        },
+        {
+          "division": "A",
+          "place": "1",
+          "place_end": "",
+          "prize_money": "45",
+          "award": ""
+        },
+        {
+          "division": "B",
+          "place": "1",
+          "place_end": "",
+          "prize_money": "",
+          "award": "trophy"
+        },
+        {
+          "division": "B",
+          "place": "2",
+          "place_end": "",
+          "prize_money": "",
+          "award": "trophy"
+        }
+      ]
+    }
+  ]
+}

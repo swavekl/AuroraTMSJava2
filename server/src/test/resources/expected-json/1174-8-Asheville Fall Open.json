@@ -1,0 +1,99 @@
+{
+  "tournament_name": "Asheville Fall Open Team Tournament",
+  "star_rating": "1",
+  "tournament_dates": ["11/08/2025", "11/08/2025"],
+  "rating_eligibility_date": "",
+  "rating_seeding_date": "",
+  "late_entry_date": "",
+  "registration_fee": "",
+  "venue_name": "Tempie Avery Montford Community Center",
+  "venue_address": {
+    "street": "34 Pearson Drive",
+    "city": "Asheville",
+    "state": "NC",
+    "zip": "28801"
+  },
+  "website_url": "",
+  "referee": {
+    "name": "",
+    "rank": ""
+  },
+  "umpires": [
+    {
+      "name": "Steven Hitchner",
+      "rank": "CU"
+    }
+  ],
+  "directors": [
+    {
+      "name": "Steven Hitchner",
+      "phone": "",
+      "email": ""
+    }
+  ],
+  "equipment": {
+    "tables": "12",
+    "ball_type": "Butterfly R40 Premium 3-Star white balls"
+  },
+  "events": [
+    {
+      "event_name": "Asheville Fall Open Team Tournament",
+      "day": "1",
+      "start_time": "10:00 AM",
+      "entry_fee": "50",
+      "is_doubles": true,
+      "single_elimination": false,
+      "max_rating": "",
+      "gender_restriction": "none",
+      "age_restriction": {
+        "type": "none",
+        "age": ""
+      },
+      "players_per_group": "6",
+      "prizes": [
+        {
+          "division": "A",
+          "place": "1",
+          "place_end": "",
+          "prize_money": "500",
+          "award": ""
+        },
+        {
+          "division": "A",
+          "place": "2",
+          "place_end": "",
+          "prize_money": "200",
+          "award": ""
+        },
+        {
+          "division": "B",
+          "place": "1",
+          "place_end": "",
+          "prize_money": "450",
+          "award": ""
+        },
+        {
+          "division": "B",
+          "place": "2",
+          "place_end": "",
+          "prize_money": "150",
+          "award": ""
+        },
+        {
+          "division": "C",
+          "place": "1",
+          "place_end": "",
+          "prize_money": "400",
+          "award": ""
+        },
+        {
+          "division": "C",
+          "place": "2",
+          "place_end": "",
+          "prize_money": "100",
+          "award": ""
+        }
+      ]
+    }
+  ]
+}

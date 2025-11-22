@@ -1,0 +1,109 @@
+{
+  "tournament_name": "Shippensburg Fall Open",
+  "star_rating": "1",
+  "tournament_dates": ["11/08/2025", "11/08/2025"],
+  "rating_eligibility_date": "11/07/2025",
+  "rating_seeding_date": "11/06/2025",
+  "entry_deadline_date": "11/08/2025",
+  "refund_deadline_date": "",
+  "late_entry_date": "",
+  "registration_fee": "",
+  "venue_name": "ShipRec",
+  "venue_address": {
+    "street": "533 Lancaster Dr",
+    "city": "Shippensburg",
+    "state": "PA",
+    "zip": "17257"
+  },
+  "website_url": "",
+  "referee": {
+    "name": "Josh Moyer",
+    "rank": "CU"
+  },
+  "umpires": [],
+  "directors": [
+    {
+      "name": "Nathan Zeigler",
+      "phone": "",
+      "email": "nathzeig@gmail.com"
+    }
+  ],
+  "equipment": {
+    "tables": "10",
+    "ball_type": "Nittaku 3-star premium 40+"
+  },
+  "events": [
+    {
+      "event_name": "U1000",
+      "day": "1",
+      "start_time": "10:30 AM",
+      "entry_fee": "15",
+      "is_doubles": false,
+      "single_elimination": false,
+      "max_rating": "999",
+      "gender_restriction": "none",
+      "age_restriction": {
+        "type": "none",
+        "age": ""
+      },
+      "players_per_group": "4",
+      "prizes": [
+        {
+          "division": "",
+          "place": "2",
+          "place_end": "",
+          "prize_money": "40",
+          "award": ""
+        }
+      ]
+    },
+    {
+      "event_name": "U1500",
+      "day": "1",
+      "start_time": "3:00 PM",
+      "entry_fee": "20",
+      "is_doubles": false,
+      "single_elimination": false,
+      "max_rating": "1499",
+      "gender_restriction": "none",
+      "age_restriction": {
+        "type": "none",
+        "age": ""
+      },
+      "players_per_group": "4",
+      "prizes": [
+        {
+          "division": "",
+          "place": "2",
+          "place_end": "",
+          "prize_money": "30",
+          "award": ""
+        }
+      ]
+    },
+    {
+      "event_name": "Open",
+      "day": "1",
+      "start_time": "3:30 PM",
+      "entry_fee": "95",
+      "is_doubles": false,
+      "single_elimination": false,
+      "max_rating": "",
+      "gender_restriction": "none",
+      "age_restriction": {
+        "type": "none",
+        "age": ""
+      },
+      "players_per_group": "4",
+      "prizes": [
+        {
+          "division": "",
+          "place": "1",
+          "place_end": "",
+          "prize_money": "120",
+          "award": ""
+        }
+      ]
+    }
+  ]
+}
