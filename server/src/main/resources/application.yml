@@ -82,7 +82,7 @@ logging:
 # https:///dev-758120.okta.com/oauth2/default/.well-known/oauth-authorization-server
 okta:
   oauth2:
-    redirectUri: https://swaveklaptop:4200/authorization-code/callback
+    redirectUri: https://gateway-pc:4200/authorization-code/callback
     audience: api://default
   client:
     connectionTimeout: 30 # seconds
@@ -104,7 +104,7 @@ server.ssl:
 server:
   port: 8443
 
-client.host.url: https://swaveklaptop:4200
+client.host.url: https://gateway-pc:4200
 deploymentType: local
 local.repository.root.path: C:\myprojects\filerepository
 
@@ -120,7 +120,7 @@ message.broker.type: inmemory
 #message.broker.type: rabbitmq
 
 message.broker.rabbitmq:
-  host: swaveklaptop
+  host: gateway-pc
   port: 61613
 
 # RabbitMQ log file location: c:\Users\Swavek\AppData\Roaming\RabbitMQ\log
