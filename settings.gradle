@@ -1,0 +1,4 @@
+rootProject.name = 'AuroraTMSJava2'
+
+include 'client'
+include 'server'
