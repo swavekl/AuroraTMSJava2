@@ -20,6 +20,13 @@ spring:
 #    show-sql: true
 #    properties.hibernate.format_sql: true
 
+  ai:
+    openai:
+      api-key: ${spring.ai.openai.api-key.value}
+# OCR reading of PDFs
+tess4j:
+  tessdata-path: "src/main/resources/tessdata"
+
 #logging.level.org.hibernate.SQL: TRACE
 ## # trace how many results were returned
 #logging.level.org.hibernate.loader: TRACE
@@ -30,7 +37,7 @@ spring:
 
 okta:
   oauth2:
-    redirectUri: https://gateway-pc:4200/authorization-code/callback
+    redirectUri: https://swaveklaptop:4200/authorization-code/callback
     audience: api://default
   client:
     connectionTimeout: 30 # seconds
@@ -48,4 +55,4 @@ server.ssl:
   # The alias mapped to the certificate
   key-alias: tomcat
 
-client.host.url: https://gateway-pc:4200
+client.host.url: https://swaveklaptop:4200
