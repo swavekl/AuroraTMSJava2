@@ -59,19 +59,19 @@ class BlankEntryFormParserServiceTest extends AbstractServiceTest {
     }
 
     @Test
-    @Disabled
+//    @Disabled
     void testOrlandoWinterOpen() throws Exception {
         runPdfTest("pdfs/1184-5-OrlandoWinterOpen.pdf", "BUTTERFLY OPEN 2025");
     }
 
     @Test
-    @Disabled
+//    @Disabled
     void testAtlantaGiantRR() throws Exception {
         runPdfTest("pdfs/1112-51AtlantaGiantRR.pdf", "2025 Atlanta Fall GRR\tTable Tennis Tournament");
     }
 
     @Test
-    @Disabled
+//    @Disabled
     void testAthensGiantRR() throws Exception {
         runPdfTest("pdfs/1112-59-Athens GA Table Tennis Fall Round Robin.pdf", "Athens GA Table Tennis Fall Round Robin");
     }
@@ -144,7 +144,7 @@ class BlankEntryFormParserServiceTest extends AbstractServiceTest {
     }
 
     @Test
-//    @Disabled
+    @Disabled
     void testShippensburgFallOpen() throws Exception {
         runPdfTest("pdfs/1207-1-Shippensburg Fall Open.pdf",
                 "Shippensburg Fall Open");

@@ -33,6 +33,10 @@
       "email": ""
     }
   ],
+  "equipment": {
+    "tables": "52",
+    "ball_type": "white Joola Prime 40+ 3 Star ABS Balls"
+  },
   "events": [
     {
       "event_name": "Open Singles RR",

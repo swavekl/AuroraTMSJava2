@@ -287,6 +287,11 @@ Normalize and extract prize placements robustly including short headers.
        { "division":"", "place":"1", "place_end":"", "prize_money":"300", "award":"" }
        { "division":"", "place":"2", "place_end":"", "prize_money":"150", "award":"" }
 
+   - text contains "Trophies for 1 st and 2nd in all events" and it also contained prize money for division "Class AA - 1 st $150, 2nd $75;"
+   → two objects with prize & award information merged:
+       { "division":"Class AA", "place":"1", "place_end":"", "prize_money":"150", "award":"trophy" }
+       { "division":"Class AA", "place":"2", "place_end":"", "prize_money":"75", "award":"trophy" }
+
 9) ORDER
    - Preserve the appearance order when emitting prize objects.
 

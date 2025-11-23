@@ -50,6 +50,13 @@
       "prizes": [
         {
           "division": "",
+          "place": "1",
+          "place_end": "",
+          "prize_money": "80",
+          "award": ""
+        },
+        {
+          "division": "",
           "place": "2",
           "place_end": "",
           "prize_money": "40",
@@ -60,7 +67,7 @@
     {
       "event_name": "U1500",
       "day": "1",
-      "start_time": "3:00 PM",
+      "start_time": "1:00 PM",
       "entry_fee": "20",
       "is_doubles": false,
       "single_elimination": false,
@@ -74,9 +81,16 @@
       "prizes": [
         {
           "division": "",
+          "place": "1",
+          "place_end": "",
+          "prize_money": "100",
+          "award": ""
+        },
+        {
+          "division": "",
           "place": "2",
           "place_end": "",
-          "prize_money": "30",
+          "prize_money": "50",
           "award": ""
         }
       ]
@@ -101,6 +115,13 @@
           "place": "1",
           "place_end": "",
           "prize_money": "120",
+          "award": ""
+        },
+        {
+          "division": "",
+          "place": "2",
+          "place_end": "",
+          "prize_money": "60",
           "award": ""
         }
       ]

@@ -164,6 +164,9 @@ public class BlankEntryFormParserService {
                     continue;
                 }
 
+                // remove stock text in case it is on the same page with relevant text
+                pageText = removeSafeSportsText(pageText);
+
                 // Skip standard USATT boilerplate pages
                 if (shouldSkipPage(pageText)) {
 //                    System.out.println("Skipping boilerplate page " + i);
@@ -177,6 +180,19 @@ public class BlankEntryFormParserService {
         retValue = retValue.replaceAll("\\t+", " ");
 
         return retValue;
+    }
+
+    /**
+     * Remove boiler plate policy text to reduce number of tokens
+     * @param pageText
+     * @return
+     */
+    private String removeSafeSportsText(String pageText) {
+        int start = pageText.indexOf("I understand USATT’s Safe Sport Policy");
+        if (start > 0) {
+            pageText = pageText.substring(0, start);
+        }
+        return pageText;
     }
 
     /**

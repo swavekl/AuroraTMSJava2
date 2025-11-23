@@ -5,6 +5,7 @@ import com.okta.spring.boot.oauth.Okta;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.boot.sql.init.dependency.DependsOnDatabaseInitialization;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
@@ -52,7 +53,8 @@ public class SecurityConfiguration {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
-        String fileRepoUrlPattern = "/" + IFileRepository.REPOSITORY_URL_ROOT + "/**/images/**";
+        String fileRepoUrlPattern = "/" + IFileRepository.REPOSITORY_URL_ROOT + "/images/**";
+
         // for websocket handshake request we pass the JWT access token via URL parameter - access_token
         // enable retrieving access token from query parameter
         DefaultBearerTokenResolver resolver = new DefaultBearerTokenResolver();
@@ -61,30 +63,33 @@ public class SecurityConfiguration {
         // authentication is not required for all of these files
         // but it is required for the rest of requests
         http.authorizeHttpRequests(requests -> requests
+                        // Static resources (css/js/images/webjars/favicon)
+                        .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
+
+                        // Your allowed public endpoints
                         .requestMatchers(
                                 "/",
+                                "/index.html",
                                 "/ui/**",
                                 "/publicapi/**",
-                                "/images/**",
-                                "/api/users/**",
-                                fileRepoUrlPattern,
-                                "/index.html",
-                                "/*.css",
-                                "/*.css.map",
-                                "/*.ico",
-                                "/*.js",
-                                "/*.js.map",
-                                "/assets/**",
-                                "/media/**")
-                        .permitAll()
-                        .anyRequest().authenticated())
+                                "/api/users/**"
+                        ).permitAll()
+
+                        // App-specific non-static assets
+                        .requestMatchers("/assets/**", "/media/**").permitAll()
+
+                        .requestMatchers(fileRepoUrlPattern).permitAll()
+
+                        // Everything else
+                        .anyRequest().authenticated()
+                )
                 .oauth2ResourceServer(server -> server
                         .bearerTokenResolver(resolver)
                         .jwt(withDefaults()));
         // all communication except for images over secure https channel
         http.requiresChannel(channel -> channel
-                .requestMatchers("/images/**", fileRepoUrlPattern)
-                .requiresInsecure());
+                .requestMatchers("/images/**").requiresInsecure()
+                .requestMatchers(fileRepoUrlPattern).requiresInsecure());
         http.requiresChannel(channel -> channel
                 .anyRequest().requiresSecure());
 

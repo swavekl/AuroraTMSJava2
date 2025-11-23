@@ -1,11 +1,13 @@
 {
   "tournament_name": "Athens GA Table Tennis Fall Round Robin",
   "star_rating": "0",
-  "tournament_dates": ["11/15/2025"],
+  "tournament_dates": ["11/15/2025", "11/15/2025"],
   "rating_eligibility_date": "",
-  "rating_seeding_date": "11/12/2025",
-  "late_entry_date": "11/08/2025",
-  "registration_fee": "45",
+  "rating_seeding_date": "11/13/2025",
+  "entry_deadline_date": "11/08/2025",
+  "refund_deadline_date": "11/08/2025",
+  "late_entry_date": "",
+  "registration_fee": "",
   "venue_name": "Heard Park",
   "venue_address": {
     "street": "400 McKinley Dr",
@@ -13,20 +15,27 @@
     "state": "GA",
     "zip": "30601"
   },
-  "website_url": "http://omnipong.com",
+  "website_url": "",
   "referee": {
     "name": "Sean O’Connell",
     "rank": "CR"
   },
-  "umpires": [],
-  "director": {
-    "name": "Sean O’Connell",
-    "phone": "706-254-5402",
-    "email": "tabletennisathensga@gmail.com"
-  },
+  "umpires": [
+    {
+      "name": "Sean O’Connell",
+      "rank": "CU"
+    }
+  ],
+  "directors": [
+    {
+      "name": "Sean O’Connell",
+      "phone": "706 254 5402",
+      "email": "tabletennisathensga@gmail.com"
+    }
+  ],
   "equipment": {
     "tables": "8",
-    "ball_type": "Nittaku Premium 3*"
+    "ball_type": "White Nittaku Premium 3* Balls"
   },
   "events": [
     {

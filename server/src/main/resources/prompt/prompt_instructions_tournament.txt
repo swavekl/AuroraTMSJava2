@@ -94,6 +94,7 @@ Rules:
 - Convert named months → mm.
 - Convert short years (“/25”) → full (“/2025”).
 - If range: return **two dates**: [start, end], not all dates.
+- If single day tournament: return **two dates**: [start, start].
 
 -------------------------------------------------------------------------------
 RATING ELIGIBILITY DATE
@@ -186,6 +187,7 @@ VENUE NAME & ADDRESS
 Triggered by:
   “Venue:”
   “Location:”
+  “SITE:”
   “Where:”
 
 Venue name is text before the address.

@@ -1,9 +1,11 @@
 {
   "tournament_name": "2025 FREMONT TTA BUTTERFLY OCTOBER OPEN",
   "star_rating": "1",
-  "tournament_dates": ["10/18/2025", "10/18/2025"],
+  "tournament_dates": ["10/18/2025"],
   "rating_eligibility_date": "08/31/2025",
   "rating_seeding_date": "10/16/2025",
+  "entry_deadline_date": "10/10/2025",
+  "refund_deadline_date": "10/10/2025",
   "late_entry_date": "10/16/2025",
   "registration_fee": "15",
   "venue_name": "SILIMAN CENTER",
@@ -13,7 +15,7 @@
     "state": "CA",
     "zip": "94560"
   },
-  "website_url": "http://www.fremonttabletennis.com",
+  "website_url": "http://fremonttabletennis.com/",
   "referee": {
     "name": "Kenny Tien",
     "rank": "IU"

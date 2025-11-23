@@ -1,16 +1,18 @@
 {
   "tournament_name": "ORLANDO’S ANNUAL WINTER BUTTERFLY OPEN 2025",
   "star_rating": "2",
-  "tournament_dates": ["11/15/2025"],
+  "tournament_dates": ["11/15/2025", "11/15/2025"],
   "rating_eligibility_date": "",
-  "rating_seeding_date": "11/12/2025",
+  "rating_seeding_date": "11/13/2025",
+  "entry_deadline_date": "",
+  "refund_deadline_date": "",
   "late_entry_date": "",
-  "registration_fee": "53",
+  "registration_fee": "",
   "venue_name": "Orlando Racket Center",
   "venue_address": {
     "street": "7059 S Orange Blossom Trail",
     "city": "Orlando",
-    "state": "FL",
+    "state": "Florida",
     "zip": "32809"
   },
   "website_url": "http://www.CentralFLTableTennis.com",
@@ -20,28 +22,30 @@
   },
   "umpires": [
     {
-      "name": "Hung Tran",
+      "name": "Hung Tran (Jr.)",
       "rank": "CU"
     }
   ],
-  "director": {
-    "name": "Hung Tran",
-    "phone": "407.803.1999",
-    "email": ""
-  },
+  "directors": [
+    {
+      "name": "Hung Tran",
+      "phone": "407 803 1999",
+      "email": ""
+    }
+  ],
   "equipment": {
-    "tables": "1",
+    "tables": "8",
     "ball_type": "Nittaku 3-Star White, 40+ mm Premium Poly balls"
   },
   "events": [
     {
-      "event_name": "Open Championship",
+      "event_name": "Giant Singles Round Robin",
       "day": "1",
       "start_time": "9:00 AM",
       "entry_fee": "53",
       "is_doubles": false,
       "single_elimination": false,
-      "max_rating": "",
+      "max_rating": "2499",
       "gender_restriction": "none",
       "age_restriction": {
         "type": "none",
@@ -50,97 +54,63 @@
       "players_per_group": "10",
       "prizes": [
         {
-          "division": "",
+          "division": "Open Championship",
           "place": "1",
           "place_end": "",
           "prize_money": "250",
           "award": "trophy"
         },
         {
-          "division": "",
+          "division": "Open Championship",
           "place": "2",
           "place_end": "",
           "prize_money": "100",
           "award": "trophy"
         },
         {
-          "division": "",
+          "division": "Open Championship",
           "place": "3",
           "place_end": "",
           "prize_money": "50",
           "award": "trophy"
-        }
-      ]
-    },
-    {
-      "event_name": "Elite Division",
-      "day": "1",
-      "start_time": "9:00 AM",
-      "entry_fee": "53",
-      "is_doubles": false,
-      "single_elimination": false,
-      "max_rating": "",
-      "gender_restriction": "none",
-      "age_restriction": {
-        "type": "none",
-        "age": ""
-      },
-      "players_per_group": "10",
-      "prizes": [
+        },
         {
-          "division": "",
+          "division": "Elite Division",
           "place": "1",
           "place_end": "",
           "prize_money": "100",
           "award": "trophy"
         },
         {
-          "division": "",
+          "division": "Elite Division",
           "place": "2",
           "place_end": "",
           "prize_money": "50",
           "award": "trophy"
         },
         {
-          "division": "",
+          "division": "Elite Division",
           "place": "3",
           "place_end": "",
           "prize_money": "",
           "award": "trophy"
-        }
-      ]
-    },
-    {
-      "event_name": "All other Divisions",
-      "day": "1",
-      "start_time": "9:00 AM",
-      "entry_fee": "53",
-      "is_doubles": false,
-      "single_elimination": false,
-      "max_rating": "",
-      "gender_restriction": "none",
-      "age_restriction": {
-        "type": "none",
-        "age": ""
-      },
-      "players_per_group": "10",
-      "prizes": [
+        },
         {
-          "division": "",
+          "division": "All other Divisions",
           "place": "1",
           "place_end": "",
           "prize_money": "",
           "award": "trophy"
         },
         {
-          "division": "",
+          "division": "All other Divisions",
           "place": "2",
           "place_end": "",
           "prize_money": "",
           "award": "trophy"
         },
         {
-          "division": "",
+          "division": "All other Divisions",
           "place": "3",
           "place_end": "",
           "prize_money": "",
