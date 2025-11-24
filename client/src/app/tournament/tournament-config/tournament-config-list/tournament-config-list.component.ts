@@ -3,6 +3,7 @@ import {Tournament} from '../tournament.model';
 import {ConfirmationPopupComponent} from '../../../shared/confirmation-popup/confirmation-popup.component';
 import {MatDialog} from '@angular/material/dialog';
 import {ImportTournamentDialogComponent} from '../import-tournament-dialog/import-tournament-dialog.component';
+import {ImportBlankEntryFormDialogComponent} from '../import-blank-entry-form-dialog/import-blank-entry-form-dialog.component';
 
 @Component({
     selector: 'app-tournament-config-list',
@@ -67,6 +68,21 @@ export class TournamentConfigListComponent implements OnInit {
       }
     };
     const dialogRef = this.dialog.open(ImportTournamentDialogComponent, config);
+    const subscription = dialogRef.afterClosed().subscribe(result => {
+      if (result.action === 'ok' || result.action === 'view') {
+        this.refresh.emit(result);
+      }
+    });
+
+  }
+
+  onImportFromBlankEntryFormPDF() {
+    const config = {
+      width: '750px', height: '520px', data: {
+        existingTournaments: this.tournaments
+      }
+    };
+    const dialogRef = this.dialog.open(ImportBlankEntryFormDialogComponent, config);
     const subscription = dialogRef.afterClosed().subscribe(result => {
       if (result.action === 'ok' || result.action === 'view') {
         this.refresh.emit(result);

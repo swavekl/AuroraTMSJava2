@@ -7,6 +7,9 @@ public class ImportTournamentRequest {
     // url of the players list in Omnipong
     public String playersUrl;
 
+    // our repo url where uploaded pdf is stored
+    public String blankEntryFormPDFUrl;
+
     // name extracted from the list
     public String tournamentName;
     public String tournamentCity;

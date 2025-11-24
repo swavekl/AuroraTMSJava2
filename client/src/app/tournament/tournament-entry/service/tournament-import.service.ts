@@ -64,12 +64,31 @@ export class TournamentImportService {
   }
 
   /**
-   * Imports tournament entries from Omnipong into selected tournament
+   * Imports tournament configuration from Omnipong into selected tournament
    */
   importTournamentConfiguration(importTournamentRequest: ImportTournamentRequest): Observable<ImportProgressInfo> {
     this.setLoading(true);
     const url = `/api/importtournament/configuration`;
     return this.httpClient.post<ImportProgressInfo>(url, importTournamentRequest)
+      .pipe(
+        tap(
+          () => {
+            this.setLoading(false);
+          },
+          () => {
+            this.setLoading(false);
+          }
+        )
+      );
+  }
+
+  /**
+   * Imports tournament configuration from blank entry form PDF previously uploaded
+   */
+  importTournamentConfigurationFromPDF(blankEntryFormPDFURL: string): Observable<ImportProgressInfo> {
+    this.setLoading(true);
+    const url = `/api/importtournament/configurationfrompdf?blankEntryFormPdfURI=${blankEntryFormPDFURL}`;
+    return this.httpClient.get<ImportProgressInfo>(url)
       .pipe(
         tap(
           () => {

@@ -62,7 +62,7 @@ public class BlankEntryFormParserService {
         System.out.println(ocrFirstPage);
         System.out.println("=================================================");
         System.out.println("ocrFirstPage.length() = " + ocrFirstPage.length());
-        // Extract text from remaining pages but skip the last pages which contain stanadard USATT language
+        // Extract text from remaining pages but skip the last pages which contain standard USATT language
         String pdfText = extractTextFromPdf(pdfFile, ocrFirstPage);
         System.out.println("======== all pages =======================");
         System.out.println(pdfText);

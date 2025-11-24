@@ -121,6 +121,19 @@ public class TournamentService {
         return new Tournament().convertFromEntity(tournamentEntity);
     }
 
+    @CachePut(key = "#result.id")
+    @PreAuthorize("hasAuthority('TournamentDirectors') or hasAuthority('Admins')")
+    public Tournament getByName(String name) {
+        TournamentEntity tournamentEntity = repository.getByName(name)
+                .orElseThrow(() -> new ResourceNotFoundException("TournamentEntity with name '" + name + "' not found"));
+        return new Tournament().convertFromEntity(tournamentEntity);
+    }
+
+    @PreAuthorize("hasAuthority('TournamentDirectors') or hasAuthority('Admins')")
+    public boolean existsByName (String name) {
+        return repository.existsByName(name);
+    }
+
     /**
      * Save the tournament
      *

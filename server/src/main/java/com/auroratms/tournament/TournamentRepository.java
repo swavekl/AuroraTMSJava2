@@ -9,6 +9,7 @@ import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
 import java.util.Collection;
 import java.util.Date;
+import java.util.Optional;
 
 @RepositoryRestResource
 public interface TournamentRepository extends JpaRepository<TournamentEntity, Long> {
@@ -76,4 +77,18 @@ public interface TournamentRepository extends JpaRepository<TournamentEntity, Lo
      * @return
      */
     Collection<TournamentEntity> findAllByStartDateAfterOrderByStartDateDesc(Date day);
+
+    /**
+     * Finds tournament by name
+     * @param name
+     * @return
+     */
+    Optional<TournamentEntity> getByName(String name);
+
+    /**
+     * Checks if exists
+     * @param name
+     * @return
+     */
+    boolean existsByName(String name);
 }

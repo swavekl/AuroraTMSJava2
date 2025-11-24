@@ -8,6 +8,9 @@ export interface ImportTournamentRequest {
   // url of the players list in Omnipong
   playersUrl: string;
 
+  // our repo url where uploaded pdf is stored or one from listed in omnipong
+  blankEntryFormPDFUrl: string;
+
   // name extracted from the list
   tournamentName: string;
   tournamentCity: string;

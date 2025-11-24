@@ -25,7 +25,11 @@ import com.auroratms.utils.filerepo.IFileRepository;
 import com.opencsv.CSVReader;
 import com.opencsv.exceptions.CsvValidationException;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.time.DateUtils;
 import org.jetbrains.annotations.NotNull;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -33,6 +37,7 @@ import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -89,6 +94,9 @@ public class ImportTournamentService {
     @Autowired
     private DoublesService doublesService;
 
+    @Autowired
+    private BlankEntryFormParserService blankEntryFormParserService;
+
     // Under 3800 Doubles RR - Partner: Teamed With Devaansh Boda
     // Under 3800 Doubles RR - Partner: None selected
     // Under 3800 Doubles RR - Partner: Requesting Srinivas Chiravuri
@@ -100,6 +108,9 @@ public class ImportTournamentService {
     // U15GD
     // U15BD
     private static final Pattern juniorEventPattern = Pattern.compile("U(\\d{1,2})(B|G|XD|BD|GD)");
+
+    @Value("${client.host.url}")
+    private String clientHostUrl;
 
     /**
      *
@@ -2351,6 +2362,404 @@ public class ImportTournamentService {
         } catch (IOException | FileRepositoryException e) {
             log.error("Error generating or copying missing accounts file", e);
             throw new RuntimeException("Error generating missing accounts file", e);
+        }
+    }
+
+    /**
+     *
+     * @param blankEntryFormPdfURI
+     * @param importProgressInfo
+     */
+    public void importTournamentConfigurationFromPDF(String blankEntryFormPdfURI,
+                                                     ImportProgressInfo importProgressInfo) {
+
+        try {
+            importProgressInfo.status = "RUNNING";
+            importProgressInfo.phaseName = "Reading blank entry form PDF";
+            importProgressInfo.phaseCompleted = 0;
+            String blankEntryFormPDFFileLocalPath = getBlankEntryFormPDFFileLocalPath(blankEntryFormPdfURI);
+            File pdfFile = new File(blankEntryFormPDFFileLocalPath);
+            String JSONString = this.blankEntryFormParserService.parseTournamentPdf(pdfFile);
+
+            importProgressInfo.phaseName = "Creating tournament and event definition";
+            importProgressInfo.overallCompleted = 50;
+            importProgressInfo.phaseCompleted = 0;
+            JSONObject jsonObject = new JSONObject(JSONString);
+            String tournamentName = jsonObject.optString("tournament_name");
+            if (StringUtils.isEmpty(tournamentName)) {
+                tournamentName = "My tournament";
+            }
+            Tournament tournament = null;
+            try {
+                if (tournamentService.existsByName(tournamentName)) {
+                    tournament = this.tournamentService.getByName(tournamentName);
+                } else {
+                    tournament = new Tournament();
+                    tournament.setName(tournamentName);
+                }
+            } catch (Exception e) {
+                // ignore
+            }
+
+            if (tournament != null) {
+                populateTournamentData(jsonObject, tournament, blankEntryFormPdfURI);
+                Tournament savedTournament = this.tournamentService.saveTournament(tournament);
+                importProgressInfo.tournamentId = savedTournament.getId();
+
+                populateEvents(jsonObject, savedTournament);
+            }
+
+            importProgressInfo.status = "COMPLETED";
+        } catch (Exception e) {
+            importProgressInfo.status = "FAILED";
+            throw new RuntimeException("Error creating tournament from blank entry form", e);
+        } finally {
+            importProgressInfo.phaseCompleted = 100;
+            importProgressInfo.overallCompleted = 100;
+        }
+    }
+
+    /**
+     * Extracts events from the array of events like this:
+     * @param tournamentJSONObject
+     * @param tournament
+     */
+    private void populateEvents(JSONObject tournamentJSONObject, Tournament tournament) {
+        JSONArray eventsJSONArray = tournamentJSONObject.optJSONArray("events");
+        if (eventsJSONArray != null) {
+            int ordinalNumber = 1;
+            List<TournamentEvent> tournamentEventList = new ArrayList<>(eventsJSONArray.length());
+            for (Object eventObject : eventsJSONArray) {
+                JSONObject eventJSONObject = (JSONObject) eventObject;
+                TournamentEvent tournamentEvent = populateSingleEvent(tournament, eventJSONObject, ordinalNumber);
+                tournamentEventList.add(tournamentEvent);
+                ordinalNumber++;
+            }
+            this.tournamentEventEntityService.saveAll(tournamentEventList);
+        }
+    }
+
+    /**
+     * Populates single tournament event from this type of information
+     *  "event_name": "Open Singles",
+     *  "day": "1",
+     *  "start_time": "8:45 AM",
+     *  "entry_fee": "60",
+     *  "is_doubles": false,
+     *  "single_elimination": false,
+     *  "max_rating": "",
+     *  "gender_restriction": "none",
+     *  "age_restriction": {
+     *  "type": "none",
+     *              "age": ""
+     *  },
+     *  "players_per_group": "4",
+     *
+     * @param tournament
+     * @param eventJSONObject
+     * @param ordinalNumber
+     * @return
+     */
+    private @NotNull TournamentEvent populateSingleEvent(Tournament tournament, JSONObject eventJSONObject, int ordinalNumber) {
+        String eventName = eventJSONObject.optString("event_name");
+        int day = eventJSONObject.optInt("day", 1);
+        String strStartTime = eventJSONObject.optString("start_time", "9:00 AM");
+        double startTime = convertStartTime(strStartTime);
+        int entryFee = eventJSONObject.optInt("entry_fee", 30);
+        int juniorEntryFee = eventJSONObject.optInt("junior_entry_fee", 20);
+        boolean isDoubles = eventJSONObject.optBoolean("is_doubles", false);
+        boolean isSingleElimination = eventJSONObject.optBoolean("single_elimination", false);
+        int playersPerGroup = eventJSONObject.optInt("players_per_group", 4);
+        int maxRating = eventJSONObject.optInt("max_rating", 0);
+        String strGenderRestriction = eventJSONObject.optString("gender_restriction", "none");
+        GenderRestriction genderRestriction = GenderRestriction.valueOf(strGenderRestriction.toUpperCase());
+        AgeRestrictionType ageRestrictionType = AgeRestrictionType.NONE;
+        int minimumPlayerAge = 0;
+        int maximumPlayerAge = 0;
+        Date ageRestictionDate = null;
+        JSONObject ageRestrictionJO = eventJSONObject.optJSONObject("age_restriction");
+        if (ageRestrictionJO != null) {
+            String type = ageRestrictionJO.optString("type");
+            int age = ageRestrictionJO.optInt("age", 0);
+            if ("maximum".equals(type)) {
+                ageRestrictionType = AgeRestrictionType.AGE_UNDER_OR_EQUAL_ON_DAY_EVENT;
+                maximumPlayerAge = age;
+            } else if ("minimum".equals(type)) {
+                ageRestrictionType = AgeRestrictionType.AGE_OVER_AT_THE_END_OF_YEAR;
+                minimumPlayerAge = age;
+            }
+        }
+
+        // todo - get these items from PDF
+        int maxEntries = 32;
+        boolean isPlay3rd4thPlace = false;
+        boolean isAdvanceUnratedPlayer = false;
+        int numberOfGamesSEPlayoffs = 5;
+        int numberOfGamesSEQuarterFinals = 5;
+        int numberOfGamesSESemiFinals = 5;
+        int numberOfGamesSEFinals = 5;
+        int pointsPerGame = 11;
+        boolean isGiantRR = tournament.getName().toLowerCase().contains("giant");
+        DrawMethod drawMethod = (isGiantRR) ? DrawMethod.SNAKE : DrawMethod.DIVISION;
+        drawMethod = (isSingleElimination) ? DrawMethod.SINGLE_ELIMINATION : drawMethod;
+
+        TournamentEvent tournamentEvent = new TournamentEvent();
+        tournamentEvent.setOrdinalNumber(ordinalNumber);
+        tournamentEvent.setName(eventName);
+        tournamentEvent.setTournamentFk(tournament.getId());
+        tournamentEvent.setDay(day);
+        tournamentEvent.setStartTime(startTime);
+        tournamentEvent.setMaxEntries(maxEntries);
+        tournamentEvent.setNumEntries(0);
+        tournamentEvent.setGenderRestriction(genderRestriction);
+        tournamentEvent.setMaxPlayerRating(maxRating);
+        tournamentEvent.setAgeRestrictionType(ageRestrictionType);
+        tournamentEvent.setAgeRestrictionDate(ageRestictionDate);
+        tournamentEvent.setMinPlayerAge(minimumPlayerAge);
+        tournamentEvent.setMaxPlayerAge(maximumPlayerAge);
+        tournamentEvent.setMaxPlayerRating(maxRating);
+        tournamentEvent.setNumberOfGames(5);
+        tournamentEvent.setFeeAdult(entryFee);
+        tournamentEvent.setFeeJunior(juniorEntryFee);
+        tournamentEvent.setSingleElimination(isSingleElimination);
+        tournamentEvent.setPlay3rd4thPlace(isPlay3rd4thPlace);
+        tournamentEvent.setDoubles(isDoubles);
+        tournamentEvent.setAdvanceUnratedWinner(isAdvanceUnratedPlayer);
+        tournamentEvent.setPlayersPerGroup(playersPerGroup);
+        tournamentEvent.setNumberOfGamesSEPlayoffs(numberOfGamesSEPlayoffs);
+        tournamentEvent.setNumberOfGamesSEQuarterFinals(numberOfGamesSEQuarterFinals);
+        tournamentEvent.setNumberOfGamesSESemiFinals(numberOfGamesSESemiFinals);
+        tournamentEvent.setNumberOfGamesSEFinals(numberOfGamesSEFinals);
+        tournamentEvent.setPointsPerGame(pointsPerGame);
+        tournamentEvent.setDrawMethod(drawMethod);
+
+        return tournamentEvent;
+    }
+
+    /**
+     * Convert string time to double representation
+     * @param strStartTime
+     * @return
+     */
+    private double convertStartTime(String strStartTime) {
+        double startTime = 9.0;
+        Pattern pattern = Pattern.compile("(\\d{1,2}):(\\d{2}) (AM|PM)");
+        Matcher matcher = pattern.matcher(strStartTime);
+        if (matcher.matches()) {
+            int hour = Integer.parseInt(matcher.group(1));
+            int minutes = Integer.parseInt(matcher.group(2));
+            String strIsAM = matcher.group(3);
+            startTime = hour;
+            startTime += ("AM".equals(strIsAM)) ? 0.0 : 12.0;
+            startTime += (minutes != 0) ? 0.5 : 0.0;
+        }
+        return startTime;
+    }
+
+    /**
+     * Populates tournametn data from JSON object extracted from PDF
+     *
+     * @param jsonObject
+     * @param tournament
+     * @param blankEntryFormPdfURI
+     */
+    private void populateTournamentData(JSONObject jsonObject, Tournament tournament, String blankEntryFormPdfURI) {
+        Date startDate = getDate(jsonObject, "tournament_dates", 0);
+        Date endDate =   getDate(jsonObject, "tournament_dates", 1);
+        endDate = (endDate == null) ? startDate : endDate;
+        tournament.setStartDate(startDate);
+        tournament.setEndDate(endDate);
+
+        String starRating = jsonObject.optString("star_rating");
+        if (StringUtils.isNotEmpty(starRating)) {
+            tournament.setStarLevel(Integer.parseInt(starRating));
+        }
+
+        TournamentConfiguration configuration = tournament.getConfiguration();
+        if (configuration == null) {
+            configuration = new TournamentConfiguration();
+            tournament.setConfiguration(configuration);
+        }
+
+        Date eligibilityDate = getDate(jsonObject, "rating_eligibility_date");
+        Date entryCutoffDate = getDate(jsonObject, "entry_deadline_date");
+        Date fullRefundDate = getDate(jsonObject, "refund_deadline_date");
+        Date lateEntryDate = getDate(jsonObject, "late_entry_date");
+        configuration.setEligibilityDate(eligibilityDate);
+        configuration.setEntryCutoffDate(entryCutoffDate);
+        configuration.setRefundDate(fullRefundDate);
+
+        configuration.setLateEntryDate(lateEntryDate);
+        configuration.setLateEntryFee(0);  // todo
+
+        Number registrationFee = jsonObject.optNumber("registration_fee");
+        if (registrationFee != null) {
+            configuration.setRegistrationFee(registrationFee.intValue());
+        }
+
+        String venueName = jsonObject.optString("venue_name");
+        JSONObject venueAddressJsonObject = jsonObject.getJSONObject("venue_address");
+        if (venueAddressJsonObject != null && !venueAddressJsonObject.isEmpty()) {
+            String streetAddress = venueAddressJsonObject.optString("street");
+            String city = venueAddressJsonObject.optString("city");
+            String state = venueAddressJsonObject.optString("state");
+            String zip = venueAddressJsonObject.optString("zip");
+            tournament.setVenueName(venueName);
+            tournament.setStreetAddress(streetAddress);
+            tournament.setCity(city);
+            tournament.setState(state);
+            tournament.setZipCode(zip);
+        }
+
+        String naviagableBlankEntryFormUrl = getNaviagableBlankEntryFormUrl(blankEntryFormPdfURI);
+        configuration.setBlankEntryUrl(naviagableBlankEntryFormUrl);
+
+        // contact information
+        JSONArray directors = jsonObject.getJSONArray("directors");
+        if (!directors.isEmpty()) {
+            for (Object director : directors) {
+                JSONObject directorJO = (JSONObject) director;
+                String directorsName = directorJO.optString("name");
+                String phone = directorJO.optString("phone");
+                String email = directorJO.optString("email");
+                tournament.setContactName(directorsName);
+                tournament.setPhone(phone);
+                tournament.setEmail(email);
+                break;
+            }
+        }
+        JSONObject equipmentJsonObject = jsonObject.getJSONObject("equipment");
+        if (!equipmentJsonObject.isEmpty()) {
+            Number tables = equipmentJsonObject.optNumber("tables");
+            if (tables != null) {
+                configuration.setNumberOfTables(tables.intValue());
+            }
+            String ballType = equipmentJsonObject.optString("ball_type");
+            // normalize ball type
+            if (ballType != null) {
+                // "N/A", "Nittaku Premium", "Nittaku Nexel", "Butterfly R40+", "JOOLA Prime", "Stiga Perform"
+                if (ballType.toLowerCase().contains("butterfly")) {
+                    ballType = "Butterfly R40+";
+                } else if (ballType.toLowerCase().contains("joola")) {
+                    ballType = "JOOLA Prime";
+                } else if (ballType.toLowerCase().contains("nittaku")) {
+                    if (ballType.toLowerCase().contains("premium")) {
+                        ballType = "Nittaku Premium";
+                    } else if (ballType.toLowerCase().contains("nexel")) {
+                        ballType = "Nittaku Nexel";
+                    }
+                } else if (ballType.toLowerCase().contains("stiga")) {
+                    ballType = "Stiga Perform";
+                }
+            }
+            configuration.setBallType(ballType);
+        }
+
+        // todo - extract from PDF
+        configuration.setMaxDailyEvents(3);
+        configuration.setMaxTournamentEvents(6);
+
+        configuration.setCheckInType(CheckInType.DAILY);
+
+        if (tournament.getName().toLowerCase().contains("team")) {
+            configuration.setTournamentType(TournamentType.Teams);
+        } else if (tournament.getName().toLowerCase().contains("robin")) {
+            configuration.setTournamentType(TournamentType.RoundRobin);
+        } else {
+            configuration.setTournamentType(TournamentType.RatingsRestricted);
+        }
+    }
+
+    /**
+     * Gets a single date object from these dates:
+     *   "tournament_dates": ["11/15/2025", "11/15/2025"],
+     *   "rating_eligibility_date": "",
+     *   "rating_seeding_date": "11/13/2025",
+     *   "entry_deadline_date": "",
+     *   "refund_deadline_date": "",
+     *
+     * @param jsonObject
+     * @param dateName
+     * @param index
+     */
+    private Date getDate(JSONObject jsonObject, String dateName, int index) {
+        Date date = null;
+        try {
+            String strDate = null;
+            Object object = jsonObject.get(dateName);
+            if (object != null) {
+                if (index >= 0) {
+                    // range of dates
+                    JSONArray jsonArray = jsonObject.getJSONArray(dateName);
+                    if (index < jsonArray.length()) {
+                        strDate = (String) jsonArray.get(index);
+                    }
+                } else {
+                    // single date
+                    strDate = (String)object;
+                }
+            }
+            if (strDate != null) {
+                date = DateUtils.parseDate(strDate, "MM/dd/yyyy");
+            }
+        } catch (JSONException | ParseException e) {
+            // don't do anything
+        }
+        return date;
+    }
+
+    private Date getDate(JSONObject jsonObject, String dateName) {
+        Date date = this.getDate(jsonObject, dateName, -1);
+        return date != null ? date : new Date();
+    }
+
+    /**
+     * Gets local path of the pdf file
+     * @param blankEntryFormURI
+     * @return
+     * @throws FileRepositoryException
+     * @throws IOException
+     */
+    private String getBlankEntryFormPDFFileLocalPath(String blankEntryFormURI) throws FileRepositoryException, IOException {
+
+        if (blankEntryFormURI != null) {
+            if (blankEntryFormURI.startsWith("C:\\")) {
+                // used during testing
+                return blankEntryFormURI;
+            } else if (blankEntryFormURI.contains("omnipong")) {
+                // download the file from omnipong locally
+                // TODO - get download dworking
+                String localPath = null;
+                return localPath;
+            } else {
+                // get the file from our repository
+                IFileRepository fileRepository = this.fileRepositoryFactory.getFileRepository();
+                FileInfo fileInfo = fileRepository.read(blankEntryFormURI);
+
+                // copy the file locally, because Slurper can't read from input stream - it may be remote in cloud storage
+                String tempDir = System.getenv("TEMP");
+                tempDir = (StringUtils.isEmpty(tempDir)) ? System.getenv("TMP") : tempDir;
+                tempDir += File.separator + "blankentryform";
+                File tempDirFile = new File(tempDir);
+                tempDirFile.mkdirs();
+
+                File outputFile = new File(tempDir, fileInfo.getFilename());
+                outputFile.createNewFile();
+                FileOutputStream fileOutputStream = new FileOutputStream(outputFile);
+                FileCopyUtils.copy(fileInfo.getFileInputStream(), fileOutputStream);
+
+                return outputFile.getCanonicalPath();
+            }
+        }
+        return null;
+    }
+
+    private String getNaviagableBlankEntryFormUrl(String blankEntryFormURI) {
+        if (blankEntryFormURI.contains("omnipong")) {
+            return blankEntryFormURI;
+        } else {
+            // it is in our repository so
+            return clientHostUrl + "/" + IFileRepository.REPOSITORY_URL_ROOT + "/" + blankEntryFormURI;
         }
     }
 }

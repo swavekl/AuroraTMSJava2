@@ -1,0 +1,53 @@
+<div mat-dialog-title>Import Tournament from PDF</div>
+<mat-dialog-content>
+  <form name="form" #f="ngForm">
+    <mat-horizontal-stepper linear>
+      <mat-step label="Select Blank Entry Form">
+        <div style="margin: 8px 0">Select blank entry form PDF file from local computer and upload it.</div>
+        <app-upload-file-component
+          [disabledBtn]="importStarted"
+          [uploadButtonLabel]="'Upload'"
+          (uploadFinished)="onBlankEntryFormUploadFinished($event)"
+          [storagePath]="getPDFStoragePath()">
+        </app-upload-file-component>
+<!--        <mat-form-field fxFlexFill>-->
+<!--          <mat-label>Select ttAurora Tournament to Import into</mat-label>-->
+<!--          <mat-select name="selectedTargetTournament" [(ngModel)]="selectedTargetTournamentId" required>-->
+<!--            <mat-option value="0">Create New Tournament</mat-option>-->
+<!--            <mat-option *ngFor="let targetTournament of existingTournaments" [value]="targetTournament.id">-->
+<!--              {{ targetTournament.name }}-->
+<!--            </mat-option>-->
+<!--          </mat-select>-->
+<!--        </mat-form-field>-->
+        <div fxLayout="row" fxLayoutAlign="end">
+          <button mat-raised-button color="primary" matStepperNext type="button">Next</button>
+        </div>
+      </mat-step>
+      <mat-step label="Import">
+        <mat-label>Overall {{ importProgressInfo?.overallCompleted }}% Complete</mat-label>
+        <mat-progress-bar [value]="importProgressInfo?.overallCompleted"
+                          style="height: 8px; width: 100%; padding-bottom: 8px">
+        </mat-progress-bar>
+        <div class="phase-name">
+          <mat-label>Phase: {{ importProgressInfo?.phaseName }}</mat-label>
+        </div>
+        <mat-label>Phase {{ importProgressInfo?.phaseCompleted }}% Complete</mat-label>
+        <mat-progress-bar [value]="importProgressInfo?.phaseCompleted"></mat-progress-bar>
+        <div fxLayout="row" fxLayoutAlign="space-between" style="margin-top: 20px;">
+          <button mat-raised-button matStepperPrevious type="button" [disabled]="importStarted">Back</button>
+          <span>&nbsp;&nbsp;{{ formatTime(elapsedSeconds) }}</span>
+          <button mat-raised-button color="primary" type="button" (click)="startImport()"
+                  [disabled]="!f.valid || isStartImportDisabled()">Start Import
+          </button>
+        </div>
+      </mat-step>
+    </mat-horizontal-stepper>
+  </form>
+</mat-dialog-content>
+<mat-dialog-actions fxLayout="row" fxLayoutGap="10px" style="margin: 0 10px 10px 10px;">
+  <button mat-raised-button [mat-dialog-close]="false" (click)="onCancel()">Cancel</button>
+  <span fxFlex></span>
+  <button mat-raised-button color="primary" [disabled]="!f.valid || isViewTournamentDisabled()"
+          (click)="onViewTournament()">View Tournament
+  </button>
+</mat-dialog-actions>

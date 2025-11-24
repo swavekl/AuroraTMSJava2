@@ -145,6 +145,39 @@ public class ImportTournamentController {
     }
 
     /**
+     * Imports tournament configuration and its events extracted from blank entry form PDF uploaded to repository
+     *
+     * @return
+     */
+    @GetMapping("/configurationfrompdf")
+    public ResponseEntity<ImportProgressInfo> importTournamentConfigurationFromPDF(
+            @RequestParam String blankEntryFormPdfURI,
+            HttpSession session) {
+
+        ImportProgressInfo importProgressInfo = new ImportProgressInfo();
+        importProgressInfo.phaseName = "Starting tournament blank entry form import";
+        importProgressInfo.jobId = UUID.randomUUID().toString();
+        session.setAttribute("importProgressInfo" + importProgressInfo.jobId, importProgressInfo);
+
+        final String currentUserName = UserRolesHelper.getCurrentUsername();
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            @Transactional
+            public void run() {
+                log.info("Starting tournament blank entry form for " + currentUserName);
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+                importTournamentService.importTournamentConfigurationFromPDF(blankEntryFormPdfURI, importProgressInfo);
+            }
+        });
+        thread.setName("ImportTournamentPDF_" + importProgressInfo.jobId);
+        thread.start();
+
+        return ResponseEntity.ok(importProgressInfo);
+    }
+
+    /**
      * Gets import job status
      *
      * @param jobId   import job id

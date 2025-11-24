@@ -41,6 +41,7 @@ import {TournamentWaitingListComponent} from './tournament-waiting-list/tourname
 import {TournamentWaitingListContainerComponent} from './tournament-waiting-list/tournament-waiting-list-container.component';
 import {AddManyEventsDialogComponent} from './add-many-events-dialog/add-many-events-dialog.component';
 import { ImportTournamentDialogComponent } from './import-tournament-dialog/import-tournament-dialog.component';
+import { ImportBlankEntryFormDialogComponent } from './import-blank-entry-form-dialog/import-blank-entry-form-dialog.component';
 
 
 @NgModule({
@@ -59,7 +60,8 @@ import { ImportTournamentDialogComponent } from './import-tournament-dialog/impo
     TournamentWaitingListComponent,
     TournamentWaitingListContainerComponent,
     AddManyEventsDialogComponent,
-    ImportTournamentDialogComponent
+    ImportTournamentDialogComponent,
+    ImportBlankEntryFormDialogComponent
   ],
   imports: [
     CommonModule,
