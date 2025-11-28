@@ -31,17 +31,21 @@ import java.util.List;
         "number_of_games_se_quarter_finals",
         "number_of_games_se_semi_finals",
         "number_of_games_se_finals",
+        "play_3rd_4th_place",
+        "players_to_advance",
+        "advance_unrated_player",
+        "players_to_seed",
         "prizes"
 })
 public class EventDTO {
 
     @JsonProperty("ordinal_number")
-    private String ordinalNumber;
+    private int ordinalNumber;
 
     @JsonProperty("event_name")
     private String eventName;
 
-    private String day;
+    private int day = 1;
 
     @JsonProperty("start_time")
     private String startTime;
@@ -69,12 +73,10 @@ public class EventDTO {
     private AgeRestrictionDTO ageRestriction;
 
     @JsonProperty("players_per_group")
-    private String playersPerGroup;
+    private int playersPerGroup;
 
     @JsonProperty("draw_method")
     private String drawMethod;
-
-    private List<PrizeDTO> prizes;
 
     // best of 3, 5, 7 or 9 games per match in the main round (i.e. round robin)
     @JsonProperty("number_of_games")
@@ -95,5 +97,17 @@ public class EventDTO {
     @JsonProperty("number_of_games_se_finals")
     private int numberOfGamesSEFinals = 5;
 
-}
+    @JsonProperty("play_3rd_4th_place")
+    private boolean play3rd4thPlace;
 
+    @JsonProperty("players_to_advance")
+    private int playersToAdvance = 1;
+
+    @JsonProperty("advance_unrated_player")
+    private boolean advanceUnratedWinner = false;
+
+    @JsonProperty("players_to_seed")
+    private int playersToSeed;
+
+    private List<PrizeDTO> prizes;
+}

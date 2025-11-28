@@ -191,6 +191,14 @@ If specified in a sentence like below, apply to all relevant events (i.e. sectio
 
 If not present then 0
 
+------------------------------------------------------------------------------------------
+### PLAYERS TO ADVANCE
+------------------------------------------------------------------------------------------
+If not specified → "players_to_advance" : 1
+
+Example:
+ "Initial group stage (Up to four players), where top two (2) place finishers will advance to a single elimination tournament." → "players_to_advance" : 2
+
 -----------------------------------------------------------------------------------------
 ### NUMBER OF GAMES
 -----------------------------------------------------------------------------------------
@@ -290,6 +298,11 @@ Normalize and extract prize placements robustly including short headers.
 
    - Header: "2nd"  Cell: "Medal"
      → { "division":"", "place":"2", "place_end":"", "prize_money":"", "award":"medal" }
+
+   - Header: "Prizes"  Cell: "1st place & 2nd place rings and 3rd place medals. Up to $200 in money prizes for winner and runner-up."
+     if there is only one cell for all events apply to all events
+     → { "division":"", "place":"1", "place_end":"2", "prize_money":"200", "award":"ring" }
+     → { "division":"", "place":"3", "place_end":"", "prize_money":"", "award":"medal" }
 
    - Cell: "3rd–4th $100 & Trophy"
      → { "division":"", "place":"3", "place_end":"4", "prize_money":"100", "award":"trophy" }
