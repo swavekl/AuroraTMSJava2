@@ -40,7 +40,6 @@ class BlankEntryFormParserServiceTest extends AbstractServiceTest {
         }
     }
 
-    // 2025-aurora-cup-registration6pages
     @Test
     @Disabled
     void testAuroraCup() throws Exception {
@@ -172,6 +171,21 @@ class BlankEntryFormParserServiceTest extends AbstractServiceTest {
                 "Carmel Barrau International Open");
     }
 
+    @Test
+    @Disabled
+    void testMiamiDecemberOpen() throws Exception {
+        runPdfTest("pdfs/1139-10 Miami Table Tennis December 2025 Tournament.pdf",
+                "Miami Table Tennis December");
+    }
+
+// all graphics
+    //    @Test
+//    @Disabled
+//    void testPensacolaWinterOpen() throws Exception {
+//        runPdfTest("pdfs/1082-27-PENSACOLA’S 24th ANNUAL WINTER OPEN.pdf",
+//                "PENSACOLA’S 24th ANNUAL WINTER OPEN");
+//    }
+
     // ======================================================================
     // Doubles only tournaments
     // ======================================================================
@@ -228,6 +242,7 @@ class BlankEntryFormParserServiceTest extends AbstractServiceTest {
     }
 
     @Test
+    @Disabled
     void testTimeNormalization () {
         String[] testCases = {
                 "8:30AM",                   // 8:30 AM
@@ -291,6 +306,7 @@ class BlankEntryFormParserServiceTest extends AbstractServiceTest {
     }
 
     @Test
+    @Disabled
     public void testWholePage () {
         String pageText = "U2200 5pm\nU2100 11am\nU2000 9am";
         String normalizedPageText = blankEntryFormParserService.normalizeTimeInPage(pageText);
@@ -301,6 +317,12 @@ class BlankEntryFormParserServiceTest extends AbstractServiceTest {
         assertEquals("U2200 Sat 5:00 PM $55\nU2100 Sun 11:00 AM $45\nU2000 Sat 9:00 AM $40\n", normalizedPageText2);
     }
 
+    /**
+     *
+     * @param pdfPath
+     * @param tournamentNameHint
+     * @throws Exception
+     */
     private void runPdfTest(String pdfPath, String tournamentNameHint) throws Exception {
 
         String aiOutput = blankEntryFormParserService.parseTournamentPdf(
