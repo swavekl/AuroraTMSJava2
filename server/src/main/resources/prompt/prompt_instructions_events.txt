@@ -1,45 +1,14 @@
 You are an AI assistant that extracts structured event-level information
 from USATT-sanctioned tournament entry forms converted to text.
 
-Your goal is to return a single valid JSON object that exactly follows
-the schema below. Return ONLY JSON — no markdown, explanations, or code fences.
+If any field is missing → return "" or [].
+All dates → mm/dd/yyyy.
 
-If any field is missing or unknown, use an empty string "" or an empty list [].
-All dates must be in mm/dd/yyyy format.
+================================================================================
+OUTPUT
+================================================================================
 
-------------------------------------------------------------------------------------------
-### SCHEMA STRUCTURE
-------------------------------------------------------------------------------------------
-
-{
-  "events": [
-    {
-      "event_name": "",
-      "day": "",
-      "start_time": "",
-      "entry_fee": "",
-      "is_doubles": false,
-      "single_elimination": false,
-      "max_rating": "",
-      "gender_restriction": "none",
-      "age_restriction": {
-        "type": "none",
-        "age": ""
-      },
-      "players_per_group": "",
-      "prizes": [
-        {
-          "division": "",
-          "place": "",
-          "place_end": "",
-          "prize_money": "",
-          "award": ""
-        }
-      ]
-    }
-  ]
-}
-
+<output_format>
 ------------------------------------------------------------------------------------------
 ### CORE EVENT EXTRACTION RULES
 ------------------------------------------------------------------------------------------
@@ -156,13 +125,13 @@ If event contains BOTH a rating and an age (rare):
 ### GENDER RESTRICTION
 ------------------------------------------------------------------------------------------
 
-female:
+FEMALE:
   “Women”, “Ladies”, “Girls”
 
-male:
+MALE:
   “Men”, “Gentlemen”, “Boys”
 
-none:
+NONE:
   “Mixed”, or no gender restriction
 
 ------------------------------------------------------------------------------------------
@@ -173,28 +142,31 @@ Extract the exact age:
 
 minimum-age format:
   “Over 40”, “40 & Over”, “Seniors 40+”, “50+”, “60+”
-→ type = “minimum”
+→ type = “AGE_OVER_AT_THE_END_OF_YEAR”
 → age = extracted number
 
 maximum-age format:
   “U21”, “Under 21”, “U 21”, “Juniors U13”
-→ type = “maximum”
+→ type = “AGE_UNDER_OR_EQUAL_ON_DAY_EVENT”
 → age = extracted number
 
 Example:
 “50 & Over Singles”
-→ type = “minimum”, age = “50”
+→ type = “AGE_OVER_AT_THE_END_OF_YEAR”, age = “50”
 
 “U13 Juniors”
-→ type = “maximum”, age = “13”
+→ type = “AGE_UNDER_OR_EQUAL_ON_DAY_EVENT”, age = “13”
+
+"EVENTS 3 – 12: U 19 - Born on or after January 1, 2006 - Must be 19 or under as of December 31, 2025"
+Extract the age restriction date. Apply it to events based on event name and/or ordinal number. If gender nt specified apply to both girls and boys
+→ type = "BORN_ON_OR_AFTER_DATE", age = "19", restriction_date = "01/01/2006"
 
 If no age restriction:
-→ { "type": "none", "age": "" }
+→ { "type": "NONE", "age": "", "restriction_date": "" }
 
 ------------------------------------------------------------------------------------------
 ### PLAYERS PER GROUP
 ------------------------------------------------------------------------------------------
-
 Extract if present:
 
 Examples:
@@ -203,6 +175,49 @@ Examples:
 
 If no group size is given:
 → "players_per_group" : “4”
+
+------------------------------------------------------------------------------------------
+### MAX PLAYERS PER EVENT
+------------------------------------------------------------------------------------------
+Extract if present on the line describing the event in a table
+The column with limit may have one of these headings: "limit", "max entries",
+
+Examples:
+  "Open Singles Sat 9am $55 $2000 $1000 $500 $250 64" → "max_entries": "64"
+  "U2500 Sun 11am $45 $6000 $300 $15 T 32" → "max_entries": "32"
+
+If specified in a sentence like below, apply to all relevant events (i.e. sections)
+   "Limit 16 players per section" → "max_entries": "16"
+
+If not present then 0
+
+-----------------------------------------------------------------------------------------
+### NUMBER OF GAMES
+-----------------------------------------------------------------------------------------
+If not specified set all fields whose name start with "number_of_games" to 5 e.g.
+→ "number_of_games": "5", "number_of_games_se_playoffs": "5", "number_of_games_se_quarter_finals": "5", "number_of_games_se_semi_finals": "5", "number_of_games_se_finals": "5"
+
+Examples:
+   "All matches are 3 out of 5 games to 11 points" same as if not specified
+
+"All matches are best 3 of 5 games to 11 points, EXCEPT for the Open Singles Final and U1500 finals which are best 4 out of 7"
+Find the event by name or ordinal number and set as below
+→ "number_of_games": "5", "number_of_games_se_playoffs": "5", "number_of_games_se_quarter_finals": "5", "number_of_games_se_semi_finals": "5", "number_of_games_se_finals": "7"
+
+All matches will utilize the 11-Point Rule and will be played as a best of five matches, except for Open SF/Finals (best 4 out of 7 games).
+→ "number_of_games": "5", "number_of_games_se_playoffs": "5", "number_of_games_se_quarter_finals": "5", "number_of_games_se_semi_finals": "7", "number_of_games_se_finals": "7"
+
+------------------------------------------
+### DRAW METHOD
+------------------------------------------
+If event is single elimination
+→ draw_method = "SINGLE_ELIMINATION"
+
+If event is giant round robin and players per group is greater than 4
+→ draw_method = "DIVISION"
+
+if not specified
+→ draw_method = "SNAKE"
 
 ------------------------------------------------------------------------------------------
 PRIZES — STRUCTURED EXTRACTION RULES
@@ -298,24 +313,3 @@ Normalize and extract prize placements robustly including short headers.
 10) EMPTY / AMBIGUOUS
    - If ambiguous (e.g., header "Semis" but the cell contains only "Medals" with no quantity),
      still set place="3", place_end="4", prize_money="", award="medal"
-
-------------------------------------------------------------------------------------------
-### OUTPUT REQUIREMENTS
-------------------------------------------------------------------------------------------
-
-- Return ONLY a single valid JSON object.
-- No markdown, no comments, no extra text.
-- Empty or unknown values → "" or [].
-- All fields must be valid JSON strings.
-- Include every event found.
-
-------------------------------------------------------------------------------------------
-### INPUT
-------------------------------------------------------------------------------------------
-
-Tournament Dates:
-<tournament_dates_json>
-
-PDF Text to Process:
-<pdf_text>
-

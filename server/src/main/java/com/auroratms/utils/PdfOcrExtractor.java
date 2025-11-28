@@ -11,6 +11,8 @@ import org.apache.pdfbox.rendering.PDFRenderer;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class PdfOcrExtractor {
 
@@ -23,26 +25,32 @@ public class PdfOcrExtractor {
     /**
      * Extracts OCR'd text from only the first page of a PDF.
      */
-    public String extractFirstPageOcr(File pdfFile) throws IOException {
-//        try (PDDocument document = PDDocument.load(pdfFile)) {
+    public List<String> extractPagesText(File pdfFile) throws IOException {
+        List<String> pagesOfText = new ArrayList<>();
         try (PDDocument document = Loader.loadPDF(new RandomAccessReadBufferedFile(pdfFile))) {
 
             PDFRenderer pdfRenderer = new PDFRenderer(document);
 
-            // Render first page to image (300 DPI improves OCR accuracy)
-            BufferedImage image = pdfRenderer.renderImageWithDPI(0, 600, ImageType.RGB);
-            // Preprocess image for maximum clarity
-            BufferedImage processedImage = ImagePreprocessor.preprocess(image);
+            int numberOfPages = document.getNumberOfPages();
+            for (int pageIndex = 0; pageIndex < numberOfPages; pageIndex++) {
+                // Render first page to image (300 DPI improves OCR accuracy)
+                BufferedImage image = pdfRenderer.renderImageWithDPI(pageIndex, 600, ImageType.RGB);
+                // Preprocess image for maximum clarity
+                BufferedImage processedImage = ImagePreprocessor.preprocess(image);
 
-            Tesseract tesseract = new Tesseract();
-            tesseract.setDatapath(tessdataPath); // path to tessdata folder
-            tesseract.setLanguage("eng");
+                Tesseract tesseract = new Tesseract();
+                tesseract.setDatapath(tessdataPath); // path to tessdata folder
+                tesseract.setLanguage("eng");
 
-            try {
-                return tesseract.doOCR(processedImage);
-            } catch (TesseractException e) {
-                throw new IOException("OCR processing failed: " + e.getMessage(), e);
+                try {
+                    String pageText = tesseract.doOCR(processedImage);
+                    pagesOfText.add(pageText);
+                } catch (TesseractException e) {
+                    throw new IOException("OCR processing failed for page " + pageIndex + ": " + e.getMessage(), e);
+                }
             }
+
         }
+        return pagesOfText;
     }
 }

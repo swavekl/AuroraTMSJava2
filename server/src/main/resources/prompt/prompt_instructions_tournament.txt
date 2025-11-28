@@ -8,50 +8,10 @@ If any field is missing → return "" or [].
 All dates → mm/dd/yyyy.
 
 ================================================================================
-SCHEMA
+OUTPUT
 ================================================================================
 
-{
-  "tournament_name": "",
-  "star_rating": "",
-  "tournament_dates": [],
-  "rating_eligibility_date": "",
-  "rating_seeding_date": "",
-  "entry_deadline_date": "",
-  "refund_deadline_date": "",
-  "late_entry_date": "",
-  "registration_fee": "",
-  "venue_name": "",
-  "venue_address": {
-    "street": "",
-    "city": "",
-    "state": "",
-    "zip": ""
-  },
-  "website_url": "",
-  "referee": {
-    "name": "",
-    "rank": ""
-  },
-  "umpires": [
-    {
-      "name": "",
-      "rank": ""
-    }
-  ],
-  "directors": [
-    {
-      "name": "",
-      "phone": "",
-      "email": ""
-    }
-  ],
-  "equipment": {
-    "tables": "",
-    "ball_type": ""
-  }
-}
-
+<output_format>
 ================================================================================
 TOURNAMENT EXTRACTION RULES
 ================================================================================
@@ -203,6 +163,8 @@ Extract:
   state
   zip (if missing → "")
 
+  Normalize state name to a two-letter postal abbreviation e.g. Florida -> FL
+
 -------------------------------------------------------------------------------
 DIRECTORS (ONE OR MORE)
 -------------------------------------------------------------------------------
@@ -288,16 +250,3 @@ Examples:
   http://fremonttabletennis.com/
 Strict rules:
 - DO NOT treat any url with omnipong.com or teamusa.org as website url
-
--------------------------------------------------------------------------------
-OUTPUT RULES
--------------------------------------------------------------------------------
-- Output **only** one JSON object.
-- No extra text, no markdown, no commentary.
-- Dates → mm/dd/yyyy.
-- Missing → "" or [].
-================================================================================
-INPUT
-================================================================================
-PDF text to process:
-<pdf_text>

@@ -1,0 +1,889 @@
+{
+  "tournament_name": "AURORA CUP",
+  "star_rating": "4",
+  "tournament_dates": [
+    "05/09/2025",
+    "05/11/2025"
+  ],
+  "rating_eligibility_date": "05/01/2025",
+  "rating_seeding_date": "05/08/2025",
+  "entry_deadline_date": "05/05/2025",
+  "refund_deadline_date": "05/10/2025",
+  "late_entry_date": "",
+  "registration_fee": "19",
+  "venue_name": "Vaughan Athletic Center",
+  "venue_address": {
+    "street": "2121 W. Indian Trail",
+    "city": "Aurora",
+    "state": "IL",
+    "zip": "60506"
+  },
+  "website_url": "https://www.wttaurora.com",
+  "referee": {
+    "name": "Lijian Cai",
+    "rank": "CR"
+  },
+  "umpires": [
+    {
+      "name": "Jorge Vanegas Sanchez",
+      "rank": "IU"
+    },
+    {
+      "name": "Alexander Cai",
+      "rank": "RU"
+    },
+    {
+      "name": "Michael Wolski",
+      "rank": "CU"
+    }
+  ],
+  "directors": [
+    {
+      "name": "Swavek Lorenc",
+      "phone": "630 251 8860",
+      "email": "swaveklorenc@yahoo.com"
+    }
+  ],
+  "equipment": {
+    "tables": "36",
+    "ball_type": "JOOLA PRIME ABS, 3-star balls"
+  },
+  "events": [
+    {
+      "ordinal_number": "1",
+      "event_name": "U-800",
+      "day": "1",
+      "start_time": "6:30 PM",
+      "entry_fee": "35",
+      "is_doubles": false,
+      "max_entries": 38,
+      "single_elimination": false,
+      "max_rating": "799",
+      "gender_restriction": "",
+      "age_restriction": {
+        "type": "NONE",
+        "age": "",
+        "restriction_date": ""
+      },
+      "players_per_group": "4",
+      "draw_method": "SNAKE",
+      "number_of_games": 5,
+      "number_of_games_se_playoffs": 5,
+      "number_of_games_se_quarter_finals": 5,
+      "number_of_games_se_semi_finals": 5,
+      "number_of_games_se_finals": 5,
+      "prizes": []
+    },
+    {
+      "ordinal_number": "2",
+      "event_name": "U-1750",
+      "day": "1",
+      "start_time": "6:30 PM",
+      "entry_fee": "35",
+      "is_doubles": false,
+      "max_entries": 0,
+      "single_elimination": false,
+      "max_rating": "1749",
+      "gender_restriction": "",
+      "age_restriction": {
+        "type": "NONE",
+        "age": "",
+        "restriction_date": ""
+      },
+      "players_per_group": "4",
+      "draw_method": "SNAKE",
+      "number_of_games": 5,
+      "number_of_games_se_playoffs": 5,
+      "number_of_games_se_quarter_finals": 5,
+      "number_of_games_se_semi_finals": 5,
+      "number_of_games_se_finals": 5,
+      "prizes": []
+    },
+    {
+      "ordinal_number": "3",
+      "event_name": "U-1500",
+      "day": "1",
+      "start_time": "6:30 PM",
+      "entry_fee": "35",
+      "is_doubles": false,
+      "max_entries": 0,
+      "single_elimination": false,
+      "max_rating": "1499",
+      "gender_restriction": "",
+      "age_restriction": {
+        "type": "NONE",
+        "age": "",
+        "restriction_date": ""
+      },
+      "players_per_group": "4",
+      "draw_method": "SNAKE",
+      "number_of_games": 5,
+      "number_of_games_se_playoffs": 5,
+      "number_of_games_se_quarter_finals": 5,
+      "number_of_games_se_semi_finals": 5,
+      "number_of_games_se_finals": 5,
+      "prizes": []
+    },
+    {
+      "ordinal_number": "4",
+      "event_name": "Open Singles",
+      "day": "2",
+      "start_time": "9:00 AM",
+      "entry_fee": "55",
+      "is_doubles": false,
+      "max_entries": 0,
+      "single_elimination": false,
+      "max_rating": "",
+      "gender_restriction": "",
+      "age_restriction": {
+        "type": "NONE",
+        "age": "",
+        "restriction_date": ""
+      },
+      "players_per_group": "4",
+      "draw_method": "SNAKE",
+      "number_of_games": 5,
+      "number_of_games_se_playoffs": 5,
+      "number_of_games_se_quarter_finals": 5,
+      "number_of_games_se_semi_finals": 5,
+      "number_of_games_se_finals": 5,
+      "prizes": [
+        {
+          "division": "",
+          "place": "1",
+          "place_end": "",
+          "prize_money": "2000",
+          "award": ""
+        },
+        {
+          "division": "",
+          "place": "2",
+          "place_end": "",
+          "prize_money": "1000",
+          "award": ""
+        },
+        {
+          "division": "",
+          "place": "3",
+          "place_end": "",
+          "prize_money": "500",
+          "award": ""
+        }
+      ]
+    },
+    {
+      "ordinal_number": "5",
+      "event_name": "U-1200",
+      "day": "2",
+      "start_time": "9:00 AM",
+      "entry_fee": "35",
+      "is_doubles": false,
+      "max_entries": 0,
+      "single_elimination": false,
+      "max_rating": "1199",
+      "gender_restriction": "",
+      "age_restriction": {
+        "type": "NONE",
+        "age": "",
+        "restriction_date": ""
+      },
+      "players_per_group": "4",
+      "draw_method": "SNAKE",
+      "number_of_games": 5,
+      "number_of_games_se_playoffs": 5,
+      "number_of_games_se_quarter_finals": 5,
+      "number_of_games_se_semi_finals": 5,
+      "number_of_games_se_finals": 5,
+      "prizes": []
+    },
+    {
+      "ordinal_number": "6",
+      "event_name": "Under 14 Youth",
+      "day": "2",
+      "start_time": "10:30 AM",
+      "entry_fee": "30",
+      "is_doubles": false,
+      "max_entries": 0,
+      "single_elimination": false,
+      "max_rating": "",
+      "gender_restriction": "",
+      "age_restriction": {
+        "type": "AGE_UNDER_OR_EQUAL_ON_DAY_EVENT",
+        "age": "14",
+        "restriction_date": ""
+      },
+      "players_per_group": "4",
+      "draw_method": "SNAKE",
+      "number_of_games": 5,
+      "number_of_games_se_playoffs": 5,
+      "number_of_games_se_quarter_finals": 5,
+      "number_of_games_se_semi_finals": 5,
+      "number_of_games_se_finals": 5,
+      "prizes": []
+    },
+    {
+      "ordinal_number": "7",
+      "event_name": "50 & Over",
+      "day": "2",
+      "start_time": "10:30 AM",
+      "entry_fee": "45",
+      "is_doubles": false,
+      "max_entries": 0,
+      "single_elimination": false,
+      "max_rating": "",
+      "gender_restriction": "",
+      "age_restriction": {
+        "type": "AGE_OVER_AT_THE_END_OF_YEAR",
+        "age": "50",
+        "restriction_date": "12/31/2025"
+      },
+      "players_per_group": "4",
+      "draw_method": "SNAKE",
+      "number_of_games": 5,
+      "number_of_games_se_playoffs": 5,
+      "number_of_games_se_quarter_finals": 5,
+      "number_of_games_se_semi_finals": 5,
+      "number_of_games_se_finals": 5,
+      "prizes": [
+        {
+          "division": "",
+          "place": "1",
+          "place_end": "",
+          "prize_money": "150",
+          "award": ""
+        },
+        {
+          "division": "",
+          "place": "2",
+          "place_end": "",
+          "prize_money": "100",
+          "award": ""
+        },
+        {
+          "division": "",
+          "place": "3",
+          "place_end": "",
+          "prize_money": "50",
+          "award": ""
+        }
+      ]
+    },
+    {
+      "ordinal_number": "8",
+      "event_name": "U-1900",
+      "day": "2",
+      "start_time": "10:30 AM",
+      "entry_fee": "45",
+      "is_doubles": false,
+      "max_entries": 0,
+      "single_elimination": false,
+      "max_rating": "1899",
+      "gender_restriction": "",
+      "age_restriction": {
+        "type": "NONE",
+        "age": "",
+        "restriction_date": ""
+      },
+      "players_per_group": "4",
+      "draw_method": "SNAKE",
+      "number_of_games": 5,
+      "number_of_games_se_playoffs": 5,
+      "number_of_games_se_quarter_finals": 5,
+      "number_of_games_se_semi_finals": 5,
+      "number_of_games_se_finals": 5,
+      "prizes": [
+        {
+          "division": "",
+          "place": "1",
+          "place_end": "",
+          "prize_money": "100",
+          "award": ""
+        },
+        {
+          "division": "",
+          "place": "2",
+          "place_end": "",
+          "prize_money": "75",
+          "award": ""
+        },
+        {
+          "division": "",
+          "place": "3",
+          "place_end": "",
+          "prize_money": "50",
+          "award": ""
+        }
+      ]
+    },
+    {
+      "ordinal_number": "9",
+      "event_name": "U-1600",
+      "day": "2",
+      "start_time": "10:30 AM",
+      "entry_fee": "35",
+      "is_doubles": false,
+      "max_entries": 0,
+      "single_elimination": false,
+      "max_rating": "1599",
+      "gender_restriction": "",
+      "age_restriction": {
+        "type": "NONE",
+        "age": "",
+        "restriction_date": ""
+      },
+      "players_per_group": "4",
+      "draw_method": "SNAKE",
+      "number_of_games": 5,
+      "number_of_games_se_playoffs": 5,
+      "number_of_games_se_quarter_finals": 5,
+      "number_of_games_se_semi_finals": 5,
+      "number_of_games_se_finals": 5,
+      "prizes": []
+    },
+    {
+      "ordinal_number": "10",
+      "event_name": "U-2000",
+      "day": "2",
+      "start_time": "2:00 PM",
+      "entry_fee": "45",
+      "is_doubles": false,
+      "max_entries": 0,
+      "single_elimination": false,
+      "max_rating": "1999",
+      "gender_restriction": "",
+      "age_restriction": {
+        "type": "NONE",
+        "age": "",
+        "restriction_date": ""
+      },
+      "players_per_group": "4",
+      "draw_method": "SNAKE",
+      "number_of_games": 5,
+      "number_of_games_se_playoffs": 5,
+      "number_of_games_se_quarter_finals": 5,
+      "number_of_games_se_semi_finals": 5,
+      "number_of_games_se_finals": 5,
+      "prizes": [
+        {
+          "division": "",
+          "place": "1",
+          "place_end": "",
+          "prize_money": "150",
+          "award": ""
+        },
+        {
+          "division": "",
+          "place": "2",
+          "place_end": "",
+          "prize_money": "100",
+          "award": ""
+        },
+        {
+          "division": "",
+          "place": "3",
+          "place_end": "",
+          "prize_money": "50",
+          "award": ""
+        }
+      ]
+    },
+    {
+      "ordinal_number": "11",
+      "event_name": "U-2300",
+      "day": "2",
+      "start_time": "3:30 PM",
+      "entry_fee": "45",
+      "is_doubles": false,
+      "max_entries": 0,
+      "single_elimination": false,
+      "max_rating": "2299",
+      "gender_restriction": "",
+      "age_restriction": {
+        "type": "NONE",
+        "age": "",
+        "restriction_date": ""
+      },
+      "players_per_group": "4",
+      "draw_method": "SNAKE",
+      "number_of_games": 5,
+      "number_of_games_se_playoffs": 5,
+      "number_of_games_se_quarter_finals": 5,
+      "number_of_games_se_semi_finals": 5,
+      "number_of_games_se_finals": 5,
+      "prizes": [
+        {
+          "division": "",
+          "place": "1",
+          "place_end": "",
+          "prize_money": "250",
+          "award": ""
+        },
+        {
+          "division": "",
+          "place": "2",
+          "place_end": "",
+          "prize_money": "125",
+          "award": ""
+        },
+        {
+          "division": "",
+          "place": "3",
+          "place_end": "",
+          "prize_money": "100",
+          "award": ""
+        }
+      ]
+    },
+    {
+      "ordinal_number": "12",
+      "event_name": "Open Doubles",
+      "day": "2",
+      "start_time": "6:00 PM",
+      "entry_fee": "28",
+      "is_doubles": true,
+      "max_entries": 0,
+      "single_elimination": false,
+      "max_rating": "",
+      "gender_restriction": "",
+      "age_restriction": {
+        "type": "NONE",
+        "age": "",
+        "restriction_date": ""
+      },
+      "players_per_group": "4",
+      "draw_method": "SNAKE",
+      "number_of_games": 5,
+      "number_of_games_se_playoffs": 5,
+      "number_of_games_se_quarter_finals": 5,
+      "number_of_games_se_semi_finals": 5,
+      "number_of_games_se_finals": 5,
+      "prizes": [
+        {
+          "division": "",
+          "place": "1",
+          "place_end": "",
+          "prize_money": "500",
+          "award": ""
+        },
+        {
+          "division": "",
+          "place": "2",
+          "place_end": "",
+          "prize_money": "250",
+          "award": ""
+        },
+        {
+          "division": "",
+          "place": "3",
+          "place_end": "",
+          "prize_money": "150",
+          "award": ""
+        }
+      ]
+    },
+    {
+      "ordinal_number": "14",
+      "event_name": "U-2600",
+      "day": "3",
+      "start_time": "9:00 AM",
+      "entry_fee": "45",
+      "is_doubles": false,
+      "max_entries": 0,
+      "single_elimination": false,
+      "max_rating": "2599",
+      "gender_restriction": "",
+      "age_restriction": {
+        "type": "NONE",
+        "age": "",
+        "restriction_date": ""
+      },
+      "players_per_group": "4",
+      "draw_method": "SNAKE",
+      "number_of_games": 5,
+      "number_of_games_se_playoffs": 5,
+      "number_of_games_se_quarter_finals": 5,
+      "number_of_games_se_semi_finals": 5,
+      "number_of_games_se_finals": 5,
+      "prizes": [
+        {
+          "division": "",
+          "place": "1",
+          "place_end": "",
+          "prize_money": "600",
+          "award": ""
+        },
+        {
+          "division": "",
+          "place": "2",
+          "place_end": "",
+          "prize_money": "300",
+          "award": ""
+        },
+        {
+          "division": "",
+          "place": "3",
+          "place_end": "",
+          "prize_money": "150",
+          "award": ""
+        }
+      ]
+    },
+    {
+      "ordinal_number": "15",
+      "event_name": "U-1700",
+      "day": "3",
+      "start_time": "9:00 AM",
+      "entry_fee": "35",
+      "is_doubles": false,
+      "max_entries": 0,
+      "single_elimination": false,
+      "max_rating": "1699",
+      "gender_restriction": "",
+      "age_restriction": {
+        "type": "NONE",
+        "age": "",
+        "restriction_date": ""
+      },
+      "players_per_group": "4",
+      "draw_method": "SNAKE",
+      "number_of_games": 5,
+      "number_of_games_se_playoffs": 5,
+      "number_of_games_se_quarter_finals": 5,
+      "number_of_games_se_semi_finals": 5,
+      "number_of_games_se_finals": 5,
+      "prizes": []
+    },
+    {
+      "ordinal_number": "16",
+      "event_name": "Under 18 Youth",
+      "day": "3",
+      "start_time": "10:30 AM",
+      "entry_fee": "30",
+      "is_doubles": false,
+      "max_entries": 0,
+      "single_elimination": false,
+      "max_rating": "",
+      "gender_restriction": "",
+      "age_restriction": {
+        "type": "AGE_UNDER_OR_EQUAL_ON_DAY_EVENT",
+        "age": "18",
+        "restriction_date": ""
+      },
+      "players_per_group": "4",
+      "draw_method": "SNAKE",
+      "number_of_games": 5,
+      "number_of_games_se_playoffs": 5,
+      "number_of_games_se_quarter_finals": 5,
+      "number_of_games_se_semi_finals": 5,
+      "number_of_games_se_finals": 5,
+      "prizes": []
+    },
+    {
+      "ordinal_number": "17",
+      "event_name": "U-2100",
+      "day": "3",
+      "start_time": "10:30 AM",
+      "entry_fee": "45",
+      "is_doubles": false,
+      "max_entries": 0,
+      "single_elimination": false,
+      "max_rating": "2099",
+      "gender_restriction": "",
+      "age_restriction": {
+        "type": "NONE",
+        "age": "",
+        "restriction_date": ""
+      },
+      "players_per_group": "4",
+      "draw_method": "SNAKE",
+      "number_of_games": 5,
+      "number_of_games_se_playoffs": 5,
+      "number_of_games_se_quarter_finals": 5,
+      "number_of_games_se_semi_finals": 5,
+      "number_of_games_se_finals": 5,
+      "prizes": [
+        {
+          "division": "",
+          "place": "1",
+          "place_end": "",
+          "prize_money": "150",
+          "award": ""
+        },
+        {
+          "division": "",
+          "place": "2",
+          "place_end": "",
+          "prize_money": "100",
+          "award": ""
+        },
+        {
+          "division": "",
+          "place": "3",
+          "place_end": "",
+          "prize_money": "50",
+          "award": ""
+        }
+      ]
+    },
+    {
+      "ordinal_number": "19",
+      "event_name": "40 and Over",
+      "day": "3",
+      "start_time": "10:30 AM",
+      "entry_fee": "45",
+      "is_doubles": false,
+      "max_entries": 0,
+      "single_elimination": false,
+      "max_rating": "",
+      "gender_restriction": "",
+      "age_restriction": {
+        "type": "AGE_OVER_AT_THE_END_OF_YEAR",
+        "age": "40",
+        "restriction_date": "12/31/2025"
+      },
+      "players_per_group": "4",
+      "draw_method": "SNAKE",
+      "number_of_games": 5,
+      "number_of_games_se_playoffs": 5,
+      "number_of_games_se_quarter_finals": 5,
+      "number_of_games_se_semi_finals": 5,
+      "number_of_games_se_finals": 5,
+      "prizes": [
+        {
+          "division": "",
+          "place": "1",
+          "place_end": "",
+          "prize_money": "150",
+          "award": ""
+        },
+        {
+          "division": "",
+          "place": "2",
+          "place_end": "",
+          "prize_money": "100",
+          "award": ""
+        },
+        {
+          "division": "",
+          "place": "3",
+          "place_end": "",
+          "prize_money": "50",
+          "award": ""
+        }
+      ]
+    },
+    {
+      "ordinal_number": "20",
+      "event_name": "U-2400",
+      "day": "3",
+      "start_time": "2:00 PM",
+      "entry_fee": "45",
+      "is_doubles": false,
+      "max_entries": 0,
+      "single_elimination": false,
+      "max_rating": "2399",
+      "gender_restriction": "",
+      "age_restriction": {
+        "type": "NONE",
+        "age": "",
+        "restriction_date": ""
+      },
+      "players_per_group": "4",
+      "draw_method": "SNAKE",
+      "number_of_games": 5,
+      "number_of_games_se_playoffs": 5,
+      "number_of_games_se_quarter_finals": 5,
+      "number_of_games_se_semi_finals": 5,
+      "number_of_games_se_finals": 5,
+      "prizes": [
+        {
+          "division": "",
+          "place": "1",
+          "place_end": "",
+          "prize_money": "300",
+          "award": ""
+        },
+        {
+          "division": "",
+          "place": "2",
+          "place_end": "",
+          "prize_money": "150",
+          "award": ""
+        },
+        {
+          "division": "",
+          "place": "3",
+          "place_end": "",
+          "prize_money": "100",
+          "award": ""
+        }
+      ]
+    },
+    {
+      "ordinal_number": "21",
+      "event_name": "Women Singles",
+      "day": "3",
+      "start_time": "3:30 PM",
+      "entry_fee": "40",
+      "is_doubles": false,
+      "max_entries": 0,
+      "single_elimination": false,
+      "max_rating": "",
+      "gender_restriction": "FEMALE",
+      "age_restriction": {
+        "type": "NONE",
+        "age": "",
+        "restriction_date": ""
+      },
+      "players_per_group": "4",
+      "draw_method": "SNAKE",
+      "number_of_games": 5,
+      "number_of_games_se_playoffs": 5,
+      "number_of_games_se_quarter_finals": 5,
+      "number_of_games_se_semi_finals": 5,
+      "number_of_games_se_finals": 5,
+      "prizes": [
+        {
+          "division": "",
+          "place": "1",
+          "place_end": "",
+          "prize_money": "200",
+          "award": ""
+        },
+        {
+          "division": "",
+          "place": "2",
+          "place_end": "",
+          "prize_money": "150",
+          "award": ""
+        },
+        {
+          "division": "",
+          "place": "3",
+          "place_end": "",
+          "prize_money": "100",
+          "award": ""
+        }
+      ]
+    },
+    {
+      "ordinal_number": "22",
+      "event_name": "U-3800 Doubles",
+      "day": "3",
+      "start_time": "3:30 PM",
+      "entry_fee": "26",
+      "is_doubles": true,
+      "max_entries": 0,
+      "single_elimination": false,
+      "max_rating": "3799",
+      "gender_restriction": "",
+      "age_restriction": {
+        "type": "NONE",
+        "age": "",
+        "restriction_date": ""
+      },
+      "players_per_group": "4",
+      "draw_method": "SNAKE",
+      "number_of_games": 5,
+      "number_of_games_se_playoffs": 5,
+      "number_of_games_se_quarter_finals": 5,
+      "number_of_games_se_semi_finals": 5,
+      "number_of_games_se_finals": 5,
+      "prizes": [
+        {
+          "division": "",
+          "place": "1",
+          "place_end": "",
+          "prize_money": "200",
+          "award": ""
+        },
+        {
+          "division": "",
+          "place": "2",
+          "place_end": "",
+          "prize_money": "150",
+          "award": ""
+        },
+        {
+          "division": "",
+          "place": "3",
+          "place_end": "",
+          "prize_money": "100",
+          "award": ""
+        }
+      ]
+    },
+    {
+      "ordinal_number": "23",
+      "event_name": "U-2200",
+      "day": "3",
+      "start_time": "3:30 PM",
+      "entry_fee": "45",
+      "is_doubles": false,
+      "max_entries": 0,
+      "single_elimination": false,
+      "max_rating": "2199",
+      "gender_restriction": "",
+      "age_restriction": {
+        "type": "NONE",
+        "age": "",
+        "restriction_date": ""
+      },
+      "players_per_group": "4",
+      "draw_method": "SNAKE",
+      "number_of_games": 5,
+      "number_of_games_se_playoffs": 5,
+      "number_of_games_se_quarter_finals": 5,
+      "number_of_games_se_semi_finals": 5,
+      "number_of_games_se_finals": 5,
+      "prizes": [
+        {
+          "division": "",
+          "place": "1",
+          "place_end": "",
+          "prize_money": "200",
+          "award": ""
+        },
+        {
+          "division": "",
+          "place": "2",
+          "place_end": "",
+          "prize_money": "150",
+          "award": ""
+        },
+        {
+          "division": "",
+          "place": "3",
+          "place_end": "",
+          "prize_money": "100",
+          "award": ""
+        }
+      ]
+    },
+    {
+      "ordinal_number": "24",
+      "event_name": "U-1000",
+      "day": "3",
+      "start_time": "5:00 PM",
+      "entry_fee": "35",
+      "is_doubles": false,
+      "max_entries": 0,
+      "single_elimination": false,
+      "max_rating": "999",
+      "gender_restriction": "",
+      "age_restriction": {
+        "type": "NONE",
+        "age": "",
+        "restriction_date": ""
+      },
+      "players_per_group": "4",
+      "draw_method": "SNAKE",
+      "number_of_games": 5,
+      "number_of_games_se_playoffs": 5,
+      "number_of_games_se_quarter_finals": 5,
+      "number_of_games_se_semi_finals": 5,
+      "number_of_games_se_finals": 5,
+      "prizes": []
+    }
+  ]
+}
