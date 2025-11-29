@@ -1,7 +1,8 @@
 import {Component, Input, OnChanges, OnInit, SimpleChange, SimpleChanges} from '@angular/core';
 import {Router} from '@angular/router';
 import {TournamentEntry} from '../../tournament-entry/model/tournament-entry.model';
-import {first} from 'rxjs/operators';
+import {first, finalize} from 'rxjs/operators';
+import { HttpClient } from '@angular/common/http';
 import {AuthenticationService} from '../../../user/authentication.service';
 import {TournamentEntryService} from '../../tournament-entry/service/tournament-entry.service';
 import {TournamentEvent} from '../../tournament-config/tournament-event.model';
@@ -45,7 +46,8 @@ export class TournamentViewComponent implements OnInit, OnChanges {
               private authService: AuthenticationService,
               private tournamentEntryService: TournamentEntryService,
               private todayService: TodayService,
-              private dialog: MatDialog) {
+              private dialog: MatDialog,
+              private httpClient: HttpClient) {
     this.entryId = 0;
     this.enteringOrViewing = false;
     this.shownEventListWarning = false;
@@ -255,5 +257,53 @@ export class TournamentViewComponent implements OnInit, OnChanges {
         this.shownEventListWarning = true;
       });
     }
+  }
+
+  // Method called when the link is clicked
+  openDocument(event: Event, url: string): void {
+    event.preventDefault(); // Stop default browser navigation
+
+    if (url.includes('api/filerepository/viewpdf')) {
+      // 1. Internal/Protected Link: Use Fetch/AJAX
+      this.downloadInternalFile(url);
+    } else {
+      // 2. External/Unprotected Link: Use direct window open
+      window.open(url, '_blank');
+    }
+  }
+
+  /**
+   * downloads PDF file from repository
+   * @param url
+   * @private
+   */
+  private downloadInternalFile(url: string): void {
+    // Use Angular's HttpClient. This triggers your AuthInterceptor!
+    this.httpClient.get(url, {
+      // 1. Mandatory setting to get the response as a Blob
+      responseType: 'blob'
+    })
+      .pipe(
+        // Optional: Add an operator if you have loading indicators, etc.
+        // finalize(() => console.log('Download complete'))
+      )
+      .subscribe({
+        next: (blob: Blob) => {
+          // 2. Success: Create a temporary local URL for the Blob
+          const fileURL = URL.createObjectURL(blob);
+
+          // 3. Open the document in a new tab
+          window.open(fileURL, '_blank');
+
+          // Clean up the temporary URL
+          setTimeout(() => URL.revokeObjectURL(fileURL), 100);
+        },
+        error: (err) => {
+          // 4. Handle errors (e.g., 401, 403, 500) caught by HttpClient
+          console.error('File download failed:', err);
+          // You can add more specific error handling here
+          alert('Could not open document. Access denied or file error.');
+        }
+      });
   }
 }

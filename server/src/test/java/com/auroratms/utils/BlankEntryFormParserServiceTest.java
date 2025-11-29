@@ -241,82 +241,6 @@ class BlankEntryFormParserServiceTest extends AbstractServiceTest {
         }
     }
 
-    @Test
-    @Disabled
-    void testTimeNormalization () {
-        String[] testCases = {
-                "8:30AM",                   // 8:30 AM
-                "2 PM",                     // 2:00 PM
-                "3",                        // 3:00 PM (guessed)
-                "830 am",                   // 8:30 AM
-                "1:00pm",                   // 1:00 PM
-                "8 : 30 am",                // 8:30 AM
-                "11 AM",                    // 11:00 AM
-                "12:5 pm",                  // 12:05 PM
-                "02:00 PM",                 // 2:00 PM
-                "13:00",                    // 1:00 PM (24hr converted, PM guessed)
-                "12",                       // 12:00 PM (guessed 12 PM is noon)
-                "7am",                      // 7:00 AM
-
-                // NEW Test Cases with surrounding text (PDF lines)
-                "Event starts at 8:30AM sharp for all singles.", // 8:30 AM
-                "The time is 11:00 am check-in opens.",          // 11:00 AM
-                "Court reservation is 2pm.",                     // 2:00 PM
-                "Check in starts at 9.00AM",                     // 9:00 AM
-                "Final round is 4:45 P.M. on Sunday",            // 4:45 PM
-                "Event 1 starts at 7",                           // 7:00 AM (guessed)
-                "This is just some text 9.50 a.m. with a time."  // 9:50 AM
-        };
-
-        String[] expectedValues = {
-                "8:30 AM",
-                "2:00 PM",
-                "3:00 PM",
-                "8:30 AM",
-                "1:00 PM",
-                "8:30 AM",
-                "11:00 AM",
-                "12:05 PM",
-                "2:00 PM",
-                "1:00 PM",
-                "12:00 PM",
-                "7:00 AM" ,
-
-                // NEW Test Cases with surrounding text (PDF lines)
-                "Event starts at 8:30 AM sharp for all singles.", // 8:30 AM
-                "The time is 11:00 AM check-in opens.",          // 11:00 AM
-                "Court reservation is 2:00 PM",                 // 2:00 PM
-                "Check in starts at 9:00 AM",                    // 9:00 AM
-                "Final round is 4:45 PM on Sunday",              // 4:45 PM
-                "Event 1 starts at 7:00 AM",                     // 7:00 AM (guessed)
-                "This is just some text 9:50 AM with a time."    // 9:50 AM
-        };
-
-
-        for (String raw : testCases) {
-            String normalized = blankEntryFormParserService.normalizeTime(raw);
-            System.out.printf("Input: \"%s\" -> Output: \"%s\"\n", raw, normalized);
-        }
-
-        for (int i = 0; i < expectedValues.length; i++) {
-            String actualValue = blankEntryFormParserService.normalizeTime(testCases[i]);
-            String expectedValue = expectedValues[i];
-            assertEquals(expectedValue, actualValue, "for row " + i);
-        }
-    }
-
-    @Test
-    @Disabled
-    public void testWholePage () {
-        String pageText = "U2200 5pm\nU2100 11am\nU2000 9am";
-        String normalizedPageText = blankEntryFormParserService.normalizeTimeInPage(pageText);
-        assertEquals("U2200 5:00 PM\nU2100 11:00 AM\nU2000 9:00 AM\n", normalizedPageText);
-
-        String pageText2 = "U2200 Sat 5pm $55\nU2100 Sun 11am $45\nU2000 Sat 9am $40";
-        String normalizedPageText2 = blankEntryFormParserService.normalizeTimeInPage(pageText2);
-        assertEquals("U2200 Sat 5:00 PM $55\nU2100 Sun 11:00 AM $45\nU2000 Sat 9:00 AM $40\n", normalizedPageText2);
-    }
-
     /**
      *
      * @param pdfPath
@@ -325,8 +249,9 @@ class BlankEntryFormParserServiceTest extends AbstractServiceTest {
      */
     private void runPdfTest(String pdfPath, String tournamentNameHint) throws Exception {
 
+        ImportProgressInfo importProgressInfo = new ImportProgressInfo();
         String aiOutput = blankEntryFormParserService.parseTournamentPdf(
-                new ClassPathResource(pdfPath).getFile());
+                new ClassPathResource(pdfPath).getFile(), importProgressInfo);
 
         TournamentAndEventsDTO tournamentAndEventsDTO = blankEntryFormParserService.convertToCombinedObject(aiOutput);
         assertTrue(tournamentAndEventsDTO.getTournamentName().contains(tournamentNameHint));

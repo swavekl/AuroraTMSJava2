@@ -86,7 +86,7 @@
           <tr *ngIf="tournament.configuration.blankEntryUrl != null">
             <td class="icon-column" rowspan="2">
               <button mat-fab color="primary">
-                <a [href]="tournament.configuration.blankEntryUrl" target="_blank">
+                <a (click)="openDocument($event, tournament.configuration.blankEntryUrl)">
                   <mat-icon class="button-icon">download</mat-icon>
                 </a>
               </button>
@@ -96,7 +96,7 @@
           </tr>
           <tr *ngIf="tournament.configuration.blankEntryUrl != null">
             <td class="text-column">
-              <a [href]="tournament.configuration.blankEntryUrl" target="_blank">Download</a>
+              <a class="document-link" (click)="openDocument($event, tournament.configuration.blankEntryUrl)">Download</a>
               <div>&nbsp;</div>
               <div>&nbsp;</div>
             </td>

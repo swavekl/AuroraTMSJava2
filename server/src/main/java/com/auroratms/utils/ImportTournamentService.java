@@ -28,9 +28,6 @@ import com.opencsv.exceptions.CsvValidationException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.jetbrains.annotations.NotNull;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -53,7 +50,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.regex.Matcher;
@@ -2381,10 +2377,9 @@ public class ImportTournamentService {
             importProgressInfo.phaseCompleted = 0;
             String blankEntryFormPDFFileLocalPath = getBlankEntryFormPDFFileLocalPath(blankEntryFormPdfURI);
             File pdfFile = new File(blankEntryFormPDFFileLocalPath);
-            String JSONString = this.blankEntryFormParserService.parseTournamentPdf(pdfFile);
+            String JSONString = this.blankEntryFormParserService.parseTournamentPdf(pdfFile, importProgressInfo);
 
             importProgressInfo.phaseName = "Creating tournament and event definition";
-            importProgressInfo.overallCompleted = 50;
             importProgressInfo.phaseCompleted = 0;
             TournamentAndEventsDTO tournamentAndEventsDTO = blankEntryFormParserService.convertToCombinedObject(JSONString);
             String tournamentName = tournamentAndEventsDTO.getTournamentName();
@@ -2403,14 +2398,25 @@ public class ImportTournamentService {
                 // ignore
             }
 
+            importProgressInfo.phaseCompleted = 10;
             if (tournament != null) {
+                // populate tournament and events
                 populateTournament(tournamentAndEventsDTO, tournament, blankEntryFormPdfURI);
+                importProgressInfo.phaseCompleted = 50;
+                List<TournamentEvent> tournamentEvents = populateEvents(tournamentAndEventsDTO);
+                importProgressInfo.phaseCompleted = 90;
+
+                int totalPrizeMoney = calculateTotalPrizeMoney(tournamentEvents);
+                tournament.setTotalPrizeMoney(totalPrizeMoney);
+
+                // save them both
                 Tournament savedTournament = this.tournamentService.saveTournament(tournament);
                 importProgressInfo.tournamentId = savedTournament.getId();
-
-                populateEvents(tournamentAndEventsDTO, savedTournament.getId());
+                for (TournamentEvent tournamentEvent : tournamentEvents) {
+                    tournamentEvent.setTournamentFk(savedTournament.getId());
+                }
+                this.tournamentEventEntityService.saveAll(tournamentEvents);
             }
-
             importProgressInfo.status = "COMPLETED";
         } catch (Exception e) {
             importProgressInfo.status = "FAILED";
@@ -2422,22 +2428,48 @@ public class ImportTournamentService {
     }
 
     /**
+     *
+     * @param tournamentEvents
+     * @return
+     */
+    private int calculateTotalPrizeMoney(List<TournamentEvent> tournamentEvents) {
+        int totalPrizeMoney = 0;
+        for (TournamentEvent tournamentEvent : tournamentEvents) {
+            List<PrizeInfo> prizeInfoList = tournamentEvent.getConfiguration().getPrizeInfoList();
+            if (prizeInfoList != null && !prizeInfoList.isEmpty()) {
+                int eventTotalPrizeMoney = 0;
+                for (PrizeInfo prizeInfo : prizeInfoList) {
+                    // for a range of places we need to multiply by number of places
+                    int awardedForPlaceRangeEnd = prizeInfo.getAwardedForPlaceRangeEnd();
+                    int numAwardedPlaces = (awardedForPlaceRangeEnd == 0) ?
+                            1 : (awardedForPlaceRangeEnd - prizeInfo.getAwardedForPlace() + 1);
+                    Integer prizeMoneyAmount = prizeInfo.getPrizeMoneyAmount();
+                    int iPrizeMoneyAmount = (prizeMoneyAmount != null) ? prizeMoneyAmount.intValue() : 0;
+                    eventTotalPrizeMoney += numAwardedPlaces * iPrizeMoneyAmount;
+                }
+                totalPrizeMoney += eventTotalPrizeMoney;
+            }
+        }
+
+        return totalPrizeMoney;
+    }
+
+    /**
      * Extracts events from the array of events like this:
      *
      * @param tournamentAndEventsDTO
-     * @param tournamentId
+     * @return
      */
-    private void populateEvents(TournamentAndEventsDTO tournamentAndEventsDTO, long tournamentId) {
+    private List<TournamentEvent> populateEvents(TournamentAndEventsDTO tournamentAndEventsDTO) {
         List<EventDTO> events = tournamentAndEventsDTO.getEvents();
+        List<TournamentEvent> tournamentEventList = new ArrayList<>(events.size());
         if (!events.isEmpty()) {
-            List<TournamentEvent> tournamentEventList = new ArrayList<>(events.size());
             for (EventDTO event : events) {
                 TournamentEvent tournamentEvent = populateSingleEvent(event);
-                tournamentEvent.setTournamentFk(tournamentId);
                 tournamentEventList.add(tournamentEvent);
             }
-            this.tournamentEventEntityService.saveAll(tournamentEventList);
         }
+        return tournamentEventList;
     }
 
     /**
@@ -2572,11 +2604,9 @@ public class ImportTournamentService {
      * @param blankEntryFormPdfURI
      */
     private void populateTournament(TournamentAndEventsDTO tournamentAndEventsDTO, Tournament tournament, String blankEntryFormPdfURI) {
-        Date startDate = tournamentAndEventsDTO.getStartDate();
-        Date endDate =   tournamentAndEventsDTO.getEndDate();
+        Date startDate = convertDate(tournamentAndEventsDTO.getStartDate());
+        Date endDate =   convertDate(tournamentAndEventsDTO.getEndDate());
         endDate = (endDate == null) ? startDate : endDate;
-//        LocalDate localStartDate = convertToLocalDate(startDate);
-//        startDate = convertFromLocalDate(localStartDate);
         tournament.setStartDate(startDate);
         tournament.setEndDate(endDate);
 
@@ -2591,10 +2621,17 @@ public class ImportTournamentService {
             tournament.setConfiguration(configuration);
         }
 
-        Date eligibilityDate = tournamentAndEventsDTO.getRatingEligibilityDate();
-        Date entryCutoffDate = tournamentAndEventsDTO.getEntryDeadlineDate();
-        Date fullRefundDate = tournamentAndEventsDTO.getRefundDeadlineDate();
-        Date lateEntryDate = tournamentAndEventsDTO.getLateEntryDate();
+        Date eligibilityDate = convertDate(tournamentAndEventsDTO.getRatingEligibilityDate());
+        if (eligibilityDate == null) {
+            // Friday before the tournament
+            Calendar calendar = new GregorianCalendar();
+            calendar.setTime(startDate);
+            calendar.add(Calendar.DAY_OF_MONTH, -8);
+            eligibilityDate = calendar.getTime();
+        }
+        Date entryCutoffDate = convertDate(tournamentAndEventsDTO.getEntryDeadlineDate());
+        Date fullRefundDate = convertDate(tournamentAndEventsDTO.getRefundDeadlineDate());
+        Date lateEntryDate = convertDate(tournamentAndEventsDTO.getLateEntryDate());
         if (fullRefundDate == null) {
             fullRefundDate = entryCutoffDate;
         }
@@ -2627,7 +2664,7 @@ public class ImportTournamentService {
             tournament.setZipCode(zip);
         }
 
-        String naviagableBlankEntryFormUrl = getNaviagableBlankEntryFormUrl(blankEntryFormPdfURI);
+        String naviagableBlankEntryFormUrl = getNavigableBlankEntryFormUrl(blankEntryFormPdfURI);
         configuration.setBlankEntryUrl(naviagableBlankEntryFormUrl);
 
         // contact information
@@ -2714,46 +2751,21 @@ public class ImportTournamentService {
     }
 
     /**
-     * Gets a single date object from these dates:
-     *   "tournament_dates": ["11/15/2025", "11/15/2025"],
-     *   "rating_eligibility_date": "",
-     *   "rating_seeding_date": "11/13/2025",
-     *   "entry_deadline_date": "",
-     *   "refund_deadline_date": "",
      *
-     * @param jsonObject
-     * @param dateName
-     * @param index
+     * @param strDate
+     * @return
      */
-    private Date getDate(JSONObject jsonObject, String dateName, int index) {
-        Date date = null;
-        try {
-            String strDate = null;
-            Object object = jsonObject.get(dateName);
-            if (object != null) {
-                if (index >= 0) {
-                    // range of dates
-                    JSONArray jsonArray = jsonObject.getJSONArray(dateName);
-                    if (index < jsonArray.length()) {
-                        strDate = (String) jsonArray.get(index);
-                    }
-                } else {
-                    // single date
-                    strDate = (String)object;
-                }
+    private Date convertDate(String strDate) {
+        if (StringUtils.isNotEmpty(strDate)) {
+            try {
+                return DateUtils.parseDate(strDate, "MM/dd/yyyy");
+            } catch (ParseException e) {
+                System.out.println(String.format("Unable to convert date: '%s'\ncause: %s", strDate, e));
+                return null;
             }
-            if (strDate != null) {
-                date = DateUtils.parseDate(strDate, "MM/dd/yyyy");
-            }
-        } catch (JSONException | ParseException e) {
-            // don't do anything
+        } else {
+            return null;
         }
-        return date;
-    }
-
-    private Date getDate(JSONObject jsonObject, String dateName) {
-        Date date = this.getDate(jsonObject, dateName, -1);
-        return date != null ? date : new Date();
     }
 
     /**
@@ -2797,12 +2809,18 @@ public class ImportTournamentService {
         return null;
     }
 
-    private String getNaviagableBlankEntryFormUrl(String blankEntryFormURI) {
-        if (blankEntryFormURI.contains("omnipong")) {
-            return blankEntryFormURI;
-        } else {
+    /**
+     * Gets url which can be viewed in a new tab
+     * @param blankEntryFormURI
+     * @return
+     */
+    private String getNavigableBlankEntryFormUrl(String blankEntryFormURI) {
+        if (blankEntryFormURI.contains("tournament/blankentryform")) {
             // it is in our repository so
-            return clientHostUrl + "/" + IFileRepository.REPOSITORY_URL_ROOT + "/" + blankEntryFormURI;
+            // api/filerepository/viewpdf?path=/tournament/blankentryform/1112-51AtlantaGiantRR.pdf
+            return clientHostUrl + "/" + IFileRepository.REPOSITORY_URL_ROOT + "/viewpdf?path=" + blankEntryFormURI;
+        } else {
+            return blankEntryFormURI;
         }
     }
 }

@@ -50,33 +50,33 @@ public class TournamentDTO {
     @JsonProperty("star_rating")
     private String starRating;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "MM/dd/yyyy", timezone = "UTC")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "MM/dd/yyyy")
     @JsonProperty("start_date")
-    private Date startDate;
+    private String startDate;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "MM/dd/yyyy", timezone = "UTC")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "MM/dd/yyyy")
     @JsonProperty("end_date")
-    private Date endDate;
+    private String endDate;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "MM/dd/yyyy", timezone = "UTC")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "MM/dd/yyyy")
     @JsonProperty("rating_eligibility_date")
-    private Date ratingEligibilityDate;
+    private String ratingEligibilityDate;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "MM/dd/yyyy", timezone = "UTC")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "MM/dd/yyyy")
     @JsonProperty("rating_seeding_date")
-    private Date ratingSeedingDate;
+    private String ratingSeedingDate;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "MM/dd/yyyy", timezone = "UTC")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "MM/dd/yyyy")
     @JsonProperty("entry_deadline_date")
-    private Date entryDeadlineDate;
+    private String entryDeadlineDate;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "MM/dd/yyyy", timezone = "UTC")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "MM/dd/yyyy")
     @JsonProperty("refund_deadline_date")
-    private Date refundDeadlineDate;
+    private String refundDeadlineDate;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "MM/dd/yyyy", timezone = "UTC")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "MM/dd/yyyy")
     @JsonProperty("late_entry_date")
-    private Date lateEntryDate;
+    private String lateEntryDate;
 
     @JsonProperty("registration_fee")
     private String registrationFee;

@@ -1,5 +1,6 @@
 package com.auroratms.utils.filerepo;
 
+import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -76,6 +77,57 @@ public class FileRepositoryController {
         } catch (FileRepositoryException e) {
             logger.error("Unable to read file from repository", e);
             return ResponseEntity.badRequest().build();
+        }
+    }
+
+    /**
+     * Method for viewing PDFs with blank entry form stored in repository in a new browser tab
+     * @param path
+     * @return
+     */
+    @GetMapping("/viewpdf") // Renamed endpoint to be more semantic
+    public ResponseEntity<byte[]> viewPdf(@RequestParam String path) {
+        try {
+            IFileRepository fileRepository = fileRepositoryFactory.getFileRepository();
+            FileInfo fileInfo = fileRepository.read(path);
+            FileInputStream fileInputStream = fileInfo.fileInputStream;
+
+            if (fileInputStream != null) {
+                // 1. Convert the FileInputStream to a byte array
+                // Requires Apache Commons IO or similar utility
+                byte[] fileBytes = IOUtils.toByteArray(fileInputStream);
+
+                // Ensure the stream is closed after reading
+                fileInputStream.close();
+
+                HttpHeaders httpHeaders = new HttpHeaders();
+
+                // 2. *** MANDATORY CHANGE: Set Content-Type to PDF ***
+                httpHeaders.setContentType(MediaType.APPLICATION_PDF);
+
+                // 3. *** MANDATORY CHANGE: REMOVE 'attachment' header ***
+                // We keep the cache headers for security/freshness
+                httpHeaders.add("Cache-Control", "no-cache, no-store, must-revalidate");
+                httpHeaders.add("Pragma", "no-cache");
+                httpHeaders.add("Expires", "0");
+
+                // Return the byte array. The client (JS fetch) handles the rest.
+                return ResponseEntity.ok()
+                        .headers(httpHeaders)
+                        .contentLength(fileBytes.length)
+                        // 4. *** MANDATORY CHANGE: Return byte[] instead of Resource ***
+                        .body(fileBytes);
+            } else {
+                logger.error("repository file at path '" + path + "' not found");
+                return ResponseEntity.badRequest().build();
+            }
+        } catch (FileRepositoryException e) {
+            logger.error("Unable to read file from repository", e);
+            return ResponseEntity.badRequest().build();
+        } catch (Exception e) {
+            // Catch IO and other exceptions from IOUtils or close()
+            logger.error("Error processing file for viewing", e);
+            return ResponseEntity.internalServerError().build();
         }
     }
 

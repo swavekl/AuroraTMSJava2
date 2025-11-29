@@ -43,6 +43,16 @@ table.tournament-info-table {
   td.text-column {
     vertical-align: top;
     padding-top: 8px;
+
+    a.document-link {
+      /* Ensures it looks like a traditional link */
+      color: #0000EE;
+      text-decoration: underline;
+      font-size: 20px;
+
+      /* Optional: Improves user experience */
+      cursor: pointer;
+    }
   }
 }
 

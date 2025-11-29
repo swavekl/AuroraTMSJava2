@@ -25,15 +25,12 @@ import org.springframework.ai.openai.OpenAiChatOptions;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
-import org.thymeleaf.util.StringUtils;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 @Service
 public class BlankEntryFormParserService {
@@ -76,8 +73,10 @@ public class BlankEntryFormParserService {
      * Main entry point — parses a tournament blank entry PDF
      * into validated JSON according to your schema.
      */
-    public String parseTournamentPdf(File pdfFile) throws Exception {
+    public String parseTournamentPdf(File pdfFile, ImportProgressInfo importProgressInfo) throws Exception {
 
+        importProgressInfo.phaseName = "Extracting text form PDF";
+        importProgressInfo.phaseCompleted = 0;
         // STEP 1: OCR FIRST PAGE (captures banners, tournament title, venue header)
         List<String> pagesTextFromOCR = ocrExtractor.extractPagesText(pdfFile);
 //        System.out.println("========== first page OCR =======================");
@@ -90,10 +89,18 @@ public class BlankEntryFormParserService {
         System.out.println(pdfText);
         System.out.println("=================================================");
         System.out.println("pdfText.length() = " + pdfText.length());
+        importProgressInfo.phaseCompleted = 100;
+        importProgressInfo.overallCompleted = 20;
 
+        importProgressInfo.phaseName = "Analyzing tournament information";
+        importProgressInfo.phaseCompleted = 0;
         String tournamentsJsonResponse = parseText(tournamentPromptFile, tournamentSchemaFile, pdfText, "gpt-4o",
                 new BeanOutputConverter<>(TournamentDTO.class));
+        importProgressInfo.phaseCompleted = 100;
+        importProgressInfo.overallCompleted = 50;
 
+        importProgressInfo.phaseName = "Analyzing events information";
+        importProgressInfo.phaseCompleted = 0;
         String eventsJsonResponse = parseText(eventsPromptFile, eventsSchemaFile, pdfText, "gpt-4.1",
                 new BeanOutputConverter<>(EventListDTO.class));
 
@@ -101,6 +108,8 @@ public class BlankEntryFormParserService {
         String combinedResult = tournamentsJsonResponse.substring(0, tournamentsJsonResponse.length() - 2);
         combinedResult += ",\n" + eventsJsonResponse.substring(2);
         System.out.println(combinedResult);
+        importProgressInfo.phaseCompleted = 100;
+        importProgressInfo.overallCompleted = 90;
 
         return combinedResult;
     }
@@ -221,8 +230,6 @@ public class BlankEntryFormParserService {
                     System.out.println("Skipping boilerplate page " + i);
                     continue;
                 }
-// more buggy than AI can infer
-//                pageText = normalizeTimeInPage(pageText);
 
                 cleanedText.append(pageText).append("\n\n");
             }
@@ -232,21 +239,6 @@ public class BlankEntryFormParserService {
 
         return retValue;
     }
-
-//    /**
-//     * Normalizes time in the entire page.
-//     * @param pageText
-//     * @return
-//     */
-//    public String normalizeTimeInPage(String pageText) {
-//        StringBuilder normalizedPageText = new StringBuilder();
-//        String[] linesOfText = pageText.split("\n");
-//        for (String lineOfText : linesOfText) {
-//            String normalized = normalizeTime(lineOfText);
-//            normalizedPageText.append(normalized).append("\n");
-//        }
-//        return normalizedPageText.toString();
-//    }
 
     /**
      * Remove boiler plate policy text to reduce number of tokens
@@ -269,185 +261,6 @@ public class BlankEntryFormParserService {
 
         return pageText;
     }
-
-//// --- Time Normalization Method ---
-//
-//    // Regex designed to capture various time formats:
-//    // Group 1: Hours (h or hh or hhh, e.g., '8', '12', '830')
-//    // Group 2: Separator (optional, ':' or '.')
-//    // Group 3: Minutes (optional, 1 or 2 digits)
-//    // Group 4: AM/PM indicator (optional, case insensitive, with or without periods)
-//    private static final Pattern TIME_PATTERN = Pattern.compile(
-//            "\\b(?<![a-zA-Z])(\\d{1,4})\\s*([:\\.]?)\\s*(\\d{1,2})?\\s*([ap]\\.?m?\\.?\\s*)?",
-//            Pattern.CASE_INSENSITIVE
-//    );
-//
-//    /**
-//     * Normalizes a raw time string (which can be a full line of PDF text)
-//     * into the standard "h:mm AM/PM" format, and replaces the original time
-//     * string within the input text with the normalized version.
-//     *
-//     * @param rawTime The raw line of text (e.g., "Event starts at 8:30AM sharp for all singles.").
-//     * @return The text with the time normalized and replaced (e.g., "Event starts at 8:30 AM sharp for all singles."),
-//     * or the original string if no time is found.
-//     */
-//    public static String normalizeTime(String rawTime) {
-//        if (rawTime == null || rawTime.trim().isEmpty()) {
-//            return "";
-//        }
-//
-//        Matcher matcher = TIME_PATTERN.matcher(rawTime);
-//
-//        // Variables to store the details of the CONFIRMED time (with AM/PM)
-//        // OR the LAST found match (for fallback).
-//        int finalMatchStart = -1;
-//        int finalMatchEnd = -1;
-//        String finalHoursPart = null;
-//        String finalMinutesPart = null;
-//        String finalAmpmsPart = null;
-//        boolean confirmedTimeFound = false;
-//
-//        // Variables to track the last non-confirmed match (for fallback)
-//        int lastMatchStart = -1;
-//        int lastMatchEnd = -1;
-//        String lastHoursPart = null;
-//        String lastMinutesPart = null;
-//        String lastAmpmsPart = null;
-//
-//            while (matcher.find()) {
-//                String currentAmpmsPart = matcher.group(4);
-//
-//                // PRIORITY LOGIC: If we find an AM/PM indicator, this is the definitive time.
-//                if (currentAmpmsPart != null && !currentAmpmsPart.trim().isEmpty()) {
-//                    finalMatchStart = matcher.start();
-//                    finalMatchEnd = matcher.end();
-//                    finalHoursPart = matcher.group(1);
-//                    finalMinutesPart = matcher.group(3);
-//                    finalAmpmsPart = currentAmpmsPart;
-//                    confirmedTimeFound = true;
-//                    break; // Found the definitive time, stop searching.
-//                }
-//
-//                // If it's not a confirmed time, store it as the last simple match
-//                // (e.g., '13:00' or an ambiguous number), in case no AM/PM is ever found.
-//                lastMatchStart = matcher.start();
-//                lastMatchEnd = matcher.end();
-//                lastHoursPart = matcher.group(1);
-//                lastMinutesPart = matcher.group(3);
-//                lastAmpmsPart = currentAmpmsPart;
-//            }
-//
-//        // Determine which match details to use:
-//        if (confirmedTimeFound) {
-//            // Use the confirmed AM/PM match (e.g., '9am')
-//            // Details are already in final variables.
-//        } else if (lastMatchStart != -1) {
-//            // Fallback: Use the last simple match found (e.g., '13:00' or '7' in 'Event 1 starts at 7')
-//            finalMatchStart = lastMatchStart;
-//            finalMatchEnd = lastMatchEnd;
-//            finalHoursPart = lastHoursPart;
-//            finalMinutesPart = lastMinutesPart;
-//            finalAmpmsPart = lastAmpmsPart;
-//        } else {
-//            // No match found at all.
-//            return rawTime;
-//        }
-//
-//        // If we reach here, we have the match details to process
-//        int hours = 0;
-//        int minutes = 0;
-//        String ampm = "";
-//
-//        // 1. Extract and standardize components
-//
-//        // Logic to handle implicit formats like "830"
-//        try {
-//            if (finalMinutesPart == null && finalHoursPart.length() >= 3 && finalHoursPart.length() <= 4 && matcher.group(2).isEmpty()) {
-//                try {
-//                    int combined = Integer.parseInt(finalHoursPart);
-//                    hours = combined / 100;
-//                    minutes = combined % 100;
-//                } catch (NumberFormatException e) {
-//                    try {
-//                        hours = Integer.parseInt(finalHoursPart);
-//                    } catch (NumberFormatException ignored) {
-//                        System.err.println("Warning: Invalid hour format: " + finalHoursPart);
-//                        return rawTime;
-//                    }
-//                }
-//            } else {
-//                // Handles explicit formats like "8", "8:30"
-//                try {
-//                    hours = Integer.parseInt(finalHoursPart);
-//                } catch (NumberFormatException ignored) { /* Handled above */ }
-//
-//                if (finalMinutesPart != null) {
-//                    try {
-//                        minutes = Integer.parseInt(finalMinutesPart);
-//                    } catch (NumberFormatException ignored) { /* Keep as 0 */ }
-//                }
-//            }
-//        } catch (Exception e) {
-//            System.out.println("rawTime " + rawTime + "\n" + e);
-//        }
-//
-//        // 2. Normalize AM/PM indicator
-//        if (finalAmpmsPart != null && !finalAmpmsPart.trim().isEmpty()) {
-//            String lowerCaseAmpm = finalAmpmsPart.toLowerCase().replaceAll("[\\s\\.]", "").trim();
-//            if (lowerCaseAmpm.startsWith("a")) {
-//                ampm = "AM";
-//            } else if (lowerCaseAmpm.startsWith("p")) {
-//                ampm = "PM";
-//            }
-//        }
-//
-//        // 3. Infer AM/PM if missing (Guessing based on typical start times)
-//
-//        // Handle 24-hour conversion if detected and no AM/PM provided
-//        if (hours > 12 && ampm.isEmpty()) {
-//            hours = hours - 12; // Convert to 12-hour format
-//            ampm = "PM";
-//        } else if (ampm.isEmpty()) {
-//            // If AM/PM is missing, guess based on 1-12 hour format
-//            if (hours >= 1 && hours <= 6) {
-//                ampm = "PM"; // Assume afternoon/evening (e.g., 3 PM)
-//            } else if (hours >= 7 && hours <= 11) {
-//                ampm = "AM"; // Assume morning (e.g., 8 AM)
-//            } else if (hours == 12) {
-//                ampm = "PM"; // Default 12 to 12 PM (Noon)
-//            }
-//        }
-//
-//        // Special case hour adjustments for 12
-//        if (hours == 0) {
-//            hours = 12; // 0 hour converts to 12 AM
-//        }
-//
-//        // 4. Format standardization (h:mm AM/PM)
-//        String standardizedMinutes = String.format("%02d", minutes);
-//        String normalizedTime;
-//
-//        if (!ampm.isEmpty()) {
-//            // If AM/PM is present, ensure hours are 1-12 (e.g., 13 -> 1, 0 -> 12)
-//            int displayHours = hours;
-//            if (hours > 12) {
-//                displayHours = hours - 12;
-//            } else if (hours == 0) {
-//                displayHours = 12;
-//            }
-//            normalizedTime = String.format("%d:%s %s", displayHours, standardizedMinutes, ampm);
-//        } else {
-//            // If AM/PM was truly missing, output using the hour as extracted
-//            normalizedTime = String.format("%d:%s", hours, standardizedMinutes);
-//        }
-//
-//        String before = rawTime.substring(0, finalMatchStart);
-//        String after = rawTime.substring(finalMatchEnd);
-//        after = StringUtils.isEmpty(after) ? after : (" " + after);
-//
-//        return before + normalizedTime + after;
-//    }
-
 
     /**
      * Determines whether a given page should be excluded before sending to the LLM.

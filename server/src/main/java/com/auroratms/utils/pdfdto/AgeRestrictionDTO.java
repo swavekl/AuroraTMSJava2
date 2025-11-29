@@ -26,8 +26,8 @@ public class AgeRestrictionDTO {
      */
     private String age;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "MM/dd/yyyy", timezone = "UTC")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "MM/dd/yyyy")
     @JsonProperty("restriction_date")
-    private Date ageRestrictionDate;
+    private String ageRestrictionDate;
 
 }
