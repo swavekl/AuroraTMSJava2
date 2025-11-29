@@ -2528,6 +2528,8 @@ public class ImportTournamentService {
         int maxEntries = eventDTO.getMaxEntries();
         boolean isPlay3rd4thPlace = eventDTO.isPlay3rd4thPlace();
         boolean isAdvanceUnratedPlayer = eventDTO.isAdvanceUnratedWinner();
+        int playersToAdvance = eventDTO.getPlayersToAdvance();
+        int playersToSeed = eventDTO.getPlayersToSeed();
         int numberOfGames = eventDTO.getNumberOfGames();
         int numberOfGamesSEPlayoffs = eventDTO.getNumberOfGamesSEPlayoffs();
         int numberOfGamesSEQuarterFinals = eventDTO.getNumberOfGamesSEQuarterFinals();
@@ -2556,6 +2558,8 @@ public class ImportTournamentService {
         tournamentEvent.setPlay3rd4thPlace(isPlay3rd4thPlace);
         tournamentEvent.setDoubles(isDoubles);
         tournamentEvent.setAdvanceUnratedWinner(isAdvanceUnratedPlayer);
+        tournamentEvent.setPlayersToAdvance(playersToAdvance);
+        tournamentEvent.setPlayersToSeed(playersToSeed);
         tournamentEvent.setPlayersPerGroup(playersPerGroup);
         tournamentEvent.setNumberOfGames(numberOfGames);
         tournamentEvent.setNumberOfGamesSEPlayoffs(numberOfGamesSEPlayoffs);
