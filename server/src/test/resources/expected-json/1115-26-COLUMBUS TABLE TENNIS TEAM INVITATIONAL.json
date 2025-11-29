@@ -1,7 +1,8 @@
 {
   "tournament_name": "2025 17th COLUMBUS TABLE TENNIS TEAM INVITATIONAL",
   "star_rating": "",
-  "tournament_dates": ["12/13/2025", "12/13/2025"],
+  "start_date": "12/13/2025",
+  "end_date": "12/13/2025",
   "rating_eligibility_date": "",
   "rating_seeding_date": "12/11/2025",
   "entry_deadline_date": "12/08/2025",

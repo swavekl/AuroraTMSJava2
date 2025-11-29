@@ -1,7 +1,8 @@
 {
   "tournament_name": "Asheville Fall Open Team Tournament",
   "star_rating": "1",
-  "tournament_dates": ["11/08/2025", "11/08/2025"],
+  "start_date": "11/08/2025",
+  "end_date": "11/08/2025",
   "rating_eligibility_date": "",
   "rating_seeding_date": "",
   "late_entry_date": "",

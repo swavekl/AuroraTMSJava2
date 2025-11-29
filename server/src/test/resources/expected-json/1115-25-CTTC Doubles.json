@@ -1,7 +1,8 @@
 {
   "tournament_name": "DOUBLE THE FUN",
   "star_rating": "",
-  "tournament_dates": ["11/01/2025", "11/01/2025"],
+  "start_date": "11/01/2025",
+  "end_date": "11/01/2025",
   "rating_eligibility_date": "",
   "rating_seeding_date": "10/30/2025",
   "entry_deadline_date": "10/25/2025",

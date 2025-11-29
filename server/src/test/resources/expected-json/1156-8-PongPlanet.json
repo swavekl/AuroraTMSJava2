@@ -1,7 +1,8 @@
 {
   "tournament_name": "2025 PongPlanet Butterfly Open",
   "star_rating": "3",
-  "tournament_dates": ["10/11/2025", "10/12/2025"],
+  "start_date": "10/11/2025",
+  "end_date": "10/12/2025",
   "rating_eligibility_date": "09/07/2025",
   "rating_seeding_date": "10/09/2025",
   "entry_deadline_date": "10/03/2025",

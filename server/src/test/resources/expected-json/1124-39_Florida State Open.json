@@ -1,7 +1,8 @@
 {
   "tournament_name": "USATT Florida State Open Carmel Barrau International Open",
   "star_rating": "4",
-  "tournament_dates": ["12/12/2025", "12/14/2025"],
+  "start_date": "12/12/2025",
+  "end_date": "12/14/2025",
   "rating_eligibility_date": "11/21/2025",
   "rating_seeding_date": "12/11/2025",
   "entry_deadline_date": "12/08/2025",

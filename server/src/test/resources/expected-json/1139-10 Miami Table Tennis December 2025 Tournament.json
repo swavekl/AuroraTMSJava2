@@ -1,10 +1,8 @@
 {
   "tournament_name": "Miami Table Tennis December 2025 Tournament",
   "star_rating": "2",
-  "tournament_dates": [
-    "12/06/2025",
-    "12/06/2025"
-  ],
+  "start_date": "12/06/2025",
+  "end_date": "12/06/2025",
   "rating_eligibility_date": "11/20/2025",
   "rating_seeding_date": "12/04/2025",
   "entry_deadline_date": "12/04/2025",

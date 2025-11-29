@@ -1,7 +1,8 @@
 {
   "tournament_name": "2025 GREAT LAKES DATA RACKS & CABINETS TABLE TENNIS TOURNAMENT",
   "star_rating": "1",
-  "tournament_dates": ["10/18/2025", "10/19/2025"],
+  "start_date": "10/18/2025",
+  "end_date": "10/19/2025",
   "rating_eligibility_date": "10/01/2025",
   "rating_seeding_date": "10/16/2025",
   "entry_deadline_date": "10/15/2025",

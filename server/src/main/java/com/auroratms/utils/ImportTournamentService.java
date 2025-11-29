@@ -22,6 +22,7 @@ import com.auroratms.utils.filerepo.FileInfo;
 import com.auroratms.utils.filerepo.FileRepositoryException;
 import com.auroratms.utils.filerepo.FileRepositoryFactory;
 import com.auroratms.utils.filerepo.IFileRepository;
+import com.auroratms.utils.pdfdto.*;
 import com.opencsv.CSVReader;
 import com.opencsv.exceptions.CsvValidationException;
 import org.apache.commons.lang3.StringUtils;
@@ -52,6 +53,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.regex.Matcher;
@@ -2384,8 +2386,8 @@ public class ImportTournamentService {
             importProgressInfo.phaseName = "Creating tournament and event definition";
             importProgressInfo.overallCompleted = 50;
             importProgressInfo.phaseCompleted = 0;
-            JSONObject jsonObject = new JSONObject(JSONString);
-            String tournamentName = jsonObject.optString("tournament_name");
+            TournamentAndEventsDTO tournamentAndEventsDTO = blankEntryFormParserService.convertToCombinedObject(JSONString);
+            String tournamentName = tournamentAndEventsDTO.getTournamentName();
             if (StringUtils.isEmpty(tournamentName)) {
                 tournamentName = "My tournament";
             }
@@ -2402,11 +2404,11 @@ public class ImportTournamentService {
             }
 
             if (tournament != null) {
-                populateTournamentData(jsonObject, tournament, blankEntryFormPdfURI);
+                populateTournament(tournamentAndEventsDTO, tournament, blankEntryFormPdfURI);
                 Tournament savedTournament = this.tournamentService.saveTournament(tournament);
                 importProgressInfo.tournamentId = savedTournament.getId();
 
-                populateEvents(jsonObject, savedTournament);
+                populateEvents(tournamentAndEventsDTO, savedTournament.getId());
             }
 
             importProgressInfo.status = "COMPLETED";
@@ -2421,19 +2423,18 @@ public class ImportTournamentService {
 
     /**
      * Extracts events from the array of events like this:
-     * @param tournamentJSONObject
-     * @param tournament
+     *
+     * @param tournamentAndEventsDTO
+     * @param tournamentId
      */
-    private void populateEvents(JSONObject tournamentJSONObject, Tournament tournament) {
-        JSONArray eventsJSONArray = tournamentJSONObject.optJSONArray("events");
-        if (eventsJSONArray != null) {
-            int ordinalNumber = 1;
-            List<TournamentEvent> tournamentEventList = new ArrayList<>(eventsJSONArray.length());
-            for (Object eventObject : eventsJSONArray) {
-                JSONObject eventJSONObject = (JSONObject) eventObject;
-                TournamentEvent tournamentEvent = populateSingleEvent(tournament, eventJSONObject, ordinalNumber);
+    private void populateEvents(TournamentAndEventsDTO tournamentAndEventsDTO, long tournamentId) {
+        List<EventDTO> events = tournamentAndEventsDTO.getEvents();
+        if (!events.isEmpty()) {
+            List<TournamentEvent> tournamentEventList = new ArrayList<>(events.size());
+            for (EventDTO event : events) {
+                TournamentEvent tournamentEvent = populateSingleEvent(event);
+                tournamentEvent.setTournamentFk(tournamentId);
                 tournamentEventList.add(tournamentEvent);
-                ordinalNumber++;
             }
             this.tournamentEventEntityService.saveAll(tournamentEventList);
         }
@@ -2441,72 +2442,71 @@ public class ImportTournamentService {
 
     /**
      * Populates single tournament event from this type of information
-     *  "event_name": "Open Singles",
-     *  "day": "1",
-     *  "start_time": "8:45 AM",
-     *  "entry_fee": "60",
-     *  "is_doubles": false,
-     *  "single_elimination": false,
-     *  "max_rating": "",
-     *  "gender_restriction": "none",
-     *  "age_restriction": {
-     *  "type": "none",
-     *              "age": ""
-     *  },
-     *  "players_per_group": "4",
+     * "event_name": "Open Singles",
+     * "day": "1",
+     * "start_time": "8:45 AM",
+     * "entry_fee": "60",
+     * "is_doubles": false,
+     * "single_elimination": false,
+     * "max_rating": "",
+     * "gender_restriction": "none",
+     * "age_restriction": {
+     * "type": "none",
+     * "age": ""
+     * },
+     * "players_per_group": "4",
      *
-     * @param tournament
-     * @param eventJSONObject
-     * @param ordinalNumber
+     * @param eventDTO
      * @return
      */
-    private @NotNull TournamentEvent populateSingleEvent(Tournament tournament, JSONObject eventJSONObject, int ordinalNumber) {
-        String eventName = eventJSONObject.optString("event_name");
-        int day = eventJSONObject.optInt("day", 1);
-        String strStartTime = eventJSONObject.optString("start_time", "9:00 AM");
+    private @NotNull TournamentEvent populateSingleEvent(EventDTO eventDTO) {
+        String eventName = eventDTO.getEventName();
+        int ordinalNumber = eventDTO.getOrdinalNumber();
+        int day = eventDTO.getDay();
+        String strStartTime = StringUtils.isNotEmpty(eventDTO.getStartTime()) ? eventDTO.getStartTime() : "9:00 AM";
         double startTime = convertStartTime(strStartTime);
-        int entryFee = eventJSONObject.optInt("entry_fee", 30);
-        int juniorEntryFee = eventJSONObject.optInt("junior_entry_fee", 20);
-        boolean isDoubles = eventJSONObject.optBoolean("is_doubles", false);
-        boolean isSingleElimination = eventJSONObject.optBoolean("single_elimination", false);
-        int playersPerGroup = eventJSONObject.optInt("players_per_group", 4);
-        int maxRating = eventJSONObject.optInt("max_rating", 0);
-        String strGenderRestriction = eventJSONObject.optString("gender_restriction", "none");
-        GenderRestriction genderRestriction = GenderRestriction.valueOf(strGenderRestriction.toUpperCase());
+        int entryFee = Integer.parseInt(eventDTO.getEntryFee());
+        int juniorEntryFee = entryFee;
+        boolean isDoubles = eventDTO.isDoubles();
+        boolean isSingleElimination = eventDTO.isSingleElimination();
+        int playersPerGroup = eventDTO.getPlayersPerGroup();
+        int maxRating = StringUtils.isNotEmpty(eventDTO.getMaxRating())
+                ? Integer.parseInt(eventDTO.getMaxRating()) : 0;
+        String strGenderRestriction = eventDTO.getGenderRestriction();
+        GenderRestriction genderRestriction = (StringUtils.isNotEmpty(strGenderRestriction)) ?
+                GenderRestriction.valueOf(strGenderRestriction.toUpperCase()) : GenderRestriction.NONE;
         AgeRestrictionType ageRestrictionType = AgeRestrictionType.NONE;
         int minimumPlayerAge = 0;
         int maximumPlayerAge = 0;
         Date ageRestictionDate = null;
-        JSONObject ageRestrictionJO = eventJSONObject.optJSONObject("age_restriction");
-        if (ageRestrictionJO != null) {
-            String type = ageRestrictionJO.optString("type");
-            int age = ageRestrictionJO.optInt("age", 0);
-            if ("maximum".equals(type)) {
-                ageRestrictionType = AgeRestrictionType.AGE_UNDER_OR_EQUAL_ON_DAY_EVENT;
+        AgeRestrictionDTO ageRestrictionDTO = eventDTO.getAgeRestriction();
+        if (ageRestrictionDTO != null) {
+            String type = ageRestrictionDTO.getType();
+             ageRestrictionType = AgeRestrictionType.valueOf(type);
+            int age = StringUtils.isEmpty(ageRestrictionDTO.getAge()) ? 0 : Integer.parseInt(ageRestrictionDTO.getAge());
+            if (ageRestrictionType == AgeRestrictionType.AGE_UNDER_OR_EQUAL_ON_DAY_EVENT) {
                 maximumPlayerAge = age;
-            } else if ("minimum".equals(type)) {
-                ageRestrictionType = AgeRestrictionType.AGE_OVER_AT_THE_END_OF_YEAR;
+            } else if (ageRestrictionType == AgeRestrictionType.BORN_ON_OR_AFTER_DATE) {
+                maximumPlayerAge = age;
+            } else if (ageRestrictionType == AgeRestrictionType.AGE_OVER_AT_THE_END_OF_YEAR) {
                 minimumPlayerAge = age;
             }
         }
 
-        // todo - get these items from PDF
-        int maxEntries = 32;
-        boolean isPlay3rd4thPlace = false;
-        boolean isAdvanceUnratedPlayer = false;
-        int numberOfGamesSEPlayoffs = 5;
-        int numberOfGamesSEQuarterFinals = 5;
-        int numberOfGamesSESemiFinals = 5;
-        int numberOfGamesSEFinals = 5;
+        int maxEntries = eventDTO.getMaxEntries();
+        boolean isPlay3rd4thPlace = eventDTO.isPlay3rd4thPlace();
+        boolean isAdvanceUnratedPlayer = eventDTO.isAdvanceUnratedWinner();
+        int numberOfGames = eventDTO.getNumberOfGames();
+        int numberOfGamesSEPlayoffs = eventDTO.getNumberOfGamesSEPlayoffs();
+        int numberOfGamesSEQuarterFinals = eventDTO.getNumberOfGamesSEQuarterFinals();
+        int numberOfGamesSESemiFinals = eventDTO.getNumberOfGamesSESemiFinals();
+        int numberOfGamesSEFinals = eventDTO.getNumberOfGamesSEFinals();
         int pointsPerGame = 11;
-        boolean isGiantRR = tournament.getName().toLowerCase().contains("giant");
-        DrawMethod drawMethod = (isGiantRR) ? DrawMethod.SNAKE : DrawMethod.DIVISION;
-        drawMethod = (isSingleElimination) ? DrawMethod.SINGLE_ELIMINATION : drawMethod;
+        DrawMethod drawMethod = DrawMethod.valueOf(eventDTO.getDrawMethod());
 
         TournamentEvent tournamentEvent = new TournamentEvent();
         tournamentEvent.setOrdinalNumber(ordinalNumber);
         tournamentEvent.setName(eventName);
-        tournamentEvent.setTournamentFk(tournament.getId());
         tournamentEvent.setDay(day);
         tournamentEvent.setStartTime(startTime);
         tournamentEvent.setMaxEntries(maxEntries);
@@ -2518,7 +2518,6 @@ public class ImportTournamentService {
         tournamentEvent.setMinPlayerAge(minimumPlayerAge);
         tournamentEvent.setMaxPlayerAge(maximumPlayerAge);
         tournamentEvent.setMaxPlayerRating(maxRating);
-        tournamentEvent.setNumberOfGames(5);
         tournamentEvent.setFeeAdult(entryFee);
         tournamentEvent.setFeeJunior(juniorEntryFee);
         tournamentEvent.setSingleElimination(isSingleElimination);
@@ -2526,12 +2525,21 @@ public class ImportTournamentService {
         tournamentEvent.setDoubles(isDoubles);
         tournamentEvent.setAdvanceUnratedWinner(isAdvanceUnratedPlayer);
         tournamentEvent.setPlayersPerGroup(playersPerGroup);
+        tournamentEvent.setNumberOfGames(numberOfGames);
         tournamentEvent.setNumberOfGamesSEPlayoffs(numberOfGamesSEPlayoffs);
         tournamentEvent.setNumberOfGamesSEQuarterFinals(numberOfGamesSEQuarterFinals);
         tournamentEvent.setNumberOfGamesSESemiFinals(numberOfGamesSESemiFinals);
         tournamentEvent.setNumberOfGamesSEFinals(numberOfGamesSEFinals);
         tournamentEvent.setPointsPerGame(pointsPerGame);
         tournamentEvent.setDrawMethod(drawMethod);
+
+        TournamentEventConfiguration configuration = tournamentEvent.getConfiguration();
+        if (configuration == null) {
+            configuration = new TournamentEventConfiguration();
+            tournamentEvent.setConfiguration(configuration);
+        }
+        List<PrizeInfo> prizeInfoList = populatePrizes(eventDTO.getPrizes());
+        configuration.setPrizeInfoList(prizeInfoList);
 
         return tournamentEvent;
     }
@@ -2557,20 +2565,22 @@ public class ImportTournamentService {
     }
 
     /**
-     * Populates tournametn data from JSON object extracted from PDF
+     * Populates tournament data from JSON object extracted from PDF
      *
-     * @param jsonObject
+     * @param tournamentAndEventsDTO
      * @param tournament
      * @param blankEntryFormPdfURI
      */
-    private void populateTournamentData(JSONObject jsonObject, Tournament tournament, String blankEntryFormPdfURI) {
-        Date startDate = getDate(jsonObject, "tournament_dates", 0);
-        Date endDate =   getDate(jsonObject, "tournament_dates", 1);
+    private void populateTournament(TournamentAndEventsDTO tournamentAndEventsDTO, Tournament tournament, String blankEntryFormPdfURI) {
+        Date startDate = tournamentAndEventsDTO.getStartDate();
+        Date endDate =   tournamentAndEventsDTO.getEndDate();
         endDate = (endDate == null) ? startDate : endDate;
+//        LocalDate localStartDate = convertToLocalDate(startDate);
+//        startDate = convertFromLocalDate(localStartDate);
         tournament.setStartDate(startDate);
         tournament.setEndDate(endDate);
 
-        String starRating = jsonObject.optString("star_rating");
+        String starRating = tournamentAndEventsDTO.getStarRating();
         if (StringUtils.isNotEmpty(starRating)) {
             tournament.setStarLevel(Integer.parseInt(starRating));
         }
@@ -2581,29 +2591,35 @@ public class ImportTournamentService {
             tournament.setConfiguration(configuration);
         }
 
-        Date eligibilityDate = getDate(jsonObject, "rating_eligibility_date");
-        Date entryCutoffDate = getDate(jsonObject, "entry_deadline_date");
-        Date fullRefundDate = getDate(jsonObject, "refund_deadline_date");
-        Date lateEntryDate = getDate(jsonObject, "late_entry_date");
+        Date eligibilityDate = tournamentAndEventsDTO.getRatingEligibilityDate();
+        Date entryCutoffDate = tournamentAndEventsDTO.getEntryDeadlineDate();
+        Date fullRefundDate = tournamentAndEventsDTO.getRefundDeadlineDate();
+        Date lateEntryDate = tournamentAndEventsDTO.getLateEntryDate();
+        if (fullRefundDate == null) {
+            fullRefundDate = entryCutoffDate;
+        }
+        if (lateEntryDate == null) {
+            lateEntryDate = entryCutoffDate;
+        }
         configuration.setEligibilityDate(eligibilityDate);
         configuration.setEntryCutoffDate(entryCutoffDate);
         configuration.setRefundDate(fullRefundDate);
 
         configuration.setLateEntryDate(lateEntryDate);
-        configuration.setLateEntryFee(0);  // todo
+        configuration.setLateEntryFee(0);
 
-        Number registrationFee = jsonObject.optNumber("registration_fee");
-        if (registrationFee != null) {
-            configuration.setRegistrationFee(registrationFee.intValue());
+        String registrationFee = tournamentAndEventsDTO.getRegistrationFee();
+        if (!StringUtils.isEmpty(registrationFee)) {
+            configuration.setRegistrationFee(Integer.parseInt(registrationFee));
         }
 
-        String venueName = jsonObject.optString("venue_name");
-        JSONObject venueAddressJsonObject = jsonObject.getJSONObject("venue_address");
-        if (venueAddressJsonObject != null && !venueAddressJsonObject.isEmpty()) {
-            String streetAddress = venueAddressJsonObject.optString("street");
-            String city = venueAddressJsonObject.optString("city");
-            String state = venueAddressJsonObject.optString("state");
-            String zip = venueAddressJsonObject.optString("zip");
+        String venueName = tournamentAndEventsDTO.getVenueName();
+        VenueAddressDTO venueAddress = tournamentAndEventsDTO.getVenueAddress();
+        if (venueAddress != null) {
+            String streetAddress = venueAddress.getStreet();
+            String city = venueAddress.getCity();
+            String state = venueAddress.getState();
+            String zip = venueAddress.getZip();
             tournament.setVenueName(venueName);
             tournament.setStreetAddress(streetAddress);
             tournament.setCity(city);
@@ -2615,28 +2631,51 @@ public class ImportTournamentService {
         configuration.setBlankEntryUrl(naviagableBlankEntryFormUrl);
 
         // contact information
-        JSONArray directors = jsonObject.getJSONArray("directors");
+        List<DirectorDTO> directors = tournamentAndEventsDTO.getDirectors();
         if (!directors.isEmpty()) {
-            for (Object director : directors) {
-                JSONObject directorJO = (JSONObject) director;
-                String directorsName = directorJO.optString("name");
-                String phone = directorJO.optString("phone");
-                String email = directorJO.optString("email");
+            for (DirectorDTO director : directors) {
+                String directorsName = director.getName();
+                String phone = director.getPhone();
+                String email = director.getEmail();
                 tournament.setContactName(directorsName);
                 tournament.setPhone(phone);
                 tournament.setEmail(email);
                 break;
             }
         }
-        JSONObject equipmentJsonObject = jsonObject.getJSONObject("equipment");
-        if (!equipmentJsonObject.isEmpty()) {
-            Number tables = equipmentJsonObject.optNumber("tables");
-            if (tables != null) {
-                configuration.setNumberOfTables(tables.intValue());
+        populateEquipment(tournamentAndEventsDTO.getEquipment(), configuration);
+
+        // todo - extract from PDF
+        configuration.setMaxDailyEvents(3);
+        configuration.setMaxTournamentEvents(6);
+
+        configuration.setCheckInType(CheckInType.DAILY);
+
+        if (tournament.getName().toLowerCase().contains("team")) {
+            configuration.setTournamentType(TournamentType.Teams);
+        } else if (tournament.getName().toLowerCase().contains("robin")) {
+            configuration.setTournamentType(TournamentType.RoundRobin);
+        } else {
+            configuration.setTournamentType(TournamentType.RatingsRestricted);
+        }
+    }
+
+    /**
+     *
+     * @param equipment
+     * @param configuration
+     */
+    private void populateEquipment(EquipmentDTO equipment, TournamentConfiguration configuration) {
+        if (equipment != null) {
+            String tables = equipment.getTables();
+            if (!StringUtils.isEmpty(tables)) {
+                configuration.setNumberOfTables(Integer.parseInt(tables));
+            } else {
+                configuration.setNumberOfTables(8);
             }
-            String ballType = equipmentJsonObject.optString("ball_type");
+            String ballType = equipment.getBallType();
             // normalize ball type
-            if (ballType != null) {
+            if (!StringUtils.isEmpty(ballType)) {
                 // "N/A", "Nittaku Premium", "Nittaku Nexel", "Butterfly R40+", "JOOLA Prime", "Stiga Perform"
                 if (ballType.toLowerCase().contains("butterfly")) {
                     ballType = "Butterfly R40+";
@@ -2654,20 +2693,24 @@ public class ImportTournamentService {
             }
             configuration.setBallType(ballType);
         }
+    }
 
-        // todo - extract from PDF
-        configuration.setMaxDailyEvents(3);
-        configuration.setMaxTournamentEvents(6);
-
-        configuration.setCheckInType(CheckInType.DAILY);
-
-        if (tournament.getName().toLowerCase().contains("team")) {
-            configuration.setTournamentType(TournamentType.Teams);
-        } else if (tournament.getName().toLowerCase().contains("robin")) {
-            configuration.setTournamentType(TournamentType.RoundRobin);
-        } else {
-            configuration.setTournamentType(TournamentType.RatingsRestricted);
+    /**
+     *
+     * @param prizes
+     * @return
+     */
+    private List<PrizeInfo> populatePrizes (List<PrizeDTO> prizes) {
+        List<PrizeInfo> prizeInfoList = new ArrayList<>(prizes.size());
+        for (PrizeDTO prizeDTO : prizes) {
+            int place = (StringUtils.isEmpty(prizeDTO.getPlace())) ? 0 : Integer.parseInt(prizeDTO.getPlace());
+            int placeEnd = StringUtils.isEmpty(prizeDTO.getPlaceEnd()) ? 0 : Integer.parseInt(prizeDTO.getPlaceEnd());
+            int prizeMoney = StringUtils.isEmpty(prizeDTO.getPrizeMoney()) ? 0 : Integer.parseInt(prizeDTO.getPrizeMoney());
+            boolean isAward = !StringUtils.isEmpty(prizeDTO.getAward());
+            PrizeInfo prizeInfo = new PrizeInfo(prizeDTO.getDivision(), place, placeEnd, prizeMoney, isAward);
+            prizeInfoList.add(prizeInfo);
         }
+        return prizeInfoList;
     }
 
     /**

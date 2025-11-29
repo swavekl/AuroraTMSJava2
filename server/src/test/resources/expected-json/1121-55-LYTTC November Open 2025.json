@@ -1,7 +1,8 @@
 {
   "tournament_name": "LYTTC November Open 2025",
   "star_rating": "0",
-  "tournament_dates": ["11/08/2025", "11/09/2025"],
+  "start_date": "11/08/2025",
+  "end_date": "11/09/2025",
   "rating_eligibility_date": "11/07/2025",
   "rating_seeding_date": "11/06/2025",
   "entry_deadline_date": "11/07/2025",

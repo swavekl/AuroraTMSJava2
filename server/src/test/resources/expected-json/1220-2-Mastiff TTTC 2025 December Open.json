@@ -1,7 +1,8 @@
 {
   "tournament_name": "Mastiff Table Tennis Club 2025 December Open",
   "star_rating": "1",
-  "tournament_dates": ["12/20/2025", "12/20/2025"],
+  "start_date": "12/20/2025",
+  "end_date": "12/20/2025",
   "rating_eligibility_date": "12/18/2025",
   "rating_seeding_date": "12/18/2025",
   "late_entry_date": "",

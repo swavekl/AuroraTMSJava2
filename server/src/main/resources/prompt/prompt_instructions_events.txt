@@ -14,8 +14,10 @@ OUTPUT
 ------------------------------------------------------------------------------------------
 
 EVENT NAME:
-Extract the full event name (e.g. “U2300”, “Open Singles”, “50 & Over Singles”,
-“Mixed Doubles U3600”, “Class A”, “Championship Division”).
+Extract the full event name (e.g. “U2300”, “Open Singles”, “50 & Over Singles”, “Mixed Doubles U3600”).
+
+Names like "Championship Division", "Class A", "Division A" are NOT event names.  They are division names for prizes information only.
+In this case use generic event name of "Giant Round Robin".
 
 START TIME:
 Extract the event start time appearing next to the event (e.g., “8:30 AM”, “2 PM”, “3”, “830 am”, "1:00pm").
@@ -221,7 +223,7 @@ All matches will utilize the 11-Point Rule and will be played as a best of five 
 If event is single elimination
 → draw_method = "SINGLE_ELIMINATION"
 
-If event is giant round robin and players per group is greater than 4
+If tournament name or event name has "Round Robin" in it
 → draw_method = "DIVISION"
 
 if not specified
@@ -283,6 +285,8 @@ Normalize and extract prize placements robustly including short headers.
 6) DIVISIONS / CLASSES
    - If a prize line is scoped to a division/class (e.g., "Championship Division — 1st $300"):
        include "division": "Championship"
+   - If division name has a range (e.g. "Division C - E")
+       create separate prize money objects for each division in the range e.g. C, D, E repeating the same prize information
    - If no division applies → "division": ""
 
 7) MISSING place_end

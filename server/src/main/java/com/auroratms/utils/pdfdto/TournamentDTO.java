@@ -1,5 +1,6 @@
 package com.auroratms.utils.pdfdto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -8,6 +9,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -23,7 +25,8 @@ import java.util.List;
 @JsonPropertyOrder({
         "tournament_name",
         "star_rating",
-        "tournament_dates",
+        "start_date",
+        "end_date",
         "rating_eligibility_date",
         "rating_seeding_date",
         "entry_deadline_date",
@@ -47,25 +50,33 @@ public class TournamentDTO {
     @JsonProperty("star_rating")
     private String starRating;
 
-    @JsonProperty("tournament_dates")
-    private List<String> tournamentDates; // Retain List<String> for flexibility
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "MM/dd/yyyy", timezone = "UTC")
+    @JsonProperty("start_date")
+    private Date startDate;
 
-    // --- Deadline/Eligibility Dates ---
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "MM/dd/yyyy", timezone = "UTC")
+    @JsonProperty("end_date")
+    private Date endDate;
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "MM/dd/yyyy", timezone = "UTC")
     @JsonProperty("rating_eligibility_date")
-    private String ratingEligibilityDate;
+    private Date ratingEligibilityDate;
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "MM/dd/yyyy", timezone = "UTC")
     @JsonProperty("rating_seeding_date")
-    private String ratingSeedingDate;
+    private Date ratingSeedingDate;
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "MM/dd/yyyy", timezone = "UTC")
     @JsonProperty("entry_deadline_date")
-    private String entryDeadlineDate;
+    private Date entryDeadlineDate;
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "MM/dd/yyyy", timezone = "UTC")
     @JsonProperty("refund_deadline_date")
-    private String refundDeadlineDate;
+    private Date refundDeadlineDate;
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "MM/dd/yyyy", timezone = "UTC")
     @JsonProperty("late_entry_date")
-    private String lateEntryDate;
+    private Date lateEntryDate;
 
     @JsonProperty("registration_fee")
     private String registrationFee;

@@ -1,7 +1,8 @@
 {
   "tournament_name": "zm Butterfly AITTA January 2026 OPEN",
   "star_rating": "2",
-  "tournament_dates": ["01/10/2026"],
+  "start_date": "01/10/2026",
+    "end_date": "01/10/2026",,
   "rating_eligibility_date": "",
   "rating_seeding_date": "01/07/2026",
   "late_entry_date": "01/07/2026",

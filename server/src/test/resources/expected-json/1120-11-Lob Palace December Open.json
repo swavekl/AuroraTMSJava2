@@ -1,7 +1,8 @@
 {
   "tournament_name": "Lob Palace December Open",
   "star_rating": "1",
-  "tournament_dates": ["12/06/2025", "12/06/2025"],
+  "start_date": "12/06/2025",
+  "end_date": "12/06/2025",
   "rating_eligibility_date": "12/04/2025",
   "rating_seeding_date": "12/04/2025",
   "entry_deadline_date": "12/04/2025",

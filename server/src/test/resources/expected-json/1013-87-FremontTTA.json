@@ -1,7 +1,8 @@
 {
   "tournament_name": "2025 FREMONT TTA BUTTERFLY OCTOBER OPEN",
   "star_rating": "1",
-  "tournament_dates": ["10/18/2025"],
+  "start_date": "10/18/2025",
+  "end_date": "10/18/2025",
   "rating_eligibility_date": "08/31/2025",
   "rating_seeding_date": "10/16/2025",
   "entry_deadline_date": "10/10/2025",

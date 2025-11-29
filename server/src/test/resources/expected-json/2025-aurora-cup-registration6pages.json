@@ -1,10 +1,8 @@
 {
   "tournament_name": "AURORA CUP",
   "star_rating": "4",
-  "tournament_dates": [
-    "05/09/2025",
-    "05/11/2025"
-  ],
+  "start_date": "05/09/2025",
+  "end_date": "05/11/2025",
   "rating_eligibility_date": "05/01/2025",
   "rating_seeding_date": "05/08/2025",
   "entry_deadline_date": "05/05/2025",

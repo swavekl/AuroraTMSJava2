@@ -1,7 +1,8 @@
 {
   "tournament_name": "Oklahoma (Open) Table Tennis Championships",
   "star_rating": "1",
-  "tournament_dates": ["10/25/2025", "10/25/2025"],
+  "start_date": "10/25/2025",
+  "end_date": "10/25/2025",
   "rating_eligibility_date": "",
   "rating_seeding_date": "10/23/2025",
   "entry_deadline_date": "",

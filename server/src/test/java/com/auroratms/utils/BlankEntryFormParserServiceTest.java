@@ -172,7 +172,7 @@ class BlankEntryFormParserServiceTest extends AbstractServiceTest {
     }
 
     @Test
-    @Disabled
+//    @Disabled
     void testMiamiDecemberOpen() throws Exception {
         runPdfTest("pdfs/1139-10 Miami Table Tennis December 2025 Tournament.pdf",
                 "Miami Table Tennis December");

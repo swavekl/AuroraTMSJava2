@@ -1,9 +1,12 @@
 package com.auroratms.utils.pdfdto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.util.Date;
 
 /**
  * Represents the age restriction details for an event.
@@ -23,7 +26,8 @@ public class AgeRestrictionDTO {
      */
     private String age;
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "MM/dd/yyyy", timezone = "UTC")
     @JsonProperty("restriction_date")
-    private String ageRestrictionDate;
+    private Date ageRestrictionDate;
 
 }

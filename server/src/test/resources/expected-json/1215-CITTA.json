@@ -1,7 +1,8 @@
 {
   "tournament_name": "2025 CITTA Fall Round Robin",
   "star_rating": "2",
-  "tournament_dates": ["11/15/2025", "11/16/2025"],
+  "start_date": "11/15/2025",
+  "end_date": "11/16/2025",
   "rating_eligibility_date": "10/03/2025",
   "rating_seeding_date": "11/09/2025",
   "late_entry_date": "11/09/2025",
