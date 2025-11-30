@@ -10,15 +10,6 @@
           (uploadFinished)="onBlankEntryFormUploadFinished($event)"
           [storagePath]="getPDFStoragePath()">
         </app-upload-file-component>
-<!--        <mat-form-field fxFlexFill>-->
-<!--          <mat-label>Select ttAurora Tournament to Import into</mat-label>-->
-<!--          <mat-select name="selectedTargetTournament" [(ngModel)]="selectedTargetTournamentId" required>-->
-<!--            <mat-option value="0">Create New Tournament</mat-option>-->
-<!--            <mat-option *ngFor="let targetTournament of existingTournaments" [value]="targetTournament.id">-->
-<!--              {{ targetTournament.name }}-->
-<!--            </mat-option>-->
-<!--          </mat-select>-->
-<!--        </mat-form-field>-->
         <div fxLayout="row" fxLayoutAlign="end">
           <button mat-raised-button color="primary" matStepperNext type="button">Next</button>
         </div>

@@ -9,7 +9,7 @@
   "refund_deadline_date": "11/08/2025",
   "late_entry_date": "",
   "registration_fee": "",
-  "venue_name": "",
+  "venue_name": "Our venue",
   "venue_address": {
     "street": "370 North Ave",
     "city": "Dunellen",
@@ -35,19 +35,32 @@
   },
   "events": [
     {
+      "ordinal_number": 1,
       "event_name": "Under 1100 RR",
-      "day": "1",
+      "day": 1,
       "start_time": "10:30 AM",
       "entry_fee": "20",
       "is_doubles": false,
+      "max_entries": 0,
       "single_elimination": false,
       "max_rating": "1099",
-      "gender_restriction": "none",
+      "gender_restriction": "",
       "age_restriction": {
-        "type": "none",
-        "age": ""
+        "type": "NONE",
+        "age": "",
+        "restriction_date": ""
       },
-      "players_per_group": "4",
+      "players_per_group": 4,
+      "draw_method": "SNAKE",
+      "number_of_games": 5,
+      "number_of_games_se_playoffs": 5,
+      "number_of_games_se_quarter_finals": 5,
+      "number_of_games_se_semi_finals": 5,
+      "number_of_games_se_finals": 5,
+      "play_3rd_4th_place": false,
+      "players_to_advance": 1,
+      "advance_unrated_player": false,
+      "players_to_seed": 0,
       "prizes": [
         {
           "division": "",
@@ -66,19 +79,32 @@
       ]
     },
     {
+      "ordinal_number": 2,
       "event_name": "Under 1700 RR",
-      "day": "1",
+      "day": 1,
       "start_time": "10:30 AM",
       "entry_fee": "35",
       "is_doubles": false,
+      "max_entries": 0,
       "single_elimination": false,
       "max_rating": "1699",
-      "gender_restriction": "none",
+      "gender_restriction": "",
       "age_restriction": {
-        "type": "none",
-        "age": ""
+        "type": "NONE",
+        "age": "",
+        "restriction_date": ""
       },
-      "players_per_group": "4",
+      "players_per_group": 4,
+      "draw_method": "SNAKE",
+      "number_of_games": 5,
+      "number_of_games_se_playoffs": 5,
+      "number_of_games_se_quarter_finals": 5,
+      "number_of_games_se_semi_finals": 5,
+      "number_of_games_se_finals": 5,
+      "play_3rd_4th_place": false,
+      "players_to_advance": 1,
+      "advance_unrated_player": false,
+      "players_to_seed": 0,
       "prizes": [
         {
           "division": "",
@@ -97,19 +123,32 @@
       ]
     },
     {
+      "ordinal_number": 3,
       "event_name": "Under 2100 RR",
-      "day": "1",
+      "day": 1,
       "start_time": "12:30 PM",
       "entry_fee": "40",
       "is_doubles": false,
+      "max_entries": 0,
       "single_elimination": false,
       "max_rating": "2099",
-      "gender_restriction": "none",
+      "gender_restriction": "",
       "age_restriction": {
-        "type": "none",
-        "age": ""
+        "type": "NONE",
+        "age": "",
+        "restriction_date": ""
       },
-      "players_per_group": "4",
+      "players_per_group": 4,
+      "draw_method": "SNAKE",
+      "number_of_games": 5,
+      "number_of_games_se_playoffs": 5,
+      "number_of_games_se_quarter_finals": 5,
+      "number_of_games_se_semi_finals": 5,
+      "number_of_games_se_finals": 5,
+      "play_3rd_4th_place": false,
+      "players_to_advance": 1,
+      "advance_unrated_player": false,
+      "players_to_seed": 0,
       "prizes": [
         {
           "division": "",
@@ -135,19 +174,32 @@
       ]
     },
     {
+      "ordinal_number": 4,
       "event_name": "Under 1300 RR",
-      "day": "1",
+      "day": 1,
       "start_time": "12:30 PM",
       "entry_fee": "25",
       "is_doubles": false,
+      "max_entries": 0,
       "single_elimination": false,
       "max_rating": "1299",
-      "gender_restriction": "none",
+      "gender_restriction": "",
       "age_restriction": {
-        "type": "none",
-        "age": ""
+        "type": "NONE",
+        "age": "",
+        "restriction_date": ""
       },
-      "players_per_group": "4",
+      "players_per_group": 4,
+      "draw_method": "SNAKE",
+      "number_of_games": 5,
+      "number_of_games_se_playoffs": 5,
+      "number_of_games_se_quarter_finals": 5,
+      "number_of_games_se_semi_finals": 5,
+      "number_of_games_se_finals": 5,
+      "play_3rd_4th_place": false,
+      "players_to_advance": 1,
+      "advance_unrated_player": false,
+      "players_to_seed": 0,
       "prizes": [
         {
           "division": "",
@@ -173,19 +225,32 @@
       ]
     },
     {
+      "ordinal_number": 5,
       "event_name": "Under 1900 RR",
-      "day": "1",
+      "day": 1,
       "start_time": "2:30 PM",
       "entry_fee": "35",
       "is_doubles": false,
+      "max_entries": 0,
       "single_elimination": false,
       "max_rating": "1899",
-      "gender_restriction": "none",
+      "gender_restriction": "",
       "age_restriction": {
-        "type": "none",
-        "age": ""
+        "type": "NONE",
+        "age": "",
+        "restriction_date": ""
       },
-      "players_per_group": "4",
+      "players_per_group": 4,
+      "draw_method": "SNAKE",
+      "number_of_games": 5,
+      "number_of_games_se_playoffs": 5,
+      "number_of_games_se_quarter_finals": 5,
+      "number_of_games_se_semi_finals": 5,
+      "number_of_games_se_finals": 5,
+      "play_3rd_4th_place": false,
+      "players_to_advance": 1,
+      "advance_unrated_player": false,
+      "players_to_seed": 0,
       "prizes": [
         {
           "division": "",
@@ -211,19 +276,32 @@
       ]
     },
     {
+      "ordinal_number": 6,
       "event_name": "Under 1500 RR",
-      "day": "1",
+      "day": 1,
       "start_time": "3:00 PM",
       "entry_fee": "25",
       "is_doubles": false,
+      "max_entries": 0,
       "single_elimination": false,
       "max_rating": "1499",
-      "gender_restriction": "none",
+      "gender_restriction": "",
       "age_restriction": {
-        "type": "none",
-        "age": ""
+        "type": "NONE",
+        "age": "",
+        "restriction_date": ""
       },
-      "players_per_group": "4",
+      "players_per_group": 4,
+      "draw_method": "SNAKE",
+      "number_of_games": 5,
+      "number_of_games_se_playoffs": 5,
+      "number_of_games_se_quarter_finals": 5,
+      "number_of_games_se_semi_finals": 5,
+      "number_of_games_se_finals": 5,
+      "play_3rd_4th_place": false,
+      "players_to_advance": 1,
+      "advance_unrated_player": false,
+      "players_to_seed": 0,
       "prizes": [
         {
           "division": "",
@@ -249,19 +327,32 @@
       ]
     },
     {
+      "ordinal_number": 7,
       "event_name": "U4400 Doubles",
-      "day": "2",
+      "day": 2,
       "start_time": "10:00 AM",
       "entry_fee": "25",
       "is_doubles": true,
+      "max_entries": 0,
       "single_elimination": false,
       "max_rating": "4399",
-      "gender_restriction": "none",
+      "gender_restriction": "",
       "age_restriction": {
-        "type": "none",
-        "age": ""
+        "type": "NONE",
+        "age": "",
+        "restriction_date": ""
       },
-      "players_per_group": "4",
+      "players_per_group": 4,
+      "draw_method": "SNAKE",
+      "number_of_games": 5,
+      "number_of_games_se_playoffs": 5,
+      "number_of_games_se_quarter_finals": 5,
+      "number_of_games_se_semi_finals": 5,
+      "number_of_games_se_finals": 5,
+      "play_3rd_4th_place": false,
+      "players_to_advance": 1,
+      "advance_unrated_player": false,
+      "players_to_seed": 0,
       "prizes": [
         {
           "division": "",
@@ -280,19 +371,32 @@
       ]
     },
     {
+      "ordinal_number": 8,
       "event_name": "U600 RR",
-      "day": "2",
+      "day": 2,
       "start_time": "11:00 AM",
       "entry_fee": "20",
       "is_doubles": false,
+      "max_entries": 0,
       "single_elimination": false,
       "max_rating": "599",
-      "gender_restriction": "none",
+      "gender_restriction": "",
       "age_restriction": {
-        "type": "none",
-        "age": ""
+        "type": "NONE",
+        "age": "",
+        "restriction_date": ""
       },
-      "players_per_group": "4",
+      "players_per_group": 4,
+      "draw_method": "SNAKE",
+      "number_of_games": 5,
+      "number_of_games_se_playoffs": 5,
+      "number_of_games_se_quarter_finals": 5,
+      "number_of_games_se_semi_finals": 5,
+      "number_of_games_se_finals": 5,
+      "play_3rd_4th_place": false,
+      "players_to_advance": 1,
+      "advance_unrated_player": false,
+      "players_to_seed": 0,
       "prizes": [
         {
           "division": "",
@@ -311,19 +415,32 @@
       ]
     },
     {
+      "ordinal_number": 9,
       "event_name": "Under 2400 RR",
-      "day": "2",
+      "day": 2,
       "start_time": "11:00 AM",
       "entry_fee": "40",
       "is_doubles": false,
+      "max_entries": 0,
       "single_elimination": false,
       "max_rating": "2399",
-      "gender_restriction": "none",
+      "gender_restriction": "",
       "age_restriction": {
-        "type": "none",
-        "age": ""
+        "type": "NONE",
+        "age": "",
+        "restriction_date": ""
       },
-      "players_per_group": "4",
+      "players_per_group": 4,
+      "draw_method": "SNAKE",
+      "number_of_games": 5,
+      "number_of_games_se_playoffs": 5,
+      "number_of_games_se_quarter_finals": 5,
+      "number_of_games_se_semi_finals": 5,
+      "number_of_games_se_finals": 5,
+      "play_3rd_4th_place": false,
+      "players_to_advance": 1,
+      "advance_unrated_player": false,
+      "players_to_seed": 0,
       "prizes": [
         {
           "division": "",
@@ -356,19 +473,32 @@
       ]
     },
     {
+      "ordinal_number": 10,
       "event_name": "Under 2200 RR",
-      "day": "2",
+      "day": 2,
       "start_time": "12:30 PM",
       "entry_fee": "40",
       "is_doubles": false,
+      "max_entries": 0,
       "single_elimination": false,
       "max_rating": "2199",
-      "gender_restriction": "none",
+      "gender_restriction": "",
       "age_restriction": {
-        "type": "none",
-        "age": ""
+        "type": "NONE",
+        "age": "",
+        "restriction_date": ""
       },
-      "players_per_group": "4",
+      "players_per_group": 4,
+      "draw_method": "SNAKE",
+      "number_of_games": 5,
+      "number_of_games_se_playoffs": 5,
+      "number_of_games_se_quarter_finals": 5,
+      "number_of_games_se_semi_finals": 5,
+      "number_of_games_se_finals": 5,
+      "play_3rd_4th_place": false,
+      "players_to_advance": 1,
+      "advance_unrated_player": false,
+      "players_to_seed": 0,
       "prizes": [
         {
           "division": "",
@@ -394,19 +524,32 @@
       ]
     },
     {
+      "ordinal_number": 11,
       "event_name": "Under 1000 RR",
-      "day": "2",
+      "day": 2,
       "start_time": "12:30 PM",
       "entry_fee": "20",
       "is_doubles": false,
+      "max_entries": 0,
       "single_elimination": false,
       "max_rating": "999",
-      "gender_restriction": "none",
+      "gender_restriction": "",
       "age_restriction": {
-        "type": "none",
-        "age": ""
+        "type": "NONE",
+        "age": "",
+        "restriction_date": ""
       },
-      "players_per_group": "4",
+      "players_per_group": 4,
+      "draw_method": "SNAKE",
+      "number_of_games": 5,
+      "number_of_games_se_playoffs": 5,
+      "number_of_games_se_quarter_finals": 5,
+      "number_of_games_se_semi_finals": 5,
+      "number_of_games_se_finals": 5,
+      "play_3rd_4th_place": false,
+      "players_to_advance": 1,
+      "advance_unrated_player": false,
+      "players_to_seed": 0,
       "prizes": [
         {
           "division": "",
@@ -425,19 +568,32 @@
       ]
     },
     {
+      "ordinal_number": 12,
       "event_name": "Open RR",
-      "day": "2",
+      "day": 2,
       "start_time": "2:00 PM",
       "entry_fee": "50",
       "is_doubles": false,
+      "max_entries": 0,
       "single_elimination": false,
       "max_rating": "",
-      "gender_restriction": "none",
+      "gender_restriction": "",
       "age_restriction": {
-        "type": "none",
-        "age": ""
+        "type": "NONE",
+        "age": "",
+        "restriction_date": ""
       },
-      "players_per_group": "4",
+      "players_per_group": 4,
+      "draw_method": "SNAKE",
+      "number_of_games": 5,
+      "number_of_games_se_playoffs": 5,
+      "number_of_games_se_quarter_finals": 5,
+      "number_of_games_se_semi_finals": 5,
+      "number_of_games_se_finals": 5,
+      "play_3rd_4th_place": false,
+      "players_to_advance": 1,
+      "advance_unrated_player": false,
+      "players_to_seed": 0,
       "prizes": [
         {
           "division": "",
@@ -470,19 +626,32 @@
       ]
     },
     {
+      "ordinal_number": 13,
       "event_name": "Under 2000 RR",
-      "day": "2",
+      "day": 2,
       "start_time": "2:30 PM",
       "entry_fee": "35",
       "is_doubles": false,
+      "max_entries": 0,
       "single_elimination": false,
       "max_rating": "1999",
-      "gender_restriction": "none",
+      "gender_restriction": "",
       "age_restriction": {
-        "type": "none",
-        "age": ""
+        "type": "NONE",
+        "age": "",
+        "restriction_date": ""
       },
-      "players_per_group": "4",
+      "players_per_group": 4,
+      "draw_method": "SNAKE",
+      "number_of_games": 5,
+      "number_of_games_se_playoffs": 5,
+      "number_of_games_se_quarter_finals": 5,
+      "number_of_games_se_semi_finals": 5,
+      "number_of_games_se_finals": 5,
+      "play_3rd_4th_place": false,
+      "players_to_advance": 1,
+      "advance_unrated_player": false,
+      "players_to_seed": 0,
       "prizes": [
         {
           "division": "",

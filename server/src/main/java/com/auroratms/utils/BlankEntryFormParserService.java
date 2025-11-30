@@ -90,7 +90,7 @@ public class BlankEntryFormParserService {
         System.out.println("=================================================");
         System.out.println("pdfText.length() = " + pdfText.length());
         importProgressInfo.phaseCompleted = 100;
-        importProgressInfo.overallCompleted = 20;
+        importProgressInfo.overallCompleted = 25;
 
         importProgressInfo.phaseName = "Analyzing tournament information";
         importProgressInfo.phaseCompleted = 0;
@@ -216,6 +216,8 @@ public class BlankEntryFormParserService {
                 ocrPageText = ocrPageText.replaceAll(" +", " ");
                 pageText = pageText.replaceAll("_+", "_");
                 ocrPageText = ocrPageText.replaceAll("_+", "_");
+                pageText = pageText.replaceAll("\\t+", " ");
+                ocrPageText = ocrPageText.replaceAll("\\t+", " ");
 
                 // OCR pages may contain more text in the header graphic e.g. tournament name
                 if (ocrPageText.length() > pageText.length()) {
@@ -235,7 +237,6 @@ public class BlankEntryFormParserService {
             }
         }
         String retValue = cleanedText.toString();
-        retValue = retValue.replaceAll("\\t+", " ");
 
         return retValue;
     }

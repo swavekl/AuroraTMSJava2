@@ -34,6 +34,29 @@
           <button mat-raised-button color="primary" matStepperNext type="button">Next</button>
         </div>
       </mat-step>
+      <mat-step label="Blank Entry Form">
+        <ng-container *ngIf="selectedSourceTournament?.blankEntryFormPDFUrl != null; else uploadPDF">
+          <div style="margin: 8px 0">We found this <a [href]="getOmnipongBEFUrl(selectedSourceTournament?.blankEntryFormPDFUrl)" target="_blank">blank entry form</a>
+            and will use it to extract additional tournament and event details.</div>
+        </ng-container>
+        <ng-template #uploadPDF>
+          <div style="margin: 8px 0">
+            <p>We can fill additional tournament and event details from a blank entry form PDF.</p>
+            <p>Select blank entry form PDF file from local computer and upload it.</p>
+          </div>
+          <app-upload-file-component
+            [disabledBtn]="importStarted"
+            [uploadButtonLabel]="'Upload'"
+            (uploadFinished)="onBlankEntryFormUploadFinished($event)"
+            [storagePath]="getPDFStoragePath()">
+          </app-upload-file-component>
+        </ng-template>
+        <div fxLayout="row" fxLayoutAlign="space-between" style="margin-top: 20px;">
+          <button mat-raised-button matStepperPrevious type="button" [disabled]="importStarted">Back</button>
+          <span fxFlex></span>
+          <button mat-raised-button color="primary" matStepperNext type="button">Next</button>
+        </div>
+      </mat-step>
       <mat-step label="Import">
         <mat-label>Overall {{ importProgressInfo?.overallCompleted }}% Complete</mat-label>
         <mat-progress-bar [value]="importProgressInfo?.overallCompleted"

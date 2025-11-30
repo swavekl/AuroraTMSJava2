@@ -35,7 +35,8 @@ export class ImportTournamentDialogComponent implements OnInit, OnDestroy {
 
   selectedTournamentUrl: string;
   selectedTargetTournamentId: number = 0;
-  private selectedSourceTournament: ImportTournamentRequest;
+  public selectedSourceTournament: ImportTournamentRequest;
+  public blankEntryFormPDFUrl: string;
 
   importStarted: boolean = false;
 
@@ -126,8 +127,12 @@ export class ImportTournamentDialogComponent implements OnInit, OnDestroy {
     // convert 'Illinois' to 'IL'
     const tournamentState = StatesList.convertToAbbreviation(this.selectedSourceTournament.tournamentState,
       this.authenticationService.getCurrentUserCountry() || 'US');
+    const url = (this.blankEntryFormPDFUrl != null)
+      ? this.blankEntryFormPDFUrl
+      : this.getOmnipongBEFUrl(this.selectedSourceTournament?.blankEntryFormPDFUrl);
     const importTournamentRequest: ImportTournamentRequest = {
       ...this.selectedSourceTournament,
+      blankEntryFormPDFUrl: url,
       tournamentState: tournamentState
     };
     this.tournamentImportService.importTournamentConfiguration(importTournamentRequest)
@@ -243,5 +248,18 @@ export class ImportTournamentDialogComponent implements OnInit, OnDestroy {
     const filterToUse = stateOrRegion.length == 2 ? this.USATT_EVENTS : stateOrRegion;
     this.filteredTournamentsToImport = this.allTournamentsToImport.filter(
       value => value.tournamentState === filterToUse);
+  }
+
+  protected onBlankEntryFormUploadFinished(downloadUrl: string) {
+    this.blankEntryFormPDFUrl = downloadUrl.substring(downloadUrl.indexOf('path=') + 'path='.length);
+  }
+
+  protected getPDFStoragePath() {
+    return 'tournament/blankentryform';
+  }
+
+  protected getOmnipongBEFUrl(blankEntryFormPDFUrl: string | undefined) {
+    // https://www.omnipong.com/EntryForms/1215-3.pdf
+    return `https://www.omnipong.com/${blankEntryFormPDFUrl}`
   }
 }

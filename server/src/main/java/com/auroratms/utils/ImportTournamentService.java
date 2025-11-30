@@ -28,6 +28,7 @@ import com.opencsv.exceptions.CsvValidationException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -36,6 +37,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -45,6 +47,9 @@ import org.springframework.util.StopWatch;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.*;
+import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -54,13 +59,21 @@ import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
 public class ImportTournamentService {
 
     public static final String BASE_OMNIPONG_URL = "https://www.omnipong.com/";
+
+    private final static String BLANK_ENTRY_FORM_FOLDER = "/tournament/blankentryform/";
+
     private static final Logger log = LoggerFactory.getLogger(ImportTournamentService.class);
+
+    // 9:00A or 3:00P
+    // 9:00 AM or 5:00 PM
+    private final Pattern EVENT_START_TIME_PATTERN = Pattern.compile("(\\d{1,2}):(\\d{1,2})\\s?([AP]M?)");
 
     @Autowired
     private TournamentService tournamentService;
@@ -162,8 +175,13 @@ public class ImportTournamentService {
 //                            <td Align="Center"><input type="submit" class="omnipong_blue" name="Action" value="Players"
 //                    title="Click for a list of players"
 //                    onclick="open_window('T-tourney.asp?t=100&r=4881','_self')"/><br></td>
-//                            <td Align="Left"><a href="https://fvttc.org/2025-aurora-fall-open/" target="_blank">2025 Aurora
-//                    Fall Open</a></td>
+//                    <td Align="Left">
+//                        <a href="https://fvttc.org/2025-aurora-fall-open/" target="_blank">2025 Aurora Fall Open</a>
+//                    </td>
+// OR
+//                     <td Align="Left">
+//                        <a href="EntryForms/1092-32.pdf" target="_blank">2025 South Bend Open-GiantRound Robin</a>
+//                     </td>
 
                 // if tournament is still open to enter or closed and it is not Info i.e. it has players
                 Element infoInput = tournamentRow.selectFirst("input[value=Info]");
@@ -184,6 +202,7 @@ public class ImportTournamentService {
                     int cellIndex = 0;
                     String tournamentName = null;
                     String playersUrl = null;
+                    String blankEntryFormPDFUrl = null;
                     String tournamentDates = null;
                     String tournamentCity = null;
                     String tournamentState = null;
@@ -222,6 +241,10 @@ public class ImportTournamentService {
 
                                 if (tournamentLink != null) {
                                     tournamentName = tournamentLink.text().trim();
+                                    String url = tournamentLink.attr("href");
+                                    if (url.endsWith(".pdf")) {
+                                        blankEntryFormPDFUrl = url;
+                                    }
                                 } else {
                                     tournamentName = tableCell.text();
                                 }
@@ -269,6 +292,7 @@ public class ImportTournamentService {
                     if (tournamentName != null) {
                         Map<String, String> extractedValues = new HashMap<>();
                         extractedValues.put("playersUrl", playersUrl);
+                        extractedValues.put("blankEntryFormPDFUrl", blankEntryFormPDFUrl);
                         extractedValues.put("tournamentName", tournamentName);
                         extractedValues.put("tournamentDates", tournamentDates);
                         extractedValues.put("tournamentCity", tournamentCity);
@@ -1443,6 +1467,8 @@ public class ImportTournamentService {
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
 
+        boolean hasPDFtoParse = StringUtils.isNotEmpty(importTournamentRequest.blankEntryFormPDFUrl);
+
         String url = BASE_OMNIPONG_URL + importTournamentRequest.playersUrl;
         RestTemplate restTemplate = new RestTemplate();
         ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
@@ -1451,7 +1477,7 @@ public class ImportTournamentService {
         Map<String, Map<String, String>> eventNamesAndCodes = new HashMap<>();
         String playerListByEventURL = extractEventNamesAndCodes(playerListHTML, eventNamesAndCodes, importProgressInfo);
         importProgressInfo.phaseCompleted = 100;
-        importProgressInfo.overallCompleted = 30;
+        importProgressInfo.overallCompleted = hasPDFtoParse ? 5 : 30;
 
         importProgressInfo.phaseName = "Getting additional event information";
         importProgressInfo.phaseCompleted = 0;
@@ -1461,26 +1487,223 @@ public class ImportTournamentService {
         String playerListByEventHTML = response2.getBody();
         extractAdditionalEventInfo(playerListByEventHTML, eventNamesAndCodes, importProgressInfo);
         importProgressInfo.phaseCompleted = 100;
-        importProgressInfo.overallCompleted = 60;
+        importProgressInfo.overallCompleted = hasPDFtoParse ? 5 : 60;
 
         importProgressInfo.phaseName = "Creating/updating tournament";
         importProgressInfo.phaseCompleted = 0;
         Tournament tournament = convertRequestToTournament(importTournamentRequest);
         importProgressInfo.tournamentId = tournament.getId();
         importProgressInfo.phaseCompleted = 100;
-        importProgressInfo.overallCompleted = 80;
+        importProgressInfo.overallCompleted = hasPDFtoParse ? 10: 80;
 
         importProgressInfo.phaseName = "Creating/updating events";
         importProgressInfo.phaseCompleted = 0;
-        createUpdateEvents(tournament, eventNamesAndCodes);
+        Collection<TournamentEvent> eventsCollection = createUpdateEvents(tournament, eventNamesAndCodes);
+        List<TournamentEvent> tournamentEventList = eventsCollection.stream().toList();
         importProgressInfo.phaseCompleted = 100;
-        importProgressInfo.overallCompleted = 100;
+        importProgressInfo.overallCompleted = hasPDFtoParse ? 15 : 100;
+
+        // only analyze the first time
+        if (StringUtils.isEmpty(tournament.getVenueName()) && hasPDFtoParse) {
+            // get additional tournament and event information for provided PDF
+            TournamentAndEventsDTO tournamentAndEventsDTO = importTournamentConfiguration(importTournamentRequest.blankEntryFormPDFUrl, importProgressInfo);
+            if (tournamentAndEventsDTO != null) {
+                boolean tournamentChanged = mergeTournamentDetails(tournament, tournamentAndEventsDTO, importTournamentRequest.blankEntryFormPDFUrl);
+                boolean eventsChanged = mergeEventDetails(tournamentEventList, tournamentAndEventsDTO);
+                int totalPrizeMoney = calculateTotalPrizeMoney(tournamentEventList);
+                tournament.setTotalPrizeMoney(totalPrizeMoney);
+
+                if (tournamentChanged) {
+                    this.tournamentService.saveTournament(tournament);
+                }
+                if (eventsChanged) {
+                    this.tournamentEventEntityService.saveAll(tournamentEventList);
+                }
+            }
+        }
 
         stopWatch.stop();
 
         importProgressInfo.phaseCompleted = 100;
         importProgressInfo.overallCompleted = 100;
         importProgressInfo.status = "COMPLETED";
+    }
+
+    /**
+     * Merges additional tournament information read from a blank entry form into tournament
+     *
+     * @param tournament
+     * @param tournamentAndEventsDTO
+     * @param blankEntryFormPDFUrl
+     */
+    private boolean mergeTournamentDetails(Tournament tournament, TournamentAndEventsDTO tournamentAndEventsDTO, String blankEntryFormPDFUrl) {
+        boolean changed = false;
+
+        // extract from pdf into Tournament object
+        Tournament tournamentFromPDF = new Tournament();
+        tournamentFromPDF.setName(tournamentAndEventsDTO.getTournamentName());
+        populateTournament(tournamentAndEventsDTO, tournamentFromPDF, blankEntryFormPDFUrl);
+
+        // merge with incoming tournament object
+        if (StringUtils.isEmpty(tournament.getVenueName())) {
+            tournament.setVenueName(tournamentFromPDF.getVenueName());
+            changed = true;
+        }
+
+        tournament.setStreetAddress(tournamentFromPDF.getStreetAddress());
+        tournament.setZipCode(tournamentFromPDF.getZipCode());
+        tournament.setConfiguration(tournamentFromPDF.getConfiguration());
+        tournament.setContactName(tournamentFromPDF.getContactName());
+        if (StringUtils.isNotEmpty(tournamentFromPDF.getEmail())) {
+            tournament.setEmail(tournamentFromPDF.getEmail());
+            changed = true;
+        }
+
+        return changed;
+    }
+
+    /**
+     * Merges additional information from the blank entry form PDF into each event
+     *
+     * @param tournamentEventList
+     * @param tournamentAndEventsDTO
+     * @return
+     */
+    private boolean mergeEventDetails(List<TournamentEvent> tournamentEventList, TournamentAndEventsDTO tournamentAndEventsDTO) {
+        boolean changed = false;
+        // event details read from PDF
+        Map<String, EventDTO> eventDTOMap = tournamentAndEventsDTO.getEvents().stream()
+                .collect(Collectors.toMap(
+                        EventDTO::getEventName, // Key is the event name
+                        eventDTO -> eventDTO // Value is the EventDTO object
+                        // (e1, e2) -> e1  // Use this if there are duplicate keys and you want to keep the first one
+                ));
+
+        for (TournamentEvent tournamentEvent : tournamentEventList) {
+            EventDTO eventDTO = findEventDTO(tournamentEvent, eventDTOMap);
+            if (eventDTO != null) {
+                changed = mergeSingleEventDetails(tournamentEvent, eventDTO) || changed;
+            }
+        }
+        return changed;
+    }
+
+    /**
+     * Tries to find the exact match by name, and if it fails tries by rating or gender restriction
+     *
+     * @param tournamentEvent
+     * @param eventDTOMap
+     * @return
+     */
+    private @Nullable EventDTO findEventDTO(TournamentEvent tournamentEvent, Map<String, EventDTO> eventDTOMap) {
+        // most TDs configure the same event names as they appear on the blank entry form
+        // match by name first then
+        String eventName = tournamentEvent.getName();
+        EventDTO eventDTO = eventDTOMap.get(eventName);
+        if (eventDTO != null) {
+            return eventDTO;
+        } else {
+            // maybe it is a single giant round robin event
+            if (eventDTOMap.size() == 1) {
+                for (EventDTO value : eventDTOMap.values()) {
+                    eventDTO = value;
+                    break;
+                }
+            } else {
+                // if it didn't match exactly by name, then find it another way
+                log.info("Event " + eventName + " not found.  Looking up by max rating and other ways");
+                log.info("tournamentEvent '" + eventName + "' day " + tournamentEvent.getDay() + " start time " + tournamentEvent.getStartTime());
+                for (EventDTO eventDTO1 : eventDTOMap.values()) {
+                    int maxPlayerRating = (StringUtils.isNotEmpty(eventDTO1.getMaxRating())) ? Integer.parseInt(eventDTO1.getMaxRating()) : 0;
+                    int age = (StringUtils.isNotEmpty(eventDTO1.getAgeRestriction().getAge())) ? Integer.parseInt(eventDTO1.getAgeRestriction().getAge()) : 0;
+                    AgeRestrictionType ageRestrictionType = (StringUtils.isNotEmpty(eventDTO1.getAgeRestriction().getType()))
+                            ? AgeRestrictionType.valueOf(eventDTO1.getAgeRestriction().getType()) : AgeRestrictionType.NONE;
+                    GenderRestriction genderRestriction = StringUtils.isNotEmpty(eventDTO1.getGenderRestriction())
+                            ? GenderRestriction.valueOf(eventDTO1.getGenderRestriction()) : GenderRestriction.NONE;
+                    double startTime = getStartingTime(eventDTO1.getStartTime());
+                    log.info("eventDTO1 name '" + eventDTO1.getEventName() + "' day = " + eventDTO1.getDay() + " startTime = " + startTime);
+                    // first match the even by day and start time - hopefully these are the same as on the blank entry form
+                    if (eventDTO1.getDay() == tournamentEvent.getDay() && startTime == tournamentEvent.getStartTime()) {
+                        // then by rating restriction
+                        if (tournamentEvent.getMaxPlayerRating() != 0 && maxPlayerRating == tournamentEvent.getMaxPlayerRating()) {
+                            if (eventDTO1.isDoubles() == tournamentEvent.isDoubles()) {
+                                eventDTO = eventDTO1;
+                                break;
+                            }
+                        } else if (eventDTO1.getEventName().toLowerCase().contains("open") && tournamentEvent.getName().toLowerCase().contains("open") && maxPlayerRating == tournamentEvent.getMaxPlayerRating()) {
+                            ///  open doubles or open singles
+                            if (eventDTO1.isDoubles() == tournamentEvent.isDoubles()) {
+                                eventDTO = eventDTO1;
+                                break;
+                            }
+                        } else if ((age > 0) && (age == tournamentEvent.getMaxPlayerAge() || age == tournamentEvent.getMinPlayerAge())) {
+                            // finally by age restriction and gender
+                            if (genderRestriction == tournamentEvent.getGenderRestriction() && ageRestrictionType == tournamentEvent.getAgeRestrictionType()) {
+                                eventDTO = eventDTO1;
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (eventDTO != null) {
+                log.info("Found eventDTO named '" + eventDTO.getEventName() + "' for tournamentEvent '" + tournamentEvent.getName() + "'");
+            } else {
+                log.info("Didn't find eventDTO for event named '" + eventDTO.getEventName() + "'");
+            }
+            return eventDTO;
+        }
+    }
+
+    /**
+     *
+     * @param tournamentEvent
+     * @param eventDTO
+     * @return
+     */
+    private boolean mergeSingleEventDetails(TournamentEvent tournamentEvent, EventDTO eventDTO) {
+        boolean changed = false;
+
+        // convert EventDTO to TournamentEvent
+        TournamentEvent tournamentEventFromPDF = populateSingleEvent(eventDTO);
+
+        // transfer except for id, name, ordinal number because they may have been read from the database
+        tournamentEvent.setOrdinalNumber(tournamentEventFromPDF.getOrdinalNumber());
+        tournamentEvent.setSingleElimination(tournamentEventFromPDF.isSingleElimination());
+        tournamentEvent.setDoubles(tournamentEventFromPDF.isDoubles());
+        tournamentEvent.setMinPlayerRating(tournamentEventFromPDF.getMinPlayerRating());
+        tournamentEvent.setMaxPlayerRating(tournamentEventFromPDF.getMaxPlayerRating());
+        tournamentEvent.setMinPlayerAge(tournamentEventFromPDF.getMinPlayerAge());
+        tournamentEvent.setMaxPlayerAge(tournamentEventFromPDF.getMaxPlayerAge());
+        tournamentEvent.setAgeRestrictionType(tournamentEventFromPDF.getAgeRestrictionType());
+        tournamentEvent.setAgeRestrictionDate(tournamentEventFromPDF.getAgeRestrictionDate());
+        tournamentEvent.setGenderRestriction(tournamentEventFromPDF.getGenderRestriction());
+        tournamentEvent.setEligibilityRestriction(tournamentEventFromPDF.getEligibilityRestriction());
+        tournamentEvent.setPlayersPerGroup(tournamentEventFromPDF.getPlayersPerGroup());
+        tournamentEvent.setDrawMethod(tournamentEventFromPDF.getDrawMethod());
+        tournamentEvent.setPointsPerGame(tournamentEventFromPDF.getPointsPerGame());
+        tournamentEvent.setNumberOfGames(tournamentEventFromPDF.getNumberOfGames());
+        tournamentEvent.setNumberOfGamesSEPlayoffs(tournamentEventFromPDF.getNumberOfGamesSEPlayoffs());
+        tournamentEvent.setNumberOfGamesSEQuarterFinals(tournamentEventFromPDF.getNumberOfGamesSEQuarterFinals());
+        tournamentEvent.setNumberOfGamesSESemiFinals(tournamentEventFromPDF.getNumberOfGamesSESemiFinals());
+        tournamentEvent.setNumberOfGamesSEFinals(tournamentEventFromPDF.getNumberOfGamesSEFinals());
+        tournamentEvent.setPlay3rd4thPlace(tournamentEventFromPDF.isPlay3rd4thPlace());
+        tournamentEvent.setPlayersToAdvance(tournamentEventFromPDF.getPlayersToAdvance());
+        tournamentEvent.setAdvanceUnratedWinner(tournamentEventFromPDF.isAdvanceUnratedWinner());
+        tournamentEvent.setPlayersToSeed(tournamentEventFromPDF.getPlayersToSeed());
+        if (tournamentEvent.getFeeAdult() != tournamentEventFromPDF.getFeeAdult()) {
+            tournamentEvent.setFeeAdult(tournamentEventFromPDF.getFeeAdult());
+            changed = true;
+        }
+        if (tournamentEvent.getFeeJunior() != tournamentEventFromPDF.getFeeJunior()) {
+            tournamentEvent.setFeeJunior(tournamentEventFromPDF.getFeeJunior());
+            changed = true;
+        }
+
+        tournamentEvent.setConfiguration(tournamentEventFromPDF.getConfiguration());
+
+        return changed;
     }
 
     /**
@@ -1779,8 +2002,6 @@ public class ImportTournamentService {
         LocalDate tournamentStartLocalDate = convertToLocalDate(tournamentStartDate);
         // Scheduled for: 10/04/2025 @ 9:00A
         DateFormat eventStartDateFormat = new SimpleDateFormat("MM/dd/yyyy");
-        // 9:00A
-        Pattern startTimePattern = Pattern.compile("(\\d{1,2}):(\\d{1,2})([AP])");
 
         // order them
         int maxEventOrderNum = 0;
@@ -1808,7 +2029,8 @@ public class ImportTournamentService {
             int day = getEventDay(eventProperties, eventStartDateFormat, tournamentStartLocalDate);
             tournamentEvent.setDay(day);
 
-            double startTime = getStartingTime(eventProperties, startTimePattern);
+            String strEventStartingTime = eventProperties.get("eventStartingTime");
+            double startTime = getStartingTime(strEventStartingTime);
             tournamentEvent.setStartTime(startTime);
 
             int maxSlots = getMaxSlots(eventProperties);
@@ -1981,21 +2203,19 @@ public class ImportTournamentService {
     }
 
     /**
-     *
-     * @param eventProperties
-     * @param startTimePattern
+     * Converts start time to double in 24 format. start times are like this 10:30 AM -> 10.5, 5:00 PM -> 17.0
+     * @param strStartingTime
      * @return
      */
-    private double getStartingTime(Map<String, String> eventProperties, Pattern startTimePattern) {
-        String strEventStartingTime = eventProperties.get("eventStartingTime");
-        double startTime = 9.0;  // 9:00 am default,  start times are like this 10:30 AM = 10.5, 5:00 PM = 17.0
-        if (StringUtils.isNotEmpty(strEventStartingTime)) {
-            Matcher matcher = startTimePattern.matcher(strEventStartingTime);
+    private double getStartingTime(String strStartingTime) {
+        double startTime = 9.0;  // 9:00 am default,
+        if (StringUtils.isNotEmpty(strStartingTime)) {
+            Matcher matcher = EVENT_START_TIME_PATTERN.matcher(strStartingTime);
             if (matcher.matches()) {
                 int hours = Integer.parseInt(matcher.group(1).trim());
                 int minutes = Integer.parseInt(matcher.group(2).trim());
                 String am_pm = matcher.group(3);
-                boolean morning = am_pm.equals("A") || (hours == 12);
+                boolean morning = am_pm.startsWith("A") || (hours == 12);
                 startTime = morning ? hours : (hours + 12);
                 startTime += (minutes == 0) ? 0.0 : 0.5;
             }
@@ -2364,10 +2584,55 @@ public class ImportTournamentService {
     }
 
     /**
-     *
+     * Special import method which extracts but doesn't convert to
      * @param blankEntryFormPdfURI
      * @param importProgressInfo
+     * @return
      */
+    public TournamentAndEventsDTO importTournamentConfiguration(String blankEntryFormPdfURI,
+                                                                ImportProgressInfo importProgressInfo) {
+
+        try {
+            if (blankEntryFormPdfURI.endsWith(".pdf")) {
+                importProgressInfo.phaseName = "Downloading blank entry form PDF";
+                importProgressInfo.phaseCompleted = 0;
+                String blankEntryFormPDFFileLocalPath = getBlankEntryFormPDFFileLocalPath(blankEntryFormPdfURI);
+                importProgressInfo.overallCompleted = 20;
+
+                File pdfFile = new File(blankEntryFormPDFFileLocalPath);
+                String JSONString = this.blankEntryFormParserService.parseTournamentPdf(pdfFile, importProgressInfo);
+                importProgressInfo.overallCompleted = 70;
+
+                importProgressInfo.phaseName = "Creating tournament and event definition";
+                importProgressInfo.phaseCompleted = 0;
+                TournamentAndEventsDTO tournamentAndEventsDTO = blankEntryFormParserService.convertToCombinedObject(JSONString);
+                importProgressInfo.overallCompleted = 75;
+                return tournamentAndEventsDTO;
+            } else if (blankEntryFormPdfURI.endsWith(".json")) {
+                // for testing only to save on using AI, use expected json
+                File jsonFile = new ClassPathResource(blankEntryFormPdfURI).getFile();
+                if (jsonFile.exists() && jsonFile.length() > 0) {
+                    String jsonString = Files.readString(Paths.get(jsonFile.getAbsolutePath()));
+                    jsonString = jsonString.replaceAll("\r\n", "\n");
+                    if (jsonString.endsWith("\n")) {
+                        jsonString = jsonString.substring(0, jsonString.length() - 1);
+                    }
+                    TournamentAndEventsDTO tournamentAndEventsDTO = blankEntryFormParserService.convertToCombinedObject(jsonString);
+                    importProgressInfo.overallCompleted = 75;
+                    return tournamentAndEventsDTO;
+                }
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return null;
+    }
+
+        /**
+         *
+         * @param blankEntryFormPdfURI
+         * @param importProgressInfo
+         */
     public void importTournamentConfigurationFromPDF(String blankEntryFormPdfURI,
                                                      ImportProgressInfo importProgressInfo) {
 
@@ -2435,7 +2700,7 @@ public class ImportTournamentService {
     private int calculateTotalPrizeMoney(List<TournamentEvent> tournamentEvents) {
         int totalPrizeMoney = 0;
         for (TournamentEvent tournamentEvent : tournamentEvents) {
-            List<PrizeInfo> prizeInfoList = tournamentEvent.getConfiguration().getPrizeInfoList();
+            List<PrizeInfo> prizeInfoList = (tournamentEvent.getConfiguration() != null) ? tournamentEvent.getConfiguration().getPrizeInfoList() : null;
             if (prizeInfoList != null && !prizeInfoList.isEmpty()) {
                 int eventTotalPrizeMoney = 0;
                 for (PrizeInfo prizeInfo : prizeInfoList) {
@@ -2668,8 +2933,8 @@ public class ImportTournamentService {
             tournament.setZipCode(zip);
         }
 
-        String naviagableBlankEntryFormUrl = getNavigableBlankEntryFormUrl(blankEntryFormPdfURI);
-        configuration.setBlankEntryUrl(naviagableBlankEntryFormUrl);
+        String navigableBlankEntryFormUrl = getNavigableBlankEntryFormUrl(blankEntryFormPdfURI);
+        configuration.setBlankEntryUrl(navigableBlankEntryFormUrl);
 
         // contact information
         List<DirectorDTO> directors = tournamentAndEventsDTO.getDirectors();
@@ -2785,32 +3050,55 @@ public class ImportTournamentService {
             if (blankEntryFormURI.startsWith("C:\\")) {
                 // used during testing
                 return blankEntryFormURI;
-            } else if (blankEntryFormURI.contains("omnipong")) {
+            } else if (blankEntryFormURI.startsWith(BASE_OMNIPONG_URL)) {
                 // download the file from omnipong locally
-                // TODO - get download dworking
-                String localPath = null;
-                return localPath;
+                // Use a try-with-resources statement to ensure the stream is closed automatically
+                URL pdfUrl = new URL(blankEntryFormURI);
+                try (InputStream inputStream = pdfUrl.openStream()) {
+
+                    IFileRepository fileRepository = fileRepositoryFactory.getFileRepository();
+                    String originalFilename = getPdfFilename(blankEntryFormURI);
+                    String storagePath = getStoragePath(originalFilename);
+                    String repositoryDownloadUrl = fileRepository.save(inputStream, originalFilename, storagePath);
+                    String repositoryUrl = extractPathFromUrl(repositoryDownloadUrl);
+                    return copyRepositoryFileLocally(repositoryUrl);
+                } catch (IOException e) {
+                    // Handle exceptions like network errors, file access issues, etc.
+                    log.error("An error occurred during PDF download or file copy.", e);
+                    throw e; // Re-throw or handle as appropriate for your application
+                }
             } else {
-                // get the file from our repository
-                IFileRepository fileRepository = this.fileRepositoryFactory.getFileRepository();
-                FileInfo fileInfo = fileRepository.read(blankEntryFormURI);
-
-                // copy the file locally, because Slurper can't read from input stream - it may be remote in cloud storage
-                String tempDir = System.getenv("TEMP");
-                tempDir = (StringUtils.isEmpty(tempDir)) ? System.getenv("TMP") : tempDir;
-                tempDir += File.separator + "blankentryform";
-                File tempDirFile = new File(tempDir);
-                tempDirFile.mkdirs();
-
-                File outputFile = new File(tempDir, fileInfo.getFilename());
-                outputFile.createNewFile();
-                FileOutputStream fileOutputStream = new FileOutputStream(outputFile);
-                FileCopyUtils.copy(fileInfo.getFileInputStream(), fileOutputStream);
-
-                return outputFile.getCanonicalPath();
+                return copyRepositoryFileLocally(blankEntryFormURI);
             }
         }
         return null;
+    }
+
+    /**
+     * Copies the file locally so it can be read by server code.  The file might be in remote drive shared by multiple instances
+     * @param blankEntryFormURI
+     * @return
+     * @throws FileRepositoryException
+     * @throws IOException
+     */
+    private @NotNull String copyRepositoryFileLocally(String blankEntryFormURI) throws FileRepositoryException, IOException {
+        // get the file from our repository
+        IFileRepository fileRepository = this.fileRepositoryFactory.getFileRepository();
+        FileInfo fileInfo = fileRepository.read(blankEntryFormURI);
+
+        // copy the file locally, because Slurper can't read from input stream - it may be remote in cloud storage
+        String tempDir = System.getenv("TEMP");
+        tempDir = (StringUtils.isEmpty(tempDir)) ? System.getenv("TMP") : tempDir;
+        tempDir += File.separator + "blankentryform";
+        File tempDirFile = new File(tempDir);
+        tempDirFile.mkdirs();
+
+        File outputFile = new File(tempDir, fileInfo.getFilename());
+        outputFile.createNewFile();
+        FileOutputStream fileOutputStream = new FileOutputStream(outputFile);
+        FileCopyUtils.copy(fileInfo.getFileInputStream(), fileOutputStream);
+
+        return outputFile.getCanonicalPath();
     }
 
     /**
@@ -2819,12 +3107,45 @@ public class ImportTournamentService {
      * @return
      */
     private String getNavigableBlankEntryFormUrl(String blankEntryFormURI) {
-        if (blankEntryFormURI.contains("tournament/blankentryform")) {
+        if (blankEntryFormURI.contains(BLANK_ENTRY_FORM_FOLDER)) {
             // it is in our repository so
             // api/filerepository/viewpdf?path=/tournament/blankentryform/1112-51AtlantaGiantRR.pdf
             return clientHostUrl + "/" + IFileRepository.REPOSITORY_URL_ROOT + "/viewpdf?path=" + blankEntryFormURI;
         } else {
             return blankEntryFormURI;
         }
+    }
+
+    /**
+     *
+     * @param pdfFilename
+     * @return
+     */
+    private String getStoragePath(String pdfFilename) {
+        return BLANK_ENTRY_FORM_FOLDER;
+    }
+
+    /**
+     *
+     * @param repositoryDownloadUrl
+     * @return
+     */
+    private String extractPathFromUrl(String repositoryDownloadUrl) {
+        final String PATH_PARAM = "?path=";
+        int pathStart = repositoryDownloadUrl.indexOf(PATH_PARAM);
+        if (pathStart != -1) {
+            return repositoryDownloadUrl.substring(pathStart + PATH_PARAM.length());
+        } else {
+            return repositoryDownloadUrl;
+        }
+    }
+
+    /**
+     * extract just the filename from the url
+     * @param blankEntryFormURI
+     * @return
+     */
+    private String getPdfFilename (String blankEntryFormURI) {
+        return blankEntryFormURI.substring(blankEntryFormURI.lastIndexOf("/") + 1);
     }
 }
