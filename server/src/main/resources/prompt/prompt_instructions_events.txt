@@ -113,6 +113,7 @@ Examples:
   “U 2500” → "2499"
   “Under 1600” → "1599"
   “U1500 RR” → “1499”
+  "no players over 2500" → "2500"
 
 If the word “Open” appears:
   max_rating = ""
@@ -198,8 +199,17 @@ If not present then 0
 ------------------------------------------------------------------------------------------
 If not specified → "players_to_advance" : 1
 
-Example:
+Examples:
+ "No advancing" → "players_to_advance" : 0
  "Initial group stage (Up to four players), where top two (2) place finishers will advance to a single elimination tournament." → "players_to_advance" : 2
+
+-----------------------------------------------------------------------------------------
+### TABLES PER GROUP
+-----------------------------------------------------------------------------------------
+If not specified → "tables_per_group" : 1
+
+Examples:
+  "Two tables per group." -> "tables_per_group" : 2
 
 -----------------------------------------------------------------------------------------
 ### NUMBER OF GAMES
@@ -218,16 +228,14 @@ All matches will utilize the 11-Point Rule and will be played as a best of five 
 → "number_of_games": "5", "number_of_games_se_playoffs": "5", "number_of_games_se_quarter_finals": "5", "number_of_games_se_semi_finals": "7", "number_of_games_se_finals": "7"
 
 ------------------------------------------
-### DRAW METHOD
+### DRAW METHOD RULES
 ------------------------------------------
-If event is single elimination
-→ draw_method = "SINGLE_ELIMINATION"
-
-If tournament name has "Round Robin" in it and there is only one event
-→ draw_method = "DIVISION"
-
-if not specified
-→ draw_method = "SNAKE"
+1. **If the event is single elimination:**
+   → draw_method = 'SINGLE_ELIMINATION'
+2. **If the tournament name contains 'Round Robin' AND there is only one event in the entire tournament:**
+   → draw_method = 'DIVISION'
+3. **If not specified by the above rules:**
+   → draw_method = 'SNAKE'
 
 ------------------------------------------------------------------------------------------
 PRIZES — STRUCTURED EXTRACTION RULES

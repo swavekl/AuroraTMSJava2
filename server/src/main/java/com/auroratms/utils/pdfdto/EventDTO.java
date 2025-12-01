@@ -26,6 +26,7 @@ import java.util.List;
         "age_restriction",
         "players_per_group",
         "draw_method",
+        "tables_per_group",
         "number_of_games",
         "number_of_games_se_playoffs",
         "number_of_games_se_quarter_finals",
@@ -77,6 +78,9 @@ public class EventDTO {
 
     @JsonProperty("draw_method")
     private String drawMethod;
+
+    @JsonProperty("tables_per_group")
+    private int numTablesPerGroup = 1;
 
     // best of 3, 5, 7 or 9 games per match in the main round (i.e. round robin)
     @JsonProperty("number_of_games")

@@ -94,15 +94,20 @@ public class BlankEntryFormParserService {
 
         importProgressInfo.phaseName = "Analyzing tournament information";
         importProgressInfo.phaseCompleted = 0;
-        String tournamentsJsonResponse = parseText(tournamentPromptFile, tournamentSchemaFile, pdfText, "gpt-4o",
-                new BeanOutputConverter<>(TournamentDTO.class));
+        String tournamentsJsonResponse = parseText(tournamentPromptFile, pdfText, "gpt-4o",
+                new BeanOutputConverter<>(TournamentDTO.class), "");
         importProgressInfo.phaseCompleted = 100;
         importProgressInfo.overallCompleted = 50;
 
         importProgressInfo.phaseName = "Analyzing events information";
         importProgressInfo.phaseCompleted = 0;
-        String eventsJsonResponse = parseText(eventsPromptFile, eventsSchemaFile, pdfText, "gpt-4.1",
-                new BeanOutputConverter<>(EventListDTO.class));
+        // extract tournament name and pass it to event parser
+        JSONObject tournamentJson = new JSONObject(tournamentsJsonResponse);
+        String tournamentName = tournamentJson.optString("tournament_name");
+        String tournamentContext = String.format("**TOURNAMENT CONTEXT**\nTournament Name: '%s'\n\n", tournamentName);
+
+        String eventsJsonResponse = parseText(eventsPromptFile, pdfText, "gpt-4.1",
+                new BeanOutputConverter<>(EventListDTO.class), tournamentContext);
 
         // remove the last \n}
         String combinedResult = tournamentsJsonResponse.substring(0, tournamentsJsonResponse.length() - 2);
@@ -116,17 +121,17 @@ public class BlankEntryFormParserService {
 
     /**
      *
-     * @param promptFile prompt file to use for the chat model
-     * @param schemaFile JSON schema file to use for validation
-     * @param pdfText    text to be parsed by the chat model
+     * @param promptFile     prompt file to use for the chat model
+     * @param pdfText        text to be parsed by the chat model
+     * @param tournamentContext tournament information extracted from first pass
      * @return extracted JSON
      * @throws Exception
      */
     private String parseText(Resource promptFile,
-                             Resource schemaFile,
                              String pdfText,
                              String modelName,
-                             BeanOutputConverter<?> beanOutputConverter) throws Exception {
+                             BeanOutputConverter<?> beanOutputConverter,
+                             String tournamentContext) throws Exception {
         // Prepare prompt
         String promptTemplateText = null;
         try {
@@ -136,6 +141,8 @@ public class BlankEntryFormParserService {
             String output_format = getDraft7JsonSchema(beanOutputConverter.getFormat());
 //            System.out.println("jsonSchemaMap = " + jsonSchemaMap);
             promptTemplateText = promptTemplateText.replace("<output_format>", output_format);
+            // add context
+            promptTemplateText = tournamentContext + promptTemplateText;
 //            System.out.println("promptTemplateText\n" + promptTemplateText);
 //            System.out.println("promptTemplateText.length = " + promptTemplateText.length());
         } catch (IOException e) {
