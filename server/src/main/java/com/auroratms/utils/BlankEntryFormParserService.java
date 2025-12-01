@@ -249,6 +249,7 @@ public class BlankEntryFormParserService {
      */
     private String removeSafeSportsText(String pageText) {
         String [] boilerplateTextArray = {
+                "USATT SAFE SPORT PROTOCOL",
                 "I understand USATT’s Safe Sport Policy",
                 "Sport Policy",
                 "Minor Athlete Abuse Prevention Policy"

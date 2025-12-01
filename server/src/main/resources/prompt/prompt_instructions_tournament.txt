@@ -83,6 +83,11 @@ Match:
   “Entry cutoff date: 09/25/24”
   "Registration Deadline and Rating Cutoff: Friday, November 14, 2025"
   "Deadline to enter: 9:30am on Nov. 8"
+
+If text says:
+  "Entries are 'on time' through the Thursday before the event at 5pm."
+then estimate entry deadline date = **Thursday before the first tournament day**.
+
 Normalize.
 
 -------------------------------------------------------------------------------

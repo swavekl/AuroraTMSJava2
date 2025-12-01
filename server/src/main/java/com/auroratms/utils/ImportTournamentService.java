@@ -67,7 +67,7 @@ public class ImportTournamentService {
 
     public static final String BASE_OMNIPONG_URL = "https://www.omnipong.com/";
 
-    private final static String BLANK_ENTRY_FORM_FOLDER = "/tournament/blankentryform/";
+    private final static String BLANK_ENTRY_FORM_FOLDER = "tournament/blankentryform/";
 
     private static final Logger log = LoggerFactory.getLogger(ImportTournamentService.class);
 
@@ -1886,7 +1886,7 @@ public class ImportTournamentService {
     }
 
     /**
-     *
+     * Extracts maximum number of entries per event and number already taken, event date and starting time.
      * @param playerListByEventHTML
      * @param eventNamesAndCodes
      * @param importProgressInfo
@@ -1908,6 +1908,7 @@ public class ImportTournamentService {
             Element firstTDElement = outerTableWithControls.first();
             if (firstTDElement != null) {
                 Elements eventEntriesTables = firstTDElement.select("table.omnipong");
+                int ordinalNumber = 1;
                 for (Element eventEntriesTable : eventEntriesTables) {
                     Elements rowsWithHeaders = eventEntriesTable.select("tr:has(th):not(:has(td))");
                     String lastEventName = null;
@@ -1916,7 +1917,6 @@ public class ImportTournamentService {
                         if (!headerElements.isEmpty()) {
                             Element firstHeaderElement = headerElements.first();
                             String eventHeaderFooterText = firstHeaderElement.text().trim();
-//                            System.out.println("eventHeaderFooterText = '" + eventHeaderFooterText + "'");
 
                             Matcher headerMatcher = headerPattern.matcher(eventHeaderFooterText);
                             if (headerMatcher.matches()) {
@@ -1929,6 +1929,8 @@ public class ImportTournamentService {
                                     eventInfoMap.put("maxSlots", maxSlots);
                                     eventInfoMap.put("eventDate", eventDate);
                                     eventInfoMap.put("eventStartingTime", eventStartingTime);
+                                    eventInfoMap.put("ordinalNumber", Integer.toString(ordinalNumber));
+                                    ordinalNumber++;
                                 }
                                 lastEventName = eventName;
                             }
@@ -1942,6 +1944,8 @@ public class ImportTournamentService {
                                 if (eventInfoMap != null) {
                                     eventInfoMap.put("eventDate", eventDate);
                                     eventInfoMap.put("eventStartingTime", eventStartingTime);
+                                    eventInfoMap.put("ordinalNumber", Integer.toString(ordinalNumber));
+                                    ordinalNumber++;
                                 }
                                 lastEventName = eventName;
                             }
@@ -1949,23 +1953,11 @@ public class ImportTournamentService {
                             Matcher footerMatcher = footerPattern.matcher(eventHeaderFooterText);
                             if (footerMatcher.matches()) {
                                 String totalEntries = footerMatcher.group(1);
-                                String remainingSlots = footerMatcher.group(2);
                                 if (lastEventName != null) {
                                     Map<String, String> eventInfoMap = eventNamesAndCodes.get(lastEventName);
                                     if (eventInfoMap != null) {
                                         eventInfoMap.put("totalEntries", totalEntries);
                                     }
-
-//                                    String maxSlots = eventInfoMap.get("maxSlots");
-//                                    if (maxSlots == null) {
-//                                        if (StringUtils.isNotEmpty(remainingSlots) && StringUtils.isNotEmpty(totalEntries)) {
-//                                            int iTotalEntries = Integer.parseInt(totalEntries);
-//                                            int iRemaintingEntries = Integer.parseInt(remainingSlots);
-//                                            int iMaxSlots = iTotalEntries + iRemaintingEntries;
-//                                            maxSlots = Integer.toString(iMaxSlots);
-//                                            eventInfoMap.put("maxSlots", maxSlots);
-//                                        }
-//                                    }
                                 }
                             }
                         }
@@ -1982,6 +1974,8 @@ public class ImportTournamentService {
      * @return
      */
     public Collection<TournamentEvent> createUpdateEvents(Tournament tournament, Map<String, Map<String, String>> eventNamesAndCodes) {
+        // get current event definitions in case they already have them configured
+        // find new events which were added since last import
         Collection<TournamentEvent> tournamentEvents = tournamentEventEntityService.list(tournament.getId(), Pageable.unpaged());
         Set<String> updatedEventNames = eventNamesAndCodes.keySet();
         Set<String> addedEventNames = new HashSet<>();
@@ -2003,7 +1997,7 @@ public class ImportTournamentService {
         // Scheduled for: 10/04/2025 @ 9:00A
         DateFormat eventStartDateFormat = new SimpleDateFormat("MM/dd/yyyy");
 
-        // order them
+        // find maximum ordinalNumber so we can set newly added ones to the next available number
         int maxEventOrderNum = 0;
         for (TournamentEvent tournamentEvent : tournamentEvents) {
             maxEventOrderNum = Math.max(maxEventOrderNum, tournamentEvent.getOrdinalNumber());
@@ -2014,9 +2008,11 @@ public class ImportTournamentService {
             updatedTournamentEvents.add(tournamentEvent);
 
             Map<String, String> eventProperties = eventNamesAndCodes.get(eventName);
+            String strOrdinalNumber = eventProperties.get("ordinalNumber");
+            int ordinalNumber = StringUtils.isNotEmpty(strOrdinalNumber) ? Integer.parseInt(strOrdinalNumber) : ++maxEventOrderNum;
             tournamentEvent.setTournamentFk(tournament.getId());
             tournamentEvent.setName(eventName);
-            tournamentEvent.setOrdinalNumber(++maxEventOrderNum);
+            tournamentEvent.setOrdinalNumber(ordinalNumber);
             tournamentEvent.setDrawMethod(DrawMethod.SNAKE);
             tournamentEvent.setPlayersPerGroup(4);
             tournamentEvent.setDoubles(isDoubles(eventName));
@@ -2025,6 +2021,7 @@ public class ImportTournamentService {
             tournamentEvent.setFeeJunior(30);
             tournamentEvent.setNumberOfGames(5);
             tournamentEvent.setPlay3rd4thPlace(false);
+            tournamentEvent.setPlayersToAdvance(1);
 
             int day = getEventDay(eventProperties, eventStartDateFormat, tournamentStartLocalDate);
             tournamentEvent.setDay(day);
@@ -2899,6 +2896,12 @@ public class ImportTournamentService {
             eligibilityDate = calendar.getTime();
         }
         Date entryCutoffDate = convertDate(tournamentAndEventsDTO.getEntryDeadlineDate());
+        if (entryCutoffDate == null) {
+            Calendar calendar = new GregorianCalendar();
+            calendar.setTime(startDate);
+            calendar.add(Calendar.DAY_OF_MONTH, -3);
+            eligibilityDate = calendar.getTime();
+        }
         Date fullRefundDate = convertDate(tournamentAndEventsDTO.getRefundDeadlineDate());
         Date lateEntryDate = convertDate(tournamentAndEventsDTO.getLateEntryDate());
         if (fullRefundDate == null) {

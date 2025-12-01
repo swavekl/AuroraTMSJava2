@@ -1,4 +1,4 @@
-<div mat-dialog-title>Import Tournament from PDF</div>
+<div mat-dialog-title>Import Tournament from Blank Entry Form PDF</div>
 <mat-dialog-content>
   <form name="form" #f="ngForm">
     <mat-horizontal-stepper linear>
@@ -11,7 +11,7 @@
           [storagePath]="getPDFStoragePath()">
         </app-upload-file-component>
         <div fxLayout="row" fxLayoutAlign="end">
-          <button mat-raised-button color="primary" matStepperNext type="button">Next</button>
+          <button mat-raised-button color="primary" matStepperNext type="button" [disabled]="isNextDisabled()">Next</button>
         </div>
       </mat-step>
       <mat-step label="Import">

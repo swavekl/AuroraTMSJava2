@@ -33,7 +33,6 @@ export class ImportBlankEntryFormDialogComponent implements OnDestroy {
   }
 
   protected onBlankEntryFormUploadFinished(downloadUrl: string) {
-    console.log('downloadUrl', downloadUrl);
     this.blankEntryFormPDFURL = downloadUrl.substring(downloadUrl.indexOf('path=') + 'path='.length);
   }
 
@@ -147,5 +146,9 @@ export class ImportBlankEntryFormDialogComponent implements OnDestroy {
     return this.importStarted
       || this.importProgressInfo.status == 'COMPLETED'
       || this.importProgressInfo.status == 'FAILED';
+  }
+
+  protected isNextDisabled() {
+    return !(this.blankEntryFormPDFURL != null && this.blankEntryFormPDFURL.endsWith(".pdf"));
   }
 }
