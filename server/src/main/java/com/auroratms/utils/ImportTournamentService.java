@@ -1648,9 +1648,9 @@ public class ImportTournamentService {
             }
 
             if (eventDTO != null) {
-                log.info("Found eventDTO named '" + eventDTO.getEventName() + "' for tournamentEvent '" + tournamentEvent.getName() + "'");
+                log.info("Found eventDTO named '" + eventDTO.getEventName() + "' for tournamentEvent '" + eventName + "'");
             } else {
-                log.info("Didn't find eventDTO for event named '" + eventDTO.getEventName() + "'");
+                log.info("Didn't find eventDTO for event named '" + eventName + "'");
             }
             return eventDTO;
         }
