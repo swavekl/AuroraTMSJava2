@@ -1,5 +1,5 @@
 {
-  "tournament_name": "USATT Florida State Open Carmel Barrau International Open",
+  "tournament_name": "Carmel Barrau International Open",
   "star_rating": "4",
   "start_date": "12/12/2025",
   "end_date": "12/14/2025",
@@ -49,19 +49,33 @@
   },
   "events": [
     {
+      "ordinal_number": 1,
       "event_name": "OPEN",
-      "day": "2",
+      "day": 2,
       "start_time": "11:30 AM",
       "entry_fee": "70",
       "is_doubles": false,
+      "max_entries": 0,
       "single_elimination": false,
       "max_rating": "",
-      "gender_restriction": "none",
+      "gender_restriction": "",
       "age_restriction": {
-        "type": "none",
-        "age": ""
+        "type": "NONE",
+        "age": "",
+        "restriction_date": ""
       },
-      "players_per_group": "4",
+      "players_per_group": 4,
+      "draw_method": "SNAKE",
+      "tables_per_group": 1,
+      "number_of_games": 5,
+      "number_of_games_se_playoffs": 5,
+      "number_of_games_se_quarter_finals": 5,
+      "number_of_games_se_semi_finals": 7,
+      "number_of_games_se_finals": 7,
+      "play_3rd_4th_place": true,
+      "players_to_advance": 1,
+      "advance_unrated_player": true,
+      "players_to_seed": 0,
       "prizes": [
         {
           "division": "",
@@ -87,19 +101,33 @@
       ]
     },
     {
+      "ordinal_number": 2,
       "event_name": "WOMEN’S SINGLES",
-      "day": "1",
+      "day": 1,
       "start_time": "2:00 PM",
       "entry_fee": "45",
       "is_doubles": false,
+      "max_entries": 0,
       "single_elimination": false,
       "max_rating": "",
-      "gender_restriction": "female",
+      "gender_restriction": "FEMALE",
       "age_restriction": {
-        "type": "none",
-        "age": ""
+        "type": "NONE",
+        "age": "",
+        "restriction_date": ""
       },
-      "players_per_group": "4",
+      "players_per_group": 4,
+      "draw_method": "SNAKE",
+      "tables_per_group": 1,
+      "number_of_games": 5,
+      "number_of_games_se_playoffs": 5,
+      "number_of_games_se_quarter_finals": 5,
+      "number_of_games_se_semi_finals": 5,
+      "number_of_games_se_finals": 5,
+      "play_3rd_4th_place": true,
+      "players_to_advance": 1,
+      "advance_unrated_player": true,
+      "players_to_seed": 0,
       "prizes": [
         {
           "division": "",
@@ -132,19 +160,33 @@
       ]
     },
     {
+      "ordinal_number": 3,
       "event_name": "U19 BOYS SINGLES",
-      "day": "1",
+      "day": 1,
       "start_time": "3:00 PM",
       "entry_fee": "35",
       "is_doubles": false,
+      "max_entries": 0,
       "single_elimination": false,
       "max_rating": "",
-      "gender_restriction": "male",
+      "gender_restriction": "MALE",
       "age_restriction": {
-        "type": "maximum",
-        "age": "19"
+        "type": "BORN_ON_OR_AFTER_DATE",
+        "age": "19",
+        "restriction_date": "01/01/2006"
       },
-      "players_per_group": "4",
+      "players_per_group": 4,
+      "draw_method": "SNAKE",
+      "tables_per_group": 1,
+      "number_of_games": 5,
+      "number_of_games_se_playoffs": 5,
+      "number_of_games_se_quarter_finals": 5,
+      "number_of_games_se_semi_finals": 5,
+      "number_of_games_se_finals": 5,
+      "play_3rd_4th_place": true,
+      "players_to_advance": 1,
+      "advance_unrated_player": true,
+      "players_to_seed": 0,
       "prizes": [
         {
           "division": "",
@@ -177,19 +219,33 @@
       ]
     },
     {
+      "ordinal_number": 4,
       "event_name": "U19 GIRLS SINGLES",
-      "day": "1",
+      "day": 1,
       "start_time": "3:00 PM",
       "entry_fee": "35",
       "is_doubles": false,
+      "max_entries": 0,
       "single_elimination": false,
       "max_rating": "",
-      "gender_restriction": "female",
+      "gender_restriction": "FEMALE",
       "age_restriction": {
-        "type": "maximum",
-        "age": "19"
+        "type": "BORN_ON_OR_AFTER_DATE",
+        "age": "19",
+        "restriction_date": "01/01/2006"
       },
-      "players_per_group": "4",
+      "players_per_group": 4,
+      "draw_method": "SNAKE",
+      "tables_per_group": 1,
+      "number_of_games": 5,
+      "number_of_games_se_playoffs": 5,
+      "number_of_games_se_quarter_finals": 5,
+      "number_of_games_se_semi_finals": 5,
+      "number_of_games_se_finals": 5,
+      "play_3rd_4th_place": true,
+      "players_to_advance": 1,
+      "advance_unrated_player": true,
+      "players_to_seed": 0,
       "prizes": [
         {
           "division": "",
@@ -222,19 +278,33 @@
       ]
     },
     {
+      "ordinal_number": 5,
       "event_name": "U17 BOYS SINGLES",
-      "day": "1",
+      "day": 1,
       "start_time": "10:00 AM",
       "entry_fee": "30",
       "is_doubles": false,
+      "max_entries": 0,
       "single_elimination": false,
       "max_rating": "",
-      "gender_restriction": "male",
+      "gender_restriction": "MALE",
       "age_restriction": {
-        "type": "maximum",
-        "age": "17"
+        "type": "BORN_ON_OR_AFTER_DATE",
+        "age": "17",
+        "restriction_date": "01/01/2008"
       },
-      "players_per_group": "4",
+      "players_per_group": 4,
+      "draw_method": "SNAKE",
+      "tables_per_group": 1,
+      "number_of_games": 5,
+      "number_of_games_se_playoffs": 5,
+      "number_of_games_se_quarter_finals": 5,
+      "number_of_games_se_semi_finals": 5,
+      "number_of_games_se_finals": 5,
+      "play_3rd_4th_place": true,
+      "players_to_advance": 1,
+      "advance_unrated_player": true,
+      "players_to_seed": 0,
       "prizes": [
         {
           "division": "",
@@ -267,19 +337,33 @@
       ]
     },
     {
+      "ordinal_number": 6,
       "event_name": "U17 GIRLS SINGLES",
-      "day": "1",
+      "day": 1,
       "start_time": "10:00 AM",
       "entry_fee": "30",
       "is_doubles": false,
+      "max_entries": 0,
       "single_elimination": false,
       "max_rating": "",
-      "gender_restriction": "female",
+      "gender_restriction": "FEMALE",
       "age_restriction": {
-        "type": "maximum",
-        "age": "17"
+        "type": "BORN_ON_OR_AFTER_DATE",
+        "age": "17",
+        "restriction_date": "01/01/2008"
       },
-      "players_per_group": "4",
+      "players_per_group": 4,
+      "draw_method": "SNAKE",
+      "tables_per_group": 1,
+      "number_of_games": 5,
+      "number_of_games_se_playoffs": 5,
+      "number_of_games_se_quarter_finals": 5,
+      "number_of_games_se_semi_finals": 5,
+      "number_of_games_se_finals": 5,
+      "play_3rd_4th_place": true,
+      "players_to_advance": 1,
+      "advance_unrated_player": true,
+      "players_to_seed": 0,
       "prizes": [
         {
           "division": "",
@@ -312,19 +396,33 @@
       ]
     },
     {
+      "ordinal_number": 7,
       "event_name": "U15 BOYS SINGLES",
-      "day": "1",
+      "day": 1,
       "start_time": "12:00 PM",
       "entry_fee": "30",
       "is_doubles": false,
+      "max_entries": 0,
       "single_elimination": false,
       "max_rating": "",
-      "gender_restriction": "male",
+      "gender_restriction": "MALE",
       "age_restriction": {
-        "type": "maximum",
-        "age": "15"
+        "type": "BORN_ON_OR_AFTER_DATE",
+        "age": "15",
+        "restriction_date": "01/01/2010"
       },
-      "players_per_group": "4",
+      "players_per_group": 4,
+      "draw_method": "SNAKE",
+      "tables_per_group": 1,
+      "number_of_games": 5,
+      "number_of_games_se_playoffs": 5,
+      "number_of_games_se_quarter_finals": 5,
+      "number_of_games_se_semi_finals": 5,
+      "number_of_games_se_finals": 5,
+      "play_3rd_4th_place": true,
+      "players_to_advance": 1,
+      "advance_unrated_player": true,
+      "players_to_seed": 0,
       "prizes": [
         {
           "division": "",
@@ -357,19 +455,33 @@
       ]
     },
     {
+      "ordinal_number": 8,
       "event_name": "U15 GIRLS SINGLES",
-      "day": "1",
+      "day": 1,
       "start_time": "12:00 PM",
       "entry_fee": "30",
       "is_doubles": false,
+      "max_entries": 0,
       "single_elimination": false,
       "max_rating": "",
-      "gender_restriction": "female",
+      "gender_restriction": "FEMALE",
       "age_restriction": {
-        "type": "maximum",
-        "age": "15"
+        "type": "BORN_ON_OR_AFTER_DATE",
+        "age": "15",
+        "restriction_date": "01/01/2010"
       },
-      "players_per_group": "4",
+      "players_per_group": 4,
+      "draw_method": "SNAKE",
+      "tables_per_group": 1,
+      "number_of_games": 5,
+      "number_of_games_se_playoffs": 5,
+      "number_of_games_se_quarter_finals": 5,
+      "number_of_games_se_semi_finals": 5,
+      "number_of_games_se_finals": 5,
+      "play_3rd_4th_place": true,
+      "players_to_advance": 1,
+      "advance_unrated_player": true,
+      "players_to_seed": 0,
       "prizes": [
         {
           "division": "",
@@ -402,19 +514,33 @@
       ]
     },
     {
+      "ordinal_number": 9,
       "event_name": "U13 BOYS SINGLES",
-      "day": "1",
+      "day": 1,
       "start_time": "3:00 PM",
       "entry_fee": "30",
       "is_doubles": false,
+      "max_entries": 0,
       "single_elimination": false,
       "max_rating": "",
-      "gender_restriction": "male",
+      "gender_restriction": "MALE",
       "age_restriction": {
-        "type": "maximum",
-        "age": "13"
+        "type": "BORN_ON_OR_AFTER_DATE",
+        "age": "13",
+        "restriction_date": "01/01/2012"
       },
-      "players_per_group": "4",
+      "players_per_group": 4,
+      "draw_method": "SNAKE",
+      "tables_per_group": 1,
+      "number_of_games": 5,
+      "number_of_games_se_playoffs": 5,
+      "number_of_games_se_quarter_finals": 5,
+      "number_of_games_se_semi_finals": 5,
+      "number_of_games_se_finals": 5,
+      "play_3rd_4th_place": true,
+      "players_to_advance": 1,
+      "advance_unrated_player": true,
+      "players_to_seed": 0,
       "prizes": [
         {
           "division": "",
@@ -447,19 +573,33 @@
       ]
     },
     {
+      "ordinal_number": 10,
       "event_name": "U13 GIRLS SINGLES",
-      "day": "1",
+      "day": 1,
       "start_time": "3:00 PM",
       "entry_fee": "30",
       "is_doubles": false,
+      "max_entries": 0,
       "single_elimination": false,
       "max_rating": "",
-      "gender_restriction": "female",
+      "gender_restriction": "FEMALE",
       "age_restriction": {
-        "type": "maximum",
-        "age": "13"
+        "type": "BORN_ON_OR_AFTER_DATE",
+        "age": "13",
+        "restriction_date": "01/01/2012"
       },
-      "players_per_group": "4",
+      "players_per_group": 4,
+      "draw_method": "SNAKE",
+      "tables_per_group": 1,
+      "number_of_games": 5,
+      "number_of_games_se_playoffs": 5,
+      "number_of_games_se_quarter_finals": 5,
+      "number_of_games_se_semi_finals": 5,
+      "number_of_games_se_finals": 5,
+      "play_3rd_4th_place": true,
+      "players_to_advance": 1,
+      "advance_unrated_player": true,
+      "players_to_seed": 0,
       "prizes": [
         {
           "division": "",
@@ -492,19 +632,33 @@
       ]
     },
     {
+      "ordinal_number": 11,
       "event_name": "U11 BOYS SINGLES",
-      "day": "1",
+      "day": 1,
       "start_time": "10:00 AM",
       "entry_fee": "30",
       "is_doubles": false,
+      "max_entries": 0,
       "single_elimination": false,
       "max_rating": "",
-      "gender_restriction": "male",
+      "gender_restriction": "MALE",
       "age_restriction": {
-        "type": "maximum",
-        "age": "11"
+        "type": "BORN_ON_OR_AFTER_DATE",
+        "age": "11",
+        "restriction_date": "01/01/2014"
       },
-      "players_per_group": "4",
+      "players_per_group": 4,
+      "draw_method": "SNAKE",
+      "tables_per_group": 1,
+      "number_of_games": 5,
+      "number_of_games_se_playoffs": 5,
+      "number_of_games_se_quarter_finals": 5,
+      "number_of_games_se_semi_finals": 5,
+      "number_of_games_se_finals": 5,
+      "play_3rd_4th_place": true,
+      "players_to_advance": 1,
+      "advance_unrated_player": true,
+      "players_to_seed": 0,
       "prizes": [
         {
           "division": "",
@@ -537,19 +691,33 @@
       ]
     },
     {
+      "ordinal_number": 12,
       "event_name": "U11 GIRLS SINGLES",
-      "day": "1",
+      "day": 1,
       "start_time": "10:00 AM",
       "entry_fee": "30",
       "is_doubles": false,
+      "max_entries": 0,
       "single_elimination": false,
       "max_rating": "",
-      "gender_restriction": "female",
+      "gender_restriction": "FEMALE",
       "age_restriction": {
-        "type": "maximum",
-        "age": "11"
+        "type": "BORN_ON_OR_AFTER_DATE",
+        "age": "11",
+        "restriction_date": "01/01/2014"
       },
-      "players_per_group": "4",
+      "players_per_group": 4,
+      "draw_method": "SNAKE",
+      "tables_per_group": 1,
+      "number_of_games": 5,
+      "number_of_games_se_playoffs": 5,
+      "number_of_games_se_quarter_finals": 5,
+      "number_of_games_se_semi_finals": 5,
+      "number_of_games_se_finals": 5,
+      "play_3rd_4th_place": true,
+      "players_to_advance": 1,
+      "advance_unrated_player": true,
+      "players_to_seed": 0,
       "prizes": [
         {
           "division": "",
@@ -582,19 +750,33 @@
       ]
     },
     {
+      "ordinal_number": 13,
       "event_name": "SENIOR 40 +",
-      "day": "3",
+      "day": 3,
       "start_time": "9:00 AM",
       "entry_fee": "35",
       "is_doubles": false,
+      "max_entries": 0,
       "single_elimination": false,
       "max_rating": "",
-      "gender_restriction": "none",
+      "gender_restriction": "",
       "age_restriction": {
-        "type": "minimum",
-        "age": "40"
+        "type": "AGE_OVER_AT_THE_END_OF_YEAR",
+        "age": "40",
+        "restriction_date": ""
       },
-      "players_per_group": "4",
+      "players_per_group": 4,
+      "draw_method": "SNAKE",
+      "tables_per_group": 1,
+      "number_of_games": 5,
+      "number_of_games_se_playoffs": 5,
+      "number_of_games_se_quarter_finals": 5,
+      "number_of_games_se_semi_finals": 5,
+      "number_of_games_se_finals": 5,
+      "play_3rd_4th_place": true,
+      "players_to_advance": 1,
+      "advance_unrated_player": true,
+      "players_to_seed": 0,
       "prizes": [
         {
           "division": "",
@@ -627,19 +809,33 @@
       ]
     },
     {
+      "ordinal_number": 14,
       "event_name": "SENIOR 60 +",
-      "day": "1",
+      "day": 1,
       "start_time": "10:00 AM",
       "entry_fee": "30",
       "is_doubles": false,
+      "max_entries": 0,
       "single_elimination": false,
       "max_rating": "",
-      "gender_restriction": "none",
+      "gender_restriction": "",
       "age_restriction": {
-        "type": "minimum",
-        "age": "60"
+        "type": "AGE_OVER_AT_THE_END_OF_YEAR",
+        "age": "60",
+        "restriction_date": ""
       },
-      "players_per_group": "4",
+      "players_per_group": 4,
+      "draw_method": "SNAKE",
+      "tables_per_group": 1,
+      "number_of_games": 5,
+      "number_of_games_se_playoffs": 5,
+      "number_of_games_se_quarter_finals": 5,
+      "number_of_games_se_semi_finals": 5,
+      "number_of_games_se_finals": 5,
+      "play_3rd_4th_place": true,
+      "players_to_advance": 1,
+      "advance_unrated_player": true,
+      "players_to_seed": 0,
       "prizes": [
         {
           "division": "",
@@ -672,19 +868,33 @@
       ]
     },
     {
+      "ordinal_number": 15,
       "event_name": "RATING UNDER 2550",
-      "day": "3",
+      "day": 3,
       "start_time": "11:30 AM",
       "entry_fee": "55",
       "is_doubles": false,
+      "max_entries": 0,
       "single_elimination": false,
       "max_rating": "2549",
-      "gender_restriction": "none",
+      "gender_restriction": "",
       "age_restriction": {
-        "type": "none",
-        "age": ""
+        "type": "NONE",
+        "age": "",
+        "restriction_date": ""
       },
-      "players_per_group": "4",
+      "players_per_group": 4,
+      "draw_method": "SNAKE",
+      "tables_per_group": 1,
+      "number_of_games": 5,
+      "number_of_games_se_playoffs": 5,
+      "number_of_games_se_quarter_finals": 5,
+      "number_of_games_se_semi_finals": 5,
+      "number_of_games_se_finals": 5,
+      "play_3rd_4th_place": true,
+      "players_to_advance": 1,
+      "advance_unrated_player": true,
+      "players_to_seed": 0,
       "prizes": [
         {
           "division": "",
@@ -710,19 +920,33 @@
       ]
     },
     {
+      "ordinal_number": 16,
       "event_name": "RATING UNDER 2350",
-      "day": "2",
+      "day": 2,
       "start_time": "2:00 PM",
       "entry_fee": "45",
       "is_doubles": false,
+      "max_entries": 0,
       "single_elimination": false,
       "max_rating": "2349",
-      "gender_restriction": "none",
+      "gender_restriction": "",
       "age_restriction": {
-        "type": "none",
-        "age": ""
+        "type": "NONE",
+        "age": "",
+        "restriction_date": ""
       },
-      "players_per_group": "4",
+      "players_per_group": 4,
+      "draw_method": "SNAKE",
+      "tables_per_group": 1,
+      "number_of_games": 5,
+      "number_of_games_se_playoffs": 5,
+      "number_of_games_se_quarter_finals": 5,
+      "number_of_games_se_semi_finals": 5,
+      "number_of_games_se_finals": 5,
+      "play_3rd_4th_place": true,
+      "players_to_advance": 1,
+      "advance_unrated_player": true,
+      "players_to_seed": 0,
       "prizes": [
         {
           "division": "",
@@ -755,19 +979,33 @@
       ]
     },
     {
+      "ordinal_number": 17,
       "event_name": "RATING UNDER 2250",
-      "day": "3",
+      "day": 3,
       "start_time": "9:00 AM",
       "entry_fee": "40",
       "is_doubles": false,
+      "max_entries": 0,
       "single_elimination": false,
       "max_rating": "2249",
-      "gender_restriction": "none",
+      "gender_restriction": "",
       "age_restriction": {
-        "type": "none",
-        "age": ""
+        "type": "NONE",
+        "age": "",
+        "restriction_date": ""
       },
-      "players_per_group": "4",
+      "players_per_group": 4,
+      "draw_method": "SNAKE",
+      "tables_per_group": 1,
+      "number_of_games": 5,
+      "number_of_games_se_playoffs": 5,
+      "number_of_games_se_quarter_finals": 5,
+      "number_of_games_se_semi_finals": 5,
+      "number_of_games_se_finals": 5,
+      "play_3rd_4th_place": true,
+      "players_to_advance": 1,
+      "advance_unrated_player": true,
+      "players_to_seed": 0,
       "prizes": [
         {
           "division": "",
@@ -800,19 +1038,33 @@
       ]
     },
     {
+      "ordinal_number": 18,
       "event_name": "RATING UNDER 2150",
-      "day": "2",
+      "day": 2,
       "start_time": "11:30 AM",
       "entry_fee": "40",
       "is_doubles": false,
+      "max_entries": 0,
       "single_elimination": false,
       "max_rating": "2149",
-      "gender_restriction": "none",
+      "gender_restriction": "",
       "age_restriction": {
-        "type": "none",
-        "age": ""
+        "type": "NONE",
+        "age": "",
+        "restriction_date": ""
       },
-      "players_per_group": "4",
+      "players_per_group": 4,
+      "draw_method": "SNAKE",
+      "tables_per_group": 1,
+      "number_of_games": 5,
+      "number_of_games_se_playoffs": 5,
+      "number_of_games_se_quarter_finals": 5,
+      "number_of_games_se_semi_finals": 5,
+      "number_of_games_se_finals": 5,
+      "play_3rd_4th_place": true,
+      "players_to_advance": 1,
+      "advance_unrated_player": true,
+      "players_to_seed": 0,
       "prizes": [
         {
           "division": "",
@@ -845,19 +1097,33 @@
       ]
     },
     {
+      "ordinal_number": 19,
       "event_name": "RATING UNDER 2050",
-      "day": "2",
+      "day": 2,
       "start_time": "4:00 PM",
       "entry_fee": "35",
       "is_doubles": false,
+      "max_entries": 0,
       "single_elimination": false,
       "max_rating": "2049",
-      "gender_restriction": "none",
+      "gender_restriction": "",
       "age_restriction": {
-        "type": "none",
-        "age": ""
+        "type": "NONE",
+        "age": "",
+        "restriction_date": ""
       },
-      "players_per_group": "4",
+      "players_per_group": 4,
+      "draw_method": "SNAKE",
+      "tables_per_group": 1,
+      "number_of_games": 5,
+      "number_of_games_se_playoffs": 5,
+      "number_of_games_se_quarter_finals": 5,
+      "number_of_games_se_semi_finals": 5,
+      "number_of_games_se_finals": 5,
+      "play_3rd_4th_place": true,
+      "players_to_advance": 1,
+      "advance_unrated_player": true,
+      "players_to_seed": 0,
       "prizes": [
         {
           "division": "",
@@ -890,19 +1156,33 @@
       ]
     },
     {
+      "ordinal_number": 20,
       "event_name": "RATING UNDER 1950",
-      "day": "3",
+      "day": 3,
       "start_time": "1:30 PM",
       "entry_fee": "35",
       "is_doubles": false,
+      "max_entries": 0,
       "single_elimination": false,
       "max_rating": "1949",
-      "gender_restriction": "none",
+      "gender_restriction": "",
       "age_restriction": {
-        "type": "none",
-        "age": ""
+        "type": "NONE",
+        "age": "",
+        "restriction_date": ""
       },
-      "players_per_group": "4",
+      "players_per_group": 4,
+      "draw_method": "SNAKE",
+      "tables_per_group": 1,
+      "number_of_games": 5,
+      "number_of_games_se_playoffs": 5,
+      "number_of_games_se_quarter_finals": 5,
+      "number_of_games_se_semi_finals": 5,
+      "number_of_games_se_finals": 5,
+      "play_3rd_4th_place": true,
+      "players_to_advance": 1,
+      "advance_unrated_player": true,
+      "players_to_seed": 0,
       "prizes": [
         {
           "division": "",
@@ -935,19 +1215,33 @@
       ]
     },
     {
+      "ordinal_number": 21,
       "event_name": "RATING UNDER 1850",
-      "day": "2",
+      "day": 2,
       "start_time": "9:00 AM",
       "entry_fee": "35",
       "is_doubles": false,
+      "max_entries": 0,
       "single_elimination": false,
       "max_rating": "1849",
-      "gender_restriction": "none",
+      "gender_restriction": "",
       "age_restriction": {
-        "type": "none",
-        "age": ""
+        "type": "NONE",
+        "age": "",
+        "restriction_date": ""
       },
-      "players_per_group": "4",
+      "players_per_group": 4,
+      "draw_method": "SNAKE",
+      "tables_per_group": 1,
+      "number_of_games": 5,
+      "number_of_games_se_playoffs": 5,
+      "number_of_games_se_quarter_finals": 5,
+      "number_of_games_se_semi_finals": 5,
+      "number_of_games_se_finals": 5,
+      "play_3rd_4th_place": true,
+      "players_to_advance": 1,
+      "advance_unrated_player": true,
+      "players_to_seed": 0,
       "prizes": [
         {
           "division": "",
@@ -980,19 +1274,33 @@
       ]
     },
     {
+      "ordinal_number": 22,
       "event_name": "RATING UNDER 1750",
-      "day": "2",
+      "day": 2,
       "start_time": "6:00 PM",
       "entry_fee": "35",
       "is_doubles": false,
+      "max_entries": 0,
       "single_elimination": false,
       "max_rating": "1749",
-      "gender_restriction": "none",
+      "gender_restriction": "",
       "age_restriction": {
-        "type": "none",
-        "age": ""
+        "type": "NONE",
+        "age": "",
+        "restriction_date": ""
       },
-      "players_per_group": "4",
+      "players_per_group": 4,
+      "draw_method": "SNAKE",
+      "tables_per_group": 1,
+      "number_of_games": 5,
+      "number_of_games_se_playoffs": 5,
+      "number_of_games_se_quarter_finals": 5,
+      "number_of_games_se_semi_finals": 5,
+      "number_of_games_se_finals": 5,
+      "play_3rd_4th_place": true,
+      "players_to_advance": 1,
+      "advance_unrated_player": true,
+      "players_to_seed": 0,
       "prizes": [
         {
           "division": "",
@@ -1025,19 +1333,33 @@
       ]
     },
     {
+      "ordinal_number": 23,
       "event_name": "RATING UNDER 1650",
-      "day": "2",
+      "day": 2,
       "start_time": "2:00 PM",
       "entry_fee": "35",
       "is_doubles": false,
+      "max_entries": 0,
       "single_elimination": false,
       "max_rating": "1649",
-      "gender_restriction": "none",
+      "gender_restriction": "",
       "age_restriction": {
-        "type": "none",
-        "age": ""
+        "type": "NONE",
+        "age": "",
+        "restriction_date": ""
       },
-      "players_per_group": "4",
+      "players_per_group": 4,
+      "draw_method": "SNAKE",
+      "tables_per_group": 1,
+      "number_of_games": 5,
+      "number_of_games_se_playoffs": 5,
+      "number_of_games_se_quarter_finals": 5,
+      "number_of_games_se_semi_finals": 5,
+      "number_of_games_se_finals": 5,
+      "play_3rd_4th_place": true,
+      "players_to_advance": 1,
+      "advance_unrated_player": true,
+      "players_to_seed": 0,
       "prizes": [
         {
           "division": "",
@@ -1070,19 +1392,33 @@
       ]
     },
     {
+      "ordinal_number": 24,
       "event_name": "RATING UNDER 1550",
-      "day": "3",
+      "day": 3,
       "start_time": "11:30 AM",
       "entry_fee": "35",
       "is_doubles": false,
+      "max_entries": 0,
       "single_elimination": false,
       "max_rating": "1549",
-      "gender_restriction": "none",
+      "gender_restriction": "",
       "age_restriction": {
-        "type": "none",
-        "age": ""
+        "type": "NONE",
+        "age": "",
+        "restriction_date": ""
       },
-      "players_per_group": "4",
+      "players_per_group": 4,
+      "draw_method": "SNAKE",
+      "tables_per_group": 1,
+      "number_of_games": 5,
+      "number_of_games_se_playoffs": 5,
+      "number_of_games_se_quarter_finals": 5,
+      "number_of_games_se_semi_finals": 5,
+      "number_of_games_se_finals": 5,
+      "play_3rd_4th_place": true,
+      "players_to_advance": 1,
+      "advance_unrated_player": true,
+      "players_to_seed": 0,
       "prizes": [
         {
           "division": "",
@@ -1115,19 +1451,33 @@
       ]
     },
     {
+      "ordinal_number": 25,
       "event_name": "RATING UNDER 1450",
-      "day": "2",
+      "day": 2,
       "start_time": "4:00 PM",
       "entry_fee": "35",
       "is_doubles": false,
+      "max_entries": 0,
       "single_elimination": false,
       "max_rating": "1449",
-      "gender_restriction": "none",
+      "gender_restriction": "",
       "age_restriction": {
-        "type": "none",
-        "age": ""
+        "type": "NONE",
+        "age": "",
+        "restriction_date": ""
       },
-      "players_per_group": "4",
+      "players_per_group": 4,
+      "draw_method": "SNAKE",
+      "tables_per_group": 1,
+      "number_of_games": 5,
+      "number_of_games_se_playoffs": 5,
+      "number_of_games_se_quarter_finals": 5,
+      "number_of_games_se_semi_finals": 5,
+      "number_of_games_se_finals": 5,
+      "play_3rd_4th_place": true,
+      "players_to_advance": 1,
+      "advance_unrated_player": true,
+      "players_to_seed": 0,
       "prizes": [
         {
           "division": "",
@@ -1160,19 +1510,33 @@
       ]
     },
     {
+      "ordinal_number": 26,
       "event_name": "RATING UNDER 1350",
-      "day": "1",
+      "day": 1,
       "start_time": "2:00 PM",
       "entry_fee": "35",
       "is_doubles": false,
+      "max_entries": 0,
       "single_elimination": false,
       "max_rating": "1349",
-      "gender_restriction": "none",
+      "gender_restriction": "",
       "age_restriction": {
-        "type": "none",
-        "age": ""
+        "type": "NONE",
+        "age": "",
+        "restriction_date": ""
       },
-      "players_per_group": "4",
+      "players_per_group": 4,
+      "draw_method": "SNAKE",
+      "tables_per_group": 1,
+      "number_of_games": 5,
+      "number_of_games_se_playoffs": 5,
+      "number_of_games_se_quarter_finals": 5,
+      "number_of_games_se_semi_finals": 5,
+      "number_of_games_se_finals": 5,
+      "play_3rd_4th_place": true,
+      "players_to_advance": 1,
+      "advance_unrated_player": true,
+      "players_to_seed": 0,
       "prizes": [
         {
           "division": "",
@@ -1205,19 +1569,33 @@
       ]
     },
     {
+      "ordinal_number": 27,
       "event_name": "RATING UNDER 1250",
-      "day": "2",
+      "day": 2,
       "start_time": "6:00 PM",
       "entry_fee": "35",
       "is_doubles": false,
+      "max_entries": 0,
       "single_elimination": false,
       "max_rating": "1249",
-      "gender_restriction": "none",
+      "gender_restriction": "",
       "age_restriction": {
-        "type": "none",
-        "age": ""
+        "type": "NONE",
+        "age": "",
+        "restriction_date": ""
       },
-      "players_per_group": "4",
+      "players_per_group": 4,
+      "draw_method": "SNAKE",
+      "tables_per_group": 1,
+      "number_of_games": 5,
+      "number_of_games_se_playoffs": 5,
+      "number_of_games_se_quarter_finals": 5,
+      "number_of_games_se_semi_finals": 5,
+      "number_of_games_se_finals": 5,
+      "play_3rd_4th_place": true,
+      "players_to_advance": 1,
+      "advance_unrated_player": true,
+      "players_to_seed": 0,
       "prizes": [
         {
           "division": "",
@@ -1250,19 +1628,33 @@
       ]
     },
     {
+      "ordinal_number": 28,
       "event_name": "RATING UNDER 1150",
-      "day": "2",
+      "day": 2,
       "start_time": "9:00 AM",
       "entry_fee": "35",
       "is_doubles": false,
+      "max_entries": 0,
       "single_elimination": false,
       "max_rating": "1149",
-      "gender_restriction": "none",
+      "gender_restriction": "",
       "age_restriction": {
-        "type": "none",
-        "age": ""
+        "type": "NONE",
+        "age": "",
+        "restriction_date": ""
       },
-      "players_per_group": "4",
+      "players_per_group": 4,
+      "draw_method": "SNAKE",
+      "tables_per_group": 1,
+      "number_of_games": 5,
+      "number_of_games_se_playoffs": 5,
+      "number_of_games_se_quarter_finals": 5,
+      "number_of_games_se_semi_finals": 5,
+      "number_of_games_se_finals": 5,
+      "play_3rd_4th_place": true,
+      "players_to_advance": 1,
+      "advance_unrated_player": true,
+      "players_to_seed": 0,
       "prizes": [
         {
           "division": "",
@@ -1295,19 +1687,33 @@
       ]
     },
     {
+      "ordinal_number": 29,
       "event_name": "RATING UNDER 1050",
-      "day": "1",
+      "day": 1,
       "start_time": "12:00 PM",
       "entry_fee": "35",
       "is_doubles": false,
+      "max_entries": 0,
       "single_elimination": false,
       "max_rating": "1049",
-      "gender_restriction": "none",
+      "gender_restriction": "",
       "age_restriction": {
-        "type": "none",
-        "age": ""
+        "type": "NONE",
+        "age": "",
+        "restriction_date": ""
       },
-      "players_per_group": "4",
+      "players_per_group": 4,
+      "draw_method": "SNAKE",
+      "tables_per_group": 1,
+      "number_of_games": 5,
+      "number_of_games_se_playoffs": 5,
+      "number_of_games_se_quarter_finals": 5,
+      "number_of_games_se_semi_finals": 5,
+      "number_of_games_se_finals": 5,
+      "play_3rd_4th_place": true,
+      "players_to_advance": 1,
+      "advance_unrated_player": true,
+      "players_to_seed": 0,
       "prizes": [
         {
           "division": "",
@@ -1340,19 +1746,33 @@
       ]
     },
     {
+      "ordinal_number": 30,
       "event_name": "GIANT ROUND ROBIN",
-      "day": "1",
+      "day": 1,
       "start_time": "5:30 PM",
       "entry_fee": "45",
       "is_doubles": false,
+      "max_entries": 45,
       "single_elimination": false,
       "max_rating": "",
-      "gender_restriction": "none",
+      "gender_restriction": "",
       "age_restriction": {
-        "type": "none",
-        "age": ""
+        "type": "NONE",
+        "age": "",
+        "restriction_date": ""
       },
-      "players_per_group": "9",
+      "players_per_group": 9,
+      "draw_method": "SNAKE",
+      "tables_per_group": 1,
+      "number_of_games": 5,
+      "number_of_games_se_playoffs": 5,
+      "number_of_games_se_quarter_finals": 5,
+      "number_of_games_se_semi_finals": 5,
+      "number_of_games_se_finals": 5,
+      "play_3rd_4th_place": false,
+      "players_to_advance": 1,
+      "advance_unrated_player": true,
+      "players_to_seed": 0,
       "prizes": [
         {
           "division": "Class A",
@@ -1427,19 +1847,33 @@
       ]
     },
     {
+      "ordinal_number": 31,
       "event_name": "HANDICAP DOUBLES",
-      "day": "3",
+      "day": 3,
       "start_time": "4:00 PM",
       "entry_fee": "40",
       "is_doubles": true,
+      "max_entries": 0,
       "single_elimination": false,
       "max_rating": "",
-      "gender_restriction": "none",
+      "gender_restriction": "",
       "age_restriction": {
-        "type": "none",
-        "age": ""
+        "type": "NONE",
+        "age": "",
+        "restriction_date": ""
       },
-      "players_per_group": "4",
+      "players_per_group": 4,
+      "draw_method": "SNAKE",
+      "tables_per_group": 1,
+      "number_of_games": 5,
+      "number_of_games_se_playoffs": 5,
+      "number_of_games_se_quarter_finals": 5,
+      "number_of_games_se_semi_finals": 5,
+      "number_of_games_se_finals": 5,
+      "play_3rd_4th_place": true,
+      "players_to_advance": 1,
+      "advance_unrated_player": true,
+      "players_to_seed": 0,
       "prizes": [
         {
           "division": "",

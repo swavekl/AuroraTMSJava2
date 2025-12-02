@@ -22,13 +22,14 @@ import com.auroratms.utils.filerepo.FileInfo;
 import com.auroratms.utils.filerepo.FileRepositoryException;
 import com.auroratms.utils.filerepo.FileRepositoryFactory;
 import com.auroratms.utils.filerepo.IFileRepository;
+import com.auroratms.utils.fuzzymatch.EventMatch;
+import com.auroratms.utils.fuzzymatch.FuzzyMatchService;
 import com.auroratms.utils.pdfdto.*;
 import com.opencsv.CSVReader;
 import com.opencsv.exceptions.CsvValidationException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -107,6 +108,9 @@ public class ImportTournamentService {
 
     @Autowired
     private BlankEntryFormParserService blankEntryFormParserService;
+
+    @Autowired
+    private FuzzyMatchService fuzzyMatchService;
 
     // Under 3800 Doubles RR - Partner: Teamed With Devaansh Boda
     // Under 3800 Doubles RR - Partner: None selected
@@ -1578,83 +1582,58 @@ public class ImportTournamentService {
                         eventDTO -> eventDTO // Value is the EventDTO object
                         // (e1, e2) -> e1  // Use this if there are duplicate keys and you want to keep the first one
                 ));
-
+        boolean namesMatchPerfectly = true;
         for (TournamentEvent tournamentEvent : tournamentEventList) {
-            EventDTO eventDTO = findEventDTO(tournamentEvent, eventDTOMap);
-            if (eventDTO != null) {
-                changed = mergeSingleEventDetails(tournamentEvent, eventDTO) || changed;
+            EventDTO eventDTO = eventDTOMap.get(tournamentEvent.getName());
+            if (eventDTO == null) {
+                namesMatchPerfectly = false;
+                break;
             }
         }
-        return changed;
-    }
 
-    /**
-     * Tries to find the exact match by name, and if it fails tries by rating or gender restriction
-     *
-     * @param tournamentEvent
-     * @param eventDTOMap
-     * @return
-     */
-    private @Nullable EventDTO findEventDTO(TournamentEvent tournamentEvent, Map<String, EventDTO> eventDTOMap) {
-        // most TDs configure the same event names as they appear on the blank entry form
-        // match by name first then
-        String eventName = tournamentEvent.getName();
-        EventDTO eventDTO = eventDTOMap.get(eventName);
-        if (eventDTO != null) {
-            return eventDTO;
-        } else {
-            // maybe it is a single giant round robin event
-            if (eventDTOMap.size() == 1) {
-                for (EventDTO value : eventDTOMap.values()) {
-                    eventDTO = value;
-                    break;
+        if (namesMatchPerfectly) {
+            for (TournamentEvent tournamentEvent : tournamentEventList) {
+                EventDTO eventDTO = eventDTOMap.get(tournamentEvent.getName());
+                if (eventDTO != null) {
+                    changed = mergeSingleEventDetails(tournamentEvent, eventDTO) || changed;
                 }
-            } else {
-                // if it didn't match exactly by name, then find it another way
-                log.info("Event " + eventName + " not found.  Looking up by max rating and other ways");
-                log.info("tournamentEvent '" + eventName + "' day " + tournamentEvent.getDay() + " start time " + tournamentEvent.getStartTime());
-                for (EventDTO eventDTO1 : eventDTOMap.values()) {
-                    int maxPlayerRating = (StringUtils.isNotEmpty(eventDTO1.getMaxRating())) ? Integer.parseInt(eventDTO1.getMaxRating()) : 0;
-                    int age = (StringUtils.isNotEmpty(eventDTO1.getAgeRestriction().getAge())) ? Integer.parseInt(eventDTO1.getAgeRestriction().getAge()) : 0;
-                    AgeRestrictionType ageRestrictionType = (StringUtils.isNotEmpty(eventDTO1.getAgeRestriction().getType()))
-                            ? AgeRestrictionType.valueOf(eventDTO1.getAgeRestriction().getType()) : AgeRestrictionType.NONE;
-                    GenderRestriction genderRestriction = StringUtils.isNotEmpty(eventDTO1.getGenderRestriction())
-                            ? GenderRestriction.valueOf(eventDTO1.getGenderRestriction()) : GenderRestriction.NONE;
-                    double startTime = getStartingTime(eventDTO1.getStartTime());
-                    log.info("eventDTO1 name '" + eventDTO1.getEventName() + "' day = " + eventDTO1.getDay() + " startTime = " + startTime);
-                    // first match the even by day and start time - hopefully these are the same as on the blank entry form
-                    if (eventDTO1.getDay() == tournamentEvent.getDay() && startTime == tournamentEvent.getStartTime()) {
-                        // then by rating restriction
-                        if (tournamentEvent.getMaxPlayerRating() != 0 && maxPlayerRating == tournamentEvent.getMaxPlayerRating()) {
-                            if (eventDTO1.isDoubles() == tournamentEvent.isDoubles()) {
-                                eventDTO = eventDTO1;
-                                break;
-                            }
-                        } else if (eventDTO1.getEventName().toLowerCase().contains("open") && tournamentEvent.getName().toLowerCase().contains("open") && maxPlayerRating == tournamentEvent.getMaxPlayerRating()) {
-                            ///  open doubles or open singles
-                            if (eventDTO1.isDoubles() == tournamentEvent.isDoubles()) {
-                                eventDTO = eventDTO1;
-                                break;
-                            }
-                        } else if ((age > 0) && (age == tournamentEvent.getMaxPlayerAge() || age == tournamentEvent.getMinPlayerAge())) {
-                            // finally by age restriction and gender
-                            if (genderRestriction == tournamentEvent.getGenderRestriction() && ageRestrictionType == tournamentEvent.getAgeRestrictionType()) {
-                                eventDTO = eventDTO1;
-                                break;
-                            }
+            }
+        } else {
+            // List A from Omnipong
+            List<String> namesFromTournametEventList = tournamentEventList.stream()
+                    .map(TournamentEvent::getName)
+                    .collect(Collectors.toUnmodifiableList());
+
+            // list B of event names as they appear on a blank entry form
+            List<String> namesFromBlankEntryForm = tournamentAndEventsDTO.getEvents().stream()
+                    .map(EventDTO::getEventName)
+                    .collect(Collectors.toUnmodifiableList());
+
+            // use LLM to match event names
+            List<EventMatch> fuzzyMatches = fuzzyMatchService.findFuzzyMatches(namesFromTournametEventList, namesFromBlankEntryForm);
+            // now that we have matches e.g.
+            // "Open Singles RR -> OPEN",
+            // "Womens RR -> WOMEN’S SINGLES",
+            // "Junior U19 Boys RR -> U19 BOYS SINGLES",
+            // we can find event corresponding on the blan entry form
+            for (TournamentEvent tournamentEvent : tournamentEventList) {
+                for (EventMatch fuzzyMatch : fuzzyMatches) {
+                    if (fuzzyMatch.listAName().equals(tournamentEvent.getName())) {
+                        String eventNameOnBef = fuzzyMatch.listBName();
+                        EventDTO eventDTO = eventDTOMap.get(eventNameOnBef);
+                        if (eventDTO != null) {
+                            log.info(String.format("Merging event from BEF named '%s' into '%s'", eventDTO.getEventName(), tournamentEvent.getName()));
+                            changed = mergeSingleEventDetails(tournamentEvent, eventDTO) || changed;
                         }
+                        break;
                     }
                 }
             }
-
-            if (eventDTO != null) {
-                log.info("Found eventDTO named '" + eventDTO.getEventName() + "' for tournamentEvent '" + eventName + "'");
-            } else {
-                log.info("Didn't find eventDTO for event named '" + eventName + "'");
-            }
-            return eventDTO;
         }
+
+        return changed;
     }
+
 
     /**
      *
@@ -3016,7 +2995,7 @@ public class ImportTournamentService {
             int placeEnd = StringUtils.isEmpty(prizeDTO.getPlaceEnd()) ? 0 : Integer.parseInt(prizeDTO.getPlaceEnd());
             int prizeMoney = StringUtils.isEmpty(prizeDTO.getPrizeMoney()) ? 0 : Integer.parseInt(prizeDTO.getPrizeMoney());
             boolean isAward = !StringUtils.isEmpty(prizeDTO.getAward());
-            PrizeInfo prizeInfo = new PrizeInfo(prizeDTO.getDivision(), place, placeEnd, prizeMoney, isAward);
+            PrizeInfo prizeInfo = new PrizeInfo(prizeDTO.getDivision(), place, placeEnd, prizeMoney, isAward, "Trophy");
             prizeInfoList.add(prizeInfo);
         }
         return prizeInfoList;
