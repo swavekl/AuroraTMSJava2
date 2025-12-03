@@ -19,6 +19,12 @@ export class PrizeInfo {
   // prize money awarded or null if nothing
   prizeMoneyAmount: number;
 
-  // if true trophy is awarded
+  // if true trophy is awarded, see type below
   awardTrophy: boolean;
+
+  readonly AWARD_TYPE_NONE = "None";
+  readonly AWARD_TYPE_TROPHY = "Trophy";
+  readonly AWARD_TYPE_MEDAL = "Medal";
+  awardType : string;
+
 }

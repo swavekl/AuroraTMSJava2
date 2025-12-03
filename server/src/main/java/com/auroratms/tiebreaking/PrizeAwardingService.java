@@ -41,9 +41,9 @@ public class PrizeAwardingService {
         if (prizeInfoList == null || prizeInfoList.size() == 0) {
             // if they did not configure prizes make some default ones for trophies only
             prizeInfoList = new ArrayList<>(3);
-            prizeInfoList.add(new PrizeInfo("A", 1, 0, 0, true));
-            prizeInfoList.add(new PrizeInfo("A", 2, 0, 0, true));
-            prizeInfoList.add(new PrizeInfo("A", 3, 4, 0, true));
+            prizeInfoList.add(new PrizeInfo("A", 1, 0, 0, true, PrizeInfo.AWARD_TYPE_TROPHY));
+            prizeInfoList.add(new PrizeInfo("A", 2, 0, 0, true, PrizeInfo.AWARD_TYPE_TROPHY));
+            prizeInfoList.add(new PrizeInfo("A", 3, 4, 0, true, PrizeInfo.AWARD_TYPE_TROPHY));
         }
 
         // check if completed round is for the round where we award money or trophies

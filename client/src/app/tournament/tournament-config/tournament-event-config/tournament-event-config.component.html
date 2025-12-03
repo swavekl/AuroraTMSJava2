@@ -259,10 +259,10 @@
                 </mat-cell>
               </ng-container>
 
-              <ng-container matColumnDef="awardTrophy">
-                <mat-header-cell *matHeaderCellDef>Trophy</mat-header-cell>
+              <ng-container matColumnDef="awardType">
+                <mat-header-cell *matHeaderCellDef>Award</mat-header-cell>
                 <mat-cell *matCellDef="let prizeInfo; let rowIndex = index;" (click)="onEdit(rowIndex)">
-                  {{ prizeInfo.awardTrophy ? 'Yes' : ''}}
+                  {{ prizeInfo.awardTrophy ? prizeInfo.awardType : '' }}
                 </mat-cell>
               </ng-container>
 

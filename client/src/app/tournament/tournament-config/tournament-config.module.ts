@@ -42,6 +42,7 @@ import {TournamentWaitingListContainerComponent} from './tournament-waiting-list
 import {AddManyEventsDialogComponent} from './add-many-events-dialog/add-many-events-dialog.component';
 import { ImportTournamentDialogComponent } from './import-tournament-dialog/import-tournament-dialog.component';
 import { ImportBlankEntryFormDialogComponent } from './import-blank-entry-form-dialog/import-blank-entry-form-dialog.component';
+import {MatRadioButton, MatRadioGroup} from '@angular/material/radio';
 
 
 @NgModule({
@@ -91,7 +92,9 @@ import { ImportBlankEntryFormDialogComponent } from './import-blank-entry-form-d
     CdkDropList,
     CdkDrag,
     CdkDragPlaceholder,
-    MatStepperModule
+    MatStepperModule,
+    MatRadioGroup,
+    MatRadioButton
   ],
   providers: []
 })

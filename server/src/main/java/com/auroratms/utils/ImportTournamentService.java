@@ -2995,7 +2995,16 @@ public class ImportTournamentService {
             int placeEnd = StringUtils.isEmpty(prizeDTO.getPlaceEnd()) ? 0 : Integer.parseInt(prizeDTO.getPlaceEnd());
             int prizeMoney = StringUtils.isEmpty(prizeDTO.getPrizeMoney()) ? 0 : Integer.parseInt(prizeDTO.getPrizeMoney());
             boolean isAward = !StringUtils.isEmpty(prizeDTO.getAward());
-            PrizeInfo prizeInfo = new PrizeInfo(prizeDTO.getDivision(), place, placeEnd, prizeMoney, isAward, "Trophy");
+            String awardType =  (isAward) ? prizeDTO.getAward() : null;
+            if (isAward) {
+                if (awardType.equalsIgnoreCase(PrizeInfo.AWARD_TYPE_TROPHY)) {
+                    awardType = PrizeInfo.AWARD_TYPE_TROPHY;
+                } else if (PrizeInfo.AWARD_TYPE_MEDAL.equalsIgnoreCase(awardType)) {
+                    awardType = PrizeInfo.AWARD_TYPE_MEDAL;
+                }
+            }
+            PrizeInfo prizeInfo = new PrizeInfo(prizeDTO.getDivision(), place, placeEnd, prizeMoney,
+                    isAward, awardType);
             prizeInfoList.add(prizeInfo);
         }
         return prizeInfoList;

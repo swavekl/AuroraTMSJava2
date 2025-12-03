@@ -1,7 +1,6 @@
 package com.auroratms.event;
 
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 
@@ -30,15 +29,23 @@ public class PrizeInfo implements Serializable {
     // if true trophy is awarded
     private boolean awardTrophy;
 
+    // null if awardTropy is false, "Trophy", "Medal" or if other name e.g. "gift card"
+    public static final String AWARD_TYPE_NONE = "None";
+    public static final String AWARD_TYPE_TROPHY = "Trophy";
+    public static final String AWARD_TYPE_MEDAL = "Medal";
+    private String awardType;
+
     public PrizeInfo() {
     }
 
-    public PrizeInfo(String division, int awardedForPlace, int awardedForPlaceRangeEnd, Integer prizeMoneyAmount, boolean awardTrophy) {
+    public PrizeInfo(String division, int awardedForPlace, int awardedForPlaceRangeEnd,
+                     Integer prizeMoneyAmount, boolean awardTrophy, String awardType) {
         this.division = division;
         this.awardedForPlace = awardedForPlace;
         this.awardedForPlaceRangeEnd = awardedForPlaceRangeEnd;
         this.prizeMoneyAmount = prizeMoneyAmount;
         this.awardTrophy = awardTrophy;
+        this.awardType = awardType;
     }
 
     public PrizeInfo(PrizeInfo prizeInfo) {
@@ -47,5 +54,6 @@ public class PrizeInfo implements Serializable {
         this.awardedForPlaceRangeEnd = prizeInfo.awardedForPlaceRangeEnd;
         this.prizeMoneyAmount = prizeInfo.prizeMoneyAmount;
         this.awardTrophy = prizeInfo.awardTrophy;
+        this.awardType = prizeInfo.awardType;
     }
 }

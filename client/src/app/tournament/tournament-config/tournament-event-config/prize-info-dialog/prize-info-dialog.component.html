@@ -28,10 +28,25 @@
                  [(ngModel)]="prizeInfo.prizeMoneyAmount" [pattern]="PRICE_REGEX" #prizeMoneyAmount="ngModel">
           <mat-error *ngIf="prizeMoneyAmount.control?.hasError('pattern')">Prize Money must be <= 99999</mat-error>
         </mat-form-field>
-        <div class="mat-checkbox-container" fxFlex="50%">
-          <mat-checkbox name="awardTrophy" [(ngModel)]="prizeInfo.awardTrophy">
-            Trophy
-          </mat-checkbox>
+      </div>
+      <div fxLayout="column" fxLayoutGap="20px">
+        <div fxLayout="row" fxLayoutGap="20px">
+          <mat-radio-group [(ngModel)]="prizeInfo.awardType" name="awardType">
+            <mat-radio-button value="None">None</mat-radio-button>
+            <mat-radio-button value="Trophy">Trophy</mat-radio-button>
+            <mat-radio-button value="Medal">Medal</mat-radio-button>
+            <mat-radio-button value="Other">Other</mat-radio-button>
+          </mat-radio-group>
+        </div>
+        <div>
+          <mat-form-field>
+            <mat-label>Other Award Type</mat-label>
+            <input matInput type="text" name="otherAwardType" [disabled]="isOtherAwardFieldDisabled()"
+                   [(ngModel)]="otherAwardType" maxlength="10" #otherAwardTypeCtrl="ngModel">
+            <mat-error *ngIf="otherAwardTypeCtrl.control?.hasError('maxlength ')">Award type must be less than 10
+              characters
+            </mat-error>
+          </mat-form-field>
         </div>
       </div>
     </div>

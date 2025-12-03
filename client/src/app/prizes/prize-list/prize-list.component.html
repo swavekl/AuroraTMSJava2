@@ -33,7 +33,7 @@
                     <span
                       *ngIf="prizeData.prizeMoneyAmount > 0">{{ prizeData.prizeMoneyAmount | currency : tournamentCurrency : 'symbol' : '1.0-0' }}</span>
                       <span *ngIf="prizeData.prizeMoneyAmount > 0 && prizeData.awardTrophy">&nbsp;+&nbsp;</span>
-                      <span *ngIf="prizeData.awardTrophy">{{ prizeData.awardTrophy ? 'T' : '' }}</span>
+                      <span *ngIf="prizeData.awardTrophy">{{ getAwardType(prizeData)}}</span>
                     </mat-cell>
                   </ng-container>
 

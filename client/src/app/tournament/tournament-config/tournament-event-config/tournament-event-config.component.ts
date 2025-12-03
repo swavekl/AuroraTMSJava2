@@ -122,8 +122,8 @@ export class TournamentEventConfigComponent implements OnInit, OnChanges, OnDest
 
         this.ageRestrictionDateEnabled = (this.tournamentEvent.ageRestrictionType === AgeRestrictionType.BORN_ON_OR_AFTER_DATE);
         this.columnsToDisplay = (this.tournamentEvent.drawMethod === 'DIVISION')
-          ? ['division', 'awardedForPlace', 'prizeMoneyAmount', 'awardTrophy', 'actions']
-          : [            'awardedForPlace', 'prizeMoneyAmount', 'awardTrophy', 'actions'];
+          ? ['division', 'awardedForPlace', 'prizeMoneyAmount', 'awardType', 'actions']
+          : [            'awardedForPlace', 'prizeMoneyAmount', 'awardType', 'actions'];
       }
       const tournamentId = this.tournamentEvent?.tournamentFk;
       if (tournamentId != null) {
@@ -211,7 +211,7 @@ export class TournamentEventConfigComponent implements OnInit, OnChanges, OnDest
       prizeInfo: prizeInfo
     };
     const config: MatDialogConfig = {
-      height: '300px', width: '470px', data: prizeInfoDialogData
+      height: '440px', width: '470px', data: prizeInfoDialogData
     };
     const me = this;
     const dialogRef = this.dialog.open(PrizeInfoDialogComponent, config);

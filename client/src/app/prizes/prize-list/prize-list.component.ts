@@ -110,6 +110,7 @@ export class PrizeListComponent implements OnInit, OnChanges {
           place: place,
           prizeMoneyAmount: prizeInfo.prizeMoneyAmount,
           awardTrophy: prizeInfo.awardTrophy,
+          awardType: prizeInfo.awardType,
           playerFullName: playerFullName
         };
         prizeDataList.push(prizeData);
@@ -180,6 +181,7 @@ export class PrizeListComponent implements OnInit, OnChanges {
                       place: place,
                       prizeMoneyAmount: prizeInfo.prizeMoneyAmount,
                       awardTrophy: prizeInfo.awardTrophy,
+                      awardType: prizeInfo.awardType,
                       playerFullName: playerFullName
                     });
                   }
@@ -295,6 +297,28 @@ export class PrizeListComponent implements OnInit, OnChanges {
     });
     return divisionPrizeData;
   }
+
+  protected getAwardType(prizeData) {
+    if (!prizeData.awardType) {
+      // not defined yet - old data
+      return prizeData.awardTrophy ? 'T' : '';
+    } else if (prizeData.awardTrophy) {
+      if (prizeData.awardType === 'Trophy'){
+        return 'T';
+      } else if (prizeData.awardType === 'Medal') {
+        return 'M';
+      } else {
+        // take first letter of each word and uppercase it
+        let awardTypeAbbreviation = "";
+        const parts = prizeData.awardType.split(" ");
+        for (const part of parts) {
+          awardTypeAbbreviation += part.substring(0, 1);
+        }
+        return awardTypeAbbreviation.toUpperCase();
+      }
+    }
+    return '';
+  }
 }
 
 export class PrizeData {
@@ -302,5 +326,6 @@ export class PrizeData {
   place: number;
   prizeMoneyAmount: number;
   awardTrophy: boolean;
+  awardType: string;  // 'Trophy', 'Medal' or other e.g. 'gift card'
   playerFullName: string;
 }
