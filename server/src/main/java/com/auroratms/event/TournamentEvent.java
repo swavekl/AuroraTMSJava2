@@ -1,15 +1,12 @@
 package com.auroratms.event;
 
 import com.auroratms.tournament.EligibilityRestriction;
-import com.auroratms.tournament.TournamentConfiguration;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.NonNull;
 import lombok.Setter;
 
-import jakarta.persistence.*;
 import java.io.IOException;
 import java.io.Serializable;
 import java.io.StringWriter;
@@ -41,6 +38,10 @@ public class TournamentEvent implements Serializable {
 
     // doubles (true) or singles (false)
     private boolean doubles;
+
+    // determines how we sign up for it - individually or as a team
+    // must be at event level because some tournament offer team and individual team events
+    private EventEntryType eventEntryType = EventEntryType.INDIVIDUAL;
 
     // maximum entries, 0 if no limit
     private int maxEntries;
@@ -107,6 +108,9 @@ public class TournamentEvent implements Serializable {
     // prize money and other non-queryable information
     private TournamentEventConfiguration configuration;
 
+    // detailed configuration of rounds, draws and divisions
+    // this replaces the above configuration of draws which was not able to support more than 2 runds
+    private TournamentRoundsConfiguration roundsConfiguration;
 
     @Override
     public boolean equals(Object o) {
@@ -171,6 +175,19 @@ public class TournamentEvent implements Serializable {
             }
 
         }
+        if (this.getRoundsConfiguration() != null) {
+            try {
+                StringWriter stringWriter = new StringWriter();
+                ObjectMapper mapper = new ObjectMapper();
+                mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+                mapper.writeValue(stringWriter, this.getRoundsConfiguration());
+                String roundsContent = stringWriter.toString();
+                tournamentEventEntity.setRoundsContent(roundsContent);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
         return tournamentEventEntity;
     }
 
@@ -223,6 +240,20 @@ public class TournamentEvent implements Serializable {
                 e.printStackTrace();
             }
         }
+
+        TournamentRoundsConfiguration tournamentRoundsConfiguration = null;
+        String roundContent = tournamentEventEntity.getRoundsContent();
+        if (roundContent != null) {
+            try {
+                ObjectMapper mapper = new ObjectMapper();
+                mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+                tournamentRoundsConfiguration = mapper.readValue(roundContent, TournamentRoundsConfiguration.class);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        tournamentEvent.setRoundsConfiguration(tournamentRoundsConfiguration);
+
         return tournamentEvent;
     }
 
@@ -262,5 +293,6 @@ public class TournamentEvent implements Serializable {
         this.setFeeJunior(cloneFrom.getFeeJunior());
         this.setMatchScoresEntered(cloneFrom.isMatchScoresEntered());
         this.setConfiguration(new TournamentEventConfiguration(cloneFrom.getConfiguration()));
+        this.setRoundsConfiguration(new TournamentRoundsConfiguration(cloneFrom.getRoundsConfiguration()));
     }
 }

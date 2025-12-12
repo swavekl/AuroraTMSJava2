@@ -7,6 +7,12 @@ div.prizes-list {
   /*border: 1px solid red;*/
 }
 
+div.draws-list {
+  height: calc(100vh - 190px);
+  overflow-y: scroll;
+  //border: 1px solid red;
+}
+
 /*TODO(mdc-migration): The following rule targets internal classes of checkbox that may no longer apply for the MDC version.*/
 div.mat-checkbox-container {
   padding-top: 35px;

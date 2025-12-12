@@ -21,7 +21,7 @@
               <mat-label>Name</mat-label>
               <input matInput type="text" name="name" [(ngModel)]="tournamentEvent.name" required>
             </mat-form-field>
-            <mat-form-field fxFlex="30%">
+            <mat-form-field fxFlex="20%">
               <mat-label>Event Day</mat-label>
               <mat-select name="day" [(ngModel)]="tournamentEvent.day">
                 <mat-option *ngFor="let day of days" [value]="day.day">
@@ -29,7 +29,7 @@
                 </mat-option>
               </mat-select>
             </mat-form-field>
-            <mat-form-field fxFlex="30%">
+            <mat-form-field fxFlex="20%">
               <mat-label>Event Time</mat-label>
               <mat-select name="startTime" [(ngModel)]="tournamentEvent.startTime">
                 <mat-option *ngFor="let st of startTimes" [value]="st.startTime">
@@ -37,28 +37,41 @@
                 </mat-option>
               </mat-select>
             </mat-form-field>
+            <mat-form-field fxFlex="20%">
+              <mat-label>Player Eligibility</mat-label>
+              <mat-select matInput type="text" name="eligibilityRestriction" [(ngModel)]="tournamentEvent.eligibilityRestriction" required>
+                <mat-option *ngFor="let option of eligibilityRestrictionOptions" value="{{option.value}}">{{option.name}}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
           </div>
           <div fxLayout.lt-sm="column" fxLayout="row" fxLayoutGap="10px">
-            <mat-checkbox fxFlex="40%" name="doubles" [(ngModel)]="tournamentEvent.doubles">Doubles</mat-checkbox>
-            <mat-form-field fxFlex="30%">
+            <mat-radio-group fxFlex="25%" [(ngModel)]="tournamentEvent.eventEntryType" name="eventEntryType"
+                             (change)="onEntryTypeChange($event)" fxLayout="row" fxLayoutGap="10px">
+              <mat-radio-button [value]="EventEntryType.INDIVIDUAL">Individual</mat-radio-button>
+              <mat-radio-button [value]="EventEntryType.TEAM">Team</mat-radio-button>
+            </mat-radio-group>
+            <mat-checkbox fxFlex="25%" name="doubles" [(ngModel)]="tournamentEvent.doubles">Doubles</mat-checkbox>
+            <mat-form-field fxFlex="25%">
               <mat-label>Max Entries</mat-label>
               <input matInput type="text" name="maxEntries" [(ngModel)]="tournamentEvent.maxEntries" required
                      pattern="\d{1,3}">
             </mat-form-field>
-            <mat-form-field fxFlex="30%">
+            <mat-form-field fxFlex="25%">
               <mat-label>Current Entries</mat-label>
               <input matInput type="text" disabled name="numEntries" [(ngModel)]="tournamentEvent.numEntries">
             </mat-form-field>
           </div>
           <div fxLayout.lt-sm="column" fxLayout="row" fxLayoutGap="10px">
-            <mat-checkbox fxFlex="40%" name="singleElimination" [(ngModel)]="tournamentEvent.singleElimination">Single
+            <mat-checkbox fxFlex="25%" name="singleElimination" [(ngModel)]="tournamentEvent.singleElimination">Single
               Elimination
             </mat-checkbox>
-            <mat-form-field fxFlex="30%">
+            <div fxFlex="25%"></div>
+            <mat-form-field fxFlex="25%">
               <mat-label>Minimum Player Rating</mat-label>
               <input matInput type="text" name="minPlayerRating" [(ngModel)]="tournamentEvent.minPlayerRating" required>
             </mat-form-field>
-            <mat-form-field fxFlex="30%">
+            <mat-form-field fxFlex="25%">
               <mat-label>Maximum Player Rating</mat-label>
               <input matInput type="text" name="maxPlayerRating" [(ngModel)]="tournamentEvent.maxPlayerRating" required>
             </mat-form-field>
@@ -73,15 +86,15 @@
                 </mat-option>
               </mat-select>
             </mat-form-field>
-            <mat-form-field fxFlex="20%">
+            <mat-form-field fxFlex="15%">
               <mat-label>Minimum Player Age</mat-label>
               <input matInput type="text" name="minPlayerAge" [(ngModel)]="tournamentEvent.minPlayerAge">
             </mat-form-field>
-            <mat-form-field fxFlex="20%">
+            <mat-form-field fxFlex="15%">
               <mat-label>Maximum Player Age</mat-label>
               <input matInput type="text" name="maxPlayerAge" [(ngModel)]="tournamentEvent.maxPlayerAge">
             </mat-form-field>
-            <mat-form-field fxFlex="30%">
+            <mat-form-field fxFlex="20%">
               <mat-label>Born on or Before Date</mat-label>
               <input matInput [matDatepicker]="ageRestrictionDate" placeholder="mm/dd/yyyy" name="ageRestrictionDate"
                      [min]="minAgeRestrictionDate" [max]="maxAgeRestrictionDate" [disabled]="!ageRestrictionDateEnabled"
@@ -94,8 +107,6 @@
               <mat-error *ngIf="f.form.controls['ageRestrictionDate']?.errors?.matDatepickerMax">Date must be
                 before {{ maxAgeRestrictionDate | date}}</mat-error>
             </mat-form-field>
-          </div>
-          <div fxLayout.lt-sm="column" fxLayout="row" fxLayoutGap="10px">
             <mat-form-field fxFlex="20%">
               <mat-label>Gender Restriction</mat-label>
               <mat-select name="genderRestriction" [(ngModel)]="tournamentEvent.genderRestriction">
@@ -104,30 +115,52 @@
                 </mat-option>
               </mat-select>
             </mat-form-field>
-            <mat-form-field fxFlex="30%">
-              <mat-label>Player Eligibility</mat-label>
-              <mat-select matInput type="text" name="eligibilityRestriction" [(ngModel)]="tournamentEvent.eligibilityRestriction" required>
-                <mat-option *ngFor="let option of eligibilityRestrictionOptions" value="{{option.value}}">{{option.name}}
-                </mat-option>
-              </mat-select>
-            </mat-form-field>
-            <mat-form-field fxFlex="25%">
-              <mat-label>Fee Adult</mat-label>
-              <input matInput type="text" name="feeAdult" [(ngModel)]="tournamentEvent.feeAdult" reuired
-                     [pattern]="PRICE_REGEX" #feeAdult="ngModel">
-              <mat-error *ngIf="feeAdult.control?.hasError('pattern')">Enter price e.g. 50 or 22.50</mat-error>
-              <mat-error *ngIf="feeAdult.control?.hasError('required')">This field is required</mat-error>
-            </mat-form-field>
-            <mat-form-field fxFlex="25%">
-              <mat-label>Fee Junior</mat-label>
-              <input matInput type="text" name="feeJunior" [(ngModel)]="tournamentEvent.feeJunior" required
-                     [pattern]="PRICE_REGEX" #feeJunior="ngModel">
-              <mat-error *ngIf="feeJunior.control?.hasError('pattern')">Enter price e.g. 50 or 22.50</mat-error>
-              <mat-error *ngIf="feeJunior.control?.hasError('required')">This field is required</mat-error>
-            </mat-form-field>
+          </div>
+          <div fxLayout.lt-sm="column" fxLayout="row" fxLayoutGap="10px">
+            <ng-container *ngIf="tournamentEvent.eventEntryType === EventEntryType.TEAM">
+              <mat-form-field fxFlex="30%">
+                <mat-label>Team Rating Calculation</mat-label>
+                <mat-select name="teamRatingCalculationMethod" [(ngModel)]="tournamentEvent.teamRatingCalculationMethod">
+                  <mat-option *ngFor="let calculationMethod of teamRatingCalculationMethods" [value]="calculationMethod.value">
+                    {{ calculationMethod.label }}
+                  </mat-option>
+                </mat-select>
+              </mat-form-field>
+              <mat-form-field fxFlex="15%">
+                <mat-label>Minimum Team Players</mat-label>
+                <input matInput type="text" name="minTeamPlayers" [(ngModel)]="tournamentEvent.minTeamPlayers">
+              </mat-form-field>
+              <mat-form-field fxFlex="15%">
+                <mat-label>Maximum Team Players</mat-label>
+                <input matInput type="text" name="maxTeamPlayers" [(ngModel)]="tournamentEvent.maxTeamPlayers">
+              </mat-form-field>
+              <div fxFlex="20%">&nbsp;</div>
+              <div fxFlex="20%">&nbsp;</div>
+            </ng-container>
+          </div>
+        </mat-tab>
+        <mat-tab label="Fees">
+          <app-event-fees-config [tournamentEvent]="tournamentEvent"
+                                 (feesChanged)="onFeesChanged($event)">
+          </app-event-fees-config>
+        </mat-tab>
+        <mat-tab label="Rounds & Divisions">
+          <div class="draws-list">
+            <app-rounds-divisions-config [rounds]="tournamentEvent.roundsConfiguration?.rounds || []"
+                                    [days]="days" [startTimes]="startTimes"
+                                    (roundsChanged)="onRoundsChanged($event)">
+            </app-rounds-divisions-config>
           </div>
         </mat-tab>
         <mat-tab label="Draws & Matches">
+          <div class="draws-list">
+            <app-rounds-draws-config [rounds]="tournamentEvent.roundsConfiguration?.rounds || []"
+                                    [days]="days" [startTimes]="startTimes"
+                                    (roundsChanged)="onRoundsChanged($event)">
+            </app-rounds-draws-config>
+          </div>
+        </mat-tab>
+        <mat-tab label="Draws & Matches" *ngIf="false">
           <div fxLayout.lt-sm="column" fxLayout="row" fxLayoutGap="10px">
             <mat-form-field fxFlex="25%">
               <mat-label>Draw method</mat-label>
@@ -244,14 +277,6 @@
                   {{ formatPlace(prizeInfo) }}
                 </mat-cell>
               </ng-container>
-
-<!--              <ng-container matColumnDef="awardedForPlaceRangeEnd">-->
-<!--                <mat-header-cell *matHeaderCellDef>Through Place</mat-header-cell>-->
-<!--                <mat-cell *matCellDef="let prizeInfo; let rowIndex = index;" (click)="onEdit(rowIndex)">-->
-<!--                  {{prizeInfo.awardedForPlaceRangeEnd}}-->
-<!--                </mat-cell>-->
-<!--              </ng-container>-->
-
               <ng-container matColumnDef="prizeMoneyAmount">
                 <mat-header-cell *matHeaderCellDef>Prize Money</mat-header-cell>
                 <mat-cell *matCellDef="let prizeInfo; let rowIndex = index;" (click)="onEdit(rowIndex)">

@@ -15,6 +15,10 @@ import {TournamentEventConfiguration} from '../model/tournament-event-configurat
 import {PrizeInfoDialogComponent, PrizeInfoDialogData} from './prize-info-dialog/prize-info-dialog.component';
 import {MatDialog, MatDialogConfig} from '@angular/material/dialog';
 import {EligibilityRestriction} from '../model/eligibility-restriction.enum';
+import {TournamentEventRound} from '../model/tournament-event-round.model';
+import {TournamentRoundsConfiguration} from '../model/tournament-rounds-configuration.model';
+import {EventEntryType} from '../model/event-entry-type.enum';
+import {TeamRatingCalculationMethod} from '../model/team-rating-calculation-method';
 
 @Component({
     selector: 'app-tournament-event-config',
@@ -86,6 +90,13 @@ export class TournamentEventConfigComponent implements OnInit, OnChanges, OnDest
     {value: 5, label: 'Best of 5'},
     {value: 7, label: 'Best of 7'}
   ];
+
+  // team rating calculation algorithm - top 3 players
+  readonly teamRatingCalculationMethods: any [] = [
+    {value: TeamRatingCalculationMethod.AVERAGE_ALL_PLAYERS, label: 'Average of All Players'},
+    {value: TeamRatingCalculationMethod.SUM_TOP_THREE, label: 'Sum of top 3 players'},
+    {value: TeamRatingCalculationMethod.SUM_TOP_TWO, label: 'Sum of top 2 players'},
+  ]
 
   private subscriptions: Subscription = new Subscription();
 
@@ -257,6 +268,37 @@ export class TournamentEventConfigComponent implements OnInit, OnChanges, OnDest
         return '3rd';
       default:
         return `${place}th`;
+    }
+  }
+
+  protected onRoundsChanged(updatedRounds: TournamentEventRound[]) {
+    const updatedRoundsConfiguration = new TournamentRoundsConfiguration();
+    updatedRoundsConfiguration.rounds = updatedRounds;
+    this.tournamentEvent = {
+      ...this.tournamentEvent,
+      roundsConfiguration: updatedRoundsConfiguration
+    };
+  }
+
+  protected readonly EventEntryType = EventEntryType;
+
+  protected onFeesChanged($event: any) {
+
+  }
+
+  protected onEntryTypeChange($event: any) {
+    if ($event.value) {
+      if ($event.value === EventEntryType.TEAM) {
+        if (this.tournamentEvent.teamRatingCalculationMethod == null) {
+          this.tournamentEvent.teamRatingCalculationMethod = TeamRatingCalculationMethod.SUM_TOP_TWO;
+        }
+        if (this.tournamentEvent.minTeamPlayers == null) {
+          this.tournamentEvent.minTeamPlayers = 2;
+        }
+        if (this.tournamentEvent.maxTeamPlayers == null) {
+          this.tournamentEvent.maxTeamPlayers = 3;
+        }
+      }
     }
   }
 }

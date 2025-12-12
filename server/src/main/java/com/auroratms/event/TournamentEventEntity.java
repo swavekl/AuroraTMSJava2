@@ -45,6 +45,9 @@ public class TournamentEventEntity {
     // doubles (true) or singles (false)
     private boolean doubles;
 
+    @Column(columnDefinition = "integer default 0")
+    private EventEntryType eventEntryType = EventEntryType.INDIVIDUAL;
+
     // maximum entries, 0 if no limit
     private int maxEntries;
 
@@ -113,6 +116,12 @@ public class TournamentEventEntity {
     // we will persist configuration as JSON in this field.
     @Column(length = 6000)
     private String content;
+
+    // rounds draws and divisions configuration
+    // to avoid having to change database schema each time we add new field to configuration
+    // we will persist configuration as JSON in this field.
+    @Column(length = 10000)
+    private String roundsContent;
 
     @Override
     public boolean equals(Object o) {

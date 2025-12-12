@@ -2,7 +2,7 @@ import {NgModule} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {RouterModule} from '@angular/router';
 import {FormsModule} from '@angular/forms';
-import {CdkDrag, CdkDragPlaceholder, CdkDropList} from '@angular/cdk/drag-drop';
+import {CdkDrag, CdkDragHandle, CdkDragPlaceholder, CdkDropList} from '@angular/cdk/drag-drop';
 import {MatCardModule} from '@angular/material/card';
 import {MatListModule} from '@angular/material/list';
 import {MatIconModule} from '@angular/material/icon';
@@ -40,9 +40,12 @@ import {PrizeInfoValidatorDirective} from './tournament-event-config/prize-info-
 import {TournamentWaitingListComponent} from './tournament-waiting-list/tournament-waiting-list.component';
 import {TournamentWaitingListContainerComponent} from './tournament-waiting-list/tournament-waiting-list-container.component';
 import {AddManyEventsDialogComponent} from './add-many-events-dialog/add-many-events-dialog.component';
-import { ImportTournamentDialogComponent } from './import-tournament-dialog/import-tournament-dialog.component';
-import { ImportBlankEntryFormDialogComponent } from './import-blank-entry-form-dialog/import-blank-entry-form-dialog.component';
+import {ImportTournamentDialogComponent} from './import-tournament-dialog/import-tournament-dialog.component';
+import {ImportBlankEntryFormDialogComponent} from './import-blank-entry-form-dialog/import-blank-entry-form-dialog.component';
 import {MatRadioButton, MatRadioGroup} from '@angular/material/radio';
+import {RoundsDrawsConfigComponent} from './rounds-draws-config/rounds-draws-config.component';
+import {RoundsDivisionsConfigComponent} from './rounds-divisions-config/rounds-divisions-config.component';
+import {EventFeesConfigComponent} from './event-fees-config/event-fees-config.component';
 
 
 @NgModule({
@@ -62,7 +65,10 @@ import {MatRadioButton, MatRadioGroup} from '@angular/material/radio';
     TournamentWaitingListContainerComponent,
     AddManyEventsDialogComponent,
     ImportTournamentDialogComponent,
-    ImportBlankEntryFormDialogComponent
+    ImportBlankEntryFormDialogComponent,
+    RoundsDrawsConfigComponent,
+    RoundsDivisionsConfigComponent,
+    EventFeesConfigComponent
   ],
   imports: [
     CommonModule,
@@ -92,6 +98,7 @@ import {MatRadioButton, MatRadioGroup} from '@angular/material/radio';
     CdkDropList,
     CdkDrag,
     CdkDragPlaceholder,
+    CdkDragHandle,
     MatStepperModule,
     MatRadioGroup,
     MatRadioButton

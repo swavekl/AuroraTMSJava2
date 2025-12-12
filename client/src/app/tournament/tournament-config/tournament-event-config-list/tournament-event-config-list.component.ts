@@ -8,7 +8,6 @@ import {CdkDragDrop, moveItemInArray} from '@angular/cdk/drag-drop';
 import {ConfirmationPopupComponent} from '../../../shared/confirmation-popup/confirmation-popup.component';
 import {AddManyEventsDialogComponent} from '../add-many-events-dialog/add-many-events-dialog.component';
 import {Subscription} from 'rxjs';
-import {Tournament} from '../tournament.model';
 
 @Component({
     selector: 'app-tournament-event-config-list',
@@ -44,6 +43,8 @@ export class TournamentEventConfigListComponent implements OnInit, OnChanges, On
   @Output() update = new EventEmitter();
 
   private subscriptions: Subscription = new Subscription();
+  // allows us to drag only when dragged by the drag handle not entire row
+  protected dragEnabled: boolean = false;
 
   constructor(private router: Router,
               public dialog: MatDialog) {
@@ -193,6 +194,7 @@ export class TournamentEventConfigListComponent implements OnInit, OnChanges, On
     }
 
     this.events = renumberedEvents;
+    this.dragEnabled = false;
     this.update.emit(updatedEvents);
   }
 

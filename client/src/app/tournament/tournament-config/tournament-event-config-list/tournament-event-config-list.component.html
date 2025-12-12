@@ -12,12 +12,14 @@
     <span>Taken/Maximum Event Entries: {{ numEventEntries }} / {{ maxNumEvenEntries }}</span>
   </mat-toolbar-row>
 </mat-toolbar>
-<div style="overflow: auto; height: calc(100vh - 260px);">
-  <mat-table [dataSource]="events" style="width: 100%" cdkDropList (cdkDropListDropped)="drop($event)">
+<div style="overflow-y: scroll; height: calc(100vh - 260px);" cdkScrollable>
+  <mat-table [dataSource]="events" style="width: 100%"
+             cdkDropList (cdkDropListDropped)="drop($event)" >
     <ng-container matColumnDef="num">
       <mat-header-cell *matHeaderCellDef>No.</mat-header-cell>
       <mat-cell *matCellDef="let event">
-        <mat-icon class="example-drag-cursor">reorder</mat-icon>
+        <mat-icon cdkDragHandle class="example-drag-cursor"
+                  (mousedown)="dragEnabled = true" (mouseup)="dragEnabled = false">reorder</mat-icon>
         <span>{{event.ordinalNumber}}</span>
       </mat-cell>
     </ng-container>
@@ -61,7 +63,9 @@
       </mat-cell>
     </ng-container>
     <mat-header-row *matHeaderRowDef="columnsToDisplay; sticky: true"></mat-header-row>
-    <mat-row *matRowDef="let myRowData; columns: columnsToDisplay" cdkDrag cdkDragLockAxis="y">
+    <mat-row *matRowDef="let myRowData; columns: columnsToDisplay"
+             [cdkDragData]="myRowData" cdkDrag cdkDragLockAxis="y" [cdkDragDisabled]="!dragEnabled"
+             >
       <div class="drag-placeholder" *cdkDragPlaceholder></div>
     </mat-row>
   </mat-table>

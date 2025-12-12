@@ -1,0 +1,117 @@
+<div>
+  <div fxLayout="row" fxLayoutGap="10px">
+    <mat-form-field fxFlex="25%">
+      <mat-label>Fee Type</mat-label>
+      <mat-select name="day" [(ngModel)]="tournamentEvent.feeStructure">
+        <mat-option *ngFor="let fs of feeStructures; "
+                    [value]="fs.value">{{ fs.name }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+    <!-- individual fixed -->
+    <ng-container
+      *ngIf="tournamentEvent?.feeStructure === FeeStructure.FIXED && tournamentEvent?.eventEntryType == EventEntryType.INDIVIDUAL">
+      <mat-form-field fxFlex="25%">
+        <mat-label>Fee Adult</mat-label>
+        <input matInput type="text" name="feeAdult" [(ngModel)]="tournamentEvent.feeAdult" required
+               [pattern]="PRICE_REGEX" #feeAdult="ngModel">
+        <mat-error *ngIf="feeAdult.control?.hasError('pattern')">Enter price e.g. 50 or 22.50</mat-error>
+        <mat-error *ngIf="feeAdult.control?.hasError('required')">This field is required</mat-error>
+      </mat-form-field>
+      <mat-form-field fxFlex="25%">
+        <mat-label>Fee Junior</mat-label>
+        <input matInput type="text" name="feeJunior" [(ngModel)]="tournamentEvent.feeJunior" required
+               [pattern]="PRICE_REGEX" #feeJunior="ngModel">
+        <mat-error *ngIf="feeJunior.control?.hasError('pattern')">Enter price e.g. 50 or 22.50</mat-error>
+        <mat-error *ngIf="feeJunior.control?.hasError('required')">This field is required</mat-error>
+      </mat-form-field>
+      <div fxFlex="25%"></div>
+    </ng-container>
+    <!--    fixed and team -->
+    <ng-container
+      *ngIf="tournamentEvent?.feeStructure === FeeStructure.FIXED && tournamentEvent?.eventEntryType == EventEntryType.TEAM">
+      <mat-form-field fxFlex="25%">
+        <mat-label>Team Fee</mat-label>
+        <input matInput type="text" name="perTeamFee" [(ngModel)]="tournamentEvent.perTeamFee" required
+               [pattern]="PRICE_REGEX" #perTeamFee="ngModel">
+        <mat-error *ngIf="perTeamFee.control?.hasError('pattern')">Enter price e.g. 50 or 22.50</mat-error>
+        <mat-error *ngIf="perTeamFee.control?.hasError('required')">This field is required</mat-error>
+      </mat-form-field>
+      <mat-form-field fxFlex="25%">
+        <mat-label>Per Player Fee</mat-label>
+        <input matInput type="text" name="perPlayerFee" [(ngModel)]="tournamentEvent.perPlayerFee" required
+               [pattern]="PRICE_REGEX" #perPlayerFee="ngModel">
+        <mat-error *ngIf="perPlayerFee.control?.hasError('pattern')">Enter price e.g. 50 or 22.50</mat-error>
+        <mat-error *ngIf="perPlayerFee.control?.hasError('required')">This field is required</mat-error>
+      </mat-form-field>
+      <mat-form-field fxFlex="25%">
+        <mat-label>Cancellation Fee</mat-label>
+        <input matInput type="text" name="cancellationFee" [(ngModel)]="tournamentEvent.cancellationFee"
+               required [pattern]="PRICE_REGEX" #cancellationFee="ngModel">
+        <mat-error *ngIf="cancellationFee.control?.hasError('pattern')">Enter price e.g. 50 or 22.50</mat-error>
+        <mat-error *ngIf="cancellationFee.control?.hasError('required')">This field is required</mat-error>
+      </mat-form-field>
+    </ng-container>
+    <!--    per schedule team-->
+    <ng-container
+      *ngIf="tournamentEvent?.feeStructure === FeeStructure.PER_SCHEDULE && tournamentEvent?.eventEntryType == EventEntryType.TEAM">
+      <mat-form-field fxFlex="25%">
+        <mat-label>Per Player Fee</mat-label>
+        <input matInput type="text" name="perPlayerFee" [(ngModel)]="tournamentEvent.perPlayerFee" required
+               [pattern]="PRICE_REGEX" #perPlayerFee="ngModel">
+        <mat-error *ngIf="perPlayerFee.control?.hasError('pattern')">Enter price e.g. 50 or 22.50</mat-error>
+        <mat-error *ngIf="perPlayerFee.control?.hasError('required')">This field is required</mat-error>
+      </mat-form-field>
+      <div fxFlex="25%"></div>
+      <div fxFlex="25%"></div>
+    </ng-container>
+  </div>
+  <!--  fee schedule -->
+  <ng-container
+    *ngIf="tournamentEvent?.feeStructure === FeeStructure.PER_SCHEDULE && tournamentEvent?.eventEntryType == EventEntryType.TEAM">
+    <mat-toolbar fxLayout="row" fxLayoutGap="10px">
+      <button type="button" mat-raised-button (click)="onAddScheduleItem()">
+        <mat-icon matListItemIcon>add</mat-icon>
+        Add Schedule Item
+      </button>
+    </mat-toolbar>
+    <ng-container *ngFor="let scheduleItem of tournamentEvent?.feeScheduleItems; let itemIdx = index">
+      <div fxLayout="row" fxLayoutGap="10px">
+        <mat-form-field fxFlex="25%">
+          <mat-label>Offer Name</mat-label>
+          <input matInput type="text" [name]="`offerName_{{itemIdx}}}`" [(ngModel)]="scheduleItem.offerName"
+                 maxlength="25" required>
+        </mat-form-field>
+        <mat-form-field fxFlex="25%">
+          <mat-label>Deadline</mat-label>
+          <input matInput [matDatepicker]="deadline_1" placeholder="mm/dd/yyyy"
+                 [name]="`deadline_{{itemIdx}}`"
+                 [(ngModel)]="scheduleItem.deadline">
+          <mat-datepicker-toggle matSuffix [for]="deadline_1"></mat-datepicker-toggle>
+          <!--          <mat-datepicker-toggle matSuffix [for]="'deadline_' + itemIdx"></mat-datepicker-toggle>-->
+          <mat-datepicker #deadline_1></mat-datepicker>
+        </mat-form-field>
+        <mat-form-field fxFlex="20%">
+          <mat-label>Team Fee</mat-label>
+          <input matInput type="text" [name]="`entryFee_{{itemIdx}}`" [(ngModel)]="scheduleItem.entryFee"
+                 required [pattern]="PRICE_REGEX" #perTeamFee="ngModel">
+          <!--          <mat-error *ngIf="perTeamFee.control?.hasError('pattern')">Enter price e.g. 50 or 22.50</mat-error>-->
+          <!--          <mat-error *ngIf="perTeamFee.control?.hasError('required')">This field is required</mat-error>-->
+        </mat-form-field>
+        <mat-form-field fxFlex="20%">
+          <mat-label>Cancellation Fee</mat-label>
+          <input matInput type="text" [name]="`cancellationFee_{{itemIdx}}`" [(ngModel)]="scheduleItem.cancellationFee"
+                 required [pattern]="PRICE_REGEX" #cancellationFee="ngModel">
+          <!--          <mat-error *ngIf="perTeamFee.control?.hasError('pattern')">Enter price e.g. 50 or 22.50</mat-error>-->
+          <!--          <mat-error *ngIf="perTeamFee.control?.hasError('required')">This field is required</mat-error>-->
+        </mat-form-field>
+        <div fxFlex="10%">
+        <button mat-icon-button type="button" (click)="onRemoveScheduleItem(itemIdx)" matTooltip="Delete" style="margin-right: 0px">
+          <mat-icon matListItemIcon>delete</mat-icon>
+        </button>
+        </div>
+      </div>
+    </ng-container>
+  </ng-container>
+</div>
+

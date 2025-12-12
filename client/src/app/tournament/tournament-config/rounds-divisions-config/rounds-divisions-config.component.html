@@ -1,0 +1,108 @@
+<mat-toolbar fxLayout="row" fxLayoutGap="10px">
+  <button type="button" mat-raised-button (click)="addRound()">
+    <mat-icon matListItemIcon>add</mat-icon>
+    Add Round
+  </button>
+</mat-toolbar>
+<!--<h2 class="round-divider">&nbsp;</h2>-->
+<ng-container *ngFor="let round of rounds; let roundIdx = index; let last = last">
+  <div fxLayout="column">
+    <div fxLayout="row" fxLayoutAlign="space-between start" fxLayoutGap="10px">
+      <mat-form-field fxFlex="25%">
+        <mat-label>Round Name</mat-label>
+        <input matInput type="text" name="roundName" [(ngModel)]="round.roundName" required maxlength="20">
+      </mat-form-field>
+      <mat-form-field fxFlex="25%">
+        <mat-label>Round Day</mat-label>
+        <mat-select name="day" [(ngModel)]="round.day">
+          <mat-option *ngFor="let day of days" [value]="day.day">
+            {{ day.dayText }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+      <mat-form-field fxFlex="25%">
+        <mat-label>Round Start Time</mat-label>
+        <mat-select name="startTime" [(ngModel)]="round.startTime">
+          <mat-option *ngFor="let st of startTimes" [value]="st.startTime">
+            {{ st.startTimeText }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+      <mat-checkbox fxFlex="25%" name="singleElimination" [(ngModel)]="round.singleElimination"
+                    style="padding-top: 8px;">Single Elimination
+      </mat-checkbox>
+    </div>
+    <div fxLayout="row" fxFlex fxLayoutGap="10px">
+      <button mat-raised-button type="button" (click)="removeRound(roundIdx)">
+        <mat-icon matListItemIcon>delete</mat-icon>
+        Remove Round
+      </button>
+      <span fxFlex></span>
+    </div>
+    <h2 class="division-divider"> &nbsp;</h2>
+    <!--    divisions-->
+    <div fxLayout="column" fxLayoutGap="10px">
+      <ng-container *ngFor="let division of round.divisions; let divIdx= index; let lastDiv = last">
+        <div fxLayout="row" fxLayoutAlign="space-between start" fxLayoutGap="10px">
+          <mat-form-field fxFlex="25%">
+            <mat-label>Division/Class Name</mat-label>
+            <input matInput type="text" name="divisionName" [(ngModel)]="division.divisionName">
+          </mat-form-field>
+          <mat-form-field fxFlex="25%" *ngIf="roundIdx > 0">
+            <mat-label>Previous Round Source Division</mat-label>
+            <mat-select name="day" [(ngModel)]="division.previousDivisionIdx">
+              <mat-option *ngFor="let prevDivision of getPreviousDivisions(roundIdx); let prevDivIdx = index"
+                          [value]="prevDivIdx">{{ prevDivision.divisionName }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+          <mat-form-field fxFlex="25%" *ngIf="roundIdx > 0">
+            <mat-label>Previous Round Player Ranking Start</mat-label>
+            <input matInput type="text" name="previousRoundPlayerRanking"
+                   [(ngModel)]="division.previousRoundPlayerRanking"
+                   required [pattern]="NUMERIC_WITH_ZERO_REGEX">
+          </mat-form-field>
+          <mat-form-field fxFlex="25%" *ngIf="roundIdx > 0">
+            <mat-label>Previous Round Player Ranking End</mat-label>
+            <input matInput type="text" name="previousRoundPlayerRankingEnd"
+                   [(ngModel)]="division.previousRoundPlayerRankingEnd" required
+                   [pattern]="NUMERIC_WITH_ZERO_REGEX">
+          </mat-form-field>
+        </div>
+        <div fxLayout="row" fxLayoutGap="10px">
+          <mat-form-field fxFlex="25%">
+            <mat-label>Players to advance</mat-label>
+            <input matInput type="text" name="playersToAdvance" [(ngModel)]="division.playersToAdvance"
+                   required [pattern]="NUMERIC_WITH_ZERO_REGEX">
+          </mat-form-field>
+          <div class="mat-checkbox-container" fxFlex="25%">
+            <mat-checkbox name="advanceUnratedWinner" [(ngModel)]="division.advanceUnratedWinner">
+              Advance Unrated Player
+            </mat-checkbox>
+          </div>
+        </div>
+        <div fxLayout="row" fxFlex fxLayoutGap="10px">
+          <button mat-raised-button type="button" (click)="removeDivision(roundIdx, divIdx)">
+            <mat-icon>delete</mat-icon>
+            Remove Division
+          </button>
+          <button *ngIf="lastDiv" mat-raised-button type="button" (click)="addDivision(roundIdx)">
+            <mat-icon matListItemIcon>add</mat-icon>
+            Add Division
+          </button>
+        </div>
+        <h2 *ngIf="!lastDiv" class="division-divider"> &nbsp;</h2>
+      </ng-container>
+      <mat-toolbar fxLayout="row" fxLayoutAlign="space-between start" style="width: 100%; padding-top: 10px;"
+                   fxLayoutGap="10px" *ngIf="round?.divisions == null || round.divisions.length === 0">
+        <button mat-raised-button type="button" (click)="addDivision(roundIdx)">
+          <mat-icon matListItemIcon>add</mat-icon>
+          Add Division
+        </button>
+        <span fxFlex></span>
+      </mat-toolbar>
+    </div>
+  </div>
+  <h2 *ngIf="!last" class="round-divider">&nbsp;</h2>
+</ng-container>
+

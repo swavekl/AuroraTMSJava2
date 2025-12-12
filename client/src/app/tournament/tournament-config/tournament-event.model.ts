@@ -3,6 +3,13 @@ import {AgeRestrictionType} from './model/age-restriction-type.enum';
 import {DrawMethod} from './model/draw-method.enum';
 import {TournamentEventConfiguration} from './model/tournament-event-configuration.model';
 import {EligibilityRestriction} from './model/eligibility-restriction.enum';
+import {EventEntryType} from './model/event-entry-type.enum';
+import {TournamentEventRound} from './model/tournament-event-round.model';
+import {TournamentEventRoundDivision} from './model/tournament-event-round-division.model';
+import {TournamentRoundsConfiguration} from './model/tournament-rounds-configuration.model';
+import {FeeStructure} from './model/fee-structure.enum';
+import {FeeScheduleItem} from './model/fee-schedule-item';
+import {TeamRatingCalculationMethod} from './model/team-rating-calculation-method';
 
 /**
  * Tournament event e.g. U-2200, Giant Round Robin etc.
@@ -30,6 +37,10 @@ export class TournamentEvent {
 
   // doubles (true) or singles (false)
   doubles: boolean;
+
+  // determines how we sign up for it - individually or as a team
+  // must be at event level because some tournament offer team and individual team events
+  eventEntryType: EventEntryType = EventEntryType.INDIVIDUAL;
 
   // maximum entries, 0 if no limit
   maxEntries: number;
@@ -88,14 +99,36 @@ export class TournamentEvent {
   // number of players to seed directly into next round
   playersToSeed: number;
 
-  // fees
+  // method of calculating a fee for event entry
+  feeStructure: FeeStructure = FeeStructure.FIXED;
+
+  // individual fees
   feeAdult: number;
   feeJunior: number;
+
+  // fixed team fees
+  perTeamFee: number;
+  perPlayerFee: number;
+
+  // fee schedule items with progressively more expensive as event date nears
+  feeScheduleItems: FeeScheduleItem[] = [];
+
+  // applies to all tournaments i.e. withdrawal penalty
+  cancellationFee: number;
+
+  // team size is a range 2 to 3, or 3 to  5.
+  minTeamPlayers: number;
+  maxTeamPlayers: number;
+
+  // method used to calculate team rating
+  teamRatingCalculationMethod: TeamRatingCalculationMethod = TeamRatingCalculationMethod.SUM_TOP_TWO;
 
   // if true match scores were entered for this event so redoing draws should be prohibited
   matchScoresEntered: boolean;
 
   configuration: TournamentEventConfiguration;
+
+  roundsConfiguration: TournamentRoundsConfiguration;
 
   static convert(tournamentEvent: TournamentEvent): TournamentEvent {
     return tournamentEvent;
@@ -115,7 +148,8 @@ export class TournamentEvent {
       pointsPerGame: tournamentEvent.pointsPerGame || 11,
       play3rd4thPlace: tournamentEvent.play3rd4thPlace || false,
       eligibilityRestriction: tournamentEvent.eligibilityRestriction || EligibilityRestriction.OPEN,
-      configuration: tournamentEvent.configuration || new TournamentEventConfiguration()
+      configuration: tournamentEvent.configuration || new TournamentEventConfiguration(),
+      roundsConfiguration: tournamentEvent.roundsConfiguration || new TournamentRoundsConfiguration()
     };
     return eventWithDefaults;
   }
@@ -129,6 +163,7 @@ export class TournamentEvent {
     tournamentEvent.startTime = 9.0;
     tournamentEvent.playersPerGroup = (selectedEvent.playersPerGroup == null) ? 4 : selectedEvent.playersPerGroup;
     tournamentEvent.drawMethod = (selectedEvent.drawMethod == null) ? DrawMethod.SNAKE : selectedEvent.drawMethod;
+    tournamentEvent.eventEntryType = (selectedEvent.eventEntryType == null) ? EventEntryType.INDIVIDUAL : selectedEvent.eventEntryType;
     tournamentEvent.numTablesPerGroup = 1;
     tournamentEvent.pointsPerGame = 11;
     tournamentEvent.numberOfGames = 5;
@@ -155,6 +190,53 @@ export class TournamentEvent {
     // tournamentEvent.genderRestriction = GenderRestriction[selectedEvent.genderRestriction];
     tournamentEvent.configuration = new TournamentEventConfiguration();
     tournamentEvent.configuration.prizeInfoList = [];
+    tournamentEvent.roundsConfiguration = new TournamentRoundsConfiguration();
+    tournamentEvent.roundsConfiguration.rounds = TournamentEvent.formRoundsConfiguration(
+      tournamentEvent.configuration, false, selectedEvent);
     return tournamentEvent;
+  }
+
+  private static formRoundsConfiguration (configuration: TournamentEventConfiguration,
+                                  singleElimination: boolean,
+                                  selectedEvent: TournamentEvent): TournamentEventRound [] {
+    const rounds: TournamentEventRound [] = [];
+    let ordinalNum = 0;
+    if (!singleElimination) {
+      const drawMethod: DrawMethod = (selectedEvent.drawMethod == null) ? DrawMethod.SNAKE : selectedEvent.drawMethod;
+      let rrRound = this.makeRound('Round Robin', selectedEvent, drawMethod, "");
+      rrRound.ordinalNum = ++ordinalNum;
+      rrRound.divisions[0].divisionName = "Round Robin";
+      rrRound.divisions[0].previousRoundPlayerRanking = 0;
+      rrRound.divisions[0].previousRoundPlayerRankingEnd = 0;
+      rounds.push(rrRound);
+    }
+
+    // single elimination round follows round robin round
+    if (selectedEvent.drawMethod != DrawMethod.DIVISION) {
+      let seRound = this.makeRound('Single Elimination', selectedEvent, DrawMethod.SINGLE_ELIMINATION);
+      seRound.ordinalNum = ++ordinalNum;
+      seRound.divisions[0].divisionName = "Single Elimination";
+      seRound.divisions[0].playersPerGroup = 1;
+      seRound.divisions[0].previousRoundPlayerRanking = 1;
+      seRound.divisions[0].previousRoundPlayerRankingEnd = 1;
+      rounds.push(seRound);
+      seRound.startTime = 12.0;
+    }
+    return rounds;
+  }
+
+  public static makeRound(roundName: string, selectedEvent: TournamentEvent, drawMethod: DrawMethod, divisionName: string = 'Championship') {
+    let round: TournamentEventRound = new TournamentEventRound();
+    round.roundName = roundName;
+    round.day = 1;
+    round.startTime = 9.0;
+    round.divisions = [];
+    let division: TournamentEventRoundDivision = new TournamentEventRoundDivision();
+    round.divisions.push(division);
+    division.divisionName = divisionName;
+    division.playersPerGroup = (selectedEvent?.playersPerGroup == null) ? 4 : selectedEvent.playersPerGroup;
+    division.drawMethod = drawMethod;
+    division.playersToAdvance = (selectedEvent?.playersToAdvance == null) ? 1 : selectedEvent.playersToAdvance;
+    return round;
   }
 }
