@@ -3,6 +3,7 @@
  */
 import {GenderRestriction} from './gender-restriction.enum';
 import {DrawMethod} from './draw-method.enum';
+import {EventEntryType} from './event-entry-type.enum';
 
 export class EventDefaults {
   public eventDefaults: any [] = [
@@ -12,6 +13,7 @@ export class EventDefaults {
     {name: 'U4800 Doubles', doubles: true, minPlayerAge: 0, maxPlayerAge: 0, minPlayerRating: 0, maxPlayerRating: 4799, genderRestriction: GenderRestriction.NONE },
     {name: 'U3800 Doubles', doubles: true, minPlayerAge: 0, maxPlayerAge: 0, minPlayerRating: 0, maxPlayerRating: 3799, genderRestriction: GenderRestriction.NONE },
     {name: 'U3200 Doubles', doubles: true, minPlayerAge: 0, maxPlayerAge: 0, minPlayerRating: 0, maxPlayerRating: 3199, genderRestriction: GenderRestriction.NONE },
+    {name: 'Teams', doubles: false, minPlayerAge: 0, maxPlayerAge: 0, minPlayerRating: 0, maxPlayerRating: 0, genderRestriction: GenderRestriction.NONE, eventEntryType: EventEntryType.TEAM},
     {name: 'U2600', doubles: false, minPlayerAge: 0, maxPlayerAge: 0, minPlayerRating: 0, maxPlayerRating: 2599, genderRestriction: GenderRestriction.NONE },
     {name: 'U2550', doubles: false, minPlayerAge: 0, maxPlayerAge: 0, minPlayerRating: 0, maxPlayerRating: 2549, genderRestriction: GenderRestriction.NONE },
     {name: 'U2500', doubles: false, minPlayerAge: 0, maxPlayerAge: 0, minPlayerRating: 0, maxPlayerRating: 2499, genderRestriction: GenderRestriction.NONE },

@@ -1,0 +1,238 @@
+{
+  "tournament_name": "America's Team Table Tennis Championship",
+  "star_rating": "4",
+  "start_date": "05/27/2023",
+  "end_date": "05/28/2023",
+  "rating_eligibility_date": "",
+  "rating_seeding_date": "05/25/2023",
+  "entry_deadline_date": "05/14/2023",
+  "refund_deadline_date": "05/14/2023",
+  "late_entry_date": "",
+  "registration_fee": "10",
+  "venue_name": "UW Health Sports Factory",
+  "venue_address": {
+    "street": "305 S. Madison St.",
+    "city": "Rockford",
+    "state": "IL",
+    "zip": ""
+  },
+  "website_url": "http://www.everyonelovestabletennis.com",
+  "referee": {
+    "name": "Linda Leaf",
+    "rank": "IR"
+  },
+  "umpires": [],
+  "directors": [
+    {
+      "name": "Ed Hogshead",
+      "phone": "",
+      "email": "ehogshead@landmarkbilling.com"
+    }
+  ],
+  "equipment": {
+    "tables": "8",
+    "ball_type": "Joola 40+ three-star white Prime balls"
+  },
+  "events": [
+    {
+      "ordinal_number": 1,
+      "event_name": "Giant Round Robin",
+      "day": 1,
+      "start_time": "9:00 AM",
+      "entry_fee": "685",
+      "is_doubles": false,
+      "max_entries": 64,
+      "single_elimination": false,
+      "max_rating": "",
+      "gender_restriction": "",
+      "age_restriction": {
+        "type": "NONE",
+        "age": "",
+        "restriction_date": ""
+      },
+      "players_per_group": 4,
+      "draw_method": "SNAKE",
+      "tables_per_group": 1,
+      "number_of_games": 5,
+      "number_of_games_se_playoffs": 5,
+      "number_of_games_se_quarter_finals": 5,
+      "number_of_games_se_semi_finals": 5,
+      "number_of_games_se_finals": 5,
+      "play_3rd_4th_place": false,
+      "players_to_advance": 1,
+      "advance_unrated_player": true,
+      "players_to_seed": 0,
+      "prizes": [
+        {
+          "division": "1",
+          "place": "1",
+          "place_end": "",
+          "prize_money": "2000",
+          "award": "medal"
+        },
+        {
+          "division": "1",
+          "place": "2",
+          "place_end": "",
+          "prize_money": "1000",
+          "award": "medal"
+        },
+        {
+          "division": "1",
+          "place": "3",
+          "place_end": "",
+          "prize_money": "500",
+          "award": "medal"
+        },
+        {
+          "division": "1",
+          "place": "4",
+          "place_end": "",
+          "prize_money": "350",
+          "award": ""
+        },
+        {
+          "division": "1",
+          "place": "5",
+          "place_end": "",
+          "prize_money": "250",
+          "award": ""
+        },
+        {
+          "division": "1",
+          "place": "6",
+          "place_end": "",
+          "prize_money": "200",
+          "award": ""
+        },
+        {
+          "division": "1",
+          "place": "7",
+          "place_end": "",
+          "prize_money": "100",
+          "award": ""
+        },
+        {
+          "division": "1",
+          "place": "8",
+          "place_end": "",
+          "prize_money": "100",
+          "award": ""
+        },
+        {
+          "division": "2",
+          "place": "1",
+          "place_end": "",
+          "prize_money": "750",
+          "award": "medal"
+        },
+        {
+          "division": "2",
+          "place": "2",
+          "place_end": "",
+          "prize_money": "500",
+          "award": "medal"
+        },
+        {
+          "division": "2",
+          "place": "3",
+          "place_end": "",
+          "prize_money": "250",
+          "award": "medal"
+        },
+        {
+          "division": "3",
+          "place": "1",
+          "place_end": "",
+          "prize_money": "500",
+          "award": "medal"
+        },
+        {
+          "division": "3",
+          "place": "2",
+          "place_end": "",
+          "prize_money": "250",
+          "award": "medal"
+        },
+        {
+          "division": "3",
+          "place": "3",
+          "place_end": "",
+          "prize_money": "",
+          "award": "medal"
+        },
+        {
+          "division": "4",
+          "place": "1",
+          "place_end": "",
+          "prize_money": "",
+          "award": "medal"
+        },
+        {
+          "division": "4",
+          "place": "2",
+          "place_end": "",
+          "prize_money": "",
+          "award": "medal"
+        },
+        {
+          "division": "4",
+          "place": "3",
+          "place_end": "",
+          "prize_money": "",
+          "award": "medal"
+        },
+        {
+          "division": "5",
+          "place": "1",
+          "place_end": "",
+          "prize_money": "",
+          "award": "medal"
+        },
+        {
+          "division": "5",
+          "place": "2",
+          "place_end": "",
+          "prize_money": "",
+          "award": "medal"
+        },
+        {
+          "division": "5",
+          "place": "3",
+          "place_end": "",
+          "prize_money": "",
+          "award": "medal"
+        },
+        {
+          "division": "6",
+          "place": "1",
+          "place_end": "",
+          "prize_money": "",
+          "award": "medal"
+        },
+        {
+          "division": "6",
+          "place": "2",
+          "place_end": "",
+          "prize_money": "",
+          "award": "medal"
+        },
+        {
+          "division": "6",
+          "place": "3",
+          "place_end": "",
+          "prize_money": "",
+          "award": "medal"
+        }
+      ],
+      "event_entry_type": "TEAM",
+      "min_team_players": 3,
+      "max_team_players": 5,
+      "per_team_fee": "685",
+      "per_player_fee": "10",
+      "fee_structure": "FIXED",
+      "team_rating_calculation": "NONE",
+      "fee_schedule_items": []
+    }
+  ]
+}

@@ -1546,7 +1546,7 @@ public class ImportTournamentService {
         // extract from pdf into Tournament object
         Tournament tournamentFromPDF = new Tournament();
         tournamentFromPDF.setName(tournamentAndEventsDTO.getTournamentName());
-        populateTournament(tournamentAndEventsDTO, tournamentFromPDF, blankEntryFormPDFUrl);
+        populateTournament(tournamentAndEventsDTO, tournamentFromPDF, blankEntryFormPDFUrl, true);
 
         // merge with incoming tournament object
         if (StringUtils.isEmpty(tournament.getVenueName())) {
@@ -2642,7 +2642,7 @@ public class ImportTournamentService {
             importProgressInfo.phaseCompleted = 10;
             if (tournament != null) {
                 // populate tournament and events
-                populateTournament(tournamentAndEventsDTO, tournament, blankEntryFormPdfURI);
+                populateTournament(tournamentAndEventsDTO, tournament, blankEntryFormPdfURI, false);
                 importProgressInfo.phaseCompleted = 50;
                 List<TournamentEvent> tournamentEvents = populateEvents(tournamentAndEventsDTO);
                 importProgressInfo.phaseCompleted = 90;
@@ -2818,6 +2818,51 @@ public class ImportTournamentService {
         List<PrizeInfo> prizeInfoList = populatePrizes(eventDTO.getPrizes());
         configuration.setPrizeInfoList(prizeInfoList);
 
+        FeeStructure feeStructure = !StringUtils.isBlank(eventDTO.getFeeStructure())
+                ? FeeStructure.valueOf(eventDTO.getFeeStructure()) : FeeStructure.FIXED;
+        tournamentEvent.setFeeStructure(feeStructure);
+
+        EventEntryType eventEntryType = (!StringUtils.isBlank(eventDTO.getEventEntryType()))
+                ? EventEntryType.valueOf(eventDTO.getEventEntryType()) : EventEntryType.INDIVIDUAL;
+        tournamentEvent.setEventEntryType(eventEntryType);
+        if (eventEntryType == EventEntryType.TEAM) {
+            int perPlayerFee = !StringUtils.isBlank(eventDTO.getPerPlayerFee())  ?
+                    Integer.parseInt(eventDTO.getPerPlayerFee()) : 0;
+            tournamentEvent.setPerPlayerFee(perPlayerFee);
+            if (feeStructure != FeeStructure.FIXED) {
+                // fixed
+                int perTeamFee = !StringUtils.isBlank(eventDTO.getPerTeamFee())
+                        ? Integer.parseInt(eventDTO.getPerTeamFee()) : 0;
+                tournamentEvent.setPerTeamFee(perTeamFee);
+            } else {
+                List<FeeScheduleItemDTO> feeScheduleItemDTOs = eventDTO.getFeeScheduleItems();
+                List<FeeScheduleItem> feeScheduleItems = new ArrayList<>(feeScheduleItemDTOs.size());
+                for (FeeScheduleItemDTO feeScheduleItemDTO : feeScheduleItemDTOs) {
+                    Date deadline = convertDate(feeScheduleItemDTO.getDeadline());
+                    int offerEntryFee = !StringUtils.isBlank(eventDTO.getPerPlayerFee())  ?
+                            Integer.parseInt(eventDTO.getPerPlayerFee()) : 0;
+                    int offerCancellationFee = !StringUtils.isBlank(eventDTO.getPerTeamFee())
+                            ? Integer.parseInt(eventDTO.getPerTeamFee()) : 0;
+                    FeeScheduleItem feeScheduleItem = new FeeScheduleItem();
+                    feeScheduleItem.setOfferName(feeScheduleItemDTO.getOfferName());
+                    feeScheduleItem.setDeadline(deadline);
+                    feeScheduleItem.setEntryFee(offerEntryFee);
+                    feeScheduleItem.setCancellationFee(offerCancellationFee);
+                    feeScheduleItems.add(feeScheduleItem);
+                }
+                configuration.setFeeScheduleItems(feeScheduleItems);
+                tournamentEvent.setPerTeamFee(0);
+            }
+            tournamentEvent.setCancellationFee(0);
+            tournamentEvent.setMinTeamPlayers(eventDTO.getMinTeamPlayers());
+            tournamentEvent.setMaxTeamPlayers(eventDTO.getMaxTeamPlayers());
+            TeamRatingCalculationMethod teamRatingCalculationMethod = StringUtils.isNotBlank(eventDTO.getTeamRatingCalculationMethod())
+                    ? TeamRatingCalculationMethod.valueOf(eventDTO.getTeamRatingCalculationMethod())
+                    : TeamRatingCalculationMethod.AVERAGE_ALL_PLAYERS;
+            tournamentEvent.setTeamRatingCalculationMethod(teamRatingCalculationMethod);
+        }
+
+
         return tournamentEvent;
     }
 
@@ -2848,7 +2893,7 @@ public class ImportTournamentService {
      * @param tournament
      * @param blankEntryFormPdfURI
      */
-    private void populateTournament(TournamentAndEventsDTO tournamentAndEventsDTO, Tournament tournament, String blankEntryFormPdfURI) {
+    private void populateTournament(TournamentAndEventsDTO tournamentAndEventsDTO, Tournament tournament, String blankEntryFormPdfURI, boolean merging) {
         Date startDate = convertDate(tournamentAndEventsDTO.getStartDate());
         Date endDate =   convertDate(tournamentAndEventsDTO.getEndDate());
         endDate = (endDate == null) ? startDate : endDate;
@@ -2908,6 +2953,11 @@ public class ImportTournamentService {
             String city = venueAddress.getCity();
             String state = venueAddress.getState();
             String zip = venueAddress.getZip();
+            // add some defaults so users can save tournament
+            venueName = (!merging && StringUtils.isBlank(venueName)) ? "My Venue" : venueName;
+            streetAddress = (!merging && StringUtils.isBlank(streetAddress)) ? "123 Nice Street" : streetAddress;
+            city = (!merging && StringUtils.isBlank(streetAddress)) ? "Atlanta" : city;
+            zip = (!merging && StringUtils.isBlank(zip)) ? "00000" : zip;
             tournament.setVenueName(venueName);
             tournament.setStreetAddress(streetAddress);
             tournament.setCity(city);
@@ -2925,6 +2975,10 @@ public class ImportTournamentService {
                 String directorsName = director.getName();
                 String phone = director.getPhone();
                 String email = director.getEmail();
+                // if importing only from PDF i.e not merging
+                phone = (!merging && StringUtils.isBlank(phone)) ? "111 111 1111" : phone;
+                directorsName = (!merging && StringUtils.isBlank(directorsName)) ? "Mike Td" : directorsName;
+                email = (!merging && StringUtils.isBlank(email)) ? "mike.td@xyz.com" : email;
                 tournament.setContactName(directorsName);
                 tournament.setPhone(phone);
                 tournament.setEmail(email);

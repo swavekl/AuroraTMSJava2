@@ -36,7 +36,15 @@ import java.util.List;
         "players_to_advance",
         "advance_unrated_player",
         "players_to_seed",
-        "prizes"
+        "prizes",
+        "event_entry_type",
+        "min_team_players",
+        "max_team_players",
+        "per_team_fee",
+        "per_player_fee",
+        "fee_structure",
+        "team_rating_calculation",
+        "fee_schedule_items"
 })
 public class EventDTO {
 
@@ -113,5 +121,32 @@ public class EventDTO {
     @JsonProperty("players_to_seed")
     private int playersToSeed;
 
+    @JsonProperty("prizes")
     private List<PrizeDTO> prizes;
+
+    @JsonProperty("event_entry_type")
+    private String eventEntryType;
+
+    @JsonProperty("min_team_players")
+    private int minTeamPlayers = 2;
+
+    @JsonProperty("max_team_players")
+    private int maxTeamPlayers = 3;
+
+    @JsonProperty("per_team_fee")
+    private String perTeamFee = "0";
+
+    @JsonProperty("per_player_fee")
+    private String perPlayerFee = "0";
+
+    @JsonProperty("fee_structure")
+    private String feeStructure = "FIXED";
+
+    @JsonProperty("team_rating_calculation")
+    private String teamRatingCalculationMethod = "SUM_TOP_TWO";
+
+    @JsonProperty("fee_schedule_items")
+    private List<FeeScheduleItemDTO> feeScheduleItems;
 }
+
+

@@ -46,9 +46,9 @@ export class EventFeesConfigComponent implements OnChanges {
   }
 
   protected onAddScheduleItem() {
-    const feeSchedule = this.tournamentEvent.feeScheduleItems || [];
+    const feeSchedule = this.tournamentEvent.configuration?.feeScheduleItems || [];
     const newItem: FeeScheduleItem = new FeeScheduleItem();
-    this.tournamentEvent.feeScheduleItems = [...feeSchedule, newItem];
+    this.tournamentEvent.configuration.feeScheduleItems = [...feeSchedule, newItem];
   }
 
   protected onRemoveScheduleItem(deleteAtIndex: number) {
@@ -61,13 +61,11 @@ export class EventFeesConfigComponent implements OnChanges {
     const dialogRef = this.dialog.open(ConfirmationPopupComponent, config);
     dialogRef.afterClosed().subscribe(result => {
       if (result === 'ok') {
-        const feeSchedule = this.tournamentEvent.feeScheduleItems || [];
+        const feeSchedule = this.tournamentEvent.configuration?.feeScheduleItems || [];
         feeSchedule.splice(deleteAtIndex, 1);
-        this.tournamentEvent.feeScheduleItems = [...feeSchedule];
+        this.tournamentEvent.configuration.feeScheduleItems = [...feeSchedule];
       }
     });
   }
 
 }
-
-export default EventFeesConfigComponent;

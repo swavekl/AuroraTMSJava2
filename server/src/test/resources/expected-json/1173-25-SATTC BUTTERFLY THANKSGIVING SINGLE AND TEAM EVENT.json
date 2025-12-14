@@ -1,0 +1,280 @@
+{
+  "tournament_name": "SATTC BUTTERFLY THANKSGIVING SINGLE AND TEAM EVENT",
+  "star_rating": "",
+  "start_date": "",
+  "end_date": "",
+  "rating_eligibility_date": "",
+  "rating_seeding_date": "",
+  "entry_deadline_date": "11/14/2025",
+  "refund_deadline_date": "11/14/2025",
+  "late_entry_date": "",
+  "registration_fee": "",
+  "venue_name": "San Antonio Table Tennis Club",
+  "venue_address": {
+    "street": "",
+    "city": "",
+    "state": "",
+    "zip": ""
+  },
+  "website_url": "",
+  "referee": {
+    "name": "Dan REYNOLDS",
+    "rank": "NR"
+  },
+  "umpires": [],
+  "directors": [
+    {
+      "name": "Cyril MAYEUX",
+      "phone": "210 988 7365",
+      "email": "Cyril.mayeux@hotmail.com"
+    }
+  ],
+  "equipment": {
+    "tables": "8",
+    "ball_type": "White Butterfly R40+"
+  },
+  "events": [
+    {
+      "ordinal_number": 1,
+      "event_name": "Under 2050 RR",
+      "day": 1,
+      "start_time": "11:00 AM",
+      "entry_fee": "79",
+      "is_doubles": false,
+      "max_entries": 40,
+      "single_elimination": false,
+      "max_rating": "2049",
+      "gender_restriction": "",
+      "age_restriction": {
+        "type": "NONE",
+        "age": "",
+        "restriction_date": ""
+      },
+      "players_per_group": 4,
+      "draw_method": "SNAKE",
+      "tables_per_group": 1,
+      "number_of_games": 5,
+      "number_of_games_se_playoffs": 5,
+      "number_of_games_se_quarter_finals": 5,
+      "number_of_games_se_semi_finals": 5,
+      "number_of_games_se_finals": 5,
+      "play_3rd_4th_place": false,
+      "players_to_advance": 2,
+      "advance_unrated_player": false,
+      "players_to_seed": 0,
+      "prizes": [],
+      "event_entry_type": "INDIVIDUAL",
+      "min_team_players": 0,
+      "max_team_players": 0,
+      "per_team_fee": "0",
+      "per_player_fee": "0",
+      "fee_structure": "FIXED",
+      "team_rating_calculation": "NONE",
+      "fee_schedule_items": []
+    },
+    {
+      "ordinal_number": 2,
+      "event_name": "Under 1750 RR",
+      "day": 1,
+      "start_time": "9:00 AM",
+      "entry_fee": "",
+      "is_doubles": false,
+      "max_entries": 0,
+      "single_elimination": false,
+      "max_rating": "1749",
+      "gender_restriction": "",
+      "age_restriction": {
+        "type": "NONE",
+        "age": "",
+        "restriction_date": ""
+      },
+      "players_per_group": 4,
+      "draw_method": "SNAKE",
+      "tables_per_group": 1,
+      "number_of_games": 5,
+      "number_of_games_se_playoffs": 5,
+      "number_of_games_se_quarter_finals": 5,
+      "number_of_games_se_semi_finals": 5,
+      "number_of_games_se_finals": 5,
+      "play_3rd_4th_place": false,
+      "players_to_advance": 2,
+      "advance_unrated_player": false,
+      "players_to_seed": 0,
+      "prizes": [
+        {
+          "division": "",
+          "place": "1",
+          "place_end": "",
+          "prize_money": "",
+          "award": "trophy"
+        },
+        {
+          "division": "",
+          "place": "2",
+          "place_end": "",
+          "prize_money": "",
+          "award": "medal"
+        },
+        {
+          "division": "",
+          "place": "3",
+          "place_end": "",
+          "prize_money": "",
+          "award": "medal"
+        }
+      ],
+      "event_entry_type": "INDIVIDUAL",
+      "min_team_players": 0,
+      "max_team_players": 0,
+      "per_team_fee": "0",
+      "per_player_fee": "0",
+      "fee_structure": "FIXED",
+      "team_rating_calculation": "NONE",
+      "fee_schedule_items": []
+    },
+    {
+      "ordinal_number": 3,
+      "event_name": "Under 1550 RR",
+      "day": 1,
+      "start_time": "11:00 AM",
+      "entry_fee": "",
+      "is_doubles": false,
+      "max_entries": 39,
+      "single_elimination": false,
+      "max_rating": "1549",
+      "gender_restriction": "",
+      "age_restriction": {
+        "type": "NONE",
+        "age": "",
+        "restriction_date": ""
+      },
+      "players_per_group": 4,
+      "draw_method": "SNAKE",
+      "tables_per_group": 1,
+      "number_of_games": 5,
+      "number_of_games_se_playoffs": 5,
+      "number_of_games_se_quarter_finals": 5,
+      "number_of_games_se_semi_finals": 5,
+      "number_of_games_se_finals": 5,
+      "play_3rd_4th_place": false,
+      "players_to_advance": 2,
+      "advance_unrated_player": false,
+      "players_to_seed": 0,
+      "prizes": [
+        {
+          "division": "",
+          "place": "1",
+          "place_end": "",
+          "prize_money": "",
+          "award": "trophy"
+        }
+      ],
+      "event_entry_type": "INDIVIDUAL",
+      "min_team_players": 0,
+      "max_team_players": 0,
+      "per_team_fee": "0",
+      "per_player_fee": "0",
+      "fee_structure": "FIXED",
+      "team_rating_calculation": "NONE",
+      "fee_schedule_items": []
+    },
+    {
+      "ordinal_number": 4,
+      "event_name": "Under 1350 RR",
+      "day": 1,
+      "start_time": "9:00 AM",
+      "entry_fee": "",
+      "is_doubles": false,
+      "max_entries": 0,
+      "single_elimination": false,
+      "max_rating": "1349",
+      "gender_restriction": "",
+      "age_restriction": {
+        "type": "NONE",
+        "age": "",
+        "restriction_date": ""
+      },
+      "players_per_group": 4,
+      "draw_method": "SNAKE",
+      "tables_per_group": 1,
+      "number_of_games": 5,
+      "number_of_games_se_playoffs": 5,
+      "number_of_games_se_quarter_finals": 5,
+      "number_of_games_se_semi_finals": 5,
+      "number_of_games_se_finals": 5,
+      "play_3rd_4th_place": false,
+      "players_to_advance": 2,
+      "advance_unrated_player": false,
+      "players_to_seed": 0,
+      "prizes": [
+        {
+          "division": "",
+          "place": "1",
+          "place_end": "",
+          "prize_money": "",
+          "award": "trophy"
+        },
+        {
+          "division": "",
+          "place": "2",
+          "place_end": "",
+          "prize_money": "",
+          "award": "medal"
+        },
+        {
+          "division": "",
+          "place": "3",
+          "place_end": "",
+          "prize_money": "",
+          "award": "medal"
+        }
+      ],
+      "event_entry_type": "INDIVIDUAL",
+      "min_team_players": 0,
+      "max_team_players": 0,
+      "per_team_fee": "0",
+      "per_player_fee": "0",
+      "fee_structure": "FIXED",
+      "team_rating_calculation": "NONE",
+      "fee_schedule_items": []
+    },
+    {
+      "ordinal_number": 5,
+      "event_name": "Under 3250 Team",
+      "day": 1,
+      "start_time": "2:00 PM",
+      "entry_fee": "40",
+      "is_doubles": false,
+      "max_entries": 0,
+      "single_elimination": false,
+      "max_rating": "3249",
+      "gender_restriction": "",
+      "age_restriction": {
+        "type": "NONE",
+        "age": "",
+        "restriction_date": ""
+      },
+      "players_per_group": 4,
+      "draw_method": "SNAKE",
+      "tables_per_group": 1,
+      "number_of_games": 5,
+      "number_of_games_se_playoffs": 5,
+      "number_of_games_se_quarter_finals": 5,
+      "number_of_games_se_semi_finals": 5,
+      "number_of_games_se_finals": 5,
+      "play_3rd_4th_place": false,
+      "players_to_advance": 2,
+      "advance_unrated_player": false,
+      "players_to_seed": 0,
+      "prizes": [],
+      "event_entry_type": "TEAM",
+      "min_team_players": 2,
+      "max_team_players": 2,
+      "per_team_fee": "80",
+      "per_player_fee": "0",
+      "fee_structure": "FIXED",
+      "team_rating_calculation": "NONE",
+      "fee_schedule_items": []
+    }
+  ]
+}

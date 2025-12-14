@@ -75,7 +75,7 @@
         Add Schedule Item
       </button>
     </mat-toolbar>
-    <ng-container *ngFor="let scheduleItem of tournamentEvent?.feeScheduleItems; let itemIdx = index">
+    <ng-container *ngFor="let scheduleItem of tournamentEvent?.configuration?.feeScheduleItems; let itemIdx = index">
       <div fxLayout="row" fxLayoutGap="10px">
         <mat-form-field fxFlex="25%">
           <mat-label>Offer Name</mat-label>
@@ -94,16 +94,16 @@
         <mat-form-field fxFlex="20%">
           <mat-label>Team Fee</mat-label>
           <input matInput type="text" [name]="`entryFee_{{itemIdx}}`" [(ngModel)]="scheduleItem.entryFee"
-                 required [pattern]="PRICE_REGEX" #perTeamFee="ngModel">
-          <!--          <mat-error *ngIf="perTeamFee.control?.hasError('pattern')">Enter price e.g. 50 or 22.50</mat-error>-->
-          <!--          <mat-error *ngIf="perTeamFee.control?.hasError('required')">This field is required</mat-error>-->
+                 required [pattern]="PRICE_REGEX" #entryFee="ngModel">
+                    <mat-error *ngIf="entryFee.control?.hasError('pattern')">Enter price e.g. 50 or 22.50</mat-error>
+                    <mat-error *ngIf="entryFee.control?.hasError('required')">This field is required</mat-error>
         </mat-form-field>
         <mat-form-field fxFlex="20%">
           <mat-label>Cancellation Fee</mat-label>
           <input matInput type="text" [name]="`cancellationFee_{{itemIdx}}`" [(ngModel)]="scheduleItem.cancellationFee"
                  required [pattern]="PRICE_REGEX" #cancellationFee="ngModel">
-          <!--          <mat-error *ngIf="perTeamFee.control?.hasError('pattern')">Enter price e.g. 50 or 22.50</mat-error>-->
-          <!--          <mat-error *ngIf="perTeamFee.control?.hasError('required')">This field is required</mat-error>-->
+                    <mat-error *ngIf="cancellationFee.control?.hasError('pattern')">Enter price e.g. 50 or 22.50</mat-error>
+                    <mat-error *ngIf="cancellationFee.control?.hasError('required')">This field is required</mat-error>
         </mat-form-field>
         <div fxFlex="10%">
         <button mat-icon-button type="button" (click)="onRemoveScheduleItem(itemIdx)" matTooltip="Delete" style="margin-right: 0px">

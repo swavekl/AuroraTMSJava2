@@ -77,6 +77,7 @@
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "options": {
+            "hmr": false,
             "buildTarget": "client:build"
           },
           "configurations": {

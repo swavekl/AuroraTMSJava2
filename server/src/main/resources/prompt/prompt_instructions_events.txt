@@ -57,6 +57,33 @@ If event name contains "RR"  → single_elimination = false
 If event name contains "SE"  → single_elimination = true
 If neither → single_elimination = false
 
+EVENT ENTRY TYPE:
+If tournament name contains "Team" and it has only one event → event_entry_type = "TEAM"
+If event name contains "Team" → event_entry_type = "TEAM"
+Else → event_entry_type = "INDIVIDUAL"
+
+PLAYERS PER TEAM
+Extract minimum and maximum number of players for a team.
+Look for entry form fields allowing entry of Player 1 name, Player 2 name, Player 3 name etc. and find the
+highest player number e.g. 3
+
+Examples:
+  "2 or 3 Players/team." → min_team_players = 2, max_team_players = 3
+  "Each team must consist of 2 players" → min_team_players = 2, max_team_players = 2
+  "Under 3250 Team (2 players)" → min_team_players = 2, max_team_players = 2
+  "Each Team will consist of three or maximum of four players" → min_team_players = 3, max_team_players = 4
+  "players from each team (chosen from the full complement of 3-5)" → min_team_players = 3, max_team_players = 5
+
+if not team event → min_team_players = 0, max_team_players = 0
+
+TEAM RATING CALCULATION METHOD
+If event is a team event and text includes phrases:
+  "Use average rating of team for seeding" → team_rating_calculation = "AVERAGE_ALL_PLAYERS"
+Else → team_rating_calculation = "NONE"
+
+------------------------------------------------------------------------------------------
+### EVENT ENTRY FEES
+------------------------------------------------------------------------------------------
 ENTRY FEE:
 Extract ONLY the base event fee, excluding administrative or rating fees.
 
@@ -72,6 +99,48 @@ NOT valid as event entry fee:
   Rating fee
   Registration/Administrative fee
   Membership fee
+
+FEE STRUCTURE
+If this is a team tournament, and you find a table listing dates and different fees per team with a heading similar to this:
+"Team Fee Structures Deadline Cancellation Policy Team Fee" → fee_structure = "PER_SCHEDULE"
+Else → fee_structure = "FIXED"
+
+PER TEAM FEE
+If this is a team tournament/event report per team fee.
+Else → per_team_fee = "0"
+
+Valid forms:
+  "Entry Fee: $120/Team;" → per_team_fee = "120"
+  "Entry Fee: $100 per team" → per_team_fee = "100"
+  "Team Entry Fee - $685" → per_team_fee = "685"
+
+PER PLAYER FEE
+If this is a team tournament/event report per player fee.
+Else → per_player_fee = "0"
+Always return a numeric string without $.
+
+Examples:
+  "plus $10 per person tournament registration fee" → per_player_fee = "10"
+
+CANCELLATION FEE
+If this is a teams tournament extract single cancellation fee:
+
+FEE SCHEDULE
+If this is a team tournament and there is a fee schedule table report it.
+
+Example:
+  "Team Fee Structures Deadline Cancellation Policy Team Fee"
+   2025 SPECIAL PRICE December 31,2025 $350 Non-Refundable $899.00
+   Early Bird March 31, 2026 $350 Non-Refundable $949.00
+   → fee_schedule_items = [
+           {"offer_name": "2025 SPECIAL PRICE", "deadline": "12/31/2025", "entry_fee": "899", "cancellation_fee": "350"},
+           {"offer_name": "Early Bird", "deadline": "03/31/2026", "entry_fee": "949", "cancellation_fee": "350"}
+           ]
+
+Rules:
+    Convert deadline dates to a standard format e.g. December 31,2025 → "deadline": "12/31/2025"
+    Extract entry fee and return a numeric string without $. "$899" → "entry_fee": "899", "cancellation_fee": "350"
+    Extract cancellation fee and return a numeric string without $. "$350 Non-Refundable" → "cancellation_fee": "350"
 
 ------------------------------------------------------------------------------------------
 ### EVENT DAY INDEX (NOT DAY OF WEEK)

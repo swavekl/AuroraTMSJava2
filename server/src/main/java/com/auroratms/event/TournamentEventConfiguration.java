@@ -22,6 +22,9 @@ public class TournamentEventConfiguration implements Serializable {
     // final player rankings in the event 1st place x, 2nd place y etc.
     private Map<Integer, String> finalPlayerRankings;
 
+    // fee schedule items with progressively more expensive as event date nears
+    private List<FeeScheduleItem> feeScheduleItems;
+
     /**
      * Copy constructor used for cloning events
      * @param fromConfiguration
@@ -40,6 +43,14 @@ public class TournamentEventConfiguration implements Serializable {
             for (Integer ranking : fromConfiguration.finalPlayerRankings.keySet()) {
                 String playerName = fromConfiguration.finalPlayerRankings.get(ranking);
                 this.finalPlayerRankings.put(ranking, playerName);
+            }
+        }
+
+        if (fromConfiguration.feeScheduleItems != null) {
+            this.feeScheduleItems = new ArrayList<>(fromConfiguration.feeScheduleItems.size());
+            for (FeeScheduleItem feeScheduleItem : fromConfiguration.feeScheduleItems) {
+                FeeScheduleItem copy = new FeeScheduleItem(feeScheduleItem);
+                this.feeScheduleItems.add(copy);
             }
         }
     }

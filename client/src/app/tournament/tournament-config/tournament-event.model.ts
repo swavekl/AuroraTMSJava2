@@ -8,7 +8,6 @@ import {TournamentEventRound} from './model/tournament-event-round.model';
 import {TournamentEventRoundDivision} from './model/tournament-event-round-division.model';
 import {TournamentRoundsConfiguration} from './model/tournament-rounds-configuration.model';
 import {FeeStructure} from './model/fee-structure.enum';
-import {FeeScheduleItem} from './model/fee-schedule-item';
 import {TeamRatingCalculationMethod} from './model/team-rating-calculation-method';
 
 /**
@@ -110,15 +109,12 @@ export class TournamentEvent {
   perTeamFee: number;
   perPlayerFee: number;
 
-  // fee schedule items with progressively more expensive as event date nears
-  feeScheduleItems: FeeScheduleItem[] = [];
-
   // applies to all tournaments i.e. withdrawal penalty
   cancellationFee: number;
 
   // team size is a range 2 to 3, or 3 to  5.
-  minTeamPlayers: number;
-  maxTeamPlayers: number;
+  minTeamPlayers: number = 2;
+  maxTeamPlayers: number = 3;
 
   // method used to calculate team rating
   teamRatingCalculationMethod: TeamRatingCalculationMethod = TeamRatingCalculationMethod.SUM_TOP_TWO;
@@ -187,9 +183,18 @@ export class TournamentEvent {
       tournamentEvent.ageRestrictionType = AgeRestrictionType.NONE;
     }
     tournamentEvent.eligibilityRestriction = EligibilityRestriction.OPEN;
+    if (tournamentEvent.eventEntryType == EventEntryType.TEAM) {
+      tournamentEvent.perTeamFee = 120;
+      tournamentEvent.perPlayerFee = 15;
+      tournamentEvent.cancellationFee = 0;
+      tournamentEvent.minTeamPlayers = 2;
+      tournamentEvent.maxTeamPlayers = 3;
+      tournamentEvent.teamRatingCalculationMethod = TeamRatingCalculationMethod.SUM_TOP_TWO;
+    }
     // tournamentEvent.genderRestriction = GenderRestriction[selectedEvent.genderRestriction];
     tournamentEvent.configuration = new TournamentEventConfiguration();
     tournamentEvent.configuration.prizeInfoList = [];
+    tournamentEvent.configuration.feeScheduleItems = [];
     tournamentEvent.roundsConfiguration = new TournamentRoundsConfiguration();
     tournamentEvent.roundsConfiguration.rounds = TournamentEvent.formRoundsConfiguration(
       tournamentEvent.configuration, false, selectedEvent);

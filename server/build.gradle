@@ -155,7 +155,12 @@ dependencies {
     // Tess4J OCR wrapper for Tesseract
     implementation 'net.sourceforge.tess4j:tess4j:5.16.0'
 
-    // JSON Schema validation
+    // --- ADD THESE DEPENDENCIES TO FIX JPEG2000 ERROR ---
+    implementation 'org.apache.pdfbox:jbig2-imageio:3.0.4'
+    // Include both the Core and the Implementation to ensure the Service Provider Interface (SPI) is loaded correctly.
+    implementation 'com.github.jai-imageio:jai-imageio-core:1.4.0'
+    implementation 'com.github.jai-imageio:jai-imageio-jpeg2000:1.4.0'
+
     implementation "com.github.erosb:everit-json-schema:1.14.1"
     implementation "org.json:json:20240303"
 

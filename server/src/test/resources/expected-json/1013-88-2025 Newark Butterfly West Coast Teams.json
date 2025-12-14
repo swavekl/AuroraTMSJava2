@@ -1,0 +1,98 @@
+{
+  "tournament_name": "Butterfly West Coast Teams",
+  "star_rating": "2",
+  "start_date": "11/29/2025",
+  "end_date": "11/29/2025",
+  "rating_eligibility_date": "",
+  "rating_seeding_date": "11/27/2025",
+  "entry_deadline_date": "11/23/2025",
+  "refund_deadline_date": "11/15/2025",
+  "late_entry_date": "11/26/2025",
+  "registration_fee": "25",
+  "venue_name": "Silliman Center",
+  "venue_address": {
+    "street": "6800 Mowry Ave",
+    "city": "Newark",
+    "state": "CA",
+    "zip": "94560"
+  },
+  "website_url": "",
+  "referee": {
+    "name": "Kenny Tien",
+    "rank": ""
+  },
+  "umpires": [],
+  "directors": [
+    {
+      "name": "Shashin Shodhan",
+      "phone": "510 366 5234",
+      "email": "shashin@fremonttabletennis.com"
+    }
+  ],
+  "equipment": {
+    "tables": "13",
+    "ball_type": "Butterfly R40+ white plastic 3-star balls"
+  },
+  "events": [
+    {
+      "ordinal_number": 1,
+      "event_name": "Giant Round Robin",
+      "day": 1,
+      "start_time": "9:45 AM",
+      "entry_fee": "280",
+      "is_doubles": false,
+      "max_entries": 0,
+      "single_elimination": false,
+      "max_rating": "",
+      "gender_restriction": "",
+      "age_restriction": {
+        "type": "NONE",
+        "age": "",
+        "restriction_date": ""
+      },
+      "players_per_group": 4,
+      "draw_method": "SNAKE",
+      "tables_per_group": 1,
+      "number_of_games": 5,
+      "number_of_games_se_playoffs": 5,
+      "number_of_games_se_quarter_finals": 5,
+      "number_of_games_se_semi_finals": 5,
+      "number_of_games_se_finals": 5,
+      "play_3rd_4th_place": true,
+      "players_to_advance": 1,
+      "advance_unrated_player": true,
+      "players_to_seed": 0,
+      "prizes": [
+        {
+          "division": "Championship",
+          "place": "1",
+          "place_end": "",
+          "prize_money": "700",
+          "award": "trophy"
+        },
+        {
+          "division": "Championship",
+          "place": "2",
+          "place_end": "",
+          "prize_money": "400",
+          "award": "trophy"
+        },
+        {
+          "division": "",
+          "place": "3",
+          "place_end": "4",
+          "prize_money": "",
+          "award": "trophy"
+        }
+      ],
+      "event_entry_type": "TEAM",
+      "min_team_players": 2,
+      "max_team_players": 2,
+      "per_team_fee": "280",
+      "per_player_fee": "0",
+      "fee_structure": "FIXED",
+      "team_rating_calculation": "AVERAGE_ALL_PLAYERS",
+      "fee_schedule_items": []
+    }
+  ]
+}

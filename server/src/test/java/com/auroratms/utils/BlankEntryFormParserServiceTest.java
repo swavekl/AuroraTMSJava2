@@ -172,7 +172,7 @@ class BlankEntryFormParserServiceTest extends AbstractServiceTest {
     }
 
     @Test
-//    @Disabled
+    @Disabled
     void testMiamiDecemberOpen() throws Exception {
         runPdfTest("pdfs/1139-10 Miami Table Tennis December 2025 Tournament.pdf",
                 "Miami Table Tennis December");
@@ -217,6 +217,34 @@ class BlankEntryFormParserServiceTest extends AbstractServiceTest {
     void testSpinAndSmashTeams() throws Exception {
         runPdfTest("pdfs/1087-134-Spin & Smash 3-player Teams Tournament.pdf",
                 "Spin & Smash 3-player Teams Tournament");
+    }
+
+    @Test
+    @Disabled
+    void test2026UsattTeams() throws Exception {
+        runPdfTest("pdfs/1091-111-2026 US OPEN TEAMS CHAMPIONSHIPS.pdf",
+                "2026 US Open Teams Championships");
+    }
+
+    @Test
+    @Disabled
+    void testSATTCCombinedRatingRestrictedAndTeams() throws Exception {
+        runPdfTest("pdfs/1173-25-SATTC BUTTERFLY THANKSGIVING SINGLE AND TEAM EVENT.pdf",
+                "SATTC BUTTERFLY THANKSGIVING SINGLE AND TEAM EVENT");
+    }
+
+    @Test
+//    @Disabled
+    void testNewarkWestCoastTeams() throws Exception {
+        runPdfTest("pdfs/1013-88-2025 Newark Butterfly West Coast Teams.pdf",
+                "Butterfly West Coast Teams");
+    }
+
+    @Test
+    @Disabled
+    void testAmericasTeamChampionship() throws Exception {
+        runPdfTest("pdfs/1030-29-AMERICA’S TEAM TABLE TENNIS CHAMPIONSHIP Rockford.pdf",
+                "America's Team Table Tennis Championship");
     }
 
     @Test

@@ -1,12 +1,12 @@
 package com.auroratms.event;
 
 import com.auroratms.tournament.EligibilityRestriction;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.Setter;
 
-import jakarta.persistence.*;
 import java.util.Date;
 import java.util.Objects;
 
@@ -104,9 +104,25 @@ public class TournamentEventEntity {
     // number of players to seed directly into next round
     private int playersToSeed;
 
+    private FeeStructure feeStructure = FeeStructure.FIXED;
+
     // fees
     private double feeAdult;
     private double feeJunior;
+
+    // fixed team fees
+    private double perTeamFee;
+    private double perPlayerFee;
+
+    // applies to all tournaments i.e. withdrawal penalty
+    private double cancellationFee;
+
+    // team size is a range 2 to 3, or 3 to  5.
+    private int minTeamPlayers;
+    private int maxTeamPlayers;
+
+    // method used to calculate team rating
+    private TeamRatingCalculationMethod teamRatingCalculationMethod = TeamRatingCalculationMethod.SUM_TOP_TWO;
 
     // if true match scores were entered for this event so redoing draws should be prohibited
     private boolean matchScoresEntered;
@@ -125,14 +141,13 @@ public class TournamentEventEntity {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         TournamentEventEntity that = (TournamentEventEntity) o;
-        return tournamentFk == that.tournamentFk && ordinalNumber == that.ordinalNumber && day == that.day && Double.compare(that.startTime, startTime) == 0 && singleElimination == that.singleElimination && doubles == that.doubles && maxEntries == that.maxEntries && numEntries == that.numEntries && minPlayerRating == that.minPlayerRating && maxPlayerRating == that.maxPlayerRating && minPlayerAge == that.minPlayerAge && maxPlayerAge == that.maxPlayerAge && playersPerGroup == that.playersPerGroup && numTablesPerGroup == that.numTablesPerGroup && pointsPerGame == that.pointsPerGame && numberOfGames == that.numberOfGames && numberOfGamesSEPlayoffs == that.numberOfGamesSEPlayoffs && numberOfGamesSEQuarterFinals == that.numberOfGamesSEQuarterFinals && numberOfGamesSESemiFinals == that.numberOfGamesSESemiFinals && numberOfGamesSEFinals == that.numberOfGamesSEFinals && play3rd4thPlace == that.play3rd4thPlace && playersToAdvance == that.playersToAdvance && advanceUnratedWinner == that.advanceUnratedWinner && playersToSeed == that.playersToSeed && Double.compare(that.feeAdult, feeAdult) == 0 && Double.compare(that.feeJunior, feeJunior) == 0 && id.equals(that.id) && name.equals(that.name) && ageRestrictionType == that.ageRestrictionType && Objects.equals(ageRestrictionDate, that.ageRestrictionDate) && genderRestriction == that.genderRestriction && drawMethod == that.drawMethod && matchScoresEntered == that.matchScoresEntered;
+        return tournamentFk == that.tournamentFk && ordinalNumber == that.ordinalNumber && day == that.day && Double.compare(startTime, that.startTime) == 0 && singleElimination == that.singleElimination && doubles == that.doubles && maxEntries == that.maxEntries && numEntries == that.numEntries && minPlayerRating == that.minPlayerRating && maxPlayerRating == that.maxPlayerRating && minPlayerAge == that.minPlayerAge && maxPlayerAge == that.maxPlayerAge && playersPerGroup == that.playersPerGroup && numTablesPerGroup == that.numTablesPerGroup && pointsPerGame == that.pointsPerGame && numberOfGames == that.numberOfGames && numberOfGamesSEPlayoffs == that.numberOfGamesSEPlayoffs && numberOfGamesSEQuarterFinals == that.numberOfGamesSEQuarterFinals && numberOfGamesSESemiFinals == that.numberOfGamesSESemiFinals && numberOfGamesSEFinals == that.numberOfGamesSEFinals && play3rd4thPlace == that.play3rd4thPlace && playersToAdvance == that.playersToAdvance && advanceUnratedWinner == that.advanceUnratedWinner && playersToSeed == that.playersToSeed && Double.compare(feeAdult, that.feeAdult) == 0 && Double.compare(feeJunior, that.feeJunior) == 0 && Double.compare(perTeamFee, that.perTeamFee) == 0 && Double.compare(perPlayerFee, that.perPlayerFee) == 0 && Double.compare(cancellationFee, that.cancellationFee) == 0 && minTeamPlayers == that.minTeamPlayers && maxTeamPlayers == that.maxTeamPlayers && matchScoresEntered == that.matchScoresEntered && Objects.equals(id, that.id) && Objects.equals(name, that.name) && eventEntryType == that.eventEntryType && ageRestrictionType == that.ageRestrictionType && Objects.equals(ageRestrictionDate, that.ageRestrictionDate) && genderRestriction == that.genderRestriction && eligibilityRestriction == that.eligibilityRestriction && drawMethod == that.drawMethod && teamRatingCalculationMethod == that.teamRatingCalculationMethod && Objects.equals(content, that.content) && Objects.equals(roundsContent, that.roundsContent);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, tournamentFk, name, ordinalNumber, day, startTime, singleElimination, doubles, maxEntries, numEntries, minPlayerRating, maxPlayerRating, minPlayerAge, maxPlayerAge, ageRestrictionType, ageRestrictionDate, genderRestriction, playersPerGroup, drawMethod, numTablesPerGroup, pointsPerGame, numberOfGames, numberOfGamesSEPlayoffs, numberOfGamesSEQuarterFinals, numberOfGamesSESemiFinals, numberOfGamesSEFinals, play3rd4thPlace, playersToAdvance, advanceUnratedWinner, playersToSeed, feeAdult, feeJunior, matchScoresEntered);
+        return Objects.hash(id, tournamentFk, name, ordinalNumber, day, startTime, singleElimination, doubles, eventEntryType, maxEntries, numEntries, minPlayerRating, maxPlayerRating, minPlayerAge, maxPlayerAge, ageRestrictionType, ageRestrictionDate, genderRestriction, eligibilityRestriction, playersPerGroup, drawMethod, numTablesPerGroup, pointsPerGame, numberOfGames, numberOfGamesSEPlayoffs, numberOfGamesSEQuarterFinals, numberOfGamesSESemiFinals, numberOfGamesSEFinals, play3rd4thPlace, playersToAdvance, advanceUnratedWinner, playersToSeed, feeAdult, feeJunior, perTeamFee, perPlayerFee, cancellationFee, minTeamPlayers, maxTeamPlayers, teamRatingCalculationMethod, matchScoresEntered, content, roundsContent);
     }
 }

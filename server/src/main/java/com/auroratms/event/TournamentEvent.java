@@ -98,9 +98,26 @@ public class TournamentEvent implements Serializable {
     // number of players to seed directly into next round
     private int playersToSeed;
 
+    // fixed or per schedule
+    private FeeStructure feeStructure = FeeStructure.FIXED;
+
     // fees
     private double feeAdult;
     private double feeJunior;
+
+    // fixed team fees
+    private double perTeamFee;
+    private double perPlayerFee;
+
+    // applies to all tournaments i.e. withdrawal penalty
+    private double cancellationFee;
+
+    // team size is a range 2 to 3, or 3 to  5.
+    private int minTeamPlayers;
+    private int maxTeamPlayers;
+
+    // method used to calculate team rating
+    private TeamRatingCalculationMethod teamRatingCalculationMethod = TeamRatingCalculationMethod.SUM_TOP_TWO;
 
     // if true match scores were entered for this event so redoing draws should be prohibited
     private boolean matchScoresEntered;
@@ -161,6 +178,14 @@ public class TournamentEvent implements Serializable {
         tournamentEventEntity.setFeeAdult(this.getFeeAdult());
         tournamentEventEntity.setFeeJunior(this.getFeeJunior());
         tournamentEventEntity.setMatchScoresEntered(this.isMatchScoresEntered());
+        tournamentEventEntity.setEventEntryType(this.getEventEntryType());
+        tournamentEventEntity.setFeeStructure(this.getFeeStructure());
+        tournamentEventEntity.setPerPlayerFee(this.getPerPlayerFee());
+        tournamentEventEntity.setPerTeamFee(this.getPerTeamFee());
+        tournamentEventEntity.setCancellationFee(this.getCancellationFee());
+        tournamentEventEntity.setMinTeamPlayers(this.getMinTeamPlayers());
+        tournamentEventEntity.setMaxTeamPlayers(this.getMaxTeamPlayers());
+        tournamentEventEntity.setTeamRatingCalculationMethod(this.getTeamRatingCalculationMethod());
 
         if (this.getConfiguration() != null) {
             try {
@@ -227,6 +252,14 @@ public class TournamentEvent implements Serializable {
         tournamentEvent.setFeeAdult(tournamentEventEntity.getFeeAdult());
         tournamentEvent.setFeeJunior(tournamentEventEntity.getFeeJunior());
         tournamentEvent.setMatchScoresEntered(tournamentEventEntity.isMatchScoresEntered());
+        tournamentEvent.setEventEntryType(tournamentEventEntity.getEventEntryType());
+        tournamentEvent.setFeeStructure(tournamentEventEntity.getFeeStructure());
+        tournamentEvent.setPerPlayerFee(tournamentEventEntity.getPerPlayerFee());
+        tournamentEvent.setPerTeamFee(tournamentEventEntity.getPerTeamFee());
+        tournamentEvent.setCancellationFee(tournamentEventEntity.getCancellationFee());
+        tournamentEvent.setMinTeamPlayers(tournamentEventEntity.getMinTeamPlayers());
+        tournamentEvent.setMaxTeamPlayers(tournamentEventEntity.getMaxTeamPlayers());
+        tournamentEvent.setTeamRatingCalculationMethod(tournamentEventEntity.getTeamRatingCalculationMethod());
 
         tournamentEvent.setConfiguration(null);
         // convert from JSON to configuration
@@ -292,6 +325,14 @@ public class TournamentEvent implements Serializable {
         this.setFeeAdult(cloneFrom.getFeeAdult());
         this.setFeeJunior(cloneFrom.getFeeJunior());
         this.setMatchScoresEntered(cloneFrom.isMatchScoresEntered());
+        this.setEventEntryType(cloneFrom.getEventEntryType());
+        this.setFeeStructure(cloneFrom.getFeeStructure());
+        this.setPerPlayerFee(cloneFrom.getPerPlayerFee());
+        this.setPerTeamFee(cloneFrom.getPerTeamFee());
+        this.setCancellationFee(cloneFrom.getCancellationFee());
+        this.setMinTeamPlayers(cloneFrom.getMinTeamPlayers());
+        this.setMaxTeamPlayers(cloneFrom.getMaxTeamPlayers());
+        this.setTeamRatingCalculationMethod(cloneFrom.getTeamRatingCalculationMethod());
         this.setConfiguration(new TournamentEventConfiguration(cloneFrom.getConfiguration()));
         this.setRoundsConfiguration(new TournamentRoundsConfiguration(cloneFrom.getRoundsConfiguration()));
     }
