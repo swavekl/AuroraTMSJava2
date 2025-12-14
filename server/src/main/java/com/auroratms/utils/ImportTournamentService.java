@@ -1681,6 +1681,19 @@ public class ImportTournamentService {
         }
 
         tournamentEvent.setConfiguration(tournamentEventFromPDF.getConfiguration());
+        tournamentEvent.setEventEntryType(tournamentEventFromPDF.getEventEntryType());
+        if (tournamentEvent.getFeeStructure() != tournamentEventFromPDF.getFeeStructure()) {
+            tournamentEvent.setFeeStructure(tournamentEventFromPDF.getFeeStructure());
+            changed = true;
+        }
+        tournamentEvent.setPerTeamFee(tournamentEventFromPDF.getPerTeamFee());
+        tournamentEvent.setPerPlayerFee(tournamentEventFromPDF.getPerPlayerFee());
+        tournamentEvent.setMinTeamPlayers(tournamentEventFromPDF.getMinTeamPlayers());
+        tournamentEvent.setMaxTeamPlayers(tournamentEventFromPDF.getMaxTeamPlayers());
+        if (tournamentEvent.getTeamRatingCalculationMethod() != tournamentEventFromPDF.getTeamRatingCalculationMethod()) {
+            tournamentEvent.setTeamRatingCalculationMethod(tournamentEventFromPDF.getTeamRatingCalculationMethod());
+            changed = true;
+        }
 
         return changed;
     }
@@ -2738,7 +2751,7 @@ public class ImportTournamentService {
         int day = eventDTO.getDay();
         String strStartTime = StringUtils.isNotEmpty(eventDTO.getStartTime()) ? eventDTO.getStartTime() : "9:00 AM";
         double startTime = convertStartTime(strStartTime);
-        int entryFee = Integer.parseInt(eventDTO.getEntryFee());
+        int entryFee = StringUtils.isNotEmpty(eventDTO.getEntryFee()) ? Integer.parseInt(eventDTO.getEntryFee()) : 0;
         int juniorEntryFee = entryFee;
         boolean isDoubles = eventDTO.isDoubles();
         boolean isSingleElimination = eventDTO.isSingleElimination();
@@ -2829,20 +2842,18 @@ public class ImportTournamentService {
             int perPlayerFee = !StringUtils.isBlank(eventDTO.getPerPlayerFee())  ?
                     Integer.parseInt(eventDTO.getPerPlayerFee()) : 0;
             tournamentEvent.setPerPlayerFee(perPlayerFee);
-            if (feeStructure != FeeStructure.FIXED) {
+            if (feeStructure == FeeStructure.FIXED) {
                 // fixed
                 int perTeamFee = !StringUtils.isBlank(eventDTO.getPerTeamFee())
                         ? Integer.parseInt(eventDTO.getPerTeamFee()) : 0;
                 tournamentEvent.setPerTeamFee(perTeamFee);
-            } else {
+            } else if (feeStructure == FeeStructure.PER_SCHEDULE) {
                 List<FeeScheduleItemDTO> feeScheduleItemDTOs = eventDTO.getFeeScheduleItems();
                 List<FeeScheduleItem> feeScheduleItems = new ArrayList<>(feeScheduleItemDTOs.size());
                 for (FeeScheduleItemDTO feeScheduleItemDTO : feeScheduleItemDTOs) {
                     Date deadline = convertDate(feeScheduleItemDTO.getDeadline());
-                    int offerEntryFee = !StringUtils.isBlank(eventDTO.getPerPlayerFee())  ?
-                            Integer.parseInt(eventDTO.getPerPlayerFee()) : 0;
-                    int offerCancellationFee = !StringUtils.isBlank(eventDTO.getPerTeamFee())
-                            ? Integer.parseInt(eventDTO.getPerTeamFee()) : 0;
+                    int offerEntryFee = feeScheduleItemDTO.getEntryFee();
+                    int offerCancellationFee = feeScheduleItemDTO.getCancellationFee();
                     FeeScheduleItem feeScheduleItem = new FeeScheduleItem();
                     feeScheduleItem.setOfferName(feeScheduleItemDTO.getOfferName());
                     feeScheduleItem.setDeadline(deadline);
@@ -2861,7 +2872,6 @@ public class ImportTournamentService {
                     : TeamRatingCalculationMethod.AVERAGE_ALL_PLAYERS;
             tournamentEvent.setTeamRatingCalculationMethod(teamRatingCalculationMethod);
         }
-
 
         return tournamentEvent;
     }

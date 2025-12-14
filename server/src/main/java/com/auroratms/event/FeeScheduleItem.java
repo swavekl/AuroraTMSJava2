@@ -14,9 +14,9 @@ public class FeeScheduleItem implements Serializable {
     // deadline when this offer expires
     private Date deadline;
     // entry fee before this deadline
-    private double entryFee;
+    private int entryFee;
     // cancellation fee
-    private double cancellationFee;
+    private int cancellationFee;
 
     public FeeScheduleItem(FeeScheduleItem feeScheduleItem) {
         this.offerName = feeScheduleItem.offerName;

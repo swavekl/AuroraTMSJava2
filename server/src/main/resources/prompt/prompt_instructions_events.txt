@@ -79,7 +79,8 @@ if not team event → min_team_players = 0, max_team_players = 0
 TEAM RATING CALCULATION METHOD
 If event is a team event and text includes phrases:
   "Use average rating of team for seeding" → team_rating_calculation = "AVERAGE_ALL_PLAYERS"
-Else → team_rating_calculation = "NONE"
+Else if max_team_players > 3 → team_rating_calculation = "SUM_TOP_THREE"
+Else team_rating_calculation = "SUM_TOP_TWO"
 
 ------------------------------------------------------------------------------------------
 ### EVENT ENTRY FEES

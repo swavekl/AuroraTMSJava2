@@ -25,9 +25,9 @@ public class FeeScheduleItemDTO {
 
     // entry fee before this deadline
     @JsonProperty("entry_fee")
-    private double entryFee;
+    private int entryFee;
 
     // cancellation fee
     @JsonProperty("cancellation_fee")
-    private double cancellationFee;
+    private int cancellationFee;
 }
