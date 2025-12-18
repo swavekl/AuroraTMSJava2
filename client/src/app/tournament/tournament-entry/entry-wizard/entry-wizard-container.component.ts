@@ -316,6 +316,10 @@ export class EntryWizardContainerComponent implements OnInit, OnDestroy, AfterVi
       );
   }
 
+  private loadTeamEntries() {
+
+  }
+
   public isDirty(): boolean {
     return this.entryWizardComponent.isDirty();
   }

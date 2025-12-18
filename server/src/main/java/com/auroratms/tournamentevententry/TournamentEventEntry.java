@@ -46,6 +46,12 @@ public class TournamentEventEntry implements Serializable {
     // pairing up is done only after both players agree to play as a team see DoublesPair class
     private String doublesPartnerProfileId;
 
+    // team foreign key, null for individual events
+    private long teamFk;
+
+    // note to display in team finder
+    private String teamFinderNote;
+
     @Override
     public String toString() {
         return "TournamentEventEntry{" +
@@ -58,6 +64,8 @@ public class TournamentEventEntry implements Serializable {
                 ", cartSessionId='" + cartSessionId + '\'' +
                 ", price=" + price +
                 ", doublesPartnerProfileId='" + doublesPartnerProfileId + '\'' +
+                ", teamFk='" + teamFk + '\'' +
+                ", teamFinderNote='" + teamFinderNote + '\'' +
                 '}';
     }
 }

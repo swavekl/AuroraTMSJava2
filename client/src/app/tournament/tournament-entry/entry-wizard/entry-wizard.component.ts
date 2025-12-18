@@ -8,7 +8,8 @@ import {
   OnInit,
   Output,
   SimpleChange,
-  SimpleChanges, ViewChild
+  SimpleChanges,
+  ViewChild
 } from '@angular/core';
 import {MembershipType, TournamentEntry} from '../model/tournament-entry.model';
 import {getCurrencySymbol} from '@angular/common';
@@ -46,6 +47,10 @@ import {MembershipUtil} from '../../util/membership-util';
 import {MatStepper} from '@angular/material/stepper';
 import {ConfirmationPopupComponent} from '../../../shared/confirmation-popup/confirmation-popup.component';
 import {CheckCashPaymentDialogService} from '../../../account/service/check-cash-payment-dialog.service';
+import {EventEntryType} from '../../tournament-config/model/event-entry-type.enum';
+import {TournamentEvent} from '../../tournament-config/tournament-event.model';
+import {Team} from '../model/team.model';
+import {TeamRatingCalculator} from '../../teamratingcalculator/team-rating-calculator';
 
 @Component({
     selector: 'app-entry-wizard',
@@ -106,7 +111,8 @@ export class EntryWizardComponent implements OnInit, OnChanges, OnDestroy {
 
   tournamentStartDate: Date;
 
-  teamsTournament: boolean;
+  hasTeamEvents: boolean;
+  teams: any [];
   tournamentStarLevel: number;
   // if true membership is expired for tournament purposes
   membershipIsExpired: boolean;
@@ -163,7 +169,7 @@ export class EntryWizardComponent implements OnInit, OnChanges, OnDestroy {
     this.dirty = false;
     this.cartSessionLastUpdate = null;
     this.visitedEvents = false;
-    this.subscriptions = new Subscription ();
+    this.subscriptions = new Subscription();
     this.membershipUtil = new MembershipUtil();
     this.membershipOptions = this.membershipUtil.getMembershipOptions();
   }
@@ -182,6 +188,8 @@ export class EntryWizardComponent implements OnInit, OnChanges, OnDestroy {
       this.availableEvents = this.allEventEntryInfos.filter(this.availableEventsFilter, this);
       this.unavailableEvents = this.allEventEntryInfos.filter(this.unavailableEventsFilter, this);
       this.doublesEntries = this.makeDoublesEntries(this.enteredEvents);
+      this.hasTeamEvents = this.anyTeamEventsInTournament();
+      this.teams = this.makeTeams();
     }
 
     const playerProfileChange: SimpleChange = changes.playerProfile;
@@ -193,7 +201,6 @@ export class EntryWizardComponent implements OnInit, OnChanges, OnDestroy {
     if (tournamentChange != null) {
       this.tournament = tournamentChange.currentValue;
       if (this.tournament != null) {
-        this.teamsTournament = this.tournament.configuration.tournamentType === 'Teams';
         // console.log('tournament start date is ' + this.tournament.startDate);
         this.tournamentStartDate = new DateUtils().convertFromString(this.tournament.startDate);
         this.tournamentStarLevel = this.tournament.starLevel;
@@ -638,7 +645,10 @@ export class EntryWizardComponent implements OnInit, OnChanges, OnDestroy {
             const config = {
               width: '450px', height: '220px', data: {
                 contentAreaHeight: '100px',
-                title: 'Error', showCancel: false, okText: 'Close', message: `Payments are not configured for this tournament. ${error.error}`,
+                title: 'Error',
+                showCancel: false,
+                okText: 'Close',
+                message: `Payments are not configured for this tournament. ${error.error}`,
               }
             };
             const dialogRef = this.dialog.open(ConfirmationPopupComponent, config);
@@ -691,19 +701,19 @@ export class EntryWizardComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   getEnterButtonIcon(eventEntryCommand: EventEntryCommand) {
-      switch (eventEntryCommand) {
-        case EventEntryCommand.ENTER:
-          return 'add';
-        case EventEntryCommand.ENTER_WAITING_LIST:
-          return 'playlist_add';
-        case EventEntryCommand.DROP:
-          return 'remove';
-        case EventEntryCommand.DROP_WAITING_LIST:
-          return 'remove';
-        case EventEntryCommand.REVERT_DROP:
-          return 'undo';
-      }
+    switch (eventEntryCommand) {
+      case EventEntryCommand.ENTER:
+        return 'add';
+      case EventEntryCommand.ENTER_WAITING_LIST:
+        return 'playlist_add';
+      case EventEntryCommand.DROP:
+        return 'remove';
+      case EventEntryCommand.DROP_WAITING_LIST:
+        return 'remove';
+      case EventEntryCommand.REVERT_DROP:
+        return 'undo';
     }
+  }
 
   /**
    * Gets currency symbol of tournament currency appropriate for displaying in the current locale
@@ -755,7 +765,7 @@ export class EntryWizardComponent implements OnInit, OnChanges, OnDestroy {
    *
    * @param eventFk
    */
-  public onFindDoublesPartnerByName (eventFk: number) {
+  public onFindDoublesPartnerByName(eventFk: number) {
     const profileSearchData: ProfileSearchData = {
       firstName: null,
       lastName: null
@@ -799,7 +809,7 @@ export class EntryWizardComponent implements OnInit, OnChanges, OnDestroy {
     this.subscriptions.add(subscription);
   }
 
-  public isDirty (): boolean {
+  public isDirty(): boolean {
     return this.dirty;
   }
 
@@ -816,14 +826,14 @@ export class EntryWizardComponent implements OnInit, OnChanges, OnDestroy {
     this.stepper.next();
   }
 
-  showNoEventsError (): boolean {
+  showNoEventsError(): boolean {
     return this.visitedEvents && this.hasEventsError();
   }
 
   discardChanges() {
     const dialogRef = this.dialog.open(ConfirmationPopupComponent, {
       width: '300px', height: '200px',
-      data: { message: "Discard changes?", title: 'Confirmation', showCancelButton: true, cancelText: 'No', okText: 'Yes' }
+      data: {message: "Discard changes?", title: 'Confirmation', showCancelButton: true, cancelText: 'No', okText: 'Yes'}
     });
 
     dialogRef.afterClosed().subscribe(result => {
@@ -834,7 +844,7 @@ export class EntryWizardComponent implements OnInit, OnChanges, OnDestroy {
     });
   }
 
-  public updateCartSessionLastUpdate (newDate: Date) {
+  public updateCartSessionLastUpdate(newDate: Date) {
     this.cartSessionLastUpdate = newDate;
   }
 
@@ -850,7 +860,8 @@ export class EntryWizardComponent implements OnInit, OnChanges, OnDestroy {
       data: {
         message: "Expired cart sessions are removed by the system after 30 minutes of inactivity, " +
           " so you must complete your entry with payment or confirmation before that time.",
-        contentAreaHeight: '180px', title: 'Expired Cart Session', okText: 'Start Over', showCancel: false }
+        contentAreaHeight: '180px', title: 'Expired Cart Session', okText: 'Start Over', showCancel: false
+      }
     });
 
     dialogRef.afterClosed().subscribe(result => {
@@ -861,4 +872,156 @@ export class EntryWizardComponent implements OnInit, OnChanges, OnDestroy {
       }
     });
   }
+
+  protected getTeamEvents(): TournamentEvent [] {
+    return (this.allEventEntryInfos != null) ? this.allEventEntryInfos.filter(
+      teei => {
+        return teei.event.eventEntryType === EventEntryType.TEAM;
+      }).map(teei2 => {
+      return teei2.event;
+    }) : [];
+  }
+
+  protected makeTeams(): any [] {
+    let teams: any [] = [];
+    const teamMembers: any [] = [
+      { memberProfileId: "a1", memberFullName: "Lorenc, Swavek", teamCaptain: true, rating: 1780},
+      { memberProfileId: "a2", memberFullName: "Osmani, Sheik", teamCaptain: false, rating: 1620},
+      { memberProfileId: "a3", memberFullName: "Hubng, Chi", teamCaptain: false, rating: 1803}
+    ];
+
+    const teamEvents = this.getTeamEvents();
+    for (let i = 0; i < teamEvents.length; i++) {
+      const teamEvent = teamEvents[i];
+      teams.push({
+        name: `My Team Name ${i+1}`, varName: `teamName_${i+1}`, teamEventFk: teamEvent.id, eventName: teamEvent.name,
+        members: teamMembers });
+    }
+
+    return teams;
+  }
+
+  protected anyTeamEventsInTournament(): boolean {
+    const teamEvents = this.getTeamEvents();
+    if (teamEvents != null) {
+      const teamEventIds: number [] = teamEvents.map(te => {
+        return te.id;
+      });
+      return (teamEventIds?.length > 0);
+    } else {
+      return false;
+    }
+  }
+
+  protected enteredTeamEvent(): boolean {
+    const teamEvents = this.getTeamEvents();
+    if (teamEvents != null) {
+      const teamEventIds: number [] = teamEvents.map(te => {
+        return te.id;
+      });
+      if (teamEventIds?.length > 0) {
+        const enteredTeamEvents = this.enteredEvents.filter(teei => {
+          return teamEventIds.includes(teei.eventFk);
+        });
+        return enteredTeamEvents.length > 0;
+      } else {
+        return false;
+      }
+    }
+  }
+
+  protected canRemovePlayer(team: any, playerIndex: number): boolean {
+    // only non-captain can be removed
+    const member = team.members[playerIndex];
+    return !member.teamCaptain;
+  }
+
+  protected onRemoveMember(team: any, memberIndex: number) {
+    const memberFullName = team.members[memberIndex].memberFullName;
+    const dialogRef = this.dialog.open(ConfirmationPopupComponent, {
+      width: '300px', height: '200px',
+      data: {
+        message: `Are you sure you want to remove team member ${memberFullName} ?`,
+        contentAreaHeight: '150px', title: 'Confirm Deletion', okText: 'Delete', showCancel: true
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result === 'ok') {
+        const membersClone: any [] = [...team.members];
+        membersClone.splice(memberIndex, 1);
+        const updatedTeam = {...team, members: membersClone};
+        let updatedTeams: any [] = [];
+        this.teams.forEach(team1 => {
+          if (team1.teamEventFk === updatedTeam.teamEventFk) {
+            updatedTeams.push(updatedTeam);
+          } else {
+            updatedTeams.push(team1);
+          }
+        });
+        this.teams = updatedTeams;
+      }
+    });
+  }
+
+  protected canAddMember(team: any): boolean {
+    const eventInfos: TournamentEventEntryInfo[] = this.enteredEvents
+      .filter(teei => teei.eventFk === team.teamEventFk );
+    if (eventInfos.length === 1) {
+      const event = eventInfos[0].event;
+      const currentPlayers = team?.members?.length || 0;
+      return (currentPlayers < event.maxTeamPlayers);
+    }
+    return false;
+  }
+
+  public onAddMember(team: any) {
+    const profileSearchData: ProfileSearchData = {
+      firstName: null,
+      lastName: null
+    };
+    const config = {
+      width: '400px', height: '550px', data: profileSearchData
+    };
+
+    const membersClone: any [] = [...team.members];
+    let teams = this.teams;
+    const dialogRef = this.dialog.open(ProfileFindPopupComponent, config);
+    const subscription = dialogRef.afterClosed().subscribe(result => {
+      if (result?.action === 'ok') {
+        const fullPlayerName = result.selectedPlayerRecord.lastName + ', ' + result.selectedPlayerRecord.firstName;
+        const memberProfileId = result.selectedPlayerRecord.id;
+        const rating = result.selectedPlayerRecord.rating || 0;
+        membersClone.push({memberProfileId: memberProfileId, memberFullName: fullPlayerName, teamCaptain: false, rating: rating});
+
+        const updatedTeam = {...team, members: membersClone};
+        let updatedTeams: any [] = [];
+        teams.forEach(team => {
+          if (team.teamEventFk === updatedTeam.teamEventFk) {
+            updatedTeams.push(updatedTeam);
+          } else {
+            updatedTeams.push(team);
+          }
+        });
+        this.teams = updatedTeams;
+      }
+    });
+    this.subscriptions.add(subscription);
+  }
+
+  protected getTeamRating(team: any): number {
+    let teamRating = 0;
+    const eventInfos: TournamentEventEntryInfo[] = this.enteredEvents
+      .filter(teei => teei.eventFk === team.teamEventFk );
+    if (eventInfos.length === 1) {
+      const tournamentEventEntryInfo = eventInfos[0];
+      const event: TournamentEvent = tournamentEventEntryInfo.event;
+      const memberRatings: number [] = team.members.map(member => member.rating);
+      const teamRatingCalculationMethod = event.teamRatingCalculationMethod;
+      const teamRatingCalculator = new TeamRatingCalculator(teamRatingCalculationMethod);
+      teamRating = teamRatingCalculator.calculateRating(memberRatings);
+    }
+    return teamRating;
+  }
+
 }

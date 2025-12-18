@@ -50,6 +50,11 @@ const entityMetadata: EntityMetadataMap = {
   DoublesPairInfo: {},
   MatchCard: {},
   Match: {},
+  Team: {
+    additionalCollectionState: {
+      total: 0
+    }
+  },
   PlayerStatus: {},
   Club: {
     additionalCollectionState: {

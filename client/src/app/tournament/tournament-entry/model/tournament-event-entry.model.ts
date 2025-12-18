@@ -24,4 +24,10 @@ export class TournamentEventEntry {
   // pairing up is done only after both players agree to play as a team see DoublesPair class
   doublesPartnerProfileId: string;
 
+  // team foreign key, null for individual events
+  teamFk: number;
+
+  // note to display in team finder
+  teamFinderNote: string;
+
 }
