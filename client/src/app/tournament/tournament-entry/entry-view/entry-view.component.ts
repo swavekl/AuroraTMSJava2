@@ -18,6 +18,8 @@ import {SummaryReportItem} from '../pricecalculator/summary-report.model';
 import {PaymentRefund} from '../../../account/model/payment-refund.model';
 import {ChangeRatingDialogComponent} from '../change-rating-dialog/change-rating-dialog.component';
 import {PaymentRefundStatus} from '../../../account/model/payment-refund-status.enum';
+import {TournamentEvent} from '../../tournament-config/tournament-event.model';
+import {EventEntryType} from '../../tournament-config/model/event-entry-type.enum';
 
 @Component({
     selector: 'app-entry-view',
@@ -63,6 +65,8 @@ export class EntryViewComponent implements OnInit, OnChanges, OnDestroy {
   entryTotal: number = 0;
   summaryReportItems: SummaryReportItem[] = [];
 
+  teams: any [];
+
   private subscriptions = new Subscription ();
 
   playerAge: number;
@@ -97,6 +101,7 @@ export class EntryViewComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     if (this.playerProfile != null && this.tournament != null && this.entry && this.paymentsRefunds != null) {
+      this.teams = this.makeTeams();
       this.priceCalculator = this.initPricingCalculator(this.tournament.configuration.pricingMethod);
       this.entryTotal = this.getTotal();
       this.summaryReportItems = this.getSummaryReportItems();
@@ -155,7 +160,7 @@ export class EntryViewComponent implements OnInit, OnChanges, OnDestroy {
     const usattDonation = this.entry?.usattDonation ?? 0;
     let total: number = 0;
     if (this.priceCalculator) {
-      total = this.priceCalculator.getTotalPrice(membershipOption, usattDonation, this.enteredEvents);
+      total = this.priceCalculator.getTotalPrice(membershipOption, usattDonation, this.enteredEvents, this.teams, false, []);
     }
     return total;
   }
@@ -270,4 +275,33 @@ export class EntryViewComponent implements OnInit, OnChanges, OnDestroy {
       }
     });
   }
+
+  protected getTeamEvents(): TournamentEvent [] {
+    return (this.allEventEntryInfos != null) ? this.allEventEntryInfos.filter(
+      teei => {
+        return teei.event.eventEntryType === EventEntryType.TEAM;
+      }).map(teei2 => {
+      return teei2.event;
+    }) : [];
+  }
+
+  protected makeTeams(): any [] {
+    let teams: any [] = [];
+    const teamMembers: any [] = [
+      { memberProfileId: "a1", memberFullName: "Lorenc, Swavek", teamCaptain: true, rating: 1780},
+      { memberProfileId: "a2", memberFullName: "Osmani, Sheik", teamCaptain: false, rating: 1620},
+      { memberProfileId: "a3", memberFullName: "Hubng, Chi", teamCaptain: false, rating: 1803}
+    ];
+
+    const teamEvents = this.getTeamEvents();
+    for (let i = 0; i < teamEvents.length; i++) {
+      const teamEvent = teamEvents[i];
+      teams.push({
+        name: `My Team Name ${i+1}`, varName: `teamName_${i+1}`, teamEventFk: teamEvent.id, eventName: teamEvent.name,
+        members: teamMembers });
+    }
+
+    return teams;
+  }
+
 }

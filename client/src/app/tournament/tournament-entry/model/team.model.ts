@@ -1,3 +1,5 @@
+import { TeamMember } from './team-member.model';
+
 export class Team {
   // team id
   id: number;
@@ -11,6 +13,6 @@ export class Team {
   // team rating
   rating: number;
 
-  // indicates the team captain's profile id
-  captainProfileId: string;
+  // list of team members of this team
+  teamMembers: TeamMember[] = [];
 }

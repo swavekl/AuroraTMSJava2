@@ -1,16 +1,18 @@
 package com.auroratms.team;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.io.Serializable;
+import java.util.List;
 
 @Entity
-//@Table(name = "team", indexes = {
-//        @Index(name = "idx_teamfk", columnList = "tournamentFk")
-//})
+@Table(name = "team", indexes = {
+        @Index(name = "idx_tournament_event", columnList = "tournamentEventFk")
+})
 @NoArgsConstructor
 @Getter
 @Setter
@@ -30,9 +32,8 @@ public class Team implements Serializable {
     // team rating
     private int rating;
 
-    // indicates the team captain's profile id
-    @Column(nullable = false)
-    private String captainProfileId;
-
-
+    // list of team members of this team
+    @OneToMany(mappedBy = "team", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference // Tells Jackson to serialize the list of members
+    private List<TeamMember> teamMembers = new java.util.ArrayList<>();
 }

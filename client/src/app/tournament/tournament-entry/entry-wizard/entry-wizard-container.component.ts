@@ -1,7 +1,7 @@
 import {AfterViewInit, Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
-import {combineLatest, Observable, of, Subscription} from 'rxjs';
-import {first, map} from 'rxjs/operators';
+import {BehaviorSubject, combineLatest, Observable, of, Subscription} from 'rxjs';
+import {distinctUntilChanged, filter, first, map, take} from 'rxjs/operators';
 import {createSelector} from '@ngrx/store';
 import {TournamentEntry} from '../model/tournament-entry.model';
 import {TournamentEntryService} from '../service/tournament-entry.service';
@@ -22,6 +22,9 @@ import {EntryWizardComponent} from './entry-wizard.component';
 import {CartSessionService} from '../../../account/service/cart-session.service';
 import {UserRoles} from '../../../user/user-roles.enum';
 import {OriginalEntryInfo} from '../model/original-entry-info';
+import {TeamService} from '../service/team.service';
+import {Team} from '../model/team.model';
+import {EventEntryType} from '../../tournament-config/model/event-entry-type.enum';
 
 @Component({
     selector: 'app-entry-wizard-container',
@@ -33,9 +36,11 @@ import {OriginalEntryInfo} from '../model/original-entry-info';
                       [paymentsRefunds]="paymentsRefunds$ | async"
                       [isWithdrawing]="withdrawing"
                       [allowPaymentByCheck]="allowPaymentByCheck"
+                      [teams]="teams$ | async"
                       (tournamentEntryChanged)="onTournamentEntryChanged($event)"
                       (confirmEntries)="onConfirmEntries($event)"
                       (eventEntryChanged)="onEventEntryChanged($event)"
+                      (teamChanged)="onTeamChanged($event)"
                       (finish)="onFinish($event)"
                       (discard)="discardChanges()">
     </app-entry-wizard>
@@ -59,6 +64,8 @@ export class EntryWizardContainerComponent implements OnInit, OnDestroy, AfterVi
 
   paymentsRefunds$: Observable<PaymentRefund[]>;
 
+  teams$: BehaviorSubject<Team[]> = new BehaviorSubject<Team[]>([]);
+
   // session id used for detecting abandonded cart
   cartSessionId: string;
 
@@ -74,6 +81,7 @@ export class EntryWizardContainerComponent implements OnInit, OnDestroy, AfterVi
 
   discardChangesInfo: OriginalEntryInfo;
   playerProfileId: string;
+  private eligibilityDate: Date;
 
   constructor(private tournamentEntryService: TournamentEntryService,
               private tournamentConfigService: TournamentConfigService,
@@ -85,7 +93,8 @@ export class EntryWizardContainerComponent implements OnInit, OnDestroy, AfterVi
               private authenticationService: AuthenticationService,
               private profileService: ProfileService,
               private paymentRefundService: PaymentRefundService,
-              private cartSessionService: CartSessionService) {
+              private cartSessionService: CartSessionService,
+              private teamService: TeamService) {
 
     // if any of the service are loading show the loading progress
     this.loading$ = combineLatest(
@@ -95,8 +104,11 @@ export class EntryWizardContainerComponent implements OnInit, OnDestroy, AfterVi
       this.tournamentConfigService.store.select(this.tournamentConfigService.selectors.selectLoading),
       this.tournamentEntryService.store.select(this.tournamentEntryService.selectors.selectLoading),
       this.tournamentEventConfigService.store.select(this.tournamentEventConfigService.selectors.selectLoading),
-      (eventEntryInfosLoading: boolean, paymentRefundLoading: boolean, cartSessionLoading: boolean, tournamentLoading: boolean, entryLoading: boolean, eventConfigLoading: boolean) => {
-        return eventEntryInfosLoading || paymentRefundLoading || cartSessionLoading || tournamentLoading || entryLoading || eventConfigLoading;
+      this.teamService.store.select(this.teamService.selectors.selectLoading),
+      (eventEntryInfosLoading: boolean, paymentRefundLoading: boolean, cartSessionLoading: boolean,
+       tournamentLoading: boolean, entryLoading: boolean, eventConfigLoading: boolean, teamsLoading: boolean) => {
+        return eventEntryInfosLoading || paymentRefundLoading || cartSessionLoading || tournamentLoading ||
+          entryLoading || eventConfigLoading || teamsLoading;
       }
     );
 
@@ -186,6 +198,7 @@ export class EntryWizardContainerComponent implements OnInit, OnDestroy, AfterVi
           const fullName = this.authenticationService.getCurrentUserFirstName() + ' ' + this.authenticationService.getCurrentUserLastName();
           // this.allowPaymentByCheck = (isTD && tournament.contactName === fullName);
           this.allowPaymentByCheck = isTD;
+          this.eligibilityDate = tournament.configuration.eligibilityDate;
           // console.log('allowPaymentByCheck', this.allowPaymentByCheck);
         }
       });
@@ -223,6 +236,9 @@ export class EntryWizardContainerComponent implements OnInit, OnDestroy, AfterVi
 
     // initiate call to get event entry infos with status
     this.eventEntryInfoService.getEventEntryInfos(this.entryId);
+
+    // fetch team members if you can
+    this.loadTeamsIfNecessary();
   }
 
   /**
@@ -316,10 +332,6 @@ export class EntryWizardContainerComponent implements OnInit, OnDestroy, AfterVi
       );
   }
 
-  private loadTeamEntries() {
-
-  }
-
   public isDirty(): boolean {
     return this.entryWizardComponent.isDirty();
   }
@@ -371,5 +383,76 @@ export class EntryWizardContainerComponent implements OnInit, OnDestroy, AfterVi
     if (this.entryWizardComponent != null) {
      this.entryWizardComponent.updateCartSessionLastUpdate(date);
     }
+  }
+
+  /**
+   * Monitors the event store and triggers team loading only if
+   * TEAM type events are present in the current tournament.
+   */
+  private loadTeamsIfNecessary() {
+    this.tournamentEventConfigService.store.select(
+      this.tournamentEventConfigService.selectors.selectEntities
+    ).pipe(
+      // 1. Convert entities map to array
+      map(entities => Object.values(entities)),
+      // 2. Only proceed if we actually have events loaded
+      filter(events => events && events.length > 0),
+      // 3. Extract IDs of events that are designated as TEAM events
+      map(events => events
+        .filter(e => e.eventEntryType === EventEntryType.TEAM)
+        .map(e => e.id)
+      ),
+      // 4. Ensure we don't trigger multiple times for the same set of IDs
+      distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)),
+      // 5. Only move forward if the list of team events is NOT empty
+      filter(teamEventIds => teamEventIds.length > 0),
+      // 6. Ensure this logic only runs once per component lifecycle
+      take(1)
+    ).subscribe(teamEventIds => {
+      console.log('Team events detected, fetching teams...', teamEventIds);
+      this.fetchTeams(teamEventIds);
+    });
+  }
+
+  /**
+   * Purely responsible for the HTTP call and updating the local state.
+   */
+  private fetchTeams(teamEventIds: number[]) {
+    const strTeamEventIds = teamEventIds.join(",");
+    const query = `playerProfileId=${this.playerProfileId}&teamEventIds=${strTeamEventIds}&tournamentId=${this.tournamentId}`;
+    this.teamService.loadWithQuery(query)
+      .subscribe({
+        next: (teams) => {
+          this.teams$.next(teams);
+        },
+        error: (err) => {
+          console.error('Failed to load teams', err);
+          this.teams$.next([]);
+        }
+      });
+  }
+
+  /**
+   *
+   * @param $event
+   * @protected
+   */
+  protected onTeamChanged($event: any) {
+    const team: Team = $event.team;
+    const teamEventIds: number[] = $event.teamEventIds;
+    this.teamService.upsert(team)
+      .pipe(first())
+      .subscribe({
+        next: (updatedTeam) => {
+          console.log('Updated successfully:', updatedTeam);
+        },
+        error: (err) => {
+          console.error('Error updating team:', err);
+        },
+        complete: () => {
+          // Optional: Run logic when the stream closes
+          this.fetchTeams(teamEventIds);
+        }
+      });
   }
 }

@@ -154,6 +154,23 @@ export class AbstractPriceCalculator {
     this.reportItems.push(registrationFeeLine);
   }
 
+  protected addPerPlayerFeeLine (perPlayerFee: number, eventName: string) {
+    // team event per player fee
+    const registrationFeeLine = new SummaryReportItem();
+    registrationFeeLine.isHeader = false;
+    registrationFeeLine.itemText = eventName + ' Event Per Player Fee';
+    registrationFeeLine.rightColumnText = this.getFormattedPrice(perPlayerFee);
+    this.reportItems.push(registrationFeeLine);
+  }
+
+  protected addCancellationFeeLine (cancellationFee: number, eventName: string) {
+    const registrationFeeLine = new SummaryReportItem();
+    registrationFeeLine.isHeader = false;
+    registrationFeeLine.itemText = 'Cancellation Fee ' + eventName;
+    registrationFeeLine.rightColumnText = this.getFormattedPrice(cancellationFee);
+    this.reportItems.push(registrationFeeLine);
+  }
+
   protected addLateEntryFeeLine () {
       const lateEntryFeeLine = new SummaryReportItem();
       lateEntryFeeLine.isHeader = false;
@@ -166,5 +183,16 @@ export class AbstractPriceCalculator {
     // todo get current locale
     const currencyPipe: CurrencyPipe = new CurrencyPipe('en-US', this.tournamentCurrency);
     return currencyPipe.transform(price);
+  }
+
+  protected isEnteredInAnyEvents(enteredEvents: TournamentEventEntryInfo[]): boolean {
+    for (let i = 0; i < enteredEvents.length; i++) {
+      const enteredEvent = enteredEvents[i];
+      if (enteredEvent.status === EventEntryStatus.PENDING_CONFIRMATION ||
+        enteredEvent.status === EventEntryStatus.ENTERED) {
+        return true;
+      }
+    }
+    return false;
   }
 }

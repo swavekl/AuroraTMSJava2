@@ -45,8 +45,8 @@ public class PolicyApplicator {
             // find event
             for (TournamentEvent event : eventList) {
                 if (event.getId().equals(info.getEventFk())) {
-                    // todo: set the price based on age
-                    info.setPrice(event.getFeeAdult());
+//                    // todo: set the price based on age
+//                    info.setPrice(event.getFeeAdult());
                     if (info.getEventEntryFk() == null) {
                         AvailabilityStatus availabilityStatus = AvailabilityStatus.AVAILABLE_FOR_ENTRY;
                         for (IEventPolicy policy : individualPolicies) {

@@ -1,32 +1,127 @@
 package com.auroratms.team;
 
 import com.auroratms.error.ResourceNotFoundException;
+import com.auroratms.profile.UserProfile;
+import com.auroratms.profile.UserProfileExt;
+import com.auroratms.profile.UserProfileExtService;
+import com.auroratms.profile.UserProfileService;
+import com.auroratms.tournament.Tournament;
+import com.auroratms.tournament.TournamentService;
+import com.auroratms.usatt.RatingHistoryRecord;
+import com.auroratms.usatt.RatingHistoryRecordRepository;
+import com.auroratms.usatt.UsattDataService;
+import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class TeamService {
 
     @Autowired
-    private TeamRepository repository;
+    private TeamRepository teamRepository;
+
+    @Autowired
+    private TeamMemberRepository teamMemberRepository;
+
+    @Autowired
+    private UserProfileService profileService;
+
+    @Autowired
+    private UserProfileExtService userProfileExtService;
+
+    @Autowired
+    private TournamentService tournamentService;
+
+    @Autowired
+    private RatingHistoryRecordRepository ratingHistoryRecordRepository;
 
     public Team save(Team team) {
-        return repository.save(team);
+        return teamRepository.save(team);
     }
 
     public Team get(Long teamId) {
-        return repository.findById(teamId)
+        return teamRepository.findById(teamId)
                 .orElseThrow(() -> new ResourceNotFoundException("Team " + teamId + " not found"));
     }
 
     /**
      * Lists all teams which entered one of the events
+     *
      * @param eventIdsList
      * @return
      */
     public List<Team> listForEvents(List<Long> eventIdsList) {
-        return repository.findByTournamentEventFkIsIn(eventIdsList);
+        return teamRepository.findByTournamentEventFkIsIn(eventIdsList);
+    }
+
+    /**
+     * Gets a player's team memberships for a specific tournament's team events.
+     *
+     * @param teamEventIds    The list of team event ids
+     * @param profileId       The player's profile ID
+     * @param tournamentId    Tournament id
+     * @return List of TeamMembers with hydrated player names and initialized Team objects
+     */
+    public List<Team> listByEventIdsAndProfile(List<Long> teamEventIds, String profileId, long tournamentId) {
+        if (teamEventIds.isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        Tournament tournament = this.tournamentService.getByKey(tournamentId);
+        Date eligibilityDate = tournament.getConfiguration().getEligibilityDate();
+
+        // 1. Efficiently fetch Members + Teams in one hit (Avoids N+1)
+        List<TeamMember> teamMembers = teamMemberRepository.findAllByProfileIdAndEventIds(teamEventIds, profileId);
+        if (teamMembers.isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        // 2. Collect all unique profile IDs from these teams to hydrate names
+        // Since we want to show the player names for the entire team roster
+        Set<String> allMemberProfileIds = teamMembers.stream()
+                .map(TeamMember::getTeam)
+                .flatMap(team -> team.getTeamMembers().stream())
+                .map(TeamMember::getProfileId)
+                .collect(Collectors.toSet());
+
+        // 3. make a call and convert collection to a list for fast lookup
+        List<String> userProfileList = allMemberProfileIds.stream().toList();
+        Collection<UserProfile> userProfiles = profileService.listByProfileIds(userProfileList);
+        Map<String, String> profileToNameMap = userProfiles.stream()
+                .collect(Collectors.toMap(
+                        UserProfile::getUserId,
+                        up -> up.getLastName() + ", " + up.getFirstName(),
+                        (existing, replacement) -> existing // Merge function to handle duplicate IDs if necessary
+                ));
+
+        // 4. Get eligibility ratings for these players
+        Map<String, UserProfileExt> profileIdToProfileExtMap = userProfileExtService.findByProfileIds(userProfileList);
+        List<@NonNull Long> membershipIds = profileIdToProfileExtMap.values().stream().map(UserProfileExt::getMembershipId).toList();
+        List<RatingHistoryRecord> eligibilityRatingsList = ratingHistoryRecordRepository.getBatchPlayerRatingsAsOfDate(membershipIds, eligibilityDate);
+
+        // 5. fill team members names and eligibility rating
+        teamMembers.forEach(m -> {
+            m.setPlayerName(profileToNameMap.get(m.getProfileId()));
+            UserProfileExt userProfileExt = profileIdToProfileExtMap.get(m.getProfileId());
+            if (userProfileExt != null) {
+                Long membershipId = userProfileExt.getMembershipId();
+                List<RatingHistoryRecord> playersRatingHistoryList = eligibilityRatingsList.stream()
+                        .filter(ratingHistoryRecord -> ratingHistoryRecord.getMembershipId() == membershipId)
+                        .toList();
+                if (!playersRatingHistoryList.isEmpty()) {
+                    int rating = playersRatingHistoryList.get(0).getFinalRating();
+                    m.setPlayerRating(rating);
+                }
+            }
+        });
+
+        // 6. Hydrate all members and extract unique Teams
+        return teamMembers.stream()
+                .map(TeamMember::getTeam)
+                .distinct() // Ensure each team appears only once in the list
+                .collect(Collectors.toList());
     }
 }

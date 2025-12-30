@@ -13,6 +13,8 @@ import com.auroratms.tournamententry.notification.TournamentEventPublisher;
 import com.auroratms.tournamentevententry.doubles.notification.DoublesEventPublisher;
 import com.auroratms.tournamentevententry.doubles.notification.event.MakeBreakDoublesPairsEvent;
 import com.auroratms.tournamentevententry.policy.PolicyApplicator;
+import com.auroratms.tournamentevententry.pricecalc.IPriceCalculator;
+import com.auroratms.tournamentevententry.pricecalc.PriceCalculatorFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -133,6 +135,9 @@ public class EventEntryStatusService {
                     eventEntryInfo.setDoublesPartnerName(fullName);
                 }
             }
+
+            calculateAllEventPrices(eventEntryInfos, eventsToEventEntriesMap, userProfile, eventEntityCollection,
+                    tournament.getStartDate());
         }
 
         // given entry status and availability status, determine what user can do (enter, drop, etc.)
@@ -141,6 +146,38 @@ public class EventEntryStatusService {
         }
 
         return eventEntryInfos;
+    }
+
+    /**
+     * Calculates prices for all events
+     * @param eventEntryInfos
+     * @param eventsToEventEntriesMap
+     * @param userProfile
+     * @param eventEntityList
+     * @param tournamentStartDate
+     */
+    private void calculateAllEventPrices(List<TournamentEventEntryInfo> eventEntryInfos,
+                                         Map<Long, TournamentEventEntry> eventsToEventEntriesMap,
+                                         UserProfile userProfile,
+                                         Collection<TournamentEvent> eventEntityList,
+                                         Date tournamentStartDate) {
+        Date today = new Date();
+        for (TournamentEventEntryInfo eventEntryInfo : eventEntryInfos) {
+            Long eventFk = eventEntryInfo.getEventFk();
+            for (TournamentEvent tournamentEvent : eventEntityList) {
+                if (tournamentEvent.getId().equals(eventFk)) {
+                    TournamentEventEntry tournamentEventEntry = eventsToEventEntriesMap.get(eventFk);
+                    Date dateEntered = (tournamentEventEntry != null && tournamentEventEntry.getDateEntered() != null)
+                    ? tournamentEventEntry.getDateEntered() : today;
+                    double price = tournamentEvent.getFeeAdult();
+                    IPriceCalculator priceCalculator = PriceCalculatorFactory.makeCalculator(tournamentEvent, tournamentStartDate);
+                    if (priceCalculator != null) {
+                        price = priceCalculator.calculatePrice(dateEntered, userProfile.getDateOfBirth());
+                    }
+                    eventEntryInfo.setPrice(price);
+                }
+            }
+        }
     }
 
     /**

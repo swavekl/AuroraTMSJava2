@@ -115,57 +115,59 @@
             <button mat-raised-button color="primary" matStepperNext type="button">Next</button>
           </div>
         </mat-step>
-        <mat-step label="Team Builder" *ngIf="enteredTeamEvent()">
-          <div *ngFor="let team of teams" fxLayout="column">
-            <div fxLayout="column" fxLayoutGap="10px">
-              <div class="team-event-header">Event Name: {{ team.eventName }}</div>
-              <div fxLayout="row"  fxLayoutAlign="space-between start" fxLayout.lt-sm="column" fxLayoutAlign.lt-sm="start stretch">
-                <mat-form-field fxFlex="60%" fxFlex.lt-sm="80%">
-                  <mat-label>Team Name</mat-label>
-                  <input matInput type="text" [ngModel]="team.name" [name]="team.varName" maxlength="35" required/>
-                  <mat-error *ngIf="f.form.controls[team.varName]?.errors?.required">Field is required</mat-error>
-                  <mat-error *ngIf="f.form.controls[team.varName]?.errors?.maxlength">Maximum team name length is 35
-                    characters
-                  </mat-error>
-                </mat-form-field>
-                <div>
-                  <button type="button" mat-raised-button
-                          (click)="onAddMember(team)"
-                          [disabled]="!canAddMember(team)">Add Member
-                    <mat-icon>add</mat-icon>
-                  </button>
+        <mat-step label="Team Builder" *ngIf="enteredAnyTeamEvent()">
+          <ng-container *ngFor="let enteredTeamEvent of getEnteredTeamEvents()">
+            <div *ngFor="let team of getTeamForEvent(enteredTeamEvent.id)" fxLayout="column">
+              <div fxLayout="column" fxLayoutGap="10px">
+                <div class="team-event-header">Event Name: {{ getEventName(team) }}</div>
+                <div fxLayout="row"  fxLayoutAlign="space-between start" fxLayout.lt-sm="column" fxLayoutAlign.lt-sm="start stretch">
+                  <mat-form-field fxFlex="60%" fxFlex.lt-sm="80%">
+                    <mat-label>Team Name</mat-label>
+                    <input matInput type="text" [(ngModel)]="team.name" [name]="`teamName_${team.tournamentEventFk}`" maxlength="35" required/>
+                    <mat-error *ngIf="f.form.controls[`teamName_${team.tournamentEventFk}`]?.errors?.required">Field is required</mat-error>
+                    <mat-error *ngIf="f.form.controls[`teamName_${team.tournamentEventFk}`]?.errors?.maxlength">Maximum team name length is 35
+                      characters
+                    </mat-error>
+                  </mat-form-field>
+                  <div>
+                    <button type="button" mat-raised-button
+                            (click)="onAddMember(team)"
+                            [disabled]="!canAddMember(team)">Add Member
+                      <mat-icon>add</mat-icon>
+                    </button>
+                  </div>
                 </div>
               </div>
+              <div>
+                <table class="team-table">
+                  <thead>
+                  <tr>
+                    <th>Member Name</th>
+                    <th>Cap</th>
+                    <th>&nbsp;</th>
+                  </tr>
+                  </thead>
+                  <tbody>
+                  <tr *ngFor="let teamMember of team.teamMembers; let playerIndex = index">
+                    <td class="name-column">{{teamMember.playerName}}<br>{{teamMember.playerRating}}</td>
+                    <td class="captain-column">{{teamMember.isCaptain ? 'Y' : 'N'}}</td>
+                    <td class="delete-column">
+                      <button [disabled]="!canRemovePlayer(team, playerIndex)" type="button" mat-fab color=""
+                              (click)="onRemoveMember(team, playerIndex)" class="delete-member-button">
+                        <mat-icon>delete</mat-icon>
+                      </button>
+                    </td>
+                  </tr>
+                  </tbody>
+                  <tfoot>
+                  <tr>
+                    <th>Team rating {{ getTeamRating(team)}}</th>
+                  </tr>
+                  </tfoot>
+                </table>
+              </div>
             </div>
-            <div>
-              <table class="team-table">
-                <thead>
-                <tr>
-                  <th>Member Name</th>
-                  <th>Cap</th>
-                  <th>&nbsp;</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr *ngFor="let teamMember of team.members; let playerIndex = index">
-                  <td class="name-column">{{teamMember.memberFullName}}<br>{{teamMember.rating}}</td>
-                  <td class="captain-column">{{teamMember.teamCaptain ? 'Y' : 'N'}}</td>
-                  <td class="delete-column">
-                    <button [disabled]="!canRemovePlayer(team, playerIndex)" type="button" mat-fab color=""
-                            (click)="onRemoveMember(team, playerIndex)" class="delete-member-button">
-                      <mat-icon>delete</mat-icon>
-                    </button>
-                  </td>
-                </tr>
-                </tbody>
-                <tfoot>
-                <tr>
-                  <th>Team rating {{ getTeamRating(team)}}</th>
-                </tr>
-                </tfoot>
-              </table>
-            </div>
-          </div>
+          </ng-container>
           <div class="wizard-button-bar" fxLayout="row">
             <button mat-raised-button matStepperPrevious type="button">Back</button>
             <span fxFlex></span>
@@ -173,8 +175,8 @@
           </div>
         </mat-step>
         <mat-step label="Summary">
-          <app-entry-summary-table [entryTotal]="getTotal()"
-                                   [summaryReportItems]="getSummaryReportItems()"
+          <app-entry-summary-table [entryTotal]="totalPrice"
+                                   [summaryReportItems]="summaryItems"
                                    [tournamentCurrency]="tournamentCurrency">
           </app-entry-summary-table>
           <div class="wizard-button-bar" fxLayout="row">
@@ -210,7 +212,7 @@
             </ng-container>
               <tr>
                 <td><h2>Entry Total</h2></td>
-                <td><h2>{{ getTotal() | currency: tournamentCurrency }}</h2></td>
+                <td><h2>{{ totalPrice | currency: tournamentCurrency }}</h2></td>
               </tr>
             </tbody>
             <tfoot>

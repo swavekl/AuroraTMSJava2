@@ -51,6 +51,8 @@ import {EventEntryType} from '../../tournament-config/model/event-entry-type.enu
 import {TournamentEvent} from '../../tournament-config/tournament-event.model';
 import {Team} from '../model/team.model';
 import {TeamRatingCalculator} from '../../teamratingcalculator/team-rating-calculator';
+import {TeamMember} from '../model/team-member.model';
+import {TeamEntryStatus} from '../model/team-entry-status.enum';
 
 @Component({
     selector: 'app-entry-wizard',
@@ -88,6 +90,9 @@ export class EntryWizardComponent implements OnInit, OnChanges, OnDestroy {
   @Input()
   allowPaymentByCheck: boolean = false;
 
+  @Input()
+  teams: Team [] = [];
+
   enteredEvents: TournamentEventEntryInfo[] = [];
   availableEvents: TournamentEventEntryInfo[] = [];
   unavailableEvents: TournamentEventEntryInfo[] = [];
@@ -107,12 +112,15 @@ export class EntryWizardComponent implements OnInit, OnChanges, OnDestroy {
   @Output()
   discard: EventEmitter<any> = new EventEmitter<any>();
 
+  @Output()
+  teamChanged: EventEmitter<any> = new EventEmitter<any>();
+
   columnsToDisplay: string[] = ['name', 'action'];
 
   tournamentStartDate: Date;
 
   hasTeamEvents: boolean;
-  teams: any [];
+
   tournamentStarLevel: number;
   // if true membership is expired for tournament purposes
   membershipIsExpired: boolean;
@@ -129,6 +137,10 @@ export class EntryWizardComponent implements OnInit, OnChanges, OnDestroy {
 
   // calculator for calculating total
   public priceCalculator: PriceCalculator;
+
+  // Define variables to hold the results
+  totalPrice: number = 0;
+  summaryItems: any[] = [];
 
   // balance actions
   public readonly BALANCE_ACTION_PAY = 1;
@@ -189,7 +201,6 @@ export class EntryWizardComponent implements OnInit, OnChanges, OnDestroy {
       this.unavailableEvents = this.allEventEntryInfos.filter(this.unavailableEventsFilter, this);
       this.doublesEntries = this.makeDoublesEntries(this.enteredEvents);
       this.hasTeamEvents = this.anyTeamEventsInTournament();
-      this.teams = this.makeTeams();
     }
 
     const playerProfileChange: SimpleChange = changes.playerProfile;
@@ -231,6 +242,7 @@ export class EntryWizardComponent implements OnInit, OnChanges, OnDestroy {
         this.playerProfile.membershipExpirationDate, this.tournamentStartDate);
 
       this.priceCalculator = this.initPricingCalculator(this.tournament.configuration.pricingMethod);
+      this.updatePricing();
     }
   }
 
@@ -351,36 +363,52 @@ export class EntryWizardComponent implements OnInit, OnChanges, OnDestroy {
     return null;
   }
 
-  /**
-   * Gets current player total regardless of previous payments or refunds
-   */
-  getTotal(): number {
+  // Create a single method to refresh the data
+  private updatePricing(): void {
     const membershipOption: MembershipType = this.entry?.membershipOption;
     const usattDonation = this.entry?.usattDonation ?? 0;
-    let total = 0;
     if (this.priceCalculator) {
-      total = this.priceCalculator.getTotalPrice(membershipOption, usattDonation, this.enteredEvents);
+      console.log('updating pricing');
+      this.totalPrice = this.priceCalculator.getTotalPrice(membershipOption, usattDonation, this.enteredEvents, this.teams, this.isWithdrawing, this.availableEvents);
+      this.summaryItems = this.priceCalculator.getSummaryReportItems();
+    } else {
+      console.log('updating pricing to ZERO');
+      this.totalPrice = 0;
+      this.summaryItems = [];
     }
-    return total;
   }
 
-  /**
-   * Gets a list of report items to be painted on the summary screen
-   */
-  getSummaryReportItems() {
-    if (this.priceCalculator) {
-      const totalPrice = this.priceCalculator.getTotalPrice(this.entry?.membershipOption, this.entry?.usattDonation, this.enteredEvents);
-      return this.priceCalculator.getSummaryReportItems();
-    } else {
-      return [];
-    }
-  }
+  // /**
+  //  * Gets current player total regardless of previous payments or refunds
+  //  */
+  // getTotal(): number {
+  //   const membershipOption: MembershipType = this.entry?.membershipOption;
+  //   const usattDonation = this.entry?.usattDonation ?? 0;
+  //   let total = 0;
+  //   if (this.priceCalculator) {
+  //     total = this.priceCalculator.getTotalPrice(membershipOption, usattDonation, this.enteredEvents, this.teams, this.isWithdrawing, this.availableEvents);
+  //   }
+  //   return total;
+  // }
+  //
+  // /**
+  //  * Gets a list of report items to be painted on the summary screen
+  //  */
+  // getSummaryReportItems() {
+  //   if (this.priceCalculator) {
+  //     const totalPrice = this.priceCalculator.getTotalPrice(this.entry?.membershipOption, this.entry?.usattDonation, this.enteredEvents, this.teams, this.isWithdrawing, this.availableEvents);
+  //     return this.priceCalculator.getSummaryReportItems();
+  //   } else {
+  //     return [];
+  //   }
+  // }
 
   /**
    * Gets balance due (positive - payment due, negative - refund due, zero - just confirm)
    */
   getBalance(): number {
-    let total = this.getTotal();
+    // let total = this.getTotal();
+    let total = this.totalPrice;
 
     // take into account payments and refunds
     total -= this.getPaymentsRefundsTotal();
@@ -876,29 +904,10 @@ export class EntryWizardComponent implements OnInit, OnChanges, OnDestroy {
   protected getTeamEvents(): TournamentEvent [] {
     return (this.allEventEntryInfos != null) ? this.allEventEntryInfos.filter(
       teei => {
-        return teei.event.eventEntryType === EventEntryType.TEAM;
+        return teei.event?.eventEntryType === EventEntryType.TEAM;
       }).map(teei2 => {
       return teei2.event;
     }) : [];
-  }
-
-  protected makeTeams(): any [] {
-    let teams: any [] = [];
-    const teamMembers: any [] = [
-      { memberProfileId: "a1", memberFullName: "Lorenc, Swavek", teamCaptain: true, rating: 1780},
-      { memberProfileId: "a2", memberFullName: "Osmani, Sheik", teamCaptain: false, rating: 1620},
-      { memberProfileId: "a3", memberFullName: "Hubng, Chi", teamCaptain: false, rating: 1803}
-    ];
-
-    const teamEvents = this.getTeamEvents();
-    for (let i = 0; i < teamEvents.length; i++) {
-      const teamEvent = teamEvents[i];
-      teams.push({
-        name: `My Team Name ${i+1}`, varName: `teamName_${i+1}`, teamEventFk: teamEvent.id, eventName: teamEvent.name,
-        members: teamMembers });
-    }
-
-    return teams;
   }
 
   protected anyTeamEventsInTournament(): boolean {
@@ -913,29 +922,75 @@ export class EntryWizardComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
-  protected enteredTeamEvent(): boolean {
-    const teamEvents = this.getTeamEvents();
-    if (teamEvents != null) {
-      const teamEventIds: number [] = teamEvents.map(te => {
-        return te.id;
-      });
-      if (teamEventIds?.length > 0) {
-        const enteredTeamEvents = this.enteredEvents.filter(teei => {
-          return teamEventIds.includes(teei.eventFk);
-        });
-        return enteredTeamEvents.length > 0;
-      } else {
-        return false;
-      }
+  protected getTeamForEvent(eventId: number): Team[] {
+    let teamsForEvent: Team [] = (this.teams?.length > 0) ? this.teams.filter(team => team.tournamentEventFk === eventId) : [];
+    // team not configured for this event, create it
+    if (teamsForEvent?.length === 0 && this.playerProfile != null) {
+      const playerName = `${this.playerProfile?.lastName}, ${this.playerProfile?.firstName}`;
+      const playerRating = this.entry.eligibilityRating || 0;
+      const teamMember: TeamMember = {
+        id: null, teamFk: null, tournamentEntryFk: this.entry.id, tournamentEventFk: eventId,
+        status: TeamEntryStatus.INVITED, isCaptain: true, playerName: playerName,
+        playerRating: playerRating, profileId: this.playerProfile.userId};
+      const teamMembers: TeamMember[] = []; // [teamMember];
+      const team: Team = {id: null, tournamentEventFk: eventId, teamMembers: teamMembers,
+        name: 'my team name', rating: 0};
+      // return this
+      teamsForEvent = [team];
+      // update teams
+      this.teams = [...this.teams, team];
     }
+    return teamsForEvent;
   }
 
-  protected canRemovePlayer(team: any, playerIndex: number): boolean {
+  /**
+   *
+   * @protected
+   */
+  protected getEnteredTeamEvents(): TournamentEvent [] {
+    const teamEvents: TournamentEvent [] = this.getTeamEvents();
+    let enteredTeamEvents:TournamentEvent [] = [];
+    if (teamEvents?.length > 0 && this.enteredEvents?.length > 0) {
+        this.enteredEvents.filter(teei => {
+          for (let i = 0; i < teamEvents.length; i++) {
+            const teamEvent = teamEvents[i];
+            if(teamEvent.id === teei.eventFk) {
+              enteredTeamEvents.push(teamEvent);
+          }
+        }
+        return enteredTeamEvents;
+      });
+    }
+    return enteredTeamEvents;
+  }
+
+  /**
+   *
+   * @protected
+   */
+  protected enteredAnyTeamEvent(): boolean {
+    const enteredTeamEvents = this.getEnteredTeamEvents();
+    return enteredTeamEvents.length > 0;
+  }
+
+  /**
+   *
+   * @param team
+   * @param playerIndex
+   * @protected
+   */
+  protected canRemovePlayer(team: Team, playerIndex: number): boolean {
     // only non-captain can be removed
-    const member = team.members[playerIndex];
-    return !member.teamCaptain;
+    const member: TeamMember = team.teamMembers[playerIndex];
+    return !member.isCaptain;
   }
 
+  /**
+   *
+   * @param team
+   * @param memberIndex
+   * @protected
+   */
   protected onRemoveMember(team: any, memberIndex: number) {
     const memberFullName = team.members[memberIndex].memberFullName;
     const dialogRef = this.dialog.open(ConfirmationPopupComponent, {
@@ -948,34 +1003,62 @@ export class EntryWizardComponent implements OnInit, OnChanges, OnDestroy {
 
     dialogRef.afterClosed().subscribe(result => {
       if (result === 'ok') {
-        const membersClone: any [] = [...team.members];
+        const membersClone: TeamMember [] = [...team.members];
         membersClone.splice(memberIndex, 1);
-        const updatedTeam = {...team, members: membersClone};
-        let updatedTeams: any [] = [];
+        let updatedTeam: Team = {...team, teamMembers: membersClone};
+        const teamRating = this.getTeamRating(updatedTeam);
+        updatedTeam = {...updatedTeam, rating: teamRating};
+        let updatedTeams: Team [] = [];
         this.teams.forEach(team1 => {
-          if (team1.teamEventFk === updatedTeam.teamEventFk) {
+          if (team1.tournamentEventFk === updatedTeam.tournamentEventFk) {
             updatedTeams.push(updatedTeam);
           } else {
             updatedTeams.push(team1);
           }
         });
         this.teams = updatedTeams;
+        this.dirty = true;
+        this.emitTeamUpdate(updatedTeam);
       }
     });
   }
 
-  protected canAddMember(team: any): boolean {
+  /**
+   *
+   * @param updatedTeam
+   * @private
+   */
+  private emitTeamUpdate(updatedTeam: Team) {
+    const teamEvents = this.getTeamEvents();
+    if (teamEvents != null) {
+      const teamEventIds: number [] = teamEvents.map(te => {
+        return te.id;
+      });
+      this.teamChanged.emit({team: updatedTeam, teamEventIds: teamEventIds});
+    }
+  }
+
+  /**
+   *
+   * @param team
+   * @protected
+   */
+  protected canAddMember(team: Team): boolean {
     const eventInfos: TournamentEventEntryInfo[] = this.enteredEvents
-      .filter(teei => teei.eventFk === team.teamEventFk );
+      .filter(teei => teei.eventFk === team.tournamentEventFk );
     if (eventInfos.length === 1) {
       const event = eventInfos[0].event;
-      const currentPlayers = team?.members?.length || 0;
+      const currentPlayers = team?.teamMembers?.length || 0;
       return (currentPlayers < event.maxTeamPlayers);
     }
     return false;
   }
 
-  public onAddMember(team: any) {
+  /**
+   *
+   * @param team
+   */
+  public onAddMember(team: Team) {
     const profileSearchData: ProfileSearchData = {
       firstName: null,
       lastName: null
@@ -984,39 +1067,59 @@ export class EntryWizardComponent implements OnInit, OnChanges, OnDestroy {
       width: '400px', height: '550px', data: profileSearchData
     };
 
-    const membersClone: any [] = [...team.members];
-    let teams = this.teams;
+    const membersClone: TeamMember [] = [...team.teamMembers];
+    let teams: Team[] = this.teams;
     const dialogRef = this.dialog.open(ProfileFindPopupComponent, config);
     const subscription = dialogRef.afterClosed().subscribe(result => {
       if (result?.action === 'ok') {
         const fullPlayerName = result.selectedPlayerRecord.lastName + ', ' + result.selectedPlayerRecord.firstName;
         const memberProfileId = result.selectedPlayerRecord.id;
         const rating = result.selectedPlayerRecord.rating || 0;
-        membersClone.push({memberProfileId: memberProfileId, memberFullName: fullPlayerName, teamCaptain: false, rating: rating});
+        const entryFk = (this.playerProfile.userId === memberProfileId) ? this.entry.id : null;
+        membersClone.push({
+          profileId: memberProfileId,
+          id: null,
+          teamFk: team.id,
+          tournamentEntryFk: entryFk,
+          tournamentEventFk: team.tournamentEventFk,
+          playerName: fullPlayerName,
+          isCaptain: false,
+          playerRating: rating,
+          status: TeamEntryStatus.INVITED
+        });
 
-        const updatedTeam = {...team, members: membersClone};
-        let updatedTeams: any [] = [];
+        let updatedTeam: Team = {...team, teamMembers: membersClone};
+        const teamRating = this.getTeamRating(updatedTeam);
+        updatedTeam = {...updatedTeam, rating: teamRating};
+        let updatedTeams: Team [] = [];
         teams.forEach(team => {
-          if (team.teamEventFk === updatedTeam.teamEventFk) {
+          if (team.tournamentEventFk === updatedTeam.tournamentEventFk) {
             updatedTeams.push(updatedTeam);
           } else {
             updatedTeams.push(team);
           }
         });
         this.teams = updatedTeams;
+        this.dirty = true;
+        this.emitTeamUpdate(updatedTeam);
       }
     });
     this.subscriptions.add(subscription);
   }
 
-  protected getTeamRating(team: any): number {
+  /**
+   *
+   * @param team
+   * @protected
+   */
+  protected getTeamRating(team: Team): number {
     let teamRating = 0;
     const eventInfos: TournamentEventEntryInfo[] = this.enteredEvents
-      .filter(teei => teei.eventFk === team.teamEventFk );
+      .filter(teei => teei.eventFk === team.tournamentEventFk );
     if (eventInfos.length === 1) {
       const tournamentEventEntryInfo = eventInfos[0];
       const event: TournamentEvent = tournamentEventEntryInfo.event;
-      const memberRatings: number [] = team.members.map(member => member.rating);
+      const memberRatings: number [] = team.teamMembers.map(member => member.playerRating);
       const teamRatingCalculationMethod = event.teamRatingCalculationMethod;
       const teamRatingCalculator = new TeamRatingCalculator(teamRatingCalculationMethod);
       teamRating = teamRatingCalculator.calculateRating(memberRatings);
@@ -1024,4 +1127,15 @@ export class EntryWizardComponent implements OnInit, OnChanges, OnDestroy {
     return teamRating;
   }
 
+  /**
+   *
+   * @param team
+   * @protected
+   */
+  protected getEventName(team: Team): string {
+    const eventId = team.tournamentEventFk;
+    const teamEvents: TournamentEvent[] = this.getTeamEvents();
+    const thisTEamEvent = teamEvents.filter(te => te.id === eventId);
+    return (thisTEamEvent.length > 0) ? thisTEamEvent[0].name : 'Team Event';
+  }
 }
