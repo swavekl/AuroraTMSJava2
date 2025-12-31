@@ -102,26 +102,32 @@ public class TeamService {
         List<@NonNull Long> membershipIds = profileIdToProfileExtMap.values().stream().map(UserProfileExt::getMembershipId).toList();
         List<RatingHistoryRecord> eligibilityRatingsList = ratingHistoryRecordRepository.getBatchPlayerRatingsAsOfDate(membershipIds, eligibilityDate);
 
-        // 5. fill team members names and eligibility rating
-        teamMembers.forEach(m -> {
-            m.setPlayerName(profileToNameMap.get(m.getProfileId()));
-            UserProfileExt userProfileExt = profileIdToProfileExtMap.get(m.getProfileId());
-            if (userProfileExt != null) {
-                Long membershipId = userProfileExt.getMembershipId();
-                List<RatingHistoryRecord> playersRatingHistoryList = eligibilityRatingsList.stream()
-                        .filter(ratingHistoryRecord -> ratingHistoryRecord.getMembershipId() == membershipId)
-                        .toList();
-                if (!playersRatingHistoryList.isEmpty()) {
-                    int rating = playersRatingHistoryList.get(0).getFinalRating();
-                    m.setPlayerRating(rating);
-                }
-            }
-        });
-
         // 6. Hydrate all members and extract unique Teams
-        return teamMembers.stream()
+        List<Team> retValue = teamMembers.stream()
                 .map(TeamMember::getTeam)
                 .distinct() // Ensure each team appears only once in the list
                 .collect(Collectors.toList());
+
+        // now that we have properly retrieved team members, we can assign names
+        // and eligibility ratings
+        for (Team team : retValue) {
+            List<TeamMember> teamMembers1 = team.getTeamMembers();
+            teamMembers1.forEach(teamMember -> {
+                teamMember.setPlayerName(profileToNameMap.get(teamMember.getProfileId()));
+                UserProfileExt userProfileExt = profileIdToProfileExtMap.get(teamMember.getProfileId());
+                if (userProfileExt != null) {
+                    Long membershipId = userProfileExt.getMembershipId();
+                    List<RatingHistoryRecord> playersRatingHistoryList = eligibilityRatingsList.stream()
+                            .filter(ratingHistoryRecord -> ratingHistoryRecord.getMembershipId() == membershipId)
+                            .toList();
+                    if (!playersRatingHistoryList.isEmpty()) {
+                        int rating = playersRatingHistoryList.get(0).getFinalRating();
+                        teamMember.setPlayerRating(rating);
+                    }
+                }
+            });
+        }
+
+        return retValue;
     }
 }

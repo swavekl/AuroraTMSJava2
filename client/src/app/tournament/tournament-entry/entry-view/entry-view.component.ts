@@ -20,6 +20,7 @@ import {ChangeRatingDialogComponent} from '../change-rating-dialog/change-rating
 import {PaymentRefundStatus} from '../../../account/model/payment-refund-status.enum';
 import {TournamentEvent} from '../../tournament-config/tournament-event.model';
 import {EventEntryType} from '../../tournament-config/model/event-entry-type.enum';
+import {Team} from '../model/team.model';
 
 @Component({
     selector: 'app-entry-view',
@@ -65,7 +66,8 @@ export class EntryViewComponent implements OnInit, OnChanges, OnDestroy {
   entryTotal: number = 0;
   summaryReportItems: SummaryReportItem[] = [];
 
-  teams: any [];
+  @Input()
+  teams!: Team[] | null;
 
   private subscriptions = new Subscription ();
 
@@ -99,9 +101,7 @@ export class EntryViewComponent implements OnInit, OnChanges, OnDestroy {
     if (profileChanges != null) {
       this.playerProfile = profileChanges.currentValue;
     }
-
-    if (this.playerProfile != null && this.tournament != null && this.entry && this.paymentsRefunds != null) {
-      this.teams = this.makeTeams();
+    if (this.playerProfile != null && this.tournament != null && this.entry && this.paymentsRefunds != null && this.teams != null) {
       this.priceCalculator = this.initPricingCalculator(this.tournament.configuration.pricingMethod);
       this.entryTotal = this.getTotal();
       this.summaryReportItems = this.getSummaryReportItems();
@@ -145,7 +145,6 @@ export class EntryViewComponent implements OnInit, OnChanges, OnDestroy {
 
   getSummaryReportItems(): SummaryReportItem [] {
     if (this.priceCalculator) {
-      // const totalPrice = this.priceCalculator.getTotalPrice(this.entry?.membershipOption, this.entry?.usattDonation, this.enteredEvents);
       return this.priceCalculator.getSummaryReportItems();
     } else {
       return [];
@@ -284,24 +283,4 @@ export class EntryViewComponent implements OnInit, OnChanges, OnDestroy {
       return teei2.event;
     }) : [];
   }
-
-  protected makeTeams(): any [] {
-    let teams: any [] = [];
-    const teamMembers: any [] = [
-      { memberProfileId: "a1", memberFullName: "Lorenc, Swavek", teamCaptain: true, rating: 1780},
-      { memberProfileId: "a2", memberFullName: "Osmani, Sheik", teamCaptain: false, rating: 1620},
-      { memberProfileId: "a3", memberFullName: "Hubng, Chi", teamCaptain: false, rating: 1803}
-    ];
-
-    const teamEvents = this.getTeamEvents();
-    for (let i = 0; i < teamEvents.length; i++) {
-      const teamEvent = teamEvents[i];
-      teams.push({
-        name: `My Team Name ${i+1}`, varName: `teamName_${i+1}`, teamEventFk: teamEvent.id, eventName: teamEvent.name,
-        members: teamMembers });
-    }
-
-    return teams;
-  }
-
 }

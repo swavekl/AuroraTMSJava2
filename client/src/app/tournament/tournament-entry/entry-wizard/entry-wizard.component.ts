@@ -13,7 +13,7 @@ import {
 } from '@angular/core';
 import {MembershipType, TournamentEntry} from '../model/tournament-entry.model';
 import {getCurrencySymbol} from '@angular/common';
-import {UntypedFormGroup} from '@angular/forms';
+import {NgForm, UntypedFormGroup} from '@angular/forms';
 import {MatDialog} from '@angular/material/dialog';
 import {STEPPER_GLOBAL_OPTIONS} from '@angular/cdk/stepper';
 
@@ -228,6 +228,15 @@ export class EntryWizardComponent implements OnInit, OnChanges, OnDestroy {
           ...entry,
           membershipOption: membershipOption
         }
+      }
+    }
+
+    // make a copy of teams so their names are modifiable
+    const teamsChange: SimpleChange = changes.teams;
+    if (teamsChange != null) {
+      const teams = teamsChange.currentValue;
+      if (teams != null) {
+        this.teams = JSON.parse(JSON.stringify(teams));
       }
     }
 
@@ -901,6 +910,44 @@ export class EntryWizardComponent implements OnInit, OnChanges, OnDestroy {
     });
   }
 
+  saveTeamsIfDirty(f: NgForm) {
+    // 1. Check if the global form is dirty
+    if (!f.dirty && !this.isDirty()) return;
+
+    const teamsToUpdate: Team[] = [];
+
+    this.teams.forEach(team => {
+      const control = this.getTeamNameControl(team, f);
+
+      // 2. Only update if THIS specific team name input was touched/changed
+      if (control && control.dirty && control.valid) {
+        teamsToUpdate.push(team);
+      }
+    });
+
+    if (teamsToUpdate.length > 0) {
+      this.performBulkUpdate(teamsToUpdate, f);
+    }
+  }
+
+  private getTeamNameControl(team: Team, f: NgForm) {
+    const controlName = `teamName_${team.tournamentEventFk}`;
+    return f.controls[controlName];
+  }
+
+  private performBulkUpdate(teams: Team[], f: NgForm) {
+    // Call your service - ideally a bulk update endpoint or individual calls
+    // Once the service call is successful:
+    teams.forEach(team => {
+      const control = this.getTeamNameControl(team, f);
+      control.markAsPristine();
+    });
+
+    teams.forEach(team => {
+      this.emitTeamUpdate(team);
+    });
+  }
+
   protected getTeamEvents(): TournamentEvent [] {
     return (this.allEventEntryInfos != null) ? this.allEventEntryInfos.filter(
       teei => {
@@ -939,6 +986,8 @@ export class EntryWizardComponent implements OnInit, OnChanges, OnDestroy {
       teamsForEvent = [team];
       // update teams
       this.teams = [...this.teams, team];
+    } else {
+      teamsForEvent = [...teamsForEvent];  // make a modifiable copy
     }
     return teamsForEvent;
   }
@@ -991,8 +1040,8 @@ export class EntryWizardComponent implements OnInit, OnChanges, OnDestroy {
    * @param memberIndex
    * @protected
    */
-  protected onRemoveMember(team: any, memberIndex: number) {
-    const memberFullName = team.members[memberIndex].memberFullName;
+  protected onRemoveMember(team: Team, memberIndex: number) {
+    const memberFullName = team.teamMembers[memberIndex].playerName;
     const dialogRef = this.dialog.open(ConfirmationPopupComponent, {
       width: '300px', height: '200px',
       data: {
@@ -1003,7 +1052,7 @@ export class EntryWizardComponent implements OnInit, OnChanges, OnDestroy {
 
     dialogRef.afterClosed().subscribe(result => {
       if (result === 'ok') {
-        const membersClone: TeamMember [] = [...team.members];
+        const membersClone: TeamMember [] = [...team.teamMembers];
         membersClone.splice(memberIndex, 1);
         let updatedTeam: Team = {...team, teamMembers: membersClone};
         const teamRating = this.getTeamRating(updatedTeam);
@@ -1072,10 +1121,13 @@ export class EntryWizardComponent implements OnInit, OnChanges, OnDestroy {
     const dialogRef = this.dialog.open(ProfileFindPopupComponent, config);
     const subscription = dialogRef.afterClosed().subscribe(result => {
       if (result?.action === 'ok') {
+        const isCaptain = membersClone.length === 0;
         const fullPlayerName = result.selectedPlayerRecord.lastName + ', ' + result.selectedPlayerRecord.firstName;
         const memberProfileId = result.selectedPlayerRecord.id;
         const rating = result.selectedPlayerRecord.rating || 0;
         const entryFk = (this.playerProfile.userId === memberProfileId) ? this.entry.id : null;
+        const status = (isCaptain) ? TeamEntryStatus.CONFIRMED : TeamEntryStatus.INVITED;
+        // first player to sign up will be a team captain
         membersClone.push({
           profileId: memberProfileId,
           id: null,
@@ -1083,9 +1135,9 @@ export class EntryWizardComponent implements OnInit, OnChanges, OnDestroy {
           tournamentEntryFk: entryFk,
           tournamentEventFk: team.tournamentEventFk,
           playerName: fullPlayerName,
-          isCaptain: false,
+          isCaptain: isCaptain,
           playerRating: rating,
-          status: TeamEntryStatus.INVITED
+          status: status
         });
 
         let updatedTeam: Team = {...team, teamMembers: membersClone};

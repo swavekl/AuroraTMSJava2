@@ -1,7 +1,7 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {LinearProgressBarService} from '../../../shared/linear-progress-bar/linear-progress-bar.service';
-import {combineLatest, Observable, of, Subscription} from 'rxjs';
+import {BehaviorSubject, combineLatest, Observable, of, Subscription} from 'rxjs';
 import {TournamentEntry} from '../model/tournament-entry.model';
 import {TournamentEntryService} from '../service/tournament-entry.service';
 import {TournamentConfigService} from '../../tournament-config/tournament-config.service';
@@ -11,13 +11,16 @@ import {createSelector} from '@ngrx/store';
 import {Tournament} from '../../tournament-config/tournament.model';
 import {TournamentEventEntryInfo} from '../model/tournament-event-entry-info-model';
 import {TournamentEvent} from '../../tournament-config/tournament-event.model';
-import {first} from 'rxjs/operators';
+import {distinctUntilChanged, filter, first, map, take} from 'rxjs/operators';
 import {Profile} from '../../../profile/profile';
 import {AuthenticationService} from '../../../user/authentication.service';
 import {ProfileService} from '../../../profile/profile.service';
 import {PaymentRefundFor} from '../../../account/model/payment-refund-for.enum';
 import {PaymentRefund} from '../../../account/model/payment-refund.model';
 import {PaymentRefundService} from '../../../account/service/payment-refund.service';
+import {Team} from '../model/team.model';
+import {EventEntryType} from '../../tournament-config/model/event-entry-type.enum';
+import {TeamService} from '../service/team.service';
 
 @Component({
     selector: 'app-entry-view-container',
@@ -28,6 +31,7 @@ import {PaymentRefundService} from '../../../account/service/payment-refund.serv
                     [playerProfile]="playerProfile$ | async"
                     [paymentsRefunds]="paymentsRefunds$ | async"
                     [canChangeRating]="canChangeRating"
+                    [teams]="teams$ | async"
                     (action)="onAction($event)"
                     (updateEntry)="onUpdateTournamentEntry($event)"
     >
@@ -54,11 +58,14 @@ export class EntryViewContainerComponent implements OnInit, OnDestroy {
 
   paymentsRefunds$: Observable<PaymentRefund[]>;
 
+  teams$: BehaviorSubject<Team[]> = new BehaviorSubject<Team[]>([]);
+
   private returnUrl: string = null;
 
   canChangeRating: boolean = false;
 
   private subscriptions: Subscription = new Subscription();
+  private playerProfileId: string;
 
   constructor(private tournamentEntryService: TournamentEntryService,
               private tournamentConfigService: TournamentConfigService,
@@ -69,7 +76,8 @@ export class EntryViewContainerComponent implements OnInit, OnDestroy {
               private profileService: ProfileService,
               private activatedRoute: ActivatedRoute,
               private router: Router,
-              private linearProgressBarService: LinearProgressBarService) {
+              private linearProgressBarService: LinearProgressBarService,
+              private teamService: TeamService) {
 
     this.setupProgressIndicator();
 
@@ -84,8 +92,12 @@ export class EntryViewContainerComponent implements OnInit, OnDestroy {
         this.tournamentEventConfigService.store.select(this.tournamentEventConfigService.selectors.selectLoading),
         this.profileService.loading$,
       this.paymentRefundService.loading$,
-      ], (eventEntryInfosLoading: boolean, paymentRefundLoading: boolean, tournamentLoading: boolean, entryLoading: boolean, eventConfigLoading: boolean, profileLoading: boolean, paymentsRefundsLoading: boolean) => {
-        return eventEntryInfosLoading || paymentRefundLoading || tournamentLoading || entryLoading || eventConfigLoading || profileLoading || paymentsRefundsLoading;
+        this.teamService.store.select(this.teamService.selectors.selectLoading),
+      ], (eventEntryInfosLoading: boolean, paymentRefundLoading: boolean, tournamentLoading: boolean,
+          entryLoading: boolean, eventConfigLoading: boolean, profileLoading: boolean,
+          paymentsRefundsLoading: boolean, teamsLoading) => {
+        return eventEntryInfosLoading || paymentRefundLoading || tournamentLoading || entryLoading || eventConfigLoading
+          || profileLoading || paymentsRefundsLoading || teamsLoading;
       }
     );
 
@@ -159,6 +171,8 @@ export class EntryViewContainerComponent implements OnInit, OnDestroy {
         this.entry$ = this.tournamentEntryService.getByKey(entryId);
       } else {
         this.loadPlayerProfile(entry.profileId);
+        this.playerProfileId = entry.profileId;
+        this.loadTeamsIfNecessary();
       }
     });
     this.subscriptions.add(subscription);
@@ -198,7 +212,6 @@ export class EntryViewContainerComponent implements OnInit, OnDestroy {
   }
 
   private loadPlayerProfile(playerProfileId: string) {
-    // const playerProfileId = this.authenticationService.getCurrentUserProfileId();
     this.profileService.getProfile(playerProfileId)
       .pipe(first())
       .subscribe((profile: Profile) => {
@@ -249,4 +262,48 @@ export class EntryViewContainerComponent implements OnInit, OnDestroy {
         }
       );
   }
+
+  private loadTeamsIfNecessary() {
+    this.tournamentEventConfigService.store.select(
+      this.tournamentEventConfigService.selectors.selectEntities
+    ).pipe(
+      // 1. Convert entities map to array
+      map(entities => Object.values(entities)),
+      // 2. Only proceed if we actually have events loaded
+      filter(events => events && events.length > 0),
+      // 3. Extract IDs of events that are designated as TEAM events
+      map(events => events
+        .filter(e => e.eventEntryType === EventEntryType.TEAM)
+        .map(e => e.id)
+      ),
+      // 4. Ensure we don't trigger multiple times for the same set of IDs
+      distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)),
+      // 5. Only move forward if the list of team events is NOT empty
+      filter(teamEventIds => teamEventIds.length > 0),
+      // 6. Ensure this logic only runs once per component lifecycle
+      take(1)
+    ).subscribe(teamEventIds => {
+      console.log('Team events detected, fetching teams...', teamEventIds);
+      this.fetchTeams(teamEventIds);
+    });
+  }
+
+  /**
+   * Purely responsible for the HTTP call and updating the local state.
+   */
+  private fetchTeams(teamEventIds: number[]) {
+    const strTeamEventIds = teamEventIds.join(",");
+    const query = `playerProfileId=${this.playerProfileId}&teamEventIds=${strTeamEventIds}&tournamentId=${this.tournamentId}`;
+    this.teamService.loadWithQuery(query)
+      .subscribe({
+        next: (teams) => {
+          this.teams$.next(teams);
+        },
+        error: (err) => {
+          console.error('Failed to load teams', err);
+          this.teams$.next([]);
+        }
+      });
+  }
+
 }

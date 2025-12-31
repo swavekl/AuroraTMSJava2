@@ -169,9 +169,9 @@
             </div>
           </ng-container>
           <div class="wizard-button-bar" fxLayout="row">
-            <button mat-raised-button matStepperPrevious type="button">Back</button>
+            <button mat-raised-button matStepperPrevious type="button" (click)="saveTeamsIfDirty(f)">Back</button>
             <span fxFlex></span>
-            <button mat-raised-button color="primary" matStepperNext type="button">Next</button>
+            <button mat-raised-button color="primary" matStepperNext type="button" (click)="saveTeamsIfDirty(f)">Next</button>
           </div>
         </mat-step>
         <mat-step label="Summary">
