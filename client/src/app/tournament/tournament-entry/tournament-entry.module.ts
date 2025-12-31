@@ -37,6 +37,7 @@ import { AddEntryComponent } from './add-entry/add-entry.component';
 import { ChangeRatingDialogComponent } from './change-rating-dialog/change-rating-dialog.component';
 import { ImportTournamentEntriesDialogComponent } from './import-tournament-entries-dialog/import-tournament-entries-dialog.component';
 import {MatProgressBar} from '@angular/material/progress-bar';
+import { TeamBuilderComponent } from './team-builder/team-builder.component';
 
 @NgModule({
   declarations: [
@@ -53,7 +54,8 @@ import {MatProgressBar} from '@angular/material/progress-bar';
     EntrySummaryTableComponent,
     AddEntryComponent,
     ChangeRatingDialogComponent,
-    ImportTournamentEntriesDialogComponent
+    ImportTournamentEntriesDialogComponent,
+    TeamBuilderComponent
   ],
     imports: [
         CommonModule,

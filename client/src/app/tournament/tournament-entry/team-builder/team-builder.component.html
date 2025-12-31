@@ -1,0 +1,66 @@
+<div fxLayout="column" fxLayoutGap="10px">
+  <div class="team-event-header">Event Name: {{ teamEvent?.name }}</div>
+  <div fxLayout="row"  fxLayoutAlign="space-between start" fxLayout.lt-sm="column" fxLayoutAlign.lt-sm="start stretch">
+    <mat-form-field fxFlex="60%" fxFlex.lt-sm="80%">
+      <mat-label>Team Name</mat-label>
+      <input matInput
+             type="text"
+             [(ngModel)]="team.name"
+             [name]="'teamName_' + team.tournamentEventFk"
+             #nameModel="ngModel"
+             maxlength="35"
+             required/>
+
+      <mat-error *ngIf="nameModel.errors?.['required']">
+        Field is required
+      </mat-error>
+
+      <mat-error *ngIf="nameModel.errors?.['maxlength']">
+        Maximum team name length is 35 characters
+      </mat-error>
+    </mat-form-field>
+    <div>
+      <button type="button" mat-raised-button
+              (click)="onAddMember()"
+              [disabled]="!canAddMember()"
+              [hidden]="isTeamCaptain()">Add Member
+        <mat-icon>add</mat-icon>
+      </button>
+      <button type="button" mat-raised-button
+              (click)="onJoinTeam()"
+              [disabled]="!canJoinTeam()"
+              [hidden]="!isTeamCaptain()">Join Team
+        <mat-icon>add</mat-icon>
+      </button>
+    </div>
+  </div>
+</div>
+<div>
+  <table class="team-table">
+    <thead>
+    <tr>
+      <th>Member Name</th>
+      <th>Cap</th>
+      <th>&nbsp;</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr *ngFor="let teamMember of team.teamMembers; let playerIndex = index">
+      <td class="name-column">{{teamMember.playerName}}<br>{{teamMember.playerRating}}</td>
+      <td class="captain-column">{{teamMember.isCaptain ? 'Y' : 'N'}}</td>
+      <td class="delete-column">
+        <button [disabled]="!canRemovePlayer(playerIndex)" type="button" mat-fab color=""
+                (click)="onRemoveMember(playerIndex)" class="delete-member-button">
+          <mat-icon>delete</mat-icon>
+        </button>
+      </td>
+    </tr>
+    </tbody>
+    <tfoot>
+    <tr>
+      <th>Team rating {{ getTeamRating(team)}}</th>
+    </tr>
+    </tfoot>
+  </table>
+</div>
+

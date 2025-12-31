@@ -120,50 +120,6 @@ div.team-event-header {
   font-weight: bold;
 }
 
-table.team-table {
-  //border: 0px solid black;
-  width: 100%;
-  margin-top: 25px;
-
-  tr {
-    th {
-      text-align: left;
-      font-weight: bold;
-    }
-
-    td {
-      padding: 8px 0;
-      font-size: 16px;
-      border-bottom: 1px solid $primary-color;
-      vertical-align: middle;
-
-      &.name-column {
-        text-align: left;
-      }
-
-      &.captain-column {
-        text-align: center;
-        //border-right: 1px solid black;
-        //border-left: 1px solid black;
-      }
-
-      &.delete-column {
-        text-align: center;
-      }
-    }
-  }
-
-  tfoot tr th {
-    //border-top: 1px solid black;
-    padding-top: 16px;
-    font-size: 16px;
-    font-weight: bold;
-  }
-
-  button.delete-member-button {
-    background-color: color.adjust($primary-color, $lightness: 30%);
-  }
-}
 
 
 
