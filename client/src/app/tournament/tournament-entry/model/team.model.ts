@@ -11,7 +11,12 @@ export class Team {
   name: string;
 
   // team rating
-  rating: number;
+  teamRating: number;
+
+  dateEntered: Date;
+
+  // price paid in case it changes according to schedule
+  entryPricePaid: number;
 
   // list of team members of this team
   teamMembers: TeamMember[] = [];

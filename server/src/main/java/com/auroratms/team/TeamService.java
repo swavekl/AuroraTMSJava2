@@ -5,13 +5,14 @@ import com.auroratms.profile.UserProfile;
 import com.auroratms.profile.UserProfileExt;
 import com.auroratms.profile.UserProfileExtService;
 import com.auroratms.profile.UserProfileService;
+import com.auroratms.team.notification.TeamChangedEventPublisher;
 import com.auroratms.tournament.Tournament;
 import com.auroratms.tournament.TournamentService;
 import com.auroratms.usatt.RatingHistoryRecord;
 import com.auroratms.usatt.RatingHistoryRecordRepository;
-import com.auroratms.usatt.UsattDataService;
 import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -38,12 +39,45 @@ public class TeamService {
     @Autowired
     private RatingHistoryRecordRepository ratingHistoryRecordRepository;
 
+    @Autowired
+    private TeamChangedEventPublisher teamChangedEventPublisher;
+
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
+
     public Team save(Team team) {
-        return teamRepository.save(team);
+        List<String> previousProfileIds = new ArrayList<>();
+        if (team.getId() != null) {
+            // Direct SQL bypasses Hibernate's cache entirely
+            String sql = "SELECT profile_id FROM team_member WHERE team_fk = ?";
+            previousProfileIds = jdbcTemplate.queryForList(sql, String.class, team.getId());
+
+            System.out.println("previousProfileIds.size() = " + previousProfileIds.size());
+        } else {
+            System.out.println("New team");
+        }
+
+        Team savedTeam = teamRepository.save(team);
+
+        // team captain already has an entry because he entered the tournament and team event
+        // so there is no need to create one since it would result in double entries
+        boolean isCaptain = false;
+        List<TeamMember> teamMembers = savedTeam.getTeamMembers();
+        if (teamMembers.size() == 1 && previousProfileIds.isEmpty()) {
+            TeamMember teamMember = teamMembers.get(0);
+            isCaptain = teamMember.isCaptain();
+        }
+
+        if (!isCaptain) {
+            // Publish: "Here is the team now, and here is a list of who WAS in it."
+            teamChangedEventPublisher.publishTeamSavedEvent(savedTeam, previousProfileIds);
+        }
+
+        return savedTeam;
     }
 
-    public Team get(Long teamId) {
-        return teamRepository.findById(teamId)
+    public Team getTeamById(Long teamId) {
+        return teamRepository.getTeamById(teamId)
                 .orElseThrow(() -> new ResourceNotFoundException("Team " + teamId + " not found"));
     }
 
@@ -129,5 +163,9 @@ public class TeamService {
         }
 
         return retValue;
+    }
+
+    public void delete(Long teamId) {
+        teamRepository.deleteById(teamId);
     }
 }

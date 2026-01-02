@@ -18,6 +18,8 @@ export class TeamMember {
 
   tournamentEventFk: number;
 
+  cartSessionId: string;
+
   playerName: string;
 
   playerRating: number;

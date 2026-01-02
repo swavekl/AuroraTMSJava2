@@ -73,7 +73,7 @@ public class TournamentEventEntryService {
     }
 
     @CacheEvict(key = "#id")
-    public void clearFromCache (Long id) {
+    public void clearFromCache(Long id) {
         // do nothing - just clear cache
     }
 
@@ -121,6 +121,7 @@ public class TournamentEventEntryService {
 
     /**
      * Lists all event entries for one event that are confirmed
+     *
      * @param eventId event id
      * @return list of event entries
      */
@@ -130,6 +131,7 @@ public class TournamentEventEntryService {
 
     /**
      * Finds all entries associated with one tournament entry i.e. player entry
+     *
      * @param tournamentEntryId
      * @return
      */
@@ -139,6 +141,7 @@ public class TournamentEventEntryService {
 
     /**
      * Gets single event entry
+     *
      * @param tournamentEventId
      * @param tournamentEntryId
      * @return
@@ -164,6 +167,7 @@ public class TournamentEventEntryService {
 
     /**
      * Finds all tournament entry ids corresponding to tournament event entries
+     *
      * @param tournamentId
      * @return
      */
@@ -173,5 +177,9 @@ public class TournamentEventEntryService {
 
     public int countValidTournamentEntries(long tournamentId) {
         return repository.countDistinctByTournamentEntryFk(tournamentId);
+    }
+
+    public List<TournamentEventEntry> findAllByTournamentEntryFkInAndId(List<Long> tournamentEntriesIn, Long tournamentEventFk) {
+        return repository.findAllByTournamentEntryFkInAndId(tournamentEntriesIn, tournamentEventFk);
     }
 }

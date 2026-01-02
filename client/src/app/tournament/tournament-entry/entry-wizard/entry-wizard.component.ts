@@ -384,31 +384,6 @@ export class EntryWizardComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
-  // /**
-  //  * Gets current player total regardless of previous payments or refunds
-  //  */
-  // getTotal(): number {
-  //   const membershipOption: MembershipType = this.entry?.membershipOption;
-  //   const usattDonation = this.entry?.usattDonation ?? 0;
-  //   let total = 0;
-  //   if (this.priceCalculator) {
-  //     total = this.priceCalculator.getTotalPrice(membershipOption, usattDonation, this.enteredEvents, this.teams, this.isWithdrawing, this.availableEvents);
-  //   }
-  //   return total;
-  // }
-  //
-  // /**
-  //  * Gets a list of report items to be painted on the summary screen
-  //  */
-  // getSummaryReportItems() {
-  //   if (this.priceCalculator) {
-  //     const totalPrice = this.priceCalculator.getTotalPrice(this.entry?.membershipOption, this.entry?.usattDonation, this.enteredEvents, this.teams, this.isWithdrawing, this.availableEvents);
-  //     return this.priceCalculator.getSummaryReportItems();
-  //   } else {
-  //     return [];
-  //   }
-  // }
-
   /**
    * Gets balance due (positive - payment due, negative - refund due, zero - just confirm)
    */
@@ -962,26 +937,32 @@ export class EntryWizardComponent implements OnInit, OnChanges, OnDestroy {
     let teamsForEvent: Team [] = (this.teams?.length > 0) ? this.teams.filter(team => team.tournamentEventFk === eventId) : [];
     // team not configured for this event, create it
     if (teamsForEvent?.length === 0 && this.playerProfile != null) {
-      const playerName = `${this.playerProfile?.lastName}, ${this.playerProfile?.firstName}`;
-      const playerRating = this.entry.eligibilityRating || 0;
-      const teamMember: TeamMember = {
-        id: null, teamFk: null, tournamentEntryFk: this.entry.id, tournamentEventFk: eventId,
-        status: TeamEntryStatus.INVITED, isCaptain: true, playerName: playerName,
-        playerRating: playerRating, profileId: this.playerProfile.userId
-      };
-      const teamMembers: TeamMember[] = []; // [teamMember];
+      // const playerName = `${this.playerProfile?.lastName}, ${this.playerProfile?.firstName}`;
+      // const playerRating = this.entry.eligibilityRating || 0;
+      const entryPricePaid = this.getEntryPricePaid(eventId);
+      // const teamMember: TeamMember = {
+      //   id: null, teamFk: null, tournamentEntryFk: this.entry.id, tournamentEventFk: eventId,
+      //   status: TeamEntryStatus.INVITED, isCaptain: true, playerName: playerName,
+      //   playerRating: playerRating, profileId: this.playerProfile.userId, cartSessionId: null
+      // };
+      const teamMembers: TeamMember[] = []; // = [teamMember];
       const team: Team = {
         id: null, tournamentEventFk: eventId, teamMembers: teamMembers,
-        name: 'my team name', rating: 0
+        name: 'my team name', teamRating: 0, entryPricePaid: entryPricePaid, dateEntered: new Date()
       };
       // return this
       teamsForEvent = [team];
       // update teams
-      this.teams = [...this.teams, team];
+      this.teams = teamsForEvent;
     } else {
       teamsForEvent = [...teamsForEvent];  // make a modifiable copy
     }
     return teamsForEvent;
+  }
+
+  private getEntryPricePaid(eventId: number): number {
+    const entry = this.enteredEvents?.find(teei => teei.eventFk === eventId);
+    return entry ? entry.price : 0;
   }
 
   saveTeamsIfDirty(f: NgForm) {
@@ -1020,10 +1001,6 @@ export class EntryWizardComponent implements OnInit, OnChanges, OnDestroy {
     teams.forEach(team => {
       this.onTeamChanged(team);
     });
-  }
-
-  protected onTeamMemberChanged($event: number) {
-
   }
 
   protected onTeamChanged(updatedTeam: Team) {

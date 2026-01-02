@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.io.Serializable;
+import java.util.Date;
 import java.util.List;
 
 @Entity
@@ -16,7 +17,7 @@ import java.util.List;
 @NoArgsConstructor
 @Getter
 @Setter
-public class Team implements Serializable {
+public class Team implements Serializable, Cloneable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -30,10 +31,37 @@ public class Team implements Serializable {
     private String name;
 
     // team rating
-    private int rating;
+    private int teamRating;
+
+    // date of creation
+    private Date createdDate;
+
+    // price of entry since it may change over time
+    private double entryPricePaid;
 
     // list of team members of this team
     @OneToMany(mappedBy = "team", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference // Tells Jackson to serialize the list of members
     private List<TeamMember> teamMembers = new java.util.ArrayList<>();
+
+    @Override
+    public Team clone() {
+        try {
+            Team clone = (Team) super.clone();
+            return clone;
+        } catch (CloneNotSupportedException e) {
+            throw new AssertionError();
+        }
+    }
+
+    // In Team.java
+    public void addTeamMember(TeamMember member) {
+        this.teamMembers.add(member);
+        member.setTeam(this); // This is the line that fixed your save!
+    }
+
+    public void removeTeamMember(TeamMember member) {
+        this.teamMembers.remove(member);
+        member.setTeam(null);
+    }
 }

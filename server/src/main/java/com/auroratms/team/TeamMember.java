@@ -20,7 +20,7 @@ import java.io.Serializable;
 @NoArgsConstructor
 @Getter
 @Setter
-public class TeamMember implements Serializable {
+public class TeamMember implements Serializable, Cloneable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -46,6 +46,10 @@ public class TeamMember implements Serializable {
     @Column(name = "tournament_event_fk", nullable = false)
     private Long tournamentEventFk;
 
+    // session id for deleting
+    @Column(length = 36)
+    private String cartSessionId;
+
     // name of the player
     @Transient
     private String playerName;
@@ -53,4 +57,15 @@ public class TeamMember implements Serializable {
     // player rating
     @Transient
     private int playerRating;
+
+    @Override
+    public TeamMember clone() {
+        try {
+            TeamMember clone = (TeamMember) super.clone();
+            return clone;
+        } catch (CloneNotSupportedException e) {
+            throw new AssertionError();
+        }
+    }
+
 }

@@ -2,7 +2,6 @@ package com.auroratms.team;
 
 import io.micrometer.common.util.StringUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -10,7 +9,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
-import java.text.ParseException;
 import java.util.*;
 
 @RestController
@@ -49,7 +47,7 @@ public class TeamController {
     @ResponseBody
     public ResponseEntity<Team> getTeam(@PathVariable Long teamId) {
         try {
-            Team team = teamService.get(teamId);
+            Team team = teamService.getTeamById(teamId);
             return new ResponseEntity<>(team, HttpStatus.OK);
         } catch (Exception e) {
             String message = e.getMessage();

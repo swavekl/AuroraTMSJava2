@@ -31,7 +31,6 @@ export class TeamBuilderComponent implements OnDestroy {
   @Input() teamEvent: TournamentEvent;
 
   @Output() teamChanged = new EventEmitter<Team>();
-  @Output() rosterChanged = new EventEmitter<number>(); // Emits eventFk
 
   private subscriptions: Subscription = new Subscription();
 
@@ -76,7 +75,7 @@ export class TeamBuilderComponent implements OnDestroy {
         membersClone.splice(memberIndex, 1);
         let updatedTeam: Team = {...this.team, teamMembers: membersClone};
         const teamRating = this.getTeamRating(updatedTeam);
-        updatedTeam = {...updatedTeam, rating: teamRating};
+        updatedTeam = {...updatedTeam, teamRating: teamRating};
         this.emitTeamUpdate(updatedTeam);
       }
     });
@@ -133,7 +132,8 @@ export class TeamBuilderComponent implements OnDestroy {
           playerName: fullPlayerName,
           isCaptain: isCaptain,
           playerRating: rating,
-          status: status
+          status: status,
+          cartSessionId: null
         };
         this.addMemberInternal(newMember);
       }
@@ -162,7 +162,8 @@ export class TeamBuilderComponent implements OnDestroy {
       tournamentEventFk: this.team.tournamentEventFk,
       playerName: fullPlayerName,
       playerRating: this.entry.eligibilityRating,
-      tournamentEntryFk: this.entry.id
+      tournamentEntryFk: this.entry.id,
+      cartSessionId: null
     };
     this.addMemberInternal(newMember);
   }
@@ -174,7 +175,7 @@ export class TeamBuilderComponent implements OnDestroy {
     const membersClone: TeamMember [] = [...this.team.teamMembers, newMember];
     let updatedTeam: Team = {...this.team, teamMembers: membersClone};
     const teamRating = this.getTeamRating(updatedTeam);
-    updatedTeam = {...updatedTeam, rating: teamRating};
+    updatedTeam = {...updatedTeam, teamRating: teamRating};
     this.emitTeamUpdate(updatedTeam);
   }
 
