@@ -103,11 +103,6 @@ public class TeamChangedEventListener {
                 .filter(id -> !currentMembersProfileIds.contains(id))
                 .toList();
 
-        List<TeamMember> updatedTeamMembers = team.getTeamMembers();
-        List<TeamMember> addedPlayers = updatedTeamMembers.stream()
-                .filter(member -> !previousIds.contains(member.getProfileId()))
-                .toList();
-
         // get the tournament and event information
         TournamentEvent tournamentEvent = tournamentEventEntityService.get(team.getTournamentEventFk());
 

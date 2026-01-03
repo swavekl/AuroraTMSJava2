@@ -1,4 +1,4 @@
-import {Component, EventEmitter, Input, OnDestroy, Output} from '@angular/core';
+import {Component, EventEmitter, Input, OnChanges, OnDestroy, Output, SimpleChange, SimpleChanges} from '@angular/core';
 import {ControlContainer, NgForm} from '@angular/forms';
 import {Team} from '../model/team.model';
 import {TeamMember} from '../model/team-member.model';
@@ -20,7 +20,7 @@ import {Subscription} from 'rxjs';
   // This allows child ngModels to register with the parent
   viewProviders: [{provide: ControlContainer, useExisting: NgForm}]
 })
-export class TeamBuilderComponent implements OnDestroy {
+export class TeamBuilderComponent implements OnChanges, OnDestroy {
 
   @Input() team: Team;
 
@@ -34,7 +34,49 @@ export class TeamBuilderComponent implements OnDestroy {
 
   private subscriptions: Subscription = new Subscription();
 
+  // true if current player is a captain
+  protected hasCaptain: boolean = false;
+
+  // true if current member is a team captain
+  protected amICaptain: boolean = false;
+
+  // can add members
+  protected canAddMembers: boolean = false;
+
+  // can join team
+  protected canJoinTeam: boolean = false;
+
   constructor(private dialog: MatDialog) {
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    const teamChange: SimpleChange = changes.team;
+    if (teamChange != null) {
+      const updateTeam: Team = teamChange.currentValue;
+      if (updateTeam != null) {
+        const teamMembers: TeamMember[] = updateTeam?.teamMembers || [];
+        this.hasCaptain = teamMembers.some(m => m.captain);
+        // console.log('this.hasCaptain', this.hasCaptain);
+      }
+    }
+
+    if (this.team?.teamMembers != null) {
+      this.amICaptain = (this.playerProfile != null)
+        ? this.team.teamMembers.some(m => (m.profileId === this.playerProfile.userId) ? m.captain : false)
+      : false;
+      // console.log('amICaptain', this.amICaptain);
+    }
+
+    if (this.teamEvent != null) {
+      const maxPlayers = this.teamEvent?.maxTeamPlayers || 0;
+      const currentPlayers = this.team?.teamMembers?.length || 0;
+      this.canAddMembers = (currentPlayers < maxPlayers) && this.amICaptain;
+      // console.log('canAddMembers', this.canAddMembers);
+
+      this.canJoinTeam = this.team.teamMembers.some(m => m.profileId === this.playerProfile.userId)
+        || this.team?.teamMembers.length === 0;
+      // console.log('canJoinTeam', this.canJoinTeam);
+    }
   }
 
   ngOnDestroy() {
@@ -48,9 +90,9 @@ export class TeamBuilderComponent implements OnDestroy {
    * @protected
    */
   protected canRemovePlayer(playerIndex: number): boolean {
-    // only non-captain can be removed
+    // only non-captain can be removed and only be a
     const member: TeamMember = this.team?.teamMembers[playerIndex];
-    return !member.isCaptain;
+    return (this.amICaptain && !member.captain) || (!this.amICaptain && member.profileId == this.playerProfile.userId);
   }
 
   /**
@@ -83,25 +125,6 @@ export class TeamBuilderComponent implements OnDestroy {
 
   /**
    *
-   * @param updatedTeam
-   * @private
-   */
-  private emitTeamUpdate(updatedTeam: Team) {
-      this.teamChanged.emit(updatedTeam);
-  }
-
-  /**
-   *
-   * @protected
-   */
-  protected canAddMember(): boolean {
-    const maxPlayers = this.teamEvent?.maxTeamPlayers || 0;
-    const currentPlayers = this.team?.teamMembers?.length || 0;
-    return (currentPlayers < maxPlayers);
-  }
-
-  /**
-   *
    */
   public onAddMember() {
     const profileSearchData: ProfileSearchData = {
@@ -130,7 +153,7 @@ export class TeamBuilderComponent implements OnDestroy {
           tournamentEntryFk: entryFk,
           tournamentEventFk: this.team.tournamentEventFk,
           playerName: fullPlayerName,
-          isCaptain: isCaptain,
+          captain: isCaptain,
           playerRating: rating,
           status: status,
           cartSessionId: null
@@ -141,24 +164,20 @@ export class TeamBuilderComponent implements OnDestroy {
     this.subscriptions.add(subscription);
   }
 
-  protected isTeamCaptain() {
-    return this.team.teamMembers.some(m => (m.profileId === this.playerProfile.userId) ? m.isCaptain : false);
-  }
-
-
-  protected canJoinTeam(): boolean {
-    return this.team.teamMembers.some(m => m.profileId === this.playerProfile.userId);
-  }
-
+  /**
+   *
+   * @protected
+   */
   protected onJoinTeam() {
     // Logic to add current user as a member (status CONFIRMED)
     const fullPlayerName = `${this.playerProfile.lastName}, ${this.playerProfile.firstName}`;
+    const isCaptain = !this.hasCaptain;
     const newMember: TeamMember = {
       id: null,
       teamFk: this.team.id,
       profileId: this.playerProfile.userId,
       status: TeamEntryStatus.CONFIRMED,
-      isCaptain: false,
+      captain: isCaptain,
       tournamentEventFk: this.team.tournamentEventFk,
       playerName: fullPlayerName,
       playerRating: this.entry.eligibilityRating,
@@ -171,12 +190,25 @@ export class TeamBuilderComponent implements OnDestroy {
   /**
    *
    */
-  private addMemberInternal (newMember: TeamMember) {
+  private addMemberInternal(newMember: TeamMember) {
     const membersClone: TeamMember [] = [...this.team.teamMembers, newMember];
     let updatedTeam: Team = {...this.team, teamMembers: membersClone};
     const teamRating = this.getTeamRating(updatedTeam);
     updatedTeam = {...updatedTeam, teamRating: teamRating};
     this.emitTeamUpdate(updatedTeam);
+  }
+
+  /**
+   *
+   * @param updatedTeam
+   * @private
+   */
+  private emitTeamUpdate(updatedTeam: Team) {
+    this.teamChanged.emit(updatedTeam);
+  }
+
+  protected onChangeCaptain() {
+    console.log('changeCaptain');
   }
 
   /**

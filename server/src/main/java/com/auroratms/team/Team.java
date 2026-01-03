@@ -39,6 +39,9 @@ public class Team implements Serializable, Cloneable {
     // price of entry since it may change over time
     private double entryPricePaid;
 
+    // tournament entry id with which a payment for this team entry is associated
+    private Long payerTournamentEntryFk;
+
     // list of team members of this team
     @OneToMany(mappedBy = "team", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference // Tells Jackson to serialize the list of members

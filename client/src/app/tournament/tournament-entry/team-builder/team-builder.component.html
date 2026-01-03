@@ -1,55 +1,63 @@
 <div fxLayout="column" fxLayoutGap="10px">
   <div class="team-event-header">Event Name: {{ teamEvent?.name }}</div>
-  <div fxLayout="row"  fxLayoutAlign="space-between start" fxLayout.lt-sm="column" fxLayoutAlign.lt-sm="start stretch">
-    <mat-form-field fxFlex="60%" fxFlex.lt-sm="80%">
-      <mat-label>Team Name</mat-label>
-      <input matInput
-             type="text"
-             [(ngModel)]="team.name"
-             [name]="'teamName_' + team.tournamentEventFk"
-             #nameModel="ngModel"
-             maxlength="35"
-             required/>
+    <div fxLayout="row"  fxLayoutAlign="start start">
+      <mat-form-field fxFlex="60%" fxFlex.lt-sm="90%">
+        <mat-label>Team Name</mat-label>
+        <input matInput
+               type="text"
+               [(ngModel)]="team.name"
+               [name]="'teamName_' + team.tournamentEventFk"
+               #nameModel="ngModel"
+               maxlength="35"
+               [disabled]="!this.amICaptain && team?.teamMembers?.length > 0"
+               required/>
 
-      <mat-error *ngIf="nameModel.errors?.['required']">
-        Field is required
-      </mat-error>
+        <mat-error *ngIf="nameModel.errors?.['required']">
+          Field is required
+        </mat-error>
 
-      <mat-error *ngIf="nameModel.errors?.['maxlength']">
-        Maximum team name length is 35 characters
-      </mat-error>
-    </mat-form-field>
-    <div>
-      <button type="button" mat-raised-button
-              (click)="onAddMember()"
-              [disabled]="!canAddMember()"
-              [hidden]="isTeamCaptain()">Add Member
-        <mat-icon>add</mat-icon>
-      </button>
-      <button type="button" mat-raised-button
-              (click)="onJoinTeam()"
-              [disabled]="!canJoinTeam()"
-              [hidden]="!isTeamCaptain()">Join Team
-        <mat-icon>add</mat-icon>
-      </button>
+        <mat-error *ngIf="nameModel.errors?.['maxlength']">
+          Maximum team name length is 35 characters
+        </mat-error>
+      </mat-form-field>
     </div>
-  </div>
 </div>
 <div>
+  <div fxLayout="row" fxLayoutGap="10px">
+    <button type="button" mat-raised-button
+            (click)="onAddMember()"
+            [disabled]="!canAddMembers || !hasCaptain"
+            [hidden]="!amICaptain">Add Member
+<!--      <mat-icon>group_add</mat-icon>-->
+    </button>
+    <button type="button" mat-raised-button
+            (click)="onJoinTeam()"
+            [disabled]="!canJoinTeam"
+            [hidden]="hasCaptain"
+    >{{ hasCaptain ? 'Join Team' : 'Join As Captain'}}
+<!--      <mat-icon>add</mat-icon>-->
+    </button>
+    <button type="button" mat-raised-button
+            (click)="onChangeCaptain()"
+    >Change Captain
+<!--      <mat-icon>swap_vert</mat-icon>-->
+    </button>
+  </div>
   <table class="team-table">
     <thead>
     <tr>
       <th>Member Name</th>
-      <th>Cap</th>
-      <th>&nbsp;</th>
+      <th class="captain-column">Captain</th>
+      <th class="delete-column">Drop</th>
     </tr>
     </thead>
     <tbody>
     <tr *ngFor="let teamMember of team.teamMembers; let playerIndex = index">
       <td class="name-column">{{teamMember.playerName}}<br>{{teamMember.playerRating}}</td>
-      <td class="captain-column">{{teamMember.isCaptain ? 'Y' : 'N'}}</td>
+      <td class="captain-column" *ngIf="teamMember.captain"><mat-icon>check</mat-icon></td>
+      <td class="captain-column" *ngIf="!teamMember.captain"></td>
       <td class="delete-column">
-        <button [disabled]="!canRemovePlayer(playerIndex)" type="button" mat-fab color=""
+        <button *ngIf="canRemovePlayer(playerIndex)" type="button" mat-fab color=""
                 (click)="onRemoveMember(playerIndex)" class="delete-member-button">
           <mat-icon>delete</mat-icon>
         </button>

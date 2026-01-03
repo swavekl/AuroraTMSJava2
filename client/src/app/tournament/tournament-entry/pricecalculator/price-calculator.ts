@@ -5,8 +5,13 @@ import {Team} from '../model/team.model';
 
 export interface PriceCalculator {
 
-  getTotalPrice(membershipOption: MembershipType, usattDonation: number, enteredEvents: TournamentEventEntryInfo[],
-                teams: Team[], isWithdrawing: boolean, availableEvents: TournamentEventEntryInfo []): number;
+  getTotalPrice(membershipOption: MembershipType,
+                usattDonation: number,
+                enteredEvents: TournamentEventEntryInfo[],
+                teams: Team[],
+                isWithdrawing: boolean,
+                availableEvents: TournamentEventEntryInfo[],
+                tournamentEntryId: number): number;
 
   getSummaryReportItems(): SummaryReportItem [];
 }

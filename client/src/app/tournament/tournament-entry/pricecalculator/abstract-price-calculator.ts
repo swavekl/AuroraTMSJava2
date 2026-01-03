@@ -93,9 +93,9 @@ export class AbstractPriceCalculator {
     this.reportItems.push(eventsHeader);
   }
 
-  protected addEvent(enteredEvent: TournamentEventEntryInfo) {
+  protected addEvent(enteredEvent: TournamentEventEntryInfo, price: number) {
     const eventLine = this.addEventCommon(enteredEvent);
-    eventLine.rightColumnText = this.getFormattedPrice(enteredEvent?.price);
+    eventLine.rightColumnText = this.getFormattedPrice(price);
     this.reportItems.push(eventLine);
   }
 

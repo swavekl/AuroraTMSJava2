@@ -57,10 +57,12 @@
                     <div matListItemLine class="event-item-line2" [class]="getStatusClass(enteredEvent.status)">Status: {{enteredEvent.status | eventEntryStatus }}</div>
                   </div>
                   <div style="margin-right: 8px;" fxLayout="column" fxLayoutAlign="start center">
-                    <button type="button" mat-fab color="" class="event-button" (click)="onEventWithdraw(enteredEvent.eventEntryFk)">
-                      <mat-icon>{{getEnterButtonIcon(enteredEvent.eventEntryCommand)}}</mat-icon>
-                    </button>
-                    <div class="event-button-label">{{ getEnterButtonLabel(enteredEvent.eventEntryCommand) }}</div>
+                    <ng-container *ngIf="isPayerForThisEvent(enteredEvent.eventFk)">
+                      <button type="button" mat-fab color="" class="event-button" (click)="onEventWithdraw(enteredEvent.eventEntryFk)">
+                        <mat-icon>{{getEnterButtonIcon(enteredEvent.eventEntryCommand)}}</mat-icon>
+                      </button>
+                      <div class="event-button-label">{{ getEnterButtonLabel(enteredEvent.eventEntryCommand) }}</div>
+                    </ng-container>
                   </div>
                 </div>
               </mat-list-item>

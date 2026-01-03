@@ -159,7 +159,7 @@ export class EntryViewComponent implements OnInit, OnChanges, OnDestroy {
     const usattDonation = this.entry?.usattDonation ?? 0;
     let total: number = 0;
     if (this.priceCalculator) {
-      total = this.priceCalculator.getTotalPrice(membershipOption, usattDonation, this.enteredEvents, this.teams, false, []);
+      total = this.priceCalculator.getTotalPrice(membershipOption, usattDonation, this.enteredEvents, this.teams, false, [], this.entry.id);
     }
     return total;
   }

@@ -33,8 +33,8 @@ public class TeamMember implements Serializable, Cloneable {
     @Column(name = "profile_id")
     private String profileId;
 
-    @Column(name = "is_captain")
-    private boolean isCaptain;
+    // if true is team captain
+    private boolean captain;
 
     @Enumerated(EnumType.STRING)
     private TeamEntryStatus status;

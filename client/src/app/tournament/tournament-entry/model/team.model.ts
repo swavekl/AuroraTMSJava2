@@ -18,6 +18,9 @@ export class Team {
   // price paid in case it changes according to schedule
   entryPricePaid: number;
 
+  // tournament entry id with which a payment for this team entry is associated
+  payerTournamentEntryFk: number;
+
   // list of team members of this team
   teamMembers: TeamMember[] = [];
 

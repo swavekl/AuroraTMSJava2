@@ -374,11 +374,9 @@ export class EntryWizardComponent implements OnInit, OnChanges, OnDestroy {
     const membershipOption: MembershipType = this.entry?.membershipOption;
     const usattDonation = this.entry?.usattDonation ?? 0;
     if (this.priceCalculator) {
-      console.log('updating pricing');
-      this.totalPrice = this.priceCalculator.getTotalPrice(membershipOption, usattDonation, this.enteredEvents, this.teams, this.isWithdrawing, this.availableEvents);
+      this.totalPrice = this.priceCalculator.getTotalPrice(membershipOption, usattDonation, this.enteredEvents, this.teams, this.isWithdrawing, this.availableEvents, this.entry.id);
       this.summaryItems = this.priceCalculator.getSummaryReportItems();
     } else {
-      console.log('updating pricing to ZERO');
       this.totalPrice = 0;
       this.summaryItems = [];
     }
@@ -947,8 +945,8 @@ export class EntryWizardComponent implements OnInit, OnChanges, OnDestroy {
       // };
       const teamMembers: TeamMember[] = []; // = [teamMember];
       const team: Team = {
-        id: null, tournamentEventFk: eventId, teamMembers: teamMembers,
-        name: 'my team name', teamRating: 0, entryPricePaid: entryPricePaid, dateEntered: new Date(), cartSessionId: null
+        id: null, tournamentEventFk: eventId, teamMembers: teamMembers, payerTournamentEntryFk: this.entry.id,
+        name: 'My Team', teamRating: 0, entryPricePaid: entryPricePaid, dateEntered: new Date(), cartSessionId: null
       };
       // return this
       teamsForEvent = [team];
@@ -976,6 +974,7 @@ export class EntryWizardComponent implements OnInit, OnChanges, OnDestroy {
 
       // 2. Only update if THIS specific team name input was touched/changed
       if (control && control.dirty && control.valid) {
+        console.log('team name control is invalid');
         teamsToUpdate.push(team);
       }
     });
@@ -1013,5 +1012,23 @@ export class EntryWizardComponent implements OnInit, OnChanges, OnDestroy {
       });
       this.teamChanged.emit({team: updatedTeam, teamEventIds: teamEventIds});
     }
+  }
+
+  protected isPayerForThisEvent(eventId: number): boolean {
+    let isPayer = true;
+    const teamEvents = this.getTeamEvents();
+    if (teamEvents != null) {
+      const isTeamEvent = teamEvents.some(te =>  te.id == eventId);
+      if (isTeamEvent) {
+        // find team for this event
+        const teamForEvent: Team = this.teams.find(team => team.tournamentEventFk === eventId);
+        if (teamForEvent != null) {
+          // console.log('payerTournamentEntryFk ' + teamForEvent.payerTournamentEntryFk + ' this entryid ' + this.entry.id);
+          isPayer = teamForEvent.payerTournamentEntryFk === this.entry.id;
+        }
+      }
+    }
+
+    return isPayer;
   }
 }

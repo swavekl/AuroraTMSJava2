@@ -3,17 +3,22 @@ package com.auroratms.tournamententry.notification;
 import com.auroratms.event.TournamentEvent;
 import com.auroratms.event.TournamentEventEntityService;
 import com.auroratms.notification.SystemPrincipalExecutor;
+import com.auroratms.paymentrefund.PaymentRefund;
+import com.auroratms.paymentrefund.PaymentRefundFor;
+import com.auroratms.paymentrefund.PaymentRefundService;
 import com.auroratms.profile.UserProfile;
 import com.auroratms.profile.UserProfileService;
 import com.auroratms.tournament.Tournament;
 import com.auroratms.tournament.TournamentService;
 import com.auroratms.tournamententry.TournamentEntry;
 import com.auroratms.tournamententry.TournamentEntryService;
+import com.auroratms.tournamententry.notification.event.TeamMembersTournamentEntriesChangedEvent;
 import com.auroratms.tournamententry.notification.event.TournamentEntryConfirmedEvent;
 import com.auroratms.tournamententry.notification.event.TournamentEntryStartedEvent;
 import com.auroratms.tournamentevententry.TournamentEventEntry;
 import com.auroratms.tournamentevententry.TournamentEventEntryService;
 import com.auroratms.utils.EmailService;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +36,7 @@ import java.util.*;
  * Listener for events about registration, updates and withdrawals
  */
 @Component
+@Slf4j
 public class TournamentEventListener {
 
     private static final Logger logger = LoggerFactory.getLogger(TournamentEventListener.class);
@@ -52,6 +58,9 @@ public class TournamentEventListener {
 
     @Autowired
     private TournamentEventEntryService tournamentEventEntryService;
+
+    @Autowired
+    private PaymentRefundService paymentRefundService;
 
     /**
      * Send entry started email to TD
@@ -84,6 +93,20 @@ public class TournamentEventListener {
             @Transactional
             protected void taskBody() {
                 sendEntryCompletedEmail(event);
+            }
+        };
+        task.execute();
+    }
+
+    @Async
+    @TransactionalEventListener(phase= TransactionPhase.AFTER_COMMIT)
+    public void handleTeamMembersDroppedEvent(TeamMembersTournamentEntriesChangedEvent event) {
+        // run this task as system principal so we have access to various services
+        SystemPrincipalExecutor task = new SystemPrincipalExecutor() {
+            @Override
+            @Transactional
+            protected void taskBody() {
+                handleTeamMemberChangedEvent(event);
             }
         };
         task.execute();
@@ -252,4 +275,34 @@ public class TournamentEventListener {
         return null;
     }
 
+    /**
+     *
+     * @param event
+     */
+    private void handleTeamMemberChangedEvent(TeamMembersTournamentEntriesChangedEvent event) {
+        Map<Long, Boolean> tournamentEntryIdsToActionMap = event.getTournamentEntryIdsToActionMap();
+        for (Long tournamentEntryId : tournamentEntryIdsToActionMap.keySet()) {
+            Boolean withdrawing = tournamentEntryIdsToActionMap.get(tournamentEntryId);
+            List<TournamentEventEntry> tournamentEventEntries = tournamentEventEntryService.listAllForTournamentEntry(tournamentEntryId);
+            TournamentEntryConfirmedEvent emailEvent = new TournamentEntryConfirmedEvent(tournamentEntryId, withdrawing);
+
+            if (withdrawing) {
+                // if player is no other events
+                if (tournamentEventEntries.isEmpty()) {
+//                    sendEntryCompletedEmail(emailEvent);
+
+                    // and doesn't have any payments
+                    List<PaymentRefund> paymentRefunds = paymentRefundService.getPaymentRefunds(tournamentEntryId, PaymentRefundFor.TOURNAMENT_ENTRY);
+                    if (paymentRefunds.isEmpty()) {
+                        log.info("No payments or refunds were found.  Removing tournament entry " + tournamentEntryId);
+                        tournamentEntryService.delete(tournamentEntryId);
+                    } else {
+                        log.info("Payments or refunds were found. Keeping tournament entry "  + tournamentEntryId);
+                    }
+                }
+            } else {
+//                sendEntryCompletedEmail(emailEvent);
+            }
+        }
+    }
 }

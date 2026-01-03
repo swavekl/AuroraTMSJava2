@@ -16,7 +16,8 @@ export class StandardPriceCalculator extends AbstractPriceCalculator implements 
                 enteredEvents: TournamentEventEntryInfo[],
                 teams: Team[],
                 isWithdrawing: boolean,
-                availableEvents: TournamentEventEntryInfo [] = []): number {
+                availableEvents: TournamentEventEntryInfo[],
+                tournamentEntryId: number): number {
     let total = 0;
     this.initiateReport();
 
@@ -37,8 +38,13 @@ export class StandardPriceCalculator extends AbstractPriceCalculator implements 
       const enteredEvent = enteredEvents[i];
       if (enteredEvent.status === EventEntryStatus.PENDING_CONFIRMATION ||
         enteredEvent.status === EventEntryStatus.ENTERED) {
-        total += enteredEvent.price;
-        this.addEvent(enteredEvent);
+        const payingForEvent = this.isPayerForThisEvent(enteredEvent, teams, tournamentEntryId);
+        if (payingForEvent) {
+          total += enteredEvent.price;
+          this.addEvent(enteredEvent, enteredEvent.price);
+        } else {
+          this.addEvent(enteredEvent, 0)
+        }
       }
     }
 
@@ -78,7 +84,7 @@ export class StandardPriceCalculator extends AbstractPriceCalculator implements 
         this.addRegistrationFeeLine();
       }
 
-      total += this.addTeamEventPerPlayerFees(enteredEvents, teams);
+      total += this.addTeamEventPerPlayerFees(enteredEvents, teams, tournamentEntryId);
 
       if (this.isLateEntry && this.lateEntryFee > 0) {
         total += this.lateEntryFee;
@@ -88,14 +94,14 @@ export class StandardPriceCalculator extends AbstractPriceCalculator implements 
     }
 
     if (isWithdrawing) {
-      const penaltyFee = this.addWithdrawalPenaltyFee(availableEvents);
+      const penaltyFee = this.addWithdrawalPenaltyFee(availableEvents, teams, tournamentEntryId);
       total += penaltyFee;
     }
-    console.log('total', total);
+    // console.log('total', total);
     return total;
   }
 
-  private addTeamEventPerPlayerFees(enteredEvents: TournamentEventEntryInfo[], teams: Team []): number {
+  private addTeamEventPerPlayerFees(enteredEvents: TournamentEventEntryInfo[], teams: Team [], tournamentEntryId: number): number {
     let totalPerPlayer = 0;
     // if entered team tournament
     for (let i = 0; i < enteredEvents.length; i++) {
@@ -104,14 +110,16 @@ export class StandardPriceCalculator extends AbstractPriceCalculator implements 
         enteredEvent.status === EventEntryStatus.ENTERED) {
         if (enteredEvent.event != null) {
           if (enteredEvent.event.eventEntryType === EventEntryType.TEAM) {
-            // find number of players in a team
-            if (teams != null && teams.length > 0) {
-              for (const team of teams) {
-                if (team.tournamentEventFk == enteredEvent.eventFk) {
-                  let numTeamPlayers = (team.teamMembers != null) ? team.teamMembers.length : 0;
-                  const teamEventTotalPerPlayer  = enteredEvent.event.perPlayerFee * numTeamPlayers;
-                  totalPerPlayer += teamEventTotalPerPlayer;
-                  this.addPerPlayerFeeLine(teamEventTotalPerPlayer, enteredEvent.event.name);
+            if (this.isPayerForThisEvent(enteredEvent, teams, tournamentEntryId)) {
+              // find number of players in a team
+              if (teams != null && teams.length > 0) {
+                for (const team of teams) {
+                  if (team.tournamentEventFk == enteredEvent.eventFk) {
+                    let numTeamPlayers = (team.teamMembers != null) ? team.teamMembers.length : 0;
+                    const teamEventTotalPerPlayer  = enteredEvent.event.perPlayerFee * numTeamPlayers;
+                    totalPerPlayer += teamEventTotalPerPlayer;
+                    this.addPerPlayerFeeLine(teamEventTotalPerPlayer, enteredEvent.event.name);
+                  }
                 }
               }
             }
@@ -122,7 +130,23 @@ export class StandardPriceCalculator extends AbstractPriceCalculator implements 
     return totalPerPlayer;
   }
 
-  private addWithdrawalPenaltyFee(availableEvents: any[]) {
+  private isPayerForThisEvent(enteredEvent: TournamentEventEntryInfo, teams: Team[], tournamentEntryId: number): boolean {
+    if (enteredEvent.event != null) {
+      if (enteredEvent.event.eventEntryType === EventEntryType.TEAM) {
+        // find number of players in a team
+        if (teams != null && teams.length > 0) {
+          for (const team of teams) {
+            if (team.tournamentEventFk === enteredEvent.eventFk) {
+              return team.payerTournamentEntryFk === tournamentEntryId;
+            }
+          }
+        }
+      }
+    }
+    return true;
+  }
+
+  private addWithdrawalPenaltyFee(availableEvents: TournamentEventEntryInfo[], teams: Team[], tournamentEntryId: number) {
     let totalPenaltyFee = 0;
     const today = new Date();
     // if entered team tournament
@@ -131,20 +155,26 @@ export class StandardPriceCalculator extends AbstractPriceCalculator implements 
       if (availableEvent.status === EventEntryStatus.PENDING_DELETION) {
         if (availableEvent.event != null) {
           if (availableEvent.event.eventEntryType === EventEntryType.TEAM) {
-            if (availableEvent.event.feeStructure == FeeStructure.FIXED) {
+            // check if this player is responsible for paying for this team event entry
+            const teamForThisEvent = teams.find(team => team.tournamentEventFk === availableEvent.event.id);
+            if (teamForThisEvent != null) {
+              if(teamForThisEvent.payerTournamentEntryFk === tournamentEntryId) {
+                if (availableEvent.event.feeStructure == FeeStructure.FIXED) {
 
-            } else if (availableEvent.event.feeStructure == FeeStructure.PER_SCHEDULE) {
-              const fsItems: FeeScheduleItem [] = availableEvent.event.configuration.feeScheduleItems || [];
-              const dateUtils = new DateUtils();
-              const mutableFsItems: FeeScheduleItem [] = [...fsItems]; // make a mutable copy for sorting
-              mutableFsItems.sort((fsi1: FeeScheduleItem, fsi2: FeeScheduleItem) => {
-                return dateUtils.isDateBefore(fsi1.deadline, fsi2.deadline) ? -1 : 1;
-              });
-              for (const fsItem of mutableFsItems) {
-                if (dateUtils.isDateSameOrBefore(today, fsItem.deadline)) {
-                  this.addCancellationFeeLine(fsItem.cancellationFee, availableEvent.event.name);
-                  totalPenaltyFee +=  fsItem.cancellationFee;
-                  break;
+                } else if (availableEvent.event.feeStructure == FeeStructure.PER_SCHEDULE) {
+                  const fsItems: FeeScheduleItem [] = availableEvent.event.configuration.feeScheduleItems || [];
+                  const dateUtils = new DateUtils();
+                  const mutableFsItems: FeeScheduleItem [] = [...fsItems]; // make a mutable copy for sorting
+                  mutableFsItems.sort((fsi1: FeeScheduleItem, fsi2: FeeScheduleItem) => {
+                    return dateUtils.isDateBefore(fsi1.deadline, fsi2.deadline) ? -1 : 1;
+                  });
+                  for (const fsItem of mutableFsItems) {
+                    if (dateUtils.isDateSameOrBefore(today, fsItem.deadline)) {
+                      this.addCancellationFeeLine(fsItem.cancellationFee, availableEvent.event.name);
+                      totalPenaltyFee +=  fsItem.cancellationFee;
+                      break;
+                    }
+                  }
                 }
               }
             }

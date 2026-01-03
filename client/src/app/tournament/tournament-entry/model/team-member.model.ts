@@ -10,7 +10,7 @@ export class TeamMember {
   profileId: string;
 
   // if true then member is a captain
-  isCaptain: boolean;
+  captain: boolean;
 
   status: TeamEntryStatus;
 

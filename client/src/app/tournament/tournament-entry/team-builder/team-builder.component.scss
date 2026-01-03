@@ -10,6 +10,14 @@ table.team-table {
     th {
       text-align: left;
       font-weight: bold;
+
+      &.captain-column {
+        text-align: center;
+      }
+
+      &.delete-column {
+        text-align: center;
+      }
     }
 
     td {
