@@ -13,6 +13,7 @@ import com.auroratms.tournament.TournamentConfiguration;
 import com.auroratms.tournament.TournamentService;
 import com.auroratms.tournamententry.TournamentEntry;
 import com.auroratms.tournamententry.TournamentEntryService;
+import com.auroratms.tournamentevententry.EventEntryStatus;
 import com.auroratms.tournamentevententry.TournamentEventEntry;
 import com.auroratms.tournamentevententry.TournamentEventEntryService;
 import com.auroratms.users.UserRoles;
@@ -67,6 +68,7 @@ public class TeamServiceTest extends AbstractServiceTest {
 
     @AfterEach
     public void tearDown() {
+        System.out.println("TeamServiceTest.tearDown - BEGIN");
         // We must ensure a transaction is active for deletions to work
         if (!TestTransaction.isActive()) {
             TestTransaction.start();
@@ -106,6 +108,7 @@ public class TeamServiceTest extends AbstractServiceTest {
             System.err.println("Cleanup failed: " + e.getMessage());
         } finally {
             TestTransaction.end();
+            System.out.println("TeamServiceTest.tearDown - END");
         }
     }
 
@@ -116,14 +119,17 @@ public class TeamServiceTest extends AbstractServiceTest {
     public void testAddingAndRemoving() {
         Tournament tournament = makeTournament();
         tournamentId = tournament.getId();
+        System.out.println("tournamentId = " + tournamentId);
         TournamentEvent tournamentEvent = makeTeamEvent(tournament.getId());
         tournamentEventId = tournamentEvent.getId();
+        System.out.println("tournamentEventId = " + tournamentEventId);
 
         CartSession cartSession = new CartSession();
         cartSession.setPaymentRefundFor(PaymentRefundFor.TOURNAMENT_ENTRY);
         ObjectIdGenerators.UUIDGenerator uuidGenerator = new ObjectIdGenerators.UUIDGenerator();
         UUID uuid = uuidGenerator.generateId(cartSession);
         String cartSessionId = uuid.toString();
+        System.out.println("cartSessionId = " + cartSessionId);
 
         Team team = new Team();
         team.setName("Eola Masters");
@@ -151,9 +157,6 @@ public class TeamServiceTest extends AbstractServiceTest {
         entityManager.clear();
 
         TestTransaction.end();
-
-// team captain doesn't need entries created
-        //        waitAndCheck (tournamentId, tournamentEventId, tm.getProfileId());
 
         System.out.println("starting new transaction before additioanl checks");
         // 3. Start a new transaction if you need to perform more saves or DB checks
@@ -186,7 +189,7 @@ public class TeamServiceTest extends AbstractServiceTest {
 
         TestTransaction.end();
 
-        waitAndCheck (tournamentId, tournamentEventId, tm2.getProfileId());
+        waitAndCheck (tournamentId, tournamentEventId, tm2.getProfileId(), true);
 
         TestTransaction.start();
 
@@ -200,20 +203,65 @@ public class TeamServiceTest extends AbstractServiceTest {
 
         TestTransaction.end();
 
+        TestTransaction.start();
+
+        Team team4 = teamService.getTeamById(teamId);
+        List<TeamMember> teamMembers4 = team4.getTeamMembers();
+        assertEquals(2, teamMembers4.size(), "wrong team size");
+
+        TeamMember teamMemberToRemove = teamMembers4.stream()
+                .filter(teamMember -> !teamMember.isCaptain())
+                .findFirst()
+                .get();
+        String teamMemberToRemoveProfileId = teamMemberToRemove.getProfileId();
+        System.out.println("teamMemberToRemoveProfileId = " + teamMemberToRemoveProfileId);
+
+        team4.removeTeamMember(teamMemberToRemove);
+        assertEquals(1, team4.getTeamMembers().size(), "wrong team size after removal");
+
+        teamService.save(team4);
+
+        TestTransaction.flagForCommit();
+        entityManager.flush();
+        entityManager.clear();
+
+        TestTransaction.end();
+
+        waitAndCheck (tournamentId, tournamentEventId, teamMemberToRemoveProfileId, false);
+
+        TestTransaction.start();
+
+        Team team5 = teamService.getTeamById(teamId);
+        List<TeamMember> teamMembers5 = team5.getTeamMembers();
+        assertEquals(1, teamMembers5.size(), "wrong team size");
+
+        TestTransaction.flagForCommit();
+        entityManager.flush();
+        entityManager.clear();
+
+        TestTransaction.end();
+
         //        login = swaveklorenc+320@gmail.com
 //        login = swaveklorenc+arek@gmail.com
     }
 
-    public void waitAndCheck(long tournamentId, Long tournamentEventId, String profileId) {
-        boolean successfullyCreated = false;
+    public void waitAndCheck(long tournamentId, Long tournamentEventId, String profileId, boolean creationCheck) {
+        boolean checkSucceeded = false;
         int maxAttempts = 10;
         System.out.println("waitAndCheck");
         for (int i = 0; i < maxAttempts; i++) {
             // We must check in a fresh transaction or a direct query
             // to see what the background thread committed
-            if (checkIfEntriesExist(tournamentId, tournamentEventId, profileId)) {
-                successfullyCreated = true;
-                break;
+            if (creationCheck) {
+                if (checkIfEntriesExist(tournamentId, tournamentEventId, profileId)) {
+                    checkSucceeded = true;
+                    break;
+                }
+            } else {
+                if (checkIfEntrMarkedForDeletion(tournamentId, tournamentEventId, profileId)) {
+                    checkSucceeded = true;
+                    break;
+                }
             }
             try {
                 Thread.sleep(1000); // Wait 1 second between checks
@@ -223,7 +271,25 @@ public class TeamServiceTest extends AbstractServiceTest {
             System.out.println("Polling for background entry creation... attempt " + (i + 1));
         }
 
-        assertTrue(successfullyCreated, "not created successfully");
+        assertTrue(checkSucceeded, creationCheck ? "entries not created successfully" : "entires not marked for deletion");
+    }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public boolean checkIfEntrMarkedForDeletion(long tournamentId, Long tournamentEventId, String profileId) {
+        boolean checkSucceeded = false;
+        List<TournamentEntry> tournamentEntries = tournamentEntryService.listForTournamentAndUser(tournamentId, profileId);
+        for (TournamentEntry tournamentEntry : tournamentEntries) {
+            List<TournamentEventEntry> tournamentEventEntries = tournamentEventEntryService.listAllForTournamentEntry(tournamentEntry.getId());
+            for (TournamentEventEntry tournamentEventEntry : tournamentEventEntries) {
+                if (tournamentEventEntry.getTournamentEventFk() == tournamentEventId) {
+                    System.out.println("Found tournamentEventEntry with id: " + tournamentEventEntry.getId() + " status " + tournamentEventEntry.getStatus());
+                    if (tournamentEventEntry.getStatus() == EventEntryStatus.PENDING_DELETION) {
+                        checkSucceeded = true;
+                    }
+                }
+            }
+        }
+        return checkSucceeded;
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
@@ -235,7 +301,7 @@ public class TeamServiceTest extends AbstractServiceTest {
             for (TournamentEntry tournamentEntry : tournamentEntries) {
                 if (tournamentEntry.getProfileId().equals(profileId)) {
                     tournamentEntryFk = tournamentEntry.getId();
-                    System.out.println("Found tournament entry for " + profileId);
+                    System.out.println("Found tournament entry for " + profileId + " with id " + tournamentEntryFk);
                 }
             }
 
@@ -245,6 +311,7 @@ public class TeamServiceTest extends AbstractServiceTest {
                 for (TournamentEventEntry tournamentEventEntry : tournamentEventEntries) {
                     if (tournamentEventEntry.getTournamentEventFk() == tournamentEventId) {
                         teeFound = true;
+                        System.out.println("Found tournamentEventEntry with id: " + tournamentEventEntry.getId() + " status " + tournamentEventEntry.getStatus().name());
                     }
                 }
             } else {

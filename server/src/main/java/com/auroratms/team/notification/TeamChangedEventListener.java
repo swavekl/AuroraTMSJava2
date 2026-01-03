@@ -28,7 +28,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 
-import java.util.*;
+import java.util.Date;
+import java.util.List;
+import java.util.Objects;
 
 @Component
 @Slf4j
@@ -148,7 +150,7 @@ public class TeamChangedEventListener {
                 tournamentEntry = makeTournamentEntry(profileId, elegibilityRatingDate, tournamentStartDate, tournamentId);
             } else {
                 // entry already exists
-                System.out.println("Tournament entry already exists");
+                log.info("Tournament entry already exists");
                 tournamentEntry = tournamentEntries.get(0);
             }
             makeEventEntry(tournamentId, tournamentEntry.getId(), eventId, price, cartSessionId, team.getId());
@@ -157,21 +159,19 @@ public class TeamChangedEventListener {
 
     private void processRemovals(List<String> removedMembersProfileIds, Team team, String cartSessionId, TournamentEvent tournamentEvent) {
         // put removed player entries in PENDING_DELETION state.  They will be cleaned up later by confirm
-        // find and process players tournament and event entries to remove
         long tournamentId = tournamentEvent.getTournamentFk();
-        long eventId = tournamentEvent.getId();
+        Long eventId = tournamentEvent.getId();
         for (String removedMemberProfileId : removedMembersProfileIds) {
+            log.info("removedMemberProfileId = " + removedMemberProfileId);
             List<TournamentEntry> tournamentEntries = tournamentEntryService.listForTournamentAndUser(tournamentId, removedMemberProfileId);
-            if (!tournamentEntries.isEmpty()) {
-                TournamentEntry tournamentEntry = tournamentEntries.get(0);
-
-                List<Long> tournamentEntryIds = Collections.singletonList(tournamentEntry.getId());
-                List<TournamentEventEntry> playerTeamEventEntries = tournamentEventEntryService.findAllByTournamentEntryFkInAndId(tournamentEntryIds, eventId);
-
-                for (TournamentEventEntry playerTeamEventEntry : playerTeamEventEntries) {
+            List<Long> tournamentEntryIds = tournamentEntries.stream().map(TournamentEntry::getId).toList();
+            if (!tournamentEntryIds.isEmpty()) {
+                Long tournamentEntryId = tournamentEntryIds.get(0);
+                TournamentEventEntry playerTeamEventEntry =
+                        tournamentEventEntryService.getByTournamentEventIdAndTournamentEntryId(eventId, tournamentEntryId);
+                if (playerTeamEventEntry != null) {
                     log.info("Updating status of removed player event entry " + playerTeamEventEntry.getId());
-                    EventEntryStatus eventEntryStatus = (playerTeamEventEntry.getStatus() == EventEntryStatus.ENTERED) ? EventEntryStatus.PENDING_DELETION : EventEntryStatus.NOT_ENTERED;
-                    playerTeamEventEntry.setStatus(eventEntryStatus);
+                    playerTeamEventEntry.setStatus(EventEntryStatus.PENDING_DELETION);
                     playerTeamEventEntry.setCartSessionId(cartSessionId);
                     tournamentEventEntryService.update(playerTeamEventEntry);
                 }
@@ -190,11 +190,7 @@ public class TeamChangedEventListener {
      * @return
      */
     private void makeEventEntry(long tournamentId, long tournamentEntryId, long eventId, double price, String cartSessionId, long teamId) {
-        List<Long> tournamentEntryIds = new ArrayList<>();
-        tournamentEntryIds.add(tournamentEntryId);
-        List<TournamentEventEntry> playersEventEntry = tournamentEventEntryService.findAllByTournamentEntryFkInAndId(tournamentEntryIds, eventId);
-        System.out.println("playersEventEntry = " + playersEventEntry.size() + " for tournamentEntryId " + tournamentEntryId);
-        TournamentEventEntry tournamentEventEntry = (!playersEventEntry.isEmpty()) ? playersEventEntry.get(0) : null;
+        TournamentEventEntry tournamentEventEntry = tournamentEventEntryService.getByTournamentEventIdAndTournamentEntryId(eventId, tournamentEntryId);
         if (tournamentEventEntry == null) {
             tournamentEventEntry = new TournamentEventEntry();
             tournamentEventEntry.setTournamentFk (tournamentId);
@@ -205,7 +201,8 @@ public class TeamChangedEventListener {
             tournamentEventEntry.setStatus (EventEntryStatus.PENDING_CONFIRMATION);
             tournamentEventEntry.setCartSessionId (cartSessionId);
             tournamentEventEntry.setTeamFk (teamId);
-            tournamentEventEntryService.create(tournamentEventEntry);
+            TournamentEventEntry createdEntry = tournamentEventEntryService.create(tournamentEventEntry);
+            log.info("created TournamentEventEntry id " + createdEntry.getId() + " for tournamentEntryId " + tournamentEntryId);
         }
     }
 
@@ -221,12 +218,12 @@ public class TeamChangedEventListener {
         int eligibilityRating = 0;
         int seedRating = 0;
         boolean membershipExpired = true;
-        System.out.println("Checking if profileId exists " + profileId);
+        log.info("Checking if profileId exists " + profileId);
         if (userProfileExtService.existsByProfileId(profileId)) {
-            System.out.println("getting userProfileExt " + profileId);
+            log.info("getting userProfileExt " + profileId);
             UserProfileExt userProfileExt = userProfileExtService.getByProfileId(profileId);
             if (userProfileExt != null) {
-                System.out.println("userProfileExt = " + userProfileExt);
+                log.info("userProfileExt = " + userProfileExt);
                 long membershipId = userProfileExt.getMembershipId();
                 eligibilityRating = usattDataService.getPlayerRatingAsOfDate(membershipId, elegibilityRatingDate);
                 UsattPlayerRecord usattPlayerRecord = usattDataService.getPlayerByMembershipId(membershipId);
@@ -235,10 +232,12 @@ public class TeamChangedEventListener {
                 Date membershipExpirationDate = usattPlayerRecord.getMembershipExpirationDate();
                 membershipExpired = membershipExpirationDate.before(tournamentStartDate);
             }
+        } else {
+            log.warn ("User profile id " + profileId + " is not mapped to USATT record");
         }
         MembershipType membershipType = (membershipExpired) ? MembershipType.BASIC_PLAN : MembershipType.NO_MEMBERSHIP_REQUIRED;
-        System.out.println("membershipType = " + membershipType);
-        System.out.println("creating TournamentEntry for profile " + profileId);
+        log.info("membershipType = " + membershipType);
+        log.info("creating TournamentEntry for profile " + profileId);
         TournamentEntry tournamentEntry = new TournamentEntry();
         tournamentEntry.setTournamentFk(tournamentId);
         tournamentEntry.setEntryType(EntryType.INDIVIDUAL);
@@ -252,6 +251,4 @@ public class TeamChangedEventListener {
 
         return tournamentEntryService.create(tournamentEntry);
     }
-
-
 }

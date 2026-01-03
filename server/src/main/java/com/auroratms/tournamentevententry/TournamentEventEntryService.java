@@ -178,8 +178,4 @@ public class TournamentEventEntryService {
     public int countValidTournamentEntries(long tournamentId) {
         return repository.countDistinctByTournamentEntryFk(tournamentId);
     }
-
-    public List<TournamentEventEntry> findAllByTournamentEntryFkInAndId(List<Long> tournamentEntriesIn, Long tournamentEventFk) {
-        return repository.findAllByTournamentEntryFkInAndId(tournamentEntriesIn, tournamentEventFk);
-    }
 }

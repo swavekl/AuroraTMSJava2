@@ -57,6 +57,4 @@ public interface TournamentEventEntryRepository extends JpaRepository<Tournament
     @Query("select count(distinct tee.tournamentEntryFk) " +
             "from TournamentEventEntry tee where tee.tournamentFk = ?1")
     int countDistinctByTournamentEntryFk(long tournamentEntryFk);
-
-    List<TournamentEventEntry> findAllByTournamentEntryFkInAndId(List<Long> tournamentEntriesIn, Long tournamentEventFk);
 }
