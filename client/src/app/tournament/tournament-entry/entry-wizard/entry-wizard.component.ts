@@ -948,7 +948,7 @@ export class EntryWizardComponent implements OnInit, OnChanges, OnDestroy {
       const teamMembers: TeamMember[] = []; // = [teamMember];
       const team: Team = {
         id: null, tournamentEventFk: eventId, teamMembers: teamMembers,
-        name: 'my team name', teamRating: 0, entryPricePaid: entryPricePaid, dateEntered: new Date()
+        name: 'my team name', teamRating: 0, entryPricePaid: entryPricePaid, dateEntered: new Date(), cartSessionId: null
       };
       // return this
       teamsForEvent = [team];

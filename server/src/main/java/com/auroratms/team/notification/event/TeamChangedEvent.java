@@ -11,4 +11,5 @@ public class TeamChangedEvent {
 
     private Team team;
     private List<String> previousProfileIds;
+    private String cartSessionId;
 }

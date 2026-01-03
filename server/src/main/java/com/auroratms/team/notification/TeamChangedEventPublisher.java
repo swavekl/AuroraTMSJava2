@@ -15,17 +15,18 @@ public class TeamChangedEventPublisher {
     @Autowired
     private ApplicationEventPublisher applicationEventPublisher;
 
-    public void publishTeamSavedEvent(Team team, List<String> previousProfileIds) {
-        TeamChangedEvent teamChangedEvent = makeTeamChangedEvent(team, previousProfileIds);
+    public void publishTeamSavedEvent(Team team, List<String> previousProfileIds, String cartSessionId) {
+        TeamChangedEvent teamChangedEvent = makeTeamChangedEvent(team, previousProfileIds, cartSessionId);
         this.applicationEventPublisher.publishEvent(teamChangedEvent);
     }
 
-    private TeamChangedEvent makeTeamChangedEvent(Team team, List<String> previousProfileIds) {
+    private TeamChangedEvent makeTeamChangedEvent(Team team, List<String> previousProfileIds, String cartSessionId) {
         TeamAction teamAction = (previousProfileIds.isEmpty()) ? TeamAction.CREATED : TeamAction.UPDATED;
         TeamChangedEvent teamChangedEvent = new TeamChangedEvent();
         teamChangedEvent.setTeamAction(teamAction);
         teamChangedEvent.setTeam(team);
         teamChangedEvent.setPreviousProfileIds(previousProfileIds);
+        teamChangedEvent.setCartSessionId(cartSessionId);
         return teamChangedEvent;
     }
 }

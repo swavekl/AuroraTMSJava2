@@ -30,7 +30,6 @@ import org.springframework.transaction.event.TransactionalEventListener;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Objects;
 
 @Component
 @Slf4j
@@ -70,7 +69,7 @@ public class TeamChangedEventListener {
         switch (teamChangedEvent.getTeamAction()) {
             case CREATED:
             case UPDATED:
-                addRemoveTournamentAndEventEntries(teamChangedEvent.getTeam(), teamChangedEvent.getPreviousProfileIds());
+                addRemoveTournamentAndEventEntries(teamChangedEvent);
                 break;
 
             case DELETED:
@@ -81,10 +80,14 @@ public class TeamChangedEventListener {
 
     /**
      *
-     * @param team
-     * @param previousIds
+     * @param teamChangedEvent
      */
-    private void addRemoveTournamentAndEventEntries(Team team, List<String> previousIds) {
+    private void addRemoveTournamentAndEventEntries(TeamChangedEvent teamChangedEvent) {
+
+        Team team = teamChangedEvent.getTeam();
+        List<String> previousIds = teamChangedEvent.getPreviousProfileIds();
+        String cartSessionId = teamChangedEvent.getCartSessionId();
+
         // Current members in the database (after save)
         List<String> currentMembersProfileIds = team.getTeamMembers().stream()
                 .map(TeamMember::getProfileId)
@@ -104,13 +107,6 @@ public class TeamChangedEventListener {
         List<TeamMember> addedPlayers = updatedTeamMembers.stream()
                 .filter(member -> !previousIds.contains(member.getProfileId()))
                 .toList();
-
-        // get cart session id so we can delete the team members if this team edit is abandoned
-        String cartSessionId = addedPlayers.stream()
-                .map(TeamMember::getCartSessionId)  // Extract the ID first
-                .filter(Objects::nonNull)           // Filter out nulls
-                .findFirst()                        // Get the first match
-                .orElse(null);                      // Default value if none found
 
         // get the tournament and event information
         TournamentEvent tournamentEvent = tournamentEventEntityService.get(team.getTournamentEventFk());

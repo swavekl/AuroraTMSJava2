@@ -438,13 +438,9 @@ export class EntryWizardContainerComponent implements OnInit, OnDestroy, AfterVi
    * @protected
    */
   protected onTeamChanged($event: any) {
-    const team: Team = $event.team;
+    let team: Team = $event.team;
     const teamEventIds: number[] = $event.teamEventIds;
-    team.teamMembers.forEach(tm => {
-      if(tm.id == null) {
-        tm.cartSessionId = this.cartSessionId;
-      }
-    });
+    team = {...team, cartSessionId: this.cartSessionId};
     this.teamService.upsert(team)
       .pipe(first())
       .subscribe({

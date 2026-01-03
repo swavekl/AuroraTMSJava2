@@ -44,6 +44,9 @@ public class Team implements Serializable, Cloneable {
     @JsonManagedReference // Tells Jackson to serialize the list of members
     private List<TeamMember> teamMembers = new java.util.ArrayList<>();
 
+    @Transient
+    private String cartSessionId;
+
     @Override
     public Team clone() {
         try {

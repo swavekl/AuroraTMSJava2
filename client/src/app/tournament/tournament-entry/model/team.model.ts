@@ -20,4 +20,6 @@ export class Team {
 
   // list of team members of this team
   teamMembers: TeamMember[] = [];
+
+  cartSessionId: string;
 }

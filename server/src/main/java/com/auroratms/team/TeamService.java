@@ -70,7 +70,7 @@ public class TeamService {
 
         if (!isCaptain) {
             // Publish: "Here is the team now, and here is a list of who WAS in it."
-            teamChangedEventPublisher.publishTeamSavedEvent(savedTeam, previousProfileIds);
+            teamChangedEventPublisher.publishTeamSavedEvent(savedTeam, previousProfileIds, team.getCartSessionId());
         }
 
         return savedTeam;
