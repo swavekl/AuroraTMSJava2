@@ -137,6 +137,7 @@ public class TeamServiceTest extends AbstractServiceTest {
         team.setTournamentEventFk(tournamentEventId);
         team.setTeamRating(3555);
         team.setCreatedDate(new Date());
+        team.setCartSessionId(cartSessionId);
 
         printPlayersUserIds();
 
