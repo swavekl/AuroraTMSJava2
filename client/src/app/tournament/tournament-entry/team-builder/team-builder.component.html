@@ -38,6 +38,11 @@
 <!--      <mat-icon>add</mat-icon>-->
     </button>
     <button type="button" mat-raised-button
+            (click)="onConfirmEntry()"
+            [hidden]="!canConfirmEntry"
+    >Confirm Entry
+    </button>
+    <button type="button" mat-raised-button
             (click)="onChangeCaptain()"
     >Change Captain
 <!--      <mat-icon>swap_vert</mat-icon>-->

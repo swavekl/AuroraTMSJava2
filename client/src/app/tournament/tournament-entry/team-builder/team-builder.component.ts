@@ -47,6 +47,8 @@ export class TeamBuilderComponent implements OnChanges, OnDestroy {
   // can join team
   protected canJoinTeam: boolean = false;
 
+  protected canConfirmEntry: boolean = false;
+
   constructor(private dialog: MatDialog) {
   }
 
@@ -77,6 +79,9 @@ export class TeamBuilderComponent implements OnChanges, OnDestroy {
       this.canJoinTeam = this.team.teamMembers.some(m => m.profileId === this.playerProfile.userId)
         || this.team?.teamMembers.length === 0;
       // console.log('canJoinTeam', this.canJoinTeam);
+      const myTeamMember = this.team.teamMembers
+        .find(m => m.profileId === this.playerProfile.userId)
+      this.canConfirmEntry = (myTeamMember!= null) ? myTeamMember.status != TeamEntryStatus.CONFIRMED : false;
     }
   }
 
@@ -247,4 +252,14 @@ export class TeamBuilderComponent implements OnChanges, OnDestroy {
     // }
   }
 
+  protected onConfirmEntry() {
+    const membersClone: TeamMember [] = [...this.team.teamMembers];
+    let myMember = membersClone.find(teamMember => teamMember.profileId === this.playerProfile?.userId)
+    if (myMember != null) {
+      myMember.status = TeamEntryStatus.CONFIRMED;
+      let updatedTeam: Team = {...this.team, teamMembers: membersClone};
+      this.team = updatedTeam;
+      this.emitTeamUpdate(updatedTeam);
+    }
+  }
 }
