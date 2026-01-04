@@ -1,0 +1,45 @@
+.instruction-text {
+  font-size: 14px;
+  color: rgba(0, 0, 0, 0.6);
+  margin-bottom: 20px;
+}
+
+.captain-radio-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.member-radio-row {
+  padding: 12px 0;
+  border-bottom: 1px solid #f0f0f0;
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  .member-info {
+    display: flex;
+    flex-direction: column;
+    margin-left: 8px;
+
+    .member-name {
+      font-weight: 500;
+      color: #333;
+    }
+
+    .member-role {
+      font-size: 12px;
+      color: #3f51b5; // Primary color
+      font-style: italic;
+    }
+
+    .member-rating {
+      font-size: 12px;
+      color: #666;
+    }
+  }
+}
+
+::ng-deep .mat-mdc-radio-button .mdc-label {
+  width: 100%; // Ensures the click area covers the whole row
+}

@@ -11,6 +11,7 @@ import {ProfileFindPopupComponent, ProfileSearchData} from '../../../profile/pro
 import {Profile} from '../../../profile/profile';
 import {TournamentEntry} from '../model/tournament-entry.model';
 import {Subscription} from 'rxjs';
+import {ChangeCaptainDialogComponent} from './change-captain-dialog/change-captain-dialog.component';
 
 @Component({
   selector: 'app-team-builder',
@@ -92,7 +93,7 @@ export class TeamBuilderComponent implements OnChanges, OnDestroy {
   protected canRemovePlayer(playerIndex: number): boolean {
     // only non-captain can be removed and only be a
     const member: TeamMember = this.team?.teamMembers[playerIndex];
-    return (this.amICaptain && !member.captain) || (!this.amICaptain && member.profileId == this.playerProfile.userId);
+    return (this.amICaptain && !member.captain) || (!this.amICaptain && member.profileId == this.playerProfile?.userId);
   }
 
   /**
@@ -208,7 +209,23 @@ export class TeamBuilderComponent implements OnChanges, OnDestroy {
   }
 
   protected onChangeCaptain() {
-    console.log('changeCaptain');
+    const dialogRef = this.dialog.open(ChangeCaptainDialogComponent, {
+      width: '350px',
+      data: {
+        teamName: this.team.name,
+        members: this.team.teamMembers
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(newCaptainId => {
+      if (newCaptainId) {
+        // 1. Update the transient flags in the UI
+        this.team.teamMembers.forEach(m => {
+          m.captain = (m.profileId === newCaptainId);
+        });
+        this.emitTeamUpdate(this.team);
+      }
+    });
   }
 
   /**

@@ -46,14 +46,20 @@
   <table class="team-table">
     <thead>
     <tr>
-      <th>Member Name</th>
+      <th>Member & Status</th>
       <th class="captain-column">Captain</th>
       <th class="delete-column">Drop</th>
     </tr>
     </thead>
     <tbody>
     <tr *ngFor="let teamMember of team.teamMembers; let playerIndex = index">
-      <td class="name-column">{{teamMember.playerName}}<br>{{teamMember.playerRating}}</td>
+      <td class="name-column">{{teamMember.playerName}}
+<!--        <mat-icon *ngIf="teamMember.captain" color="primary" class="captain-icon">stars</mat-icon>-->
+        <br><span>{{teamMember.playerRating}}</span>
+        <span class="status-tag" [ngClass]="teamMember.status?.toLowerCase()">
+          {{ teamMember.status || 'Invited' }}
+        </span>
+      </td>
       <td class="captain-column" *ngIf="teamMember.captain"><mat-icon>check</mat-icon></td>
       <td class="captain-column" *ngIf="!teamMember.captain"></td>
       <td class="delete-column">
@@ -66,7 +72,7 @@
     </tbody>
     <tfoot>
     <tr>
-      <th>Team rating {{ getTeamRating(team)}}</th>
+      <th>Team rating: {{ getTeamRating(team)}}</th>
     </tr>
     </tfoot>
   </table>

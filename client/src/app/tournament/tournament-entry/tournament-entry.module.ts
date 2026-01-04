@@ -38,6 +38,8 @@ import { ChangeRatingDialogComponent } from './change-rating-dialog/change-ratin
 import { ImportTournamentEntriesDialogComponent } from './import-tournament-entries-dialog/import-tournament-entries-dialog.component';
 import {MatProgressBar} from '@angular/material/progress-bar';
 import { TeamBuilderComponent } from './team-builder/team-builder.component';
+import { ChangeCaptainDialogComponent } from './team-builder/change-captain-dialog/change-captain-dialog.component';
+import {MatTooltip} from '@angular/material/tooltip';
 
 @NgModule({
   declarations: [
@@ -55,7 +57,8 @@ import { TeamBuilderComponent } from './team-builder/team-builder.component';
     AddEntryComponent,
     ChangeRatingDialogComponent,
     ImportTournamentEntriesDialogComponent,
-    TeamBuilderComponent
+    TeamBuilderComponent,
+    ChangeCaptainDialogComponent
   ],
     imports: [
         CommonModule,
@@ -78,7 +81,8 @@ import { TeamBuilderComponent } from './team-builder/team-builder.component';
         MatCardModule,
         ProfileModule,
         AccountModule,
-        MatProgressBar
+        MatProgressBar,
+        MatTooltip
     ],
   exports: [
     DoublesTeamsContainerComponent

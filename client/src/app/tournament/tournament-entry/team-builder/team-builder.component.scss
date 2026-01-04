@@ -10,6 +10,7 @@ table.team-table {
     th {
       text-align: left;
       font-weight: bold;
+      border-bottom: 1px solid $primary-color;
 
       &.captain-column {
         text-align: center;
@@ -22,12 +23,13 @@ table.team-table {
 
     td {
       padding: 8px 0;
-      font-size: 16px;
+      font-size: 18px;
       border-bottom: 1px solid $primary-color;
       vertical-align: middle;
 
       &.name-column {
         text-align: left;
+        height: 56px;
       }
 
       &.captain-column {
@@ -47,9 +49,37 @@ table.team-table {
     padding-top: 16px;
     font-size: 16px;
     font-weight: bold;
+    border: 0;
   }
 
   button.delete-member-button {
     background-color: color.adjust($primary-color, $lightness: 30%);
+  }
+}
+
+mat-icon.captain-icon {
+    font-size: 24px;
+    margin-left: 6px;
+    margin-top: 10px;
+  border: 1px solid red;
+}
+
+.status-tag {
+  font-size: 16px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  text-transform: uppercase;
+  font-weight: 700;
+
+  &.confirmed {
+    background-color: #e3f2fd;
+    color: #1976d2; // Blue
+  }
+
+  &.invited {
+    background-color: #fff9c4;
+    //color: #fbc02d; // Amber
+    color: $warn-color;
+    //color: color.adjust($warn-color, $lightness: 30%);
   }
 }

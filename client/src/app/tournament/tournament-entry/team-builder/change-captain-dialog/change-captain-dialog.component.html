@@ -1,0 +1,30 @@
+<h2 mat-dialog-title>Change Team Captain</h2>
+
+<mat-dialog-content>
+  <p class="instruction-text">
+    Select a new captain to manage this team. This will transfer administrative rights.
+  </p>
+
+  <mat-radio-group [(ngModel)]="selectedProfileId" class="captain-radio-group">
+    <mat-radio-button *ngFor="let member of data.members"
+                      [value]="member.profileId"
+                      class="member-radio-row"
+                      [disabled]="member.captain">
+      <div class="member-info">
+        <span class="member-name">{{member.playerName}}</span>
+        <span class="member-role" *ngIf="member.captain">(Current Captain)</span>
+        <span class="member-rating" *ngIf="!member.captain">Rating: {{member.playerRating}}</span>
+      </div>
+    </mat-radio-button>
+  </mat-radio-group>
+</mat-dialog-content>
+
+<mat-dialog-actions fxLayout="row" fxLayoutAlign="space-between start" fxLayoutGap="10px" style="margin: 10px;">
+  <button mat-button (click)="onCancel()">Cancel</button>
+  <button mat-raised-button
+          color="primary"
+          [disabled]="!selectedProfileId || isSameCaptain()"
+          (click)="onConfirm()">
+    Change
+  </button>
+</mat-dialog-actions>
