@@ -50,7 +50,7 @@ th {
   }
 }
 
-table:not(#by-events-table):not(#by-club-table) tbody {
+table:not(#by-events-table):not(#by-club-table):not(#teams-table) tbody {
   tr:nth-child(odd) {
     background: rgba(143, 126, 126, 0.18);
   }
@@ -68,5 +68,50 @@ tr td {
   &.player-events {
     padding-left: 16px;
     min-width: calc(100% - 385px);
+  }
+}
+
+mat-radio-button.teams-sort-criteria {
+  font-size: 30px;
+}
+
+table.teams-table {
+
+  thead tr th {
+      &.team-player-title {
+        text-align: left;
+      }
+  }
+
+  tbody tr {
+
+    &.team-name-row {
+      border-top:    2px solid black;
+      border-bottom: 2px solid black;
+      background: rgba(143, 126, 126, 0.18);
+    }
+
+    th {
+      &.team-name-column {
+        text-align: left;
+        padding-top: 4px;
+      }
+    }
+
+    td {
+      padding: 0 2px;
+      &.team-member-name {
+        text-align: left;
+        min-width: 200px;
+      }
+
+      &.team-member-rating {
+        text-align: right;
+      }
+
+      &.team-member-status {
+        text-align: left;
+      }
+    }
   }
 }

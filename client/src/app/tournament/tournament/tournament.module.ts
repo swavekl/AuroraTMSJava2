@@ -27,6 +27,7 @@ import {MatTabsModule} from '@angular/material/tabs';
 import {MatFormField, MatLabel, MatSuffix} from '@angular/material/form-field';
 import {FormsModule} from '@angular/forms';
 import {MatInput} from '@angular/material/input';
+import {MatRadioButton, MatRadioGroup} from '@angular/material/radio';
 
 
 @NgModule({
@@ -40,29 +41,31 @@ import {MatInput} from '@angular/material/input';
     TournamentPlayersListBigComponent,
     TournamentPlayersListBigContainerComponent
   ],
-    imports: [
-        CommonModule,
-        TournamentRoutingModule,
-        MatProgressBarModule,
-        MatDividerModule,
-        MatIconModule,
-        MatCardModule,
-        MatListModule,
-        SharedModule,
-        MatButtonToggleModule,
-        MatTooltipModule,
-        MatButtonModule,
-        FlexLayoutModule,
-        MatMenuModule,
-        DrawsCommonModule,
-        MatToolbarModule,
-        MatTabsModule,
-        MatLabel,
-        FormsModule,
-        MatFormField,
-        MatInput,
-        MatSuffix
-    ]
+  imports: [
+    CommonModule,
+    TournamentRoutingModule,
+    MatProgressBarModule,
+    MatDividerModule,
+    MatIconModule,
+    MatCardModule,
+    MatListModule,
+    SharedModule,
+    MatButtonToggleModule,
+    MatTooltipModule,
+    MatButtonModule,
+    FlexLayoutModule,
+    MatMenuModule,
+    DrawsCommonModule,
+    MatToolbarModule,
+    MatTabsModule,
+    MatLabel,
+    FormsModule,
+    MatFormField,
+    MatInput,
+    MatSuffix,
+    MatRadioGroup,
+    MatRadioButton
+  ]
 })
 export class TournamentModule {
 }

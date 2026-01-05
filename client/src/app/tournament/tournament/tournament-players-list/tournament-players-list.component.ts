@@ -1,6 +1,9 @@
 import {ChangeDetectionStrategy, Component, Input, OnChanges, OnInit, SimpleChange, SimpleChanges} from '@angular/core';
 import {TournamentEntryInfo} from '../../model/tournament-entry-info.model';
 import {TournamentEvent} from '../../tournament-config/tournament-event.model';
+import {EventEntryType} from '../../tournament-config/model/event-entry-type.enum';
+import {Team} from '../../tournament-entry/model/team.model';
+import {TeamEntryStatus} from '../../tournament-entry/model/team-entry-status.enum';
 
 @Component({
     selector: 'app-tournament-players-list',
@@ -26,6 +29,9 @@ export class TournamentPlayersListComponent implements OnInit, OnChanges {
   @Input()
   tournamentEndDate: Date;
 
+  @Input()
+  teams!: Team[] | null;
+
   // tournament events with players in them
   tournamentEventsWithPlayers: TournamentEventWithPlayers[];
 
@@ -39,6 +45,10 @@ export class TournamentPlayersListComponent implements OnInit, OnChanges {
 
   // players grouped by state
   statePlayersInfos: StatePlayersInfo [] = null;
+
+  protected hasTeamEvents: boolean = false;
+  protected teamEventToTeamsMap: Map<TournamentEvent, Team[]>;
+  protected teamsSortedBy: string = 'name';
 
   constructor() {
     this.sortBy = 'name';
@@ -70,6 +80,9 @@ export class TournamentPlayersListComponent implements OnInit, OnChanges {
         for (let j = 0; j < this.tournamentEvents.length; j++) {
           const tournamentEvent = this.tournamentEvents[j];
           this.eventIdToEventMap[tournamentEvent.id] = tournamentEvent;
+          if (tournamentEvent.eventEntryType == EventEntryType.TEAM) {
+            this.hasTeamEvents = true;
+          }
         }
       }
      }
@@ -146,6 +159,11 @@ export class TournamentPlayersListComponent implements OnInit, OnChanges {
   onSortByClub() {
     this.sortByClub();
     this.sortBy = 'club';
+  }
+
+  onSortByTeam() {
+    this.sortByTeam();
+    this.sortBy = 'team';
   }
 
   /**
@@ -291,6 +309,69 @@ export class TournamentPlayersListComponent implements OnInit, OnChanges {
     });
 
     this.statePlayersInfos = localStatePlayerInfos;
+  }
+
+  sortByTeam() {
+    if (this.hasTeamEvents && this.entryInfos != null && this.teams != null && this.teams.length > 0) {
+      if (this.teamEventToTeamsMap == null) {
+        // build map of profileIds to fullName and rating for fast lookup
+        const profileIdToFullNameMap: Map<string, any> = new Map<string, any>();
+        this.entryInfos.forEach(tei => {
+          profileIdToFullNameMap.set(tei.profileId,
+            { playerName: this.fullName(tei.firstName, tei.lastName), playerRating: tei.eligibilityRating}
+          );
+        });
+
+        let clonedTeams: Team[] = JSON.parse(JSON.stringify(this.teams));
+        for (const team of clonedTeams) {
+          for (const teamMember of team.teamMembers) {
+            const playerData: any = profileIdToFullNameMap.get(teamMember.profileId);
+            if (playerData) {
+              teamMember.playerName = playerData.playerName;
+              teamMember.playerRating = playerData.playerRating;
+            }
+          }
+        }
+        // separate teams by event even though there is usually just one
+        let localTeamEventToTeamsMap = new Map <TournamentEvent, Team[]>();
+        const teamEvents = this.tournamentEvents.filter(
+          tournamentEvent => tournamentEvent.eventEntryType == EventEntryType.TEAM);
+        for (const teamEvent of teamEvents) {
+          const teamEventId = teamEvent.id;
+          const thisEventTeams = clonedTeams
+            .filter(team => team.tournamentEventFk === teamEventId)
+            .sort((team1: Team, team2: Team) => {
+              return team1.name.localeCompare(team2.name);
+            });
+          console.log('thisEventTeams', thisEventTeams);
+          localTeamEventToTeamsMap.set(teamEvent, thisEventTeams);
+        }
+        this.teams = clonedTeams;
+        // separate teams by event even though there is usually just one
+        this.teamEventToTeamsMap = localTeamEventToTeamsMap;
+      }
+    }
+  }
+
+  protected readonly TeamEntryStatus = TeamEntryStatus;
+
+  protected sortTeamsBy($event: any) {
+    const value = $event.value;
+    const newTeamEventToTeamsMap: Map<TournamentEvent, Team[]> = new Map<TournamentEvent, Team[]>();
+    this.teamEventToTeamsMap.forEach((teams: Team[], event: TournamentEvent) => {
+      let sortedTeams = null;
+      if (value === 'name') {
+        sortedTeams = teams.sort((team1: Team, team2: Team) => {
+          return team1.name.localeCompare(team2.name);
+        });
+      } else {
+        sortedTeams = teams.sort((team1: Team, team2: Team) => {
+          return (team1.teamRating < team2.teamRating) ? 1 : ((team1.teamRating > team2.teamRating) ? -1 : 0);
+        });
+      }
+      newTeamEventToTeamsMap.set(event, sortedTeams);
+    });
+    this.teamEventToTeamsMap = newTeamEventToTeamsMap;
   }
 }
 

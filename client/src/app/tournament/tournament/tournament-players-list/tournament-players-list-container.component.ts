@@ -1,9 +1,9 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {TournamentEntryInfoService} from '../../service/tournament-entry-info.service';
 import {ActivatedRoute} from '@angular/router';
-import {combineLatest, Observable, of, Subscription} from 'rxjs';
+import {BehaviorSubject, combineLatest, Observable, of, Subscription} from 'rxjs';
 import {LinearProgressBarService} from '../../../shared/linear-progress-bar/linear-progress-bar.service';
-import {filter, first, repeat, take} from 'rxjs/operators';
+import {distinctUntilChanged, filter, first, map, repeat, take} from 'rxjs/operators';
 import {TournamentEntryInfo} from '../../model/tournament-entry-info.model';
 import {TournamentEvent} from '../../tournament-config/tournament-event.model';
 import {TournamentEventConfigService} from '../../tournament-config/tournament-event-config.service';
@@ -13,6 +13,9 @@ import {TournamentInfoService} from '../../service/tournament-info.service';
 import {DateUtils} from '../../../shared/date-utils';
 import {AuthenticationService} from '../../../user/authentication.service';
 import {HttpClient} from '@angular/common/http';
+import {EventEntryType} from '../../tournament-config/model/event-entry-type.enum';
+import {TeamService} from '../../tournament-entry/service/team.service';
+import {Team} from '../../tournament-entry/model/team.model';
 
 @Component({
     selector: 'app-tournament-player-list-container',
@@ -22,6 +25,7 @@ import {HttpClient} from '@angular/common/http';
                                  [tournamentStartDate]="tournamentStartDate$ | async"
                                  [tournamentEndDate]="tournamentEndDate$ | async"
                                  [tournamentName]="tournamentName$ | async"
+                                 [teams]="teams$ | async"
     ></app-tournament-players-list>
   `,
     styles: [],
@@ -36,6 +40,7 @@ export class TournamentPlayersListContainerComponent implements OnInit, OnDestro
   tournamentStartDate$: Observable<Date>;
   tournamentEndDate$: Observable<Date>;
   tournamentName$: Observable<string>;
+  teams$: BehaviorSubject<Team[]> = new BehaviorSubject<Team[]>([]);
 
   loading$: Observable<boolean>;
 
@@ -45,7 +50,8 @@ export class TournamentPlayersListContainerComponent implements OnInit, OnDestro
               private activatedRoute: ActivatedRoute,
               private linearProgressBarService: LinearProgressBarService,
               private authenticationService: AuthenticationService,
-              private httpClient: HttpClient) {
+              private httpClient: HttpClient,
+              private teamService: TeamService) {
     this.setupProgressIndicator();
   }
 
@@ -76,6 +82,7 @@ export class TournamentPlayersListContainerComponent implements OnInit, OnDestro
     this.loadTournamentStartDate(tournamentId);
     this.loadTournamentEntries(tournamentId);
     this.loadTournamentEvents(tournamentId);
+    this.loadTeamsIfNecessary(tournamentId)
   }
 
   ngOnDestroy(): void {
@@ -214,6 +221,52 @@ export class TournamentPlayersListContainerComponent implements OnInit, OnDestro
         this.tournamentName$ = of(tournamentInfo.name);
       }
     });
+  }
+
+  /**
+   * Monitors the event store and triggers team loading only if
+   * TEAM type events are present in the current tournament.
+   */
+  private loadTeamsIfNecessary(tournamentId: number) {
+    this.tournamentEventConfigService.store.select(
+      this.tournamentEventConfigService.selectors.selectEntities
+    ).pipe(
+      // 1. Convert entities map to array
+      map(entities => Object.values(entities)),
+      // 2. Only proceed if we actually have events loaded
+      filter(events => events && events.length > 0),
+      // 3. Extract IDs of events that are designated as TEAM events
+      map(events => events
+        .filter(e => e.eventEntryType === EventEntryType.TEAM)
+        .map(e => e.id)
+      ),
+      // 4. Ensure we don't trigger multiple times for the same set of IDs
+      distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)),
+      // 5. Only move forward if the list of team events is NOT empty
+      filter(teamEventIds => teamEventIds.length > 0),
+      // 6. Ensure this logic only runs once per component lifecycle
+      take(1)
+    ).subscribe(teamEventIds => {
+      console.log('Team events detected, fetching teams...', teamEventIds);
+      this.fetchTeams(teamEventIds, tournamentId);
+    });
+  }
+  /**
+   * Purely responsible for the HTTP call and updating the local state.
+   */
+  private fetchTeams(teamEventIds: number[], tournamentId: number) {
+    const strTeamEventIds = teamEventIds.join(",");
+    const query = `teamEventIds=${strTeamEventIds}&tournamentId=${tournamentId}`;
+    this.teamService.loadWithQuery(query)
+      .subscribe({
+        next: (teams) => {
+          this.teams$.next(teams);
+        },
+        error: (err) => {
+          console.error('Failed to load teams', err);
+          this.teams$.next([]);
+        }
+      });
   }
 
 }
