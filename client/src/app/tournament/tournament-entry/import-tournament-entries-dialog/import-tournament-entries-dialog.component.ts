@@ -9,6 +9,8 @@ import {ImportTournamentRequest} from '../model/import-tournament-request.model'
 import {ImportProgressInfo} from '../model/import-progress-info.model';
 import {ErrorMessagePopupService} from '../../../shared/error-message-dialog/error-message-popup.service';
 import {StepperSelectionEvent} from '@angular/cdk/stepper';
+import {StatesList} from '../../../shared/states/states-list';
+import {AuthenticationService} from '../../../user/authentication.service';
 
 @Component({
   selector: 'app-omnipong-import-dialog',
@@ -18,7 +20,13 @@ import {StepperSelectionEvent} from '@angular/cdk/stepper';
 })
 export class ImportTournamentEntriesDialogComponent implements OnInit, OnDestroy {
   // tournaments from Omnipong
-  tournaments: ImportTournamentRequest[];
+  allTournamentsToImport: ImportTournamentRequest[];
+
+  // filtered for one state
+  filteredTournamentsToImport: ImportTournamentRequest[];
+
+  // to help find the tournament filter it by state
+  statesOrRegions: string[];
 
   selectedTournamentUrl: string;
   selectedTournamentName: string;
@@ -32,13 +40,17 @@ export class ImportTournamentEntriesDialogComponent implements OnInit, OnDestroy
   private destroy$ = new Subject<void>();
   elapsedSeconds: number = 0;
   elapsedTimeIntervalId: any;
+  stateFilter: string;
+
   protected playerAccountsCheckResults: string;
   protected isCheckingAccounts: boolean;
+  private readonly USATT_EVENTS = 'USATT Events';
 
   constructor(public dialogRef: MatDialogRef<ImportTournamentEntriesDialogComponent>,
               @Inject(MAT_DIALOG_DATA) public data: any,
               private tournamentImportService: TournamentImportService,
-              private errorMessagePopupService: ErrorMessagePopupService) {
+              private errorMessagePopupService: ErrorMessagePopupService,
+              private authenticationService: AuthenticationService) {
     this.selectedTournamentName = data.sourceTournamentName;  // helps select the right source tournament
     this.selectedTargetTournamentId = data.targetTournamentId;
   }
@@ -47,10 +59,47 @@ export class ImportTournamentEntriesDialogComponent implements OnInit, OnDestroy
     this.tournamentImportService.listTournaments()
       .pipe(
         map(tournaments => {
-          this.tournaments = tournaments;
+          this.allTournamentsToImport = tournaments;
+          this.statesOrRegions = this.extractUniqueStateList(tournaments);
+
+          // set state filter to the current user's state
+          const currentUserStateAbbreviation = this.authenticationService.getCurrentUserState();
+          const countryStatesList = StatesList.getCountryStatesList(this.authenticationService.getCurrentUserCountry());
+          const stateNameAndAbbreviation = countryStatesList.find(
+            state => state.abbreviation === currentUserStateAbbreviation);
+          this.stateFilter = (stateNameAndAbbreviation != null)
+            ? stateNameAndAbbreviation.name
+            : countryStatesList[0].name;
+          console.log('stateFilter', this.stateFilter);
+
           this.selectedTournament();
         }))
       .subscribe();
+  }
+
+  /**
+   *
+   * @param tournamentsToImport
+   * @private
+   */
+  private extractUniqueStateList(tournamentsToImport: ImportTournamentRequest[]): string [] {
+    // get unique list of states and regions
+    let statesOrRegions: string[] = [this.USATT_EVENTS];
+    tournamentsToImport.forEach(tournament => {
+      // console.log('tournament state', tournament.tournamentState);
+      const state = (tournament.tournamentState.length == 2) ? this.USATT_EVENTS : tournament.tournamentState;
+      if (!statesOrRegions.includes(state)) {
+        statesOrRegions.push(tournament.tournamentState);
+      }
+    });
+    // remove USATT events and sort the remaining states
+    statesOrRegions.splice(0, 1);
+    statesOrRegions.sort((state1: string, state2: string) => {
+      return state1.localeCompare(state2);
+    });
+    // Add the removed item to the beginning
+    statesOrRegions.unshift(this.USATT_EVENTS);
+    return statesOrRegions;
   }
 
   onCancel() {
@@ -119,8 +168,8 @@ export class ImportTournamentEntriesDialogComponent implements OnInit, OnDestroy
   }
 
   private selectedTournament() {
-    for (let i = 0; i < this.tournaments.length; i++) {
-      const tournament = this.tournaments[i];
+    for (let i = 0; i < this.allTournamentsToImport.length; i++) {
+      const tournament = this.allTournamentsToImport[i];
       if (this.selectedTournamentName === tournament.tournamentName) {
         this.selectedTournamentUrl = tournament.playersUrl;
         break;
@@ -130,11 +179,11 @@ export class ImportTournamentEntriesDialogComponent implements OnInit, OnDestroy
 
   onTournamentSelected($event: MatSelectChange<any>) {
     const playersURL = $event.value;
-    for (let i = 0; i < this.tournaments.length; i++) {
-      const tournament = this.tournaments[i];
+    for (let i = 0; i < this.allTournamentsToImport.length; i++) {
+      const tournament = this.allTournamentsToImport[i];
       if (playersURL === tournament.playersUrl) {
         this.selectedTournamentName = tournament.tournamentName;
-        this.selectedTargetTournamentId = tournament.tournamentId;
+        // this.selectedTargetTournamentId = tournament.tournamentId;
         break;
       }
     }
@@ -211,6 +260,20 @@ export class ImportTournamentEntriesDialogComponent implements OnInit, OnDestroy
       // start the next page from 0% complete
       this.importProgressInfo = null;
     }
+  }
+
+  onStateFilterChanged($event: MatSelectChange<any>) {
+    const stateOrRegion = $event.value;
+    this.filterByState(stateOrRegion);
+  }
+
+  filterByState(stateOrRegion: string) {
+    console.log('filtering by ', stateOrRegion);
+    this.filteredTournamentsToImport = this.allTournamentsToImport.filter(
+      tir => { return (stateOrRegion === this.USATT_EVENTS)
+        ? (tir.tournamentCategory === stateOrRegion)
+        : (tir.tournamentState === stateOrRegion)
+      });
   }
 }
 

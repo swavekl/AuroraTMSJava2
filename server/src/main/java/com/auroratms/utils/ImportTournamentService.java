@@ -7,6 +7,10 @@ import com.auroratms.profile.UserProfile;
 import com.auroratms.profile.UserProfileExt;
 import com.auroratms.profile.UserProfileExtService;
 import com.auroratms.profile.UserProfileService;
+import com.auroratms.team.Team;
+import com.auroratms.team.TeamEntryStatus;
+import com.auroratms.team.TeamMember;
+import com.auroratms.team.TeamService;
 import com.auroratms.tournament.*;
 import com.auroratms.tournamententry.MembershipType;
 import com.auroratms.tournamententry.TournamentEntry;
@@ -76,6 +80,10 @@ public class ImportTournamentService {
     // 9:00 AM or 5:00 PM
     private final Pattern EVENT_START_TIME_PATTERN = Pattern.compile("(\\d{1,2}):(\\d{1,2})\\s?([AP]M?)");
 
+    // 1821 - Mustafa Khanani
+    // 1553 - Sheza Khanani *** INVITED ***
+    private final Pattern TEAM_MEMBER_PATTERN = Pattern.compile("(\\d*) - ([\\w\\s]*)");
+
     @Autowired
     private TournamentService tournamentService;
 
@@ -111,6 +119,10 @@ public class ImportTournamentService {
 
     @Autowired
     private FuzzyMatchService fuzzyMatchService;
+
+    @Autowired
+    private TeamService teamService;
+
 
     // Under 3800 Doubles RR - Partner: Teamed With Devaansh Boda
     // Under 3800 Doubles RR - Partner: None selected
@@ -153,6 +165,7 @@ public class ImportTournamentService {
         Document document = Jsoup.parse(listBody, BASE_OMNIPONG_URL);
         // list table containing tournaments only
         List<Map<String, String>> tournamentList = new ArrayList<>();
+        Set<String> uniqueTournamentIdentifiers = new HashSet<>();
         Elements stateHeaders = document.select("h3");
         List<String> stateNames = new ArrayList<>(stateHeaders.size());
         for (Element stateHeader : stateHeaders) {
@@ -293,7 +306,9 @@ public class ImportTournamentService {
                         }
                     }
 
-                    if (tournamentName != null) {
+                    String uniqueTournamentIdentifier = tournamentName + "-" +tournamentDates;
+                    if (tournamentName != null && !uniqueTournamentIdentifiers.contains(uniqueTournamentIdentifier)) {
+                        uniqueTournamentIdentifiers.add(uniqueTournamentIdentifier);
                         Map<String, String> extractedValues = new HashMap<>();
                         extractedValues.put("playersUrl", playersUrl);
                         extractedValues.put("blankEntryFormPDFUrl", blankEntryFormPDFUrl);
@@ -301,6 +316,7 @@ public class ImportTournamentService {
                         extractedValues.put("tournamentDates", tournamentDates);
                         extractedValues.put("tournamentCity", tournamentCity);
                         extractedValues.put("tournamentState", tournamentState);
+                        extractedValues.put("tournamentCategory", currentState);  // could be USATT or Mexico etc.
                         extractedValues.put("tournamentStarLevel", tournamentStarLevel);
                         extractedValues.put("tournamentDirectorName", tournamentDirectorName);
                         extractedValues.put("tournamentDirectorEmail", tournamentDirectorEmail);
@@ -308,6 +324,9 @@ public class ImportTournamentService {
                         extractedValues.put("ballType", ballType);
                         log.info("extractedValues" + extractedValues);
                         tournamentList.add(extractedValues);
+                    } else {
+                        // USATT tournaments are listed at the beginning under 'USATT' and later in their respective state
+                        log.info("Skipping tournament name: " + tournamentName);
                     }
                 }
             }
@@ -405,6 +424,16 @@ public class ImportTournamentService {
 
                 importProgressInfo.phaseName = "Updating tournament event entries counts";
                 updateTournamentCounts(tournamentId, userProfileToEntryMap.values().size(), eventNameToTournamentEventMap);
+
+                String teamsListUrl = extractTeamsListUrl(document);
+                if (teamsListUrl != null) {
+                    String url = BASE_OMNIPONG_URL + teamsListUrl;
+                    RestTemplate restTemplate = new RestTemplate();
+                    ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
+                    String teamsListHTML = response.getBody();
+                    Document teamsListDocument = Jsoup.parse(teamsListHTML, BASE_OMNIPONG_URL);
+                    importTeamsInfo (teamsListDocument, eventNameToTournamentEventMap, playerNameToProfileMap, importProgressInfo);
+                }
 
                 importProgressInfo.overallCompleted = 100;
                 importProgressInfo.phaseName = "Import finished!";
@@ -888,7 +917,7 @@ public class ImportTournamentService {
                             userProfileExt.setMembershipId(membershipId);
                             userProfileExt.setClubFk(clubFk);
                             userProfileExtService.save(userProfileExt);
-                            log.info("Created userProfileExt for for player " + lastName + ", " + firstName + " with membershiId " + membershipId);
+                            log.info("Created userProfileExt for for player " + lastName + ", " + firstName + " with membershipId " + membershipId);
                         }
                     }
                 } else {
@@ -1181,7 +1210,7 @@ public class ImportTournamentService {
                 profileIdsWithoutEntries.add(userProfileId);
             }
         }
-        log.info("Found " + profileIdsWithoutEntries.size() + " profile ids WITHOUT with entries");
+        log.info("Found " + profileIdsWithoutEntries.size() + " profile ids WITHOUT entries");
 
         // make tournament entries for new profiles
         for (Map<String, Object> playerEntriesDetail : playerEntriesDetails) {
@@ -1827,6 +1856,155 @@ public class ImportTournamentService {
         }
 
         return sortByEventUrl;
+    }
+
+    /**
+     *
+     * @param document
+     * @return
+     */
+    public String extractTeamsListUrl (Document document) {
+        String teamInfoUrl = null;
+        Elements outerTableWithControls = document.select("table tr td.omnipong");
+        if (!outerTableWithControls.isEmpty()) {
+            Element firstTDElement = outerTableWithControls.first();
+
+            // <input type="submit" Class="omnipong_blue4" name="Action" value="Team Info" onclick="open_window('T-tourney.asp?t=105&r=5335&h=','_self')" />
+            Element teamInfoButton = firstTDElement.selectFirst("input[value=Team Info]");
+            if (teamInfoButton != null) {
+                String onclick = teamInfoButton.attr("onclick");
+
+                // Extract URL inside the JavaScript call
+                if (onclick != null) {
+                    Matcher m = Pattern.compile("'([^']+)'").matcher(onclick);
+                    if (m.find()) {
+                        teamInfoUrl = m.group(1);
+                    }
+                }
+            }
+        }
+
+        return teamInfoUrl;
+    }
+
+    public void importTeamsInfo(Document document,
+                                Map<String, TournamentEvent> eventNameToTournamentEventMap,
+                                Map<String, String> playerNameToProfileMap,
+                                ImportProgressInfo importProgressInfo) {
+        importProgressInfo.overallCompleted = 0;
+        importProgressInfo.status = "RUNNING";
+        importProgressInfo.phaseName = "Parsing list of team entries entries to get team names and members";
+
+        Elements outerTableWithControls = document.select("table tr td.omnipong");
+        if (!outerTableWithControls.isEmpty()) {
+            Element firstTDElement = outerTableWithControls.first();
+
+            Long tournamentEventFk = null;
+            Element eventNameElement = (firstTDElement != null) ? firstTDElement.selectFirst("h4 p") : null;
+            if (eventNameElement != null) {
+                String eventName = eventNameElement.text();
+                TournamentEvent tournamentEvent = eventNameToTournamentEventMap.get(eventName);
+                if (tournamentEvent != null) {
+                    tournamentEventFk = tournamentEvent.getId();
+                    System.out.println("found tournamentEventFk " + tournamentEventFk + " for tournament event " + eventName);
+                }
+            }
+
+            Element teamEntriesTable = (firstTDElement != null) ? firstTDElement.selectFirst("table.omnipong") : null;
+            if (teamEntriesTable != null) {
+
+                List<Team> newTeams = new ArrayList<>();
+                Elements playerEntryRows = teamEntriesTable.select("tr");
+                boolean headerRow = true;
+                for (Element playerEntryRow : playerEntryRows) {
+                    if (headerRow) {
+                        headerRow = false;
+                        continue;
+                    }
+                    Elements teamEntryDetails = playerEntryRow.select("td");
+                    if (!teamEntryDetails.isEmpty()) {
+                        Team team = extractTeamAndMembers(playerNameToProfileMap, teamEntryDetails, tournamentEventFk);
+                        newTeams.add(team);
+                    }
+                }
+                // now reconcile with existing teams and add/remove teams & members
+                List<Long> teamEventIds = new ArrayList<>();
+                teamEventIds.add(tournamentEventFk);
+                synchronizeTeams(newTeams, teamEventIds);
+            }
+        }
+    }
+
+    /**
+     *
+     * @param playerNameToProfileMap
+     * @param teamEntryDetails
+     * @param tournamentEventFk
+     * @return
+     */
+    private Team extractTeamAndMembers(Map<String, String> playerNameToProfileMap, Elements teamEntryDetails, Long tournamentEventFk) {
+//                  <td Align="Left">CITTA-North</td>
+//                      <td Align="Center">5488</td>
+//                      <td Align="Left">1821 - Mustafa Khanani <br>1553 - Sheza Khanani *** INVITED ***<br>1852 -
+//                      Anivritt Vanaparthy *** INVITED ***<br>1749 - Ashaz Farooqui *** INVITED ***<br>1815 -
+//                      Shoaib Moosa *** INVITED ***
+//                      </td>
+
+        Element teamNameElement = teamEntryDetails.get(0);
+        String teamName = teamNameElement.text();
+        Element teamRatingElement = teamEntryDetails.get(1);
+        String strTeamRating = teamRatingElement.text();
+
+        Team team = new Team();
+        team.setName(teamName);
+        team.setTournamentEventFk(tournamentEventFk);
+        team.setTeamRating(Integer.parseInt(strTeamRating));
+
+        Element teamMembersElement = teamEntryDetails.get(2);
+        String strTeamMembers = teamMembersElement.text();
+        String [] oneMember = {strTeamMembers};
+        String[] teamMemberInfos = (strTeamMembers.contains("<br>"))
+                ? strTeamMembers.split("<br>") : oneMember;
+        boolean isCaptain = true;
+        for (String teamMemberInfo : teamMemberInfos) {
+            // 1821 - Mustafa Khanani
+            // 1553 - Sheza Khanani *** INVITED ***
+            int invitedIdx = teamMemberInfo.indexOf("*** INVITED ***");
+            boolean isInvited = false;
+            if (invitedIdx > 0) {
+                isInvited = true;
+                teamMemberInfo = teamMemberInfo.substring(0, invitedIdx - 1);
+            }
+            Matcher matcher = TEAM_MEMBER_PATTERN.matcher(teamMemberInfo);
+            if (matcher.matches()) {
+                String memberRating = matcher.group(1);
+                String memberFullName = matcher.group(2);
+                String lastFirstName = convertToLastFirstName(memberFullName, playerNameToProfileMap);
+                if (lastFirstName != null) {
+                    String profileId = playerNameToProfileMap.get(lastFirstName);
+                    TeamMember teamMember = new TeamMember();
+                    teamMember.setStatus(isInvited ? TeamEntryStatus.INVITED : TeamEntryStatus.CONFIRMED);
+                    teamMember.setTournamentEventFk(tournamentEventFk);
+                    teamMember.setPlayerRating(Integer.parseInt(memberRating));
+                    teamMember.setProfileId(profileId);
+                    teamMember.setCaptain(isCaptain);
+                    team.addTeamMember(teamMember);
+                    isCaptain = false;  // the first player will be considered a captain
+                }
+            }
+        }
+        return team;
+    }
+
+    /**
+     *
+     * @param newTeams
+     * @param teamEventIds
+     */
+    private void synchronizeTeams(List<Team> newTeams, List<Long> teamEventIds) {
+        List<Team> existingTeams = teamService.listForEvents(teamEventIds);
+
+
     }
 
     /**

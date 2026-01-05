@@ -5,7 +5,6 @@ import com.auroratms.event.TournamentEventEntityService;
 import com.auroratms.notification.SystemPrincipalExecutor;
 import com.auroratms.profile.UserProfileExt;
 import com.auroratms.profile.UserProfileExtService;
-import com.auroratms.profile.UserProfileService;
 import com.auroratms.team.Team;
 import com.auroratms.team.TeamMember;
 import com.auroratms.team.notification.event.TeamChangedEvent;
@@ -45,8 +44,6 @@ public class TeamChangedEventListener {
     private final TournamentService tournamentService;
 
     private final UsattDataService usattDataService;
-
-    private final UserProfileService profileService;
 
     private final UserProfileExtService userProfileExtService;
 

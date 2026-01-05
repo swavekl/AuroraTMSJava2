@@ -15,6 +15,7 @@ export interface ImportTournamentRequest {
   tournamentName: string;
   tournamentCity: string;
   tournamentState: string;
+  tournamentCategory: string; // USATT or country
 
   // start and end dates of the tournament
   tournamentDates: string;

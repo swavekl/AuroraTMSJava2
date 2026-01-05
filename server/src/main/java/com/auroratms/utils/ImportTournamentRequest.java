@@ -14,6 +14,7 @@ public class ImportTournamentRequest {
     public String tournamentName;
     public String tournamentCity;
     public String tournamentState;
+    public String tournamentCategory;
 
     // start and end dates of the tournament
     public String tournamentDates;

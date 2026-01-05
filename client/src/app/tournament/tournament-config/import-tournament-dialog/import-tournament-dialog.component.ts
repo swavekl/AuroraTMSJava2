@@ -87,7 +87,7 @@ export class ImportTournamentDialogComponent implements OnInit, OnDestroy {
     // get unique list of states and regions
     let statesOrRegions: string[] = [this.USATT_EVENTS];
     tournamentsToImport.forEach(tournament => {
-      console.log('tournament state', tournament.tournamentState);
+      // console.log('tournament state', tournament.tournamentState);
       const state = (tournament.tournamentState.length == 2) ? this.USATT_EVENTS : tournament.tournamentState;
       if (!statesOrRegions.includes(state)) {
         statesOrRegions.push(tournament.tournamentState);
@@ -245,9 +245,11 @@ export class ImportTournamentDialogComponent implements OnInit, OnDestroy {
 
   filterByState(stateOrRegion: string) {
     console.log('filtering by ', stateOrRegion);
-    const filterToUse = stateOrRegion.length == 2 ? this.USATT_EVENTS : stateOrRegion;
     this.filteredTournamentsToImport = this.allTournamentsToImport.filter(
-      value => value.tournamentState === filterToUse);
+      tir => { return (stateOrRegion === this.USATT_EVENTS)
+        ? (tir.tournamentCategory === stateOrRegion)
+        : (tir.tournamentState === stateOrRegion)
+      });
   }
 
   protected onBlankEntryFormUploadFinished(downloadUrl: string) {
