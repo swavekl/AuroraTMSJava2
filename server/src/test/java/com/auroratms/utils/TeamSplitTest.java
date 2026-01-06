@@ -19,17 +19,10 @@ public class TeamSplitTest {
 
     @Test
     public void testExtractTeamAndMembers() throws Exception {
-//        String html = "<table><tr><td Align=\"Left\">1821 - Mustafa Khanani <br>1553 - Sheza Khanani *** INVITED ***<br>1852 - Anivritt Vanaparthy *** INVITED ***<br>1749 - Ashaz Farooqui *** INVITED ***<br>1815 - Shoaib Moosa *** INVITED ***</td></tr></table>";
-//        Document doc = Jsoup.parse(html);
-//        Element teamMembersElement = doc.select("td").first();
-////        Element teamMembersElement = doc.select("td").first();
-//        assertNotNull(teamMembersElement, "Team members element should not be null");
-
         Elements teamEntryDetails = new Elements();
         teamEntryDetails.add(new Element("td").text("Team Name"));
         teamEntryDetails.add(new Element("td").text("5000"));
-        teamEntryDetails.add(new Element("td").html("1821 - Mustafa Khanani <br>1553 - Sheza Khanani *** INVITED ***<br>1852 - Anivritt Vanaparthy *** INVITED ***<br>1749 - Ashaz Farooqui *** INVITED ***<br>1815 - Shoaib Moosa *** INVITED ***"));
-//        teamEntryDetails.add(teamMembersElement);
+        teamEntryDetails.add(new Element("td").html("&nbsp;&nbsp;821 - Mustafa Khanani <br>1553 - Sheza Khanani *** INVITED ***<br>1852 - Anivritt Vanaparthy *** INVITED ***<br>1749 - Ashaz Farooqui *** INVITED ***<br>1815 - Shoaib Moosa *** INVITED ***"));
 
         Map<String, String> playerNameToProfileMap = new HashMap<>();
         playerNameToProfileMap.put("Khanani, Mustafa", "profile1");

@@ -338,17 +338,12 @@ export class TournamentPlayersListComponent implements OnInit, OnChanges {
           tournamentEvent => tournamentEvent.eventEntryType == EventEntryType.TEAM);
         for (const teamEvent of teamEvents) {
           const teamEventId = teamEvent.id;
-          const thisEventTeams = clonedTeams
-            .filter(team => team.tournamentEventFk === teamEventId)
-            .sort((team1: Team, team2: Team) => {
-              return team1.name.localeCompare(team2.name);
-            });
-          console.log('thisEventTeams', thisEventTeams);
+          const thisEventTeams = clonedTeams.filter(team => team.tournamentEventFk === teamEventId);
           localTeamEventToTeamsMap.set(teamEvent, thisEventTeams);
         }
         this.teams = clonedTeams;
         // separate teams by event even though there is usually just one
-        this.teamEventToTeamsMap = localTeamEventToTeamsMap;
+        this.teamEventToTeamsMap = this.sortTeamsByInternal(localTeamEventToTeamsMap, this.teamsSortedBy);
       }
     }
   }
@@ -356,11 +351,15 @@ export class TournamentPlayersListComponent implements OnInit, OnChanges {
   protected readonly TeamEntryStatus = TeamEntryStatus;
 
   protected sortTeamsBy($event: any) {
-    const value = $event.value;
+    const sortCriteria = $event.value;
+    this.teamEventToTeamsMap = this.sortTeamsByInternal(this.teamEventToTeamsMap, sortCriteria);
+  }
+
+  private sortTeamsByInternal(teamEventToTeamsMap: Map<TournamentEvent, Team[]>, sortCriteria) : Map<TournamentEvent, Team[]>{
     const newTeamEventToTeamsMap: Map<TournamentEvent, Team[]> = new Map<TournamentEvent, Team[]>();
-    this.teamEventToTeamsMap.forEach((teams: Team[], event: TournamentEvent) => {
+    teamEventToTeamsMap.forEach((teams: Team[], event: TournamentEvent) => {
       let sortedTeams = null;
-      if (value === 'name') {
+      if (sortCriteria === 'name') {
         sortedTeams = teams.sort((team1: Team, team2: Team) => {
           return team1.name.localeCompare(team2.name);
         });
@@ -369,9 +368,15 @@ export class TournamentPlayersListComponent implements OnInit, OnChanges {
           return (team1.teamRating < team2.teamRating) ? 1 : ((team1.teamRating > team2.teamRating) ? -1 : 0);
         });
       }
+      // sort team members by rating
+      sortedTeams.forEach(team => team.teamMembers.sort(
+        (teamMember1: any, teamMember2: any) => {
+          return (teamMember1.playerRating < teamMember2.playerRating) ? 1 : -1;
+        }
+      ));
       newTeamEventToTeamsMap.set(event, sortedTeams);
     });
-    this.teamEventToTeamsMap = newTeamEventToTeamsMap;
+    return newTeamEventToTeamsMap;
   }
 }
 

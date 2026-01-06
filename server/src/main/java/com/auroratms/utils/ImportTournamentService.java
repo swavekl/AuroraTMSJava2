@@ -82,7 +82,7 @@ public class ImportTournamentService {
 
     // 1821 - Mustafa Khanani
     // 1553 - Sheza Khanani *** INVITED ***
-    private final Pattern TEAM_MEMBER_PATTERN = Pattern.compile("(\\d*) - ([\\w\\s]*)");
+    private final Pattern TEAM_MEMBER_PATTERN = Pattern.compile("(\\d{1,4}) - ([\\w\\s\\-]*)");
 
     @Autowired
     private TournamentService tournamentService;
@@ -1968,7 +1968,9 @@ public class ImportTournamentService {
         boolean isCaptain = true;
         for (String teamMemberInfo : teamMemberInfos) {
             log.info("Team member rating and name: " + teamMemberInfo);
-//            teamMemberInfo = Jsoup.parse(teamMemberInfo).text();
+            // &nbsp;&nbsp;933 - Agneya Sagar
+            teamMemberInfo = teamMemberInfo.replaceAll("&nbsp;", "");
+            teamMemberInfo = teamMemberInfo.trim();
             // 1821 - Mustafa Khanani
             // 1553 - Sheza Khanani *** INVITED ***
             int invitedIdx = teamMemberInfo.indexOf("*** INVITED ***");

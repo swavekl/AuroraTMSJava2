@@ -166,13 +166,14 @@
           </thead>
           <tbody>
           <ng-container *ngFor="let team of teamEventAndTeams.value">
+            <tr class="team-spacer-row"><td colspan="3"></td></tr>
             <tr class="team-name-row">
               <th class="team-name-column" colspan="3">{{ team.name }}<br>({{ team.teamRating }}) </th>
             </tr>
             <tr class="team-member" *ngFor="let teamMember of team.teamMembers">
               <td class="team-member-name">{{ teamMember.playerName }} {{teamMember.captain ? ' (C)' : ''}}</td>
               <td class="team-member-rating">{{ teamMember.playerRating }}</td>
-              <td class="team-member-status">{{ (teamMember.status === TeamEntryStatus.INVITED) ? '' : 'Invited' }}</td>
+              <td class="team-member-status">{{ teamMember.status === TeamEntryStatus.INVITED ? 'Invited' : ''}}</td>
             </tr>
           </ng-container>
           </tbody>

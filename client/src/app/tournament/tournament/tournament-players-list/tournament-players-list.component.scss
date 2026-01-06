@@ -85,9 +85,12 @@ table.teams-table {
 
   tbody tr {
 
+    &.team-spacer-row td {
+      height: 20px;
+    }
+
     &.team-name-row {
-      border-top:    2px solid black;
-      border-bottom: 2px solid black;
+      border-top:    1px solid black;
       background: rgba(143, 126, 126, 0.18);
     }
 
