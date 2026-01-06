@@ -1942,14 +1942,13 @@ public class ImportTournamentService {
      * @param tournamentEventFk
      * @return
      */
-    private Team extractTeamAndMembers(Map<String, String> playerNameToProfileMap, Elements teamEntryDetails, Long tournamentEventFk) {
+    public Team extractTeamAndMembers(Map<String, String> playerNameToProfileMap, Elements teamEntryDetails, Long tournamentEventFk) {
 //                  <td Align="Left">CITTA-North</td>
 //                      <td Align="Center">5488</td>
 //                      <td Align="Left">1821 - Mustafa Khanani <br>1553 - Sheza Khanani *** INVITED ***<br>1852 -
 //                      Anivritt Vanaparthy *** INVITED ***<br>1749 - Ashaz Farooqui *** INVITED ***<br>1815 -
 //                      Shoaib Moosa *** INVITED ***
 //                      </td>
-
         Element teamNameElement = teamEntryDetails.get(0);
         String teamName = teamNameElement.text();
         Element teamRatingElement = teamEntryDetails.get(1);
@@ -1959,14 +1958,17 @@ public class ImportTournamentService {
         team.setName(teamName);
         team.setTournamentEventFk(tournamentEventFk);
         team.setTeamRating(Integer.parseInt(strTeamRating));
+        log.info("Team " + teamName + " " + strTeamRating);
 
         Element teamMembersElement = teamEntryDetails.get(2);
-        String strTeamMembers = teamMembersElement.text();
+        String strTeamMembers = teamMembersElement.html();
         String [] oneMember = {strTeamMembers};
         String[] teamMemberInfos = (strTeamMembers.contains("<br>"))
                 ? strTeamMembers.split("<br>") : oneMember;
         boolean isCaptain = true;
         for (String teamMemberInfo : teamMemberInfos) {
+            log.info("Team member rating and name: " + teamMemberInfo);
+//            teamMemberInfo = Jsoup.parse(teamMemberInfo).text();
             // 1821 - Mustafa Khanani
             // 1553 - Sheza Khanani *** INVITED ***
             int invitedIdx = teamMemberInfo.indexOf("*** INVITED ***");
@@ -1980,6 +1982,7 @@ public class ImportTournamentService {
                 String memberRating = matcher.group(1);
                 String memberFullName = matcher.group(2);
                 String lastFirstName = convertToLastFirstName(memberFullName, playerNameToProfileMap);
+                log.info(teamMemberInfo + " -> lastFirstName " + lastFirstName);
                 if (lastFirstName != null) {
                     String profileId = playerNameToProfileMap.get(lastFirstName);
                     TeamMember teamMember = new TeamMember();
@@ -1990,6 +1993,8 @@ public class ImportTournamentService {
                     teamMember.setCaptain(isCaptain);
                     team.addTeamMember(teamMember);
                     isCaptain = false;  // the first player will be considered a captain
+                } else {
+                    log.warn("unable to find player profile for " + memberFullName);
                 }
             }
         }
@@ -2003,8 +2008,102 @@ public class ImportTournamentService {
      */
     private void synchronizeTeams(List<Team> newTeams, List<Long> teamEventIds) {
         List<Team> existingTeams = teamService.listForEvents(teamEventIds);
+        for (Long teamEventId : teamEventIds) {
+            List<Team> existingTeamsForEvent = existingTeams.stream()
+                    .filter(team -> team.getTournamentEventFk() == teamEventId)
+                    .toList();
+            List<Team> newTeamsForEvent = newTeams.stream()
+                    .filter(team -> team.getTournamentEventFk() == teamEventId)
+                    .toList();
 
+            List<Team> addedOrupdatedTeams = findTeamListDifferences(newTeamsForEvent, existingTeamsForEvent, true);
+            List<Team> removedTeams = findTeamListDifferences(existingTeamsForEvent, newTeamsForEvent, false);
 
+            if (!addedOrupdatedTeams.isEmpty()) {
+                for (Team team : addedOrupdatedTeams) {
+                    teamService.save(team);
+                }
+            }
+
+            if (!removedTeams.isEmpty()) {
+                for (Team removedTeam : removedTeams) {
+                    teamService.delete(removedTeam.getId());
+                }
+            }
+        }
+    }
+
+    /**
+     *
+     * @param teamListOne
+     * @param teamListTwo
+     * @param checkTeamMembers
+     * @return
+     */
+    private List<Team> findTeamListDifferences(List<Team> teamListOne, List<Team> teamListTwo, boolean checkTeamMembers) {
+        List<Team> listDifference = new ArrayList<>();
+        for (Team listOneTeam : teamListOne) {
+            Team listTwoTeam = teamListTwo.stream()
+                    .filter(team -> team.getName().equals(listOneTeam.getName()))
+                    .findFirst()
+                    .orElse(null);
+            // check if perhaps the team name has changed but players are the same
+            if (listTwoTeam == null) {
+                listTwoTeam = teamListTwo.stream()
+                        .filter(team -> membersMatch(team.getTeamMembers(), listOneTeam.getTeamMembers()))
+                        .findFirst()
+                        .orElse(null);
+            }
+
+            if (listTwoTeam == null) {
+                // create a new team
+                listDifference.add(listOneTeam);
+            } else if (checkTeamMembers) {
+                // check if any new members were added
+                List<TeamMember> teamOneMembers = listOneTeam.getTeamMembers();
+                List<TeamMember> teamTwoMembers = listTwoTeam.getTeamMembers();
+
+                List<String> teamOneProfileIds = teamOneMembers.stream()
+                        .map(TeamMember::getProfileId)
+                        .sorted().toList();
+
+                List<String> teamTwoProfileIds = teamTwoMembers.stream()
+                        .map(TeamMember::getProfileId)
+                        .sorted().toList();
+
+                // added members
+                List<TeamMember> addedTeamMembers = teamTwoMembers.stream()
+                        .filter(teamMember -> !teamOneProfileIds.contains(teamMember.getProfileId()))
+                        .toList();
+
+                // removed team members
+                List<TeamMember> removedTeamMembers = teamOneMembers.stream()
+                        .filter(teamMember -> !teamTwoProfileIds.contains(teamMember.getProfileId()))
+                        .toList();
+
+                if (!addedTeamMembers.isEmpty() || !removedTeamMembers.isEmpty()) {
+                    listDifference.add(listOneTeam);
+                }
+            }
+        }
+
+        return listDifference;
+    }
+
+    /**
+     *
+     * @param existingTeamMembers
+     * @param newTeamMembers
+     * @return
+     */
+    private boolean membersMatch(List<TeamMember> existingTeamMembers, List<TeamMember> newTeamMembers) {
+        List<String> existingTeamMemberProfileIds = existingTeamMembers.stream()
+                .map(TeamMember::getProfileId)
+                .sorted().toList();
+        List<String> newTeamMembersProfileIds = newTeamMembers.stream()
+                .map(TeamMember::getProfileId)
+                .sorted().toList();
+        return existingTeamMemberProfileIds.equals(newTeamMembersProfileIds);
     }
 
     /**
