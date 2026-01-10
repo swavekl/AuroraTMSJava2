@@ -1,9 +1,9 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {TournamentEntryInfoService} from '../../service/tournament-entry-info.service';
 import {ActivatedRoute} from '@angular/router';
-import {BehaviorSubject, combineLatest, Observable, of, Subscription} from 'rxjs';
+import {BehaviorSubject, combineLatest, Observable, of, Subscription, from} from 'rxjs';
+import {distinctUntilChanged, filter, first, map, repeat, take, concatMap, delay, bufferCount, scan} from 'rxjs/operators';
 import {LinearProgressBarService} from '../../../shared/linear-progress-bar/linear-progress-bar.service';
-import {distinctUntilChanged, filter, first, map, repeat, take} from 'rxjs/operators';
 import {TournamentEntryInfo} from '../../model/tournament-entry-info.model';
 import {TournamentEvent} from '../../tournament-config/tournament-event.model';
 import {TournamentEventConfigService} from '../../tournament-config/tournament-event-config.service';
@@ -89,27 +89,36 @@ export class TournamentPlayersListContainerComponent implements OnInit, OnDestro
     this.subscriptions.unsubscribe();
   }
 
-
+  /**
+   * Loads tournament entries with full information.
+   * The entries are grouped into chunks of 50 to reduce the number of HTTP requests.
+   * The chunks are painted one after another to reduce the perceived delay between chunks.
+   * The chunks are re-assembled into a single array for the UI to consume.
+   * @param tournamentId tournament id
+   * @private
+   */
   private loadTournamentEntries(tournamentId: number) {
-    // we are reading all tournament entries but to speed up drawing we will 'release' them
-    // in chunks of 50 every 50 ms.  This way the first 50 can be painted fast while the remaining
-    // chunks can be painted later.  This will eliminate the delay in painting, but it will make the scroll bar
-    // get shorter as more items arrive and the list needs to be repainted
-    // lazyArray<TournamentEntryInfo>(50, 50)
-    const subscription = this.tournamentEntryInfoService.getAll(tournamentId)
-      .pipe(
-        first()
-      )
-      .subscribe(
-        (infos: TournamentEntryInfo[]) => {
-          this.entryInfos$ = of(infos);
-        },
-        (error: any) => {
-          console.log('error loading entry infos' + JSON.stringify(error));
-        }
-      );
-    this.subscriptions.add(subscription);
-  }
+  const CHUNK_SIZE = 50;
+  const DELAY_MS = 100;
+
+  this.entryInfos$ = this.tournamentEntryInfoService.getAll(tournamentId).pipe(
+    first(),
+    // 1. Convert the large array into a stream of individual items
+    concatMap(infos => from(infos)),
+
+    // 2. Group items into chunks of 50
+    bufferCount(CHUNK_SIZE),
+
+    // 3. Space the chunks out so the browser can paint between them
+    concatMap((chunk, index) => {
+        return of(chunk).pipe(delay(index === 0 ? 0 : DELAY_MS));
+      }
+    ),
+
+    // 4. Re-accumulate the chunks into a single growing array for the UI
+    scan((acc: TournamentEntryInfo[], chunk: TournamentEntryInfo[]) => [...acc, ...chunk], [])
+  );
+}
 
   /**
    * Categorizes entries by event

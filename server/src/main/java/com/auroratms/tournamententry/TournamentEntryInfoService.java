@@ -197,6 +197,10 @@ public class TournamentEntryInfoService {
             }
         }
 
+        tournamentEntryInfos.sort(
+                Comparator.comparing(TournamentEntryInfo::getLastName).thenComparing(TournamentEntryInfo::getFirstName)
+        );
+
         return tournamentEntryInfos;
     }
 
