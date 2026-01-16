@@ -143,7 +143,9 @@ export class RoundRobinDrawsPanelComponent implements OnChanges {
               round: 0,
               seSeedNumber: 0,
               singleElimLineNum: 0,
-              entryId: 0
+              entryId: 0,
+              teamFk: 0,
+              teamName: ' ',
             };
             drawGroup.drawItems.push(fakeDrawItem);
           }

@@ -41,6 +41,9 @@ export class TournamentEventConfigComponent implements OnInit, OnChanges, OnDest
   // days
   days: any [] = [];
 
+  // tournament start date
+  startDate: Date;
+
   startTimes: any [];
 
   readonly PRICE_REGEX = CommonRegexPatterns.PRICE_REGEX;
@@ -165,6 +168,7 @@ export class TournamentEventConfigComponent implements OnInit, OnChanges, OnDest
           days.push({day: day, dayText: dayText});
         }
         this.days = days;
+        this.startDate = startDate;
 
         this.maxAgeRestrictionDate = dateUtils.getMaxAgeRestrictionDate(startDate);
         this.minAgeRestrictionDate = dateUtils.getMinAgeRestrictionDate(startDate);

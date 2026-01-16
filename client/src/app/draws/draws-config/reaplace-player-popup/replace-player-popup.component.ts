@@ -474,7 +474,9 @@ export class ReplacePlayerPopupComponent {
       playerName: playerName,
       clubName: null,
       state: null,
-      entryId: 0
+      entryId: 0,
+      teamFk: 0,
+      teamName: ' ',
     };
   }
 

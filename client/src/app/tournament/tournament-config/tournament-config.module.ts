@@ -46,6 +46,9 @@ import {MatRadioButton, MatRadioGroup} from '@angular/material/radio';
 import {RoundsDrawsConfigComponent} from './rounds-draws-config/rounds-draws-config.component';
 import {RoundsDivisionsConfigComponent} from './rounds-divisions-config/rounds-divisions-config.component';
 import {EventFeesConfigComponent} from './event-fees-config/event-fees-config.component';
+import {EventRoundsDivisionsConfigComponent} from './event-rounds-divisions-config/event-rounds-divisions-config.component';
+import {RoundConfigDialogComponent} from './round-config-dialog/round-config-dialog.component';
+import {DivisionConfigDialogComponent} from './division-config-dialog/division-config-dialog.component';
 
 
 @NgModule({
@@ -68,7 +71,10 @@ import {EventFeesConfigComponent} from './event-fees-config/event-fees-config.co
     ImportBlankEntryFormDialogComponent,
     RoundsDrawsConfigComponent,
     RoundsDivisionsConfigComponent,
-    EventFeesConfigComponent
+    EventFeesConfigComponent,
+    EventRoundsDivisionsConfigComponent,
+    RoundConfigDialogComponent,
+    DivisionConfigDialogComponent
   ],
   imports: [
     CommonModule,

@@ -41,6 +41,12 @@ export interface DrawItem {
   // seed rating at a time of making the draws
   rating: number;
 
+  // team id for team events only
+  teamFk: number;
+
+  // team name for team events only
+  teamName: string;
+
   // these values are added to enable easy showing of
   playerName: string;
 

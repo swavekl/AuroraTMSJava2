@@ -63,6 +63,13 @@ public class DrawItem {
     // seed rating at a time of making the draws
     private int rating;
 
+    // team id for team events only
+    private long teamFk;
+
+    // team name for team events only
+    @Transient
+    private String teamName;
+
     // these values are added to enable easy showing of
     @Transient
     private String playerName;

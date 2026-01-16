@@ -5,5 +5,6 @@ package com.auroratms.draw;
  */
 public enum DrawType {
     ROUND_ROBIN,
-    SINGLE_ELIMINATION
+    SINGLE_ELIMINATION,
+    UP_DOWN_TEAMS
 }

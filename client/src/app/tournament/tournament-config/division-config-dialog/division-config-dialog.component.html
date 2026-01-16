@@ -1,0 +1,144 @@
+<h2 mat-dialog-title>Edit Division</h2>
+
+<mat-dialog-content>
+  <mat-tab-group color="primary">
+
+    <mat-tab label="General Settings">
+      <div class="tab-body" fxLayout="column" fxLayoutGap="20px">
+
+        <div fxLayout="row" fxLayoutGap="10px">
+          <mat-form-field fxFlex="50%">
+            <mat-label>Division/Class Name</mat-label>
+            <input matInput type="text" [(ngModel)]="division.divisionName">
+          </mat-form-field>
+
+          <mat-form-field fxFlex="50%">
+            <mat-label>Draw method</mat-label>
+            <mat-select [(ngModel)]="division.drawMethod">
+              <mat-option *ngFor="let method of drawMethods" [value]="method.value">
+                {{ method.label }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+
+        <div fxLayout="row" fxLayoutGap="10px">
+          <mat-form-field fxFlex="33%">
+            <mat-label>Players Per Group</mat-label>
+            <input matInput type="text" [(ngModel)]="division.playersPerGroup" required min="1"
+                   [pattern]="NUMERIC_REGEX">
+          </mat-form-field>
+
+          <mat-form-field fxFlex="33%">
+            <mat-label>Players to Seed</mat-label>
+            <input matInput type="text" [(ngModel)]="division.playersToSeed" required min="0"
+                   [pattern]="NUMERIC_WITH_ZERO_REGEX" #playersToSeed="ngModel">
+            <mat-error *ngIf="playersToSeed.control?.hasError('pattern')">Enter valid number</mat-error>
+          </mat-form-field>
+
+          <mat-form-field fxFlex="34%">
+            <mat-label>Players to Advance</mat-label>
+            <input matInput type="number" [(ngModel)]="division.playersToAdvance" [max]="division.playersPerGroup" min="0">
+            <mat-error *ngIf="division.playersToAdvance > division.playersPerGroup">Player to advance can't exceed players per group</mat-error>
+          </mat-form-field>
+        </div>
+
+        <div fxLayout="column" *ngIf="!isFirstRoundDivision">
+          <label class="section-label">Draw Players from Source Division</label>
+          <div fxLayout="row" fxLayoutGap="10px">
+
+            <mat-form-field fxFlex="40%">
+              <mat-label>Source Division</mat-label>
+              <mat-select matInput type="text" name="previousDivisionCtrl"
+                          [(ngModel)]="division.previousDivisionIdx">
+                <mat-option *ngFor="let division of previousRoundDivisions; index as dIdx"
+                            [value]="dIdx">{{ division.divisionName }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field fxFlex="30%">
+              <mat-label>Player Ranking Start</mat-label>
+              <input matInput type="number" [(ngModel)]="division.previousRoundPlayerRanking" min="1" [max]="maxRanking">
+            </mat-form-field>
+
+            <mat-form-field fxFlex="30%">
+              <mat-label>Player Ranking End</mat-label>
+              <input matInput type="number" [(ngModel)]="division.previousRoundPlayerRankingEnd" min="1" [max]="maxRanking">
+            </mat-form-field>
+          </div>
+        </div>
+
+      </div>
+    </mat-tab>
+
+    <mat-tab label="Match Format">
+      <div class="tab-body" fxLayout="column" fxLayoutGap="20px">
+
+        <div fxLayout="row" fxLayoutGap="10px">
+          <mat-form-field fxFlex="33%">
+            <mat-label>Tables Per Group</mat-label>
+            <input matInput type="text" [(ngModel)]="division.numTablesPerGroup" required>
+          </mat-form-field>
+
+          <mat-form-field fxFlex="33%">
+            <mat-label>Points per Game</mat-label>
+            <input matInput type="text" [(ngModel)]="division.pointsPerGame" required>
+          </mat-form-field>
+
+          <mat-form-field fxFlex="34%" *ngIf="!round.singleElimination">
+            <mat-label>Number of Games (RR)</mat-label>
+            <mat-select [(ngModel)]="division.numberOfGames">
+              <mat-option *ngFor="let choice of numberOfGamesChoices" [value]="choice.value">
+                {{ choice.label }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <div fxFlex="34%" class="checkbox-wrapper" *ngIf="round.singleElimination" fxLayoutAlign="start center">
+            <mat-checkbox [(ngModel)]="division.play3rd4thPlace">Play 3rd/4th</mat-checkbox>
+          </div>
+        </div>
+
+        <div *ngIf="round.singleElimination" fxLayout="column" fxLayoutGap="10px">
+          <h4 class="section-sub-label">Single Elimination Game Counts</h4>
+          <div fxLayout="row wrap" fxLayoutGap="10px">
+            <mat-form-field fxFlex="48%">
+              <mat-label>Early Rounds</mat-label>
+              <mat-select [(ngModel)]="division.numberOfGamesSEPlayoffs">
+                <mat-option *ngFor="let choice of numberOfGamesChoices" [value]="choice.value">{{ choice.label }}</mat-option>
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field fxFlex="48%">
+              <mat-label>Quarter Finals</mat-label>
+              <mat-select [(ngModel)]="division.numberOfGamesSEQuarterFinals">
+                <mat-option *ngFor="let choice of numberOfGamesChoices" [value]="choice.value">{{ choice.label }}</mat-option>
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field fxFlex="48%">
+              <mat-label>Semi Finals</mat-label>
+              <mat-select [(ngModel)]="division.numberOfGamesSESemiFinals">
+                <mat-option *ngFor="let choice of numberOfGamesChoices" [value]="choice.value">{{ choice.label }}</mat-option>
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field fxFlex="48%">
+              <mat-label>Finals</mat-label>
+              <mat-select [(ngModel)]="division.numberOfGamesSEFinals">
+                <mat-option *ngFor="let choice of numberOfGamesChoices" [value]="choice.value">{{ choice.label }}</mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+        </div>
+
+      </div>
+    </mat-tab>
+  </mat-tab-group>
+</mat-dialog-content>
+
+<mat-dialog-actions fxLayout="row" fxLayoutAlign="space-between center">
+  <button mat-raised-button type="button"(click)="onCancel()">Cancel</button>
+  <button mat-raised-button type="button" color="primary" (click)="onSave()">Save</button>
+</mat-dialog-actions>

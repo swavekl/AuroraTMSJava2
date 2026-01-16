@@ -1,0 +1,25 @@
+.tab-body {
+  padding: 24px 4px 16px 4px;
+  min-height: 320px;
+}
+
+.section-sub-label {
+  margin: 0;
+  font-size: 12px;
+  text-transform: uppercase;
+  color: #673ab7; // Purple accent
+  letter-spacing: 0.5px;
+}
+
+.checkbox-wrapper {
+  padding-top: 15px;
+}
+
+mat-dialog-content {
+  overflow-x: hidden;
+}
+
+mat-dialog-actions {
+  padding: 16px 24px !important;
+  border-top: 1px solid #eee;
+}

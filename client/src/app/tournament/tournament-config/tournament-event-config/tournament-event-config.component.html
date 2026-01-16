@@ -146,118 +146,126 @@
         </mat-tab>
         <mat-tab label="Rounds & Divisions">
           <div class="draws-list">
-            <app-rounds-divisions-config [rounds]="tournamentEvent.roundsConfiguration?.rounds || []"
-                                    [days]="days" [startTimes]="startTimes"
+            <app-event-rounds-divisions-config [rounds]="tournamentEvent.roundsConfiguration?.rounds || []"
+                                    [days]="days" [startDate]="startDate"
                                     (roundsChanged)="onRoundsChanged($event)">
-            </app-rounds-divisions-config>
+            </app-event-rounds-divisions-config>
           </div>
         </mat-tab>
-        <mat-tab label="Draws & Matches">
-          <div class="draws-list">
-            <app-rounds-draws-config [rounds]="tournamentEvent.roundsConfiguration?.rounds || []"
-                                    [days]="days" [startTimes]="startTimes"
-                                    (roundsChanged)="onRoundsChanged($event)">
-            </app-rounds-draws-config>
-          </div>
-        </mat-tab>
-        <mat-tab label="Draws & Matches" *ngIf="false">
-          <div fxLayout.lt-sm="column" fxLayout="row" fxLayoutGap="10px">
-            <mat-form-field fxFlex="25%">
-              <mat-label>Draw method</mat-label>
-              <mat-select name="drawMethod" [(ngModel)]="tournamentEvent.drawMethod">
-                <mat-option *ngFor="let method of drawMethods" [value]="method.value">
-                  {{ method.label }}
-                </mat-option>
-              </mat-select>
-            </mat-form-field>
-            <mat-form-field fxFlex="25%">
-              <mat-label>Players Per Group</mat-label>
-              <input matInput type="text" name="playersPerGroup" [(ngModel)]="tournamentEvent.playersPerGroup" required
-                     [pattern]="NUMERIC_REGEX">
-            </mat-form-field>
-            <mat-form-field fxFlex="25%">
-              <mat-label>Players to advance</mat-label>
-              <input matInput type="text" name="playersToAdvance" [(ngModel)]="tournamentEvent.playersToAdvance"
-                     required [pattern]="NUMERIC_WITH_ZERO_REGEX">
-            </mat-form-field>
-            <mat-form-field fxFlex="25%">
-              <mat-label>Players to seed</mat-label>
-              <input matInput type="text" name="playersToSeed" [(ngModel)]="tournamentEvent.playersToSeed" required
-                     [pattern]="NUMERIC_WITH_ZERO_REGEX">
-            </mat-form-field>
-          </div>
-          <div fxLayout.lt-sm="column" fxLayout="row" fxLayoutGap="10px">
-            <mat-form-field fxFlex="25%">
-              <mat-label>Number of Tables Per Group</mat-label>
-              <input matInput type="text" name="numTablesPerGroup" [(ngModel)]="tournamentEvent.numTablesPerGroup"
-                     required [pattern]="NUMERIC_REGEX">
-            </mat-form-field>
-            <mat-form-field fxFlex="25%">
-              <mat-label>Points per Game</mat-label>
-              <input matInput type="text" name="pointsPerGame" [(ngModel)]="tournamentEvent.pointsPerGame" required
-                     [pattern]="TWO_DIGIT_NUMERIC_REGEX">
-            </mat-form-field>
-            <div class="mat-checkbox-container" fxFlex="25%">
-              <mat-checkbox name="play3rd4thPlace" [(ngModel)]="tournamentEvent.play3rd4thPlace">Play for 3rd & 4th
-                place
-              </mat-checkbox>
-            </div>
-            <div class="mat-checkbox-container" fxFlex="25%">
-              <mat-checkbox name="advanceUnratedWinner" [(ngModel)]="tournamentEvent.advanceUnratedWinner">Advance
-                Unrated Player
-              </mat-checkbox>
-            </div>
-          </div>
-          <mat-card-subtitle class="mat-headline-6">Number of Games in Round</mat-card-subtitle>
-          <div fxLayout.lt-sm="column" fxLayout="row" fxLayoutGap="10px">
-            <mat-form-field fxFlex="20%">
-              <mat-label>First Round</mat-label>
-              <mat-select name="numberOfGames" [(ngModel)]="tournamentEvent.numberOfGames">
-                <mat-option *ngFor="let numberOfGamesChoice of numberOfGamesChoices"
-                            [value]="numberOfGamesChoice.value">
-                  {{ numberOfGamesChoice.label }}
-                </mat-option>
-              </mat-select>
-            </mat-form-field>
-            <mat-form-field fxFlex="20%">
-              <mat-label>Second Round</mat-label>
-              <mat-select name="numberOfGamesSEPlayoffs" [(ngModel)]="tournamentEvent.numberOfGamesSEPlayoffs">
-                <mat-option *ngFor="let numberOfGamesChoice of numberOfGamesChoices"
-                            [value]="numberOfGamesChoice.value">
-                  {{ numberOfGamesChoice.label }}
-                </mat-option>
-              </mat-select>
-            </mat-form-field>
-            <mat-form-field fxFlex="20%">
-              <mat-label>Quarter Finals</mat-label>
-              <mat-select name="numberOfGamesSEQuarterFinals"
-                          [(ngModel)]="tournamentEvent.numberOfGamesSEQuarterFinals">
-                <mat-option *ngFor="let numberOfGamesChoice of numberOfGamesChoices"
-                            [value]="numberOfGamesChoice.value">
-                  {{ numberOfGamesChoice.label }}
-                </mat-option>
-              </mat-select>
-            </mat-form-field>
-            <mat-form-field fxFlex="20%">
-              <mat-label>Semi Finals</mat-label>
-              <mat-select name="numberOfGamesSESemiFinals" [(ngModel)]="tournamentEvent.numberOfGamesSESemiFinals">
-                <mat-option *ngFor="let numberOfGamesChoice of numberOfGamesChoices"
-                            [value]="numberOfGamesChoice.value">
-                  {{ numberOfGamesChoice.label }}
-                </mat-option>
-              </mat-select>
-            </mat-form-field>
-            <mat-form-field fxFlex="20%">
-              <mat-label>Finals & 3rd/4th Place</mat-label>
-              <mat-select name="numberOfGamesSEFinals" [(ngModel)]="tournamentEvent.numberOfGamesSEFinals">
-                <mat-option *ngFor="let numberOfGamesChoice of numberOfGamesChoices"
-                            [value]="numberOfGamesChoice.value">
-                  {{ numberOfGamesChoice.label }}
-                </mat-option>
-              </mat-select>
-            </mat-form-field>
-          </div>
-        </mat-tab>
+<!--        <mat-tab label="Rounds & Divisions">-->
+<!--          <div class="draws-list">-->
+<!--            <app-rounds-divisions-config [rounds]="tournamentEvent.roundsConfiguration?.rounds || []"-->
+<!--                                    [days]="days" [startTimes]="startTimes"-->
+<!--                                    (roundsChanged)="onRoundsChanged($event)">-->
+<!--            </app-rounds-divisions-config>-->
+<!--          </div>-->
+<!--        </mat-tab>-->
+<!--        <mat-tab label="Draws & Matches">-->
+<!--          <div class="draws-list">-->
+<!--            <app-rounds-draws-config [rounds]="tournamentEvent.roundsConfiguration?.rounds || []"-->
+<!--                                    [days]="days" [startTimes]="startTimes"-->
+<!--                                    (roundsChanged)="onRoundsChanged($event)">-->
+<!--            </app-rounds-draws-config>-->
+<!--          </div>-->
+<!--        </mat-tab>-->
+<!--        <mat-tab label="Draws & Matches" *ngIf="false">-->
+<!--          <div fxLayout.lt-sm="column" fxLayout="row" fxLayoutGap="10px">-->
+<!--            <mat-form-field fxFlex="25%">-->
+<!--              <mat-label>Draw method</mat-label>-->
+<!--              <mat-select name="drawMethod" [(ngModel)]="tournamentEvent.drawMethod">-->
+<!--                <mat-option *ngFor="let method of drawMethods" [value]="method.value">-->
+<!--                  {{ method.label }}-->
+<!--                </mat-option>-->
+<!--              </mat-select>-->
+<!--            </mat-form-field>-->
+<!--            <mat-form-field fxFlex="25%">-->
+<!--              <mat-label>Players Per Group</mat-label>-->
+<!--              <input matInput type="text" name="playersPerGroup" [(ngModel)]="tournamentEvent.playersPerGroup" required-->
+<!--                     [pattern]="NUMERIC_REGEX">-->
+<!--            </mat-form-field>-->
+<!--            <mat-form-field fxFlex="25%">-->
+<!--              <mat-label>Players to advance</mat-label>-->
+<!--              <input matInput type="text" name="playersToAdvance" [(ngModel)]="tournamentEvent.playersToAdvance"-->
+<!--                     required [pattern]="NUMERIC_WITH_ZERO_REGEX">-->
+<!--            </mat-form-field>-->
+<!--            <mat-form-field fxFlex="25%">-->
+<!--              <mat-label>Players to seed</mat-label>-->
+<!--              <input matInput type="text" name="playersToSeed" [(ngModel)]="tournamentEvent.playersToSeed" required-->
+<!--                     [pattern]="NUMERIC_WITH_ZERO_REGEX">-->
+<!--            </mat-form-field>-->
+<!--          </div>-->
+<!--          <div fxLayout.lt-sm="column" fxLayout="row" fxLayoutGap="10px">-->
+<!--            <mat-form-field fxFlex="25%">-->
+<!--              <mat-label>Number of Tables Per Group</mat-label>-->
+<!--              <input matInput type="text" name="numTablesPerGroup" [(ngModel)]="tournamentEvent.numTablesPerGroup"-->
+<!--                     required [pattern]="NUMERIC_REGEX">-->
+<!--            </mat-form-field>-->
+<!--            <mat-form-field fxFlex="25%">-->
+<!--              <mat-label>Points per Game</mat-label>-->
+<!--              <input matInput type="text" name="pointsPerGame" [(ngModel)]="tournamentEvent.pointsPerGame" required-->
+<!--                     [pattern]="TWO_DIGIT_NUMERIC_REGEX">-->
+<!--            </mat-form-field>-->
+<!--            <div class="mat-checkbox-container" fxFlex="25%">-->
+<!--              <mat-checkbox name="play3rd4thPlace" [(ngModel)]="tournamentEvent.play3rd4thPlace">Play for 3rd & 4th-->
+<!--                place-->
+<!--              </mat-checkbox>-->
+<!--            </div>-->
+<!--            <div class="mat-checkbox-container" fxFlex="25%">-->
+<!--              <mat-checkbox name="advanceUnratedWinner" [(ngModel)]="tournamentEvent.advanceUnratedWinner">Advance-->
+<!--                Unrated Player-->
+<!--              </mat-checkbox>-->
+<!--            </div>-->
+<!--          </div>-->
+<!--          <mat-card-subtitle class="mat-headline-6">Number of Games in Round</mat-card-subtitle>-->
+<!--          <div fxLayout.lt-sm="column" fxLayout="row" fxLayoutGap="10px">-->
+<!--            <mat-form-field fxFlex="20%">-->
+<!--              <mat-label>First Round</mat-label>-->
+<!--              <mat-select name="numberOfGames" [(ngModel)]="tournamentEvent.numberOfGames">-->
+<!--                <mat-option *ngFor="let numberOfGamesChoice of numberOfGamesChoices"-->
+<!--                            [value]="numberOfGamesChoice.value">-->
+<!--                  {{ numberOfGamesChoice.label }}-->
+<!--                </mat-option>-->
+<!--              </mat-select>-->
+<!--            </mat-form-field>-->
+<!--            <mat-form-field fxFlex="20%">-->
+<!--              <mat-label>Second Round</mat-label>-->
+<!--              <mat-select name="numberOfGamesSEPlayoffs" [(ngModel)]="tournamentEvent.numberOfGamesSEPlayoffs">-->
+<!--                <mat-option *ngFor="let numberOfGamesChoice of numberOfGamesChoices"-->
+<!--                            [value]="numberOfGamesChoice.value">-->
+<!--                  {{ numberOfGamesChoice.label }}-->
+<!--                </mat-option>-->
+<!--              </mat-select>-->
+<!--            </mat-form-field>-->
+<!--            <mat-form-field fxFlex="20%">-->
+<!--              <mat-label>Quarter Finals</mat-label>-->
+<!--              <mat-select name="numberOfGamesSEQuarterFinals"-->
+<!--                          [(ngModel)]="tournamentEvent.numberOfGamesSEQuarterFinals">-->
+<!--                <mat-option *ngFor="let numberOfGamesChoice of numberOfGamesChoices"-->
+<!--                            [value]="numberOfGamesChoice.value">-->
+<!--                  {{ numberOfGamesChoice.label }}-->
+<!--                </mat-option>-->
+<!--              </mat-select>-->
+<!--            </mat-form-field>-->
+<!--            <mat-form-field fxFlex="20%">-->
+<!--              <mat-label>Semi Finals</mat-label>-->
+<!--              <mat-select name="numberOfGamesSESemiFinals" [(ngModel)]="tournamentEvent.numberOfGamesSESemiFinals">-->
+<!--                <mat-option *ngFor="let numberOfGamesChoice of numberOfGamesChoices"-->
+<!--                            [value]="numberOfGamesChoice.value">-->
+<!--                  {{ numberOfGamesChoice.label }}-->
+<!--                </mat-option>-->
+<!--              </mat-select>-->
+<!--            </mat-form-field>-->
+<!--            <mat-form-field fxFlex="20%">-->
+<!--              <mat-label>Finals & 3rd/4th Place</mat-label>-->
+<!--              <mat-select name="numberOfGamesSEFinals" [(ngModel)]="tournamentEvent.numberOfGamesSEFinals">-->
+<!--                <mat-option *ngFor="let numberOfGamesChoice of numberOfGamesChoices"-->
+<!--                            [value]="numberOfGamesChoice.value">-->
+<!--                  {{ numberOfGamesChoice.label }}-->
+<!--                </mat-option>-->
+<!--              </mat-select>-->
+<!--            </mat-form-field>-->
+<!--          </div>-->
+<!--        </mat-tab>-->
         <mat-tab label="Prizes">
           <mat-toolbar>
             <button mat-raised-button type="button" (click)="onAddPrizesRow()">Add</button>

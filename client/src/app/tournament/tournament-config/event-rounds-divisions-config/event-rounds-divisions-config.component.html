@@ -1,0 +1,66 @@
+<mat-toolbar fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="10px">
+  <button type="button" mat-raised-button (click)="addRound(rounds.length)" *ngIf="rounds.length > 0">
+    <mat-icon>add</mat-icon> Add Round
+  </button>
+  <span class="spacer"></span>
+  <button type="button" mat-raised-button (click)="clearAll()" [disabled]="rounds.length === 0">
+    <mat-icon>delete_sweep</mat-icon> Reset
+  </button>
+</mat-toolbar>
+
+<div class="pipeline-container">
+  <svg class="connector-layer">
+    <path *ngFor="let path of connectors" [attr.d]="path" fill="none" stroke="#673ab7" stroke-width="2" opacity="0.4" />
+  </svg>
+
+  <div *ngIf="rounds.length === 0" class="empty-state-container" fxLayout="column" fxLayoutAlign="center center" fxLayoutGap="40px">
+    <div class="welcome-text">
+      <h2>Getting Started</h2>
+      <p>Initialize your tournament structure with a template.</p>
+    </div>
+    <div fxLayout="row" fxLayoutGap="30px">
+      <div class="quick-add-card" fxLayout="row" fxLayoutAlign="space-between center" fxLayoutGap="20px">
+        <div fxLayout="column" fxFlex>
+          <h3>Standard Progression</h3>
+          <p>Qualifying Round Robin to Championship SE.</p>
+        </div>
+        <button type="button" mat-flat-button color="primary" (click)="buildStandardRRtoSE()">Add RR ➔ SE</button>
+      </div>
+      <div class="quick-add-card" fxLayout="row" fxLayoutAlign="space-between center" fxLayoutGap="20px">
+        <div fxLayout="column" fxFlex>
+          <h3>Single Elimination</h3>
+          <p>Start with a knockout bracket immediately.</p>
+        </div>
+        <button type="button" mat-flat-button color="primary" (click)="addSingleElimRound()">Add SE</button>
+      </div>
+    </div>
+  </div>
+
+  <div fxLayout="row" fxLayoutAlign="start start" fxLayoutGap="100px" *ngIf="rounds.length > 0">
+    <div *ngFor="let round of rounds; let rIdx = index" class="round-lane" fxLayout="column" fxLayoutAlign="center center" fxLayoutGap="30px">
+      <div class="lane-label">{{round.roundName}} ({{ round.ordinalNum }})</div>
+
+      <div class="round-type" (click)="editRound(round)">{{round.singleElimination ? 'Single Elimination' : 'Round Robin'}}
+        <mat-icon>edit</mat-icon>
+      </div>
+
+      <div class="division-stack" fxLayout="column" fxLayoutGap="20px">
+        <mat-card class="division-card" *ngFor="let div of round.divisions; let dIdx = index" [id]="'card-' + rIdx + '-' + dIdx">
+          <mat-card-header>
+<!--            <mat-card-title class="card-title">{{ div.divisionName }}</mat-card-title>-->
+            <div class="card-title">{{ div.divisionName }}</div>
+          </mat-card-header>
+          <mat-card-actions fxLayout="row" fxLayoutGap="8px" fxLayoutAlign="end center">
+            <button type="button" mat-raised-button (click)="editDivision(rIdx, dIdx)">Edit</button>
+            <button type="button" mat-raised-button (click)="removeDivision(rIdx, dIdx)">Remove</button>
+          </mat-card-actions>
+        </mat-card>
+
+        <div class="division-card ghost-card" (click)="addDivision(rIdx)" fxLayout="column" fxLayoutAlign="center center">
+          <mat-icon>add</mat-icon>
+          <span>Add Division</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
