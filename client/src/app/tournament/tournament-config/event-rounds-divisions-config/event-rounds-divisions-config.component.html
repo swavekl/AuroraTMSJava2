@@ -40,8 +40,12 @@
     <div *ngFor="let round of rounds; let rIdx = index" class="round-lane" fxLayout="column" fxLayoutAlign="center center" fxLayoutGap="30px">
       <div class="lane-label">{{round.roundName}} ({{ round.ordinalNum }})</div>
 
-      <div class="round-type" (click)="editRound(round)">{{round.singleElimination ? 'Single Elimination' : 'Round Robin'}}
-        <mat-icon>edit</mat-icon>
+<!--      <div class="round-type" (click)="editRound(round)">{{round.singleElimination ? 'Single Elimination' : 'Round Robin'}}-->
+<!--        <mat-icon>edit</mat-icon>-->
+<!--      </div>-->
+      <div fxLayout="row" fxLayoutAlign="space-between center" fxLayoutGap="10px">
+        <button type="button" mat-raised-button (click)="editRound(round)"><mat-icon>edit</mat-icon>Edit</button>
+        <button type="button" mat-raised-button (click)="removeRound(rIdx)"> <mat-icon>delete</mat-icon>Delete</button>
       </div>
 
       <div class="division-stack" fxLayout="column" fxLayoutGap="20px">
@@ -50,9 +54,9 @@
 <!--            <mat-card-title class="card-title">{{ div.divisionName }}</mat-card-title>-->
             <div class="card-title">{{ div.divisionName }}</div>
           </mat-card-header>
-          <mat-card-actions fxLayout="row" fxLayoutGap="8px" fxLayoutAlign="end center">
-            <button type="button" mat-raised-button (click)="editDivision(rIdx, dIdx)">Edit</button>
-            <button type="button" mat-raised-button (click)="removeDivision(rIdx, dIdx)">Remove</button>
+          <mat-card-actions fxLayout="row" fxLayoutGap="10px" fxLayoutAlign="end center">
+            <button type="button" mat-raised-button (click)="editDivision(rIdx, dIdx)"><mat-icon>edit</mat-icon>Edit</button>
+            <button type="button" mat-raised-button (click)="removeDivision(rIdx, dIdx)"> <mat-icon>delete</mat-icon>Delete</button>
           </mat-card-actions>
         </mat-card>
 
