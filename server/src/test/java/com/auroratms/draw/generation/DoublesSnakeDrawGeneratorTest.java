@@ -1,8 +1,10 @@
 package com.auroratms.draw.generation;
 
 import com.auroratms.draw.DrawItem;
-import com.auroratms.draw.DrawType;
 import com.auroratms.event.TournamentEvent;
+import com.auroratms.event.TournamentEventRound;
+import com.auroratms.event.TournamentEventRoundDivision;
+import com.auroratms.event.TournamentRoundsConfiguration;
 import com.auroratms.tournamentevententry.TournamentEventEntry;
 import com.auroratms.tournamentevententry.doubles.DoublesPair;
 import org.junit.jupiter.api.Test;
@@ -24,7 +26,7 @@ public class DoublesSnakeDrawGeneratorTest extends AbstractDoublesDrawsGenerator
     }
 
     private void testDrawGeneration(int numTeamsToSeed, int expectedGroups) {
-        TournamentEvent tournamentEvent = makeTournamentEventEntity(numTeamsToSeed);
+        TournamentEvent tournamentEvent = makeTournamentEventEntity(numTeamsToSeed, false);
 
         List<TournamentEventEntry> eventEntries = makeDoublesTournamentEntriesList(153L, tournamentEvent.getId());
 
@@ -35,7 +37,12 @@ public class DoublesSnakeDrawGeneratorTest extends AbstractDoublesDrawsGenerator
         // first event draw
         List<DrawItem> existingDrawItems = new ArrayList<>();
 
-        IDrawsGenerator rrRoundGenerator = DrawGeneratorFactory.makeGenerator(tournamentEvent, DrawType.ROUND_ROBIN);
+        TournamentRoundsConfiguration roundsConfiguration = tournamentEvent.getRoundsConfiguration();
+        List<TournamentEventRound> rounds = roundsConfiguration.getRounds();
+        TournamentEventRound rrRound = rounds.get(0);
+        TournamentEventRoundDivision rrDivision = rrRound.getDivisions().get(0);
+
+        IDrawsGenerator rrRoundGenerator = DrawGeneratorFactory.makeGenerator(tournamentEvent, rrRound, rrDivision);
         ((DoublesSnakeDrawsGenerator)rrRoundGenerator).setDoublesPairs(doublesPairList);
 
         List<DrawItem> drawItems = rrRoundGenerator.generateDraws(eventEntries, entryIdToPlayerDrawInfo, existingDrawItems);

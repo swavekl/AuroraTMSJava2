@@ -16,8 +16,8 @@ public class DrawsEventPublisher {
     @Autowired
     private ApplicationEventPublisher applicationEventPublisher;
 
-    public void publishEvent(long eventId, DrawAction action, DrawType drawType, List<DrawItem> drawItems) {
-        DrawsEvent event = new DrawsEvent(eventId, drawType, action, drawItems);
+    public void publishEvent(long eventId, DrawAction action, DrawType drawType, List<DrawItem> drawItems, int ordinalNum, int divisionIdx) {
+        DrawsEvent event = new DrawsEvent(eventId, drawType, action, drawItems, ordinalNum, divisionIdx);
         applicationEventPublisher.publishEvent(event);
     }
 }

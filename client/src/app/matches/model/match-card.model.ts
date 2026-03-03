@@ -27,6 +27,12 @@ export class MatchCard {
   // match for draw type
   drawType: DrawType;
 
+  // round ordinal number i.e. first round 1, second round 1 etc.
+  roundOrdinalNumber: number;
+
+  // division index i.e. first division 0, second division 1 etc.
+  divisionIdx: number;
+
   // best of 3, 5, 7 or 9 games per match in the main round (i.e. round robin)
   numberOfGames: number;
 

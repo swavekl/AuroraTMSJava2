@@ -35,11 +35,11 @@ public class DrawsEventListener {
         logger.info("Begin processing" + drawsEvent);
         switch (drawsEvent.getAction()) {
             case GENERATED:
-                this.matchCardService.generateMatchCardsForEvent(drawsEvent.getEventId(), drawsEvent.getDrawType());
+                this.matchCardService.generateMatchCardsForEvent(drawsEvent.getEventId(), drawsEvent.getDrawType(), drawsEvent.getRoundOrdinalNumber(), drawsEvent.getDivisionIdx());
                 break;
 
             case UPDATED:
-                this.matchCardService.updateMatchCardsForEvent(drawsEvent.getEventId(), drawsEvent.getDrawType(), drawsEvent.getUpdatedItems());
+                this.matchCardService.updateMatchCardsForEvent(drawsEvent.getEventId(), drawsEvent.getDrawType(), drawsEvent.getUpdatedItems(), drawsEvent.getRoundOrdinalNumber(), drawsEvent.getDivisionIdx());
                 break;
 
             case DELETED:

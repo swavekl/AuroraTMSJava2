@@ -26,7 +26,7 @@ public class TeamsDivisionDrawsGenerator extends AbstractDrawsGenerator implemen
                                        TournamentEventRound round,
                                        TournamentEventRoundDivision tournamentEventRoundDivision,
                                        List<Team> eventTeams) {
-        super(tournamentEvent);
+        super(tournamentEvent, round, tournamentEventRoundDivision);
         this.round = round;
         this.tournamentEventRoundDivision = tournamentEventRoundDivision;
         this.eventTeams = eventTeams;

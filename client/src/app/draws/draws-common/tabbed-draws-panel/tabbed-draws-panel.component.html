@@ -1,9 +1,51 @@
 <div [ngClass]="editMode ? 'all-draws-panel-edit': 'all-draws-panel'" *ngIf="selectedEvent != null">
-  <ng-container *ngIf="showTwoRounds(); else oneround">
-    <mat-tab-group>
-      <mat-tab label="Round Robin">
-        <div class="tab-contents">
+    <ng-container *ngIf="showTabs; else oneround">
+<!--      multiple rounds - show tabs-->
+      <mat-tab-group (selectedIndexChange)="onTabChange($event)"
+                     [(selectedIndex)]="selectedTabIndex"
+                     [preserveContent]="true">
+        <mat-tab *ngFor="let round of selectedEvent?.roundsConfiguration?.rounds; trackBy: trackByRound"
+         [label]="round.roundName">
+          <div class="tab-contents" *ngIf="!round.singleElimination">
+            <app-round-robin-draws-panel
+              #drawPanel
+              [editMode]="editMode"
+              [allowDrawChanges]="allowDrawChanges"
+              [draws]="draws"
+              [roundOrdinalNumber]="round.ordinalNum"
+              [playerStatusList]="playerStatusList"
+              [matchCardInfos]="matchCardInfos"
+              [selectedEvent]="selectedEvent"
+              [bracketsHeight]="getBracketsHeight('rr')"
+              (drawsAction)="onDrawsAction($event)"
+              (updateFlagEE)="onUpdateEEFlag($event)">
+            </app-round-robin-draws-panel>
+          </div>
+          <div class="tab-contents" *ngIf="round.singleElimination">
+            <app-single-elimination-bracket
+              #drawPanel
+              [bracketsHeight]="getBracketsHeight('se')"
+              [draws]="draws"
+              [roundOrdinalNumber]="round.ordinalNum"
+              [playerStatusList]="playerStatusList"
+              [matchCardInfos]="matchCardInfos"
+              [editMode]="editMode"
+              [allowDrawChanges]="allowDrawChanges"
+              [selectedEvent]="selectedEvent"
+              [doublesEvent]="selectedEvent?.doubles"
+              (drawsAction)="onDrawsAction($event)"
+            >
+            </app-single-elimination-bracket>
+          </div>
+        </mat-tab>
+      </mat-tab-group>
+    </ng-container>
+<!--    one round  hide tabs -->
+    <ng-template #oneround>
+      <div [ngClass]="editMode ? 'one-round-panel-edit': 'one-round-panel'">
+        <ng-container *ngIf="hasRRRound; else seroundonly">
           <app-round-robin-draws-panel
+            #drawPanel
             [editMode]="editMode"
             [allowDrawChanges]="allowDrawChanges"
             [draws]="draws"
@@ -11,56 +53,91 @@
             [matchCardInfos]="matchCardInfos"
             [selectedEvent]="selectedEvent"
             [bracketsHeight]="getBracketsHeight('rr')"
-            (drawsAction)="onRRDrawsAction($event)"
+            (drawsAction)="onDrawsAction($event)"
             (updateFlagEE)="onUpdateEEFlag($event)">
           </app-round-robin-draws-panel>
-        </div>
-      </mat-tab>
-      <mat-tab [label]="(isHandset$ | async) ? 'Single Elim.' : 'Single Elimination'">
-        <div class="tab-contents">
+        </ng-container>
+        <ng-template #seroundonly>
           <app-single-elimination-bracket
+            #drawPanel
+            [editMode]="editMode"
+            [allowDrawChanges]="allowDrawChanges"
             [bracketsHeight]="getBracketsHeight('se')"
             [draws]="draws"
             [playerStatusList]="playerStatusList"
             [matchCardInfos]="matchCardInfos"
-            [editMode]="editMode"
-            [allowDrawChanges]="allowDrawChanges"
             [selectedEvent]="selectedEvent"
             [doublesEvent]="selectedEvent?.doubles"
+            (drawsAction)="onDrawsAction($event)"
           >
           </app-single-elimination-bracket>
-        </div>
-      </mat-tab>
-    </mat-tab-group>
-  </ng-container>
-  <ng-template #oneround>
-    <div [ngClass]="editMode ? 'one-round-panel-edit': 'one-round-panel'">
-      <ng-container *ngIf="hasRRRound; else seroundonly">
-          <app-round-robin-draws-panel
-            [editMode]="editMode"
-            [allowDrawChanges]="allowDrawChanges"
-            [draws]="draws"
-            [playerStatusList]="playerStatusList"
-            [matchCardInfos]="matchCardInfos"
-            [selectedEvent]="selectedEvent"
-            [bracketsHeight]="getBracketsHeight('rr')"
-            (drawsAction)="onRRDrawsAction($event)"
-            (updateFlagEE)="onUpdateEEFlag($event)">
-          </app-round-robin-draws-panel>
-      </ng-container>
-      <ng-template #seroundonly>
-        <app-single-elimination-bracket
-          [editMode]="editMode"
-          [allowDrawChanges]="allowDrawChanges"
-          [bracketsHeight]="getBracketsHeight('se')"
-          [draws]="draws"
-          [playerStatusList]="playerStatusList"
-          [matchCardInfos]="matchCardInfos"
-          [selectedEvent]="selectedEvent"
-          [doublesEvent]="selectedEvent?.doubles"
-        >
-        </app-single-elimination-bracket>
-      </ng-template>
-    </div>
-  </ng-template>
+        </ng-template>
+      </div>
+    </ng-template>
+
+
+<!--  <ng-container *ngIf="showTwoRounds(); else oneround">-->
+<!--    <mat-tab-group>-->
+<!--      <mat-tab label="Round Robin">-->
+<!--        <div class="tab-contents">-->
+<!--          <app-round-robin-draws-panel-->
+<!--            [editMode]="editMode"-->
+<!--            [allowDrawChanges]="allowDrawChanges"-->
+<!--            [draws]="draws"-->
+<!--            [playerStatusList]="playerStatusList"-->
+<!--            [matchCardInfos]="matchCardInfos"-->
+<!--            [selectedEvent]="selectedEvent"-->
+<!--            [bracketsHeight]="getBracketsHeight('rr')"-->
+<!--            (drawsAction)="onRRDrawsAction($event)"-->
+<!--            (updateFlagEE)="onUpdateEEFlag($event)">-->
+<!--          </app-round-robin-draws-panel>-->
+<!--        </div>-->
+<!--      </mat-tab>-->
+<!--      <mat-tab [label]="(isHandset$ | async) ? 'Single Elim.' : 'Single Elimination'">-->
+<!--        <div class="tab-contents">-->
+<!--          <app-single-elimination-bracket-->
+<!--            [bracketsHeight]="getBracketsHeight('se')"-->
+<!--            [draws]="draws"-->
+<!--            [playerStatusList]="playerStatusList"-->
+<!--            [matchCardInfos]="matchCardInfos"-->
+<!--            [editMode]="editMode"-->
+<!--            [allowDrawChanges]="allowDrawChanges"-->
+<!--            [selectedEvent]="selectedEvent"-->
+<!--            [doublesEvent]="selectedEvent?.doubles"-->
+<!--          >-->
+<!--          </app-single-elimination-bracket>-->
+<!--        </div>-->
+<!--      </mat-tab>-->
+<!--    </mat-tab-group>-->
+<!--  </ng-container>-->
+<!--  <ng-template #oneround>-->
+<!--    <div [ngClass]="editMode ? 'one-round-panel-edit': 'one-round-panel'">-->
+<!--      <ng-container *ngIf="hasRRRound; else seroundonly">-->
+<!--          <app-round-robin-draws-panel-->
+<!--            [editMode]="editMode"-->
+<!--            [allowDrawChanges]="allowDrawChanges"-->
+<!--            [draws]="draws"-->
+<!--            [playerStatusList]="playerStatusList"-->
+<!--            [matchCardInfos]="matchCardInfos"-->
+<!--            [selectedEvent]="selectedEvent"-->
+<!--            [bracketsHeight]="getBracketsHeight('rr')"-->
+<!--            (drawsAction)="onRRDrawsAction($event)"-->
+<!--            (updateFlagEE)="onUpdateEEFlag($event)">-->
+<!--          </app-round-robin-draws-panel>-->
+<!--      </ng-container>-->
+<!--      <ng-template #seroundonly>-->
+<!--        <app-single-elimination-bracket-->
+<!--          [editMode]="editMode"-->
+<!--          [allowDrawChanges]="allowDrawChanges"-->
+<!--          [bracketsHeight]="getBracketsHeight('se')"-->
+<!--          [draws]="draws"-->
+<!--          [playerStatusList]="playerStatusList"-->
+<!--          [matchCardInfos]="matchCardInfos"-->
+<!--          [selectedEvent]="selectedEvent"-->
+<!--          [doublesEvent]="selectedEvent?.doubles"-->
+<!--        >-->
+<!--        </app-single-elimination-bracket>-->
+<!--      </ng-template>-->
+<!--    </div>-->
+<!--  </ng-template>-->
 </div>

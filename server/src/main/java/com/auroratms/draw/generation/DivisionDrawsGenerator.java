@@ -3,6 +3,8 @@ package com.auroratms.draw.generation;
 import com.auroratms.draw.DrawItem;
 import com.auroratms.draw.DrawType;
 import com.auroratms.event.TournamentEvent;
+import com.auroratms.event.TournamentEventRound;
+import com.auroratms.event.TournamentEventRoundDivision;
 import com.auroratms.tournamentevententry.TournamentEventEntry;
 
 import java.util.*;
@@ -13,8 +15,8 @@ import java.util.*;
  */
 public class DivisionDrawsGenerator extends AbstractDrawsGenerator implements IDrawsGenerator {
 
-    public DivisionDrawsGenerator(TournamentEvent tournamentEvent) {
-        super(tournamentEvent);
+    public DivisionDrawsGenerator(TournamentEvent tournamentEvent, TournamentEventRound tournamentEventRound, TournamentEventRoundDivision tournamentEventRoundDivision) {
+        super(tournamentEvent, tournamentEventRound, tournamentEventRoundDivision);
     }
 
     /**

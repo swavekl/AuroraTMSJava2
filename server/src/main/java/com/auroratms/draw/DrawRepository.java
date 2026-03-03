@@ -12,9 +12,15 @@ import java.util.Optional;
 @RepositoryRestResource
 public interface DrawRepository extends JpaRepository<DrawItem, Long> {
 
+    List<DrawItem> findAllByEventFkOrderByRoundOrdinalNumberAscDivisionIdxAscGroupNumAscPlaceInGroupAsc(long eventFk);
+
     List<DrawItem> findAllByEventFkAndDrawTypeOrderByGroupNumAscPlaceInGroupAsc(long eventFk, DrawType drawType);
 
     List<DrawItem> findAllByEventFkAndDrawTypeOrderByRoundDescSingleElimLineNumAsc(long eventFk, DrawType drawType);
+
+    List<DrawItem> findAllByEventFkAndDrawTypeAndRoundOrdinalNumberAndDivisionIdxOrderByGroupNumAscPlaceInGroupAsc(long eventFk, DrawType drawType, int roundOrdinalNum, int divisionIdx);
+
+    List<DrawItem> findAllByEventFkAndDrawTypeAndRoundOrdinalNumberAndDivisionIdxOrderByRoundDescSingleElimLineNumAsc(long eventFk, DrawType drawType, int roundOrdinalNum, int divisionIdx);
 
     // list all draws for all events in this tournament
     List<DrawItem> findAllByEventFkInOrderByEventFkAscGroupNumAscPlaceInGroupAsc(List<Long> eventFkList);

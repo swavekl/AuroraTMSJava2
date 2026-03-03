@@ -4,6 +4,8 @@ import com.auroratms.draw.DrawItem;
 import com.auroratms.draw.DrawType;
 import com.auroratms.draw.generation.singleelim.BracketLine;
 import com.auroratms.event.TournamentEvent;
+import com.auroratms.event.TournamentEventRound;
+import com.auroratms.event.TournamentEventRoundDivision;
 import com.auroratms.tournamentevententry.TournamentEventEntry;
 
 import java.util.Collections;
@@ -18,8 +20,14 @@ public abstract class AbstractDrawsGenerator {
 
     protected TournamentEvent tournamentEvent;
 
-    public AbstractDrawsGenerator(TournamentEvent tournamentEvent) {
+    protected TournamentEventRound tournamentEventRound;
+
+    protected TournamentEventRoundDivision tournamentEventRoundDivision;
+
+    public AbstractDrawsGenerator(TournamentEvent tournamentEvent, TournamentEventRound tournamentEventRound, TournamentEventRoundDivision tournamentEventRoundDivision) {
         this.tournamentEvent = tournamentEvent;
+        this.tournamentEventRound = tournamentEventRound;
+        this.tournamentEventRoundDivision = tournamentEventRoundDivision;
     }
 
     /**
@@ -79,6 +87,9 @@ public abstract class AbstractDrawsGenerator {
         drawItem.setGroupNum(groupNum);
         drawItem.setPlaceInGroup(placeInGroup);
         drawItem.setEntryId(entryId);
+        drawItem.setDoublesPairId(0L);
+        drawItem.setRoundOrdinalNumber(this.tournamentEventRound.getOrdinalNum());
+        drawItem.setDivisionIdx(this.tournamentEventRoundDivision.getDivisionIdx());
         return drawItem;
     }
 
@@ -117,6 +128,8 @@ public abstract class AbstractDrawsGenerator {
         drawItem.setGroupNum(bracketLine.getSeedNumber());
         drawItem.setByeNum(bracketLine.getByeSeedNumber());
         drawItem.setPlayerId("");
+        drawItem.setRoundOrdinalNumber(this.tournamentEventRound.getOrdinalNum());
+        drawItem.setDivisionIdx(this.tournamentEventRoundDivision.getDivisionIdx());
         return drawItem;
     }
 }

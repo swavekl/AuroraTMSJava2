@@ -200,6 +200,7 @@ export class DrawsContainerComponent implements OnInit, OnDestroy {
    * @private
    */
   private onLoadDraw(eventId: number, drawType: DrawType) {
+    console.log('in onLoadDraw', drawType);
     this.drawService.loadForEvent(eventId, (drawType != null)? drawType : DrawType.ROUND_ROBIN);
   }
 
@@ -249,7 +250,7 @@ export class DrawsContainerComponent implements OnInit, OnDestroy {
         .pipe(first())
         .subscribe(() => {
           this.updateEventFlag(eventId);
-          this.onLoadDraw(eventId, drawType);
+          this.onLoadDraw(eventId, null);
         });
     }
   }

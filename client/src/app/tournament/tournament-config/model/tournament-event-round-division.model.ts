@@ -5,13 +5,16 @@ export class TournamentEventRoundDivision {
   // name of division e.g. Championship, Class AA, Class A etc.
   divisionName: string;
 
+  // ordinal number of division 1, 2 etc
+  divisionIdx: number;
+
   // round robin options
   playersPerGroup: number = 4;
 
   // draw method
   drawMethod: DrawMethod = DrawMethod.SNAKE;
 
-  // which players to pull into this division from previous round
+  // which players to pull into this division from the previous round
   previousRoundPlayerRanking: number = 0;
   previousRoundPlayerRankingEnd: number = 0;
 

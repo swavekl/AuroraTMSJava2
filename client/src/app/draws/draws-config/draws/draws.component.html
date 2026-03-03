@@ -26,7 +26,9 @@
             Clear Draw
           </button>
           <span class="toolbar-spacer-2"></span>
-          <button type="button" mat-raised-button (click)="undoMove()" [disabled]="!hasUndoItems()">
+          <button type="button" mat-raised-button
+                  (click)="drawUndoService.triggerUndo()"
+                  [disabled]="(drawUndoService.canUndo$ | async) === false">
             <mat-icon matListItemIcon>undo</mat-icon>
             Undo Move
           </button>

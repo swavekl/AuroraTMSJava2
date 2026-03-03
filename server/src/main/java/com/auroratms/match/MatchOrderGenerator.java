@@ -46,6 +46,10 @@ public class MatchOrderGenerator {
         // match to avoid
         char avoidMatchPlayer1 = (char) ('A' + ((playersToAdvance > 0) ? playersToAdvance - 1 : 0));
         char avoidMatchPlayer2 = (char) ('B' + ((playersToAdvance > 0) ? playersToAdvance - 1 : 0));
+        if (playersToAdvance == playersDrawnIntoGroup) {
+            avoidMatchPlayer1 = 'A';
+            avoidMatchPlayer2 = (char)('A' + (playersToAdvance - 1));
+        }
 
         // rotate players in counter clockwise fashion to get the rounds opponents
         for (int round = 0; round < totalRounds; round++) {

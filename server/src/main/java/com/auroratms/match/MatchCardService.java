@@ -4,8 +4,7 @@ import com.auroratms.draw.DrawItem;
 import com.auroratms.draw.DrawService;
 import com.auroratms.draw.DrawType;
 import com.auroratms.error.ResourceNotFoundException;
-import com.auroratms.event.TournamentEvent;
-import com.auroratms.event.TournamentEventEntityService;
+import com.auroratms.event.*;
 import com.auroratms.profile.UserProfile;
 import com.auroratms.profile.UserProfileExt;
 import com.auroratms.profile.UserProfileExtService;
@@ -55,17 +54,19 @@ public class MatchCardService {
     /**
      * Generates match cards and matches for all groups in this event
      *
-     * @param eventId  event id
-     * @param drawType draw type - Round Robin or single elimination
+     * @param eventId            event id
+     * @param drawType           draw type - Round Robin or single elimination
+     * @param roundOrdinalNumber
+     * @param divisionIdx
      */
-    public void generateMatchCardsForEvent(long eventId, DrawType drawType) {
-        List<DrawItem> eventDrawItems = drawService.list(eventId, drawType);
+    public void generateMatchCardsForEvent(long eventId, DrawType drawType, int roundOrdinalNumber, int divisionIdx) {
+        List<DrawItem> eventDrawItems = drawService.listForRoundAndDivision(eventId, drawType, roundOrdinalNumber, divisionIdx);
         TournamentEvent tournamentEvent = tournamentEventEntityService.get(eventId);
         List<MatchCard> matchCardList = new ArrayList<>();
         if (drawType == DrawType.ROUND_ROBIN) {
-            generateRoundRobinMatchCards(eventDrawItems, tournamentEvent, matchCardList);
+            generateRoundRobinMatchCards(eventDrawItems, tournamentEvent, matchCardList, roundOrdinalNumber, divisionIdx);
         } else if (drawType == DrawType.SINGLE_ELIMINATION) {
-            generateSingleEliminationCards(eventDrawItems, tournamentEvent, matchCardList);
+            generateSingleEliminationCards(eventDrawItems, tournamentEvent, matchCardList, roundOrdinalNumber, divisionIdx);
         }
         if (matchCardList != null) {
 //            System.out.println("saving generated matchCardList of size = " + matchCardList.size());
@@ -85,13 +86,18 @@ public class MatchCardService {
 
     /**
      * Generates round robin phase match cards
-     *  @param eventDrawItems
+     *
+     * @param eventDrawItems
      * @param tournamentEvent
      * @param matchCardList
+     * @param roundOrdinalNumber
+     * @param divisionIdx
      */
     private void generateRoundRobinMatchCards(List<DrawItem> eventDrawItems,
                                               TournamentEvent tournamentEvent,
-                                              List<MatchCard> matchCardList) {
+                                              List<MatchCard> matchCardList,
+                                              int roundOrdinalNumber,
+                                              int divisionIdx) {
         int currentGroupNum = 0;
         // separate group draws into their own lists
         List<DrawItem> groupDrawItems = new ArrayList<>();
@@ -106,18 +112,30 @@ public class MatchCardService {
         }
 
         /**
+         * get the parameters for this round and division
+         */
+
+        // get match configuration
+        TournamentEventConfigAdapter adapter = new TournamentEventConfigAdapter(tournamentEvent, roundOrdinalNumber, divisionIdx);
+        int pointsPerGame = adapter.getPointsPerGame();
+        int numberOfGames = adapter.getNumberOfGames();
+        double startTime = adapter.getStartTime();
+        int day = adapter.getDay();
+        boolean isDoubles = tournamentEvent.isDoubles();
+        int playersToAdvance = adapter.getPlayersToAdvance();
+
+        /**
          * Generate matches for each group
          */
-        int playersToAdvance = tournamentEvent.getPlayersToAdvance();
-
         Map<Character, String> mapPlayerCodeToProfileId = new HashMap<>();
         for (Integer groupNumber : groupNumDrawItemsMap.keySet()) {
             groupDrawItems = groupNumDrawItemsMap.get(groupNumber);
             int playersDrawnIntoGroup = groupDrawItems.size();
             mapPlayerCodeToProfileId.clear();
-            // if this group consists only of a seeded player then don't create score sheets
+            // if this group consists only of a seeded player, then don't create score sheets
             if (playersDrawnIntoGroup > 1) {
                 List<MatchOpponents> matchesInOrder = MatchOrderGenerator.generateOrderOfMatches(playersDrawnIntoGroup, playersToAdvance);
+                System.out.println("matchesInOrder = " + matchesInOrder);
 
                 // collect players information
                 Map<Character, Integer> playerCodeToRating = new HashMap<>();
@@ -136,10 +154,12 @@ public class MatchCardService {
                 matchCard.setPlayerBGroupNum(0);
                 matchCard.setDrawType(DrawType.ROUND_ROBIN);
                 matchCard.setRound(0);
-                matchCard.setDay(tournamentEvent.getDay());
-                matchCard.setStartTime(tournamentEvent.getStartTime());
-                matchCard.setNumberOfGames(tournamentEvent.getNumberOfGames());
+                matchCard.setDay(day);
+                matchCard.setStartTime(startTime);
+                matchCard.setNumberOfGames(numberOfGames);
                 matchCard.setStatus(MatchCardStatus.NOT_STARTED);
+                matchCard.setRoundOrdinalNumber(roundOrdinalNumber);
+                matchCard.setDivisionIdx(divisionIdx);
                 List<Match> matches = new ArrayList<>();
 
                 int matchNumber = 0;
@@ -148,6 +168,7 @@ public class MatchCardService {
                             matchOpponents.playerBLetter != MatchOrderGenerator.BYE) {
                         String playerAProfileId = mapPlayerCodeToProfileId.get(matchOpponents.playerALetter);
                         String playerBProfileId = mapPlayerCodeToProfileId.get(matchOpponents.playerBLetter);
+                        System.out.println("matchOpponents = " + matchOpponents.playerALetter + " " + matchOpponents.playerBLetter + " " + playerAProfileId + " " + playerBProfileId);
                         Integer playerARating = playerCodeToRating.get(matchOpponents.playerALetter);
                         Integer playerBRating = playerCodeToRating.get(matchOpponents.playerBLetter);
                         Match match = new Match();
@@ -161,6 +182,9 @@ public class MatchCardService {
                         match.setPlayerBLetter(matchOpponents.playerBLetter);
                         match.setPlayerARating(playerARating);
                         match.setPlayerBRating(playerBRating);
+                        match.setPointsPerGame(pointsPerGame);
+                        match.setNumberOfGames(numberOfGames);
+                        match.setDoublesMatch(isDoubles);
                         matches.add(match);
                     }
                 }
@@ -173,11 +197,15 @@ public class MatchCardService {
     /**
      * @param eventDrawItems
      * @param tournamentEvent
+     * @param roundOrdinalNumber
+     * @param divisionIdx
      * @return
      */
     private void generateSingleEliminationCards(List<DrawItem> eventDrawItems,
-                                                           TournamentEvent tournamentEvent,
-                                                           List<MatchCard> matchCardList) {
+                                                TournamentEvent tournamentEvent,
+                                                List<MatchCard> matchCardList,
+                                                int roundOrdinalNumber,
+                                                int divisionIdx) {
         // round of is a number of players in a round e.g. 64, 32, etc.
         int roundOf = 0; // eventDrawItems.size();
         for (DrawItem eventDrawItem : eventDrawItems) {
@@ -195,7 +223,14 @@ public class MatchCardService {
         // draw items are for each player so in S.E. phase we need to pair them up to create a match
         int matchesToPlay = roundOf / 2;
 
-        int numberOfGames = getNumberOfGames(tournamentEvent, roundOf);
+        // get match configuration
+        TournamentEventConfigAdapter adapter = new TournamentEventConfigAdapter(tournamentEvent, roundOrdinalNumber, divisionIdx);
+        int pointsPerGame = adapter.getPointsPerGame();
+        int numberOfGames = adapter.getNumberOfGames();
+        double startTime = adapter.getStartTime();
+        int day = adapter.getDay();
+        boolean isDoubles = tournamentEvent.isDoubles();
+
         for (int matchNum = 0; matchNum < matchesToPlay; matchNum++) {
             int startIndex = matchNum * 2;
             DrawItem playerADrawItem = drawItemsForThisRound.get(startIndex);
@@ -218,9 +253,11 @@ public class MatchCardService {
                 matchCard.setNumberOfGames(numberOfGames);
                 matchCard.setDrawType(DrawType.SINGLE_ELIMINATION);
                 matchCard.setRound(roundOf);
-                matchCard.setDay(tournamentEvent.getDay());
-                matchCard.setStartTime(tournamentEvent.getStartTime());
+                matchCard.setDay(day);
+                matchCard.setStartTime(startTime);
                 matchCard.setStatus(MatchCardStatus.NOT_STARTED);
+                matchCard.setRoundOrdinalNumber(roundOrdinalNumber);
+                matchCard.setDivisionIdx(divisionIdx);
 
                 List<Match> matches = new ArrayList<>();
                 Match match = new Match();
@@ -234,6 +271,9 @@ public class MatchCardService {
                 match.setPlayerBLetter('B');
                 match.setPlayerARating(playerARating);
                 match.setPlayerBRating(playerBRating);
+                match.setPointsPerGame(pointsPerGame);
+                match.setNumberOfGames(numberOfGames);
+                match.setDoublesMatch(isDoubles);
 
                 matches.add(match);
                 matchCard.setMatches(matches);
@@ -241,33 +281,49 @@ public class MatchCardService {
             }
         }
 
-        generateRemainingSERoundMatchCards(tournamentEvent, roundOf, matchCardList, eventDrawItems);
+        generateRemainingSERoundMatchCards(tournamentEvent, roundOf, matchCardList, eventDrawItems, roundOrdinalNumber, divisionIdx);
     }
 
     /**
+     * Generates match cards for the remaining single elimination rounds, taking into account potentially
+     * different number of games i.e. best of 7 instead of best of 5 games, as well as different starting times for the division
+     *
      * @param tournamentEvent
      * @param firstSERoundParticipants
      * @param matchCardList
      * @param eventDrawItems
+     * @param roundOrdinalNumber
+     * @param divisionIdx
      */
     private void generateRemainingSERoundMatchCards(TournamentEvent tournamentEvent,
                                                     int firstSERoundParticipants,
                                                     List<MatchCard> matchCardList,
-                                                    List<DrawItem> eventDrawItems) {
+                                                    List<DrawItem> eventDrawItems,
+                                                    int roundOrdinalNumber,
+                                                    int divisionIdx) {
+        // use adapter to hide migration from event to round/division based configuration
+        TournamentEventConfigAdapter adapter = new TournamentEventConfigAdapter(tournamentEvent, roundOrdinalNumber, divisionIdx);
+        TournamentEventRoundDivision thisDivision = adapter.getRoundDivision();
+        // get match configuration
+        boolean play3rd4thPlace = adapter.isPlay3rd4thPlace();
+        int pointsPerGame = adapter.getPointsPerGame();
+        double startTime = adapter.getStartTime();
+        int day = adapter.getDay();
+
         // how many players in this round
         int roundOf = firstSERoundParticipants / 2;
         int remainingRounds = (int) Math.ceil(Math.log(roundOf) / Math.log(2));
         for (int round = 0; round < remainingRounds; round++) {
-            int numGamesInRound = getNumberOfGames(tournamentEvent, roundOf);
+            int numGamesInRound = adapter.getSENumberOfGames(roundOf);
             int numMatchesInRound = roundOf / 2;
             for (int matchNum = 0; matchNum < numMatchesInRound; matchNum++) {
-                makeSERoundMatchCard(matchNum, roundOf, tournamentEvent,
-                        numGamesInRound, matchCardList, eventDrawItems);
+                makeSERoundMatchCard(matchNum, roundOf, tournamentEvent, numGamesInRound, pointsPerGame, day, startTime,
+                        roundOrdinalNumber, divisionIdx, matchCardList, eventDrawItems);
             }
             // last round and play for 3 & 4th place ?
-            if ((round + 1) == remainingRounds && tournamentEvent.isPlay3rd4thPlace()) {
-                makeSERoundMatchCard(1, roundOf, tournamentEvent,
-                        numGamesInRound, matchCardList, eventDrawItems);
+            if ((round + 1) == remainingRounds && play3rd4thPlace) {
+                makeSERoundMatchCard(1, roundOf, tournamentEvent, numGamesInRound, pointsPerGame, day, startTime,
+                        roundOrdinalNumber, divisionIdx, matchCardList, eventDrawItems);
             }
             roundOf = roundOf / 2;
         }
@@ -278,6 +334,11 @@ public class MatchCardService {
      * @param roundOf
      * @param tournamentEvent
      * @param numberOfGames
+     * @param pointsPerGame
+     * @param day
+     * @param startTime
+     * @param roundOrdinalNumber
+     * @param divisionIdx
      * @param matchCardList
      * @param eventDrawItems
      * @return
@@ -286,6 +347,11 @@ public class MatchCardService {
                                       int roundOf,
                                       TournamentEvent tournamentEvent,
                                       int numberOfGames,
+                                      int pointsPerGame,
+                                      int day,
+                                      double startTime,
+                                      int roundOrdinalNumber,
+                                      int divisionIdx,
                                       List<MatchCard> matchCardList,
                                       List<DrawItem> eventDrawItems) {
         DrawItem advancedPlayerADrawItem = null;
@@ -323,10 +389,12 @@ public class MatchCardService {
         matchCard.setNumberOfGames(numberOfGames);
         matchCard.setDrawType(DrawType.SINGLE_ELIMINATION);
         matchCard.setRound(roundOf);
-        matchCard.setDay(tournamentEvent.getDay());
-        matchCard.setStartTime(tournamentEvent.getStartTime());
+        matchCard.setDay(day);
+        matchCard.setStartTime(startTime);
         matchCard.setDuration(30);
         matchCard.setStatus(MatchCardStatus.NOT_STARTED);
+        matchCard.setRoundOrdinalNumber(roundOrdinalNumber);
+        matchCard.setDivisionIdx(divisionIdx);
 
         List<Match> matches = new ArrayList<>();
         Match match = new Match();
@@ -340,6 +408,9 @@ public class MatchCardService {
         match.setPlayerBLetter('B');
         match.setPlayerARating(playerARating);
         match.setPlayerBRating(playerBRating);
+        match.setPointsPerGame(pointsPerGame);
+        match.setNumberOfGames(numberOfGames);
+        match.setDoublesMatch(tournamentEvent.isDoubles());
 
         matches.add(match);
         matchCard.setMatches(matches);
@@ -347,29 +418,29 @@ public class MatchCardService {
     }
 
     /**
-     * Gets number of games to play in a given round as configured in event
+     * Gets a number of games to play in a given single elimination round as configured
      *
-     * @param tournamentEvent event configuration
-     * @param roundOf               round of 64, 32 etc.
+     * @param eventRoundDivision division configuration
+     * @param roundOf            round of 64, 32 etc.
+     * @param tournamentEvent    event configuration @deprecated
      * @return
      */
-    private int getNumberOfGames(TournamentEvent tournamentEvent, int roundOf) {
+    private int getSENumberOfGames(TournamentEventRoundDivision eventRoundDivision,
+                                   int roundOf,
+                                   TournamentEvent tournamentEvent) {
         int numGames = 5;
-        switch (roundOf) {
+        numGames = switch (roundOf) {
             // finals & 3rd/4th place
-            case 2:
-                numGames = tournamentEvent.getNumberOfGamesSEFinals();
-                break;
-            case 4:
-                numGames = tournamentEvent.getNumberOfGamesSESemiFinals();
-                break;
-            case 8:
-                numGames = tournamentEvent.getNumberOfGamesSEQuarterFinals();
-                break;
-            default:
-                numGames = tournamentEvent.getNumberOfGamesSEPlayoffs();
-                break;
-        }
+            case 2 ->
+                    eventRoundDivision == null ? tournamentEvent.getNumberOfGamesSEFinals() : eventRoundDivision.getNumberOfGamesSEFinals();
+            case 4 ->
+                    eventRoundDivision == null ? tournamentEvent.getNumberOfGamesSESemiFinals() : eventRoundDivision.getNumberOfGamesSESemiFinals();
+            case 8 ->
+                    eventRoundDivision == null ? tournamentEvent.getNumberOfGamesSEQuarterFinals() : eventRoundDivision.getNumberOfGamesSEQuarterFinals();
+            default ->
+                    eventRoundDivision == null ? tournamentEvent.getNumberOfGamesSEPlayoffs() : eventRoundDivision.getNumberOfGamesSEPlayoffs();
+        };
+
         // for uninitialized
         if (numGames == 0) {
             numGames = 5;
@@ -383,19 +454,21 @@ public class MatchCardService {
      * @param eventId
      * @param drawType
      * @param updatedDrawItems
+     * @param roundOrdinalNumber
+     * @param divisionIdx
      */
-    public void updateMatchCardsForEvent(long eventId, DrawType drawType, List<DrawItem> updatedDrawItems) {
-        List<DrawItem> eventDrawItems = drawService.list(eventId, drawType);
+    public void updateMatchCardsForEvent(long eventId, DrawType drawType, List<DrawItem> updatedDrawItems, int roundOrdinalNumber, int divisionIdx) {
+        List<DrawItem> eventDrawItems = drawService.listForRoundAndDivision(eventId, drawType, roundOrdinalNumber, divisionIdx);
         TournamentEvent tournamentEvent = tournamentEventEntityService.get(eventId);
 
-        List<MatchCard> existingMatchCards = this.findAllForEventAndDrawType(eventId, drawType);
+        List<MatchCard> existingMatchCards = this.findAllForEventAndDrawTypeAndRoundAndDivision(eventId, drawType, roundOrdinalNumber, divisionIdx);
 
         // regenerate the match cards based on updated draws.
         List<MatchCard> matchCardList = new ArrayList<>(existingMatchCards.size());
         if (drawType == DrawType.ROUND_ROBIN) {
-            generateRoundRobinMatchCards(eventDrawItems, tournamentEvent, matchCardList);
+            generateRoundRobinMatchCards(eventDrawItems, tournamentEvent, matchCardList, roundOrdinalNumber, divisionIdx);
         } else if (drawType == DrawType.SINGLE_ELIMINATION) {
-            generateSingleEliminationCards(eventDrawItems, tournamentEvent, matchCardList);
+            generateSingleEliminationCards(eventDrawItems, tournamentEvent, matchCardList, roundOrdinalNumber, divisionIdx);
         }
 
         for (DrawItem updatedDrawItem : updatedDrawItems) {
@@ -758,6 +831,10 @@ public class MatchCardService {
 
     public List<MatchCard> findAllForEventAndDrawType(long eventId, DrawType drawType) {
         return this.matchCardRepository.findMatchCardByEventFkAndDrawTypeOrderByRoundDescGroupNumAsc(eventId, drawType);
+    }
+
+    public List<MatchCard> findAllForEventAndDrawTypeAndRoundAndDivision(long eventId, DrawType drawType, int roundOrdinalNumber, int divisionIdx) {
+        return this.matchCardRepository.findMatchCardByEventFkAndDrawTypeAndRoundOrdinalNumberAndDivisionIdxOrderByRoundDescGroupNumAsc(eventId, drawType, roundOrdinalNumber, divisionIdx);
     }
 
     public List<MatchCard> findAllForEventAndDrawTypeWithPlayerMap(long eventId, DrawType drawType) {

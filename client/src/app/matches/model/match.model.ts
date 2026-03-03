@@ -78,6 +78,17 @@ export class Match {
   // type of message
   messageType: MonitorMessageType;
 
+  // we need to keep these at the match level because in a teams tournament
+  // singles matches can be mixed with doubles matches in some team match formats
+  // if true this match is a doubles match
+  doublesMatch: boolean;
+
+  // points per game - 11 but sometimes 21
+  pointsPerGame: number = 11;
+
+  // best of 3, 5, 7 or 9 games per match in the main round (i.e. round robin)
+  numberOfGames: number = 5;
+
   /**
    *
    * @param profileId

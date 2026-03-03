@@ -44,7 +44,7 @@
         </div>
 
         <div fxLayout="column" *ngIf="!isFirstRoundDivision">
-          <label class="section-label">Draw Players from Source Division</label>
+          <h4 class="section-label">Draw Players from Source Division</h4>
           <div fxLayout="row" fxLayoutGap="10px">
 
             <mat-form-field fxFlex="40%">
@@ -67,8 +67,14 @@
               <input matInput type="number" [(ngModel)]="division.previousRoundPlayerRankingEnd" min="1" [max]="maxRanking">
             </mat-form-field>
           </div>
+          <div fxLayout="row" fxLayoutGap="10px">
+            <div class="mat-checkbox-container">
+              <mat-checkbox name="advanceUnratedWinner" [(ngModel)]="division.advanceUnratedWinner">
+                Advance Unrated Player from Source Division
+              </mat-checkbox>
+            </div>
+          </div>
         </div>
-
       </div>
     </mat-tab>
 
@@ -94,14 +100,10 @@
               </mat-option>
             </mat-select>
           </mat-form-field>
-
-          <div fxFlex="34%" class="checkbox-wrapper" *ngIf="round.singleElimination" fxLayoutAlign="start center">
-            <mat-checkbox [(ngModel)]="division.play3rd4thPlace">Play 3rd/4th</mat-checkbox>
-          </div>
         </div>
 
         <div *ngIf="round.singleElimination" fxLayout="column" fxLayoutGap="10px">
-          <h4 class="section-sub-label">Single Elimination Game Counts</h4>
+          <h4 class="section-label">Single Elimination Game Counts</h4>
           <div fxLayout="row wrap" fxLayoutGap="10px">
             <mat-form-field fxFlex="48%">
               <mat-label>Early Rounds</mat-label>
@@ -130,6 +132,12 @@
                 <mat-option *ngFor="let choice of numberOfGamesChoices" [value]="choice.value">{{ choice.label }}</mat-option>
               </mat-select>
             </mat-form-field>
+          </div>
+        </div>
+
+        <div fxLayout="row">
+          <div *ngIf="round.singleElimination" fxLayoutAlign="start start">
+            <mat-checkbox [(ngModel)]="division.play3rd4thPlace">Play 3rd & 4th place</mat-checkbox>
           </div>
         </div>
 

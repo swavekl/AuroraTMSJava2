@@ -1,6 +1,6 @@
 import {Component, Input, OnChanges, OnInit, SimpleChange, SimpleChanges, TemplateRef} from '@angular/core';
-import {NgttRound, NgttTournament} from 'ng-tournament-tree/lib/declarations/interfaces';
 import {Match} from '../model/match.model';
+import {SERound} from '../model/draw-round.model';
 
 @Component({
     selector: 'app-single-elimination-bracket-small',
@@ -13,7 +13,7 @@ export class SingleEliminationBracketSmallComponent implements OnInit, OnChanges
   rounds: number [] = [];
 
   @Input()
-  tournament: NgttTournament;
+  seRounds: SERound[];
 
   @Input()
   doublesEvent: boolean;
@@ -39,19 +39,19 @@ export class SingleEliminationBracketSmallComponent implements OnInit, OnChanges
       this.firstRound = this.currentRound;
     }
 
-    const tournamentChange: SimpleChange = changes.tournament;
-    if (tournamentChange?.currentValue != null) {
-      this.tournament = tournamentChange.currentValue;
+    const seRoundsChange: SimpleChange = changes.seRounds;
+    if (seRoundsChange?.currentValue != null) {
+      this.seRounds = seRoundsChange.currentValue;
     }
 
-    if (this.currentRound != 0 && this.tournament != null) {
+    if (this.currentRound != 0 && this.seRounds != null) {
       this.currentRoundMatches = this.filterCurrentRoundMatches(this.currentRound);
     }
   }
 
   private filterCurrentRoundMatches(currentRound: number): Match[] {
     let currentRoundMatches: Match [] = [];
-    const rounds: NgttRound[] = this.tournament.rounds;
+    const rounds: SERound[] = this.seRounds || [];
     for (let i = 0; i < rounds.length; i++) {
       const round = rounds[i];
       const matches: Match[] = round.matches;

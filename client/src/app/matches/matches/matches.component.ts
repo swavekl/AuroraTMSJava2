@@ -10,6 +10,7 @@ import {ScoreEntryDialogData, ScoreEntryDialogResult} from '../score-entry-dialo
 import {MatchService} from '../service/match.service';
 import {DrawType} from '../../draws/draws-common/model/draw-type.enum';
 import {RankingResultsComponent} from '../ranking-results/ranking-results.component';
+import {TournamentEventRound} from '../../tournament/tournament-config/model/tournament-event-round.model';
 
 @Component({
     selector: 'app-matches',
@@ -94,26 +95,36 @@ export class MatchesComponent implements OnInit, OnChanges, OnDestroy {
     if (matchCardsChange) {
       const matchCards: MatchCard [] = matchCardsChange.currentValue;
       if (matchCards) {
-        this.matchCards = matchCards.sort((left: MatchCard, right: MatchCard) => {
-          if (left.drawType === DrawType.ROUND_ROBIN && right.drawType === DrawType.SINGLE_ELIMINATION) {
-            return -1;
-          } else if (left.drawType === DrawType.SINGLE_ELIMINATION && right.drawType === DrawType.ROUND_ROBIN) {
-            return 1;
+        this.matchCards = [...matchCards].sort((left: MatchCard, right: MatchCard) => {
+          // 1) keep your primary grouping: RR before SE
+
+          // 2) secondary keys for BOTH types: roundOrdinalNumber, divisionIdx, groupNum (all asc)
+          const roundOrdDiff = (left.roundOrdinalNumber ?? 0) - (right.roundOrdinalNumber ?? 0);
+          if (roundOrdDiff !== 0) return roundOrdDiff;
+
+          const divDiff = (left.divisionIdx ?? 0) - (right.divisionIdx ?? 0);
+          if (divDiff !== 0) return divDiff;
+
+          // 3) tie-breakers within each drawType
+          if (left.drawType === DrawType.ROUND_ROBIN) {
+            const groupDiff = (left.groupNum ?? 0) - (right.groupNum ?? 0);
+            if (groupDiff !== 0) return groupDiff;
+
+            return 0;
           } else {
-            if (left.drawType === DrawType.ROUND_ROBIN) {
-              return (left.groupNum === right.groupNum) ? 0 : ((left.groupNum > right.groupNum) ? 1 : -1);
+            if (left.round === right.round) {
+              const leftMatchNum = left.matches?.[0]?.matchNum ?? 0;
+              const rightMatchNum = right.matches?.[0]?.matchNum ?? 0;
+              const matchDiff = leftMatchNum - rightMatchNum; // asc
+
+              if (matchDiff !== 0) return matchDiff;
+
+              return (left.groupNum ?? 0) - (right.groupNum ?? 0);
             } else {
-              // round of 16
-              if (left.round === right.round) {
-                const leftMatchNum = left.matches[0].matchNum;
-                const rightMatchNum = right.matches[0].matchNum;
-                return (leftMatchNum === rightMatchNum) ? 0 : (leftMatchNum > rightMatchNum) ? 1 : -1;
-              } else {
-                return (left.round < right.round) ? 1 : -1;
-              }
+              return left.round < right.round ? 1 : -1; // desc (round of 16 before 8, etc.)
             }
           }
-        } );
+        });
       }
     }
 
@@ -250,8 +261,38 @@ export class MatchesComponent implements OnInit, OnChanges, OnDestroy {
     return Match.isMatchWinner(profileId, match, this.selectedMatchCard?.numberOfGames, this.selectedEvent?.pointsPerGame);
   }
 
-  public getMatchIdentifier(round: number, groupNum: number): string {
+  public getMatchIdentifier (round: number, groupNum: number): string {
     return MatchCard.getMatchName(round, groupNum);
+  }
+
+  public getMatchCardIdentifier (matchCard: MatchCard): string {
+    if (matchCard == null) {
+      return '';
+    }
+    const prefix = this.getRoundDivisionPrefix(matchCard?.roundOrdinalNumber, matchCard?.divisionIdx);
+    if (matchCard.drawType === DrawType.ROUND_ROBIN) {
+      return `${prefix} Gr: ${matchCard?.groupNum}`;
+    } else {
+      return `${prefix} ${MatchCard.getMatchName(matchCard?.round, matchCard?.groupNum)}`;
+    }
+  }
+
+  private getRoundDivisionPrefix(roundOrdinalNumber: number, divisionIdx: number): string {
+    const rounds: TournamentEventRound [] = this.selectedEvent?.roundsConfiguration?.rounds || [];
+    for (const round of rounds) {
+      if (round.ordinalNum === roundOrdinalNumber) {
+        for (const division of round.divisions) {
+          if (division.divisionIdx === divisionIdx) {
+            if (round.divisions.length === 1) {
+              return `${round.roundName} / `;  // drop division if only one division
+            } else {
+              return `${round.roundName} / ${division.divisionName} / `;
+            }
+          }
+        }
+      }
+    }
+    return `Round: ${roundOrdinalNumber} Div: ${divisionIdx} / `; // fallback when rounds and divisions are not available
   }
 
   public rankAndAdvance() {

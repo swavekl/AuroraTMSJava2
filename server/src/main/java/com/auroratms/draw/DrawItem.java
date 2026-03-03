@@ -49,6 +49,14 @@ public class DrawItem {
 
     private DrawType drawType;
 
+    // round ordinal number i.e. first round 1, second round 1 etc.
+    @Column(columnDefinition = "integer default 1")
+    private int roundOrdinalNumber;
+
+    // division index i.e. first division 0, second division 1 etc.
+    @Column(columnDefinition = "integer default 0")
+    private int divisionIdx;
+
     // player profile id (Okta) for fetching state, club etc.
     @NonNull
     private String playerId;
@@ -85,4 +93,8 @@ public class DrawItem {
     // tournament entry id for lookup of above geographical player information
     @Transient
     private long entryId;
+
+    // doubles pair id for doubles events only
+    @Transient
+    private long doublesPairId;
 }

@@ -155,6 +155,38 @@ public class MatchGeneratorTest {
     }
 
     @Test
+    public void test5PerGroup5PlayersToAdvance () {
+        String [] expectedMatchOrder = {
+                // round 1
+                "A - bye",
+                "B - E",
+                "C - D",
+                // round 2
+                "A - D",
+                "C - E",
+                "bye - B",
+                // round 3
+                "A - C",
+                "B - D",
+                "E - bye",
+                // round 4
+                "A - B",
+                "C - bye",
+                "D - E",
+                // round 5
+                "bye - D",
+                "B - C",
+                "A - E"
+        };
+
+        List<MatchOpponents> matchOrder = MatchOrderGenerator.generateOrderOfMatches(5, 5);
+//        for (MatchOpponents matchOpponents : matchOrder) {
+//            System.out.println(matchOpponents.playerALetter + " - " + matchOpponents.playerBLetter);
+//        }
+        checkResults(expectedMatchOrder, matchOrder);
+    }
+
+    @Test
     public void test6PerGroup () {
         String [] expectedMatchOrder = {
                 // round 1

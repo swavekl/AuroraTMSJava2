@@ -27,6 +27,9 @@ export class Match {
   // if true neither item in this match is draggable
   dragDisabled: boolean;
 
+  // html id value
+  matchElementId: string;
+
   getTooltipTextA() {
     return this.getTooltipTextFor(this.opponentA);
   }

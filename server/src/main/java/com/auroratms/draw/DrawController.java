@@ -5,8 +5,7 @@ import com.auroratms.club.ClubService;
 import com.auroratms.draw.conflicts.ConflictFinder;
 import com.auroratms.draw.generation.PlayerDrawInfo;
 import com.auroratms.draw.generation.singleelim.SingleEliminationEntriesConverter;
-import com.auroratms.event.TournamentEvent;
-import com.auroratms.event.TournamentEventEntityService;
+import com.auroratms.event.*;
 import com.auroratms.profile.UserProfile;
 import com.auroratms.profile.UserProfileExt;
 import com.auroratms.profile.UserProfileExtService;
@@ -16,6 +15,9 @@ import com.auroratms.tournamententry.TournamentEntryService;
 import com.auroratms.tournamentevententry.EventEntryStatus;
 import com.auroratms.tournamentevententry.TournamentEventEntry;
 import com.auroratms.tournamentevententry.TournamentEventEntryService;
+import com.auroratms.tournamentevententry.doubles.DoublesPair;
+import com.auroratms.tournamentevententry.doubles.DoublesRepository;
+import com.auroratms.tournamentevententry.doubles.DoublesService;
 import com.auroratms.usatt.UsattDataService;
 import com.auroratms.usatt.UsattPlayerRecord;
 import lombok.extern.slf4j.Slf4j;
@@ -29,6 +31,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Rest API controller for manipulating event draws
@@ -39,6 +42,7 @@ import java.util.stream.Collectors;
 @PreAuthorize("isAuthenticated()")
 @Transactional
 public class DrawController {
+    private final DoublesRepository doublesRepository;
 
     public static final String PLAYER_A_SIDE = "A";
     public static final String PLAYER_B_SIDE = "B";
@@ -59,6 +63,8 @@ public class DrawController {
 
     private ClubService clubService;
 
+    private DoublesService doublesService;
+
     public DrawController(DrawService drawService,
                           TournamentEventEntityService eventService,
                           TournamentEventEntryService eventEntryService,
@@ -66,7 +72,9 @@ public class DrawController {
                           UserProfileExtService userProfileExtService,
                           UserProfileService userProfileService,
                           UsattDataService usattDataService,
-                          ClubService clubService) {
+                          ClubService clubService,
+                          DoublesService doublesService,
+                          DoublesRepository doublesRepository) {
         this.drawService = drawService;
         this.eventService = eventService;
         this.eventEntryService = eventEntryService;
@@ -75,6 +83,8 @@ public class DrawController {
         this.userProfileService = userProfileService;
         this.usattDataService = usattDataService;
         this.clubService = clubService;
+        this.doublesService = doublesService;
+        this.doublesRepository = doublesRepository;
     }
 
     /**
@@ -89,30 +99,50 @@ public class DrawController {
 //    @PreAuthorize("hasAuthority('TournamentDirectors') or hasAuthority('Admins') or hasAuthority('Referees')")
     public ResponseEntity<List<DrawItem>> listAll(@RequestParam long eventId,
                                                   @RequestParam(required = false) DrawType drawType) {
-        List<DrawItem> drawItems = this.drawService.list(eventId, drawType);
-
         TournamentEvent thisEvent = this.eventService.get(eventId);
+//        List<DrawItem> allDrawItems = this.drawService.list(eventId, drawType);
+        // get all draw items for this event
+        List<DrawItem> allDrawItems = drawService.listAllRoundsForEvent(eventId);
 
-        // now enhance this information with player name, club name and state
-        // get profiles of players in this event
-        List<String> profileIds = new ArrayList<>(drawItems.size());
-        for (DrawItem drawItem : drawItems) {
-            String profileId = drawItem.getPlayerId();
-            // doubles event has playerA/playerB profile ids
-            if (thisEvent.isDoubles()) {
-                String[] playersProfileIds = profileId.split(";");
-                profileIds.addAll(Arrays.asList(playersProfileIds));
-            } else {
-                profileIds.add(profileId);
+        // get profile ids
+        List<String> profileIds = new ArrayList<>();
+        for (DrawItem drawItem : allDrawItems) {
+            if (drawItem.getRoundOrdinalNumber() == 1) {
+                String profileId = drawItem.getPlayerId();
+                if (!profileId.equals(DrawItem.TBD_PROFILE_ID) && !StringUtils.isEmpty(profileId)) {
+                    // doubles event has playerA/playerB profile ids
+                    if (thisEvent.isDoubles()) {
+                        String[] playersProfileIds = profileId.split(";");
+                        profileIds.addAll(Arrays.asList(playersProfileIds));
+                    } else {
+                        profileIds.add(profileId);
+                    }
+                }
             }
         }
 
+        // get round-robin round draw items
+        List<DrawItem> rrRoundDrawItems = allDrawItems.stream()
+                .filter(drawItem -> drawItem.getDrawType() != DrawType.SINGLE_ELIMINATION)
+                .toList();
 
-        // if this event has more than one round RR followed by SE then get those entries too
-        if (!thisEvent.isSingleElimination() && thisEvent.getPlayersToAdvance() > 0) {
-            List<DrawItem> seRoundDrawItems = this.drawService.list(eventId, DrawType.SINGLE_ELIMINATION);
-            drawItems.addAll(seRoundDrawItems);
-        }
+        // single elimination round - sort them appropriately
+        List<DrawItem> seRoundDrawItems = new ArrayList<>(allDrawItems.stream()
+                .filter(drawItem -> drawItem.getDrawType() == DrawType.SINGLE_ELIMINATION)
+                .toList());
+
+        seRoundDrawItems.sort(Comparator.comparing(DrawItem::getRound).reversed()
+                .thenComparing(DrawItem::getSingleElimLineNum));
+
+        List<DrawItem> drawItems = new ArrayList<>();
+        drawItems.addAll(rrRoundDrawItems);
+        drawItems.addAll(seRoundDrawItems);
+
+//        // if this event has more than one round RR followed by SE then get those entries too
+//        if (!thisEvent.isSingleElimination() && thisEvent.getPlayersToAdvance() > 0) {
+//            List<DrawItem> seRoundDrawItems = this.drawService.list(eventId, DrawType.SINGLE_ELIMINATION);
+//            allDrawItems.addAll(seRoundDrawItems);
+//        }
 
         // get their profile exts containing club ids
         // collect them in unique set
@@ -285,26 +315,204 @@ public class DrawController {
 
             List<DrawItem> existingDrawItems = getOtherEventDrawItems(tournamentFk, thisEvent);
 
-            // finally make the draws and save them
-            List<DrawItem> drawItems = this.drawService.generateDraws(thisEvent, drawType, eventEntries,
-                        existingDrawItems, entryIdToPlayerDrawInfo);
+            List<DrawItem> drawItems = new ArrayList<>();
+            TournamentRoundsConfiguration roundsConfiguration = thisEvent.getRoundsConfiguration();
+            if (roundsConfiguration == null) {
+                // convert old draws information to new rounds & divisions based information
+                roundsConfiguration = convertToRoundDivision(thisEvent, drawType);
+                List<TournamentEventRound> rounds = roundsConfiguration.getRounds();
+                TournamentEventRound firstRound = rounds.get(0);
+                TournamentEventRoundDivision firstDivision = firstRound.getDivisions().get(0);
 
-            // see if we need to create draw for single elimination round
-            if (!thisEvent.isSingleElimination() && thisEvent.getPlayersToAdvance() > 0) {
-                List<TournamentEventEntry> seSimulatedEventEntries = SingleEliminationEntriesConverter.generateSEEventEntriesFromDraws(
-                        drawItems, eventEntries, thisEvent, entryIdToPlayerDrawInfo);
-                fillCityStateCountryForSEPlayers (seSimulatedEventEntries, entryIdToPlayerDrawInfo);
-                SingleEliminationEntriesConverter.fillRRGroupNumberForSEPlayers(drawItems, entryIdToPlayerDrawInfo, thisEvent);
-                List<DrawItem> seDrawItems = this.drawService.generateDraws(thisEvent, DrawType.SINGLE_ELIMINATION,
-                        seSimulatedEventEntries, existingDrawItems, entryIdToPlayerDrawInfo);
-                drawItems.addAll(seDrawItems);
+                // finally make the draws and save them
+                drawItems = this.drawService.generateDraws(thisEvent, drawType, eventEntries,
+                        existingDrawItems, entryIdToPlayerDrawInfo, firstRound, firstDivision);
+
+                // see if we need to create draw for single elimination round
+                if (!thisEvent.isSingleElimination() && thisEvent.getPlayersToAdvance() > 0) {
+                    List<TournamentEventEntry> seSimulatedEventEntries = SingleEliminationEntriesConverter.generateSEEventEntriesFromDraws(
+                            drawItems, eventEntries, thisEvent, entryIdToPlayerDrawInfo);
+                    fillCityStateCountryForSEPlayers (seSimulatedEventEntries, entryIdToPlayerDrawInfo);
+                    SingleEliminationEntriesConverter.fillRRGroupNumberForSEPlayers(drawItems, entryIdToPlayerDrawInfo, thisEvent);
+                    TournamentEventRound seRound = rounds.get(1);
+                    TournamentEventRoundDivision seDivision = seRound.getDivisions().get(0);
+
+                    List<DrawItem> seDrawItems = this.drawService.generateDraws(thisEvent, DrawType.SINGLE_ELIMINATION,
+                            seSimulatedEventEntries, existingDrawItems, entryIdToPlayerDrawInfo, seRound, seDivision);
+                    drawItems.addAll(seDrawItems);
+                }
+            } else {
+                // new method based on Rounds and Divisions
+                List<TournamentEventRound> rounds = roundsConfiguration.getRounds();
+                for (TournamentEventRound round : rounds) {
+                    DrawType roundDrawType = round.isSingleElimination() ? DrawType.SINGLE_ELIMINATION : drawType;
+                    List<TournamentEventRoundDivision> divisions = round.getDivisions();
+                    for (TournamentEventRoundDivision division : divisions) {
+                        // filter entries by division
+                        List<TournamentEventEntry> entriesForDivision = getEntriesForDivision(eventEntries, drawItems,
+                                round, division, thisEvent.isDoubles(), thisEvent.getId());
+
+                        List<DrawItem> divisionDrawList = this.drawService.generateDraws(thisEvent, roundDrawType,
+                                entriesForDivision, existingDrawItems, entryIdToPlayerDrawInfo, round, division);
+                        if (divisionDrawList != null) {
+                            drawItems.addAll(divisionDrawList);
+                        }
+                    }
+                }
             }
-            
+
             // response
             return new ResponseEntity<List<DrawItem>>(drawItems, HttpStatus.OK);
         } catch (Exception e) {
+            log.error("Error generating draws for event id: " + eventId, e);
             return new ResponseEntity<List<DrawItem>>(Collections.EMPTY_LIST, HttpStatus.BAD_REQUEST);
         }
+    }
+
+
+    /**
+     * Retrieves a list of tournament event entries that match the specified round and division criteria.
+     *
+     * @param eventEntries The list of all tournament event entries.
+     * @param drawItems    The list of draw items representing rounds and divisions.
+     * @param round        The round object containing information about the current round.
+     * @param division     The division object containing information about the current division.
+     * @param doubles
+     * @param eventId
+     * @return A list of tournament event entries that match the specified round and division based on the draw items.
+     */
+    private List<TournamentEventEntry> getEntriesForDivision(List<TournamentEventEntry> eventEntries,
+                                                             List<DrawItem> drawItems,
+                                                             TournamentEventRound round,
+                                                             TournamentEventRoundDivision division,
+                                                             boolean doubles,
+                                                             Long eventId) {
+        // if we are generating draws for the first round & division we need to use all event entries
+        if (round.getOrdinalNum() == 1) {
+            return eventEntries;
+        }
+
+        int priorRoundOrdinalNum = round.getOrdinalNum() - 1;
+        priorRoundOrdinalNum = Math.max(priorRoundOrdinalNum, 1);
+        log.info("Looking for draw items with priorRoundOrdinalNum: " + priorRoundOrdinalNum);
+        log.info("and division.getPreviousDivisionIdx(): " + division.getPreviousDivisionIdx()
+                + " player ranking in (" + division.getPreviousRoundPlayerRanking() + ", " + division.getPreviousRoundPlayerRankingEnd() + ")");
+        List<DrawItem> advancingPlayersDrawItems = new ArrayList<>();
+        for (DrawItem drawItem : drawItems) {
+            if (drawItem.getRoundOrdinalNumber() == priorRoundOrdinalNum) {
+                if (drawItem.getDivisionIdx() == division.getPreviousDivisionIdx()) {
+                    if (drawItem.getPlaceInGroup() >= division.getPreviousRoundPlayerRanking() &&
+                            drawItem.getPlaceInGroup() <= division.getPreviousRoundPlayerRankingEnd()) {
+                        advancingPlayersDrawItems.add(drawItem);
+                    }
+                }
+            }
+        }
+
+        advancingPlayersDrawItems.sort(Comparator.comparing(DrawItem::getGroupNum)
+                .thenComparing(DrawItem::getPlaceInGroup));
+
+        List<TournamentEventEntry> divisionEventEntries = new ArrayList<>(advancingPlayersDrawItems.size());
+        if (!doubles) {
+            List<Long> entryIds = advancingPlayersDrawItems.stream()
+                    .map(DrawItem::getEntryId)
+                    .filter(id -> id != 0L)
+                    .toList();
+            for (Long entryId : entryIds) {
+                for (TournamentEventEntry eventEntry : eventEntries) {
+                    if (eventEntry.getTournamentEntryFk() == entryId) {
+                        divisionEventEntries.add(eventEntry);
+                        break;
+                    }
+                }
+            }
+        } else {
+            // get the doubles pair ids for this event in the order by group id
+            List<Long> doublesPairIds = advancingPlayersDrawItems.stream()
+                    .map(DrawItem::getDoublesPairId)
+                    .filter(id -> id != 0L)
+                    .toList();
+
+            // get the event entries for the doubles pairs in the order by group id as sorted above
+            List<DoublesPair> doublesPairsForEvent = doublesService.findDoublesPairsForEvent(eventId);
+            for (Long doublesPairId : doublesPairIds) {
+                // find the doubles pair in the list and then event entries for each player
+                for (DoublesPair doublesPair : doublesPairsForEvent) {
+                    if (doublesPairId.equals(doublesPair.getId())) {
+                        List<TournamentEventEntry> pairEventEntries = eventEntries.stream()
+                                .filter(eventEntry -> eventEntry.getId().equals(doublesPair.getPlayerAEventEntryFk()) ||
+                                    eventEntry.getId().equals(doublesPair.getPlayerBEventEntryFk())
+                                ).toList();
+                        divisionEventEntries.addAll(pairEventEntries);
+                        break;
+                    }
+                }
+            }
+        }
+
+        log.info("Found " + divisionEventEntries.size() + " entries for division: " + division.getDivisionName());
+        return divisionEventEntries;
+    }
+
+    /**
+     * Converts a given tournament event configuration and draw type into a tournament round division configuration.
+     * This method processes the input objects to create and configure instances of tournament rounds and divisions
+     * based on the provided parameters.
+     *
+     * @param thisEvent The tournament event containing event-specific configuration like number of players,
+     *                  seeding information, and other round-related details.
+     * @param drawType  The type of draw (e.g., SINGLE_ELIMINATION) that determines certain aspects of the
+     *                  generated round and division configurations.
+     * @return A {@link TournamentRoundsConfiguration} object containing the configured tournament rounds and
+     *         their corresponding divisions based on the input parameters.
+     */
+    private TournamentRoundsConfiguration convertToRoundDivision(TournamentEvent thisEvent, DrawType drawType) {
+        TournamentRoundsConfiguration tournamentRoundsConfiguration = new TournamentRoundsConfiguration();
+        List<TournamentEventRound> rounds = new ArrayList<>();
+        tournamentRoundsConfiguration.setRounds(rounds);
+        TournamentEventRound round = new TournamentEventRound();
+        rounds.add(round);
+        round.setOrdinalNum(1);
+        round.setSingleElimination(false);
+        round.setRoundName("RR round 1");
+        round.setSingleElimination( drawType == DrawType.SINGLE_ELIMINATION);
+        TournamentEventRoundDivision division = new TournamentEventRoundDivision();
+        division.setDivisionName("Division 1");
+        division.setPlayersToAdvance(thisEvent.getPlayersToAdvance());
+        division.setPlayersToSeed(thisEvent.getPlayersToSeed());
+        division.setPlayersPerGroup(thisEvent.getPlayersPerGroup());
+        division.setDrawMethod(thisEvent.getDrawMethod());
+        division.setPlay3rd4thPlace(thisEvent.isPlay3rd4thPlace());
+        division.setNumberOfGames(thisEvent.getNumberOfGames());
+        division.setNumberOfGames(thisEvent.getNumberOfGames());
+        division.setNumberOfGamesSEPlayoffs(thisEvent.getNumberOfGamesSEPlayoffs());
+        division.setNumberOfGamesSEQuarterFinals(thisEvent.getNumberOfGamesSEQuarterFinals());
+        division.setNumberOfGamesSESemiFinals(thisEvent.getNumberOfGamesSESemiFinals());
+        division.setNumberOfGamesSEFinals(thisEvent.getNumberOfGamesSEFinals());
+        round.setDivisions(Collections.singletonList(division));
+
+        if (!thisEvent.isSingleElimination() && thisEvent.getPlayersToAdvance() > 0) {
+            // make SE round
+            TournamentEventRound seRound = new TournamentEventRound();
+            rounds.add(seRound);
+            seRound.setOrdinalNum(2);
+            seRound.setSingleElimination(true);
+            seRound.setRoundName("SE round");
+            TournamentEventRoundDivision seDivision = new TournamentEventRoundDivision();
+            seDivision.setDivisionName("SE Division");
+            seDivision.setPlayersToAdvance(thisEvent.getPlayersToAdvance());
+            seDivision.setPlayersToSeed(thisEvent.getPlayersToSeed());
+            seDivision.setPlayersPerGroup(thisEvent.getPlayersPerGroup());
+            seDivision.setDrawMethod(DrawMethod.SINGLE_ELIMINATION);
+            seDivision.setPlay3rd4thPlace(thisEvent.isPlay3rd4thPlace());
+            seDivision.setNumberOfGames(thisEvent.getNumberOfGames());
+            seDivision.setNumberOfGamesSEPlayoffs(thisEvent.getNumberOfGamesSEPlayoffs());
+            seDivision.setNumberOfGamesSEQuarterFinals(thisEvent.getNumberOfGamesSEQuarterFinals());
+            seDivision.setNumberOfGamesSESemiFinals(thisEvent.getNumberOfGamesSESemiFinals());
+            seDivision.setNumberOfGamesSEFinals(thisEvent.getNumberOfGamesSEFinals());
+            seRound.setDivisions(Collections.singletonList(seDivision));
+        }
+        return tournamentRoundsConfiguration;
     }
 
     private List<DrawItem> getOtherEventDrawItems(long tournamentFk, TournamentEvent thisEvent) {
@@ -464,54 +672,109 @@ public class DrawController {
     /**
      * Gets the draw items for both groups which have been updated
      *
-     * @param drawItemsList    updated draw items
+     * @param updatedDrawItems    updated draw items
      * @param thisEventEntries
      * @return group draw items
      */
-    private List<DrawItem> getFullGroupDrawItems(List<DrawItem> drawItemsList, List<TournamentEventEntry> thisEventEntries) {
-        DrawItem drawItem = drawItemsList.get(0);
-        // get which group numbers were affected by this change
-        Set<Integer> groupNumbers = new HashSet<>();
+    private List<DrawItem> getFullGroupDrawItems(List<DrawItem> updatedDrawItems, List<TournamentEventEntry> thisEventEntries) {
+        DrawItem firstUpdatedDrawItem = updatedDrawItems.get(0);
+        DrawType drawType = firstUpdatedDrawItem.getDrawType();
+        List<DrawItem> allEventDrawItems = drawService.list(firstUpdatedDrawItem.getEventFk(), drawType);
         Set<Long> updatedDrawItemsIds = new HashSet<>();
-        for (DrawItem item : drawItemsList) {
-            groupNumbers.add(item.getGroupNum());
-            updatedDrawItemsIds.add(item.getId());
-        }
+        List<DrawItem> fullGroupsDrawItems = new ArrayList<>();
+        if (drawType == DrawType.ROUND_ROBIN) {
+            // get which group numbers were affected by this change
+            Set<Integer> groupNumbers = new HashSet<>();
+            for (DrawItem updatedDrawItem : updatedDrawItems) {
+                groupNumbers.add(updatedDrawItem.getGroupNum());
+                updatedDrawItemsIds.add(updatedDrawItem.getId());
+            }
 
-        // get all draw items and filter out those which are not in these groups or the updated ones
-        List<DrawItem> otherDrawItemsInEvent = drawService.list(drawItem.getEventFk(), drawItem.getDrawType());
-        List<DrawItem> groupsDrawItems = new ArrayList<>();
-        for (DrawItem otherDrawItem : otherDrawItemsInEvent) {
-            if (groupNumbers.contains(otherDrawItem.getGroupNum())) {
-                if (!updatedDrawItemsIds.contains(otherDrawItem.getId())) {
-                    groupsDrawItems.add(otherDrawItem);
+            // get all draw items and filter out those which are not in these groups or were updated ones
+            List<DrawItem> groupsDrawItemsWithoutUpdatedItems = allEventDrawItems.stream()
+                    .filter(drawItem -> groupNumbers.contains(drawItem.getGroupNum()))
+                    .filter(drawItem -> !updatedDrawItemsIds.contains(drawItem.getId()))
+                    .toList();
+
+            // add the updated ones and sort them
+            fullGroupsDrawItems.addAll(groupsDrawItemsWithoutUpdatedItems);
+            fullGroupsDrawItems.addAll(updatedDrawItems);
+            fullGroupsDrawItems.sort(Comparator.comparing(DrawItem::getGroupNum)
+                    .thenComparing(DrawItem::getPlaceInGroup));
+
+        } else if (drawType == DrawType.SINGLE_ELIMINATION) {
+            // get which players were affected by this change
+            Set<String> updatedPlayersProfileIds = new HashSet<>();
+            for (DrawItem updatedDrawItem : updatedDrawItems) {
+                updatedPlayersProfileIds.add(updatedDrawItem.getPlayerId());
+                updatedDrawItemsIds.add(updatedDrawItem.getId());
+            }
+
+            // create a map for easy replacement in the rounds following this round
+            Map<String, String> oldToNewProfileIds = new HashMap<>();
+            if (updatedDrawItems.size() == 2) {
+                DrawItem secondUpdatedDrawItem = updatedDrawItems.get(1);
+                oldToNewProfileIds.put(firstUpdatedDrawItem.getPlayerId(), secondUpdatedDrawItem.getPlayerId());
+                oldToNewProfileIds.put(secondUpdatedDrawItem.getPlayerId(), firstUpdatedDrawItem.getPlayerId());
+            }
+
+            // filter out drow items which were not updated
+            List<DrawItem> drawItemsWithoutUpdatedItems = allEventDrawItems.stream()
+                    .filter (drawItem -> !updatedDrawItemsIds.contains(drawItem.getId()))
+                    .toList();
+
+            // switch players in later rounds in case they advance there by getting byes
+            int roundOf = firstUpdatedDrawItem.getRound(); // round of 16, 8 etc.
+            log.info("Switching players in rounds later than round " + roundOf);
+            for (DrawItem drawItem : drawItemsWithoutUpdatedItems) {
+                if (updatedPlayersProfileIds.contains(drawItem.getPlayerId()) && drawItem.getRound() < roundOf) {
+                    log.info("Switching player in round " + drawItem.getRound());
+                    String newPlayerId = oldToNewProfileIds.get(drawItem.getPlayerId());
+                    if (newPlayerId != null) {
+                        // find the draw item for this player in the round following this round
+                        DrawItem updatedDrawItem = updatedDrawItems.stream()
+                                .filter(item -> item.getPlayerId().equals(newPlayerId))
+                                .findFirst().orElse(null);
+                        if (updatedDrawItem != null) {
+                            // transfer this player data from
+                            drawItem.setPlayerId(updatedDrawItem.getPlayerId());
+                            drawItem.setPlayerName(updatedDrawItem.getPlayerName());
+                            drawItem.setRating(updatedDrawItem.getRating());
+                            drawItem.setState(updatedDrawItem.getState());
+                            drawItem.setClubName(updatedDrawItem.getClubName());
+                            drawItem.setEntryId(updatedDrawItem.getEntryId());
+                            drawItem.setDoublesPairId(updatedDrawItem.getDoublesPairId());
+                            drawItem.setTeamName(updatedDrawItem.getTeamName());
+                            drawItem.setTeamFk(updatedDrawItem.getTeamFk());
+                        }
+                    }
                 }
             }
-        }
 
-        // add the updated ones and sort them
-        groupsDrawItems.addAll(drawItemsList);
-        groupsDrawItems.sort(Comparator.comparing(DrawItem::getGroupNum)
-                .thenComparing(DrawItem::getPlaceInGroup));
+            fullGroupsDrawItems.addAll(drawItemsWithoutUpdatedItems);
+            fullGroupsDrawItems.addAll(updatedDrawItems);
+            fullGroupsDrawItems.sort(Comparator.comparing(DrawItem::getRound).reversed()
+                    .thenComparing(DrawItem::getSingleElimLineNum));
+        }
 
         // fill in the tournament entry ids
-        List<Long> tournamentEntryFkList = new ArrayList<>(groupsDrawItems.size());
-        for (TournamentEventEntry eventEntry : thisEventEntries) {
-            tournamentEntryFkList.add(eventEntry.getTournamentEntryFk());
-        }
+        List<Long> tournamentEntryFkList = thisEventEntries.stream()
+                .map(TournamentEventEntry::getTournamentEntryFk)
+                .toList();
 
         List<TournamentEntry> tournamentEntries = entryService.listEntries(tournamentEntryFkList);
         for (TournamentEntry tournamentEntry : tournamentEntries) {
             String profileId = tournamentEntry.getProfileId();
-            for (DrawItem groupsDrawItem : groupsDrawItems) {
-                if (groupsDrawItem.getPlayerId().equals(profileId)) {
+            for (DrawItem groupsDrawItem : fullGroupsDrawItems) {
+                if (groupsDrawItem.getPlayerId().equals(profileId) || groupsDrawItem.getPlayerId().startsWith(profileId)) {
                     groupsDrawItem.setEntryId(tournamentEntry.getId());
                     break;
                 }
             }
+            // todo - add doubles teams id setting ???
         }
 
-        return groupsDrawItems;
+        return fullGroupsDrawItems;
     }
 
     /**

@@ -1,4 +1,16 @@
-import {Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChange, SimpleChanges, ViewChild} from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  Input,
+  OnChanges,
+  OnInit,
+  Output,
+  QueryList,
+  SimpleChange,
+  SimpleChanges,
+  ViewChild,
+  ViewChildren
+} from '@angular/core';
 import {MatDialog} from '@angular/material/dialog';
 import {MatSlideToggleChange} from '@angular/material/slide-toggle';
 
@@ -11,12 +23,16 @@ import {TabbedDrawsPanelComponent} from '../../draws-common/tabbed-draws-panel/t
 import {PlayerStatus} from '../../../today/model/player-status.model';
 import {MatchCardInfo} from '../../../matches/model/match-card-info.model';
 import {ReplacePlayerPopupComponent, ReplacePlayerPopupData} from '../reaplace-player-popup/replace-player-popup.component';
+import {DrawUndoService} from '../../draws-common/draw-undo.service';
+import {MatTabChangeEvent} from '@angular/material/tabs';
+import {UndoablePanel} from '../../draws-common/undoable-panel';
 
 @Component({
     selector: 'app-draws',
     templateUrl: './draws.component.html',
     styleUrls: ['./draws.component.scss'],
-    standalone: false
+    standalone: false,
+    providers: [DrawUndoService]
 })
 export class DrawsComponent implements OnInit, OnChanges {
 
@@ -57,8 +73,8 @@ export class DrawsComponent implements OnInit, OnChanges {
   tabbedDrawsPanelComponent!: TabbedDrawsPanelComponent;
 
 
-
-  constructor(private dialog: MatDialog) {
+  constructor(private dialog: MatDialog,
+              protected drawUndoService: DrawUndoService) {
     this.expandedView = false;
     this.checkinStatus = false;
     this.allowDrawChanges = true;
@@ -91,7 +107,14 @@ export class DrawsComponent implements OnInit, OnChanges {
     this.clearUndoStack();
     this.selectedEvent = tournamentEvent;
     this.allowDrawChanges = !tournamentEvent.matchScoresEntered;
-    const drawType: DrawType = this.selectedEvent.singleElimination ? DrawType.SINGLE_ELIMINATION : DrawType.ROUND_ROBIN;
+    let drawType: DrawType = this.selectedEvent.singleElimination ? DrawType.SINGLE_ELIMINATION : DrawType.ROUND_ROBIN;
+    const rounds = tournamentEvent.roundsConfiguration?.rounds || [];
+    if (rounds && rounds.length === 1) {
+      if (rounds[0].singleElimination) {
+        drawType = DrawType.SINGLE_ELIMINATION;
+      }
+    }
+
     const action: DrawAction = {
       actionType: DrawActionType.DRAW_ACTION_LOAD,
       eventId: this.selectedEvent.id,
@@ -192,21 +215,23 @@ export class DrawsComponent implements OnInit, OnChanges {
   }
 
   clearUndoStack() {
-    if (this.tabbedDrawsPanelComponent != null) {
-      this.tabbedDrawsPanelComponent.clearUndoStack();
-    }
+    this.drawUndoService.clearUndoItems();
+    // if (this.tabbedDrawsPanelComponent != null) {
+    //   this.tabbedDrawsPanelComponent.clearUndoItems();
+    // }
   }
 
-  hasUndoItems(): boolean {
-    return (this.tabbedDrawsPanelComponent != null) ?
-      this.tabbedDrawsPanelComponent.hasUndoItems() : false;
-  }
+  // hasUndoItems(): boolean {
+  //   return (this.tabbedDrawsPanelComponent != null) ?
+  //     this.tabbedDrawsPanelComponent.hasUndoItems() : false;
+  // }
+  //
+  // undoMove() {
+  //   if (this.tabbedDrawsPanelComponent != null) {
+  //     this.tabbedDrawsPanelComponent.undoMove();
+  //   }
+  // }
 
-  undoMove() {
-    if (this.tabbedDrawsPanelComponent != null) {
-      this.tabbedDrawsPanelComponent.undoMove();
-    }
-  }
 
   onExpandedViewChange($event: MatSlideToggleChange) {
     if (this.tabbedDrawsPanelComponent != null) {

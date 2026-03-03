@@ -17,6 +17,9 @@ public class TournamentEventRoundDivision implements Serializable {
     // name of division e.g. Championship, Class AA, Class A etc.
     private String divisionName;
 
+    // division index - a simple id
+    private int divisionIdx;
+
     // round robin options
     private int playersPerGroup;
 

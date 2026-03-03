@@ -77,6 +77,12 @@ export class TodayService {
     // 2025 Aurora Fall OPen RR - 9/7/2025
     // const utcMoment = moment([2025, 8, 7, 0, 0, 0]);
     // return utcMoment.toDate();
+    // 2025 South Bend Open-Giant Round Robin - 2/16/2026
+    // const utcMoment = moment([2026, 1, 16, 0, 0, 0]);
+    // 2025 Edgeball Chicago International Open - Oct 25 - 26, 2026
+    // const utcMoment = moment([2026, 9, 25, 0, 0, 0]);
+    // const utcMoment = moment([2026, 9, 26, 0, 0, 0]);
+    // return utcMoment.toDate();
     return new Date();
   }
 }

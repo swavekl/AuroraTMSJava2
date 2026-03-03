@@ -2,6 +2,7 @@ package com.auroratms.utils;
 
 import com.auroratms.club.ClubEntity;
 import com.auroratms.club.ClubService;
+import com.auroratms.draw.DrawType;
 import com.auroratms.event.*;
 import com.auroratms.profile.UserProfile;
 import com.auroratms.profile.UserProfileExt;
@@ -3102,6 +3103,11 @@ public class ImportTournamentService {
         tournamentEvent.setPointsPerGame(pointsPerGame);
         tournamentEvent.setDrawMethod(drawMethod);
 
+        // new configuration based on rounds
+        DrawType drawType = (isSingleElimination) ? DrawType.SINGLE_ELIMINATION : DrawType.ROUND_ROBIN;
+        TournamentRoundsConfiguration roundsConfiguration = convertToRoundDivision(tournamentEvent, drawType);
+        tournamentEvent.setRoundsConfiguration(roundsConfiguration);
+
         TournamentEventConfiguration configuration = tournamentEvent.getConfiguration();
         if (configuration == null) {
             configuration = new TournamentEventConfiguration();
@@ -3154,6 +3160,68 @@ public class ImportTournamentService {
 
         return tournamentEvent;
     }
+
+    /**
+     * Creates new round/division configuration
+     * @param thisEvent
+     * @param drawType
+     * @return
+     */
+    private TournamentRoundsConfiguration convertToRoundDivision(TournamentEvent thisEvent, DrawType drawType) {
+        TournamentRoundsConfiguration tournamentRoundsConfiguration = new TournamentRoundsConfiguration();
+        List<TournamentEventRound> rounds = new ArrayList<>();
+        tournamentRoundsConfiguration.setRounds(rounds);
+        TournamentEventRound round = new TournamentEventRound();
+        rounds.add(round);
+        round.setOrdinalNum(1);
+        round.setRoundName(drawType == DrawType.SINGLE_ELIMINATION ? "Single Elimination" : "Round Robin");
+        round.setSingleElimination( drawType == DrawType.SINGLE_ELIMINATION);
+        round.setDay(thisEvent.getDay());
+        round.setStartTime(thisEvent.getStartTime());
+        TournamentEventRoundDivision division = new TournamentEventRoundDivision();
+        division.setDivisionName("Qualifying");
+        division.setPlayersToAdvance(thisEvent.getPlayersToAdvance());
+        division.setPlayersToSeed(thisEvent.getPlayersToSeed());
+        division.setPlayersPerGroup(thisEvent.getPlayersPerGroup());
+        division.setDrawMethod(thisEvent.getDrawMethod());
+        division.setPlay3rd4thPlace(thisEvent.isPlay3rd4thPlace());
+        division.setNumberOfGames(thisEvent.getNumberOfGames());
+        division.setNumberOfGamesSEPlayoffs(thisEvent.getNumberOfGamesSEPlayoffs());
+        division.setNumberOfGamesSEQuarterFinals(thisEvent.getNumberOfGamesSEQuarterFinals());
+        division.setNumberOfGamesSESemiFinals(thisEvent.getNumberOfGamesSESemiFinals());
+        division.setNumberOfGamesSEFinals(thisEvent.getNumberOfGamesSEFinals());
+        round.setDivisions(Collections.singletonList(division));
+
+        if (!thisEvent.isSingleElimination() && thisEvent.getPlayersToAdvance() > 0) {
+            // make SE round
+            TournamentEventRound seRound = new TournamentEventRound();
+            rounds.add(seRound);
+            seRound.setOrdinalNum(2);
+            seRound.setSingleElimination(true);
+            seRound.setRoundName("Single Elimination");
+            seRound.setDay(thisEvent.getDay());
+            double startTime = thisEvent.getStartTime();
+            startTime += (thisEvent.getNumTablesPerGroup() == 1) ? 2.5 : 2.0;
+            seRound.setStartTime(startTime);
+            TournamentEventRoundDivision seDivision = new TournamentEventRoundDivision();
+            seDivision.setDivisionName("Championship");
+            seDivision.setPlayersToAdvance(thisEvent.getPlayersToAdvance());
+            seDivision.setPreviousRoundPlayerRanking(1);
+            seDivision.setPreviousRoundPlayerRankingEnd(thisEvent.getPlayersToAdvance());
+            seDivision.setPlayersToSeed(thisEvent.getPlayersToSeed());
+            seDivision.setPlayersPerGroup(thisEvent.getPlayersPerGroup());
+            seDivision.setDrawMethod(DrawMethod.SINGLE_ELIMINATION);
+            seDivision.setPlay3rd4thPlace(thisEvent.isPlay3rd4thPlace());
+            seDivision.setNumberOfGames(thisEvent.getNumberOfGames());
+            seDivision.setNumberOfGamesSEPlayoffs(thisEvent.getNumberOfGamesSEPlayoffs());
+            seDivision.setNumberOfGamesSEQuarterFinals(thisEvent.getNumberOfGamesSEQuarterFinals());
+            seDivision.setNumberOfGamesSESemiFinals(thisEvent.getNumberOfGamesSESemiFinals());
+            seDivision.setNumberOfGamesSEFinals(thisEvent.getNumberOfGamesSEFinals());
+            seRound.setDivisions(Collections.singletonList(seDivision));
+        }
+        return tournamentRoundsConfiguration;
+    }
+
 
     /**
      * Convert string time to double representation

@@ -475,8 +475,11 @@ export class ReplacePlayerPopupComponent {
       clubName: null,
       state: null,
       entryId: 0,
+      doublesPairId: 0,
       teamFk: 0,
       teamName: ' ',
+      roundOrdinalNumber: 1,
+      divisionIdx: 0
     };
   }
 

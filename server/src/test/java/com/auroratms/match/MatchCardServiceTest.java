@@ -22,7 +22,7 @@ public class MatchCardServiceTest extends AbstractServiceTest {
     public void testRoundRobinGeneration() {
         long eventId = 65L;
         DrawType drawType = DrawType.ROUND_ROBIN;
-        matchCardService.generateMatchCardsForEvent(eventId, drawType);
+        matchCardService.generateMatchCardsForEvent(eventId, drawType, 1, 0);
 
         int round = 0;
         MatchCard firstGroupMatchCard = matchCardService.getMatchCard(eventId, round, 1);
@@ -63,7 +63,7 @@ public class MatchCardServiceTest extends AbstractServiceTest {
     public void generateSingleEliminationCards () {
         long eventId = 65L;
         DrawType drawType = DrawType.SINGLE_ELIMINATION;
-        matchCardService.generateMatchCardsForEvent(eventId, drawType);
+        matchCardService.generateMatchCardsForEvent(eventId, drawType, 1, 0);
 
         List<MatchCard> matchCards = matchCardService.findAllForEventAndDrawType(eventId, drawType);
         assertEquals(8, matchCards.size(), "match cards wrong number");

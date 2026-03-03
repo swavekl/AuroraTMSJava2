@@ -5,7 +5,59 @@
   height: 100%;
   overflow: auto;
   padding: 32px 0 15px 32px;
-  //border: 1px solid blue;
+
+  .cdk-drag-placeholder {
+    display: table-row !important;
+    border: 2px dotted $primary-color;
+  }
+}
+
+.division-boundary-container {
+  /* This must be relative so the drag boundary math works correctly */
+  position: relative;
+  /* Crucial: if this is 'hidden', the drag preview will vanish if it hits the edge */
+  overflow: visible !important;
+  margin-bottom: 24px;
+}
+
+.division-wrapper {
+  margin-bottom: 32px;
+  padding: 20px;
+  /* More pronounced background: light purple tint */
+  //background-color: #f3e5f5;
+  /* Subtle internal shadow to give it depth */
+  box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+  border: 1px solid #d1c4e9;
+  border-radius: 12px;
+}
+
+.division-header-top {
+  margin-bottom: 12px;
+
+  .division-icon {
+    color: #4a148c; /* Darker purple for better contrast */
+    margin-right: 8px;
+  }
+
+  .division-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #4a148c;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .division-header-line {
+    height: 2px;
+    background: #7b1fa2;
+    margin-left: 15px;
+    opacity: 0.3;
+  }
+}
+
+.groups-container {
+  /* Ensures groups don't touch the edges of the new colored wrapper */
+  padding: 8px;
 }
 
 // Groups table
@@ -13,6 +65,22 @@ table {
   border-collapse: collapse;
   width: 300px;
   margin-bottom: 32px;
+
+  // Base (collapsed) height
+  tbody > tr,
+  tbody > tr.rr-row-placeholder,
+  tbody > tr.rr-row-placeholder > td {
+    height: 26px;
+  }
+
+  // Expanded height
+  &.expanded {
+    tbody > tr,
+    tbody > tr.rr-row-placeholder,
+    tbody > tr.rr-row-placeholder > td {
+      height: 46px;
+    }
+  }
 
   thead tr th {
     background-color: #d7c8f5;
@@ -99,21 +167,30 @@ table {
   }
 }
 
-
-.cdk-drag-placeholder {
-  background-color: #f1c954;
+// The placeholder must behave like a real table row (and match row height).
+.rr-row-placeholder {
+  display: table-row;
 }
 
-.drag-preview {
-  width: 300px;
-  height: 46px;
-  border: 2px solid $primary-color;
+.cdk-drag-preview.rr-drag-preview {
+  display: table !important;     // keep row/table feel
+  width: 300px !important;
+  overflow: hidden !important;
+  box-sizing: border-box;
+
   background-color: #d7c8f5;
+  border: 2px solid $primary-color;
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
 }
 
-.drag-preview-small {
-  width: 300px;
-  height: 26px;
-  border: 2px solid $primary-color;
-  background-color: #d7c8f5;
+.cdk-drag-preview.rr-drag-preview--collapsed {
+  height: 26px !important;
+}
+
+.cdk-drag-preview.rr-drag-preview--expanded {
+  height: 46px !important;
+}
+
+.cdk-drag-preview.rr-drag-preview * {
+  overflow: hidden;
 }

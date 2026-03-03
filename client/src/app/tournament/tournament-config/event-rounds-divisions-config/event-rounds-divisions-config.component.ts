@@ -127,6 +127,9 @@ export class EventRoundsDivisionsConfigComponent implements AfterViewChecked {
       ? 'Division ' + (round.divisions.length + 1) : 'Division 1';
     const division = this.makeDefaultOrCloneDivision(round.divisions, divisionName);
     const updatedDivisions = [...round.divisions, division];
+    updatedDivisions.forEach((division: TournamentEventRoundDivision, dIndex: number, array: any[]) => {
+      division.divisionIdx = dIndex;
+    });
     this.updatedRoundAndEmit(roundIdx, updatedDivisions);
   }
 
@@ -145,6 +148,9 @@ export class EventRoundsDivisionsConfigComponent implements AfterViewChecked {
       if (result === 'ok') {
         const cloneDivisions = [...round.divisions];
         cloneDivisions.splice(divIdx, 1);
+        cloneDivisions.forEach((division: TournamentEventRoundDivision, dIndex: number, array: any[]) => {
+          division.divisionIdx = dIndex;
+        });
         const updatedDivisions = [...cloneDivisions];
         this.updatedRoundAndEmit(roundIdx, updatedDivisions);
       }
@@ -161,19 +167,26 @@ export class EventRoundsDivisionsConfigComponent implements AfterViewChecked {
         updatedRounds.push(this.rounds[i]);
       }
     }
+    updatedRounds.forEach((round: TournamentEventRound, rIndex: number, array: any[]) => {
+      round.divisions.forEach((division: TournamentEventRoundDivision, dIndex: number, array: any[]) => {
+        division.divisionIdx = dIndex;
+      })
+      round.ordinalNum = (rIndex + 1);
+    })
     this.rounds = updatedRounds;
-    this.roundsChanged.emit(this.rounds);
+    this.emitRoundsChanged()
   }
 
-  private makeDefaultOrCloneDivision(divisions: TournamentEventRoundDivision[], divisionName: string) {
+  private makeDefaultOrCloneDivision(divisions: TournamentEventRoundDivision[], divisionName: string): TournamentEventRoundDivision {
     let division = null;
     if (divisions.length === 0) {
       division = new TournamentEventRoundDivision();
       division.divisionName = divisionName;
+      division.divisionIdx = 0;
     } else {
       const lastDivision = divisions[divisions.length - 1];
       const divisionName = lastDivision.divisionName + ' copy';
-      division = {...lastDivision, divisionName: divisionName};
+      division = {...lastDivision, divisionName: divisionName, divisionIdx: lastDivision.divisionIdx + 1};
     }
     return division;
   }
@@ -203,13 +216,16 @@ export class EventRoundsDivisionsConfigComponent implements AfterViewChecked {
       console.log('updatedDivision', updatedDivision);
       if (updatedDivision) {
         this.rounds[rIdx].divisions[dIdx] = updatedDivision;
-        // this saves it to
-        this.roundsChanged.emit(this.rounds);
-
-        // IMPORTANT: Trigger the SVG redraw after the DOM updates
-        setTimeout(() => this.generateConnectors(), 100);
-
-        console.log('finished updating division');
+// temporary update
+const clondedRounds = [...this.rounds];
+clondedRounds.forEach((round: TournamentEventRound, rIndex: number, array: any[]) => {
+  round.divisions.forEach((division: TournamentEventRoundDivision, dIndex: number, array: any[]) => {
+    division.divisionIdx = dIndex;
+  })
+  round.ordinalNum = (rIndex + 1);
+});
+this.rounds = clondedRounds;
+        this.emitRoundsChanged();
       }
     });
   }
@@ -218,30 +234,37 @@ export class EventRoundsDivisionsConfigComponent implements AfterViewChecked {
     const qualifyingRRRound = TournamentEvent.makeRound('Round Robin', null, DrawMethod.SNAKE);
     qualifyingRRRound.ordinalNum = 1;
     qualifyingRRRound.singleElimination = false;
-    const division = this.makeDefaultOrCloneDivision([], 'Qualifying');
+    const division: TournamentEventRoundDivision = this.makeDefaultOrCloneDivision([], 'Qualifying');
     qualifyingRRRound.divisions = [division];
 
     const singleElimRound = TournamentEvent.makeRound('Single Elimination', null, DrawMethod.SINGLE_ELIMINATION);
     singleElimRound.ordinalNum = 2;
     singleElimRound.singleElimination = true;
-    const divisionSE = this.makeDefaultOrCloneDivision([], 'Championship');
+    const divisionSE: TournamentEventRoundDivision = this.makeDefaultOrCloneDivision([], 'Championship');
+    divisionSE.drawMethod = DrawMethod.SINGLE_ELIMINATION;
+    divisionSE.previousRoundPlayerRanking = 1;
+    divisionSE.previousRoundPlayerRankingEnd = 1;
+    divisionSE.playersToAdvance = 0;
     singleElimRound.divisions = [divisionSE];
     this.rounds = [qualifyingRRRound, singleElimRound];
-    this.roundsChanged.emit(this.rounds);
+    this.emitRoundsChanged();
   }
 
   protected addSingleElimRound() {
     const singleElimRound = TournamentEvent.makeRound('Single Elimination', null, DrawMethod.SINGLE_ELIMINATION);
     singleElimRound.singleElimination = true;
-    const divisionSE = this.makeDefaultOrCloneDivision([], 'Championship');
+    const divisionSE: TournamentEventRoundDivision = this.makeDefaultOrCloneDivision([], 'Championship');
+    divisionSE.drawMethod = DrawMethod.SINGLE_ELIMINATION;
+    divisionSE.playersPerGroup = 2;
+    divisionSE.playersToAdvance = 0;
     singleElimRound.divisions = [divisionSE];
     this.rounds = [singleElimRound];
-    this.roundsChanged.emit(this.rounds);
+    this.emitRoundsChanged();
   }
 
   protected clearAll() {
     this.rounds = [];
-    this.roundsChanged.emit(this.rounds);
+    this.emitRoundsChanged();
   }
 
   editRound(round: TournamentEventRound) {
@@ -255,7 +278,16 @@ export class EventRoundsDivisionsConfigComponent implements AfterViewChecked {
       if (result) {
         // Update the round object in the array with new values
         Object.assign(round, result);
+        this.emitRoundsChanged();
       }
     });
+  }
+
+  private emitRoundsChanged() {
+    this.roundsChanged.emit(this.rounds);
+    // IMPORTANT: Trigger the SVG redraw after the DOM updates
+    setTimeout(() => this.generateConnectors(), 100);
+
+    console.log('finished updating division');
   }
 }

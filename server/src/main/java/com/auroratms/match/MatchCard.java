@@ -50,6 +50,14 @@ public class MatchCard implements Serializable {
     // match for draw type
     private DrawType drawType;
 
+    // round ordinal number i.e. first round 1, second round 1 etc.
+    @Column(columnDefinition = "integer default 1")
+    private int roundOrdinalNumber;
+
+    // division index i.e. first division 0, second division 1 etc.
+    @Column(columnDefinition = "integer default 0")
+    private int divisionIdx;
+
     // best of 3, 5, 7 or 9 games per match in the main round (i.e. round robin)
     private int numberOfGames;
 

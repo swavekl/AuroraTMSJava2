@@ -10,3 +10,24 @@ export class DrawRound {
   // items in this round
   drawItems: DrawItem [] = [];
 }
+
+// simulates ngttRound
+export interface SERound {
+  type: 'Winnerbracket' | 'Loserbracket' | 'Final';
+  matches: any[];
+}
+
+export class DropListData {
+  firstRound: number;
+  dropListDrawItems: DrawItem[] = [];
+}
+
+export class SEDrawDivision {
+  divisionIdx: number;
+  divisionName: string;
+  singleEliminationRounds: DrawRound [] = [];
+  seRounds: SERound [] = [];
+  dropListData: DropListData;
+  roundNumbers: number [] = [];
+  svgData: any;
+}

@@ -7,6 +7,8 @@ import com.auroratms.draw.generation.singleelim.BracketLine;
 import com.auroratms.draw.generation.singleelim.EntrySorter;
 import com.auroratms.draw.generation.singleelim.GeographicalDistanceCalculator;
 import com.auroratms.event.TournamentEvent;
+import com.auroratms.event.TournamentEventRound;
+import com.auroratms.event.TournamentEventRoundDivision;
 import com.auroratms.tournamentevententry.TournamentEventEntry;
 
 import java.util.*;
@@ -16,8 +18,8 @@ import java.util.*;
  */
 public class SingleEliminationDrawsGenerator extends AbstractDrawsGenerator implements IDrawsGenerator {
 
-    public SingleEliminationDrawsGenerator(TournamentEvent tournamentEvent) {
-        super(tournamentEvent);
+    public SingleEliminationDrawsGenerator(TournamentEvent tournamentEvent, TournamentEventRound tournamentEventRound, TournamentEventRoundDivision tournamentEventRoundDivision) {
+        super(tournamentEvent, tournamentEventRound, tournamentEventRoundDivision);
     }
 
     @Override
@@ -542,7 +544,7 @@ public class SingleEliminationDrawsGenerator extends AbstractDrawsGenerator impl
             }
         }
 
-        if (tournamentEvent.isPlay3rd4thPlace()) {
+        if (this.tournamentEventRoundDivision.isPlay3rd4thPlace()) {
             PlayerDrawInfo tbdPlayerDrawInfo = new PlayerDrawInfo();
             tbdPlayerDrawInfo.setPlayerName(DrawItem.TBD_PROFILE_ID);
             tbdPlayerDrawInfo.setProfileId(DrawItem.TBD_PROFILE_ID);

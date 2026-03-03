@@ -13,12 +13,13 @@
     <mat-list dense class="match-card-list">
       <mat-list-item *ngFor="let matchCard of matchCards" (click)="onSelectMatchCard(matchCard)"
                      [ngClass]="isSelectedMatchCard (matchCard) ? 'selected' : 'not-selected'">
-        <ng-container *ngIf="matchCard.drawType === 'ROUND_ROBIN'; else elseblock">
-          R.R. Group {{matchCard.groupNum}} {{isMatchCardCompleted(matchCard, selectedEvent) ? '(c)' : ''}}
-        </ng-container>
-        <ng-template #elseblock>
-          {{ getMatchIdentifier(matchCard.round, matchCard.groupNum) }} {{isMatchCardCompleted(matchCard, selectedEvent) ? '(c)' : ''}}
-        </ng-template>
+        {{ getMatchCardIdentifier(matchCard) }}  {{isMatchCardCompleted(matchCard, selectedEvent) ? '(c)' : ''}}
+<!--        <ng-container *ngIf="matchCard.drawType === 'ROUND_ROBIN'; else elseblock">-->
+<!--          {{ getRRMatchIdentifier(matchCard.roundOrdinalNumber, matchCard.divisionIdx, matchCard.groupNum) }} {{isMatchCardCompleted(matchCard, selectedEvent) ? '(c)' : ''}}-->
+<!--        </ng-container>-->
+<!--        <ng-template #elseblock>-->
+<!--          {{ getSEMatchIdentifier(matchCard.roundOrdinalNumber, matchCard.divisionIdx, matchCard.round, matchCard.groupNum) }} {{isMatchCardCompleted(matchCard, selectedEvent) ? '(c)' : ''}}-->
+<!--        </ng-template>-->
       </mat-list-item>
     </mat-list>
   </div>

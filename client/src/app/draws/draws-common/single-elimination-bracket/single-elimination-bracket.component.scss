@@ -9,6 +9,7 @@
 div.round-header-container {
   width: 100%;
   background-color: $accent-color;
+  margin-bottom: 20px;
 }
 
 div.round-header {
@@ -23,4 +24,142 @@ div.round-header {
     padding-bottom: 8px;
     margin-top: 4px;
   }
+}
+
+.division-wrapper {
+  margin-bottom: 32px;
+  padding: 20px;
+  /* Subtle internal shadow to give it depth */
+  box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+  border: 1px solid #d1c4e9;
+  border-radius: 12px;
+
+  /* Crucial for scrolling to trigger */
+  max-width: 100%;
+  display: block;
+}
+
+.bracket-scroll-viewport {
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding-bottom: 10px; /* Space for the scrollbar itself */
+
+  /* Webkit scrollbar styling (optional, for a cleaner look) */
+  &::-webkit-scrollbar {
+    height: 8px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: #b39ddb;
+    border-radius: 4px;
+  }
+}
+
+.division-boundary-container {
+  /* This must be relative so the drag boundary math works correctly */
+  position: relative;
+  /* Crucial: if this is 'hidden', the drag preview will vanish if it hits the edge */
+  overflow: visible !important;
+  margin-bottom: 24px;
+}
+
+.division-header-top {
+  margin-bottom: 12px;
+
+  .division-icon {
+    color: #4a148c; /* Darker purple for better contrast */
+    margin-right: 8px;
+  }
+
+  .division-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #4a148c;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .division-header-line {
+    height: 2px;
+    background: #7b1fa2;
+    margin-left: 15px;
+    opacity: 0.3;
+  }
+}
+
+.se-drag-preview {
+  display: flex !important;
+  align-items: start;
+  padding: 6px 12px;
+  width: 250px; /* Match your player-line width */
+  box-shadow: 0 10px 20px rgba(0,0,0,0.3); /* Lifted effect */
+  pointer-events: none;
+
+  opacity: 1 !important;
+  background-color: #d1c4e9 !important;
+  color: #000 !important;
+  border: 1px solid #7b1fa2 !important;
+  border-radius: 4px;
+}
+
+.preview-seed {
+  font-weight: bold;
+  //margin-right: 10px;
+  color: #673ab7;
+  width: 20px;
+}
+
+.preview-rating {
+  //font-size: 0.85em;
+  //color: #666;
+  //margin-right: 10px;
+}
+
+.preview-name {
+  flex-grow: 1;
+  font-weight: 500;
+}
+
+.pipeline-container {
+  position: relative;
+  width: 100%;
+  /* Height is set dynamically by TS */
+}
+
+.connector-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none; /* Lines are visible but "ghost-like" to mouse */
+  z-index: 1;
+}
+
+.match-layer {
+  position: relative;
+  z-index: 2; /* Sits on top of the SVG lines */
+}
+
+/* Hide the placeholder so it doesn't push the match content around */
+.cdk-drag-placeholder {
+  display: none !important;
+}
+
+/* Ensure the match card content stays visible and static */
+.match-card-anchor {
+  display: block;
+  position: absolute;
+  /* Prevent the container from collapsing when an item is "lifted" */
+  min-height: 80px;
+}
+
+.consolation-label {
+  position: absolute;
+  top: -20px;
+  left: 0;
+  font-size: 11px;
+  font-weight: bold;
+  color: #673ab7;
+  text-transform: uppercase;
 }

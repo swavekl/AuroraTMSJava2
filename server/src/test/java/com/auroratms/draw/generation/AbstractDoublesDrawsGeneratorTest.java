@@ -1,18 +1,14 @@
 package com.auroratms.draw.generation;
 
-import com.auroratms.event.DrawMethod;
-import com.auroratms.event.TournamentEvent;
+import com.auroratms.event.*;
 import com.auroratms.tournamentevententry.TournamentEventEntry;
 import com.auroratms.tournamentevententry.doubles.DoublesPair;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class AbstractDoublesDrawsGeneratorTest extends AbstractDrawsGeneratorTest {
 
-    protected TournamentEvent makeTournamentEventEntity(int numTeamsToSeed) {
+    protected TournamentEvent makeTournamentEventEntity(int numTeamsToSeed, boolean makeSeOnly) {
         TournamentEvent tournamentEvent = new TournamentEvent();
         tournamentEvent.setId(56L);
         tournamentEvent.setName("Open Doubles");
@@ -21,6 +17,57 @@ public class AbstractDoublesDrawsGeneratorTest extends AbstractDrawsGeneratorTes
         tournamentEvent.setPlayersToSeed(numTeamsToSeed);
         tournamentEvent.setPlayersToAdvance(1);
         tournamentEvent.setDrawMethod(DrawMethod.SNAKE);
+
+        TournamentRoundsConfiguration roundsConfiguration = new TournamentRoundsConfiguration();
+        tournamentEvent.setRoundsConfiguration(roundsConfiguration);
+        if (makeSeOnly) {
+            TournamentEventRound seRound = new TournamentEventRound();
+            seRound.setRoundName("Single Elimination");
+            seRound.setDay(1);
+            seRound.setStartTime(11.0d);
+            seRound.setOrdinalNum(1);
+
+            TournamentEventRoundDivision seDivision = new TournamentEventRoundDivision();
+            seDivision.setDivisionName("Division 1");
+            seDivision.setDrawMethod(DrawMethod.SINGLE_ELIMINATION);
+            seDivision.setPlayersPerGroup(1);
+            seDivision.setPlayersToSeed(0);
+            seDivision.setPlayersToAdvance(0);
+            seRound.setDivisions(Collections.singletonList(seDivision));
+
+            roundsConfiguration.setRounds(List.of(seRound));
+        } else {
+            TournamentEventRound rrRound = new TournamentEventRound();
+            rrRound.setRoundName("Qualifying Round RR");
+            rrRound.setDay(1);
+            rrRound.setStartTime(9.0d);
+            rrRound.setOrdinalNum(1);
+
+            TournamentEventRoundDivision division = new TournamentEventRoundDivision();
+            division.setDivisionName("Division 1");
+            division.setDrawMethod(DrawMethod.SNAKE);
+            division.setPlayersPerGroup(4);
+            division.setPlayersToAdvance(1);
+            division.setPlayersToSeed(numTeamsToSeed);
+            rrRound.setDivisions(Collections.singletonList(division));
+
+            TournamentEventRound seRound = new TournamentEventRound();
+            seRound.setRoundName("Single Elimination");
+            seRound.setDay(1);
+            seRound.setStartTime(11.0d);
+            seRound.setOrdinalNum(2);
+
+            TournamentEventRoundDivision seDivision = new TournamentEventRoundDivision();
+            seDivision.setDivisionName("Division 1");
+            seDivision.setDrawMethod(DrawMethod.SINGLE_ELIMINATION);
+            seDivision.setPlayersPerGroup(1);
+            seDivision.setPlayersToSeed(0);
+            seDivision.setPlayersToAdvance(0);
+            seRound.setDivisions(Collections.singletonList(seDivision));
+
+            roundsConfiguration.setRounds(Arrays.asList(rrRound, seRound));
+        }
+
         return tournamentEvent;
     }
 

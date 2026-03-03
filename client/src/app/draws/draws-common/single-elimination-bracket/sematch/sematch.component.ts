@@ -1,8 +1,7 @@
-import {Component, Input, OnInit, ViewEncapsulation} from '@angular/core';
+import {Component, Input, OnInit, TemplateRef, ViewEncapsulation} from '@angular/core';
 import {Match} from '../../model/match.model';
 import {DrawItem} from '../../model/draw-item.model';
 import {ConflictRendererHelper} from '../../model/conflict-renderer-helper.model';
-import {ConflictType} from '../../model/conflict-type.enum';
 
 @Component({
     selector: 'app-sematch',
@@ -21,6 +20,12 @@ export class SEMatchComponent implements OnInit {
   @Input()
   doublesEvent: boolean;
 
+  @Input()
+  externalDragPreview: TemplateRef<any>;
+
+  // inside sematch.component.ts
+  @Input() highlightedSlot: 'A' | 'B' | null = null;
+
   constructor() { }
 
   ngOnInit(): void {
@@ -33,5 +38,4 @@ export class SEMatchComponent implements OnInit {
   getConflictTooltipText(drawItem: DrawItem) {
     return ConflictRendererHelper.getConflictTooltipText(drawItem?.conflictType);
   }
-
 }

@@ -32,6 +32,12 @@ export interface DrawItem {
 
   drawType: DrawType;
 
+  // round ordinal number i.e. first round 1, second round 2 etc.
+  roundOrdinalNumber: number;
+
+  // division index i.e. first division 0, second division 1 etc.
+  divisionIdx: number;
+
   // id of the player (Okta) for fetching state, club etc.
   playerId: string;
 
@@ -58,4 +64,7 @@ export interface DrawItem {
 
   // tournament entry id for lookup of above geographical player information
   entryId: number;
+
+  // doubles pair id for doubles events only
+  doublesPairId: number;
 }

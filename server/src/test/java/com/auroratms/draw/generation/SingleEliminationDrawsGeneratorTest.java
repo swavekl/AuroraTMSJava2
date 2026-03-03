@@ -3,9 +3,9 @@ package com.auroratms.draw.generation;
 import com.auroratms.draw.DrawItem;
 import com.auroratms.draw.DrawType;
 import com.auroratms.draw.generation.singleelim.SingleEliminationEntriesConverter;
-import com.auroratms.event.DrawMethod;
-import com.auroratms.event.TournamentEvent;
+import com.auroratms.event.*;
 import com.auroratms.tournamentevententry.TournamentEventEntry;
+import jdk.jfr.Event;
 import org.junit.jupiter.api.Test;
 
 import java.util.*;
@@ -23,12 +23,45 @@ public class SingleEliminationDrawsGeneratorTest extends AbstractDrawsGeneratorT
         tournamentEvent.setPlayersToSeed(0);
         tournamentEvent.setPlayersToAdvance(1);
         tournamentEvent.setDrawMethod(DrawMethod.SNAKE);
+        tournamentEvent.setEventEntryType(EventEntryType.INDIVIDUAL);
+
+        TournamentEventRound rrRound = new TournamentEventRound();
+        rrRound.setOrdinalNum(1);
+        rrRound.setRoundName("Qualifying Round RR");
+        rrRound.setDay(1);
+        rrRound.setStartTime(9.0d);
+
+        TournamentEventRoundDivision rrDivision = new TournamentEventRoundDivision();
+        rrDivision.setDivisionName("Division 1");
+        rrDivision.setDrawMethod(DrawMethod.SNAKE);
+        rrDivision.setPlayersPerGroup(4);
+        rrDivision.setPlayersToSeed(0);
+        rrDivision.setPlayersToAdvance(1);
+        rrRound.setDivisions(Collections.singletonList(rrDivision));
+
+        TournamentEventRound seRound = new TournamentEventRound();
+        seRound.setRoundName("Single Elimination");
+        seRound.setDay(1);
+        seRound.setStartTime(11.0d);
+        seRound.setOrdinalNum(1);
+
+        TournamentEventRoundDivision seDivision = new TournamentEventRoundDivision();
+        seDivision.setDivisionName("Division 1");
+        seDivision.setDrawMethod(DrawMethod.SINGLE_ELIMINATION);
+        seDivision.setPlayersPerGroup(1);
+        seDivision.setPlayersToSeed(0);
+        seDivision.setPlayersToAdvance(0);
+        seRound.setDivisions(Collections.singletonList(seDivision));
+
+        TournamentRoundsConfiguration roundsConfiguration = new TournamentRoundsConfiguration();
+        roundsConfiguration.setRounds(Arrays.asList(rrRound, seRound));
+        tournamentEvent.setRoundsConfiguration(roundsConfiguration);
 
         // make RR round entries
         List<TournamentEventEntry> eventEntries = this.makeTournamentEntriesList();
         Map<Long, PlayerDrawInfo> entryIdToPlayerDrawInfo = this.makePlayerDrawInfos();
         List<DrawItem> existingDrawItems = Collections.emptyList();
-        IDrawsGenerator rrRoundGenerator = DrawGeneratorFactory.makeGenerator(tournamentEvent, DrawType.ROUND_ROBIN);
+        IDrawsGenerator rrRoundGenerator = DrawGeneratorFactory.makeGenerator(tournamentEvent, rrRound, rrDivision);
         List<DrawItem> rrDrawItems = rrRoundGenerator.generateDraws(eventEntries, entryIdToPlayerDrawInfo, existingDrawItems);
         assertEquals(23, rrDrawItems.size(), "wrong RR draws");
 
@@ -39,7 +72,7 @@ public class SingleEliminationDrawsGeneratorTest extends AbstractDrawsGeneratorT
         assertEquals(6, seEventEntries.size(), "wrong number of advancing player entries");
 
         // make SE draws
-        IDrawsGenerator seRoundGenerator = DrawGeneratorFactory.makeGenerator(tournamentEvent, DrawType.SINGLE_ELIMINATION);
+        IDrawsGenerator seRoundGenerator = DrawGeneratorFactory.makeGenerator(tournamentEvent, seRound, seDivision);
         assertNotNull(seRoundGenerator, "SE round generator is null");
 
         List<DrawItem> seDrawItems = seRoundGenerator.generateDraws(seEventEntries, entryIdToPlayerDrawInfo, existingDrawItems);
@@ -80,6 +113,7 @@ public class SingleEliminationDrawsGeneratorTest extends AbstractDrawsGeneratorT
         tournamentEvent.setPlayersToAdvance(1);
         tournamentEvent.setDrawMethod(DrawMethod.SNAKE);
         tournamentEvent.setPlay3rd4thPlace(true);
+        tournamentEvent.setEventEntryType(EventEntryType.INDIVIDUAL);
 
         // make RR round entries
         List<TournamentEventEntry> seEventEntries = this.makeExamTournamentEntries(tournamentFk, eventFk);
@@ -95,7 +129,26 @@ public class SingleEliminationDrawsGeneratorTest extends AbstractDrawsGeneratorT
 
         // make SE draws
 //        SingleEliminationEntriesConverter.fillRRGroupNumberForSEPlayers(rrDrawItems, entryIdToPlayerDrawInfo, tournamentEventEntity);
-        IDrawsGenerator seRoundGenerator = DrawGeneratorFactory.makeGenerator(tournamentEvent, DrawType.SINGLE_ELIMINATION);
+        TournamentEventRound seRound = new TournamentEventRound();
+        seRound.setRoundName("Single Elimination");
+        seRound.setSingleElimination(true);
+        seRound.setDay(1);
+        seRound.setStartTime(11.0d);
+        seRound.setOrdinalNum(1);
+
+        TournamentEventRoundDivision seDivision = new TournamentEventRoundDivision();
+        seDivision.setDivisionName("Division 1");
+        seDivision.setDrawMethod(DrawMethod.SINGLE_ELIMINATION);
+        seDivision.setPlayersPerGroup(1);
+        seDivision.setPlayersToSeed(0);
+        seDivision.setPlayersToAdvance(0);
+        seRound.setDivisions(Collections.singletonList(seDivision));
+
+        TournamentRoundsConfiguration roundsConfiguration = new TournamentRoundsConfiguration();
+        roundsConfiguration.setRounds(List.of(seRound));
+        tournamentEvent.setRoundsConfiguration(roundsConfiguration);
+
+        IDrawsGenerator seRoundGenerator = DrawGeneratorFactory.makeGenerator(tournamentEvent, seRound, seDivision);
         assertNotNull(seRoundGenerator, "SE round generator is null");
 
         List<DrawItem> seDrawItems = seRoundGenerator.generateDraws(seEventEntries, entryIdToPlayerDrawInfo, existingDrawItems);

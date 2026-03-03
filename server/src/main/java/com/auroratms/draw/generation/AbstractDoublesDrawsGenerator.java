@@ -3,19 +3,22 @@ package com.auroratms.draw.generation;
 import com.auroratms.draw.DrawItem;
 import com.auroratms.draw.DrawType;
 import com.auroratms.event.TournamentEvent;
+import com.auroratms.event.TournamentEventRound;
+import com.auroratms.event.TournamentEventRoundDivision;
 import com.auroratms.tournamentevententry.TournamentEventEntry;
 import com.auroratms.tournamentevententry.doubles.DoublesPair;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 public abstract class AbstractDoublesDrawsGenerator extends AbstractDrawsGenerator {
 
     // teamed up players
     protected List<DoublesPair> doublesPairsForEvent;
 
-    public AbstractDoublesDrawsGenerator(TournamentEvent tournamentEvent) {
-        super(tournamentEvent);
+    public AbstractDoublesDrawsGenerator(TournamentEvent tournamentEvent, TournamentEventRound tournamentEventRound, TournamentEventRoundDivision tournamentEventRoundDivision) {
+        super(tournamentEvent, tournamentEventRound, tournamentEventRoundDivision);
     }
 
     public void setDoublesPairs(List<DoublesPair> doublesPairsForEvent) {
@@ -38,8 +41,10 @@ public abstract class AbstractDoublesDrawsGenerator extends AbstractDrawsGenerat
         DrawItem drawItem = null;
         Long playerAEventEntryFk = doublesPair.getPlayerAEventEntryFk();
         Long playerBEventEntryFk = doublesPair.getPlayerBEventEntryFk();
-        PlayerDrawInfo playerADrawInfo = getPlayerDrawInfo(playerAEventEntryFk, eventEntries, entryIdToPlayerDrawInfo);
-        PlayerDrawInfo playerBDrawInfo = getPlayerDrawInfo(playerBEventEntryFk, eventEntries, entryIdToPlayerDrawInfo);
+        long playerAEntryId = getPlayerEntryId(playerAEventEntryFk, eventEntries);
+        long playerBEntryId = getPlayerEntryId(playerBEventEntryFk, eventEntries);
+        PlayerDrawInfo playerADrawInfo = entryIdToPlayerDrawInfo.get(playerAEntryId);
+        PlayerDrawInfo playerBDrawInfo = entryIdToPlayerDrawInfo.get(playerBEntryId);
         if (playerADrawInfo != null && playerBDrawInfo != null) {
             drawItem = new DrawItem();
             drawItem.setEventFk(eventFk);
@@ -55,7 +60,10 @@ public abstract class AbstractDoublesDrawsGenerator extends AbstractDrawsGenerat
             drawItem.setState(stateA + " / " + stateB);
             drawItem.setGroupNum(groupNum);
             drawItem.setPlaceInGroup(rowNum);
-            drawItem.setEntryId(playerAEventEntryFk);
+            drawItem.setEntryId(playerAEntryId);
+            drawItem.setDoublesPairId(doublesPair.getId());
+            drawItem.setRoundOrdinalNumber(this.tournamentEventRound.getOrdinalNum());
+            drawItem.setDivisionIdx(this.tournamentEventRoundDivision.getDivisionIdx());
         }
         return drawItem;
     }
@@ -70,13 +78,22 @@ public abstract class AbstractDoublesDrawsGenerator extends AbstractDrawsGenerat
     protected PlayerDrawInfo getPlayerDrawInfo(long eventEntryFk,
                                              List<TournamentEventEntry> eventEntries,
                                              Map<Long, PlayerDrawInfo> entryIdToPlayerDrawInfo) {
-        PlayerDrawInfo playerDrawInfo = null;
-        for (TournamentEventEntry eventEntry : eventEntries) {
-            if (eventEntry.getId().equals(eventEntryFk)) {
-                long tournamentEntryFk = eventEntry.getTournamentEntryFk();
-                playerDrawInfo = entryIdToPlayerDrawInfo.get(tournamentEntryFk);
-            }
-        }
-        return playerDrawInfo;
+        long entryId = getPlayerEntryId(eventEntryFk, eventEntries);
+        return entryId == 0 ? null : entryIdToPlayerDrawInfo.get(entryId);
+    }
+
+    /**
+     * Get player tournament entry id
+     * @param eventEntryFk
+     * @param eventEntries
+     * @return
+     */
+    protected long getPlayerEntryId(long eventEntryFk,
+                                    List<TournamentEventEntry> eventEntries) {
+        return eventEntries.stream()
+                .filter(tee -> Objects.equals(tee.getId(), eventEntryFk))
+                .mapToLong(TournamentEventEntry::getTournamentEntryFk)
+                .findFirst()
+                .orElse(0L);
     }
 }

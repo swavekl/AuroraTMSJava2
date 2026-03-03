@@ -3,6 +3,8 @@ package com.auroratms.draw.generation;
 import com.auroratms.draw.DrawItem;
 import com.auroratms.draw.DrawType;
 import com.auroratms.event.TournamentEvent;
+import com.auroratms.event.TournamentEventRound;
+import com.auroratms.event.TournamentEventRoundDivision;
 import com.auroratms.tournamentevententry.TournamentEventEntry;
 
 import java.util.*;
@@ -12,8 +14,8 @@ import java.util.*;
  */
 public class SnakeDrawsGenerator extends AbstractDrawsGenerator implements IDrawsGenerator {
 
-    public SnakeDrawsGenerator(TournamentEvent tournamentEvent) {
-        super(tournamentEvent);
+    public SnakeDrawsGenerator(TournamentEvent tournamentEvent, TournamentEventRound round, TournamentEventRoundDivision division) {
+        super(tournamentEvent, round, division);
     }
 
     /**
@@ -49,8 +51,10 @@ public class SnakeDrawsGenerator extends AbstractDrawsGenerator implements IDraw
      */
     private List<DrawItem> placePlayersInGroups(List<TournamentEventEntry> eventEntries, Map<Long, PlayerDrawInfo> entryIdToPlayerDrawInfo) {
         int numEnteredPlayers = eventEntries.size();
-        int playersPerGroup = this.tournamentEvent.getPlayersPerGroup();
-        int playersToSeed = this.tournamentEvent.getPlayersToSeed();
+//        int playersPerGroup = this.tournamentEvent.getPlayersPerGroup();
+//        int playersToSeed = this.tournamentEvent.getPlayersToSeed();
+        int playersPerGroup = this.tournamentEventRoundDivision.getPlayersPerGroup();
+        int playersToSeed = this.tournamentEventRoundDivision.getPlayersToSeed();
 
         // players to seed are like a group with only one player
         double dNumGroups = ((double) (numEnteredPlayers - playersToSeed) / (double) playersPerGroup);

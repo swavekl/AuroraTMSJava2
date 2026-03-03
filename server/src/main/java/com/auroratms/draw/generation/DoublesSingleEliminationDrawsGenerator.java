@@ -5,6 +5,8 @@ import com.auroratms.draw.DrawType;
 import com.auroratms.draw.generation.singleelim.BracketGenerator;
 import com.auroratms.draw.generation.singleelim.BracketLine;
 import com.auroratms.event.TournamentEvent;
+import com.auroratms.event.TournamentEventRound;
+import com.auroratms.event.TournamentEventRoundDivision;
 import com.auroratms.tournamentevententry.TournamentEventEntry;
 import com.auroratms.tournamentevententry.doubles.DoublesPair;
 
@@ -14,12 +16,14 @@ import java.util.Map;
 
 public class DoublesSingleEliminationDrawsGenerator extends AbstractDoublesDrawsGenerator implements IDrawsGenerator {
 
-    public DoublesSingleEliminationDrawsGenerator(TournamentEvent tournamentEvent) {
-        super(tournamentEvent);
+    public DoublesSingleEliminationDrawsGenerator(TournamentEvent tournamentEvent, TournamentEventRound tournamentEventRound, TournamentEventRoundDivision tournamentEventRoundDivision) {
+        super(tournamentEvent, tournamentEventRound, tournamentEventRoundDivision);
     }
 
     @Override
-    public List<DrawItem> generateDraws(List<TournamentEventEntry> eventEntries, Map<Long, PlayerDrawInfo> entryIdToPlayerDrawInfo, List<DrawItem> existingDrawItems) {
+    public List<DrawItem> generateDraws(List<TournamentEventEntry> eventEntries,
+                                        Map<Long, PlayerDrawInfo> entryIdToPlayerDrawInfo,
+                                        List<DrawItem> existingDrawItems) {
         int numEntries = eventEntries.size() / 2; // doubles teams have 2 players entries
         BracketGenerator bracketGenerator = new BracketGenerator(numEntries);
         BracketLine[] bracketLines = bracketGenerator.generateBracket();
@@ -35,7 +39,10 @@ public class DoublesSingleEliminationDrawsGenerator extends AbstractDoublesDraws
      * @param requiredByes
      * @return
      */
-    private List<DrawItem> placeTeams(BracketLine[] bracketLines, List<TournamentEventEntry> eventEntries, Map<Long, PlayerDrawInfo> entryIdToPlayerDrawInfo, int requiredByes) {
+    private List<DrawItem> placeTeams(BracketLine[] bracketLines,
+                                      List<TournamentEventEntry> eventEntries,
+                                      Map<Long, PlayerDrawInfo> entryIdToPlayerDrawInfo,
+                                      int requiredByes) {
         DrawItem[] drawItemsArray = new DrawItem[bracketLines.length];
 
         int participantsCount = eventEntries.size() / 2;
@@ -50,14 +57,14 @@ public class DoublesSingleEliminationDrawsGenerator extends AbstractDoublesDraws
             // 9 -16 so 8 and so on
             int power = (round <= 2) ? 1 : round - 1;
             int batchSize = (int) Math.pow(2, power) * 2;
-//            System.out.println("batchSize = " + batchSize + " round = " + round);
+            System.out.println("batchSize = " + batchSize + " round = " + round);
             // sublist is starting list inclusive and ending index exclusive
             int sublistStart = previousSublistEnd;
             int subListEnd = sublistStart + batchSize;
             subListEnd = Math.min(subListEnd, eventEntries.size());
-//            System.out.println("playerSeedNum = " + playerSeedNum+ " batchSize = " + batchSize + " sublistStart = " + sublistStart + " subListEnd = " + subListEnd);
+            System.out.println("playerSeedNum = " + playerSeedNum+ " batchSize = " + batchSize + " sublistStart = " + sublistStart + " subListEnd = " + subListEnd);
             List<TournamentEventEntry> entriesSubList = eventEntries.subList(sublistStart, subListEnd);
-
+            System.out.println("entriesSubList.size = " + entriesSubList.size());
             placeTeamFromSublist(playerSeedNum, entriesSubList, entryIdToPlayerDrawInfo, bracketLines, drawItemsArray);
 
             previousSublistEnd = subListEnd;
@@ -181,7 +188,7 @@ public class DoublesSingleEliminationDrawsGenerator extends AbstractDoublesDraws
             }
         }
 
-        if (tournamentEvent.isPlay3rd4thPlace()) {
+        if (this.tournamentEventRoundDivision.isPlay3rd4thPlace()) {
             PlayerDrawInfo tbdPlayerDrawInfo = new PlayerDrawInfo();
             tbdPlayerDrawInfo.setPlayerName(DrawItem.TBD_PROFILE_ID);
             tbdPlayerDrawInfo.setProfileId(DrawItem.TBD_PROFILE_ID);

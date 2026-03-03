@@ -1,6 +1,7 @@
 package com.auroratms.tiebreaking.notification;
 
 import com.auroratms.event.TournamentEvent;
+import com.auroratms.event.TournamentEventConfigAdapter;
 import com.auroratms.event.TournamentEventEntityService;
 import com.auroratms.match.Match;
 import com.auroratms.match.MatchCard;
@@ -63,9 +64,12 @@ public class TieBreakingMatchEventListener {
             MatchCard matchCardWithMatches = matchCardService.getMatchCard(matchCardId);
             long eventFk = matchCardWithMatches.getEventFk();
             TournamentEvent tournamentEvent = tournamentEventEntityService.get(eventFk);
-            int pointsPerGame = tournamentEvent.getPointsPerGame();
+            int roundOrdinalNumber = matchCardWithMatches.getRoundOrdinalNumber();
+            int divisionIdx = matchCardWithMatches.getDivisionIdx();
+            TournamentEventConfigAdapter adapter = new TournamentEventConfigAdapter(tournamentEvent, roundOrdinalNumber, divisionIdx);
+            int pointsPerGame = adapter.getPointsPerGame();
+            int numberOfGames = adapter.getNumberOfGames();
             List<Match> matches = matchCardWithMatches.getMatches();
-            int numberOfGames = matchCardWithMatches.getNumberOfGames();
             int completedMatches = getNumCompletedMatches(matches, numberOfGames, pointsPerGame);
             int totalMatches = matches.size();
             boolean allCompleted = (totalMatches == completedMatches);

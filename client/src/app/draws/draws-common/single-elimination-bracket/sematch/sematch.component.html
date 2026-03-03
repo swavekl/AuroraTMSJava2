@@ -7,14 +7,22 @@
     </div>
     <div [fxFlex]="match.showSeedNumber ? '200px' : '225px'">
       <div class="player-line" [ngClass]="(match.result != null && match.opponentAWon && match.opponentB?.byeNum === 0) ? 'match-winner' : (match.dragDisabled ? '' : 'draggable')"
-           *ngIf="match.opponentA.byeNum === 0"
+           *ngIf="match.opponentA?.byeNum === 0"
+           [class.drop-target-active]="highlightedSlot === 'A'"
            [matTooltip]="match.getTooltipTextA()" matTooltipClass="additional-info-tooltip"
            matTooltipPosition="after"
            cdkDrag
-           [cdkDragData]="match.opponentA"
+           cdkDragLockAxis="y"
+           cdkDragBoundary=".division-boundary-container"
+           [cdkDragData]="{ player: match.opponentA, originMatch: match, slot: 'A' }"
+           [cdkDragPreviewContainer]="'global'"
            [cdkDragDisabled]="match.dragDisabled">
         <span *ngIf="match.showSeedNumber">{{match.opponentA?.rating}}</span>
         {{(match.opponentA?.playerName != null) ? match.opponentA?.playerName : 'TBD'}}
+        <div *cdkDragPreview>
+          <ng-container *ngTemplateOutlet="externalDragPreview; context: { player: match.opponentA }">
+          </ng-container>
+        </div>
       </div>
       <div class="player-line" *ngIf="match.opponentA?.byeNum > 0"  >Bye</div>
       <div class="time-and-table" *ngIf="match.time !== 0">{{match.time | startTime }} Table: {{match.tableNum}}</div>
@@ -22,13 +30,21 @@
       <div class="time-and-table" *ngIf="match.result != null">&nbsp; {{match.result.join(', ')}}</div>
       <div class="player-line" [ngClass]="(match.result != null && !match.opponentAWon && match.opponentA?.byeNum === 0) ? 'match-winner' :  (match.dragDisabled ? '' : 'draggable')"
            *ngIf="match.opponentB?.byeNum === 0"
+           [class.drop-target-active]="highlightedSlot === 'B'"
            [matTooltip]="match.getTooltipTextB()" matTooltipClass="additional-info-tooltip"
            matTooltipPosition="after"
            cdkDrag
-           [cdkDragData]="match.opponentB"
+           cdkDragLockAxis="y"
+           cdkDragBoundary=".division-boundary-container"
+           [cdkDragPreviewContainer]="'global'"
+           [cdkDragData]="{ player: match.opponentB, originMatch: match, slot: 'B' }"
            [cdkDragDisabled]="match.dragDisabled">
         <span *ngIf="match.showSeedNumber">{{match.opponentB?.rating}}</span>
         {{(match.opponentB.playerName != null) ? match.opponentB?.playerName : 'TBD'}}
+        <div *cdkDragPreview>
+          <ng-container *ngTemplateOutlet="externalDragPreview; context: { player: match.opponentB }">
+          </ng-container>
+        </div>
       </div>
       <div class="player-line" *ngIf="match.opponentB?.byeNum > 0"  >Bye</div>
     </div>
@@ -42,4 +58,5 @@
       </div>
     </div>
   </div>
+
 </div>

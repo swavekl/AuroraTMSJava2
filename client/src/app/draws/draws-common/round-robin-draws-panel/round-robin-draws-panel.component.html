@@ -1,92 +1,90 @@
-<div fxLayout="row wrap"
-     fxLayoutGap="32px" [style.height]="bracketsHeight"
-     fxLayoutAlign="start start" cdkDropListGroup class="rr-draws-panel-inner">
-  <div *ngFor="let group of groups; let idx = index;" fxFlex="none">
-    <table>
-      <thead>
-      <tr>
-        <th>&nbsp;</th>
-        <th class="group-num-column">
-          Group: {{group.groupNum}} &nbsp;&nbsp;
-          {{getStartTime(group.groupNum) | startTime}} &nbsp;&nbsp; {{ getAssignedTables(group.groupNum)}}
-        </th>
-        <th>&nbsp;</th>
-      </tr>
-      </thead>
-      <tbody cdkDropList
-             [id]="'groupTB' + (idx + 1)"
-             (cdkDropListDropped)="onDrawItemDrop($event)"
-             [cdkDropListData]="group.drawItems"
-             [cdkDropListSortPredicate]="canDropPredicate"
-             [cdkDropListEnterPredicate]="canMoveDrawItem">
-      <tr *ngFor="let drawItem of group.drawItems;"
-          cdkDrag
-          cdkDragBoundary=".rr-draws-panel-inner"
-          [cdkDragData]="drawItem"
-          [cdkDragDisabled]="editMode === false || drawItem.placeInGroup === 1 || checkinStatus === true"
-          [class]="(editMode === false || drawItem.placeInGroup === 1 || checkinStatus === true) ? '' : 'draggable' ">
-        <ng-container *ngIf="drawItem.rating >= 0; else fakeItem;">
-          <td class="rating-column">{{drawItem.rating}}</td>
-<!--              [matTooltip]="getTooltipText(drawItem)"-->
-<!--          matTooltipClass="additional-info-tooltip"-->
-<!--          matTooltipPosition="after">-->
-          <td class="player-column">
-            <div>{{drawItem.playerName}}</div>
-            <div class="additional-info" *ngIf="expandedView">
-              {{drawItem.state ? drawItem.state : 'N/A'}}, {{drawItem.clubName ? drawItem.clubName : 'N/A'}}
-            </div>
-            <!-- element shown when user is dragging dragging preview -->
-            <div *cdkDragPreview fxLayout="row" [class]="expandedView ? 'drag-preview' : 'drag-preview-small'">
-              <div fxFlex="17%">{{drawItem.rating}}</div>
-              <div fxFlex="83%">
-                <div>{{drawItem.playerName}}</div>
+<div fxLayout="column"
+     class="rr-draws-panel-inner"
+     [style.height]="bracketsHeight">
+
+  <div *ngFor="let division of divisions; let divIdx = index"
+       [class.division-wrapper]="divisions.length > 1"
+       class="division-boundary-container"
+       [id]="'division-boundary-' + divIdx"
+       fxLayout="column">
+
+    <div *ngIf="divisions.length > 1" class="division-header-top" fxLayout="row" fxLayoutAlign="start center">
+      <mat-icon class="division-icon">layers</mat-icon>
+      <span class="division-title">{{ division.divisionName }}</span>
+    </div>
+
+    <div class="groups-container"
+         fxLayout="row wrap"
+         fxLayoutGap="32px"
+         cdkDropListGroup>
+
+      <div *ngFor="let group of division.groups; let idx = index;"
+           class="group-card-wrapper" fxFlex="none">
+        <table [class.expanded]="expandedView">
+          <thead>
+          <tr>
+            <th>&nbsp;</th>
+            <th class="group-num-column">
+              Group: {{ group.groupNum }} &nbsp;&nbsp;
+              {{ getStartTime(group.groupNum) | startTime }} &nbsp;&nbsp; {{ getAssignedTables(group.groupNum) }}
+            </th>
+            <th>&nbsp;</th>
+          </tr>
+          </thead>
+          <tbody cdkDropList
+                 [id]="'round-' + roundOrdinalNumber + '-group-' + idx"
+                 (cdkDropListDropped)="onDrawItemDrop($event, divIdx)"
+                 [cdkDropListData]="group.drawItems"
+                 [cdkDropListSortPredicate]="canDropPredicate"
+                 [cdkDropListEnterPredicate]="canMoveDrawItem"
+                 cdkDropListOrientation="vertical"
+                 >
+
+          <ng-container *ngFor="let drawItem of group.drawItems; trackBy: trackByPlayerId">
+            <tr cdkDrag
+                [cdkDragBoundary]="'#division-boundary-' + divIdx"
+                [cdkDragData]="drawItem"
+                [cdkDragDisabled]="editMode === false || drawItem.placeInGroup === 1 || checkinStatus === true"
+                [class]="(editMode === false || drawItem.placeInGroup === 1 || checkinStatus === true) ? '' : 'draggable'"
+                [cdkDragPreviewClass]="['rr-drag-preview', expandedView ? 'rr-drag-preview--expanded' : 'rr-drag-preview--collapsed']">
+
+              <td class="rating-column">
+                {{ drawItem.rating >= 0 ? drawItem.rating : '' }}
+              </td>
+
+              <td class="player-column" [id]="trackByPlayerId">
+                <div>{{ drawItem.rating >= 0 ? drawItem.playerName : '&nbsp;' }}</div>
+
                 <div class="additional-info" *ngIf="expandedView">
-                  {{drawItem.state ? drawItem.state : 'N/A'}}, {{drawItem.clubName ? drawItem.clubName : 'N/A'}}
+                  <ng-container *ngIf="drawItem.rating >= 0">
+                    {{ drawItem.state ? drawItem.state : 'N/A' }}, {{ drawItem.clubName ? drawItem.clubName : 'N/A' }}
+                  </ng-container>
+                  <ng-container *ngIf="drawItem.rating < 0">&nbsp;</ng-container>
                 </div>
-              </div>
-            </div>
-          </td>
-          <td *ngIf="!checkinStatus">
-            <div class="conflict-indicator" [ngClass]="getConflictClass(drawItem)" [matTooltip]="getConflictTooltipText(drawItem)">&nbsp;</div>
-          </td>
-          <td *ngIf="checkinStatus" class="player-status-column" >
-            <ng-container *ngIf="!selectedEvent.doubles; else doubles">
-              <div [matTooltip]="getPlayerStatusReason(drawItem.playerId, 0)">
-                <app-player-status-indicator [playerStatus]="getPlayerStatusCode(drawItem.playerId, 0)"></app-player-status-indicator>
-              </div>
-            </ng-container>
-            <ng-template #doubles>
-              <div [matTooltip]="getPlayerStatusReason(drawItem.playerId, 0)">
-                <app-player-status-indicator [playerStatus]="getPlayerStatusCode(drawItem.playerId, 0)"></app-player-status-indicator>
-              </div>
-              <div [matTooltip]="getPlayerStatusReason(drawItem.playerId, 1)">
-                <app-player-status-indicator [playerStatus]="getPlayerStatusCode(drawItem.playerId, 1)"></app-player-status-indicator>
-              </div>
-            </ng-template>
-          </td>
-        </ng-container>
-        <!-- element shown when there is no player in this place in the group -->
-        <ng-template #fakeItem>
-          <td class="rating-column">&nbsp;</td>
-          <td class="player-column">
-            <div>&nbsp;</div>
-            <div class="additional-info" *ngIf="expandedView">&nbsp;</div>
-            <!-- element shown when user is dragging dragging preview -->
-            <div *cdkDragPreview fxLayout="row" [class]="expandedView ? 'drag-preview' : 'drag-preview-small'">
-              <div fxFlex="17%">&nbsp;</div>
-              <div fxFlex="83%">
-                <div>&nbsp;</div>
-                <div class="additional-info" *ngIf="expandedView">&nbsp;</div>
-              </div>
-            </div>
-          </td>
-          <td *ngIf="!checkinStatus">
-            <div class="conflict-indicator"></div>
-          </td>
-          <td *ngIf="checkinStatus" class="player-status-column"></td>
-        </ng-template>
-      </tr>
-      </tbody>
-    </table>
+              </td>
+
+              <td *ngIf="!checkinStatus">
+                <div *ngIf="drawItem.rating >= 0"
+                     class="conflict-indicator"
+                     [ngClass]="getConflictClass(drawItem)"
+                     [matTooltip]="getConflictTooltipText(drawItem)">&nbsp;
+                </div>
+              </td>
+
+              <td *ngIf="checkinStatus" class="player-status-column"></td>
+            </tr>
+
+            <tr class="rr-row-placeholder" *cdkDragPlaceholder>
+              <td class="rating-column">&nbsp;</td>
+              <td class="player-column">&nbsp;</td>
+              <td *ngIf="!checkinStatus">&nbsp;</td>
+              <td *ngIf="checkinStatus" class="player-status-column">&nbsp;</td>
+            </tr>
+          </ng-container>
+
+          </tbody>
+        </table>
+      </div>
+    </div>
   </div>
 </div>

@@ -224,6 +224,8 @@ export class TournamentEvent {
       seRound.divisions[0].playersPerGroup = 1;
       seRound.divisions[0].previousRoundPlayerRanking = 1;
       seRound.divisions[0].previousRoundPlayerRankingEnd = 1;
+      seRound.divisions[0].previousDivisionIdx = 0;
+      seRound.divisions[0].divisionIdx = 1;
       rounds.push(seRound);
       seRound.startTime = 12.0;
     }
@@ -233,15 +235,20 @@ export class TournamentEvent {
   public static makeRound(roundName: string, selectedEvent: TournamentEvent, drawMethod: DrawMethod, divisionName: string = 'Championship') {
     let round: TournamentEventRound = new TournamentEventRound();
     round.roundName = roundName;
+    round.ordinalNum = 1;
     round.day = 1;
     round.startTime = 9.0;
     round.divisions = [];
     let division: TournamentEventRoundDivision = new TournamentEventRoundDivision();
     round.divisions.push(division);
     division.divisionName = divisionName;
+    division.previousDivisionIdx = 0;
+    division.previousRoundPlayerRanking = 0;
+    division.previousRoundPlayerRankingEnd = 0;
     division.playersPerGroup = (selectedEvent?.playersPerGroup == null) ? 4 : selectedEvent.playersPerGroup;
     division.drawMethod = drawMethod;
     division.playersToAdvance = (selectedEvent?.playersToAdvance == null) ? 1 : selectedEvent.playersToAdvance;
+    division.divisionIdx = 1;
     return round;
   }
 }

@@ -1,8 +1,8 @@
-import {Component, EventEmitter, Input, OnChanges, Output, SimpleChanges} from '@angular/core';
+import {Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Optional, Output, SimpleChanges} from '@angular/core';
 import {CdkDrag, CdkDragDrop, CdkDropList, transferArrayItem} from '@angular/cdk/drag-drop';
 import {MatDialog} from '@angular/material/dialog';
 import {TournamentEvent} from '../../../tournament/tournament-config/tournament-event.model';
-import {DrawGroup} from '../model/draw-group.model';
+import {DrawDivision, DrawGroup} from '../model/draw-group.model';
 import {DrawItem} from '../model/draw-item.model';
 import {DrawType} from '../model/draw-type.enum';
 import {UndoMemento} from '../model/undo-memento';
@@ -14,6 +14,10 @@ import {EventStatusCode} from '../../../today/model/event-status-code.enum';
 import {PlayerStatus} from '../../../today/model/player-status.model';
 import {PlayerStatusPipe} from '../../../today/pipe/player-status.pipe';
 import {MatchCardInfo} from '../../../matches/model/match-card-info.model';
+import {UndoablePanel} from '../undoable-panel';
+import {DrawUndoService} from '../draw-undo.service';
+import {Subject} from 'rxjs';
+import {takeUntil} from 'rxjs/operators';
 
 @Component({
     selector: 'app-round-robin-draws-panel',
@@ -21,7 +25,7 @@ import {MatchCardInfo} from '../../../matches/model/match-card-info.model';
     styleUrls: ['./round-robin-draws-panel.component.scss'],
     standalone: false
 })
-export class RoundRobinDrawsPanelComponent implements OnChanges {
+export class RoundRobinDrawsPanelComponent implements OnInit, OnChanges, OnDestroy, UndoablePanel {
 
   // items for this event
   @Input()
@@ -46,6 +50,9 @@ export class RoundRobinDrawsPanelComponent implements OnChanges {
   @Input()
   selectedEvent: TournamentEvent;
 
+  @Input()
+  roundOrdinalNumber: number = 1;
+
   @Output()
   private drawsAction: EventEmitter<any> = new EventEmitter<any>();
 
@@ -57,7 +64,9 @@ export class RoundRobinDrawsPanelComponent implements OnChanges {
   bracketsHeight!: string;
 
   // array of group objects with group
-  groups: DrawGroup [] = [];
+  // groups: DrawGroup [] = [];
+
+  divisions: DrawDivision [] = [];
 
   // if true expanded information i.e. state, club of player
   expandedView: boolean;
@@ -68,49 +77,141 @@ export class RoundRobinDrawsPanelComponent implements OnChanges {
   // information about moved items
   undoStack: UndoMemento [] = [];
 
-  constructor(private dialog: MatDialog) {
-    this.groups = [];
+  private destroy$ = new Subject<void>();
+  private _isActive: boolean = false;
+
+  constructor(private dialog: MatDialog,
+              @Optional() private drawUndoService: DrawUndoService) {
+    // this.groups = [];
     this.expandedView = false;
     this.checkinStatus = false;
     this.allowDrawChanges = true;
     this.undoStack = [];
+    this._isActive = false;
   }
 
   ngOnInit(): void {
+    // Listen for the Undo click
+    this.drawUndoService.undoAction$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        // console.log(`Undo RR # ${this.roundOrdinalNumber} draws`);
+        if (this.isActive()) {
+          this.undoMove();
+          this.broadcastState();
+        }
+      });
   }
 
+  ngOnDestroy() {
+    // 3. Emit a value to complete all subscriptions
+    this.destroy$.next();
+    // 4. Clean up the subject itself
+    this.destroy$.complete();
+
+    // 5. Optional: Clear the undo button if this was the last active panel
+    this.drawUndoService.updateCanUndo(false);
+  }
+
+  // Helper to push the local state up to the service
+  broadcastState() {
+    // Promise.resolve().then() ensures this happens in the next tick,
+    // preventing the ExpressionChanged error.
+    Promise.resolve().then(() => {
+      this.drawUndoService.updateCanUndo(this.undoStack.length > 0);
+    });
+  }
+
+  // When the user switches to this tab
+  setActive(val: boolean) {
+    // console.log(`RR ${this.roundOrdinalNumber} setActive: ${val}`);
+    this._isActive = val;
+  }
+
+  isActive(): boolean {
+    // console.log(`RR ${this.roundOrdinalNumber} isActive: ${this._isActive}`);
+    return this._isActive;
+  }
 
   ngOnChanges(changes: SimpleChanges): void {
-    // const selectedEventChange: SimpleChange = changes.selectedEvent;
-    // if (selectedEventChange != null && selectedEventChange.currentValue != null) {
-    //   console.log('clearing undo stack');
-    //   this.undoStack = [];
-    // }
-
     if (this.draws != null && this.selectedEvent != null) {
-      this.initializeGroups(this.draws);
+      this.initializeDivisions(this.draws);
       this.setupGroupsForDragAndDrop();
     }
   }
 
-  private initializeGroups(drawItems: DrawItem[]) {
-    let groupNum = 0;
-    let currentGroup: DrawGroup = null;
-    let groups: DrawGroup [] = [];
-    drawItems.forEach((drawItem: DrawItem) => {
-      if (drawItem.drawType === DrawType.ROUND_ROBIN) {
-        if (drawItem.groupNum !== groupNum) {
-          groupNum = drawItem.groupNum;
-          currentGroup = new DrawGroup();
-          currentGroup.groupNum = drawItem.groupNum;
-          currentGroup.drawItems = [];
-          groups.push(currentGroup);
-        }
-        currentGroup.drawItems.push(drawItem);
-      }
+  private initializeDivisions(drawItems: DrawItem[]) {
+    // 1. Filter items for this specific round and draw type first to simplify logic
+    const relevantItems = drawItems.filter(item =>
+      item.drawType === DrawType.ROUND_ROBIN &&
+      item.roundOrdinalNumber === this.roundOrdinalNumber
+    );
+
+    // 2. Group by Division Index
+    const divisionMap = new Map<number, DrawItem[]>();
+    relevantItems.forEach(item => {
+      const list = divisionMap.get(item.divisionIdx) || [];
+      list.push(item);
+      divisionMap.set(item.divisionIdx, list);
     });
-    this.groups = groups;
+
+    const divisions: DrawDivision[] = [];
+
+    // 3. Process each Division
+    divisionMap.forEach((itemsInDivision, divIdx) => {
+      const currentDivision = new DrawDivision();
+      currentDivision.divisionIdx = divIdx;
+
+      // Look up the professional name from configuration
+      const foundDivision = this.selectedEvent?.roundsConfiguration?.rounds
+        ?.find(r => r.ordinalNum === this.roundOrdinalNumber)
+        ?.divisions?.find(d => d.divisionIdx === divIdx);
+
+      currentDivision.divisionName = foundDivision?.divisionName ?? `Division ${divIdx}`;
+
+      // 4. Group items WITHIN this division by Group Number
+      const groupMap = new Map<number, DrawItem[]>();
+      itemsInDivision.forEach(item => {
+        const list = groupMap.get(item.groupNum) || [];
+        list.push(item);
+        groupMap.set(item.groupNum, list);
+      });
+
+      // Convert group map to DrawGroup objects
+      currentDivision.groups = Array.from(groupMap.entries())
+        .map(([groupNum, items]) => {
+          const group = new DrawGroup();
+          group.groupNum = groupNum;
+          group.drawItems = items;
+          return group;
+        })
+        .sort((a, b) => a.groupNum - b.groupNum); // Ensure groups stay in order
+
+      divisions.push(currentDivision);
+    });
+
+    // 5. Final Sort and Assign
+    this.divisions = divisions.sort((a, b) => a.divisionIdx - b.divisionIdx);
   }
+
+  // private initializeGroups(drawItems: DrawItem[]) {
+  //   let groupNum = 0;
+  //   let currentGroup: DrawGroup = null;
+  //   let groups: DrawGroup [] = [];
+  //   drawItems.forEach((drawItem: DrawItem) => {
+  //     if (drawItem.drawType === DrawType.ROUND_ROBIN && drawItem.roundOrdinalNumber === this.roundOrdinalNumber) {
+  //       if (drawItem.groupNum !== groupNum) {
+  //         groupNum = drawItem.groupNum;
+  //         currentGroup = new DrawGroup();
+  //         currentGroup.groupNum = drawItem.groupNum;
+  //         currentGroup.drawItems = [];
+  //         groups.push(currentGroup);
+  //       }
+  //       currentGroup.drawItems.push(drawItem);
+  //     }
+  //   });
+  //   this.groups = groups;
+  // }
 
   /**
    * Sets up connectedTo array of tables
@@ -120,36 +221,47 @@ export class RoundRobinDrawsPanelComponent implements OnChanges {
     // some fake draw items so we can move horizontally and drop on them
     // what is the max number of rows
     if (this.selectedEvent) {
-      const playersPerGroup = this.selectedEvent.playersPerGroup;
-      this.groups.forEach((drawGroup: DrawGroup) => {
-        // if group is not showing one seeded player and it has fewer than players per group
-        // then add fake draw items
-        if (drawGroup.drawItems.length < playersPerGroup && drawGroup.drawItems.length !== 1) {
-          const startItemIndex = drawGroup.drawItems.length;
-          for (let i = startItemIndex; i < playersPerGroup; i++) {
-            const fakeDrawItem: DrawItem = {
-              id: -1,
-              eventFk: this.selectedEvent.id,
-              groupNum: drawGroup.groupNum,
-              placeInGroup: i,
-              drawType: DrawType.ROUND_ROBIN,
-              playerId: 'N/A',
-              conflictType: ConflictType.NO_CONFLICT,
-              rating: -1,
-              playerName: ' ',
-              state: ' ',
-              clubName: ' ',
-              byeNum: 0,
-              round: 0,
-              seSeedNumber: 0,
-              singleElimLineNum: 0,
-              entryId: 0,
-              teamFk: 0,
-              teamName: ' ',
-            };
-            drawGroup.drawItems.push(fakeDrawItem);
+      // const playersPerGroup = this.selectedEvent.playersPerGroup;
+      this.divisions.forEach((drawDivision: DrawDivision) => {
+        const foundDivision = this.selectedEvent?.roundsConfiguration?.rounds
+          ?.find(r => r.ordinalNum === this.roundOrdinalNumber)
+          ?.divisions?.find(d => d.divisionIdx === drawDivision.divisionIdx);
+        const playersPerGroup = foundDivision?.playersPerGroup || 4;
+        drawDivision.groups.forEach((drawGroup: DrawGroup) => {
+          // if group is not showing one seeded player and it has fewer than players per group
+          // then add fake draw items
+          if (drawGroup.drawItems.length < playersPerGroup && drawGroup.drawItems.length !== 1) {
+            const startItemIndex = drawGroup.drawItems.length;
+            for (let i = startItemIndex; i < playersPerGroup; i++) {
+              const fakeDrawItem: DrawItem = {
+                id: -1,
+                eventFk: this.selectedEvent.id,
+                groupNum: drawGroup.groupNum,
+                placeInGroup: i + 1,
+                drawType: DrawType.ROUND_ROBIN,
+                playerId: 'N/A',
+                conflictType: ConflictType.NO_CONFLICT,
+                rating: -1,
+                playerName: ' ',
+                state: ' ',
+                clubName: ' ',
+                byeNum: 0,
+                round: 0,
+                seSeedNumber: 0,
+                singleElimLineNum: 0,
+                entryId: 0,
+                doublesPairId: 0,
+                teamFk: 0,
+                teamName: ' ',
+                roundOrdinalNumber: this.roundOrdinalNumber,
+                divisionIdx: drawDivision.divisionIdx
+              };
+              drawGroup.drawItems.push(fakeDrawItem);
+            }
           }
-        }
+          // console.log('group ' + drawGroup.groupNum + ' drawItems:');
+          // drawGroup.drawItems.forEach(di => console.log('di.rating:' + di.rating + ', di.placeInGroup: ' + di.placeInGroup));
+        });
       });
     }
   }
@@ -157,14 +269,15 @@ export class RoundRobinDrawsPanelComponent implements OnChanges {
   /**
    * Drag and Drop functionality
    * @param event drop event
+   * @param divIdx division index
    */
-  onDrawItemDrop(event: CdkDragDrop<DrawItem[]>) {
+  onDrawItemDrop(event: CdkDragDrop<DrawItem[]>, divIdx: number) {
     // only allow movement between different groups and in the same row
     if (event.previousContainer !== event.container &&
       event.previousIndex === event.currentIndex) {
       // make sure they know if scores are entered that they will be wiped out
       this.confirmDrawChanges(() => {
-        this.onDrawItemDropInternal(event);
+        this.onDrawItemDropInternal(event, divIdx);
         this.updateFlag();
       });
     }
@@ -188,23 +301,34 @@ export class RoundRobinDrawsPanelComponent implements OnChanges {
     }
   }
 
+  trackByPlayerId(index: number, item: DrawItem) {
+    if (item.id === -1) {
+      // fake id.  generate id
+      return 'fake-' + item.roundOrdinalNumber * 10000 + item.divisionIdx * 1000 + item.groupNum * 100 + item.placeInGroup;
+    } else {
+      return item.id;
+    }
+  }
+
   /**
    * Internal method
    * @param event
    */
-  onDrawItemDropInternal(event: CdkDragDrop<DrawItem[]>) {
+  onDrawItemDropInternal(event: CdkDragDrop<DrawItem[]>, divIdx: number) {
     const changedGroupNum1 = event.previousContainer.data[0].groupNum;
     const changedGroupNum2 = event.container.data[0].groupNum;
+    // console.log('onDrawItemDropInternal: changedGroupNum1: ' + changedGroupNum1 + ', changedGroupNum2: ' + changedGroupNum2);
     // save this move on the undo stack so
     const undoMemento: UndoMemento = {
       toGroupItems: event.previousContainer.data,
       fromGroupItems: event.container.data,
       rowIndex: event.previousIndex,
       changedGroupNum1: changedGroupNum1,
-      changedGroupNum2: changedGroupNum2
+      changedGroupNum2: changedGroupNum2,
+      divIdx: divIdx
     };
     this.undoStack.push(undoMemento);
-
+    // console.log('event', event);
     // exchange items
     // move into new group
     transferArrayItem(event.previousContainer.data,
@@ -217,7 +341,8 @@ export class RoundRobinDrawsPanelComponent implements OnChanges {
       event.currentIndex + 1,
       event.previousIndex);
 
-    this.updateDrawItems(event.currentIndex, changedGroupNum1, changedGroupNum2);
+    this.updateDrawItems(event.currentIndex, changedGroupNum1, changedGroupNum2, divIdx);
+    this.broadcastState(); // Enable the button!
   }
 
   /**
@@ -225,12 +350,14 @@ export class RoundRobinDrawsPanelComponent implements OnChanges {
    * @param rowIndex row position that changed
    * @param groupNum1 group that changed
    * @param groupNum2 another group that changed
+   * @param divIdx division index whose groups have changed
    * @private
    */
-  private updateDrawItems(rowIndex: number, groupNum1: number, groupNum2: number) {
+  private updateDrawItems(rowIndex: number, groupNum1: number, groupNum2: number, divIdx: number) {
     // collect changed draw items
     const movedDrawItems: DrawItem [] = [];
-    this.groups.forEach((drawGroup: DrawGroup) => {
+    const groups = this.divisions[divIdx].groups;
+    groups.forEach((drawGroup: DrawGroup) => {
       const groupNum = drawGroup.groupNum;
       // if this is one of the changed groups
       if (groupNum === groupNum1 || groupNum === groupNum2) {
@@ -272,7 +399,14 @@ export class RoundRobinDrawsPanelComponent implements OnChanges {
    * @param drop drop list onto which the item is being dropped
    */
   canDropPredicate(index: number, item: CdkDrag<DrawItem>, drop: CdkDropList) {
-    return (index + 1) === item?.data.placeInGroup;
+    const targetIndex = index + 1;
+    const playerOriginalRank = item.data?.placeInGroup;
+
+    // LOG THIS to see if placeInGroup is changing unexpectedly
+    // console.log(`Testing Index: ${targetIndex} against Rank: ${playerOriginalRank}`);
+
+    return targetIndex === playerOriginalRank;
+    // return (index + 1) === item?.data.placeInGroup;
   }
 
   /**
@@ -307,10 +441,10 @@ export class RoundRobinDrawsPanelComponent implements OnChanges {
    * Undo the player move
    */
   undoMove() {
+    // console.log('undoMove undostack.count', this.undoStack?.length);
     if (this.undoStack?.length > 0) {
       const undoMemento: UndoMemento = this.undoStack[this.undoStack.length - 1];
       this.undoStack.splice(this.undoStack.length - 1, 1);
-
       // exchange items
       // move into new group
       transferArrayItem(undoMemento.fromGroupItems,
@@ -323,8 +457,9 @@ export class RoundRobinDrawsPanelComponent implements OnChanges {
         undoMemento.rowIndex + 1,
         undoMemento.rowIndex);
 
-      this.updateDrawItems(undoMemento.rowIndex, undoMemento.changedGroupNum1, undoMemento.changedGroupNum2);
+      this.updateDrawItems(undoMemento.rowIndex, undoMemento.changedGroupNum1, undoMemento.changedGroupNum2, undoMemento.divIdx);
     }
+    this.broadcastState(); // Enable the button!
   }
 
   setExpandedView(expandedView: boolean) {
@@ -335,7 +470,7 @@ export class RoundRobinDrawsPanelComponent implements OnChanges {
     this.checkinStatus = checkinStatus;
   }
 
-  clearUndoStack() {
+  clearUndoItems() {
     this.undoStack = [];
   }
 

@@ -1,8 +1,7 @@
 package com.auroratms.draw.generation;
 
 import com.auroratms.draw.DrawItem;
-import com.auroratms.event.DrawMethod;
-import com.auroratms.event.TournamentEvent;
+import com.auroratms.event.*;
 import com.auroratms.tournamentevententry.TournamentEventEntry;
 import org.junit.jupiter.api.Test;
 
@@ -30,6 +29,24 @@ public class SnakeDrawsGeneratorTest extends AbstractDrawsGeneratorTest {
         tournamentEvent.setPlayersToAdvance(1);
         tournamentEvent.setDrawMethod(DrawMethod.SNAKE);
 
+        TournamentEventRound rrRound = new TournamentEventRound();
+        rrRound.setOrdinalNum(1);
+        rrRound.setRoundName("Qualifying Round RR");
+        rrRound.setDay(1);
+        rrRound.setStartTime(9.0d);
+
+        TournamentEventRoundDivision rrDivision = new TournamentEventRoundDivision();
+        rrDivision.setDivisionName("Division 1");
+        rrDivision.setDrawMethod(DrawMethod.SNAKE);
+        rrDivision.setPlayersPerGroup(4);
+        rrDivision.setPlayersToSeed(numPlayersToSeed);
+        rrDivision.setPlayersToAdvance(1);
+        rrRound.setDivisions(Collections.singletonList(rrDivision));
+
+        TournamentRoundsConfiguration roundsConfiguration = new TournamentRoundsConfiguration();
+        roundsConfiguration.setRounds(List.of(rrRound));
+        tournamentEvent.setRoundsConfiguration(roundsConfiguration);
+
         List<TournamentEventEntry> eventEntries = makeTournamentEntriesList();
 
         Map<Long, PlayerDrawInfo> entryIdToPlayerDrawInfo = makePlayerDrawInfos ();
@@ -37,7 +54,7 @@ public class SnakeDrawsGeneratorTest extends AbstractDrawsGeneratorTest {
         // first event draw
         List<DrawItem> existingDrawItems = new ArrayList<>();
 
-        SnakeDrawsGenerator generator = new SnakeDrawsGenerator(tournamentEvent);
+        SnakeDrawsGenerator generator = new SnakeDrawsGenerator(tournamentEvent, rrRound, rrDivision);
         List<DrawItem> drawItems = generator.generateDraws(eventEntries, entryIdToPlayerDrawInfo, existingDrawItems);
         assertEquals(23, drawItems.size(), "wrong number of draws");
 

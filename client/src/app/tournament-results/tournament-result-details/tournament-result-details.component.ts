@@ -73,8 +73,11 @@ export class TournamentResultDetailsComponent implements OnInit, OnChanges {
             state: null, // todo
             singleElimLineNum: 0,
             entryId: 0,
+            doublesPairId: 0,
             teamFk: 0,
             teamName: null,
+            roundOrdinalNumber: 1,
+            divisionIdx: 0
           };
           tempSeDrawItems.push(drawItem);
         }

@@ -3,6 +3,8 @@ package com.auroratms.draw.generation;
 import com.auroratms.draw.DrawItem;
 import com.auroratms.draw.DrawType;
 import com.auroratms.event.TournamentEvent;
+import com.auroratms.event.TournamentEventRound;
+import com.auroratms.event.TournamentEventRoundDivision;
 import com.auroratms.tournamentevententry.TournamentEventEntry;
 import com.auroratms.tournamentevententry.doubles.DoublesPair;
 
@@ -13,8 +15,8 @@ import java.util.*;
  */
 public class DoublesSnakeDrawsGenerator extends AbstractDoublesDrawsGenerator implements IDrawsGenerator {
 
-    public DoublesSnakeDrawsGenerator(TournamentEvent tournamentEvent) {
-        super(tournamentEvent);
+    public DoublesSnakeDrawsGenerator(TournamentEvent tournamentEvent, TournamentEventRound tournamentEventRound, TournamentEventRoundDivision tournamentEventRoundDivision) {
+        super(tournamentEvent, tournamentEventRound, tournamentEventRoundDivision);
     }
 
     @Override
@@ -35,8 +37,10 @@ public class DoublesSnakeDrawsGenerator extends AbstractDoublesDrawsGenerator im
      */
     private List<DrawItem> placeTeamsInGroups(List<TournamentEventEntry> eventEntries, Map<Long, PlayerDrawInfo> entryIdToPlayerDrawInfo, List<DoublesPair> doublesPairsForEvent) {
         int numEnteredTeams = doublesPairsForEvent.size();
-        int teamsPerGroup = this.tournamentEvent.getPlayersPerGroup();
-        int teamsToSeed = this.tournamentEvent.getPlayersToSeed();
+//        int teamsPerGroup = this.tournamentEvent.getPlayersPerGroup();
+//        int teamsToSeed = this.tournamentEvent.getPlayersToSeed();
+        int teamsPerGroup = this.tournamentEventRoundDivision.getPlayersPerGroup();
+        int teamsToSeed = this.tournamentEventRoundDivision.getPlayersToSeed();
 
         // players to seed are like a group with only one player
         double dNumGroups = ((double) (numEnteredTeams - teamsToSeed) / (double) teamsPerGroup);

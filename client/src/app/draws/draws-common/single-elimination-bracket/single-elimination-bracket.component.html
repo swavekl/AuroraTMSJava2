@@ -1,40 +1,89 @@
-<div fxShow.gt-md="true" fxShow.md="true" fxHide.lt-md="true" >
-  <div class="round-header-container">
-    <div fxLayout="row" class="round-header">
-      <div *ngFor="let round of roundNumbers">
-        {{ round | roundName: 1}}
+<div fxShow.gt-md="true" fxShow.md="true" fxHide.lt-md="true">
+  <div fxLayout="column"
+       class="se-bracket-panel" [style.height]="bracketsHeight">
+
+    <div *ngFor="let division of divisions; let divIdx = index"
+         [class.division-wrapper]="divisions.length > 1"
+         class="division-boundary-container"
+         [id]="'division-boundary-' + divIdx"
+         fxLayout="column"
+         cdkDropListGroup>
+      <div *ngIf="divisions.length > 1" class="division-header-top" fxLayout="row" fxLayoutAlign="start center">
+        <mat-icon class="division-icon">layers</mat-icon>
+        <span class="division-title">{{ division.divisionName }}</span>
+        <!--      <div class="division-header-line" fxFlex></div>-->
+      </div>
+
+      <div class="round-header-container">
+        <div fxLayout="row" class="round-header">
+          <div *ngFor="let round of division.roundNumbers">
+            {{ round | roundName: 1 }}
+          </div>
+        </div>
+      </div>
+
+      <ng-template #dragPreview let-player="player">
+        <div class="se-drag-preview">
+          <span class="preview-seed">[{{ player.seSeedNumber }}]</span>
+          <span class="preview-rating">&nbsp;{{ player.rating }}</span>
+          <span class="preview-name">&nbsp;{{ player.playerName }}</span>
+        </div>
+      </ng-template>
+
+      <div class="pipeline-container" [style.height.px]="division?.svgData?.totalHeight"
+           [style.width.px]="division?.svgData?.totalWidth"
+           >
+
+        <svg class="connector-layer">
+          <path *ngFor="let path of division?.svgData?.connectors"
+                [attr.d]="path"
+                fill="none"
+                stroke="#673ab7"
+                stroke-width="2"
+                opacity="0.4" />
+        </svg>
+
+        <div class="match-layer">
+          <div *ngFor="let match of division?.svgData?.layoutMatches"
+               class="match-card-anchor"
+               [style.left.px]="match.x"
+               [style.top.px]="match.y"
+               [id]="match.data.matchElementId"
+               cdkDropList
+               (mousemove)="onMouseMove($event)"
+               [cdkDropListData]="match.data"
+               (cdkDropListDropped)="onDrawItemDrop($event)"
+               (cdkDropListEntered)="onDragEntered( $event, match)"
+               (cdkDropListExited)="onDragExited( $event, match)"
+               [cdkDropListSortingDisabled]="true">
+            <div *ngIf="match.isConsolation" class="consolation-label">
+              3rd/4th Place Match
+            </div>
+
+            <app-sematch
+              [match]="match.data"
+              [doublesEvent]="doublesEvent"
+              [externalDragPreview]="dragPreview"
+              [highlightedSlot]="match.highlightedSlot">
+            </app-sematch>
+          </div>
+        </div>
       </div>
     </div>
   </div>
-  <div class="se-bracket-panel" [style.height]="bracketsHeight" *ngIf="tournament" fxLayout="row">
-    <div cdkDropList
-         cdkDropListOrientation="vertical"
-         (cdkDropListDropped)="onDrawItemDrop($event)"
-         [cdkDropListData]="dropListData"
-         [cdkDropListSortPredicate]="canDropPredicate"
-         [cdkDropListEnterPredicate]="canMoveDrawItem">
-      <ngtt-single-elimination-tree
-        [tournament]="tournament"
-        [matchTemplate]="myMatchTemplate">
-      </ngtt-single-elimination-tree>
+</div>
+<div fxHide.gt-md="true" fxHide.md="true" fxShow.lt-md="true">
+    <div *ngFor="let division of divisions; let divIdx = index">
+      <div class="division-header">{{ division.divisionName }}</div>
+      <app-single-elimination-bracket-small
+        [rounds]="roundNumbers"
+        [seRounds]="getSERounds(divIdx)"
+        [matchTemplate]="mySmallMatchTemplate"
+        [doublesEvent]="doublesEvent">
 
-      <ng-template #myMatchTemplate let-match>
-        <app-sematch [match]="match" [doublesEvent]="doublesEvent"></app-sematch>
-      </ng-template>
-
+        <ng-template #mySmallMatchTemplate let-match="match">
+          <app-sematch [match]="match" [doublesEvent]="doublesEvent"></app-sematch>
+        </ng-template>
+      </app-single-elimination-bracket-small>
     </div>
-  </div>
 </div>
-<div fxHide.gt-md="true" fxHide.md="true" fxShow.lt-md="true" >
-  <app-single-elimination-bracket-small
-    [rounds]="roundNumbers"
-    [tournament]="tournament"
-    [matchTemplate]="mySmallMatchTemplate"
-    [doublesEvent]="doublesEvent">
-
-    <ng-template #mySmallMatchTemplate let-match="match">
-      <app-sematch [match]="match" [doublesEvent]="doublesEvent"></app-sematch>
-    </ng-template>
-  </app-single-elimination-bracket-small>
-</div>
-

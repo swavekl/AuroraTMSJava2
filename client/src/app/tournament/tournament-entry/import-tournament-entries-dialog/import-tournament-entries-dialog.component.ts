@@ -87,8 +87,8 @@ export class ImportTournamentEntriesDialogComponent implements OnInit, OnDestroy
     let statesOrRegions: string[] = [this.USATT_EVENTS];
     tournamentsToImport.forEach(tournament => {
       // console.log('tournament state', tournament.tournamentState);
-      const state = (tournament.tournamentState.length == 2) ? this.USATT_EVENTS : tournament.tournamentState;
-      if (!statesOrRegions.includes(state)) {
+      const state = (tournament.tournamentState?.length === 2) ? this.USATT_EVENTS : tournament.tournamentState;
+      if (!statesOrRegions.includes(state) && tournament.tournamentState != null) {
         statesOrRegions.push(tournament.tournamentState);
       }
     });
@@ -117,10 +117,15 @@ export class ImportTournamentEntriesDialogComponent implements OnInit, OnDestroy
   startImport() {
     this.startTimer();
     const importEntriesRequest: ImportEntriesRequest = {
-      tournamentId: this.selectedTargetTournamentId,
-      playersUrl: this.selectedTournamentUrl,
+      tournamentId: 984,
+      playersUrl: 'T-tourney.asp?t=100&r=5190',
       emailsFileRepoPath: this.emailsFileRepoPath
     };
+    // const importEntriesRequest: ImportEntriesRequest = {
+    //   tournamentId: this.selectedTargetTournamentId,
+    //   playersUrl: this.selectedTournamentUrl,
+    //   emailsFileRepoPath: this.emailsFileRepoPath
+    // };
     this.tournamentImportService.importTournamentEntries(importEntriesRequest)
       .subscribe({
         next: (importProgressInfo: ImportProgressInfo) => {
@@ -235,10 +240,15 @@ export class ImportTournamentEntriesDialogComponent implements OnInit, OnDestroy
       this.playerAccountsCheckResults = '';
       this.isCheckingAccounts = true;
       const importEntriesRequest: ImportEntriesRequest = {
-        tournamentId: this.selectedTargetTournamentId,
-        playersUrl: this.selectedTournamentUrl,
+        tournamentId: 984,
+        playersUrl: 'T-tourney.asp?t=100&r=5190',
         emailsFileRepoPath: null
       };
+      // const importEntriesRequest: ImportEntriesRequest = {
+      //   tournamentId: this.selectedTargetTournamentId,
+      //   playersUrl: this.selectedTournamentUrl,
+      //   emailsFileRepoPath: null
+      // };
       console.log('checking accounts');
       this.tournamentImportService.checkAccounts(importEntriesRequest)
         .subscribe({
