@@ -3,7 +3,9 @@ package com.auroratms.usatt;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
+import java.util.Collection;
 import java.util.List;
 
 public interface UsattPlayerRecordRepository extends JpaRepository<UsattPlayerRecord, Long>, UsattPlayerRecordRepositoryCustom {
@@ -17,6 +19,15 @@ public interface UsattPlayerRecordRepository extends JpaRepository<UsattPlayerRe
     List<UsattPlayerRecord> findAllByMembershipIdIn(Iterable<Long> ids);
 
     List<UsattPlayerRecord> findAllByFirstNameOrLastName(String firstName, String lastName, Pageable pageable);
+
+    interface RatingProjection {
+        Long getMembershipId();
+        String getFirstName();
+        String getLastName();
+        int getTournamentRating();
+    }
+
+    List<RatingProjection> findByLastNameInIgnoreCase(Collection<String> lastNames);
 
     // query for finding next available USATT membership id in our range of 400,000 to 500,000
     @Query(nativeQuery = true,
@@ -37,6 +48,4 @@ public interface UsattPlayerRecordRepository extends JpaRepository<UsattPlayerRe
                     " END as next_id;"
     )
     Long assignNext();
-
-
 }

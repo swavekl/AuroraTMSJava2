@@ -70,6 +70,9 @@ public class SecurityConfiguration {
                         .requestMatchers(
                                 "/",
                                 "/index.html",
+                                "/*.js",
+                                "/*.css",
+                                "/*.json",
                                 "/ui/**",
                                 "/publicapi/**",
                                 "/api/users/**"

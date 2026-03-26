@@ -154,4 +154,8 @@ export class UserListComponent {
   getStatusList(): string [] {
     return OktaUserStatusPipe.getAllStatus();
   }
+
+  onSynchronizeClubs() {
+    this.profileService.repairProfiles().pipe(first()).subscribe({});
+  }
 }

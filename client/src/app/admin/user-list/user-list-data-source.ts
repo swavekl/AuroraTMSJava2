@@ -133,4 +133,30 @@ export class UsersListDataSource extends DataSource<Profile> {
     //   });
   }
 
+  public synchronizeClubs() {
+    const searchCriteria = [];
+    // searchCriteria.push({name:'page', value: `${this.paginator.pageIndex}`});
+    searchCriteria.push({name: 'limit', value: `${this.paginator.pageSize}`});
+    // if (this.sort && this.sort?.active && this.sort.direction !== '') {
+    //   searchCriteria.push({name:'sort', value: `${this.sort?.active},${this.sort?.direction}`});
+    // }
+
+    const filterValue = this.filterByName$.value;
+    if (filterValue != null && filterValue !== '') {
+      searchCriteria.push({name: 'lastName', value: filterValue});
+      this.previousFilterValue = filterValue;
+    }
+
+    const filterByStatusValue = this.filterByStatus$.value;
+    if (filterByStatusValue != null && filterByStatusValue !== '') {
+      searchCriteria.push({name: 'status', value: filterByStatusValue});
+      this.previousStatusFilterValue = filterByStatusValue;
+    }
+
+    if (this.after != null) {
+      searchCriteria.push({name: 'after', value: this.after})
+    }
+    this.profileService.listProfiles(searchCriteria);
+  }
+
 }

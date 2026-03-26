@@ -366,6 +366,31 @@ public class ImportTournamentService {
     }
 
     /**
+     * Reads player entries from an Omnipong page at specified url
+     * @param fromUrl
+     * @return
+     */
+    public List<Map<String, Object>> readEntries( String fromUrl) {
+        List<Map<String, Object>> playerEntriesDetails = null;
+                String url = BASE_OMNIPONG_URL + fromUrl;
+        RestTemplate restTemplate = new RestTemplate();
+        ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
+        String playerListHTML = response.getBody();
+        Document document = Jsoup.parse(playerListHTML, BASE_OMNIPONG_URL);
+        Elements outerTableWithControls = document.select("table tr td.omnipong");
+        if (!outerTableWithControls.isEmpty()) {
+            Element firstTDElement = outerTableWithControls.first();
+            String tournamentName = firstTDElement.selectFirst("h3").text();
+            // 2025 Edgeball Chicago International Open - Players by Name
+            tournamentName = tournamentName.substring(0, tournamentName.indexOf(" - "));
+            log.info(String.format("Importing tournament '%s'", tournamentName));
+            Element playerEntriesTable = firstTDElement.selectFirst("table.omnipong");
+            playerEntriesDetails = extractPlayerEntriesDetails(playerEntriesTable);
+        }
+        return playerEntriesDetails;
+    }
+
+    /**
      *
      * @param tournamentId
      * @param playerListHTML
@@ -1407,7 +1432,7 @@ public class ImportTournamentService {
                             if (matcher.matches()) {
                                 eventName = matcher.group(1);
                                 String partnerName = matcher.group(2);
-                                System.out.println("eventName = " + eventName + ", partnerName = " + partnerName);
+//                                System.out.println("eventName = " + eventName + ", partnerName = " + partnerName);
                                 if (partnerName.startsWith("Teamed With ")) {
                                     partnerName = partnerName.substring("Teamed With ".length());
                                     // put them all in one string and separate multiple events with ;
@@ -1416,9 +1441,9 @@ public class ImportTournamentService {
                                     }
                                     doublesPartnerNames = eventName + "->" + partnerName;
                                 }
-                                System.out.println(playerName + " doublesPartnerNames = '" + doublesPartnerNames + "'");
+//                                System.out.println(playerName + " doublesPartnerNames = '" + doublesPartnerNames + "'");
                             } else if (eventName.contains("Teamed")) {
-                                System.out.println("not matching doubles eventName = " + eventName);
+//                                System.out.println("not matching doubles eventName = " + eventName);
                             }
                             eventNameList.add(eventName);
                         }

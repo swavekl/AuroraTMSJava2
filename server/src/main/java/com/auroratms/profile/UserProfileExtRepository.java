@@ -19,4 +19,6 @@ public interface UserProfileExtRepository extends JpaRepository<UserProfileExt, 
     List<UserProfileExt> findAllByProfileIdIn(List<String> profileIds);
 
     List<UserProfileExt> findAllByMembershipIdIn(List<Long> membershipIds);
+
+    List<UserProfileExt> findAllByClubFkIsNull();
 }

@@ -77,4 +77,8 @@ public class UserProfileExtService {
     public List<UserProfileExt> findByMembershipIds(List<Long> membershipIds) {
         return this.repository.findAllByMembershipIdIn(membershipIds);
     }
+
+    public List<UserProfileExt> findAllByClubFkIsNull() {
+        return this.repository.findAllByClubFkIsNull();
+    }
 }

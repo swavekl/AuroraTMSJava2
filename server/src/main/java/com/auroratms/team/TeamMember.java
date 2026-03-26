@@ -15,7 +15,7 @@ import java.io.Serializable;
         // Fast lookup for "Find a specific player within a specific team"
         @Index(name = "idx_member_team_profile", columnList = "team_fk, profile_id"),
         // Speeds up checking who the captain is for a team
-        @Index(name = "idx_member_captain", columnList = "team_fk, is_captain")
+        @Index(name = "idx_member_captain", columnList = "team_fk, captain")
 })
 @NoArgsConstructor
 @Getter
@@ -34,6 +34,7 @@ public class TeamMember implements Serializable, Cloneable {
     private String profileId;
 
     // if true is team captain
+    @Column(name = "captain")
     private boolean captain;
 
     @Enumerated(EnumType.STRING)

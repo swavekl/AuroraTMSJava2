@@ -204,6 +204,24 @@ export class ProfileService {
       })
     );
   }
+
+  repairProfiles(): Observable<void> {
+    let url = `${this.baseUrl}/repair`;
+    // url += "?fromUrl="+ encodeURIComponent("T-tourney.asp?t=100&r=4750");
+    url += "?fromUrl="+ encodeURIComponent("T-tourney.asp?t=100&r=4386");
+    return this.http.get(url)
+      .pipe(
+        tap({
+          next: (response: any) => {
+            this.setLoading(false);
+          },
+          error: (error) => {
+            this.setLoading(false);
+            console.error(error);
+          }
+        })
+      );
+  }
 }
 
 export interface ProfileListResponse {
