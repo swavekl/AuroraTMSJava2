@@ -21,6 +21,8 @@ export class Profile {
   homeClubName: string;
   division: string;
   userStatus: string;
+  emailSubscribed: boolean;
+  emailStatus: string;
 
   constructor() {
 
@@ -46,6 +48,8 @@ export class Profile {
     this.homeClubId = formValues.homeClubId;
     this.homeClubName = formValues.homeClubName;
     this.division = formValues.division;
+    this.emailSubscribed = formValues.emailSubscribed;
+    this.emailStatus = formValues.emailStatus;
   }
 
   clone(otherProfile: Profile) {
@@ -69,5 +73,7 @@ export class Profile {
     this.homeClubName = otherProfile.homeClubName;
     this.division = otherProfile.division;
     this.userStatus = otherProfile.userStatus;
+    this.emailSubscribed = otherProfile.emailSubscribed;
+    this.emailStatus = otherProfile.emailStatus;
   }
 }

@@ -524,6 +524,11 @@ public class UserProfileService {
         }
         userProfile.setDivision(oktaUserProfile.getDivision());
         userProfile.setUserStatus(userStatus.toString());
+        boolean emailSubscribed = oktaUserProfile.additionalProperties.get("emailSubscribed") != null
+                ? (Boolean)oktaUserProfile.additionalProperties.get("emailSubscribed") : false;
+        userProfile.setEmailSubscribed(emailSubscribed);
+        String emailStatus = oktaUserProfile.additionalProperties.get("emailStatus") != null ? (String)oktaUserProfile.additionalProperties.get("emailStatus") : "UNKNOWN";
+        userProfile.setEmailStatus(emailStatus);
 
         return userProfile;
     }
@@ -552,6 +557,11 @@ public class UserProfileService {
         String dateOfBirth = dateFormat.format(userProfile.getDateOfBirth());
         dateOfBirth = dateOfBirth.substring(0, dateOfBirth.lastIndexOf("T")) + "T00:00:00.000+0000";
         oktaUserProfile.getAdditionalProperties().put("birthdate", dateOfBirth);
+        oktaUserProfile.getAdditionalProperties().put("emailSubscribed", Boolean.valueOf(userProfile.isEmailSubscribed()));
+        if (!userProfile.isEmailSubscribed()) {
+            oktaUserProfile.getAdditionalProperties().put("emailStatus", "UNSUBSCRIBED");
+        }
+
         return oktaUserProfile;
     }
 
@@ -592,6 +602,25 @@ public class UserProfileService {
      */
     public UserProfile getUserProfileForLoginId(String login) {
         String filter = "profile.login eq \"" + login + "\"";
+        UserApi userApi = getUserApi();
+        List<User> users = userApi.listUsers(APPLICATION_JSON,
+                null, null, 10, filter, null, null, null);
+        Iterator<User> iterator = users.iterator();
+        UserProfile userProfile = null;
+        if (iterator.hasNext()) {
+            User oktaUser = iterator.next();
+            userProfile = fromOktaUser(oktaUser.getId(), oktaUser.getProfile(), oktaUser.getStatus());
+        }
+        return userProfile;
+    }
+
+    /**
+     * Gets user profile by primary email.
+     * @param email
+     * @return
+     */
+    public UserProfile getUserProfileForEmail(String email) {
+        String filter = "profile.email eq \"" + email + "\"";
         UserApi userApi = getUserApi();
         List<User> users = userApi.listUsers(APPLICATION_JSON,
                 null, null, 10, filter, null, null, null);

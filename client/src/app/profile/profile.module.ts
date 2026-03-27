@@ -30,6 +30,7 @@ import {ProfileAddByTDComponent} from './profile-add-by-td/profile-add-by-td.com
 import {ProfileAddByTdContainerComponent} from './profile-add-by-td/profile-add-by-td-container.component';
 import {ProfileRoutingModule} from './profile-routing.module';
 import {MatTooltip} from '@angular/material/tooltip';
+import {MatCheckbox} from '@angular/material/checkbox';
 
 @NgModule({
   declarations: [
@@ -67,7 +68,8 @@ import {MatTooltip} from '@angular/material/tooltip';
         MatProgressBarModule,
         MatAutocompleteModule,
         ClubModule,
-        MatTooltip
+        MatTooltip,
+        MatCheckbox
     ]
 })
 export class ProfileModule {

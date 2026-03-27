@@ -39,4 +39,9 @@ public class UserProfile implements Serializable {
     private String userStatus;
     // temporary password used for bulk account creation
     private boolean makeDefaultPassword;
+
+    // true if user has agreed to receive email notifications
+    private boolean emailSubscribed;
+    // current status ACTIVE, BOUNCED, UNSUBSCRIBED, etc.
+    private String emailStatus;
 }

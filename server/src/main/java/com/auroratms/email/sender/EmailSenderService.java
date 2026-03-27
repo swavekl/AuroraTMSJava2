@@ -86,6 +86,11 @@ public class EmailSenderService {
         Collection<UserProfile> userProfileList = new ArrayList<>();
         if (isGetAllRecipients) {
             userProfileList = getUserProfiles(filterConfiguration.getStateFilters(), isExcludeRegistered, tournamentEntryIdToProfileIdMap);
+            int before = userProfileList.size();
+            // remove unsubscribed players
+            userProfileList = userProfileList.stream().filter(UserProfile::isEmailSubscribed).toList();
+            int after = userProfileList.size();
+            log.info("Removed " + (before - after) + " unsubscribed users");
         } else {
             // or filter by events
             log.info ("Getting players in all or selected events");
@@ -418,6 +423,8 @@ public class EmailSenderService {
             try {
                 variables.put("${last_name}", recipient.getLastName());
                 variables.put("${first_name}", recipient.getFirstName());
+                String unsubscribeUrl = String.format("%s/publicapi/profiles/unsubscribe/%s", this.clientHostUrl, recipient.getEmailAddress());
+                variables.put("${unsubscribe_url}", unsubscribeUrl);
 
                 String subject = emailCampaign.getSubject();
                 subject = replaceVariables(subject, variables);

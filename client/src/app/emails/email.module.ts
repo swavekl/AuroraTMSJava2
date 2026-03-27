@@ -28,6 +28,7 @@ import {MatCheckbox} from '@angular/material/checkbox';
 import {MatOption} from '@angular/material/autocomplete';
 import { EmailAddDialogComponent } from './email-add-dialog/email-add-dialog.component';
 import { NgxColorsModule } from 'ngx-colors';
+import {UnsubscribeConfirmationComponent} from './unsubscribe/unsubscribe-confirmation.component';
 
 @NgModule({
   declarations: [
@@ -36,7 +37,8 @@ import { NgxColorsModule } from 'ngx-colors';
     EmailServerConfigDialogComponent,
     EmailCampaignListComponent,
     EmailCampaignListContainerComponent,
-    EmailAddDialogComponent
+    EmailAddDialogComponent,
+    UnsubscribeConfirmationComponent
   ],
   imports: [
     CommonModule,

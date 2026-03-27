@@ -102,6 +102,12 @@
               <mat-error>Invalid phone</mat-error>
             </mat-form-field>
           </div>
+          <div fxLayout="row" fxLayoutAlign="start center" style="margin-bottom: 16px;">
+<!--            <mat-form-field fxFlex="30%" fxFlex.lt-md="100%">-->
+              <mat-checkbox [ngModel]="profile?.emailSubscribed" name="emailSubscribed"
+                            style="margin-bottom: 15px">Notify me about upcoming tournaments</mat-checkbox>
+<!--            </mat-form-field>-->
+          </div>
           <mat-card-subtitle class="mat-headline-6">USATT Information</mat-card-subtitle>
           <div fxLayout="row wrap" fxLayoutGap="10px grid">
             <mat-form-field fxFlex="35%" fxFlex.lt-md="45%">
