@@ -25,22 +25,24 @@
               </tr>
               </tbody>
             </table>
-        <h3>If this is <span style="font-weight: bold">not</span> your record, let's see if we can find it using different spelling of your name or by USATT membership id.</h3>
+        <h3>If this is <span style="font-weight: bold">not</span> your record, let's try searching again with a different spelling of your name or by your USATT membership ID.</h3>
         <div fxLayout="row" style="margin: 0 8px;">
           <button mat-raised-button (click)="onFindPlayerByName()">Find by Name</button>
           <span fxFlex></span>
           <button mat-raised-button (click)="onFindPlayerById()">Find by Id</button>
         </div>
         <div style="width: 100%; padding-top: 16px;"></div>
-        <h3>If you are <span style="font-weight: bold">not</span> a USATT member, let's just make a new profile</h3>
+        <h3>If you <span style="font-weight: bold">don't have</span> a membership yet, you'll need to create an
+          account on USATT's JustGo site first. After that, just log back in here and we'll take you straight
+          to the onboarding process.</h3>
         <div fxLayout="row" fxLayoutAlign="end start" style="width: 100%;">
-          <button mat-raised-button color="primary" (click)="createNewProfile()">Make New Profile</button>
+          <button mat-raised-button (click)="visitJustGo()">Visit JustGo</button>
         </div>
         <div style="width: 100%; padding-top: 16px;"></div>
-        <h3>If this is your record, let's proceed to filling remaining information in your profile.
+        <h3>If this is your record, let's go ahead and fill in the rest of the information in your profile!
         </h3>
         <div fxLayout="row" fxLayoutAlign="end start" style="width: 100%;">
-          <button mat-raised-button color="primary" (click)="onProfileEditStart(true, playerRecord)">Go to Profile</button>
+          <button mat-raised-button color="primary" (click)="onProfileEditStart(true, playerRecord)">Fill Profile</button>
         </div>
       </div>
       <div *ngIf="!playerRecordFound" class="info-container">
@@ -52,9 +54,10 @@
           <button mat-raised-button (click)="onFindPlayerById()">Find by Id</button>
         </div>
         <div style="width: 100%; padding-top: 16px;"></div>
-        <h3>If you are not a member yet, let's get started on filling your profile </h3>
+        <h3>If you don't have a membership yet, you'll need to create an account on USATT's JustGo site first.
+          After that, just log back in here and we'll take you straight to the onboarding process.</h3>
         <div fxLayout="row" fxLayoutAlign="end start" style="width: 100%;">
-          <button mat-raised-button color="primary" (click)="onProfileEditStart(true, playerRecord)">Go to Profile</button>
+          <button mat-raised-button (click)="visitJustGo()">Visit JustGo</button>
         </div>
       </div>
 </app-centered-panel>

@@ -101,4 +101,8 @@ export class ProfileEditStartComponent implements OnInit {
     usattPlayerRecord.gender = 'M';
     this.onProfileEditStart(true, usattPlayerRecord);
     }
+
+    visitJustGo() {
+      window.open('https://usatt.justgo.com/', '_blank');
+    }
 }
