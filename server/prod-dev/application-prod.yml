@@ -156,3 +156,7 @@ message.broker.rabbitmq:
 # RabbitMQ log file location: c:\Users\Swavek\AppData\Roaming\RabbitMQ\log
 #logging.level.com.rabbitmq.client: TRACE
 
+justgo:
+  api:
+    base-url: https://api-sandbox.justgo.com/api/v2.2
+    default-ranking-type: Rating

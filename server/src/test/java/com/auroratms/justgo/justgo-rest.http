@@ -1,0 +1,39 @@
+### 1. Authenticate and get Bearer Token
+POST https://api-sandbox.justgo.com/api/v2.2/Auth
+Accept: */*
+Content-Type: application/json
+
+{
+  "secret": "{{my_secret_value}}"
+}
+
+> {%
+    // This script captures the token and saves it globally
+    client.global.set("auth_token", response.body.data.accessToken);
+%}
+
+###
+
+### 2. Find Member by Attributes
+GET https://api-sandbox.justgo.com/api/v2.2/Members/FindByAttributes?LastName=Lorenc&ModifiedBefore=2025-04-04T13:48:32.000Z
+Accept: application/json
+Authorization: Bearer {{auth_token}}
+
+> {%
+    client.global.set("memberId", response.body.data[1].id);
+    client.log('memberId '+ response.body.data[1].id)
+%}
+
+###
+
+### 3. Submit Competition Rankings
+POST https://api-sandbox.justgo.com/api/v2.2/Competitions/Rankings
+Accept: application/json
+Content-Type: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+  "memberId": "{{memberId}}",
+  "date": "2026-03-30T00:09:29.308Z",
+  "type": "Rating"
+}

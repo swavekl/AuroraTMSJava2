@@ -425,6 +425,7 @@ public class EmailSenderService {
             // get recipients per filter configuration
             FilterConfiguration filterConfiguration = emailCampaign.getFilterConfiguration();
             recipients = getFilteredRecipients(tournamentId, filterConfiguration);
+//recipients = getSesTestRecipients();
             log.info("Sending email campaign to " + recipients.size() + " recipients");
         }
         Tournament tournament = tournamentService.getByKey(tournamentId);
@@ -459,6 +460,29 @@ public class EmailSenderService {
 
         campaignSendingStatus.endTime = System.currentTimeMillis();
         log.info("Finished. Sent: {}, Errors: {}", campaignSendingStatus.totalSent, campaignSendingStatus.totalErrors);
+    }
+
+    private List<FilterConfiguration.Recipient> getSesTestRecipients() {
+        List<FilterConfiguration.Recipient> recipients = new ArrayList<>();
+        FilterConfiguration.Recipient recipient = new FilterConfiguration.Recipient();
+        recipient.setEmailAddress("success@simulator.amazonses.com");
+        recipient.setFirstName("Success");
+        recipient.setLastName("Test");
+        recipients.add(recipient);
+
+        recipient = new FilterConfiguration.Recipient();
+        recipient.setEmailAddress("bounce@simulator.amazonses.com");
+        recipient.setFirstName("Hard");
+        recipient.setLastName("Bounce");
+        recipients.add(recipient);
+
+        recipient = new FilterConfiguration.Recipient();
+        recipient.setEmailAddress("complaint@simulator.amazonses.com");
+        recipient.setFirstName("Spam");
+        recipient.setLastName("Complaint");
+        recipients.add(recipient);
+
+        return recipients;
     }
 
     /**

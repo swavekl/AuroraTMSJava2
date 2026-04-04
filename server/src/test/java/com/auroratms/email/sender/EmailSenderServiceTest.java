@@ -50,9 +50,8 @@ public class EmailSenderServiceTest extends AbstractServiceTest {
             String content = "<h1>Success!</h1><p>Hello ${first_name}</p><p>This email proves that Vault, STS, and SES are working together.</p>";
             emailCampaign.setSubject(subject);
             emailCampaign.setBody(content);
-            emailCampaign.setRecipientFilters(Lists.emptyList());
-            emailCampaign.setRemovedRecipients(Lists.emptyList());
             emailCampaign.setHtmlEmail(true);
+            emailCampaign.setRemovedRecipients(Lists.emptyList());
             emailCampaign.setRecipientFilters(Lists.newArrayList(909L));
 
             emailCampaign = emailCampaignService.save(emailCampaign);

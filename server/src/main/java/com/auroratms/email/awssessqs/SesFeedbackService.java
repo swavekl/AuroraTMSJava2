@@ -54,8 +54,8 @@ public class SesFeedbackService {
      */
     private void handleBounces(SesNotification.Bounce bounce) {
         if (bounce != null && "Permanent".equalsIgnoreCase(bounce.getBounceType())) {
-            log.warn("Permanent bounce detected. Processing recipients...");
             for (SesNotification.Recipient recipient : bounce.getBouncedRecipients()) {
+                log.warn("Permanent bounce detected for email recipient: {}", recipient.getEmailAddress());
                 updateProfileStatus(recipient.getEmailAddress(), "BOUNCED");
             }
         } else {
