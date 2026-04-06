@@ -47,7 +47,7 @@ export class ImportTournamentDialogComponent implements OnInit, OnDestroy {
   elapsedTimeIntervalId: any;
   stateFilter: string;
 
-  private readonly USATT_EVENTS = 'USATT Events';
+  private readonly USATT_EVENTS = 'USATT';
 
   constructor(public dialogRef: MatDialogRef<ImportTournamentDialogComponent>,
               @Inject(MAT_DIALOG_DATA) public data: any,
@@ -85,21 +85,18 @@ export class ImportTournamentDialogComponent implements OnInit, OnDestroy {
    */
   private extractUniqueStateList(tournamentsToImport: ImportTournamentRequest[]): string [] {
     // get unique list of states and regions
-    let statesOrRegions: string[] = [this.USATT_EVENTS];
+    let statesOrRegions: string[] = [];
     tournamentsToImport.forEach(tournament => {
       // console.log('tournament state', tournament.tournamentState);
-      const state = (tournament.tournamentState.length == 2) ? this.USATT_EVENTS : tournament.tournamentState;
+      // const state = (tournament.tournamentState != tournament.tournamentCategory) ? tournament.tournamentCategory : tournament.tournamentState;
+      const state = tournament.tournamentCategory;
       if (!statesOrRegions.includes(state)) {
-        statesOrRegions.push(tournament.tournamentState);
+        statesOrRegions.push(state);
       }
     });
-    // remove USATT events and sort the remaining states
-    statesOrRegions.splice(0, 1);
     statesOrRegions.sort((state1: string, state2: string) => {
       return state1.localeCompare(state2);
     });
-    // Add the removed item to the beginning
-    statesOrRegions.unshift(this.USATT_EVENTS);
     return statesOrRegions;
   }
 
@@ -246,7 +243,7 @@ export class ImportTournamentDialogComponent implements OnInit, OnDestroy {
   filterByState(stateOrRegion: string) {
     console.log('filtering by ', stateOrRegion);
     this.filteredTournamentsToImport = this.allTournamentsToImport.filter(
-      tir => { return (stateOrRegion === this.USATT_EVENTS)
+      tir => { return (stateOrRegion.startsWith(this.USATT_EVENTS))
         ? (tir.tournamentCategory === stateOrRegion)
         : (tir.tournamentState === stateOrRegion)
       });

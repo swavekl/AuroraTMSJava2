@@ -44,7 +44,7 @@ export class ImportTournamentEntriesDialogComponent implements OnInit, OnDestroy
 
   protected playerAccountsCheckResults: string;
   protected isCheckingAccounts: boolean;
-  private readonly USATT_EVENTS = 'USATT Events';
+  private readonly USATT_EVENTS = 'USATT';
 
   constructor(public dialogRef: MatDialogRef<ImportTournamentEntriesDialogComponent>,
               @Inject(MAT_DIALOG_DATA) public data: any,
@@ -84,21 +84,16 @@ export class ImportTournamentEntriesDialogComponent implements OnInit, OnDestroy
    */
   private extractUniqueStateList(tournamentsToImport: ImportTournamentRequest[]): string [] {
     // get unique list of states and regions
-    let statesOrRegions: string[] = [this.USATT_EVENTS];
+    let statesOrRegions: string[] = [];
     tournamentsToImport.forEach(tournament => {
-      // console.log('tournament state', tournament.tournamentState);
-      const state = (tournament.tournamentState?.length === 2) ? this.USATT_EVENTS : tournament.tournamentState;
-      if (!statesOrRegions.includes(state) && tournament.tournamentState != null) {
-        statesOrRegions.push(tournament.tournamentState);
+      const state = tournament.tournamentCategory;
+      if (!statesOrRegions.includes(state)) {
+        statesOrRegions.push(state);
       }
     });
-    // remove USATT events and sort the remaining states
-    statesOrRegions.splice(0, 1);
     statesOrRegions.sort((state1: string, state2: string) => {
       return state1.localeCompare(state2);
     });
-    // Add the removed item to the beginning
-    statesOrRegions.unshift(this.USATT_EVENTS);
     return statesOrRegions;
   }
 
@@ -240,16 +235,10 @@ export class ImportTournamentEntriesDialogComponent implements OnInit, OnDestroy
       this.playerAccountsCheckResults = '';
       this.isCheckingAccounts = true;
       const importEntriesRequest: ImportEntriesRequest = {
-        tournamentId: 984,
-        playersUrl: 'T-tourney.asp?t=100&r=5190',
+        tournamentId: this.selectedTargetTournamentId,
+        playersUrl: this.selectedTournamentUrl,
         emailsFileRepoPath: null
       };
-      // const importEntriesRequest: ImportEntriesRequest = {
-      //   tournamentId: this.selectedTargetTournamentId,
-      //   playersUrl: this.selectedTournamentUrl,
-      //   emailsFileRepoPath: null
-      // };
-      console.log('checking accounts');
       this.tournamentImportService.checkAccounts(importEntriesRequest)
         .subscribe({
           next: (importProgressInfo: ImportProgressInfo) => {
@@ -280,7 +269,7 @@ export class ImportTournamentEntriesDialogComponent implements OnInit, OnDestroy
   filterByState(stateOrRegion: string) {
     console.log('filtering by ', stateOrRegion);
     this.filteredTournamentsToImport = this.allTournamentsToImport.filter(
-      tir => { return (stateOrRegion === this.USATT_EVENTS)
+      tir => { return (stateOrRegion.startsWith(this.USATT_EVENTS))
         ? (tir.tournamentCategory === stateOrRegion)
         : (tir.tournamentState === stateOrRegion)
       });

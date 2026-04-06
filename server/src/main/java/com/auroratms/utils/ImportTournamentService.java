@@ -167,13 +167,12 @@ public class ImportTournamentService {
         // list table containing tournaments only
         List<Map<String, String>> tournamentList = new ArrayList<>();
         Set<String> uniqueTournamentIdentifiers = new HashSet<>();
-        Elements stateHeaders = document.select("h3");
+        Elements stateHeaders = document.select("h4");
         List<String> stateNames = new ArrayList<>(stateHeaders.size());
         for (Element stateHeader : stateHeaders) {
             stateNames.add(stateHeader.text());
         }
         // skip the first header indicating which USATT region is selected
-        stateNames.remove(0);
         int stateNameIndex = 0;
         Elements stateTournamentTables = document.select("table.omnipong");
         for (Element stateTournamentsTable : stateTournamentTables) {

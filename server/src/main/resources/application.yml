@@ -29,26 +29,9 @@ spring:
 #    show-sql: true
 #    properties.hibernate.format_sql: true
 
-  cloud:
-    vault:
-      aws:
-        enabled: true
-        role: AuroraTMSEmailServiceRole
-        backend: aws
-        credential-type: assumed_role
-        access-key-property: spring.cloud.aws.credentials.access-key
-        secret-key-property: spring.cloud.aws.credentials.secret-key
-        session-token-key-property: spring.cloud.aws.credentials.session-token
-    aws:
-      region:
-        static: us-east-2
-      sqs:
-        listener:
-          auto-startup: true
   ai:
     openai:
       api-key: ${spring.ai.openai.api-key.value}
-
 # OCR reading of PDFs
 tess4j:
   tessdata-path: "src/main/resources/tessdata"
@@ -143,8 +126,3 @@ message.broker.rabbitmq:
 # RabbitMQ log file location: c:\Users\Swavek\AppData\Roaming\RabbitMQ\log
 #logging.level.com.rabbitmq.client: TRACE
 
-
-justgo:
-  api:
-    base-url: https://api-sandbox.justgo.com/api/v2.2
-    default-ranking-type: Rating
