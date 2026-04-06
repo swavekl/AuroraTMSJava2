@@ -175,10 +175,12 @@ public class UsattDataServiceTest extends AbstractJUnit4SpringContextTests {
     @Test
     @Disabled
     public void testReadingMembership () {
-        String filename = "F:\\ratings files\\currentMembersReport.csv";
+//        String filename = "F:\\ratings files\\currentMembersReport.csv";
+        String filename = "F:\\ratings files\\All Members with Ratings (For Tournament Directors)_2026-04-04.csv";
         MembershipsProcessorStatus membershipsProcessorStatus = new MembershipsProcessorStatus();
         List<UsattPlayerRecord> usattPlayerInfos = usattDataService.readMembershipFile(filename, membershipsProcessorStatus);
-        assertTrue((usattPlayerInfos.size() > 13000), "wrong number of records");
+        assertTrue((usattPlayerInfos.size() > 130000), "wrong number of records");
+//        assertTrue((usattPlayerInfos.size() == 1000), "wrong number of records");
         for (UsattPlayerRecord usattPlayerInfo : usattPlayerInfos) {
             assertNotNull(usattPlayerInfo.getFirstName(), "first name is null");
             assertNotNull(usattPlayerInfo.getLastName(), "last name is null");
