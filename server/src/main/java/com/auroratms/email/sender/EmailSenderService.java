@@ -74,6 +74,7 @@ public class EmailSenderService {
     @Value("${client.host.url}")
     private String clientHostUrl;
 
+    // when enabling also enable spring.cloud.aws.ses.enabled: true
     private boolean useSes = false;
 
     @Autowired

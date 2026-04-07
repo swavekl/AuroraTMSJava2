@@ -32,9 +32,16 @@ spring:
   ai:
     openai:
       api-key: ${spring.ai.openai.api-key.value}
+
+  cloud:
+    aws:
+      ses:
+        enabled: false
+
 # OCR reading of PDFs
 tess4j:
   tessdata-path: "src/main/resources/tessdata"
+
 
 #spring.quartz.properties.org.quartz.threadPool.threadCount : 5
 #spring.quartz.properties.org.quartz.jobStore.isClustered: true

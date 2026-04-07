@@ -55,7 +55,8 @@ spring:
       sqs:
         listener:
           auto-startup: true
-
+      ses:
+        enabled: false
   ai:
     openai:
       api-key: ${spring.ai.openai.api-key.value}
