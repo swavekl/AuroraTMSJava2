@@ -139,6 +139,24 @@ public class UserProfileController extends AbstractOktaController {
     }
 
     /**
+     * Deleted unwated user profile
+     *
+     * @param userId user profile id
+     * @return
+     */
+    @DeleteMapping("/profiles/{userId}")
+    @PreAuthorize("hasAuthority('Admins') or hasAuthority('TournamentDirectors')")
+    public ResponseEntity<Void> delete(@PathVariable String userId) {
+        try {
+            userProfileService.deleteProfile(userId);
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    /**
      * Creates user profile
      *
      * @param userProfile

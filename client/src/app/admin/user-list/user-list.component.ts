@@ -13,6 +13,7 @@ import {UsersListDataSource} from './user-list-data-source';
 import {Profile} from '../../profile/profile';
 import {RolesDialogComponent} from '../groups-dialog/roles-dialog.component';
 import {OktaUserStatusPipe} from '../okta-user-status.pipe';
+import {ConfirmationPopupComponent} from '../../shared/confirmation-popup/confirmation-popup.component';
 
 @Component({
     selector: 'app-user-list',
@@ -157,5 +158,29 @@ export class UserListComponent {
 
   onSynchronizeClubs() {
     this.profileService.repairProfiles().pipe(first()).subscribe({});
+  }
+
+  onDelete(userProfile: Profile) {
+    const config = {
+      width: '450px', height: '230px', data: {
+        message: `Are you sure you want to delete user '${userProfile.firstName} ${userProfile.lastName}'?`,
+      }
+    };
+    const dialogRef = this.dialog.open(ConfirmationPopupComponent, config);
+    dialogRef.afterClosed().subscribe(result => {
+      if (result === 'ok') {
+        this.profileService.deleteProfile(userProfile.userId)
+          .pipe(first())
+          .subscribe({
+            next: () => {
+              // refresh the page
+              this.dataSource.loadPage(null);
+            },
+            error: (err) => {
+              console.log('error', err);
+            }
+          });
+      }
+    });
   }
 }

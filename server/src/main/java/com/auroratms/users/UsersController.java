@@ -8,7 +8,8 @@ import com.auroratms.utils.EmailService;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-//import com.okta.sdk.resource.user.ForgotPasswordResponse;
+import com.okta.sdk.resource.api.UserCredApi;
+import com.okta.sdk.resource.model.ForgotPasswordResponse;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,8 +27,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 @RestController
 @RequestMapping("api/users")
@@ -382,11 +381,11 @@ public class UsersController extends AbstractOktaController {
     @GetMapping("/forgotpassword/{email}")
     @PreAuthorize("permitAll()")
     @ResponseBody
-    public String forgotPasswordStart (@PathVariable String email) {
+    public String forgotPasswordStart(@PathVariable String email) {
         try {
             logger.info("Starting Forgot password flow.  Emailing instructions to " + email);
-//            ForgotPasswordResponse forgotPasswordResponse = this.getClient()
-//                    .apiV1UsersUserIdCredentialsForgotPasswordPost(email);
+            UserCredApi userCredApi = new UserCredApi(this.getClient());
+            ForgotPasswordResponse response = userCredApi.forgotPassword(email, true);
             return "{ \"status\": \"SUCCESS\" }";
         } catch (Exception e) {
             logger.error("Error starting forgot password flow ", e);

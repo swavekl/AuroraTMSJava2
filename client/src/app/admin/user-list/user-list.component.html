@@ -53,6 +53,10 @@
                 matTooltip="Groups" style="margin-right: 20px">
           <mat-icon matListItemIcon>groups</mat-icon>
         </button>
+        <button mat-icon-button (click)="onDelete(userProfile)"
+                matTooltip="Delete" style="margin-right: 20px">
+          <mat-icon matListItemIcon>delete</mat-icon>
+        </button>
         <button *ngIf="isUserLockedOut(userProfile)" mat-icon-button (click)="onUnlockUser(userProfile)" [disabled]="!isUserLockedOut(userProfile)"
                 [matTooltip]="isUserLockedOut(userProfile) ? 'Unlock' : ''" style="margin-right: 20px" >
           <mat-icon matListItemIcon>lock_open</mat-icon>

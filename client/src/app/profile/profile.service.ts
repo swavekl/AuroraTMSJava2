@@ -129,6 +129,27 @@ export class ProfileService {
       );
   }
 
+  /**
+   * Deletes profile
+   * @param profile user profile id to delete
+   */
+  deleteProfile(userId: string): Observable<void> {
+    this.setLoading(true);
+    const url = `${this.baseUrl}/${userId}`;
+    return this.http.delete<void>(url, {
+      headers: new HttpHeaders({
+        'Content-Type': 'application/json'
+      })
+    }).pipe(
+        tap(() => {
+            this.setLoading(false);
+          },
+          () => {
+            this.setLoading(false);
+          })
+      );
+  }
+
   unlockProfile(profile: Profile): Observable<Profile> {
     this.setLoading(true);
     const url = `${this.baseUrl}/${profile.userId}/unlock`;

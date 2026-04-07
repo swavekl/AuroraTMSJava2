@@ -102,9 +102,13 @@ public class SecurityConfiguration {
 
         // enable passing back the CSRF token via cookie
         http.csrf(csrf -> csrf.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
-                .ignoringRequestMatchers("/api/users/login**",
+                .ignoringRequestMatchers(
+                        "/api/users/login**",
                         "/api/users/register**",
-                        "/api/users/validateEmail**"));
+                        "/api/users/validateEmail**",
+                        "/api/users/forgotpassword/**", // Step 1: Triggering the SDK call
+                        "/api/users/resetpassword/**"
+                        ));
 
         // Send a 401 message to the browser (w/o this, you'll see a blank page)
         Okta.configureResourceServer401ResponseBody(http);
