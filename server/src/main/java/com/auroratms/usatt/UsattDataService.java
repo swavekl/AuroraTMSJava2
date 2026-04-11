@@ -8,7 +8,7 @@ import com.opencsv.CSVParser;
 import com.opencsv.CSVParserBuilder;
 import com.opencsv.CSVReader;
 import com.opencsv.CSVReaderBuilder;
-import com.opencsv.exceptions.CsvValidationException;
+import lombok.NonNull;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.jsoup.internal.StringUtil;
@@ -1067,6 +1067,18 @@ public class UsattDataService {
             membersWithStatus.add(usattPlayerRecord);
         }
         return membersWithStatus;
+    }
+
+    public List<UsattPlayerRecordRepository.RatingProjection> findByLastNameInIgnoreCase(Collection<String> lastNames) {
+        return this.playerRecordRepository.findByLastNameInIgnoreCase(lastNames);
+    }
+
+    public List<UsattPlayerRecordRepository.RatingProjection> findAllWithMembershipGuid() {
+        return this.playerRecordRepository.findAllByMemberGuidIsNotNull();
+    }
+
+    public void saveAllAndFlush(List<UsattPlayerRecord> batchOfExistingRecords) {
+        this.playerRecordRepository.saveAllAndFlush(batchOfExistingRecords);
     }
 }
 

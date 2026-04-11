@@ -41,7 +41,6 @@ public class TournamentEntryInfoService {
     private final UserProfileService userProfileService;
 
     private final UsattDataService usattDataService;
-    private final UsattPlayerRecordRepository usattPlayerRecordRepository;
     private final ClubService clubService;
     private final TournamentEventEntityService tournamentEventEntityService;
     private final TournamentService tournamentService;
@@ -52,7 +51,6 @@ public class TournamentEntryInfoService {
                                       UserProfileExtService userProfileExtService,
                                       UsattDataService usattDataService,
                                       UserProfileService userProfileService,
-                                      UsattPlayerRecordRepository usattPlayerRecordRepository,
                                       ClubService clubService,
                                       TournamentEventEntityService tournamentEventEntityService,
                                       TournamentService tournamentService,
@@ -62,7 +60,6 @@ public class TournamentEntryInfoService {
         this.userProfileExtService = userProfileExtService;
         this.usattDataService = usattDataService;
         this.userProfileService = userProfileService;
-        this.usattPlayerRecordRepository = usattPlayerRecordRepository;
         this.clubService = clubService;
         this.tournamentEventEntityService = tournamentEventEntityService;
         this.tournamentService = tournamentService;
@@ -194,7 +191,7 @@ public class TournamentEntryInfoService {
                     .collect(Collectors.toSet());
 
             List<UsattPlayerRecordRepository.RatingProjection> usattPlayerRecordsByLastName =
-                    usattPlayerRecordRepository.findByLastNameInIgnoreCase(lastNames);
+                    usattDataService.findByLastNameInIgnoreCase(lastNames);
 
             end = System.currentTimeMillis();
             duration = end - start;

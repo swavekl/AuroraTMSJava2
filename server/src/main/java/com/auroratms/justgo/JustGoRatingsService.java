@@ -46,8 +46,18 @@ public class JustGoRatingsService {
     // for player record DOB
     private final static DateFormat DOB_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");  // "1969-10-05",
 
+    // cached token and expiry time
+    private String cachedToken;
+
+    // token expiry time in milliseconds
+    private long tokenExpiryTime = 0;
+
+    // Refresh 1 minute before actual expiry
+    private static final long REFRESH_BUFFER = 60000;
+
     /**
      * Find player record by full name
+     *
      * @param firstName
      * @param lastName
      * @return
@@ -59,8 +69,25 @@ public class JustGoRatingsService {
         if (StringUtils.isBlank(firstName)) {
             throw new IllegalArgumentException("firstName is required");
         }
-        String bearerToken = authenticate();
-        JsonNode playerData = this.findMemberIdByFullNameInternal(firstName, lastName, bearerToken);
+        JsonNode playerData = this.findMemberIdByFullNameInternal(firstName, lastName);
+        if (playerData != null) {
+            return toPlayerRecord(playerData);
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * Find player record by membership id
+     *
+     * @param membershipId
+     * @return
+     */
+    public UsattPlayerRecord findPlayerRecordByMembershipId(Long membershipId) {
+        if (membershipId == null) {
+            throw new IllegalArgumentException("membershipId is required");
+        }
+        JsonNode playerData = findMemberIdByUsattMemberhipId(membershipId);
         if (playerData != null) {
             return toPlayerRecord(playerData);
         } else {
@@ -73,20 +100,9 @@ public class JustGoRatingsService {
      * @param membershipId
      * @return
      */
-    public UsattPlayerRecord findPlayerRecordByMembershipId(Long membershipId) {
-        if (membershipId == null) {
-            throw new IllegalArgumentException("membershipId is required");
-        }
-        String bearerToken = authenticate();
-        JsonNode playerData = findMemberIdByUsattMemberhipId(membershipId, bearerToken);
-        if (playerData != null) {
-            return toPlayerRecord(playerData);
-        } else {
-            return null;
-        }
-    }
+    private JsonNode findMemberIdByUsattMemberhipId(Long membershipId) {
+        String bearerToken = getValidToken();
 
-    private JsonNode findMemberIdByUsattMemberhipId(Long membershipId, String bearerToken) {
         String strModifiedBefore = AS_OF_DATE_FORMAT.format(new Date());
         String url = UriComponentsBuilder
                 .fromUriString(baseUrl + "/Members/FindByAttributes")
@@ -143,6 +159,7 @@ public class JustGoRatingsService {
 
     /**
      * Calls JustGo API sequence (Auth -> FindByAttributes -> Competitions/Rankings)
+     *
      * @param firstName
      * @param lastName
      * @return
@@ -163,9 +180,8 @@ public class JustGoRatingsService {
             throw new IllegalArgumentException("firstName is required");
         }
 
-        String bearerToken = authenticate();
-        String justGoMemberId = findMemberIdByFullName(lastName, firstName, bearerToken);
-        JsonNode rankingsNode = getRankings(justGoMemberId, asOfDate, bearerToken);
+        String justGoMemberId = findMemberIdByFullName(lastName, firstName);
+        JsonNode rankingsNode = getRankings(justGoMemberId, asOfDate);
 
         Integer rating = extractTournamentRating(rankingsNode);
         if (rating == null) {
@@ -174,6 +190,18 @@ public class JustGoRatingsService {
         }
 
         return rating;
+    }
+
+    /**
+     * Internal method to ensure we have a valid token.
+     * Uses synchronized to prevent multiple threads from authenticating at once.
+     */
+    private synchronized String getValidToken() {
+        if (cachedToken == null || System.currentTimeMillis() >= tokenExpiryTime) {
+            logger.info("Token expired or missing. Re-authenticating with JustGo...");
+            authenticate();
+        }
+        return cachedToken;
     }
 
     /**
@@ -208,6 +236,13 @@ public class JustGoRatingsService {
             if (StringUtils.isBlank(accessToken)) {
                 throw new IllegalStateException("JustGo auth token is missing in response");
             }
+            // JustGo usually returns "expiresIn" in seconds.
+            // If not provided, default to a safe value like 3600 (1 hour).
+            long expiresInSeconds = json.path("data").path("expiresIn").asLong(3600);
+
+            this.cachedToken = "Bearer " + accessToken;
+            this.tokenExpiryTime = System.currentTimeMillis() + (expiresInSeconds * 1000) - REFRESH_BUFFER;
+
             return tokenType + " " + accessToken;
         } catch (Exception e) {
             throw new IllegalStateException("Unable to parse JustGo auth response", e);
@@ -217,13 +252,12 @@ public class JustGoRatingsService {
     /**
      * Finds the member ID for a given full name by querying an external service.
      *
-     * @param lastName    The last name of the member to be looked up.
-     * @param firstName   The first name of the member to be looked up.
-     * @param bearerToken The authentication token to be included in the request header.
+     * @param lastName  The last name of the member to be looked up.
+     * @param firstName The first name of the member to be looked up.
      * @return The member ID associated with the given full name.
      */
-    private String findMemberIdByFullName(String lastName, String firstName, String bearerToken) {
-        JsonNode chosen = this.findMemberIdByFullNameInternal(firstName, lastName, bearerToken);
+    public String findMemberIdByFullName(String lastName, String firstName) {
+        JsonNode chosen = this.findMemberIdByFullNameInternal(firstName, lastName);
         if (chosen == null) {
             throw new IllegalStateException("JustGo member is missing for lastName=" + lastName);
         }
@@ -238,14 +272,15 @@ public class JustGoRatingsService {
     /**
      * Finds the member record for a given full name by querying an external service.
      *
-     * @param firstName   The first name of the member to be looked up.
-     * @param lastName    The last name of the member to be looked up.
-     * @param bearerToken The authentication token to be included in the request header.
+     * @param firstName The first name of the member to be looked up.
+     * @param lastName  The last name of the member to be looked up.
      * @return player data record
      * @throws IllegalStateException If the lookup fails, no member matches the given full name,
      *                               or the response is invalid or missing required data.
      */
-    private JsonNode findMemberIdByFullNameInternal(String firstName, String lastName, String bearerToken) {
+    private JsonNode findMemberIdByFullNameInternal(String firstName, String lastName) {
+        String bearerToken = getValidToken();
+
         String strModifiedBefore = AS_OF_DATE_FORMAT.format(new Date());
         String url = UriComponentsBuilder
                 .fromUriString(baseUrl + "/Members/FindByAttributes")
@@ -293,10 +328,11 @@ public class JustGoRatingsService {
      *
      * @param justGoMemberId
      * @param asOfDate
-     * @param bearerToken
      * @return
      */
-    private JsonNode getRankings(String justGoMemberId, Date asOfDate, String bearerToken) {
+    private JsonNode getRankings(String justGoMemberId, Date asOfDate) {
+        String bearerToken = this.getValidToken();
+
         String url = baseUrl + "/Competitions/Rankings";
 
         HttpHeaders headers = new HttpHeaders();
@@ -382,5 +418,4 @@ public class JustGoRatingsService {
 
         return null;
     }
-
 }

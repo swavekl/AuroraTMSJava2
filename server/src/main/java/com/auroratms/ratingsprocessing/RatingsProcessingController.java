@@ -1,5 +1,6 @@
 package com.auroratms.ratingsprocessing;
 
+import com.auroratms.justgo.JustGoRatingsService;
 import com.auroratms.ratingsprocessing.notification.RatingsProcessingEventPublisher;
 import com.auroratms.usatt.UsattDataService;
 import com.auroratms.usatt.UsattPlayerRecord;
@@ -7,6 +8,7 @@ import com.auroratms.utils.filerepo.FileInfo;
 import com.auroratms.utils.filerepo.FileRepositoryException;
 import com.auroratms.utils.filerepo.FileRepositoryFactory;
 import com.auroratms.utils.filerepo.IFileRepository;
+import lombok.NonNull;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,7 +44,12 @@ public class RatingsProcessingController {
     @Autowired
     private RatingsProcessingEventPublisher ratingsProcessingEventPublisher;
 
+    @Autowired
+    private JustGoRatingsService justGoRatingsService;
+
     private Runnable processingTask;
+
+
 
     private RatingsProcessorStatus ratingsProcessorStatus = new RatingsProcessorStatus();
 
@@ -87,6 +94,7 @@ public class RatingsProcessingController {
                         List<UsattPlayerRecord> usattPlayerRecords = usattDataService.readAllPlayersFromFile(filename, ratingsProcessorStatus);
                         ratingsProcessorStatus.phase = "Updating ratings";
                         if (usattPlayerRecords.size() > 0) {
+                            updateJustGoGuids(usattPlayerRecords);
                             usattDataService.insertPlayerData(usattPlayerRecords, ratingsProcessorStatus);
                         }
                         ratingsProcessorStatus.phase = "Ratings updated";
@@ -105,6 +113,37 @@ public class RatingsProcessingController {
                         // initiate updates to seed and eligibility ratings in all future tournaments
                         ratingsProcessingEventPublisher.publishRatingsProcessingEndEvent();
                     }
+                }
+
+                /**
+                 * Updates the JustGo GUIDs for players that don't have them yet.
+                 * @param usattPlayerRecords
+                 */
+                private void updateJustGoGuids(List<UsattPlayerRecord> usattPlayerRecords) {
+                    int BATCH_SIZE = 100;
+                    int startIndex = 0;
+                    logger.info("Updating JustGo GUIDs for " + usattPlayerRecords.size() + " players");
+                    while (startIndex < usattPlayerRecords.size()) {
+                        int endIndex = Math.min(startIndex + BATCH_SIZE, usattPlayerRecords.size());
+                        List<UsattPlayerRecord> batch = usattPlayerRecords.subList(startIndex, endIndex);
+                        List<@NonNull Long> membershipIds = batch.stream()
+                                .map(UsattPlayerRecord::getMembershipId)
+                                .toList();
+                        List<UsattPlayerRecord> allByMembershipIdIn = usattDataService.findAllByMembershipIdIn(membershipIds);
+                        List<UsattPlayerRecord> playersWithoutGuid = allByMembershipIdIn.stream()
+                                .filter(usattPlayerRecord -> usattPlayerRecord.getMemberGuid() == null)
+                                .toList();
+                        for (UsattPlayerRecord usattPlayerRecord : playersWithoutGuid) {
+                            String justGoMembershipGuid = justGoRatingsService.findMemberIdByFullName(usattPlayerRecord.getLastName(), usattPlayerRecord.getFirstName());
+                            if (StringUtils.isBlank(justGoMembershipGuid)) {
+                                usattPlayerRecord.setMemberGuid(justGoMembershipGuid);
+                            }
+                        }
+                        usattDataService.saveAllAndFlush(playersWithoutGuid);
+                        logger.info("Updated JustGo GUIDs for " + playersWithoutGuid.size() + " players");
+                        startIndex = endIndex;
+                    }
+                    logger.info("Finished updating JustGo GUIDs");
                 }
             };
 

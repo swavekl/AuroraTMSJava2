@@ -25,9 +25,12 @@ public interface UsattPlayerRecordRepository extends JpaRepository<UsattPlayerRe
         String getFirstName();
         String getLastName();
         int getTournamentRating();
+        String getMemberGuid();
     }
 
     List<RatingProjection> findByLastNameInIgnoreCase(Collection<String> lastNames);
+
+    List<RatingProjection> findAllByMemberGuidIsNotNull();
 
     // query for finding next available USATT membership id in our range of 400,000 to 500,000
     @Query(nativeQuery = true,

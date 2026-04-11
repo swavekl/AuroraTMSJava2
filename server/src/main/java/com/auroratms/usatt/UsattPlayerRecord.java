@@ -18,7 +18,8 @@ import java.util.Objects;
 @Table(name = "usattplayerrecord", indexes = {
         @Index(name = "idx_membershipid", columnList = "membershipId"),
         @Index(name = "idx_usatt_lastname", columnList = "lastName"),
-        @Index(name = "idx_usatt_lastname_firstname", columnList = "lastName, firstName")
+        @Index(name = "idx_usatt_lastname_firstname", columnList = "lastName, firstName"),
+        @Index(name = "idx_usatt_guid", columnList = "memberGuid")
 })
 public class UsattPlayerRecord {
 
@@ -88,6 +89,10 @@ public class UsattPlayerRecord {
 
     @CsvBindByName(column = "Latest Membership")
     private String membershipType;
+
+    // Inside UsattPlayerRecord class
+    @Column(length = 50)
+    private String memberGuid;
 
     // Added fields that are in your CSV but weren't in your original Entity
     @Transient // Marked as Transient if you don't want to save these to the database
