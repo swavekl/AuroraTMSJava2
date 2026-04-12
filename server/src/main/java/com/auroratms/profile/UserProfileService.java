@@ -132,6 +132,9 @@ public class UserProfileService {
     @CacheEvict(key = "#userId")
     public void deleteProfile (String userId) {
         UserApi userApi = getUserApi();
+        // deactdivate
+        userApi.deleteUser(userId, false, null);
+        // delete permanently
         userApi.deleteUser(userId, false, null);
     }
 

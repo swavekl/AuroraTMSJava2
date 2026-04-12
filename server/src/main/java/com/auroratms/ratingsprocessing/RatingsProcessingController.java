@@ -94,7 +94,7 @@ public class RatingsProcessingController {
                         List<UsattPlayerRecord> usattPlayerRecords = usattDataService.readAllPlayersFromFile(filename, ratingsProcessorStatus);
                         ratingsProcessorStatus.phase = "Updating ratings";
                         if (usattPlayerRecords.size() > 0) {
-                            updateJustGoGuids(usattPlayerRecords);
+//                            updateJustGoGuids(usattPlayerRecords);
                             usattDataService.insertPlayerData(usattPlayerRecords, ratingsProcessorStatus);
                         }
                         ratingsProcessorStatus.phase = "Ratings updated";

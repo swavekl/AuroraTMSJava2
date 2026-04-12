@@ -23,10 +23,11 @@ RUN keytool -import -trustcacerts \
     -cacerts \
     -storepass changeit \
     -noprompt
+# Copy the traineddata files 
+COPY --from=aurora/tesseract-al2023:5.3 /usr/share/tesseract/tessdata/*.traineddata /usr/share/tesseract/tessdata/
 
-# Copy prebuilt tessdata from the source folder in the base image
-# Copy prebuilt tessdata directly from your local base image
-COPY --from=aurora/tesseract-al2023:5.3 /build/tesseract-5.3.3/tessdata /usr/share/tesseract/tessdata
+# Create a symbolic link in the application directory
+RUN ln -s /usr/share/tesseract/tessdata /usr/local/auroratms/tessdata
 
 # Environment variables for Tesseract and Linker
 # Your base build uses /usr/local/lib for Leptonica and Tesseract 

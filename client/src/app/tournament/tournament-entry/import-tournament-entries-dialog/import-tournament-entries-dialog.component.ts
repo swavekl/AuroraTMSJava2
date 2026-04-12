@@ -112,15 +112,10 @@ export class ImportTournamentEntriesDialogComponent implements OnInit, OnDestroy
   startImport() {
     this.startTimer();
     const importEntriesRequest: ImportEntriesRequest = {
-      tournamentId: 984,
-      playersUrl: 'T-tourney.asp?t=100&r=5190',
+      tournamentId: this.selectedTargetTournamentId,
+      playersUrl: this.selectedTournamentUrl,
       emailsFileRepoPath: this.emailsFileRepoPath
     };
-    // const importEntriesRequest: ImportEntriesRequest = {
-    //   tournamentId: this.selectedTargetTournamentId,
-    //   playersUrl: this.selectedTournamentUrl,
-    //   emailsFileRepoPath: this.emailsFileRepoPath
-    // };
     this.tournamentImportService.importTournamentEntries(importEntriesRequest)
       .subscribe({
         next: (importProgressInfo: ImportProgressInfo) => {

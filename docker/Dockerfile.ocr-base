@@ -1,0 +1,90 @@
+# ======================================
+# AuroraTMS OCR Base Image (Tesseract 5 + Leptonica 1.83)
+# ======================================
+FROM amazonlinux:2023
+
+# --------------------------
+# 1️⃣ Install build dependencies
+# --------------------------
+RUN dnf install -y \
+    gcc gcc-c++ make automake autoconf libtool pkgconfig \
+    libpng-devel libjpeg-turbo-devel libtiff-devel zlib-devel \
+    libwebp-devel giflib-devel openjpeg2-devel wget tar gzip xz bzip2 diffutils file \
+    && dnf clean all
+
+# --------------------------
+# 2️⃣ Environment
+# --------------------------
+ENV LD_LIBRARY_PATH=/usr/local/lib:/usr/local/lib64
+ENV PKG_CONFIG_PATH=/usr/local/lib/pkgconfig:/usr/local/lib64/pkgconfig
+ENV TESSDATA_PREFIX=/usr/share/tesseract/tessdata
+ENV PATH=/usr/local/bin:$PATH
+
+# --------------------------
+# 3️⃣ Build Leptonica 1.83.1
+# --------------------------
+WORKDIR /build
+RUN wget https://github.com/DanBloomberg/leptonica/releases/download/1.83.1/leptonica-1.83.1.tar.gz && \
+    tar xf leptonica-1.83.1.tar.gz && \
+    cd leptonica-1.83.1 && \
+    # 1. Create the shim source with weak symbols
+    echo '#include "allheaders.h"' > src/jna_shim.c && \
+    # Add the missing symbol causing the UnsatisfiedLinkError
+    echo '__attribute__((weak)) PIX* pixBackgroundNormTo1MinMax(PIX *pixs, PIX *pixm, PIX *pixg, l_int32 reduction, l_int32 border, l_int32 waitm, l_int32 threshold, l_int32 minval, l_int32 maxval, l_int32 target) { return (PIX*)0; }' >> src/jna_shim.c && \
+    # Maintain other JNA required stubs
+    echo '__attribute__((weak)) int readResolutionMemJp2k(void *d, size_t s, int *px, int *py) { return 1; }' >> src/jna_shim.c && \
+    echo '__attribute__((weak)) l_ok pixWriteMemJp2k(l_uint8 **pdata, size_t *psize, PIX *pix, l_int32 quality, l_int32 nlevels, l_int32 hint, l_int32 debug) { return 1; }' >> src/jna_shim.c && \
+    echo '__attribute__((weak)) float returnErrorFloat1(const char *m, const char *p, float v) { return v; }' >> src/jna_shim.c && \
+    echo '__attribute__((weak)) int returnErrorInt1(const char *m, const char *p, int v) { return v; }' >> src/jna_shim.c && \
+    echo '__attribute__((weak)) void* returnErrorPtr1(const char *m, const char *p, void *v) { return v; }' >> src/jna_shim.c && \
+    echo '__attribute__((weak)) PIX* pixCropImage(PIX *ps, int x, int y, int w, int h, int cf) { return ps; }' >> src/jna_shim.c && \
+    echo '__attribute__((weak)) PIX* pixDisplayDiff(PIX *p1, PIX *p2, int w, int h, int d) { return (PIX*)0; }' >> src/jna_shim.c && \
+    # 2. Configure 
+    ./configure --prefix=/usr/local --disable-static && \
+    # 3. Compile the shim
+    gcc -O2 -fPIC -Isrc -I. -c src/jna_shim.c -o src/jna_shim.o && \
+    # 4. Link with absolute path
+    make -j$(nproc) LIBS="$(pwd)/src/jna_shim.o" && \
+    make install && \
+    ldconfig	
+# --------------------------
+# 4️⃣ Diagnostics and Symbol Validation
+# --------------------------
+RUN echo "===== Leptonica Diagnostics =====" && \
+    ls -l /usr/local/lib/liblept* /usr/local/lib64/liblept* || true && \
+    nm -D /usr/local/lib/libleptonica.so.6 | grep pixBackgroundNormTo1MinMax && \
+    nm -D /usr/local/lib/libleptonica.so.6 | grep returnErrorFloat1 && \
+    pkg-config --modversion lept || true
+
+# --------------------------
+# 5️⃣ Build Tesseract 5.3.3
+# --------------------------
+RUN wget https://github.com/tesseract-ocr/tesseract/archive/refs/tags/5.3.3.tar.gz && \
+    tar xf 5.3.3.tar.gz && \
+    cd tesseract-5.3.3 && \
+    ./autogen.sh && \
+    ./configure \
+        --prefix=/usr/local \
+        --with-extra-includes=/usr/local/include \
+        --with-extra-libs=/usr/local/lib \
+        PKG_CONFIG_PATH=/usr/local/lib/pkgconfig && \
+    make -j$(nproc) && make install && \
+    ldconfig
+
+# --------------------------
+# 6️⃣ Tesseract Diagnostics
+# --------------------------
+RUN echo "===== Tesseract Diagnostics =====" && \
+    tesseract --version && \
+    tesseract --list-langs || true && \
+    ls -l /usr/local/lib/libtesseract* /usr/local/lib64/libtesseract* || true && \
+    ls -l /usr/local/include/tesseract || true && \
+    ldd /usr/local/bin/tesseract
+
+# --------------------------
+# 7️⃣ Create tessdata directory and download language data
+# --------------------------
+RUN mkdir -p /usr/share/tesseract/tessdata && \
+    wget -P /usr/share/tesseract/tessdata/ https://github.com/tesseract-ocr/tessdata_fast/raw/main/eng.traineddata && \
+    wget -P /usr/share/tesseract/tessdata/ https://github.com/tesseract-ocr/tessdata_fast/raw/main/osd.traineddata
+	

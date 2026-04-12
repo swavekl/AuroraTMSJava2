@@ -149,6 +149,7 @@ public class UserProfileController extends AbstractOktaController {
     public ResponseEntity<Void> delete(@PathVariable String userId) {
         try {
             userProfileService.deleteProfile(userId);
+            userProfileExtService.delete(userId);
             return ResponseEntity.ok().build();
         } catch (Exception e) {
             logger.error(e.getMessage());

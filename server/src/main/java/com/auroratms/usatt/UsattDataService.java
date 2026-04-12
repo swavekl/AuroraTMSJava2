@@ -765,9 +765,11 @@ public class UsattDataService {
                                 ratingHistoryRecord.setInitialRatingDate(initialRatingDate);
                                 ratingHistoryRecord.setFinalRating(updatedRecord.getTournamentRating());
                                 ratingHistoryRecord.setFinalRatingDate(updatedRecord.getLastTournamentPlayedDate());
+                                logger.info("Searching for rating history record for " + ratingHistoryRecord.getMembershipId() + " on date " + ratingHistoryRecord.getFinalRatingDate());
                                 Optional<RatingHistoryRecord> optExistingRatingHistoryRecord = this.ratingHistoryRecordRepository.findByMembershipIdAndFinalRatingDate(
                                         ratingHistoryRecord.getMembershipId(), ratingHistoryRecord.getFinalRatingDate());
                                 if (optExistingRatingHistoryRecord.isEmpty()) {
+                                    logger.info("Creating new rating history record for " + ratingHistoryRecord.getMembershipId() + " on date " + ratingHistoryRecord.getFinalRatingDate());
                                     ratingHistoryRecordList.add(ratingHistoryRecord);
                                 } else {
                                     logger.warn("Found duplicate new history record" + ratingHistoryRecord);
@@ -821,28 +823,43 @@ public class UsattDataService {
                         break;
                     }
                 }
+
                 if (!found) {
                     newRecords.add(updatedRecord);
 
                     RatingHistoryRecord ratingHistoryRecord = new RatingHistoryRecord();
-                    ratingHistoryRecordList.add(ratingHistoryRecord);
-
                     ratingHistoryRecord.setMembershipId(updatedRecord.getMembershipId());
                     ratingHistoryRecord.setInitialRating(0);
                     if (updatedRecord.getLastTournamentPlayedDate() != null) {
                         long initialRatingDate = updatedRecord.getLastTournamentPlayedDate().getTime();
                         initialRatingDate -= (1000L * 60 * 60 * 24);  // 1 day before
                         Timestamp tsInitialRatingDate = new Timestamp(initialRatingDate);
+                        logger.info("Making history record for " + updatedRecord.getLastName() + ", " + updatedRecord.getFirstName()
+                                + " membershipId " + updatedRecord.getMembershipId()
+                                + " on last played date " + dateFormat.format(updatedRecord.getLastTournamentPlayedDate())
+                                + " and initial rating date " + dateFormat.format(tsInitialRatingDate));
                         ratingHistoryRecord.setInitialRatingDate(tsInitialRatingDate);
                         ratingHistoryRecord.setFinalRatingDate(updatedRecord.getLastTournamentPlayedDate());
                     } else {
                         long initialRatingDate = today.getTime();
                         initialRatingDate -= (1000L * 60 * 60 * 24);  // 1 day before
                         Timestamp tsInitialRatingDate = new Timestamp(initialRatingDate);
+                        logger.info("Making history record for " + updatedRecord.getLastName() + ", " + updatedRecord.getFirstName()
+                                + " membershipId " + updatedRecord.getMembershipId()
+                                + " on last played date today " + dateFormat.format(today)
+                                + " and initial rating date of yesterday " + dateFormat.format(tsInitialRatingDate));
                         ratingHistoryRecord.setInitialRatingDate(tsInitialRatingDate);
                         ratingHistoryRecord.setFinalRatingDate(today);
                     }
                     ratingHistoryRecord.setFinalRating(updatedRecord.getTournamentRating());
+
+                    Optional<RatingHistoryRecord> optExistingRatingHistoryRecord = this.ratingHistoryRecordRepository.findByMembershipIdAndFinalRatingDate(
+                            ratingHistoryRecord.getMembershipId(), ratingHistoryRecord.getFinalRatingDate());
+                    if (optExistingRatingHistoryRecord.isEmpty()) {
+                        ratingHistoryRecordList.add(ratingHistoryRecord);
+                    } else {
+                        logger.warn("Found duplicate new history record" + ratingHistoryRecord);
+                    }
                 }
             }
 
@@ -858,7 +875,7 @@ public class UsattDataService {
 
             if (!newRecords.isEmpty()) {
                 ratingsProcessorStatus.newRecords += newRecords.size();
-//                replaceTemporaryMembershipId(newRecords);
+                replaceTemporaryMembershipId(newRecords);
             }
 
             ratingsProcessorStatus.processedRecords = endingIndex;
@@ -937,7 +954,7 @@ public class UsattDataService {
 
             if (!newRecords.isEmpty()) {
                 membershipsProcessorStatus.newRecords += newRecords.size();
-//                replaceTemporaryMembershipId(newRecords);
+                replaceTemporaryMembershipId(newRecords);
             }
             membershipsProcessorStatus.processedRecords = endingIndex;
 

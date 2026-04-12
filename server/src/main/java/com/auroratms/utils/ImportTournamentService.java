@@ -4,10 +4,7 @@ import com.auroratms.club.ClubEntity;
 import com.auroratms.club.ClubService;
 import com.auroratms.draw.DrawType;
 import com.auroratms.event.*;
-import com.auroratms.profile.UserProfile;
-import com.auroratms.profile.UserProfileExt;
-import com.auroratms.profile.UserProfileExtService;
-import com.auroratms.profile.UserProfileService;
+import com.auroratms.profile.*;
 import com.auroratms.team.Team;
 import com.auroratms.team.TeamEntryStatus;
 import com.auroratms.team.TeamMember;
@@ -139,6 +136,8 @@ public class ImportTournamentService {
 
     @Value("${client.host.url}")
     private String clientHostUrl;
+    @Autowired
+    private UserProfileExtRepository userProfileExtRepository;
 
     /**
      *
@@ -409,7 +408,7 @@ public class ImportTournamentService {
             String tournamentName = firstTDElement.selectFirst("h3").text();
             // 2025 Edgeball Chicago International Open - Players by Name
             tournamentName = tournamentName.substring(0, tournamentName.indexOf(" - "));
-            log.info(String.format("Importing tournament '%s'", tournamentName));
+            log.info(String.format("Importing tournament '%s' into tournament with id %d", tournamentName, tournamentId));
             Element playerEntriesTable = firstTDElement.selectFirst("table.omnipong");
             List<Map<String, Object>> playerEntriesDetails = extractPlayerEntriesDetails(playerEntriesTable);
             importProgressInfo.totalEntries = playerEntriesDetails.size();
@@ -916,11 +915,12 @@ public class ImportTournamentService {
                     UserProfile userProfile = userProfiles.iterator().next();
                     playerNameToAccountId.put(playerName, userProfile.getUserId());
                     usedEmailAddresses.add(userProfile.getEmail());
+                    log.info("Looking for user profile ext " + userProfile.getUserId() + " for " + lastName + ", " + firstName);
                     UserProfileExt byProfileId = userProfileExtService.getByProfileId(userProfile.getUserId());
                     if (byProfileId != null) {
                         log.info("Found userprofileext with membership id " + byProfileId.getMembershipId() + " for userProfileId " + userProfile.getUserId());
                     } else {
-                        log.info("Adding missing userprofileExt");
+                        log.info("Not found.  Adding missing userprofileExt");
                         UsattPlayerRecord usattRecord = this.usattDataService.getPlayerByNames(firstName, lastName);
                         if (usattRecord == null) {
                             log.warn("Didn't find USATT record for player " + lastName + ", " + firstName + " creating it");
@@ -935,14 +935,31 @@ public class ImportTournamentService {
                             UsattPlayerRecord usattPlayerRecord = usattDataService.linkPlayerToProfile(usattRecord, userProfile.getUserId());
                             log.info("Created USATT membership record with id " + usattPlayerRecord.getMembershipId());
                         } else {
+                            log.info("Found USATT record for player " + lastName + ", " + firstName);
                             Long clubFk = clubNamesToIdsMap.get(clubName);
                             long membershipId = usattRecord.getMembershipId();
-                            UserProfileExt userProfileExt = new UserProfileExt();
-                            userProfileExt.setProfileId(userProfile.getUserId());
-                            userProfileExt.setMembershipId(membershipId);
-                            userProfileExt.setClubFk(clubFk);
-                            userProfileExtService.save(userProfileExt);
-                            log.info("Created userProfileExt for for player " + lastName + ", " + firstName + " with membershipId " + membershipId);
+                            if (!userProfileExtService.existsByMembershipId(membershipId)) {
+                                UserProfileExt userProfileExt = new UserProfileExt();
+                                userProfileExt.setProfileId(userProfile.getUserId());
+                                userProfileExt.setMembershipId(membershipId);
+                                userProfileExt.setClubFk(clubFk);
+                                userProfileExtService.save(userProfileExt);
+                                log.info("Created userProfileExt for for player " + lastName + ", " + firstName + " with membershipId " + membershipId);
+                            } else {
+                                log.info("UserProfileExt for player " + lastName + ", " + firstName + " with membershipId " + membershipId + " exists already.  Reading it");
+                                UserProfileExt byMembershipId = userProfileExtService.getByMembershipId(membershipId);
+                                if (byMembershipId != null) {
+                                    log.info("Read userProfileExt for player " + lastName + ", " + firstName + " with membershipId " + membershipId);
+                                    log.info("Fixing userProfileId for member " + membershipId + " from " + byMembershipId.getProfileId() + " to " + userProfile.getUserId() );
+                                    UserProfileExt updatedUserProfileExt = new UserProfileExt();
+                                    updatedUserProfileExt.setProfileId(userProfile.getUserId());
+                                    updatedUserProfileExt.setMembershipId(membershipId);
+                                    updatedUserProfileExt.setClubFk(byMembershipId.getClubFk());
+                                    // replace it by delete and add
+                                    userProfileExtService.delete(byMembershipId.getProfileId());
+                                    userProfileExtService.save(updatedUserProfileExt);
+                                }
+                            }
                         }
                     }
                 } else {
@@ -952,8 +969,12 @@ public class ImportTournamentService {
                     String profileToFind = null;
                     if (membershipId != null) {
                         try {
-                            UserProfileExt profileByMembershipId = this.userProfileExtService.getByMembershipId(membershipId);
-                            profileToFind = (profileByMembershipId != null) ? profileByMembershipId.getProfileId() : null;
+                            if (this.userProfileExtService.existsByMembershipId(membershipId)) {
+                                UserProfileExt profileByMembershipId = this.userProfileExtService.getByMembershipId(membershipId);
+                                profileToFind = (profileByMembershipId != null) ? profileByMembershipId.getProfileId() : null;
+                            } else {
+                                log.info("No userProfileExt found for membershipId " + membershipId);
+                            }
                         } catch (Exception e) {
                             log.error("Couldn't find profile id for membership id " + membershipId, e);
                         }
