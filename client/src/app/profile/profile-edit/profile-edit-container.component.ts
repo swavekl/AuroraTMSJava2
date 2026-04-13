@@ -10,6 +10,7 @@ import {LinearProgressBarService} from '../../shared/linear-progress-bar/linear-
 import {UsattPlayerRecordService} from '../service/usatt-player-record.service';
 import {Regions} from '../../shared/regions';
 import {UserRoles} from '../../user/user-roles.enum';
+import {ErrorMessagePopupService} from '../../shared/error-message-dialog/error-message-popup.service';
 
 @Component({
     selector: 'app-profile-edit-container',
@@ -46,7 +47,8 @@ export class ProfileEditContainerComponent implements OnInit, OnDestroy {
               private usattPlayerRecordService: UsattPlayerRecordService,
               private router: Router,
               private activatedRoute: ActivatedRoute,
-              private linearProgressBarService: LinearProgressBarService) {
+              private linearProgressBarService: LinearProgressBarService,
+              private errorMessagePopupService: ErrorMessagePopupService) {
     this.profileId = this.activatedRoute.snapshot.params['profileId'] || '';
     if (!this.profileId || this.profileId === 'undefined') {
       this.profileId = authenticationService.getCurrentUserProfileId();
@@ -170,7 +172,11 @@ export class ProfileEditContainerComponent implements OnInit, OnDestroy {
               );
           }
         },
-        (err: any) => console.error(err)
+        (error: any) => {
+          console.error(error);
+          const message = error.error?.error ?? 'Error';
+          this.errorMessagePopupService.showError(message);
+        }
       );
     this.subscriptions.add(subscription);
   }

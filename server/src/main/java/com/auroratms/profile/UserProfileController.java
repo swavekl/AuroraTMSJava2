@@ -132,7 +132,9 @@ public class UserProfileController extends AbstractOktaController {
                 }
             }
         } catch (Exception e) {
-            return new ResponseEntity(e.getMessage(), HttpStatus.NOT_FOUND);
+            log.error("Error updating profile", e);
+            String message = "{\"error\": \"%s\"}".formatted(e.getMessage());
+            return new ResponseEntity(message, HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
         return new ResponseEntity(HttpStatus.OK);
