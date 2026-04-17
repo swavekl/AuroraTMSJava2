@@ -285,12 +285,14 @@ public class ImportTournamentService {
                             case 6:
                                 // <td Align="Left"><a href="mailto:swaveklorenc@yahoo.com">Swavek Lorenc</a><br>630-251-8860</td>
                                 Element tdMailNamePhoneLink = tableCell.selectFirst("a[href]");
-                                tournamentDirectorEmail = tdMailNamePhoneLink.attr("href");
-                                if (tournamentDirectorEmail != null) {
-                                    tournamentDirectorEmail = tournamentDirectorEmail.substring("mailto:".length());
-                                    tournamentDirectorName = tdMailNamePhoneLink.text().trim();
-                                    tournamentDirectorPhone = tableCell.html();
-                                    tournamentDirectorPhone = tournamentDirectorPhone.substring(tournamentDirectorPhone.indexOf("<br>") + "<br>".length());
+                                if (tdMailNamePhoneLink != null) {
+                                    tournamentDirectorEmail = tdMailNamePhoneLink.attr("href");
+                                    if (tournamentDirectorEmail != null) {
+                                        tournamentDirectorEmail = tournamentDirectorEmail.substring("mailto:".length());
+                                        tournamentDirectorName = tdMailNamePhoneLink.text().trim();
+                                        tournamentDirectorPhone = tableCell.html();
+                                        tournamentDirectorPhone = tournamentDirectorPhone.substring(tournamentDirectorPhone.indexOf("<br>") + "<br>".length());
+                                    }
                                 }
                                 break;
                             case 7:
