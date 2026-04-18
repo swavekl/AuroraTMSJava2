@@ -32,9 +32,9 @@
       <div fxLayout="column" fxLayoutGap="20px">
         <div fxLayout="row" fxLayoutGap="20px">
           <mat-radio-group [(ngModel)]="prizeInfo.awardType" name="awardType">
-            <mat-radio-button value="None">None</mat-radio-button>
-            <mat-radio-button value="Trophy">Trophy</mat-radio-button>
-            <mat-radio-button value="Medal">Medal</mat-radio-button>
+            <mat-radio-button value="None" (click)="awardTypeChanged($event)">None</mat-radio-button>
+            <mat-radio-button value="Trophy" (click)="awardTypeChanged($event)">Trophy</mat-radio-button>
+            <mat-radio-button value="Medal" (click)="awardTypeChanged($event)">Medal</mat-radio-button>
             <mat-radio-button value="Other">Other</mat-radio-button>
           </mat-radio-group>
         </div>

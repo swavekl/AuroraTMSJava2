@@ -40,18 +40,17 @@ export class PrizeInfoDialogComponent implements OnInit {
   }
 
   onSave() {
-
-    // console.log("this.otherAwardType", this.otherAwardType);
-    // console.log('this.prizeInfo', this.prizeInfo);
-    // set some sensible defaults
-    const awardTrophy = this.prizeInfo.awardType !== "None";
+    const awardTrophy = this.prizeInfo.awardType === "Trophy";
+    const awardMedal = this.prizeInfo.awardType === 'Medal';
+    const awardOther = this.prizeInfo.awardType === "Other";
+    const awardSomething = awardMedal || awardTrophy || awardOther;
     const otherAwardIsSet = this.otherAwardType != null && this.otherAwardType !== '';
-    const awardType = (otherAwardIsSet) ? this.otherAwardType : (awardTrophy ? this.prizeInfo.awardType : null);
+    const awardType = (awardOther && otherAwardIsSet) ? this.otherAwardType : this.prizeInfo.awardType;
     const updatedPrizeInfo: PrizeInfo = {
       ...this.prizeInfo,
       awardedForPlace: Number(this.prizeInfo.awardedForPlace),
       awardedForPlaceRangeEnd: this.prizeInfo.awardedForPlaceRangeEnd ?? 0,
-      awardTrophy: awardTrophy,
+      awardTrophy: awardSomething,
       awardType: awardType
     };
     // console.log("updatedPrizeInfo", updatedPrizeInfo);
@@ -68,6 +67,10 @@ export class PrizeInfoDialogComponent implements OnInit {
 
   protected isOtherAwardFieldDisabled() {
      return this.prizeInfo?.awardType === "None" || this.prizeInfo?.awardType === "Medal" || this.prizeInfo?.awardType === "Trophy";
+  }
+
+  protected awardTypeChanged($event: MouseEvent) {
+     this.otherAwardType = null;
   }
 }
 
