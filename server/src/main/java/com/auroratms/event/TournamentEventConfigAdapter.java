@@ -97,6 +97,30 @@ public class TournamentEventConfigAdapter {
     }
 
     /**
+     * Gets the number of tables per group
+     * @return
+     */
+    public int getNumTablesPerGroup() {
+        if(roundDivision != null) {
+            return roundDivision.getNumTablesPerGroup();
+        } else {
+            return tournamentEvent.getNumTablesPerGroup();
+        }
+    }
+
+    /**
+     * Gets the number of players per group
+     * @return
+     */
+    public int getPlayersPerGroup() {
+        if(roundDivision != null) {
+            return roundDivision.getPlayersPerGroup();
+        } else {
+            return tournamentEvent.getPlayersPerGroup();
+        }
+    }
+
+    /**
      * Gets a number of games to play in a given single elimination round as configured
      *
      * @param roundOf            round of 64, 32 etc.

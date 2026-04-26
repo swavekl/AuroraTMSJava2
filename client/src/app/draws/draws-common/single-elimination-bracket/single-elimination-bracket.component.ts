@@ -366,11 +366,11 @@ export class SingleEliminationBracketComponent implements OnInit, OnDestroy, OnC
             match.showSeedNumber = (i === 0); // show seed number for first round only
             // only first round matches can be rearanged
             match.dragDisabled = (drawRound.round != roundNumbers[0])
-              || (drawItemLeft.seSeedNumber === 1)
-              || (drawItemRight.seSeedNumber === 2)
+              || (drawItemLeft?.seSeedNumber === 1)
+              || (drawItemRight?.seSeedNumber === 2)
               || (this.editMode === false);
             // assign id so we can identify over which player (A or B) the mouse is hovering.
-            match.matchElementId = `match-${division.divisionIdx}-${drawItemLeft.id}-${drawItemRight.id}`;
+            match.matchElementId = `match-${division.divisionIdx}-${drawItemLeft?.id}-${drawItemRight?.id}`;
 
             roundMatches.push(match);
             j += 2;

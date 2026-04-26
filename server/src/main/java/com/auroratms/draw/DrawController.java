@@ -298,13 +298,7 @@ public class DrawController {
         try {
             TournamentEvent thisEvent = this.eventService.get(eventId);
 
-            // remove existing draw if any
-            this.drawService.deleteDraws(eventId, drawType);
-
-            // if this event has more than one round RR followed by SE then delete that too
-            if (!thisEvent.isSingleElimination() && thisEvent.getPlayersToAdvance() > 0) {
-                this.drawService.deleteDraws(eventId, DrawType.SINGLE_ELIMINATION);
-            }
+            this.deleteAll(eventId);
 
             // get all event entries into this event
             List<TournamentEventEntry> eventEntries = this.eventEntryService.listAllForEvent(thisEvent.getId());
@@ -785,14 +779,15 @@ public class DrawController {
     @PreAuthorize("hasAuthority('TournamentDirectors') or hasAuthority('Admins') or hasAuthority('Referees')")
     public void deleteAll(@RequestParam long eventId) {
         TournamentEvent thisEvent = this.eventService.get(eventId);
-        boolean singleElimination = thisEvent.isSingleElimination();
-        if (singleElimination) {
-            this.drawService.deleteDraws(eventId, DrawType.SINGLE_ELIMINATION);
-        } else {
-            // if RR is followed by Single elimination then delete that too
-            this.drawService.deleteDraws(eventId, DrawType.ROUND_ROBIN);
-            if (thisEvent.getPlayersToAdvance() > 0) {
-                this.drawService.deleteDraws(eventId, DrawType.SINGLE_ELIMINATION);
+        TournamentRoundsConfiguration roundsConfiguration = thisEvent.getRoundsConfiguration();
+        if (roundsConfiguration != null) {
+            List<TournamentEventRound> rounds = roundsConfiguration.getRounds();
+            for (TournamentEventRound round : rounds) {
+                if (round.isSingleElimination()) {
+                    this.drawService.deleteDraws(eventId, DrawType.SINGLE_ELIMINATION);
+                } else {
+                    this.drawService.deleteDraws(eventId, DrawType.ROUND_ROBIN);
+                }
             }
         }
     }
