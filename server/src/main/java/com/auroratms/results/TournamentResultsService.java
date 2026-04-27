@@ -4,6 +4,7 @@ import com.auroratms.draw.DrawItem;
 import com.auroratms.draw.DrawService;
 import com.auroratms.draw.DrawType;
 import com.auroratms.event.TournamentEvent;
+import com.auroratms.event.TournamentEventConfigAdapter;
 import com.auroratms.event.TournamentEventConfiguration;
 import com.auroratms.event.TournamentEventEntityService;
 import com.auroratms.match.Match;
@@ -104,6 +105,9 @@ public class TournamentResultsService {
         List<EventResults> seResultsList = new ArrayList<>(matchCards.size());
         Map<String, String> matchToCompactNotationResultMap = new HashMap<>();
         for (MatchCard matchCard : matchCards) {
+            TournamentEventConfigAdapter adapter = new TournamentEventConfigAdapter(
+                    tournamentEvent, matchCard.getRoundOrdinalNumber(), matchCard.getDivisionIdx());
+            int pointsPerGame = adapter.getPointsPerGame();
             boolean singleElimination = (matchCard.getDrawType() == DrawType.SINGLE_ELIMINATION);
             EventResults eventResults = new EventResults();
             eventResults.setSingleElimination(singleElimination);
@@ -116,7 +120,7 @@ public class TournamentResultsService {
                 List<Match> matches = matchCard.getMatches();
                 if (matches.size() == 1) {
                     Match match = matches.get(0);
-                    String compactResult = match.getCompactResult(matchCard.getNumberOfGames(), tournamentEvent.getPointsPerGame());
+                    String compactResult = match.getCompactResult(matchCard.getNumberOfGames(), pointsPerGame);
                     String matchKey = "%d:%d".formatted(matchCard.getRound(), matchCard.getGroupNum());
                     matchToCompactNotationResultMap.put(matchKey, compactResult);
                 }
@@ -351,6 +355,9 @@ public class TournamentResultsService {
                 }
             }
 
+            TournamentEventConfigAdapter adapter = new TournamentEventConfigAdapter(
+                    tournamentEvent, matchCard.getRoundOrdinalNumber(), matchCard.getDivisionIdx());
+            int pointsPerGame = adapter.getPointsPerGame();
             List<Match> matches = matchCard.getMatches();
             for (Match match : matches) {
                 String playerAProfileId = match.getPlayerAProfileId();
@@ -360,9 +367,9 @@ public class TournamentResultsService {
                 int playerARating = match.getPlayerARating();
                 int playerBRating = match.getPlayerBRating();
                 MatchResult matchResult = match.getGamesOnlyResult(matchCard.getNumberOfGames(),
-                        tournamentEvent.getPointsPerGame());
-                boolean playerAisMatchWinner = match.isMatchWinner(playerAProfileId, matchCard.getNumberOfGames(), tournamentEvent.getPointsPerGame());
-                boolean playerBisMatchWinner = match.isMatchWinner(playerBProfileId, matchCard.getNumberOfGames(), tournamentEvent.getPointsPerGame());
+                        pointsPerGame);
+                boolean playerAisMatchWinner = match.isMatchWinner(playerAProfileId, matchCard.getNumberOfGames(), pointsPerGame);
+                boolean playerBisMatchWinner = match.isMatchWinner(playerBProfileId, matchCard.getNumberOfGames(), pointsPerGame);
 
                 // find the player results
                 for (PlayerResults playerResults : playerResultsList) {
@@ -446,12 +453,14 @@ public class TournamentResultsService {
                     for (TournamentEvent eventEntity : enteredEventEntities) {
                         if (eventEntity.getId().equals(matchCard.getEventFk())) {
                             List<Match> matches = matchCard.getMatches();
+                            TournamentEventConfigAdapter adapter = new TournamentEventConfigAdapter(
+                                    eventEntity, matchCard.getRoundOrdinalNumber(), matchCard.getDivisionIdx());
                             for (Match match : matches) {
                                 if (match.getPlayerAProfileId().contains(playerProfileId) ||
                                         match.getPlayerBProfileId().contains(playerProfileId)) {
-                                    if (match.isMatchFinished(matchCard.getNumberOfGames(), eventEntity.getPointsPerGame())) {
+                                    if (match.isMatchFinished(matchCard.getNumberOfGames(), adapter.getPointsPerGame())) {
                                         PlayerMatchSummary playerMatchSummary = toPlayerMatchSummary(match, matchCard, eventEntity,
-                                                playerProfileId, playerRating);
+                                                playerProfileId, playerRating, adapter.getPointsPerGame(), adapter.isSingleElimination());
                                         playerMatchSummaries.add(playerMatchSummary);
                                     }
                                 }
@@ -470,9 +479,11 @@ public class TournamentResultsService {
                                 match.getPlayerBProfileId().contains(playerProfileId)) {
                             for (TournamentEvent eventEntity : enteredEventEntities) {
                                 if (eventEntity.getId().equals(matchCard.getEventFk())) {
-                                    if (match.isMatchFinished(matchCard.getNumberOfGames(), eventEntity.getPointsPerGame())) {
+                                    TournamentEventConfigAdapter adapter = new TournamentEventConfigAdapter(
+                                            eventEntity, matchCard.getRoundOrdinalNumber(), matchCard.getDivisionIdx());
+                                    if (match.isMatchFinished(matchCard.getNumberOfGames(), adapter.getPointsPerGame())) {
                                         PlayerMatchSummary playerMatchSummary = toPlayerMatchSummary(match, matchCard, eventEntity,
-                                                playerProfileId, playerRating);
+                                                playerProfileId, playerRating, adapter.getPointsPerGame(), adapter.isSingleElimination());
                                         playerMatchSummaries.add(playerMatchSummary);
                                     }
                                     found = true;
@@ -502,16 +513,21 @@ public class TournamentResultsService {
      * @param tournamentEvent
      * @param playerProfileId
      * @param playerRating
+     * @param pointsPerGame
+     * @param singleElimination
      * @return
      */
     private PlayerMatchSummary toPlayerMatchSummary(Match match,
                                                     MatchCard matchCard,
                                                     TournamentEvent tournamentEvent,
-                                                    String playerProfileId, int playerRating) {
+                                                    String playerProfileId,
+                                                    int playerRating,
+                                                    int pointsPerGame,
+                                                    boolean singleElimination) {
         PlayerMatchSummary playerMatchSummary = new PlayerMatchSummary();
         playerMatchSummary.setEventName(tournamentEvent.getName());
         playerMatchSummary.setMatchDay(tournamentEvent.getDay());
-        playerMatchSummary.setEventFormat(tournamentEvent.isSingleElimination() ? DrawType.SINGLE_ELIMINATION : DrawType.ROUND_ROBIN);
+        playerMatchSummary.setEventFormat(singleElimination ? DrawType.SINGLE_ELIMINATION : DrawType.ROUND_ROBIN);
         playerMatchSummary.setDoubles(tournamentEvent.isDoubles());
 
         playerMatchSummary.setRound(matchCard.getRound());
@@ -524,7 +540,7 @@ public class TournamentResultsService {
                 String opponentName = profileIdToNameMap.get(match.getPlayerBProfileId());
                 playerMatchSummary.setOpponentFullName(opponentName);
             }
-            playerWonMatch = match.isMatchWinner(match.getPlayerAProfileId(), matchCard.getNumberOfGames(), tournamentEvent.getPointsPerGame());
+            playerWonMatch = match.isMatchWinner(match.getPlayerAProfileId(), matchCard.getNumberOfGames(), pointsPerGame);
         } else {
             playerMatchSummary.setOpponentProfileId(match.getPlayerAProfileId());
             playerMatchSummary.setOpponentRating(match.getPlayerARating());
@@ -532,10 +548,10 @@ public class TournamentResultsService {
                 String opponentName = profileIdToNameMap.get(match.getPlayerAProfileId());
                 playerMatchSummary.setOpponentFullName(opponentName);
             }
-            playerWonMatch = match.isMatchWinner(match.getPlayerBProfileId(), matchCard.getNumberOfGames(), tournamentEvent.getPointsPerGame());
+            playerWonMatch = match.isMatchWinner(match.getPlayerBProfileId(), matchCard.getNumberOfGames(), pointsPerGame);
         }
         playerMatchSummary.setMatchWon(playerWonMatch);
-        playerMatchSummary.setCompactMatchResult(match.getCompactResult(matchCard.getNumberOfGames(), tournamentEvent.getPointsPerGame()));
+        playerMatchSummary.setCompactMatchResult(match.getCompactResult(matchCard.getNumberOfGames(), pointsPerGame));
         playerMatchSummary.setGroup(matchCard.getGroupNum());
         playerMatchSummary.setMatchNum(match.getMatchNum());
 

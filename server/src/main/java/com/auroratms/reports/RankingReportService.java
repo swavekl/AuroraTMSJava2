@@ -1,10 +1,7 @@
 package com.auroratms.reports;
 
 import com.auroratms.draw.DrawType;
-import com.auroratms.event.AgeRestrictionType;
-import com.auroratms.event.GenderRestriction;
-import com.auroratms.event.TournamentEvent;
-import com.auroratms.event.TournamentEventEntityService;
+import com.auroratms.event.*;
 import com.auroratms.match.Match;
 import com.auroratms.match.MatchCard;
 import com.auroratms.match.MatchCardService;
@@ -185,8 +182,13 @@ public class RankingReportService {
         int numberOfGames = tournamentEvent.getNumberOfGames();
         int pointsPerGame = tournamentEvent.getPointsPerGame();
         int playersToAdvance = tournamentEvent.getPlayersToAdvance();
-        System.out.println("playersToAdvance = " + playersToAdvance);
         for (MatchCard matchCard : singleEliminationEventMatchCards) {
+            TournamentEventConfigAdapter adapter = new TournamentEventConfigAdapter(
+                    tournamentEvent, matchCard.getRoundOrdinalNumber(), matchCard.getDivisionIdx());
+            pointsPerGame = adapter.getPointsPerGame();
+            playersToAdvance = adapter.getPlayersToAdvance();
+            numberOfGames = matchCard.getNumberOfGames();
+            System.out.println("playersToAdvance = " + playersToAdvance);
             addMatchCardReportInfos(matchCard, reportLineInfos, numberOfGames, pointsPerGame, playersToAdvance);
         }
 
@@ -229,7 +231,11 @@ public class RankingReportService {
         for (ReportLineInfo reportLineInfo : reportLineInfos) {
             if (StringUtils.isNotEmpty(reportLineInfo.profileId)) {
                 UserProfileExt userProfileExt = userProfileExtMap.get(reportLineInfo.profileId);
-                reportLineInfo.memberId = userProfileExt.getMembershipId();
+                if (userProfileExt != null) {
+                    reportLineInfo.memberId = userProfileExt.getMembershipId();
+                } else {
+                    log.error("Unable to find membership id for profile id " + reportLineInfo.profileId + " for " + reportLineInfo.fullName );
+                }
             } else {
                 reportLineInfo.memberId = 0;
             }

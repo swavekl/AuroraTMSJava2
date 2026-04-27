@@ -57,9 +57,9 @@ spring:
           auto-startup: true
       ses:
         enabled: false
-  ai:
-    openai:
-      api-key: ${spring.ai.openai.api-key.value}
+#  ai:
+#    openai:
+#      api-key: ${spring.ai.openai.api-key.value}
 
 # OCR reading of PDFs
 tess4j:

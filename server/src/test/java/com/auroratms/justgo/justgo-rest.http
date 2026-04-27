@@ -15,7 +15,7 @@ Content-Type: application/json
 ###
 
 ### 2. Find Member by Attributes
-GET https://api-sandbox.justgo.com/api/v2.2/Members/FindByAttributes?LastName=Lorenc&ModifiedBefore=2025-04-04T13:48:32.000Z
+GET https://api-sandbox.justgo.com/api/v2.2/Members/FindByAttributes?LastName=Lorenc&ModifiedAfter=2025-04-04T13:48:32.000Z
 Accept: application/json
 Authorization: Bearer {{auth_token}}
 

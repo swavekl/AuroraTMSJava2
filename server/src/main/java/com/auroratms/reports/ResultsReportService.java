@@ -1,6 +1,7 @@
 package com.auroratms.reports;
 
 import com.auroratms.event.TournamentEvent;
+import com.auroratms.event.TournamentEventConfigAdapter;
 import com.auroratms.event.TournamentEventEntityService;
 import com.auroratms.match.Match;
 import com.auroratms.match.MatchCard;
@@ -117,13 +118,15 @@ public class ResultsReportService {
 
                     for (Match match : matches) {
                         MatchCard matchCard = match.getMatchCard();
-                        if (match.isMatchFinished(matchCard.getNumberOfGames(), tournamentEvent.getPointsPerGame())
+                        TournamentEventConfigAdapter adapter = new TournamentEventConfigAdapter(
+                                tournamentEvent, matchCard.getRoundOrdinalNumber(), matchCard.getDivisionIdx());
+                        int pointsPerGame = adapter.getPointsPerGame();
+                        if (match.isMatchFinished(matchCard.getNumberOfGames(), pointsPerGame)
                                 && !match.isSideADefaulted() && !match.isSideBDefaulted()) {
 
                             assert profileIdsToProfileMap != null;
                             boolean added = addMatchRow(resultsSheet, resultsRowNum, match, matchCard, tournamentEvent,
-                                    profileIdsToProfileMap,
-                                    membershipIdToFullName);
+                                    profileIdsToProfileMap, membershipIdToFullName, pointsPerGame);
                             if (added) {
                                 resultsRowNum++;
                             }
@@ -191,6 +194,7 @@ public class ResultsReportService {
      * @param event
      * @param profileMap
      * @param membershipIdToFullName
+     * @param pointsPerGame
      * @return true if match was added to the sheet, false otherwise
      */
     private boolean addMatchRow(XSSFSheet sheet,
@@ -199,12 +203,13 @@ public class ResultsReportService {
                                 MatchCard matchCard,
                                 TournamentEvent event,
                                 Map<String, UserProfileExt> profileMap,
-                                Map<Long, String> membershipIdToFullName) {
+                                Map<Long, String> membershipIdToFullName,
+                                int pointsPerGame) {
         UserProfileExt playerA = profileMap.get(match.getPlayerAProfileId());
         UserProfileExt playerB = profileMap.get(match.getPlayerBProfileId());
 
         if (playerA != null && playerB != null) {
-            boolean aWins = match.isMatchWinner(playerA.getProfileId(), matchCard.getNumberOfGames(), event.getPointsPerGame());
+            boolean aWins = match.isMatchWinner(playerA.getProfileId(), matchCard.getNumberOfGames(), pointsPerGame);
             UserProfileExt winner = aWins ? playerA : playerB;
             UserProfileExt loser = aWins ? playerB : playerA;
 
@@ -212,7 +217,7 @@ public class ResultsReportService {
             String loserFullName = membershipIdToFullName.get(loser.getMembershipId());
             winnerFullName = !StringUtils.isEmpty(winnerFullName) ? winnerFullName : "";
             loserFullName = !StringUtils.isEmpty(loserFullName) ? loserFullName : "";
-            String matchResult = match.getCompactResult(matchCard.getNumberOfGames(), event.getPointsPerGame());
+            String matchResult = match.getCompactResult(matchCard.getNumberOfGames(), pointsPerGame);
             String eventAndRound = event.getName() + " - " + matchCard.getRoundName();
 
             Row row = sheet.createRow(rowNum);

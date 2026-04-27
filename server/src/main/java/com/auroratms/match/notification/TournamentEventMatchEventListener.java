@@ -1,6 +1,7 @@
 package com.auroratms.match.notification;
 
 import com.auroratms.event.TournamentEvent;
+import com.auroratms.event.TournamentEventConfigAdapter;
 import com.auroratms.event.TournamentEventEntityService;
 import com.auroratms.match.Match;
 import com.auroratms.match.MatchCard;
@@ -66,9 +67,12 @@ public class TournamentEventMatchEventListener {
             // get current status
             boolean matchScoresEntered = tournamentEvent.isMatchScoresEntered();
             boolean oldMatchScoresEntered = matchScoresEntered;
+            TournamentEventConfigAdapter adapter = new TournamentEventConfigAdapter(
+                    tournamentEvent, matchCard.getRoundOrdinalNumber(), matchCard.getDivisionIdx());
+            int pointsPerGame = adapter.getPointsPerGame();
 
             Match matchAfter = matchUpdateEvent.getMatchAfter();
-            boolean matchFinished = matchAfter.isMatchFinished(matchCard.getNumberOfGames(), tournamentEvent.getPointsPerGame());
+            boolean matchFinished = matchAfter.isMatchFinished(matchCard.getNumberOfGames(), pointsPerGame);
             boolean updateEvent = false;
             if (!matchFinished) {
                 List<MatchCard> allMatchCards = matchCardService.findAllForEvent(eventFk);
@@ -77,7 +81,7 @@ public class TournamentEventMatchEventListener {
                 int countEnteredMatches = 0;
                 for (Match match : allMatchesForEvent) {
                     MatchCard matchCardOfMatch = match.getMatchCard();
-                    if (match.isMatchFinished(matchCardOfMatch.getNumberOfGames(), tournamentEvent.getPointsPerGame())) {
+                    if (match.isMatchFinished(matchCardOfMatch.getNumberOfGames(), pointsPerGame)) {
                         countEnteredMatches++;
                     }
                 }

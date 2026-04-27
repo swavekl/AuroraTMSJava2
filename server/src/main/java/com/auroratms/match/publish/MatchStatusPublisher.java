@@ -1,6 +1,7 @@
 package com.auroratms.match.publish;
 
 import com.auroratms.event.TournamentEvent;
+import com.auroratms.event.TournamentEventConfigAdapter;
 import com.auroratms.event.TournamentEventEntityService;
 import com.auroratms.match.Match;
 import com.auroratms.match.MatchCard;
@@ -58,11 +59,13 @@ public class MatchStatusPublisher {
 
                     // get tournament id
                     TournamentEvent tournamentEvent = this.tournamentEventEntityService.get(matchCard.getEventFk());
+                    TournamentEventConfigAdapter adapter = new TournamentEventConfigAdapter(
+                            tournamentEvent, matchCard.getRoundOrdinalNumber(), matchCard.getDivisionIdx());
                     long tournamentFk = tournamentEvent.getTournamentFk();
                     MonitorMessage monitorMessage = new MonitorMessage();
                     monitorMessage.setMatch(match);
                     monitorMessage.setNumberOfGames(matchCard.getNumberOfGames());
-                    monitorMessage.setPointsPerGame(tournamentEvent.getPointsPerGame());
+                    monitorMessage.setPointsPerGame(adapter.getPointsPerGame());
                     monitorMessage.setDoubles(tournamentEvent.isDoubles());
                     Map<String, String> profileIdToNameMap = matchCard.getProfileIdToNameMap();
                     if (profileIdToNameMap != null) {

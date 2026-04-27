@@ -1,6 +1,7 @@
 package com.auroratms.reports;
 
 import com.auroratms.event.TournamentEvent;
+import com.auroratms.event.TournamentEventConfigAdapter;
 import com.auroratms.event.TournamentEventEntityService;
 import com.auroratms.match.Match;
 import com.auroratms.match.MatchCard;
@@ -317,7 +318,9 @@ public class PlayerListReportService {
                 List<Match> matchesForEvent = matchService.findAllByMatchCardIn(allMatchCardsForEvent);
                 for (Match match : matchesForEvent) {
                     MatchCard matchCard = match.getMatchCard();
-                    if (match.isMatchFinished(matchCard.getNumberOfGames(), tournamentEvent.getPointsPerGame())) {
+                    TournamentEventConfigAdapter adapter = new TournamentEventConfigAdapter(
+                            tournamentEvent, matchCard.getRoundOrdinalNumber(), matchCard.getDivisionIdx());
+                    if (match.isMatchFinished(matchCard.getNumberOfGames(), adapter.getPointsPerGame())) {
                         if (!match.isSideADefaulted()) {
                             uniqueProfileIdsSet.add(match.getPlayerAProfileId());
                         }

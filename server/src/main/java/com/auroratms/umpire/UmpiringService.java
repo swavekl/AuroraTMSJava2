@@ -1,6 +1,7 @@
 package com.auroratms.umpire;
 
 import com.auroratms.event.TournamentEvent;
+import com.auroratms.event.TournamentEventConfigAdapter;
 import com.auroratms.event.TournamentEventEntityService;
 import com.auroratms.match.Match;
 import com.auroratms.match.MatchCard;
@@ -163,7 +164,9 @@ public class UmpiringService {
             long eventFk = matchCard.getEventFk();
             for (TournamentEvent tournamentEvent : tournamentEvents) {
                 if (tournamentEvent.getId() == eventFk) {
-                    int pointsPerGame = tournamentEvent.getPointsPerGame();
+                    TournamentEventConfigAdapter adapter = new TournamentEventConfigAdapter(
+                            tournamentEvent, matchCard.getRoundOrdinalNumber(), matchCard.getDivisionIdx());
+                    int pointsPerGame = adapter.getPointsPerGame();
                     boolean matchFinished = match.isMatchFinished(matchCard.getNumberOfGames(), pointsPerGame);
                     byte game1ScoreSideA = match.getGame1ScoreSideA();
                     byte game1ScoreSideB = match.getGame1ScoreSideB();
@@ -342,7 +345,9 @@ public class UmpiringService {
         int pointsPerGame = 11;
         for (TournamentEvent tournamentEvent : allEvents) {
             if (tournamentEvent.getId() == matchCard.getEventFk()) {
-                pointsPerGame = tournamentEvent.getPointsPerGame();
+                TournamentEventConfigAdapter adapter = new TournamentEventConfigAdapter(
+                        tournamentEvent, matchCard.getRoundOrdinalNumber(), matchCard.getDivisionIdx());
+                pointsPerGame = adapter.getPointsPerGame();
                 break;
             }
         }

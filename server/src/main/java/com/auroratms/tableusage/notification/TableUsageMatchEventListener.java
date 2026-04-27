@@ -1,6 +1,7 @@
 package com.auroratms.tableusage.notification;
 
 import com.auroratms.event.TournamentEvent;
+import com.auroratms.event.TournamentEventConfigAdapter;
 import com.auroratms.event.TournamentEventEntityService;
 import com.auroratms.match.Match;
 import com.auroratms.match.MatchCard;
@@ -66,7 +67,9 @@ public class TableUsageMatchEventListener {
             MatchCard matchCardWithMatches = matchCardService.getMatchCard(matchCardId);
             long eventFk = matchCardWithMatches.getEventFk();
             TournamentEvent tournamentEvent = tournamentEventEntityService.get(eventFk);
-            int pointsPerGame = tournamentEvent.getPointsPerGame();
+            TournamentEventConfigAdapter adapter = new TournamentEventConfigAdapter(
+                    tournamentEvent, matchCardWithMatches.getRoundOrdinalNumber(), matchCardWithMatches.getDivisionIdx());
+            int pointsPerGame = adapter.getPointsPerGame();
             List<Match> matches = matchCardWithMatches.getMatches();
             int numberOfGames = matchCardWithMatches.getNumberOfGames();
             int completedMatches = getNumCompletedMatches(matches, numberOfGames, pointsPerGame);

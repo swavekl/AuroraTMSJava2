@@ -78,7 +78,9 @@ public class TieBreakingService {
         // get number of games and points per game
         long eventFk = matchCard.getEventFk();
         TournamentEvent tournamentEvent = tournamentEventEntityService.get(eventFk);
-        int pointsPerGame = tournamentEvent.getPointsPerGame();
+        TournamentEventConfigAdapter adapter = new TournamentEventConfigAdapter(
+                tournamentEvent, matchCard.getRoundOrdinalNumber(), matchCard.getDivisionIdx());
+        int pointsPerGame = adapter.getPointsPerGame();
         int numberOfGames = matchCard.getNumberOfGames();
 
         return rankPlayers(matchCard, pointsPerGame, numberOfGames);

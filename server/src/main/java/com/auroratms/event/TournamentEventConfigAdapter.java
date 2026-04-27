@@ -177,6 +177,18 @@ public class TournamentEventConfigAdapter {
     }
 
     /**
+     * check if this is a single elimination round
+     * @return
+     */
+    public boolean isSingleElimination() {
+        if (eventRound != null) {
+            return eventRound.isSingleElimination();
+        } else {
+            return tournamentEvent.isSingleElimination();
+        }
+    }
+
+    /**
      * Gets if there should be a match to decide the 3rd and 4th place
      *
      * @return
