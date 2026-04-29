@@ -2754,6 +2754,9 @@ public class ImportTournamentService {
                         playerName = playerName.substring(1);
                         Elements stateTD = playerEntryDetailsElement.next();
                         String state = stateTD.first().text();
+                        if (state == null) {
+                            state = "";
+                        }
                         playerNames.add(playerName);
                         String fullNameAndState = playerName + ", " + state;
                         playerNamesAndState.add(fullNameAndState);
@@ -2780,6 +2783,7 @@ public class ImportTournamentService {
         // remove state from this list so we can use it for membership status call
         List<String> playerNames = playerNamesAndState.stream()
                 .map(playerNameAndState -> {
+                    log.info(playerNameAndState);
                     return playerNameAndState.substring(0, playerNameAndState.lastIndexOf(","));
                 }).toList();
 
@@ -2788,31 +2792,59 @@ public class ImportTournamentService {
         importProgressInfo.overallCompleted = 10;
 
         Map<Long, String> membershipIdToNameMap = new HashMap<>();
-        int notMatchingCount = 0;
         int playersProcessed = 0;
+        int notMatchingCount = 0;
         int totalPlayers = usattPlayerRecordsByFullName.size();
-        // find those who have an exact match by last name, first name and state
-        for (UsattPlayerRecord usattPlayerRecord : usattPlayerRecordsByFullName) {
-            Long membershipId = usattPlayerRecord.getMembershipId();
-            String firstName = usattPlayerRecord.getFirstName();
-            String lastName = usattPlayerRecord.getLastName();
-            String state = usattPlayerRecord.getState();
-            // check if this player is in the tournament
-            String fullName = lastName + ", " + firstName;
-            String fullNameAndState = fullName + ", " + state;
-            // include only players who's state matches as well since there are multiple players with the same last and first name
-            if (playerNamesAndState.contains(fullNameAndState)) {
-                if (membershipId != 0) {
-                    membershipIdToNameMap.put(membershipId, fullNameAndState);
-                }
-            } else {
-                log.warn(++notMatchingCount + ") Player " + fullNameAndState + " is not matching with our without state " + membershipId);
-                playerRecordsToCheckForProfiles.add(usattPlayerRecord);
+        log.info("Searching for player records by last and first name and state");
+        for (String playerNameAndState : playerNamesAndState) {
+            log.info("Searching for USATT of player " + playerNameAndState);
+            boolean found = false;
+            String fullNameToSearch = playerNameAndState.substring(0, playerNameAndState.lastIndexOf(","));
+            // search USATT records by last name and first name only
+            List<UsattPlayerRecord> usattRecordsByName = usattPlayerRecordsByFullName.stream()
+                    .filter(usattPlayerRecord -> {
+                        String fullName = usattPlayerRecord.getLastName() + ", " + usattPlayerRecord.getFirstName();
+                        return fullName.equals(fullNameToSearch);
+                    })
+                    .toList();
+
+            // search in this result by last, first name and state for an exact match
+            Optional<UsattPlayerRecord> matchedPlayerRecord = usattRecordsByName.stream()
+                    .filter(usattPlayerRecord -> {
+                        String fullName = usattPlayerRecord.getLastName() + ", " + usattPlayerRecord.getFirstName();
+                        String fullNameAndState = fullName + ", " + usattPlayerRecord.getState();
+                        return fullNameAndState.equals(playerNameAndState);
+                    })
+                    .findFirst();
+
+            if (matchedPlayerRecord.isEmpty()) {
+                matchedPlayerRecord = usattRecordsByName.stream().findFirst();
             }
 
+            if (matchedPlayerRecord.isPresent()) {
+                UsattPlayerRecord usattPlayerRecord = matchedPlayerRecord.get();
+                Long membershipId = usattPlayerRecord.getMembershipId();
+                String fullName = usattPlayerRecord.getLastName() + ", " + usattPlayerRecord.getFirstName();
+                String fullNameAndState = fullName + ", " + usattPlayerRecord.getState();
+                if (fullNameAndState.equals(playerNameAndState)) {
+                    log.info("Found USATT player record by name and state " + fullNameAndState + " membership id " + membershipId);
+                } else {
+                    log.info("Found USATT player record by name " + fullName + " membership id " + membershipId);
+                }
+                if (membershipId != 0) {
+                    membershipIdToNameMap.put(membershipId, playerNameAndState);
+                }
+                found = true;
+            }
+            if (!found) {
+                notMatchingCount++;
+                log.warn("Player " + playerNameAndState + " USATT record not found with or without state ");
+//                playerRecordsToCheckForProfiles.add(usattPlayerRecord);
+            }
             playersProcessed++;
             importProgressInfo.phaseCompleted = (int) (((double) playersProcessed / totalPlayers) * 100.0);
         }
+
         log.info("Found " + membershipIdToNameMap.size() + " current USATT members which match entries exactly by last name, first name, state");
         importProgressInfo.overallCompleted = 30;
         importProgressInfo.phaseCompleted = 0;
@@ -2821,6 +2853,7 @@ public class ImportTournamentService {
         int profilesExisting = 0;
         List<Long> membershipIds = new ArrayList<>(membershipIdToNameMap.keySet());
         List<UserProfileExt> existingUserProfiles = this.userProfileExtService.findByMembershipIds(membershipIds);
+        log.info("Found " + existingUserProfiles.size() + " existing profiles from membership ids");
         importProgressInfo.overallCompleted = 40;
         int totalMembershipIds = membershipIds.size();
         int membershipIdsProcessed = 0;

@@ -1069,6 +1069,9 @@ public class UsattDataService {
             String gender = "" + (Character) row[2];
             String city = (String) row[3];
             String state = (String) row[4];
+            if (state == null) {
+                state = "";
+            }
             String zip = (String) row[5];
             int tournamentRating = (row[6] != null) ? ((Number) row[6]).intValue() : 0;
             UsattPlayerRecord usattPlayerRecord = new UsattPlayerRecord();
