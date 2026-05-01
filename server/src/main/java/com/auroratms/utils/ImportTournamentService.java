@@ -1148,6 +1148,7 @@ public class ImportTournamentService {
                         String firstName = "";
                         String email = "";
                         String state = "";
+                        String ratings = "";
                         for (String text : values) {
                             switch (columnNum) {
                                 case 0:
@@ -1160,6 +1161,9 @@ public class ImportTournamentService {
                                     state = text;
                                     break;
                                 case 3:
+                                    ratings = text;
+                                    break;
+                                case 4:
                                     email = text;
                                     break;
                                 default:
@@ -2594,21 +2598,21 @@ public class ImportTournamentService {
 
         importProgressInfo.status = "RUNNING";
         importProgressInfo.phaseName = "Parsing list of player entries";
-        List<String> playerNamesAndState = extractPlayerNamesFromHTML(playersUrl);
-        importProgressInfo.totalEntries = playerNamesAndState.size();
-        log.info("Extracted " + playerNamesAndState.size() + " total entries");
+        List<String> playerNameStateRatingsList = extractPlayersFromHTML(playersUrl);
+        importProgressInfo.totalEntries = playerNameStateRatingsList.size();
+        log.info("Extracted " + playerNameStateRatingsList.size() + " total entries");
         importProgressInfo.phaseCompleted = 100;
         importProgressInfo.overallCompleted = 5;
 
         importProgressInfo.phaseCompleted = 0;
-        if (!playerNamesAndState.isEmpty()) {
+        if (!playerNameStateRatingsList.isEmpty()) {
             // find all player's usatt records matching them by last and first name
             // if player has no membership then membership id is 0
             List<UsattPlayerRecord> playerRecordsToCheckForProfiles = new ArrayList<>();
-            List<String> missingAccountsList = findPlayersWithoutProfilesByNameAndState(playerNamesAndState, playerRecordsToCheckForProfiles, importProgressInfo);
+            List<String> missingAccountsList = findPlayersWithoutProfilesByNameAndState(playerNameStateRatingsList, playerRecordsToCheckForProfiles, importProgressInfo);
 
-            findPlayersWithoutProfilesByNameOnly(playerRecordsToCheckForProfiles, playerNamesAndState, missingAccountsList, importProgressInfo);
-            int profilesExisting = playerNamesAndState.size() - missingAccountsList.size();
+            findPlayersWithoutProfilesByNameOnly(playerRecordsToCheckForProfiles, playerNameStateRatingsList, missingAccountsList, importProgressInfo);
+            int profilesExisting = playerNameStateRatingsList.size() - missingAccountsList.size();
 
             // remove duplicates & sort before writing out
             Set<String> uniqueNamesSet = new HashSet<>(missingAccountsList);
@@ -2641,20 +2645,20 @@ public class ImportTournamentService {
     /**
      *
      * @param playerRecordsToCheckForProfiles
-     * @param playerNamesAndState
+     * @param playerNamesStateRatingsList
      * @param missingAccountsList
      * @param importProgressInfo
      * @return
      */
     private void findPlayersWithoutProfilesByNameOnly(List<UsattPlayerRecord> playerRecordsToCheckForProfiles,
-                                                      List<String> playerNamesAndState,
+                                                      List<String> playerNamesStateRatingsList,
                                                       List<String> missingAccountsList, ImportProgressInfo importProgressInfo) {
         importProgressInfo.phaseName = "Looking for player profiles by name only";
         importProgressInfo.phaseCompleted = 0;
 
-        List<String> playerNames = playerNamesAndState.stream()
-                .map(playerNameAndState -> {
-                    return playerNameAndState.substring(0, playerNameAndState.lastIndexOf(","));
+        List<String> playerNames = playerNamesStateRatingsList.stream()
+                .map(playerNameStateRatings -> {
+                    return extractPlayerNameOnly(playerNameStateRatings);
                 }).toList();
 
         // some players were not found because their state in Omnipong is not the same as in USATT player record or is missing
@@ -2680,7 +2684,7 @@ public class ImportTournamentService {
                     String state = userProfile.getState();
                     state = (StringUtils.isEmpty(state)) ? "" : state;
                     fullNameAndState = lastName + ", " + firstName + ", " + state;
-                    if (playerNamesAndState.contains(fullNameAndState)) {
+                    if (playerNamesStateRatingsList.contains(fullNameAndState)) {
                         found = true;
                         profilesExisting++;
 //                        log.info("Found profile for player " + fullNameAndState);
@@ -2689,7 +2693,7 @@ public class ImportTournamentService {
                         // maybe state doesn't match but name matches
                         found = true;
                         profilesExisting++;
-                        List<String> statesList = playerNamesAndState.stream()
+                        List<String> statesList = playerNamesStateRatingsList.stream()
                                 .filter(playerNameAndState -> fullName.equals(playerNameAndState.substring(0, playerNameAndState.lastIndexOf(","))))
                                 .map(playerNameAndState -> playerNameAndState.substring(playerNameAndState.lastIndexOf(",") + 1).trim())
                                 .toList();
@@ -2720,7 +2724,7 @@ public class ImportTournamentService {
      * @param playersUrl
      * @return
      */
-    private List<String> extractPlayerNamesFromHTML (String playersUrl) {
+    private List<String> extractPlayersFromHTML(String playersUrl) {
         List<String> playerNamesAndState = new ArrayList<>();
 
         log.info("Parsing " + playersUrl + " to find player entries");
@@ -2738,7 +2742,6 @@ public class ImportTournamentService {
             log.info(String.format("Checking accounts for players in tournament '%s'", tournamentName));
             Element playerEntriesTable = firstTDElement.selectFirst("table.omnipong");
 
-            List<String> playerNames = new ArrayList<>();
             if (playerEntriesTable != null) {
                 Elements playerEntryRows = playerEntriesTable.select("tr");
                 boolean headerRow = true;
@@ -2757,9 +2760,11 @@ public class ImportTournamentService {
                         if (state == null) {
                             state = "";
                         }
-                        playerNames.add(playerName);
-                        String fullNameAndState = playerName + ", " + state;
-                        playerNamesAndState.add(fullNameAndState);
+                        Elements clubTD = stateTD.next();  // skip club
+                        Elements ratingsTD = clubTD.next();
+                        String ratings = ratingsTD.first().text();
+                        String fullNameStateRatings = playerName + ", " + state + ", " + ratings;
+                        playerNamesAndState.add(fullNameStateRatings);
                     }
                 }
             }
@@ -2769,23 +2774,24 @@ public class ImportTournamentService {
 
     /**
      *
-     * @param playerNamesAndState
+     * @param playerNameStateRatingsList
      * @param playerRecordsToCheckForProfiles
      * @param importProgressInfo
      * @return
      */
-    private List<String> findPlayersWithoutProfilesByNameAndState(List<String> playerNamesAndState,
+    private List<String> findPlayersWithoutProfilesByNameAndState(List<String> playerNameStateRatingsList,
                                                                   List<UsattPlayerRecord> playerRecordsToCheckForProfiles,
                                                                   ImportProgressInfo importProgressInfo) {
 
         importProgressInfo.phaseName = "Looking for player profiles by name and state";
         importProgressInfo.phaseCompleted = 0;
         // remove state from this list so we can use it for membership status call
-        List<String> playerNames = playerNamesAndState.stream()
-                .map(playerNameAndState -> {
-                    log.info(playerNameAndState);
-                    return playerNameAndState.substring(0, playerNameAndState.lastIndexOf(","));
-                }).toList();
+        List<String> playerNames = playerNameStateRatingsList.stream()
+                .map(playerNameStateRatings -> {
+                    log.info(playerNameStateRatings);
+                    return extractPlayerNameOnly(playerNameStateRatings);
+                })
+                .toList();
 
         List<UsattPlayerRecord> usattPlayerRecordsByFullName = usattDataService.findMembershipStatus(playerNames);
         log.info("Found " + usattPlayerRecordsByFullName.size() + " USATT memberships when searching by last and first name");
@@ -2796,11 +2802,20 @@ public class ImportTournamentService {
         int notMatchingCount = 0;
         int totalPlayers = usattPlayerRecordsByFullName.size();
         log.info("Searching for player records by last and first name and state");
-        for (String playerNameAndState : playerNamesAndState) {
-            log.info("Searching for USATT of player " + playerNameAndState);
+        for (String playerNameStateRatings : playerNameStateRatingsList) {
+            log.info("Searching for USATT of player " + playerNameStateRatings);
             boolean found = false;
-            String fullNameToSearch = playerNameAndState.substring(0, playerNameAndState.lastIndexOf(","));
-            // search USATT records by last name and first name only
+            int firstCommaIndex = playerNameStateRatings.indexOf(",");
+            int secondCommaIndex = playerNameStateRatings.indexOf(",", firstCommaIndex + 1);
+            int thirdCommaIndex = playerNameStateRatings.indexOf(",", secondCommaIndex + 1);
+
+            String fullNameToSearch = playerNameStateRatings.substring(0, secondCommaIndex).trim();
+            String stateToSearch = playerNameStateRatings.substring(secondCommaIndex + 1, thirdCommaIndex).trim();
+            String ratings = playerNameStateRatings.substring(thirdCommaIndex + 1).trim();
+
+            String[] twoRatings = ratings.split("/");
+            int seedRating = Integer.parseInt(twoRatings[0].trim());
+
             List<UsattPlayerRecord> usattRecordsByName = usattPlayerRecordsByFullName.stream()
                     .filter(usattPlayerRecord -> {
                         String fullName = usattPlayerRecord.getLastName() + ", " + usattPlayerRecord.getFirstName();
@@ -2808,16 +2823,22 @@ public class ImportTournamentService {
                     })
                     .toList();
 
-            // search in this result by last, first name and state for an exact match
-            Optional<UsattPlayerRecord> matchedPlayerRecord = usattRecordsByName.stream()
+            String fullNameAndStateToSearch  = fullNameToSearch + ", " + stateToSearch;
+            List<UsattPlayerRecord> usattRecordsByNameAndState = usattRecordsByName.stream()
                     .filter(usattPlayerRecord -> {
-                        String fullName = usattPlayerRecord.getLastName() + ", " + usattPlayerRecord.getFirstName();
-                        String fullNameAndState = fullName + ", " + usattPlayerRecord.getState();
-                        return fullNameAndState.equals(playerNameAndState);
-                    })
-                    .findFirst();
+                                String fullNameAndState = usattPlayerRecord.getLastName() + ", " + usattPlayerRecord.getFirstName() + ", " + usattPlayerRecord.getState();
+                                return fullNameAndState.equals(fullNameAndStateToSearch);
+                            })
+                    .toList();
 
-            if (matchedPlayerRecord.isEmpty()) {
+            Optional<UsattPlayerRecord> matchedPlayerRecord;
+
+            if (!usattRecordsByNameAndState.isEmpty()) {
+                matchedPlayerRecord = usattRecordsByNameAndState.stream()
+                        .min(Comparator.comparingInt(usattPlayerRecord ->
+                                Math.abs(usattPlayerRecord.getTournamentRating() - seedRating)
+                        ));
+            } else {
                 matchedPlayerRecord = usattRecordsByName.stream().findFirst();
             }
 
@@ -2826,19 +2847,19 @@ public class ImportTournamentService {
                 Long membershipId = usattPlayerRecord.getMembershipId();
                 String fullName = usattPlayerRecord.getLastName() + ", " + usattPlayerRecord.getFirstName();
                 String fullNameAndState = fullName + ", " + usattPlayerRecord.getState();
-                if (fullNameAndState.equals(playerNameAndState)) {
+                if (fullNameAndState.equals(fullNameAndStateToSearch)) {
                     log.info("Found USATT player record by name and state " + fullNameAndState + " membership id " + membershipId);
                 } else {
                     log.info("Found USATT player record by name " + fullName + " membership id " + membershipId);
                 }
                 if (membershipId != 0) {
-                    membershipIdToNameMap.put(membershipId, playerNameAndState);
+                    membershipIdToNameMap.put(membershipId, playerNameStateRatings);
                 }
                 found = true;
             }
             if (!found) {
                 notMatchingCount++;
-                log.warn("Player " + playerNameAndState + " USATT record not found with or without state ");
+                log.warn("Player " + playerNameStateRatings + " USATT record not found with or without state ");
 //                playerRecordsToCheckForProfiles.add(usattPlayerRecord);
             }
             playersProcessed++;
@@ -2884,6 +2905,12 @@ public class ImportTournamentService {
         return missingAccountsList;
     }
 
+    private static @NotNull String extractPlayerNameOnly(String playerNameStateRatings) {
+        int firstCommaIndex = playerNameStateRatings.indexOf(",");
+        int secondCommaIndex = playerNameStateRatings.indexOf(",", firstCommaIndex + 1);
+        return playerNameStateRatings.substring(0, secondCommaIndex).trim();
+    }
+
     /**
      *
      * @param missingAccountsList
@@ -2906,7 +2933,7 @@ public class ImportTournamentService {
 
             // write header
             FileWriter fileWriter = new FileWriter(tempFile);
-            fileWriter.write("LastName,FirstName,State,Email\n");
+            fileWriter.write("LastName,FirstName,State, Ratings Seed / Elig,Email\n");
             // write players
             for (String missingAccountInfo : missingAccountsList) {
                 missingAccountInfo = missingAccountInfo.replaceAll(", ", ",");
