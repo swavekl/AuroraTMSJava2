@@ -1134,7 +1134,7 @@ public class ImportTournamentService {
                             }
                         }
                         int columnNum = 0;
-                        if (values.length != 4) {
+                        if (values.length != 5) {
                             System.out.print("Insufficient values in record ");
                             for (String value : values) {
                                 System.out.print(value + ", ");
@@ -2859,8 +2859,16 @@ public class ImportTournamentService {
             }
             if (!found) {
                 notMatchingCount++;
-                log.warn("Player " + playerNameStateRatings + " USATT record not found with or without state ");
-//                playerRecordsToCheckForProfiles.add(usattPlayerRecord);
+                log.warn("Player " + playerNameStateRatings + " USATT record not found with or without state - making fake record");
+                UsattPlayerRecord usattPlayerRecord = new UsattPlayerRecord();
+                String[] LastFirstName = fullNameToSearch.split(",");
+                String lastName = LastFirstName[0].trim();
+                String firstName = LastFirstName[1].trim();
+                usattPlayerRecord.setFirstName(firstName);
+                usattPlayerRecord.setLastName(lastName);
+                usattPlayerRecord.setState(stateToSearch);
+                usattPlayerRecord.setTournamentRating(seedRating);
+                playerRecordsToCheckForProfiles.add(usattPlayerRecord);
             }
             playersProcessed++;
             importProgressInfo.phaseCompleted = (int) (((double) playersProcessed / totalPlayers) * 100.0);
@@ -2899,8 +2907,11 @@ public class ImportTournamentService {
         importProgressInfo.overallCompleted = 60;
 
         log.info("Found " + profilesExisting + " profiles which match these membership ids");
-        log.info("Found " + missingAccountsList.size() + " players which don't have profiles");
+        log.info("Found " + missingAccountsList.size() + " players which are not linked their usatt membership record to a profile");
         log.info("Found " + playerRecordsToCheckForProfiles.size() + " USATT player records to check for profile existence");
+        playerRecordsToCheckForProfiles.forEach(usattPlayerRecord -> {
+            System.out.println(usattPlayerRecord.getLastName() + ", " + usattPlayerRecord.getFirstName() + ", " + usattPlayerRecord.getState() + ", " + usattPlayerRecord.getTournamentRating());
+        });
 
         return missingAccountsList;
     }
