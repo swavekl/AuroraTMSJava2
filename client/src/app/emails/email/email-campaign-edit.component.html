@@ -96,7 +96,7 @@
             <mat-selection-list class="recipient-list"
                                 multiple="true" aria-label="selected recipients"
                                 (selectionChange)="onSelectedRecipientsSelectionChange($event)">
-              <mat-list-option *ngFor="let recipient of filteredRecipients"
+              <mat-list-option *ngFor="let recipient of filteredRecipients; trackBy: trackByEmail"
                                [value]="recipient.emailAddress"
                                [matTooltip]="getRecipientTooltip(recipient)">
                 {{ getFullName(recipient) }}
@@ -117,7 +117,7 @@
             <mat-selection-list class="recipient-list"
                                 multiple="true" aria-label="removed recipients"
                                 (selectionChange)="onRemovedRecipientsSelectionChange($event)">
-              <mat-list-option *ngFor="let recipient of emailCampaign.removedRecipients"
+              <mat-list-option *ngFor="let recipient of emailCampaign.removedRecipients; trackBy: trackByEmail"
                                [value]="recipient.emailAddress"
                                [matTooltip]="getRecipientTooltip(recipient)">
                 {{ getFullName(recipient) }}

@@ -57,6 +57,12 @@ div.recipients-container {
     height: $list-height;
     border: 1px solid gray;
     overflow-y: auto;
+
+    // Prevents text selection/highlighting during shift-click range selection
+    user-select: none;
+    -webkit-user-select: none; /* Safari */
+    -moz-user-select: none;    /* Firefox */
+    -ms-user-select: none;     /* Legacy IE/Edge */
   }
 }
 

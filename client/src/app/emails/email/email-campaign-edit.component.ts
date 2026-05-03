@@ -1,4 +1,4 @@
-import {Component, ElementRef, EventEmitter, Input, Output, ViewChild} from '@angular/core';
+import {Component, ElementRef, EventEmitter, HostListener, Input, Output, ViewChild} from '@angular/core';
 import {EmailCampaign, Recipient} from '../model/email-campaign.model';
 import {TournamentEvent} from '../../tournament/tournament-config/tournament-event.model';
 import {MatSnackBar} from '@angular/material/snack-bar';
@@ -47,6 +47,12 @@ export class EmailCampaignEditComponent  {
   // states to filter by if filtering not by event
   public statesList: any [];
   public readonly ALL_STATES: string= 'ALL';
+
+  // inside class EmailCampaignEditComponent
+  private lastSelectedRecipientIndex: number | null = null;
+  private lastRemovedRecipientIndex: number | null = null;
+
+  private isShiftDown = false;
 
   constructor(private snackBar: MatSnackBar,
               private dialog: MatDialog) {
@@ -236,6 +242,8 @@ export class EmailCampaignEditComponent  {
       ...this.emailCampaign,
       removedRecipients: modifiedRecipients
     };
+    this.lastSelectedRecipientIndex = null;
+    this.selectedRecipientEmails = [];
   }
 
   onRestoreAllRecipients() {
@@ -247,6 +255,8 @@ export class EmailCampaignEditComponent  {
       ...this.emailCampaign,
       removedRecipients: []
     };
+    this.lastRemovedRecipientIndex = null;
+    this.removedRecipientEmails = [];
   }
 
   copyRecipients() {
@@ -291,7 +301,39 @@ export class EmailCampaignEditComponent  {
     return `emailcampaignrecipients/${this.emailCampaign.id}`;
   }
 
+  @HostListener('window:keydown', ['$event'])
+  onKeyDown(event: KeyboardEvent) {
+    if (event.key === 'Shift') this.isShiftDown = true;
+  }
+
+  @HostListener('window:keyup', ['$event'])
+  onKeyUp(event: KeyboardEvent) {
+    if (event.key === 'Shift') this.isShiftDown = false;
+  }
+
+  trackByEmail(index: number, recipient: Recipient) {
+    return recipient.emailAddress;
+  }
+
   onSelectedRecipientsSelectionChange(event: MatSelectionListChange) {
+    const currentOption = event.options[0];
+    const currentIndex = this.filteredRecipients.findIndex(r => r.emailAddress === currentOption.value);
+
+    if (this.isShiftDown && this.lastSelectedRecipientIndex !== null) {
+      const start = Math.min(this.lastSelectedRecipientIndex, currentIndex);
+      const end = Math.max(this.lastSelectedRecipientIndex, currentIndex);
+      const optionsArray = event.source.options.toArray();
+
+      for (let i = start; i <= end; i++) {
+        if (currentOption.selected) {
+          event.source.selectedOptions.select(optionsArray[i]);
+        } else {
+          event.source.selectedOptions.deselect(optionsArray[i]);
+        }
+      }
+    }
+
+    this.lastSelectedRecipientIndex = currentIndex;
     this.selectedRecipientEmails = event.source.selectedOptions.selected.map(item => item.value);
   }
 
@@ -318,10 +360,28 @@ export class EmailCampaignEditComponent  {
       };
 
       this.selectedRecipientEmails = [];
+      this.lastSelectedRecipientIndex = null;
     }
   }
 
   onRemovedRecipientsSelectionChange(event: MatSelectionListChange) {
+    const currentOption = event.options[0];
+    const currentIndex = this.emailCampaign.removedRecipients.findIndex(r => r.emailAddress === currentOption.value);
+    if (this.isShiftDown && this.lastRemovedRecipientIndex !== null) {
+      const start = Math.min(this.lastRemovedRecipientIndex, currentIndex);
+      const end = Math.max(this.lastRemovedRecipientIndex, currentIndex);
+      const optionsArray = event.source.options.toArray();
+
+      for (let i = start; i <= end; i++) {
+        if (currentOption.selected) {
+          event.source.selectedOptions.select(optionsArray[i]);
+        } else {
+          event.source.selectedOptions.deselect(optionsArray[i]);
+        }
+      }
+    }
+
+    this.lastRemovedRecipientIndex = currentIndex;
     this.removedRecipientEmails = event.source.selectedOptions.selected.map(item => item.value);
   }
 
@@ -343,6 +403,7 @@ export class EmailCampaignEditComponent  {
         removedRecipients: updatedRemovedRecipients
       };
       this.removedRecipientEmails = [];
+      this.lastRemovedRecipientIndex = null;
 
       // add them to a filtered list
       let updatedFilteredRecipients: Recipient[] = this.filteredRecipients || [];
