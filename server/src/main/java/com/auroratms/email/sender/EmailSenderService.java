@@ -44,6 +44,8 @@ import software.amazon.awssdk.services.sesv2.model.*;
 import java.io.InputStreamReader;
 import java.util.*;
 import java.util.function.Predicate;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Service
 @Slf4j
@@ -75,7 +77,7 @@ public class EmailSenderService {
     private String clientHostUrl;
 
     // when enabling also enable spring.cloud.aws.ses.enabled: true
-    private boolean useSes = false;
+    private boolean useSes = true;
 
     @Autowired
     private SesV2Client sesV2Client;
@@ -417,6 +419,7 @@ public class EmailSenderService {
         if (sendTestEmail) {
             UserProfile userProfile = userProfileService.getProfile(profileByLoginId);
             FilterConfiguration.Recipient recipient = new FilterConfiguration.Recipient();
+//            recipient.setEmailAddress("swaveklorenc@yahoo.com");
             recipient.setEmailAddress(userProfile.getEmail());
             recipient.setFirstName(userProfile.getFirstName());
             recipient.setLastName(userProfile.getLastName());
@@ -517,7 +520,8 @@ public class EmailSenderService {
 
             // B. Convert tokens from ${ } to {{ }}
             String sesSubject = convertToSesTemplate(subject);
-            String sesBody = convertToSesTemplate(body);
+            String sesBody = fixCorruptedCss(convertToSesTemplate(body));
+            System.out.println("sesBody = " + sesBody);
 
             // NOTE: Make sure your syncSesTemplate method is updated to use the SesV2Client!
             syncSesTemplate(templateName, sesSubject, sesBody, emailCampaign.isHtmlEmail());
@@ -565,7 +569,7 @@ public class EmailSenderService {
 
                 // Build the V2 Bulk Request
                 SendBulkEmailRequest bulkRequest = SendBulkEmailRequest.builder()
-                        .fromEmailAddress(emailServerConfiguration.getUserId()) // Must be verified
+                        .fromEmailAddress("admin@ttaurora.com") // Is verified through domain on Identities screen
                         .replyToAddresses(emailServerConfiguration.getUserId())
                         .defaultContent(BulkEmailContent.builder()
                                 .template(Template.builder()
@@ -795,6 +799,22 @@ public class EmailSenderService {
             replacementList[i] = value;
             i++;
         }
-        return StringUtils.replaceEachRepeatedly(text, searchList, replacementList);
+        return StringUtils.replaceEach(text, searchList, replacementList);
+    }
+
+    private String fixCorruptedCss(String html) {
+        // Regex to find the content between <style> tags
+        Pattern pattern = Pattern.compile("(<style.*?>)(.*?)(</style>)", Pattern.DOTALL);
+        Matcher matcher = pattern.matcher(html);
+
+        if (matcher.find()) {
+            String styleContent = matcher.group(2);
+            // Clean up the double braces caused by the template/replacement conflict
+            String fixedStyle = styleContent.replace("}}", "}");
+
+            // Re-assemble the HTML
+            return html.replace(styleContent, fixedStyle);
+        }
+        return html;
     }
 }
