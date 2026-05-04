@@ -1,6 +1,9 @@
 package com.auroratms.email.campaign;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
+
 import java.io.Serializable;
 import java.util.Date;
 
@@ -34,7 +37,8 @@ public class EmailCampaignEntity implements Serializable {
     private int emailsCount;
 
     // recipient filters and removed recipients
-    @Column(length = 65535, columnDefinition = "TEXT")
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "filter_contentsjson")
     String filterContentsJSON;
 
     // treat body of this email as html when sending
