@@ -465,6 +465,10 @@ public class EmailSenderService {
 
         campaignSendingStatus.endTime = System.currentTimeMillis();
         log.info("Finished. Sent: {}, Errors: {}", campaignSendingStatus.totalSent, campaignSendingStatus.totalErrors);
+
+        // update status
+        emailCampaign.setEmailsCount(campaignSendingStatus.totalSent);
+        this.emailCampaignService.save(emailCampaign);
     }
 
     private List<FilterConfiguration.Recipient> getSesTestRecipients() {
@@ -777,9 +781,6 @@ public class EmailSenderService {
         campaignSendingStatus.endTime = System.currentTimeMillis();
         long duration = campaignSendingStatus.endTime - campaignSendingStatus.startTime;
         log.info("Finished sending emails in " + duration + " ms. Total sent " + campaignSendingStatus.totalSent + ", errors " + campaignSendingStatus.totalErrors);
-        // update status
-        emailCampaign.setEmailsCount(campaignSendingStatus.totalSent);
-        this.emailCampaignService.save(emailCampaign);
     }
 
     /**
