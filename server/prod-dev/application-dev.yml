@@ -25,6 +25,27 @@ spring:
     properties:
       org.quartz.threadPool.threadCount : 5
       org.quartz.jobStore.isClustered: true
+
+  cloud:
+    vault:
+      aws:
+        enabled: true
+        role: AuroraTMSEmailServiceRole
+        backend: aws
+        credential-type: assumed_role
+        access-key-property: spring.cloud.aws.credentials.access-key
+        secret-key-property: spring.cloud.aws.credentials.secret-key
+        session-token-key-property: spring.cloud.aws.credentials.session-token
+
+    aws:
+      region:
+        static: us-east-2
+      sqs:
+        listener:
+          auto-startup: true
+      ses:
+        enabled: false
+
 #  jpa:
 #    show-sql: true
 #    properties.hibernate.format_sql: true
