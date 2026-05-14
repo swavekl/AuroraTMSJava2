@@ -10,6 +10,7 @@
       <tr>
         <th>#</th>
         <th>Player Name</th>
+        <th>Profile Complete</th>
         <th>Membership Id</th>
         <th>Membership Expires</th>
         <th>Membership Purchased</th>
@@ -23,6 +24,7 @@
           <a [routerLink]="['/ui/userprofile/edit', membershipInfo.profileId]"
              [state]="{waitingListReturnUrl: thisUrl}">{{ membershipInfo.playerName }}</a>
         </td>
+        <td [class]="(!membershipInfo.profileComplete) ? 'profile-incomplete' : ''">{{ membershipInfo.profileComplete ? '&nbsp;' : 'No' }}</td>
         <td>{{ membershipInfo.membershipId }}</td>
         <td [class]="isUnpaid(membershipInfo.expirationDate, membershipInfo.membershipType) ? 'unpaid-membership' :
          (isPaidUnnecessarily(membershipInfo.expirationDate, membershipInfo.membershipType) ? 'paid-unnecessarily-membership' : '')">{{ membershipInfo.expirationDate | date }}</td>

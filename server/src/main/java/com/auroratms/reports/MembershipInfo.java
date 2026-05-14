@@ -24,4 +24,6 @@ public class MembershipInfo {
     private MembershipType membershipType;
 
     private Long entryId;
+
+    private boolean profileComplete;
 }

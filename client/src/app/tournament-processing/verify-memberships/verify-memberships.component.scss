@@ -50,6 +50,10 @@ table.membership-info-table {
     td {
       padding: 8px;
 
+      &.profile-incomplete {
+        color: red;
+      }
+
       &.unpaid-membership {
         color: red;
       }

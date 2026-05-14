@@ -15,6 +15,7 @@ import com.auroratms.tournamentevententry.TournamentEventEntryService;
 import com.auroratms.usatt.UsattDataService;
 import com.auroratms.usatt.UsattPlayerRecord;
 import com.auroratms.utils.EmailService;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -139,6 +140,8 @@ public class MembershipInfoController {
             membershipInfo.setMembershipId(userProfileExt != null ? userProfileExt.getMembershipId() : null);
             MembershipType membershipType = profileIdToPurchasedMembershipTypesMap.get(profileId);
             membershipInfo.setMembershipType(membershipType);
+            boolean isProfileComplete = isProfileComplete (userProfile);
+            membershipInfo.setProfileComplete(isProfileComplete);
             for (UsattPlayerRecord usattPlayerRecord : usattPlayerRecordList) {
                 if (usattPlayerRecord.getMembershipId().equals(membershipInfo.getMembershipId())) {
                     membershipInfo.setExpirationDate(usattPlayerRecord.getMembershipExpirationDate());
@@ -155,6 +158,25 @@ public class MembershipInfoController {
         }
 
         return ResponseEntity.ok(membershipInfoList);
+    }
+
+    /**
+     * Checks if profile is complete
+     * @param userProfile
+     * @return
+     */
+    private boolean isProfileComplete(UserProfile userProfile) {
+        return StringUtils.isNotEmpty(userProfile.getFirstName()) &&
+                StringUtils.isNotEmpty(userProfile.getLastName()) &&
+                StringUtils.isNotEmpty(userProfile.getMobilePhone()) &&
+                StringUtils.isNotEmpty(userProfile.getEmail()) &&
+                StringUtils.isNotEmpty(userProfile.getStreetAddress()) &&
+                StringUtils.isNotEmpty(userProfile.getCity()) &&
+                StringUtils.isNotEmpty(userProfile.getState()) &&
+                StringUtils.isNotEmpty(userProfile.getZipCode()) &&
+                StringUtils.isNotEmpty(userProfile.getCountryCode()) &&
+                StringUtils.isNotEmpty(userProfile.getGender()) &&
+                (userProfile.getDateOfBirth() != null);
     }
 
     @PostMapping("/contactplayers/{tournamentId}")

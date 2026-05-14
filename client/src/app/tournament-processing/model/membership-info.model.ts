@@ -7,4 +7,5 @@ export class MembershipInfo {
   membershipType: MembershipType;
   membershipId: number;
   entryId: number;
+  profileComplete: boolean;
 }
