@@ -13,22 +13,24 @@ import {DateUtils} from '../../shared/date-utils';
 import {TournamentEventConfigService} from '../../tournament/tournament-config/tournament-event-config.service';
 import {TournamentEvent} from '../../tournament/tournament-config/tournament-event.model';
 import {CheckInType} from '../../tournament/model/check-in-type.enum';
+import {LodgingReportPrinterService} from '../service/lodging-report-printer.service';
 
 @Component({
     selector: 'app-player-status-list-container-component',
     template: `
-    <app-player-status-list
-      [tournamentId]="tournamentId"
-      [tournamentName]="tournamentName"
-      [tournamentDay]="tournamentDay"
-      [tournamentDuration]="tournamentDuration"
-      [checkInType]="checkInType"
-      [playerStatusList]="playerStatusList$ | async"
-      [entryInfos]="entryInfos$ | async"
-      [tournamentEvents]="tournamentEvents$ | async"
-      (eventEmitter)="onEvent($event)">
-    </app-player-status-list>
-  `,
+      <app-player-status-list
+        [tournamentId]="tournamentId"
+        [tournamentName]="tournamentName"
+        [tournamentDay]="tournamentDay"
+        [tournamentDuration]="tournamentDuration"
+        [checkInType]="checkInType"
+        [playerStatusList]="playerStatusList$ | async"
+        [entryInfos]="entryInfos$ | async"
+        [tournamentEvents]="tournamentEvents$ | async"
+        (eventEmitter)="onEvent($event)"
+        (printLodgingReport)="onPrintLodgingReport($event)">
+      </app-player-status-list>
+    `,
     styles: [],
     standalone: false
 })
@@ -57,7 +59,8 @@ export class PlayerStatusListContainerComponent implements OnDestroy {
               private tournamentEntryInfoService: TournamentEntryInfoService,
               private todayService: TodayService,
               private tournamentEventConfigService: TournamentEventConfigService,
-              private linearProgressBarService: LinearProgressBarService) {
+              private linearProgressBarService: LinearProgressBarService,
+              private lodgingReportPrinterService: LodgingReportPrinterService) {
     const strTournamentId = this.activatedRoute.snapshot.params['tournamentId'] || 0;
     this.tournamentId = Number(strTournamentId);
     this.tournamentName = history?.state?.tournamentName || '';
@@ -146,6 +149,10 @@ export class PlayerStatusListContainerComponent implements OnDestroy {
       this.tournamentEventConfigService.selectors.selectEntities);
     // load them - they will surface via this selector
     this.tournamentEventConfigService.loadTournamentEvents(tournamentId);
+  }
+
+  protected onPrintLodgingReport($event: any) {
+    this.lodgingReportPrinterService.downloadAndPrint(this.tournamentId);
   }
 }
 

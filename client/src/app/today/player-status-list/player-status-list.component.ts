@@ -45,6 +45,9 @@ export class PlayerStatusListComponent implements OnChanges, AfterViewInit {
   @Output()
   eventEmitter: EventEmitter<any> = new EventEmitter<any>();
 
+  @Output()
+  printLodgingReport: EventEmitter<any> = new EventEmitter<any>();
+
   // map of letter to enhanced player profile list with players starting with this letter - for ALL players
   public alphabeticalPlayerStatusMap: Map<string, EnhancedPlayerStatus[]> = null;
 
@@ -451,6 +454,10 @@ export class PlayerStatusListComponent implements OnChanges, AfterViewInit {
         reason = `${eventName}: ${reason}`;
       }
     return reason;
+  }
+
+  protected onPrintLodgingReport() {
+    this.printLodgingReport.emit({});
   }
 }
 

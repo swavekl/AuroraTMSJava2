@@ -82,6 +82,9 @@ export class TodayService {
     // 2025 Edgeball Chicago International Open - Oct 25 - 26, 2026
     // const utcMoment = moment([2026, 9, 25, 0, 0, 0]);
     // const utcMoment = moment([2026, 9, 26, 0, 0, 0]);
+    // 2026 USATT Midwest Championship - June 13 - 14
+    // const utcMoment = moment([2026, 5, 13, 0, 0, 0]);
+    // const utcMoment = moment([2026, 5, 14, 0, 0, 0]);
     // return utcMoment.toDate();
     return new Date();
   }

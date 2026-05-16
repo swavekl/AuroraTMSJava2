@@ -34,6 +34,8 @@
     </ng-container>
     <span class="toolbar-spacer-2"></span>
     <span>Checked In/Total Count: {{checkedInCount}} / {{filteredCount}}</span>
+    <span class="toolbar-spacer-2"></span>
+    <button mat-raised-button type="button" (click)="onPrintLodgingReport()">Print Lodging Report</button>
   </mat-toolbar>
   <div *ngIf="filteredPlayerStatuses != null" class="inner-list-container" fxLayout="row wrap" fxLayoutAlign="start start" fxLayoutGap="20px">
     <ng-container *ngFor="let letterStatuses of filteredPlayerStatuses | keyvalue">
