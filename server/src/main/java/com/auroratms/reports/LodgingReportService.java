@@ -15,8 +15,6 @@ import com.itextpdf.kernel.geom.Rectangle;
 import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfPage;
 import com.itextpdf.kernel.pdf.PdfWriter;
-import com.itextpdf.kernel.pdf.canvas.PdfCanvas;
-import com.itextpdf.layout.Canvas;
 import com.itextpdf.layout.Document;
 import com.itextpdf.layout.borders.SolidBorder;
 import com.itextpdf.layout.element.AreaBreak;
@@ -56,9 +54,9 @@ public class LodgingReportService {
     @Autowired
     private TournamentService tournamentService;
 
-    private static final int MAIN_FONT_SIZE = 9;
+    private static final int MAIN_FONT_SIZE = 10;
     private static final int CELL_PADDING = 5;
-    private static final int PLAYERS_PER_PAGE = 38;
+    private static final int PLAYERS_PER_PAGE = 34; // Updated to 34 players per page
 
     static final Color DARK_GRAY = new DeviceRgb(0xA0, 0xA0, 0xA0);
     static final Color LIGHT_GRAY = new DeviceRgb(0xD3, 0xD3, 0xD3);
@@ -72,6 +70,13 @@ public class LodgingReportService {
 
             List<LodgingReportInfo> reportInfos = prepareReportData(tournamentId);
 
+            // Compute total pages upfront using your fixed formula
+            int numPages = reportInfos.size() / PLAYERS_PER_PAGE;
+            numPages += (reportInfos.size() % PLAYERS_PER_PAGE > 0) ? 1 : 0;
+            if (numPages == 0) {
+                numPages = 1;
+            }
+
             String tempDir = System.getenv("TEMP");
             tempDir = (StringUtils.isEmpty(tempDir)) ? System.getenv("TMP") : tempDir;
             File reportFile = new File(tempDir + File.separator + "lodging-list-" + tournamentId + ".pdf");
@@ -84,11 +89,12 @@ public class LodgingReportService {
             PdfWriter writer = new PdfWriter(reportFilename);
             PdfDocument pdf = new PdfDocument(writer);
 
+            Document document = new Document(pdf);
+            document.setMargins(30, 30, 50, 30);
+
             PdfFont font = PdfFontFactory.createFont(StandardFonts.HELVETICA);
 
-            Document document = new Document(pdf);
-            document.setMargins(30, 30, 45, 30); // Margin allocation to prevent content overlapping our footer
-
+            int pageNum = 1;
             Table table = null;
             boolean addTable = true;
 
@@ -129,6 +135,11 @@ public class LodgingReportService {
 
                 if (indexCounter % PLAYERS_PER_PAGE == 0) {
                     document.add(table);
+
+                    // Procedural inline footer injection matching your pattern
+                    addFooter(document, pageNum, numPages, font, generatedOnDate);
+                    pageNum++;
+
                     if (indexCounter < reportInfos.size()) {
                         document.add(new AreaBreak());
                     }
@@ -139,6 +150,7 @@ public class LodgingReportService {
 
             if (table != null) {
                 document.add(table);
+                addFooter(document, pageNum, numPages, font, generatedOnDate);
             }
 
             if (reportInfos.isEmpty()) {
@@ -148,29 +160,7 @@ public class LodgingReportService {
                 emptyReportParagraph.setBold();
                 emptyReportParagraph.setTextAlignment(TextAlignment.CENTER);
                 document.add(emptyReportParagraph);
-            }
-
-            // --- Two-Pass Architecture: Loops through the built document tree to render final total pages ---
-            int totalPages = pdf.getNumberOfPages();
-            for (int i = 1; i <= totalPages; i++) {
-                PdfPage page = pdf.getPage(i);
-                Rectangle pageSize = page.getPageSize();
-                float x = 30; // Aligns with document left margin
-                float y = pageSize.getBottom() + 20;
-
-                String footerText = "Powered by Aurora TMS                                                Page %d of %d                                          %s"
-                        .formatted(i, totalPages, generatedOnDate);
-
-                PdfCanvas pdfCanvas = new PdfCanvas(page.newContentStreamAfter(), page.getResources(), pdf);
-                Canvas canvas = new Canvas(pdfCanvas, pageSize);
-
-                // Set the layout metrics context directly onto the drawing canvas root
-                canvas.setFont(font);
-                canvas.setFontSize(10);
-
-                // Uses raw String input variables to explicitly match iText 7.2.5's canvas signature definitions
-                canvas.showTextAligned(footerText, x, y, TextAlignment.LEFT, VerticalAlignment.TOP, 0);
-                canvas.close();
+                addFooter(document, 1, 1, font, generatedOnDate);
             }
 
             document.close();
@@ -187,7 +177,7 @@ public class LodgingReportService {
         document.add(combinedHeader);
 
         String[] tableHeadersText = {"Player Name", "State", "Zip", "Hotel Name", "Travelers", "Nights"};
-        float[] columnWidths = new float[]{9, 2, 3, 8, 3, 2};
+        float[] columnWidths = new float[]{9, 2, 4, 8, 3, 2};
 
         Table table = new Table(UnitValue.createPercentArray(columnWidths))
                 .useAllAvailableWidth().setBorder(new SolidBorder(0));
@@ -200,13 +190,40 @@ public class LodgingReportService {
             Cell headerCell = new Cell().add(new Paragraph(columnTitle)
                     .setFont(font).setFontSize(MAIN_FONT_SIZE).setBold().setTextAlignment(cellAlignment[i]));
             headerCell.setBorder(headerBorder);
-            headerCell.setBackgroundColor(DARK_GRAY);
+            headerCell.setBackgroundColor(LIGHT_GRAY);
             headerCell.setPaddingLeft(CELL_PADDING);
             headerCell.setPaddingRight(CELL_PADDING);
             table.addHeaderCell(headerCell);
         }
 
         return table;
+    }
+
+    /**
+     * Stamping function called procedurally on page breaks matching your sample architecture.
+     */
+    private void addFooter(Document document, int pageNumber, int numPages, PdfFont font, String generatedOnDate) {
+        try {
+            PdfDocument pdfDocument = document.getPdfDocument();
+            if (pdfDocument != null) {
+                PdfPage page = pdfDocument.getPage(pageNumber);
+                if (page != null) {
+                    Rectangle pageSize = page.getPageSize();
+                    float x = document.getLeftMargin();
+
+                    // FIX: Raised from +35 to +42 to clear physical printer hardware margins safely
+                    float y = pageSize.getBottom() + 42;
+
+                    String footerText = "Powered by Aurora TMS                                                Page %d of %d                                          %s"
+                            .formatted(pageNumber, numPages, generatedOnDate);
+
+                    Paragraph footerPara = new Paragraph(footerText).setFont(font).setFontSize(10);
+                    document.showTextAligned(footerPara, x, y, pageNumber, TextAlignment.LEFT, VerticalAlignment.TOP, 0);
+                }
+            }
+        } catch (Exception e) {
+            log.error("Unable to add footer for page " + pageNumber, e);
+        }
     }
 
     private List<LodgingReportInfo> prepareReportData(long tournamentId) {
