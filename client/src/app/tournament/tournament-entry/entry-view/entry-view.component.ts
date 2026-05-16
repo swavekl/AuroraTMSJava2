@@ -125,6 +125,7 @@ export class EntryViewComponent implements OnInit, OnChanges, OnDestroy {
         }
       });
     }
+    pricingMethod = pricingMethod ?? PricingMethod.STANDARD;
     switch (pricingMethod) {
       case PricingMethod.STANDARD:
         return new StandardPriceCalculator(this.membershipOptions,

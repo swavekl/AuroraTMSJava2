@@ -189,20 +189,29 @@ export class EntryViewContainerComponent implements OnInit, OnDestroy {
     // load them but not cache them, result is subscribed by async pipe
     this.allEventEntryInfos$ = combineLatest([
       this.eventEntryInfoService.eventEntryInfos$,
-      this.tournamentEventConfigService.store.select(this.tournamentEventConfigService.selectors.selectEntities)],
-      (eventEntryInfos: TournamentEventEntryInfo[], events: TournamentEvent[]) => {
-        // console.log('got event infos and events, combining ...');
-        // combine event information into event entry info
-        eventEntryInfos.forEach((eventEntryInfo: TournamentEventEntryInfo) => {
-          events.forEach((event: TournamentEvent) => {
-            if (eventEntryInfo.eventFk === event.id) {
-              eventEntryInfo.event = event;
-              // console.log('combined event with event info for event ', eventEntryInfo);
-            }
-          });
+      this.tournamentEventConfigService.store.select(this.tournamentEventConfigService.selectors.selectEntities)
+    ]).pipe(
+      // 1. Allow continuation if we have the arrays initialized, even if infos is empty
+      filter(([infos, events]) => infos !== null && infos !== undefined && events?.length > 0),
+
+      // 2. Map the data efficiently
+      map(([eventEntryInfos, events]) => {
+        // If the player has no entries, safely return an empty array so the template can handle it
+        if (eventEntryInfos.length === 0) {
+          return [];
+        }
+
+        return eventEntryInfos.map(info => {
+          // Find the event in the list (or dictionary)
+          const matchedEvent = events.find(e => e.id === info.eventFk);
+
+          // Return a new object to maintain immutability
+          return {
+            ...info,
+            event: matchedEvent
+          };
         });
-        return eventEntryInfos;
-      }
+      })
     );
     // initiate the call to load events - this will be cached
     this.tournamentEventConfigService.loadTournamentEvents(this.tournamentId);

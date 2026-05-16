@@ -37,14 +37,14 @@
           </tr>
           </tbody>
         </table>
-        <ng-container *ngIf="enteredEvents?.length === 0; else showEntriesTable">
-          <div class="no-events-warning">You are not entered in any events or withdrew from this tournament.</div>
-        </ng-container>
-        <ng-template #showEntriesTable>
+        <ng-container *ngIf="enteredEvents && enteredEvents.length > 0; else showNoEvents">
           <app-entry-summary-table [entryTotal]="entryTotal"
                                    [summaryReportItems]="summaryReportItems"
                                    [tournamentCurrency]="tournamentCurrency">
           </app-entry-summary-table>
+        </ng-container>
+        <ng-template #showNoEvents>
+          <div class="no-events-warning">You are not entered in any events or withdrew from this tournament.</div>
         </ng-template>
         <app-payments-refunds [paymentsRefunds]="paymentsRefunds"
                               [tournamentCurrency]="tournamentCurrency"

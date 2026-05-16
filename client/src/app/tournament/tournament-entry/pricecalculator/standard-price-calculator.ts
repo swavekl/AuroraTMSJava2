@@ -8,6 +8,7 @@ import {DateUtils} from '../../../shared/date-utils';
 import {FeeScheduleItem} from '../../tournament-config/model/fee-schedule-item';
 import {Team} from '../model/team.model';
 import {TournamentEventEntryInfo} from '../model/tournament-event-entry-info-model';
+import {TournamentEvent} from '../../tournament-config/tournament-event.model';
 
 export class StandardPriceCalculator extends AbstractPriceCalculator implements PriceCalculator {
 
@@ -40,8 +41,9 @@ export class StandardPriceCalculator extends AbstractPriceCalculator implements 
         enteredEvent.status === EventEntryStatus.ENTERED) {
         const payingForEvent = this.isPayerForThisEvent(enteredEvent, teams, tournamentEntryId);
         if (payingForEvent) {
-          total += enteredEvent.price;
-          this.addEvent(enteredEvent, enteredEvent.price);
+          const price = this.getEventPrice(enteredEvent.price, enteredEvent.event);
+          total += price;
+          this.addEvent(enteredEvent, price);
         } else {
           this.addEvent(enteredEvent, 0)
         }
@@ -183,5 +185,18 @@ export class StandardPriceCalculator extends AbstractPriceCalculator implements 
       }
     }
     return totalPenaltyFee;
+  }
+
+  private getEventPrice(enteredPrice: number, enteredEvent: TournamentEvent): number {
+    let price: number = enteredPrice ?? 0;
+    if (price === 0) {
+      // the entries may have been imported so there are no entered prices - get the price configured
+      if (enteredEvent.feeStructure == FeeStructure.FIXED) {
+        price = enteredEvent.feeAdult;
+      } else if (enteredEvent.feeStructure == FeeStructure.PER_SCHEDULE) {
+        // todo - determine when they entered and if they are responsible for paying
+      }
+    }
+    return price;
   }
 }

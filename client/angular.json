@@ -18,6 +18,10 @@
             },
             "index": "src/index.html",
             "polyfills": [ "zone.js" ],
+            "allowedCommonJsDependencies": [
+              "@angular/core",
+              "zone.js"
+            ],
             "tsConfig": "src/tsconfig.app.json",
             "assets": [
               "src/favicon.ico",
@@ -78,14 +82,31 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "options": {
             "hmr": false,
-            "buildTarget": "client:build"
+            "liveReload": true,
+            "buildTarget": "client:build",
+            "host": "0.0.0.0",
+            "port": 4200,
+            "publicHost": "https://gateway-pc:4200",
+            "proxyConfig": "proxy.conf.json",
+            "ssl": true,
+            "sslCert": "c:\\myprojects\\AuroraTMSJava2\\server\\ssl\\server.crt",
+            "sslKey": "c:\\myprojects\\AuroraTMSJava2\\server\\ssl\\server.key"
           },
           "configurations": {
             "production": {
               "buildTarget": "client:build:production"
             },
             "development": {
-              "buildTarget": "client:build:development"
+              "buildTarget": "client:build:development",
+              "hmr": false,
+              "liveReload": true,
+              "host": "0.0.0.0",
+              "port": 4200,
+              "publicHost": "https://gateway-pc:4200",
+              "proxyConfig": "proxy.conf.json",
+              "ssl": true,
+              "sslCert": "c:\\myprojects\\AuroraTMSJava2\\server\\ssl\\server.crt",
+              "sslKey": "c:\\myprojects\\AuroraTMSJava2\\server\\ssl\\server.key"
             }
           }
         },
