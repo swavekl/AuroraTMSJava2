@@ -558,6 +558,8 @@ public class DrawController {
                     clubIdsSet.add(userProfileExt.getClubFk());
                 }
                 membershipIdToPlayerDrawInfo.put(userProfileExt.getMembershipId(), playerDrawInfo);
+            } else {
+                System.out.println("player with profile id of " + profileId + " has no playerDrawInfo - this should not happen");
             }
         }
 
