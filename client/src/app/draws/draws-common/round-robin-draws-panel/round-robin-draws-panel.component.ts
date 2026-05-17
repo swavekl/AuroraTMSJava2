@@ -550,5 +550,9 @@ export class RoundRobinDrawsPanelComponent implements OnInit, OnChanges, OnDestr
     const tablesStr = (multipleTables) ? 'Tables' : 'Table'
     return assignedTables != '' ? `${tablesStr}: ${assignedTables}` : '';
   }
+
+  getClubName(drawItem: DrawItem): string {
+    return drawItem.clubName ? drawItem.clubName.substring(0, 35) : 'N/A'
+  }
 }
 
