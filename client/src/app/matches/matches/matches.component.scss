@@ -49,6 +49,7 @@ div.match-card-section {
 table.match-card-header {
   //width: 650px;
   margin-bottom: 10px;
+  border-collapse: collapse;
   tr {
     th {
       border: 1px solid black;
@@ -62,7 +63,7 @@ table.match-card-header {
       }
 
       &.event-name-col {
-        width: 250px;
+        width: 310px;
       }
 
       &.event-group-col {
@@ -93,7 +94,7 @@ table.match-card-header {
 }
 
 table.match-display {
-  border: 1px solid red;
+  border-collapse: collapse;
   tr {
     margin-bottom: 16px;
     th {

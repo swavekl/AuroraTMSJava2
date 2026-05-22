@@ -7,7 +7,7 @@
       <span fxFlex></span>
       <button mat-raised-button (click)="onViewRankings()" [disabled]="!rankingsAvailable">Rankings</button>
     </mat-toolbar>
-    <div class="mat-subtitle-1" style="margin-left: 10px;" *ngIf="matchCard">
+    <div class="mat-subtitle-1" style="margin-left: 15px; margin-top: 10px;" *ngIf="matchCard">
       <div>{{ tournamentEvent?.name }}</div>
       <div>
         <span>{{ matchCard?.round | roundName: matchCard?.groupNum }}</span>
@@ -141,7 +141,7 @@
           <tfoot>
           <tr>
             <td [colSpan]="games.length + 2">
-              <div fxLayout="row" fxLayoutAlign="space-between start" style="width: 100%; margin-top: 16px;">
+              <div fxLayout="row" fxLayoutAlign="space-between start" fxLayoutGap="20px" style="width: 100%; margin-top: 16px;">
                 <button mat-raised-button color="" *ngIf="isPlayerMatch(match)"
                         [style.display]="isEventStarted() ? 'block' : 'none'"
                         [disabled]="!isPlayerMatch(match)" (click)="onDefaultMatch(matchIndex)">

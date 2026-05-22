@@ -2,26 +2,61 @@
 
 $match-box-color: #d7c8f5;
 
+// Header Element Structural Wrapper
+.mobile-bracket-header-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  padding: 8px 16px;
+  box-sizing: border-box;
+  background-color: transparent;
+}
+
+// 1. Top Round Heading (Smaller, lighter weight, matching desktop theme banner color)
+.round-title-display {
+  background-color: $accent-color;
+  font-size: 16px;         // Smaller footprint step
+  text-align: center;
+  padding: 12px;
+}
+
+// 2. Material Toolbar Layout Fixes
+.navigation-toolbar {
+  display: flex;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  justify-content: space-between;
+  align-items: center;
+  background-color: transparent; // Clean structural backdrop tracking
+
+  .toolbar-spacer {
+    flex: 1 1 auto;
+  }
+}
+
+// 3. Sub-toolbar Division Line
+.division-title-display {
+  font-size: 16px;
+  font-weight: 600;
+  color: #444444;
+  text-align: center;
+  margin-top: 10px;
+  margin-bottom: 4px;
+}
+
+// Main Scrollable Tree Container Bounds
 .se-bracket-container {
   width: 99%;
-  height: calc(100vh - 320px);
+  height: calc(100vh - 295px);
   overflow-y: auto;
-
+  padding: 0 8px;
 }
 
-div.round-header {
-  text-align: center;
-  background-color: $accent-color;
-  padding-top: 6px;
-  padding-bottom: 6px;
-  margin: 0 8px;
-}
-
-$se-match-cell-width: $ngtt-match-wrapper-width;
-$lines-border-style: $ngtt-bracket-line-width solid $accent-color;
+$se-match-cell-width: 239px !default;
+$lines-border-style: 2px solid $match-box-color;
 
 table {
-  width: 95%;
+  width: max-content;
   border-collapse: collapse;
   margin: 8px;
 
@@ -29,16 +64,13 @@ table {
     tr td {
 
       &.match-cell {
-        vertical-align: top; // uff - this made the lines align correctly
-        width: $se-match-cell-width;
-      }
-
-      &.match-cell-subsequent {
+        vertical-align: top;
         width: $se-match-cell-width;
       }
 
       &.lines-cell {
-        min-width: calc(((100% - ($se-match-cell-width + 16px)) / 2));
+        width: 32px;
+        min-width: 32px;
         padding: 0;
       }
 
@@ -61,8 +93,29 @@ table {
       border-bottom: $lines-border-style;
     }
 
-    tr td.separator-cell {
-      height: 15px;
+    // 3-Row Spacer Architecture Sizing Controls
+    tr.spacer-separator-row {
+      height: 12px; // Controls the padding height above/below the centerline
+
+      td {
+        height: 12px;
+      }
+    }
+
+    tr.line-separator-row {
+      height: 2px; // Thin profile matching border widths cleanly
+
+      td {
+        height: 2px;
+      }
     }
   }
+}
+
+.placement-label {
+  font-size: 1.1rem;
+  color: #4a148c;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  padding: 10px;
 }

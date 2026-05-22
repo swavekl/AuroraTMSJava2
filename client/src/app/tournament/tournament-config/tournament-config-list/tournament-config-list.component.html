@@ -25,14 +25,14 @@
           <ng-container *ngFor="let tournament of tournaments">
             <mat-card appearance="outlined" style="padding: 8px;">
               <mat-card-header>
-                <mat-card-title>
-                  <h3>{{tournament.name}}</h3>
-                </mat-card-title>
+                <mat-card-title>{{tournament.name}}</mat-card-title>
+                <mat-card-subtitle>{{[tournament.startDate, tournament.endDate] | dateRange }}</mat-card-subtitle>
+                <mat-card-subtitle>{{ tournament.city }}, {{tournament.state}}</mat-card-subtitle>
               </mat-card-header>
-              <mat-card-content>
-                <h3>{{[tournament.startDate, tournament.endDate] | dateRange }}</h3>
-                <h4>{{ tournament.city }}, {{tournament.state}} </h4>
-              </mat-card-content>
+<!--              <mat-card-content>-->
+<!--                <h3>{{[tournament.startDate, tournament.endDate] | dateRange }}</h3>-->
+<!--                <h4>{{ tournament.city }}, {{tournament.state}} </h4>-->
+<!--              </mat-card-content>-->
               <mat-card-actions>
                 <div fxLayout="row wrap" fxLayoutAlign="start start">
                   <button mat-raised-button type="button" color="primary"

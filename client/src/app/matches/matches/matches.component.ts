@@ -88,7 +88,11 @@ export class MatchesComponent implements OnInit, OnChanges, OnDestroy {
     const tournamentEventsChanges: SimpleChange = changes.tournamentEvents;
     if (tournamentEventsChanges) {
       const te = tournamentEventsChanges.currentValue;
-      // console.log('DrawsComponent got tournament events of length ' + te.length);
+      if (te != null) {
+        this.tournamentEvents = te.sort((event1: TournamentEvent, event2: TournamentEvent) => {
+          return event1.ordinalNumber < event2.ordinalNumber ? -1 : 1;
+        });
+      }
     }
 
     const matchCardsChange: SimpleChange = changes.matchCards;
@@ -156,7 +160,7 @@ export class MatchesComponent implements OnInit, OnChanges, OnDestroy {
   onMatchScoreEntry(match: Match, matchIndex: number) {
     const data: ScoreEntryDialogData = this.makeMatchDialogData(match, matchIndex);
     const config = {
-      width: '860px', height: '500px', data: data
+      width: '860px', height: '530px', data: data
     };
 
     this.scoreEntryDialogRef = this.dialog.open(ScoreEntryDialogComponent, config);

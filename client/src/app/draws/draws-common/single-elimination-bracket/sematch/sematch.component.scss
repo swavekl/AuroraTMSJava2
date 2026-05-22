@@ -1,20 +1,38 @@
+@use "src/my-theme" as *;
+
 $match-box-color: #d7c8f5;
 
 .match-box {
   border: 2px solid $match-box-color;
-  width: 236px;  // // this is related to $ngtt-match-wrapper-width in my-theme.scss
+  width: 236px; // Tracks $ngtt-match-wrapper-width natively
   max-width: 236px;
+  box-sizing: border-box;
+  background-color: $match-box-color;
+  overflow: hidden;
+}
+
+// Master alignment structure
+.match-row-flex-wrapper {
+  width: 100%;
+}
+
+// Force child columns to scale heights exactly together
+.column-box {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: stretch;
 }
 
 .player-line {
-  padding-left: 4px;
-  padding-top: 4px;
-  padding-bottom: 4px;
+  padding: 4px;
   font-size: 14px;
   background-color: $match-box-color;
   text-overflow: ellipsis;
   overflow: hidden;
   white-space: nowrap;
+  box-sizing: border-box;
+  flex: 1 0 auto;
 }
 
 .player-line.drop-target-active {
@@ -33,18 +51,27 @@ $match-box-color: #d7c8f5;
 }
 
 .group-num-column {
-  padding-top: 4px;
-  padding-bottom: 4px;
+  padding: 4px 0;
   background-color: #a27bee;
   text-align: center;
   font-size: 14px;
+  box-sizing: border-box;
+  flex: 1 0 auto;
+}
+
+// Fixed shared height metrics for internal spacers
+.middle-metadata-spacer {
+  flex: 0 0 auto;
+  background-color: transparent;
 }
 
 .time-and-table {
   text-align: center;
-  width: 200px;
   font-size: 14px;
-  //border: 1px solid red;
+  box-sizing: border-box;
+  background-color: #ffffff;
+  padding: 2px 0;
+  flex: 0 0 auto;
 }
 
 .additional-info-tooltip {
@@ -52,26 +79,31 @@ $match-box-color: #d7c8f5;
   background-color: #FFFFFF;
 }
 
+// Align indicators inside their container layout blocks natively using flex
 div.conflict-indicator-container {
-  border: 1px solid $match-box-color;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   background-color: $match-box-color;
-  font-size: 14px;
-  vertical-align: middle;
-  padding: 5px 0;
+  box-sizing: border-box;
+  padding: 0;
+  flex: 1 0 auto;
+  border: none;
 }
 
-div.conflict-indicator-separator {
-  text-align: center;
-  width: 8px;
-  height: 20px;
+// Forces center line spacer back to match custom metadata color values
+div.conflict-spacer-line {
+  background-color: #ffffff;
+  box-sizing: border-box;
 }
 
 div {
   &.conflict-indicator {
-    width: 6px;
+    width: 5px;
     height: 14px;
     cursor: default;
-    border-radius: 3px;
+    border-radius: 2px;
+    box-sizing: border-box;
   }
 
   &.no-conflict {
@@ -104,4 +136,3 @@ div {
     border: 1px solid purple;
   }
 }
-

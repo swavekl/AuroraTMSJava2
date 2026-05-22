@@ -40,7 +40,7 @@
           <table class="match-card-header">
             <thead>
             <tr>
-              <th colspan="4" class="mat-headline-3 tournament-name-row">{{tournamentName}}</th>
+              <th colspan="4" class="mat-headline-4 tournament-name-row">{{tournamentName}}</th>
             </tr>
             <tr>
               <th class="event-name-col">Event</th>
@@ -57,8 +57,8 @@
             </thead>
             <tbody>
             <tr>
-              <td class="mat-headline-4">{{selectedEvent?.name}}</td>
-              <td class="mat-headline-4">
+              <td class="mat-headline-5">{{selectedEvent?.name}}</td>
+              <td class="mat-headline-5">
                 <ng-container *ngIf="selectedMatchCard?.drawType === 'ROUND_ROBIN'; else elseblock">
                   {{selectedMatchCard?.groupNum}}
                 </ng-container>
@@ -66,10 +66,10 @@
                   {{ getMatchIdentifier(selectedMatchCard?.round, selectedMatchCard?.groupNum) }}
                 </ng-template>
               </td>
-              <td class="mat-headline-4">
+              <td class="mat-headline-5">
                 {{ selectedMatchCard?.assignedTables }}
               </td>
-              <td class="mat-headline-4">
+              <td class="mat-headline-5">
                 {{ selectedMatchCard?.startTime | startTime }}
               </td>
             </tr>

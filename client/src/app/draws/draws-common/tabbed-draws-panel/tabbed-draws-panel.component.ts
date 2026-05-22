@@ -31,7 +31,8 @@ import {DrawUndoService} from '../draw-undo.service';
     selector: 'app-tabbed-draws-panel',
     templateUrl: './tabbed-draws-panel.component.html',
     styleUrls: ['./tabbed-draws-panel.component.scss'],
-    standalone: false
+    standalone: false,
+    providers: [DrawUndoService]
 })
 export class TabbedDrawsPanelComponent implements OnChanges, OnInit, AfterViewInit {
   @Input()

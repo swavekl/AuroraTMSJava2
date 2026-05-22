@@ -17,7 +17,7 @@ import {first, tap} from 'rxjs/operators';
     <mat-toolbar>
       <button type="button" mat-raised-button [routerLink]="returnUrl">Back to Schedule</button>
     </mat-toolbar>
-    <div class="mat-subtitle-1" style="margin-left: 10px;">
+    <div class="mat-subtitle-1" style="margin-left: 15px; margin-top: 10px;">
       <div>{{eventName}}</div>
       <div>
         <span>{{ round | roundName: group }}</span>

@@ -6,11 +6,11 @@
     <div fxHide.xs="true" fxFlex.gt-xs="50%">&nbsp;</div>
     <div fxFlexFill fxFlex.gt-xs="400px">
       <div *ngIf="playerDaySchedules != null && tournamentInfo != null">
-        <div class="mat-headline-6" style="text-align: center">{{tournamentInfo.name}}</div>
+        <div class="mat-subtitle tournament-name">{{tournamentInfo.name}}</div>
         <ng-container *ngFor="let daySchedule of playerDaySchedules">
           <div>
-            <div class="day-header mat-headline-6">
-              <h3>Day {{daySchedule.day}} - {{daySchedule.day | eventDay: tournamentStartDate}}</h3>
+            <div class="mat-subtitle-1 day-header">
+              Day {{daySchedule.day}} - {{daySchedule.day | eventDay: tournamentStartDate}}
             </div>
             <mat-nav-list dense>
               <mat-list-item

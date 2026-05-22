@@ -5,7 +5,7 @@ h1 {
 }
 
 table.match-display {
-  border: 1px solid red;
+  border-collapse: collapse;
   tr {
     margin-bottom: 16px;
     th {

@@ -1,11 +1,13 @@
 <div class="match-box" *ngIf="match">
-  <div fxLayout="row">
-    <div [fxFlex]="match.showSeedNumber ? '25px' : '0px'">
+  <div fxLayout="row" fxLayoutAlign="stretch center" class="match-row-flex-wrapper">
+
+    <div [fxFlex]="match.showSeedNumber ? '25px' : '0px'" fxLayout="column" class="column-box seed-column-box">
       <div class="group-num-column" *ngIf="match.showSeedNumber">{{(match.opponentA?.byeNum === 0) ? match.opponentA?.seSeedNumber : '&nbsp;'}}</div>
-      <div *ngIf="match.showSeedNumber">&nbsp;</div>
+      <div class="middle-metadata-spacer" *ngIf="match.showSeedNumber">&nbsp;</div>
       <div class="group-num-column" *ngIf="match.showSeedNumber">{{(match.opponentB?.byeNum === 0) ? match.opponentB?.seSeedNumber : '&nbsp;'}}</div>
     </div>
-    <div [fxFlex]="match.showSeedNumber ? '200px' : '225px'">
+
+    <div [fxFlex]="match.showSeedNumber ? '200px' : '225px'" fxLayout="column" class="column-box players-column-box">
       <div class="player-line" [ngClass]="(match.result != null && match.opponentAWon && match.opponentB?.byeNum === 0) ? 'match-winner' : (match.dragDisabled ? '' : 'draggable')"
            *ngIf="match.opponentA?.byeNum === 0"
            [class.drop-target-active]="highlightedSlot === 'A'"
@@ -24,10 +26,12 @@
           </ng-container>
         </div>
       </div>
-      <div class="player-line" *ngIf="match.opponentA?.byeNum > 0"  >Bye</div>
+      <div class="player-line" *ngIf="match.opponentA?.byeNum > 0">Bye</div>
+
       <div class="time-and-table" *ngIf="match.time !== 0">{{match.time | startTime }} Table: {{match.tableNum}}</div>
       <div class="time-and-table" *ngIf="match.time === 0 && match.result == null">&nbsp;</div>
       <div class="time-and-table" *ngIf="match.result != null">&nbsp; {{match.result.join(', ')}}</div>
+
       <div class="player-line" [ngClass]="(match.result != null && !match.opponentAWon && match.opponentA?.byeNum === 0) ? 'match-winner' :  (match.dragDisabled ? '' : 'draggable')"
            *ngIf="match.opponentB?.byeNum === 0"
            [class.drop-target-active]="highlightedSlot === 'B'"
@@ -46,17 +50,18 @@
           </ng-container>
         </div>
       </div>
-      <div class="player-line" *ngIf="match.opponentB?.byeNum > 0"  >Bye</div>
+      <div class="player-line" *ngIf="match.opponentB?.byeNum > 0">Bye</div>
     </div>
-    <div>
-      <div class="conflict-indicator-container">
-        <div class="conflict-indicator" [ngClass]="getConflictClass(match.opponentA)">&nbsp;</div>
-      </div>
-      <div class="conflict-indicator-separator">&nbsp;</div>
-      <div class="conflict-indicator-container">
-        <div class="conflict-indicator" [ngClass]="getConflictClass(match.opponentB)">&nbsp;</div>
-      </div>
-    </div>
-  </div>
 
+    <div fxFlex="7px" fxLayout="column" class="column-box conflict-column-box">
+      <div class="conflict-indicator-container">
+        <div class="conflict-indicator" [ngClass]="getConflictClass(match.opponentA)"></div>
+      </div>
+      <div class="middle-metadata-spacer conflict-spacer-line"></div>
+      <div class="conflict-indicator-container">
+        <div class="conflict-indicator" [ngClass]="getConflictClass(match.opponentB)"></div>
+      </div>
+    </div>
+
+  </div>
 </div>

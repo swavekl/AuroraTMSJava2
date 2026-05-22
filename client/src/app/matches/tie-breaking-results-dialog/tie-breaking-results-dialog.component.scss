@@ -7,6 +7,7 @@ p.tie-breaking-table-container {
 }
 
 table.tie-breaking-table {
+  border-collapse: collapse;
   tr {
     th {
       font-weight: bold;

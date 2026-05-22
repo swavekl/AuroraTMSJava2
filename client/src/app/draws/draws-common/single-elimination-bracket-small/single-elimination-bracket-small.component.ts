@@ -21,6 +21,12 @@ export class SingleEliminationBracketSmallComponent implements OnInit, OnChanges
   @Input()
   matchTemplate: TemplateRef<any>;
 
+  @Input()
+  showDivisionName!: boolean;
+
+  @Input()
+  divisionName: string;
+
   currentRound: number = 0;
 
   firstRound: number = 0;

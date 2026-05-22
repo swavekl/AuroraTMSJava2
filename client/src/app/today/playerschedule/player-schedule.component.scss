@@ -7,14 +7,22 @@
 .my-schedule-container {
   margin: 10px;
   height: calc(100vh - 175px);
-  //border: 1px solid red;
   overflow: auto;
+}
+
+.tournament-name {
+  text-align: center;
+  white-space: nowrap;      /* 1. Prevents the text from wrapping to a new line */
+  overflow: hidden;         /* 2. Hides the text that extends past the container width */
+  text-overflow: ellipsis;  /* 3. Adds the three dots (...) at the end of the visible text */
+  padding: 8px 10px;
+  font-size: 20px;
 }
 
 .day-header {
   background-color: #d7c8f5;
-  margin: 10px 0 0 0;
-  padding: 20px 0;
+  margin: 10px 8px 0 8px;
+  padding: 15px 0 15px 0;
   text-align: center;
 }
 

@@ -17,10 +17,10 @@ import {ConfirmationPopupComponent} from '../../shared/confirmation-popup/confir
 import {MatchCardStatus} from '../../matches/model/match-card-status.enum';
 
 @Component({
-    selector: 'app-table-usage',
-    templateUrl: './table-usage.component.html',
-    styleUrls: ['./table-usage.component.scss'],
-    standalone: false
+  selector: 'app-table-usage',
+  templateUrl: './table-usage.component.html',
+  styleUrls: ['./table-usage.component.scss'],
+  standalone: false
 })
 export class TableUsageComponent implements OnInit, OnChanges {
 
@@ -62,8 +62,6 @@ export class TableUsageComponent implements OnInit, OnChanges {
   // list of events which take place today
   todaysTournamentEvents: TournamentEvent[];
 
-  hideOtherEventsMatches: boolean;
-
   filteredMatchInfos: MatchInfo [];
 
   constructor(private dialog: MatDialog) {
@@ -74,7 +72,6 @@ export class TableUsageComponent implements OnInit, OnChanges {
     this.tournamentEvents = [];
     this.todaysTournamentEvents = [];
     this.filteredMatchInfos = [];
-    this.hideOtherEventsMatches = false;
   }
 
   ngOnInit(): void {
@@ -85,7 +82,11 @@ export class TableUsageComponent implements OnInit, OnChanges {
     if (tournamentEventChanges != null) {
       const tournamentEvents = tournamentEventChanges.currentValue;
       if (tournamentEvents) {
-        this.todaysTournamentEvents = tournamentEvents.filter(tournamentEvent => tournamentEvent.day === this.tournamentDay);
+        this.tournamentEvents = [...tournamentEvents]
+          .sort((event1: TournamentEvent, event2: TournamentEvent) => {
+            return event1.ordinalNumber < event2.ordinalNumber ? -1 : 1;
+          });
+        this.todaysTournamentEvents = this.tournamentEvents.filter(tournamentEvent => tournamentEvent.day === this.tournamentDay);
       }
     }
 
@@ -93,13 +94,9 @@ export class TableUsageComponent implements OnInit, OnChanges {
     if (matchInfosChanges != null) {
       const matchesToPlayInfos = matchInfosChanges.currentValue;
       if (matchesToPlayInfos != null) {
-        this.filterMatchInfos(this.hideOtherEventsMatches, this.selectedEventId);
+        this.filterMatchInfos(this.selectedEventId);
       }
     }
-    // const tableUsageChange: SimpleChange = changes.tableUsageList;
-    // if (tableUsageChange != null) {
-    //   console.log('in presenter got table usage', tableUsageChange);
-    // }
   }
 
   onSelectMatchCard(matchCard: MatchCard) {
@@ -211,8 +208,8 @@ export class TableUsageComponent implements OnInit, OnChanges {
                   let tablesOccupied = false;
                   for (const updatedTableUsage1 of updatedTableUsages) {
                     if (updatedTableUsage1.tableNumber === tableNumber) {
-                        tablesOccupied = (updatedTableUsage1.tableStatus !== TableStatus.Free);
-                        break;
+                      tablesOccupied = (updatedTableUsage1.tableStatus !== TableStatus.Free);
+                      break;
                     }
                   }
                   if (!tablesOccupied) {
@@ -239,8 +236,6 @@ export class TableUsageComponent implements OnInit, OnChanges {
         const matchAssignmentDialogData = this.makeTableAssignmentDialogData(
           selectedMatchInfo.matchCard, unavailableTables);
         this.showDialog(matchAssignmentDialogData, updatedTableUsages, matchCardIds, false);
-      } else {
-        // show warning if multiple match cards are started
       }
     } else {
       this.startMatchesAndUpdateMatchCards(updatedTableUsages, matchCardIds);
@@ -331,18 +326,18 @@ export class TableUsageComponent implements OnInit, OnChanges {
   }
 
   private makeTableAssignmentDialogData(selectedMatchCard: MatchCard, conflictTables: number[]): MatchAssignmentDialogData {
-      const availableTables: number [] = [];
-      this.tableUsageList.forEach(tableUsage => {
-        if (tableUsage.tableStatus === TableStatus.Free) {
-          availableTables.push(tableUsage.tableNumber);
-        }
-      });
-      return {
-        availableTables: availableTables,
-        conflictTables: conflictTables,
-        matchCard: selectedMatchCard
-      };
-    }
+    const availableTables: number [] = [];
+    this.tableUsageList.forEach(tableUsage => {
+      if (tableUsage.tableStatus === TableStatus.Free) {
+        availableTables.push(tableUsage.tableNumber);
+      }
+    });
+    return {
+      availableTables: availableTables,
+      conflictTables: conflictTables,
+      matchCard: selectedMatchCard
+    };
+  }
 
     /**
    * Print single selected match card
@@ -593,24 +588,40 @@ export class TableUsageComponent implements OnInit, OnChanges {
     this.refreshUsage.emit('');
   }
 
-  onHideOtherEvents($event: MatSlideToggleChange) {
-    const hide = $event.checked;
-    this.filterMatchInfos(hide, this.selectedEventId);
-  }
+  // DEPRECATED: Standard slide toggle behavior replaced by single dropdown control pipeline
+  onHideOtherEvents($event: MatSlideToggleChange) {}
 
-  private filterMatchInfos(hide: boolean, eventId: number) {
-    // console.log(`filterMatchInfos ${eventId} hide ${hide}`);
-    if (hide === true && eventId !== 0) {
-      this.filteredMatchInfos = this.matchesToPlayInfos.filter((matchInfo) => matchInfo.matchCard.eventFk === eventId);
+  /**
+   * Core routing filter engine logic
+   * @param eventId numerical identity state
+   */
+  private filterMatchInfos(eventId: number) {
+    if (!this.matchesToPlayInfos) {
+      this.filteredMatchInfos = [];
+      return;
+    }
+
+    if (eventId === 0) {
+      // 1. All Today's Events: Filter down to match cards whose parent event occurs on the active day parameter
+      const todaysEventIds = this.todaysTournamentEvents.map(e => e.id);
+      this.filteredMatchInfos = this.matchesToPlayInfos.filter(
+        info => todaysEventIds.includes(info.matchCard.eventFk)
+      );
+    // } else if (eventId === 0) {
+    //   // 2. All Events: Bypass subset rules completely
+    //   this.filteredMatchInfos = this.matchesToPlayInfos;
     } else {
-      this.filteredMatchInfos = this.matchesToPlayInfos;
+      // 3. Single Specified Event Selection: Target explicit identity foreign key match cards exclusively
+      this.filteredMatchInfos = this.matchesToPlayInfos.filter(
+        info => info.matchCard.eventFk === eventId
+      );
     }
   }
 
   eventSelectionChange($event: MatSelectChange) {
-    // console.log('event changed', $event);
     const eventId = $event.value;
-    this.filterMatchInfos(this.hideOtherEventsMatches, eventId);
+    this.selectedEventId = eventId;
+    this.filterMatchInfos(eventId);
   }
 
   isSelectedMatchReady() {
@@ -644,16 +655,15 @@ export class TableUsageComponent implements OnInit, OnChanges {
         }
       });
     }
-
     return isTableFree;
   }
 
   /**
    * Drag and drop support for table reassignment
    */
-    canMoveMatchInfo(item: CdkDrag<MatchInfo>) {
-      return (item.data?.matchCardPlayability === MatchCardPlayabilityStatus.ReadyToPlay);
-    }
+  canMoveMatchInfo(item: CdkDrag<MatchInfo>) {
+    return (item.data?.matchCardPlayability === MatchCardPlayabilityStatus.ReadyToPlay);
+  }
 
   /**
    *
@@ -661,7 +671,7 @@ export class TableUsageComponent implements OnInit, OnChanges {
    * @param item item being dropped
    * @param drop drop target
    */
-    canDropPredicate(index: number, item: CdkDrag<TableUsage>, drop: CdkDropList) {
+  canDropPredicate(index: number, item: CdkDrag<TableUsage>, drop: CdkDropList) {
     console.log('canDropPredicate', drop);
     return item.data.tableStatus === TableStatus.Free;
   }
@@ -674,5 +684,3 @@ export class TableUsageComponent implements OnInit, OnChanges {
     console.log('in onMatchInfoDrop', $event);
   }
 }
-
-

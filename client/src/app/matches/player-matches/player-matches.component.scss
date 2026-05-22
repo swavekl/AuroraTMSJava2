@@ -24,6 +24,8 @@ mat-expansion-panel-header {
 
 table.expansion-header-players {
   width: 100%;
+  border-collapse: collapse;
+
   tr td {
     &.match-num-column {
       vertical-align: middle;
@@ -58,6 +60,7 @@ table.expansion-header-players {
 table.scores-table {
   margin-left: 18px;
   font-size: 16px;
+  border-collapse: collapse;
 
   thead tr th {
     padding: 4px 4px;

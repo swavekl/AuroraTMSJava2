@@ -14,6 +14,7 @@ mat-dialog-content {
   table.audit-table {
     width: 100%;
     scroll-behavior: auto;
+    border-collapse: collapse;
 
     tr {
       th {

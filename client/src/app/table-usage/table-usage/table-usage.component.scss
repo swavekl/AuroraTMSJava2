@@ -5,6 +5,11 @@
   height: calc(100vh - 136px);
 }
 
+mat-select {
+  width: 250px;
+  min-width: 250px;
+}
+
 .matches-list {
   width: 150px;
   overflow: scroll;

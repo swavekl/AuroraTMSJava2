@@ -1,13 +1,15 @@
-<mat-toolbar>
-  <mat-label>Select Event</mat-label>
-  <span class="toolbar-spacer-2"></span>
-  <mat-select [(ngModel)]="selectedEventId" style="width: 170px; min-width: 170px;" (selectionChange)="eventSelectionChange($event)">
-    <mat-option *ngFor="let event of todaysTournamentEvents" [value]="event.id">
-      {{event.name}}
-    </mat-option>
-  </mat-select>
-  <span class="toolbar-spacer-2"></span>
-  <mat-slide-toggle name="expandedView" [(ngModel)]="hideOtherEventsMatches" (change)="onHideOtherEvents($event)">Hide Other Events</mat-slide-toggle>
+<mat-toolbar class="filter-toolbar">
+  <mat-label>Event: &nbsp;</mat-label>
+  <mat-form-field class="event-filter-dropdown-field">
+    <mat-select [(ngModel)]="selectedEventId" (selectionChange)="eventSelectionChange($event)">
+      <mat-option [value]="0">All Today's Events</mat-option>
+      <mat-divider></mat-divider>
+      <mat-option *ngFor="let event of todaysTournamentEvents" [value]="event.id">
+        {{ event.name }}
+      </mat-option>
+    </mat-select>
+  </mat-form-field>
+
   <span class="toolbar-spacer-2"></span>
   <button type="button" mat-raised-button (click)="onStartEventMatches()" [disabled]="selectedEventId === 0">Start RR Matches</button>
   <span class="toolbar-spacer-2"></span>
@@ -36,9 +38,9 @@
       <mat-list-item *ngFor="let matchInfo of filteredMatchInfos" (click)="onSelectMatchCard(matchInfo.matchCard)"
                      [matTooltip]="getTooltipText(matchInfo)"
                      [ngClass]="isSelectedMatchCard (matchInfo.matchCard) ? 'selected' : 'not-selected'">
-        <h3 matListItemTitle>{{getMatchIdentifierText(matchInfo.matchCard.id)}}</h3>
-        <h4 matListItemLine class="match-info-line2">{{matchInfo.matchCard.startTime | startTime}} on {{getMatchTables(matchInfo.matchCard.assignedTables)}} <span style="color: red"> {{isTableFree(matchInfo.matchCard.assignedTables) ? '' : '(N/A)'}}</span></h4>
-        <h4 matListItemLine class="match-info-line2" [ngClass]="getStatusClass(matchInfo.matchCardPlayability)">Status: {{matchInfo.matchCardPlayability | matchCardStatus: matchInfo.playabilityDetail }}</h4>
+        <span matListItemTitle>{{getMatchIdentifierText(matchInfo.matchCard.id)}}</span>
+        <span matListItemLine class="match-info-line2">{{matchInfo.matchCard.startTime | startTime}} on {{getMatchTables(matchInfo.matchCard.assignedTables)}} <span style="color: red"> {{isTableFree(matchInfo.matchCard.assignedTables) ? '' : '(N/A)'}}</span></span>
+        <span matListItemLine class="match-info-line2" [ngClass]="getStatusClass(matchInfo.matchCardPlayability)">Status: {{matchInfo.matchCardPlayability | matchCardStatus: matchInfo.playabilityDetail }}</span>
 <!--        <mat-icon mat-list-icon [ngClass]="getStatusClass(matchInfo.matchCardPlayability)">info</mat-icon>-->
         <mat-divider></mat-divider>
       </mat-list-item>

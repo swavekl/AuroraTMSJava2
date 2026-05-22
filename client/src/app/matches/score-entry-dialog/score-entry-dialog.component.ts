@@ -300,7 +300,7 @@ export class ScoreEntryDialogComponent implements OnInit {
       playerIdToNameMap[this.match.playerBProfileId] = this.playerBName;
     }
     const config = {
-      width: '700px', height: '400px', data: {
+      width: '700px', height: '410px', data: {
         matchId: this.match.id,
         numberOfGames: this.numberOfGames,
         pointsPerGame: this.pointsPerGame,
