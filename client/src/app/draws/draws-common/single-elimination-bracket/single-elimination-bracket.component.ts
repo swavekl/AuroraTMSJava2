@@ -113,6 +113,13 @@ export class SingleEliminationBracketComponent implements OnInit, OnDestroy, OnC
           this.broadcastState();
         }
       });
+
+    // 2. Listen for the Clear request (New Event selection)
+    this.drawUndoService.clearAction$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        this.clearUndoItems();
+      });
   }
 
   ngOnDestroy() {
@@ -125,14 +132,14 @@ export class SingleEliminationBracketComponent implements OnInit, OnDestroy, OnC
     this.drawUndoService.updateCanUndo(false);
   }
 
-
   // Helper to push the local state up to the service
   broadcastState() {
     // Promise.resolve().then() ensures this happens in the next tick,
     // preventing the ExpressionChanged error.
     Promise.resolve().then(() => {
-      // console.log('SE broadcasting undo state:');
-      this.drawUndoService.updateCanUndo(this.undoStack.length > 0);
+      if (this.drawUndoService) {
+        this.drawUndoService.updateCanUndo(this.hasUndoItems());
+      }
     });
   }
 
@@ -796,7 +803,6 @@ export class SingleEliminationBracketComponent implements OnInit, OnDestroy, OnC
   }
 
   hasUndoItems(): boolean {
-    // console.log('this.undoStack?.length', this.undoStack?.length);
     return this.undoStack?.length > 0;
   }
 

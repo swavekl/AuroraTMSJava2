@@ -3,7 +3,8 @@ import {
   Component,
   EventEmitter,
   Input,
-  OnChanges, OnInit,
+  OnChanges,
+  OnInit,
   Output,
   QueryList,
   SimpleChange,
@@ -21,18 +22,12 @@ import {PlayerStatus} from '../../../today/model/player-status.model';
 import {MatchCardInfo} from '../../../matches/model/match-card-info.model';
 import {DrawType} from '../model/draw-type.enum';
 import {UndoablePanel} from '../undoable-panel';
-import {MatTabChangeEvent, MatTabGroup} from '@angular/material/tabs';
-import {MatSlideToggleChange} from '@angular/material/slide-toggle';
-import {DrawAction, DrawActionType} from '../../draws-config/draws/draw-action';
-import {MatDialog} from '@angular/material/dialog';
-import {DrawUndoService} from '../draw-undo.service';
 
 @Component({
     selector: 'app-tabbed-draws-panel',
     templateUrl: './tabbed-draws-panel.component.html',
     styleUrls: ['./tabbed-draws-panel.component.scss'],
-    standalone: false,
-    providers: [DrawUndoService]
+    standalone: false
 })
 export class TabbedDrawsPanelComponent implements OnChanges, OnInit, AfterViewInit {
   @Input()
@@ -77,8 +72,9 @@ export class TabbedDrawsPanelComponent implements OnChanges, OnInit, AfterViewIn
   // more efficient than using *ngIf to show/hide tabs
   showTabs = false;
 
-  constructor(private breakpointObserver: BreakpointObserver,
-              protected drawUndoService: DrawUndoService) {
+  protected readonly DrawType = DrawType;
+
+  constructor(private breakpointObserver: BreakpointObserver) {
     this.isHandset$ = this.breakpointObserver.observe(Breakpoints.Handset)
       .pipe(
         map(result => {
@@ -153,27 +149,6 @@ export class TabbedDrawsPanelComponent implements OnChanges, OnInit, AfterViewIn
     this.updateFlagEE.emit($event);
   }
 
-  // clearUndoStack() {
-  //   if (this.roundRobinDrawsPanelComponent != null) {
-  //     this.roundRobinDrawsPanelComponent.clearUndoStack();
-  //   }
-  // }
-  //
-  // hasUndoItems() {
-  //   if (this.roundRobinDrawsPanelComponent != null) {
-  //     return this.roundRobinDrawsPanelComponent.hasUndoItems();
-  //   } else {
-  //     return false;
-  //   }
-  // }
-  //
-  // undoMove() {
-  //   if (this.roundRobinDrawsPanelComponent != null) {
-  //     this.roundRobinDrawsPanelComponent.undoMove();
-  //   }
-  // }
-
-
   setExpandedView(expandedView: boolean) {
     if (this.roundRobinDrawsPanelComponent != null) {
       this.roundRobinDrawsPanelComponent.setExpandedView(expandedView);
@@ -185,8 +160,6 @@ export class TabbedDrawsPanelComponent implements OnChanges, OnInit, AfterViewIn
       this.roundRobinDrawsPanelComponent.setCheckinStatus(checkinStatus);
     }
   }
-
-  protected readonly DrawType = DrawType;
 
   onTabChange(currentTab: number) {
     // console.log('onTabChange this.selectedTabIndex', this.selectedTabIndex);

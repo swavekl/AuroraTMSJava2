@@ -1,4 +1,4 @@
-import {Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Optional, Output, SimpleChanges} from '@angular/core';
+import {Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Optional, Output, SimpleChange, SimpleChanges} from '@angular/core';
 import {CdkDrag, CdkDragDrop, CdkDropList, transferArrayItem} from '@angular/cdk/drag-drop';
 import {MatDialog} from '@angular/material/dialog';
 import {TournamentEvent} from '../../../tournament/tournament-config/tournament-event.model';
@@ -91,7 +91,7 @@ export class RoundRobinDrawsPanelComponent implements OnInit, OnChanges, OnDestr
   }
 
   ngOnInit(): void {
-    // Listen for the Undo click
+    // 1. Listen for the Undo click
     this.drawUndoService.undoAction$
       .pipe(takeUntil(this.destroy$))
       .subscribe(() => {
@@ -100,6 +100,13 @@ export class RoundRobinDrawsPanelComponent implements OnInit, OnChanges, OnDestr
           this.undoMove();
           this.broadcastState();
         }
+      });
+
+    // 2. Listen for the Clear request (New Event selection)
+    this.drawUndoService.clearAction$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        this.clearUndoItems();
       });
   }
 
@@ -118,7 +125,9 @@ export class RoundRobinDrawsPanelComponent implements OnInit, OnChanges, OnDestr
     // Promise.resolve().then() ensures this happens in the next tick,
     // preventing the ExpressionChanged error.
     Promise.resolve().then(() => {
-      this.drawUndoService.updateCanUndo(this.undoStack.length > 0);
+      if (this.drawUndoService) {
+        this.drawUndoService.updateCanUndo(this.hasUndoItems());
+      }
     });
   }
 
@@ -433,7 +442,6 @@ export class RoundRobinDrawsPanelComponent implements OnInit, OnChanges, OnDestr
   }
 
   hasUndoItems(): boolean {
-    // console.log('this.undoStack?.length', this.undoStack?.length);
     return this.undoStack?.length > 0;
   }
 
@@ -441,8 +449,7 @@ export class RoundRobinDrawsPanelComponent implements OnInit, OnChanges, OnDestr
    * Undo the player move
    */
   undoMove() {
-    // console.log('undoMove undostack.count', this.undoStack?.length);
-    if (this.undoStack?.length > 0) {
+    if (this.hasUndoItems()) {
       const undoMemento: UndoMemento = this.undoStack[this.undoStack.length - 1];
       this.undoStack.splice(this.undoStack.length - 1, 1);
       // exchange items
@@ -462,16 +469,16 @@ export class RoundRobinDrawsPanelComponent implements OnInit, OnChanges, OnDestr
     this.broadcastState(); // Enable the button!
   }
 
+  clearUndoItems() {
+    this.undoStack = [];
+  }
+
   setExpandedView(expandedView: boolean) {
     this.expandedView = expandedView;
   }
 
   setCheckinStatus(checkinStatus: boolean) {
     this.checkinStatus = checkinStatus;
-  }
-
-  clearUndoItems() {
-    this.undoStack = [];
   }
 
   getConflictClass(drawItem: DrawItem) {

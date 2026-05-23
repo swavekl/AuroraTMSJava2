@@ -11,7 +11,7 @@ export class DrawUndoService {
   private undoActionSubject = new Subject<void>();
   undoAction$ = this.undoActionSubject.asObservable();
 
-  // 2. The Action: The actual event of clicking Undo
+  // 3. The Action: Clearing the undo items
   private clearUndoActionSubject = new Subject<void>();
   clearAction$ = this.clearUndoActionSubject.asObservable();
 
@@ -26,6 +26,7 @@ export class DrawUndoService {
   }
 
   clearUndoItems() {
-    this.clearUndoActionSubject.next();
+    this.clearUndoActionSubject.next(); // Tell all panels to wipe their data
+    this.updateCanUndo(false); // Kill the button state immediately
   }
 }
