@@ -65,7 +65,15 @@ export class AssignUmpiresDialogComponent {
 
   private loadTournamentEvents(tournamentId: number) {
     this.tournamentEvents$ = this.tournamentEventConfigService.store.select(
-      this.tournamentEventConfigService.selectors.selectEntities);
+      this.tournamentEventConfigService.selectors.selectEntities
+    ).pipe(
+      map((tournamentEvents: TournamentEvent[]) =>
+        [...tournamentEvents].sort((event1: TournamentEvent, event2: TournamentEvent) => {
+            return event1.ordinalNumber < event2.ordinalNumber ? -1 : 1;
+          })
+      )
+    );
+
     // load them - they will surface via this selector
     this.tournamentEventConfigService.loadTournamentEvents(tournamentId)
       .pipe(first()).subscribe();
