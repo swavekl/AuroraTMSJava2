@@ -13,6 +13,10 @@ export class RefereeTournamentListComponent {
 
   @Input()
   tournaments!: Tournament[] | null;
+
+  @Input()
+  loading: boolean = true;
+
   private today: Date;
 
   constructor(private todayService: TodayService) {

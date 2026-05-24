@@ -4,12 +4,15 @@ import {Observable, Subscription} from 'rxjs';
 import {TournamentConfigService} from '../../tournament/tournament-config/tournament-config.service';
 import {Tournament} from '../../tournament/tournament-config/tournament.model';
 import {LinearProgressBarService} from '../../shared/linear-progress-bar/linear-progress-bar.service';
+import {map} from 'rxjs/operators';
+import {AuthenticationService} from '../../user/authentication.service';
+import {UserRoles} from '../../user/user-roles.enum';
 
 @Component({
     selector: 'app-referee-tournament-list-container',
     template: `
-    <app-referee-tournament-list [tournaments]="tournaments$ | async">
-      referee-tournament-list-container works!
+    <app-referee-tournament-list [tournaments]="tournaments$ | async"
+                                 [loading]="loading$ | async">
     </app-referee-tournament-list>
   `,
     styles: ``,
@@ -17,17 +20,32 @@ import {LinearProgressBarService} from '../../shared/linear-progress-bar/linear-
 })
 export class RefereeTournamentListContainerComponent implements OnInit, OnDestroy {
   tournaments$: Observable<Tournament[]>;
-  private loading$: Observable<boolean>;
+  loading$: Observable<boolean>;
 
   private subscriptions: Subscription = new Subscription();
 
   constructor(private tournamentConfigService: TournamentConfigService,
+              private authenticationService: AuthenticationService,
               private linearProgressBarService: LinearProgressBarService) {
     this.setupProgressIndicator();
   }
 
   ngOnInit(): void {
-    this.tournaments$ = this.tournamentConfigService.getAll();
+    // Define the target profile ID once
+    const currentUserProfileId = this.authenticationService.getCurrentUserProfileId();
+
+    // get all tournaments but filter out those which the current user is not a Referee for
+    this.tournaments$ = this.tournamentConfigService.getAll().pipe(
+      map(tournaments => tournaments.filter(tournament => {
+        // Safely access the personnel list
+        const personnelList = tournament.configuration?.personnelList || [];
+        // Check if current user exists in the list with the specific role
+        return personnelList.some(personnel =>
+          personnel.profileId === currentUserProfileId &&
+          personnel.role === UserRoles.ROLE_REFEREES
+        );
+      }))
+    );
   }
 
   ngOnDestroy() {
