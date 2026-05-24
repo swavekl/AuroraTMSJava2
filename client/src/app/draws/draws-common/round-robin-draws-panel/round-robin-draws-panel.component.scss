@@ -111,6 +111,10 @@ table {
 
     &.player-column {
       width: 83%;
+
+      div.advancing-player {
+        font-weight: bold;
+      }
     }
 
     &.rating-column {
@@ -124,7 +128,7 @@ table {
       &.conflict-indicator {
         width: 6px;
         height: 16px;
-        cursor: default;
+        cursor: pointer;
         border-radius: 3px;
       }
 
@@ -163,6 +167,7 @@ table {
     &.player-status-column {
       vertical-align: top;
       width: 20px;
+      cursor: pointer;
     }
   }
 }

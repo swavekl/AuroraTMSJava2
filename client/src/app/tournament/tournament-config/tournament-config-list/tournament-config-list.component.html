@@ -48,15 +48,10 @@
                     <mat-icon matListItemIcon>edit_note</mat-icon>
                     Entries
                   </button>
-                  <button mat-raised-button type="button"
-                          [routerLink]="['/ui/today/checkincommunicatelist', tournament.id]"
-                          [state]="{ tournamentName: tournament.name,
-                          tournamentStartDate: tournament.startDate,
-                          tournamentEndDate: tournament.endDate,
-                          checkInType: tournament?.configuration?.checkInType ?? 'DAILY'}"
-                          matTooltip="Player Check in">
-                    <mat-icon matListItemIcon>task_alt</mat-icon>
-                    Check in
+                  <button mat-raised-button type="button" [routerLink]="['/ui/draws', tournament.id]"
+                          matTooltip="Generate Draws">
+                    <mat-icon matListItemIcon>grid_view</mat-icon>
+                    Draws
                   </button>
                   <button mat-raised-button type="button" [routerLink]="['/ui/entries/doublesteams', tournament.id]"
                           matTooltip="Make or break doubles teams" >
@@ -66,15 +61,20 @@
                           matTooltip="Players Waiting List" >
                     <mat-icon matListItemIcon>playlist_add</mat-icon>Waiting List
                   </button>
-                  <button mat-raised-button type="button" [routerLink]="['/ui/draws', tournament.id]"
-                          matTooltip="Generate Draws">
-                    <mat-icon matListItemIcon>grid_view</mat-icon>
-                    Draws
-                  </button>
                   <button mat-raised-button type="button" [routerLink]="['/ui/scheduling', tournament.id]"
                           matTooltip="Table Assignment & Time Scheduling">
                     <mat-icon matListItemIcon>schedule</mat-icon>
                     Schedule
+                  </button>
+                  <button mat-raised-button type="button"
+                          [routerLink]="['/ui/today/checkincommunicatelist', tournament.id]"
+                          [state]="{ tournamentName: tournament.name,
+                          tournamentStartDate: tournament.startDate,
+                          tournamentEndDate: tournament.endDate,
+                          checkInType: tournament?.configuration?.checkInType ?? 'DAILY'}"
+                          matTooltip="Player Check in">
+                    <mat-icon matListItemIcon>task_alt</mat-icon>
+                    Check in
                   </button>
                   <button mat-raised-button type="button"
                           [routerLink]="['/ui/tddashboard', tournament.id, {

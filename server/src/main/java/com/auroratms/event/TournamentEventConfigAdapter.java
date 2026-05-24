@@ -213,4 +213,16 @@ public class TournamentEventConfigAdapter {
             return tournamentEvent.getPlayersToAdvance();
         }
     }
+
+    /**
+     *
+     * @return
+     */
+    public boolean isAdvanceUnratedWinner() {
+        if (roundDivision != null) {
+            return roundDivision.isAdvanceUnratedWinner();
+        } else {
+            return tournamentEvent.isAdvanceUnratedWinner();
+        }
+    }
 }

@@ -63,8 +63,8 @@ export class RoundRobinDrawsPanelComponent implements OnInit, OnChanges, OnDestr
   @Input()
   bracketsHeight!: string;
 
-  // array of group objects with group
-  // groups: DrawGroup [] = [];
+  // map of group number to profile ids of advancing players profileIds
+  private advancingPlayers: Map<number, string>;
 
   divisions: DrawDivision [] = [];
 
@@ -150,6 +150,9 @@ export class RoundRobinDrawsPanelComponent implements OnInit, OnChanges, OnDestr
     if (this.draws != null && this.selectedEvent != null) {
       this.initializeDivisions(this.draws);
       this.setupGroupsForDragAndDrop();
+      if (this.matchCardInfos != null) {
+        this.determineAdvancingPlayers();
+      }
     }
   }
 
@@ -206,25 +209,6 @@ export class RoundRobinDrawsPanelComponent implements OnInit, OnChanges, OnDestr
     // 5. Final Sort and Assign
     this.divisions = divisions.sort((a, b) => a.divisionIdx - b.divisionIdx);
   }
-
-  // private initializeGroups(drawItems: DrawItem[]) {
-  //   let groupNum = 0;
-  //   let currentGroup: DrawGroup = null;
-  //   let groups: DrawGroup [] = [];
-  //   drawItems.forEach((drawItem: DrawItem) => {
-  //     if (drawItem.drawType === DrawType.ROUND_ROBIN && drawItem.roundOrdinalNumber === this.roundOrdinalNumber) {
-  //       if (drawItem.groupNum !== groupNum) {
-  //         groupNum = drawItem.groupNum;
-  //         currentGroup = new DrawGroup();
-  //         currentGroup.groupNum = drawItem.groupNum;
-  //         currentGroup.drawItems = [];
-  //         groups.push(currentGroup);
-  //       }
-  //       currentGroup.drawItems.push(drawItem);
-  //     }
-  //   });
-  //   this.groups = groups;
-  // }
 
   /**
    * Sets up connectedTo array of tables
@@ -564,6 +548,43 @@ export class RoundRobinDrawsPanelComponent implements OnInit, OnChanges, OnDestr
 
   getClubName(drawItem: DrawItem): string {
     return drawItem.clubName ? drawItem.clubName.substring(0, 35) : 'N/A'
+  }
+
+  /**
+   * Builds a map of group number to list of advancing player ids so their advancing status can be quickly determined
+   * @private
+   */
+  private determineAdvancingPlayers() {
+    this.advancingPlayers = new Map<number, string>();
+
+    this.matchCardInfos.forEach(matchCardInfo => {
+      if (
+        matchCardInfo.drawType === DrawType.ROUND_ROBIN &&
+        matchCardInfo.playerRankingsAsMap != null
+      ) {
+
+        let advancingPlayers = '';
+
+        Object.entries(matchCardInfo.playerRankingsAsMap).forEach(([rank, profileId]) => {
+          const numericRank = Number(rank);
+
+          if (numericRank <= matchCardInfo.playersToAdvance) {
+            advancingPlayers += advancingPlayers.length === 0 ? '' : ',';
+            advancingPlayers += profileId;
+          }
+        });
+
+        this.advancingPlayers.set(matchCardInfo.groupNum, advancingPlayers);
+      }
+    });
+  }
+
+  protected isAdvancing(drawItem: DrawItem): boolean {
+    const groupAdvancingPlayers = this.advancingPlayers?.get(drawItem.groupNum);
+
+    return groupAdvancingPlayers
+      ? groupAdvancingPlayers.split(',').includes(drawItem.playerId)
+      : false;
   }
 }
 

@@ -4,6 +4,7 @@ import com.auroratms.draw.DrawType;
 import lombok.Data;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Abbreviated match card information - without matches
@@ -33,8 +34,21 @@ public class MatchCardInfo {
     // completed match results - format Winner Player Letter e.g. A => 8,-8,7,9
     private List<String> matchesResults;
 
+    // player rankings - map of rank to profileId
+    private Map<Integer, String> playerRankingsAsMap;
+
+    // number of players to advance to next round
+    private int playersToAdvance;
+
+    // advance unrated winner to next round
+    private boolean advanceUnratedWinner;
+
     public MatchCardInfo(long id, DrawType drawType, int round, int groupNum, String assignedTables,
-                         double startTime, List<String> matchesResults) {
+                         double startTime,
+                         List<String> matchesResults,
+                         Map<Integer, String> playerRankingsAsMap,
+                         int playersToAdvance,
+                         boolean advanceUnratedWinner) {
         this.id = id;
         this.drawType = drawType;
         this.round = round;
@@ -42,5 +56,8 @@ public class MatchCardInfo {
         this.assignedTables = assignedTables;
         this.startTime = startTime;
         this.matchesResults = matchesResults;
+        this.playerRankingsAsMap = playerRankingsAsMap;
+        this.playersToAdvance = playersToAdvance;
+        this.advanceUnratedWinner = advanceUnratedWinner;
     }
 }

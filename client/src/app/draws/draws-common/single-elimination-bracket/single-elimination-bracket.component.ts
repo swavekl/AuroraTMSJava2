@@ -372,7 +372,7 @@ export class SingleEliminationBracketComponent implements OnInit, OnDestroy, OnC
             match.opponentB = drawItemRight;
             match.time = matchCardInfo ? matchCardInfo.startTime : 0;
             match.tableNum = (matchCardInfo?.assignedTables != null) ? Number(matchCardInfo.assignedTables) : (6 + j);  // for now
-            this.getResultAndWinner(match, matchCardInfo.matchesResults);
+            this.getResultAndWinner(match, matchCardInfo?.matchesResults);
             match.showSeedNumber = (i === 0); // show seed number for first round only
             // only first round matches can be rearanged
             match.dragDisabled = (drawRound.round != roundNumbers[0])

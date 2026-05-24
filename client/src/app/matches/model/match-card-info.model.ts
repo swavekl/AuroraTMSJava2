@@ -28,4 +28,14 @@ export class MatchCardInfo {
   // completed match results - format A => 8,-8,7,9  where A is match winner letter
   matchesResults : string [];
 
+  // player rankings - map of rank to profileId
+  playerRankingsAsMap: Map<number, string>;
+
+  // number of players to advance to next round
+  playersToAdvance: number;
+
+  // advance unrated winner to next round
+  advanceUnratedWinner: boolean;
+
+
 }

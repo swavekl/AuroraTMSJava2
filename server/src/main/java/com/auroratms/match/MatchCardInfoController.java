@@ -1,5 +1,8 @@
 package com.auroratms.match;
 
+import com.auroratms.event.TournamentEvent;
+import com.auroratms.event.TournamentEventConfigAdapter;
+import com.auroratms.event.TournamentEventEntityService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -11,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Controller for retrieving minimal match card information
@@ -24,6 +28,9 @@ public class MatchCardInfoController {
 
     @Autowired
     private MatchCardService matchCardService;
+
+    @Autowired
+    private TournamentEventEntityService tournamentEventEntityService;
 
     @GetMapping("/matchcardinfos")
     @ResponseBody
@@ -39,6 +46,7 @@ public class MatchCardInfoController {
             } else if (tournamentId != null && day != null) {
                 matchCards = matchCardService.findAllForTournamentAndDay(tournamentId, day);
             }
+            TournamentEvent tournamentEvent = tournamentEventEntityService.get(eventId);
             List<MatchCardInfo> matchCardInfoList = Collections.emptyList();
             if (matchCards != null) {
                 // convert to Match Card infos
@@ -58,9 +66,16 @@ public class MatchCardInfoController {
                             }
                         }
                     }
+                    Map<Integer, String> playerRankingsAsMap = matchCard.getPlayerRankingsAsMap();
+                    // determine the next round to which these players advance.
+                    TournamentEventConfigAdapter adapter = new TournamentEventConfigAdapter(
+                            tournamentEvent, matchCard.getRoundOrdinalNumber() + 1, matchCard.getDivisionIdx());
+                    int playersToAdvance = 1; // todo -- adapter.getPlayersToAdvance();
+                    boolean advanceUnratedWinner = false; // todo - adapter.isAdvanceUnratedWinner();
                     MatchCardInfo matchCardInfo = new MatchCardInfo(
                             matchCard.getId(), matchCard.getDrawType(), matchCard.getRound(),
-                            matchCard.getGroupNum(), matchCard.getAssignedTables(), matchCard.getStartTime(), matchesResults);
+                            matchCard.getGroupNum(), matchCard.getAssignedTables(), matchCard.getStartTime(),
+                            matchesResults, playerRankingsAsMap, playersToAdvance, advanceUnratedWinner);
                     matchCardInfoList.add(matchCardInfo);
                 }
             }

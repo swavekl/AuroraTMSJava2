@@ -53,7 +53,7 @@
               </td>
 
               <td class="player-column" [id]="trackByPlayerId">
-                <div>{{ drawItem.rating >= 0 ? drawItem.playerName : '&nbsp;' }}</div>
+                <div [ngClass]="isAdvancing(drawItem) ? 'advancing-player' : ''">{{ drawItem.rating >= 0 ? drawItem.playerName : '&nbsp;' }}</div>
 
                 <div class="additional-info" *ngIf="expandedView">
                   <ng-container *ngIf="drawItem.rating >= 0">
@@ -72,7 +72,21 @@
                 </div>
               </td>
 
-              <td *ngIf="checkinStatus" class="player-status-column"></td>
+              <td *ngIf="checkinStatus" class="player-status-column" >
+                <ng-container *ngIf="!selectedEvent.doubles; else doubles">
+                  <div [matTooltip]="getPlayerStatusReason(drawItem.playerId, 0)" matTooltipPosition="left" >
+                    <app-player-status-indicator [playerStatus]="getPlayerStatusCode(drawItem.playerId, 0)"></app-player-status-indicator>
+                  </div>
+                </ng-container>
+                <ng-template #doubles>
+                  <div [matTooltip]="getPlayerStatusReason(drawItem.playerId, 0)" matTooltipPosition="left" >
+                    <app-player-status-indicator [playerStatus]="getPlayerStatusCode(drawItem.playerId, 0)"></app-player-status-indicator>
+                  </div>
+                  <div [matTooltip]="getPlayerStatusReason(drawItem.playerId, 1)" matTooltipPosition="left" >
+                    <app-player-status-indicator [playerStatus]="getPlayerStatusCode(drawItem.playerId, 1)"></app-player-status-indicator>
+                  </div>
+                </ng-template>
+              </td>
             </tr>
 
             <tr class="rr-row-placeholder" *cdkDragPlaceholder>
