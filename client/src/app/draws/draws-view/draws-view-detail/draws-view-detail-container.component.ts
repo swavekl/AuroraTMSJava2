@@ -8,14 +8,17 @@ import {TournamentEventConfigService} from '../../../tournament/tournament-confi
 import {LinearProgressBarService} from '../../../shared/linear-progress-bar/linear-progress-bar.service';
 import {DrawType} from '../../draws-common/model/draw-type.enum';
 import {createSelector} from '@ngrx/store';
-import {Tournament} from '../../../tournament/tournament-config/tournament.model';
 import {first} from 'rxjs/operators';
+import {MatchCardInfoService} from '../../../matches/service/match-card-info.service';
+import {MatchCardInfo} from '../../../matches/model/match-card-info.model';
 
 @Component({
     selector: 'app-draws-view-detail-container',
     template: `
     <app-draws-view-detail [selectedEvent]="tournamentEvent$ | async"
-                           [draws]="draws$ | async">
+                           [draws]="draws$ | async"
+                           [matchCardInfos]="matchCardInfos$ | async"
+    >
     </app-draws-view-detail>
   `,
     styles: [],
@@ -27,12 +30,16 @@ export class DrawsViewDetailContainerComponent implements OnInit, OnDestroy {
 
   public draws$: Observable<DrawItem[]>;
 
+  // match card information i.e. without matches
+  matchCardInfos$: Observable<MatchCardInfo[]>;
+
   private loading$: Observable<boolean>;
 
   private subscriptions: Subscription = new Subscription();
 
   constructor(private activatedRoute: ActivatedRoute,
               private drawService: DrawService,
+              private matchCardInfoService: MatchCardInfoService,
               private tournamentEventConfigService: TournamentEventConfigService,
               private linearProgressBarService: LinearProgressBarService) {
     const strTournamentId = this.activatedRoute.snapshot.params['tournamentId'] || 0;
@@ -41,6 +48,7 @@ export class DrawsViewDetailContainerComponent implements OnInit, OnDestroy {
     const eventId = Number(strEventId);
     this.setupProgressIndicator();
     this.loadEventInformation(tournamentId, eventId);
+    this.onLoadMatchCardInfos(eventId);
   }
 
   /**
@@ -51,10 +59,11 @@ export class DrawsViewDetailContainerComponent implements OnInit, OnDestroy {
     // if any of the service are loading show the loading progress
     this.loading$ = combineLatest([
         this.tournamentEventConfigService.store.select(this.tournamentEventConfigService.selectors.selectLoading),
-        this.drawService.store.select(this.drawService.selectors.selectLoading)
+        this.drawService.store.select(this.drawService.selectors.selectLoading),
+        this.matchCardInfoService.loading$,
       ],
-      (eventConfigsLoading: boolean, drawsLoading: boolean) => {
-        return eventConfigsLoading || drawsLoading;
+      (eventConfigsLoading: boolean, drawsLoading: boolean, matchCardInfosLoading: boolean) => {
+        return eventConfigsLoading || drawsLoading || matchCardInfosLoading;
       }
     );
 
@@ -97,5 +106,9 @@ export class DrawsViewDetailContainerComponent implements OnInit, OnDestroy {
       }
     });
     this.subscriptions.add(subscription);
+  }
+
+  private onLoadMatchCardInfos(eventId: number) {
+    this.matchCardInfos$ = this.matchCardInfoService.load(eventId);
   }
 }

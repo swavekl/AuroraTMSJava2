@@ -44,9 +44,23 @@ public class MatchCardInfoController {
                 // convert to Match Card infos
                 matchCardInfoList = new ArrayList<>(matchCards.size());
                 for (MatchCard matchCard : matchCards) {
+                    List<Match> matches = matchCard.getMatches();
+                    List<String> matchesResults = new ArrayList<>(matches.size());
+                    for (Match match : matches) {
+                        // get match result if available
+                        if (match.isMatchDoubleDefaulted() || match.isMatchFinished(match.getNumberOfGames(), match.getPointsPerGame())) {
+                            if (!match.isMatchDoubleDefaulted()) {
+                                Character winnerLetter = (match.isMatchWinner(match.getPlayerAProfileId(), match.getNumberOfGames(), match.getPointsPerGame()))
+                                        ? match.getPlayerALetter() : match.getPlayerBLetter();
+                                String compactResult = match.getCompactResult(match.getNumberOfGames(), match.getPointsPerGame());
+                                String matchResult = winnerLetter + " => " + compactResult;
+                                matchesResults.add(matchResult);
+                            }
+                        }
+                    }
                     MatchCardInfo matchCardInfo = new MatchCardInfo(
                             matchCard.getId(), matchCard.getDrawType(), matchCard.getRound(),
-                            matchCard.getGroupNum(), matchCard.getAssignedTables(), matchCard.getStartTime());
+                            matchCard.getGroupNum(), matchCard.getAssignedTables(), matchCard.getStartTime(), matchesResults);
                     matchCardInfoList.add(matchCardInfo);
                 }
             }

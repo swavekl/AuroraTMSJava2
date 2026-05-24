@@ -6,8 +6,9 @@
   <app-tabbed-draws-panel
     [editMode]="false"
     [allowDrawChanges]="false"
-    [draws]="draws"
     [selectedEvent]="selectedEvent"
+    [draws]="draws"
+    [matchCardInfos]="matchCardInfos"
     (drawsAction)="onRRDrawsAction($event)">
     >
   </app-tabbed-draws-panel>

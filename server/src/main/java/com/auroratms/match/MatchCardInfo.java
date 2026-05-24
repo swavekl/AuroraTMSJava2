@@ -3,6 +3,8 @@ package com.auroratms.match;
 import com.auroratms.draw.DrawType;
 import lombok.Data;
 
+import java.util.List;
+
 /**
  * Abbreviated match card information - without matches
  */
@@ -28,12 +30,17 @@ public class MatchCardInfo {
     // fractional start time e.g. 9.5 = 9:30 am, 17.0 = 5:00 pm, -1.0 = To be Determined
     private double startTime;
 
-    public MatchCardInfo(long id, DrawType drawType, int round, int groupNum, String assignedTables, double startTime) {
+    // completed match results - format Winner Player Letter e.g. A => 8,-8,7,9
+    private List<String> matchesResults;
+
+    public MatchCardInfo(long id, DrawType drawType, int round, int groupNum, String assignedTables,
+                         double startTime, List<String> matchesResults) {
         this.id = id;
         this.drawType = drawType;
         this.round = round;
         this.groupNum = groupNum;
         this.assignedTables = assignedTables;
         this.startTime = startTime;
+        this.matchesResults = matchesResults;
     }
 }

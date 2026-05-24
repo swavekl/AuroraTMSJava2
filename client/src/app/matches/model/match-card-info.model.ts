@@ -24,4 +24,8 @@ export class MatchCardInfo {
 
   // fractional start time e.g. 9.5 = 9:30 am, 17.0 = 5:00 pm, -1.0 = To be Determined
   startTime: number;
+
+  // completed match results - format A => 8,-8,7,9  where A is match winner letter
+  matchesResults : string [];
+
 }

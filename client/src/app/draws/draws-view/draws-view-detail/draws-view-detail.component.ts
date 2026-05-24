@@ -2,6 +2,7 @@ import {Component, Input} from '@angular/core';
 import {TournamentEvent} from '../../../tournament/tournament-config/tournament-event.model';
 import {DrawItem} from '../../draws-common/model/draw-item.model';
 import {Router} from '@angular/router';
+import {MatchCardInfo} from '../../../matches/model/match-card-info.model';
 
 @Component({
     selector: 'app-draws-view-detail',
@@ -16,6 +17,9 @@ export class DrawsViewDetailComponent {
 
   @Input()
   draws: DrawItem [] = [];
+
+  @Input()
+  matchCardInfos: MatchCardInfo[];
 
   constructor(private router: Router) {
   }

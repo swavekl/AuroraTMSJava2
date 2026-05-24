@@ -372,8 +372,7 @@ export class SingleEliminationBracketComponent implements OnInit, OnDestroy, OnC
             match.opponentB = drawItemRight;
             match.time = matchCardInfo ? matchCardInfo.startTime : 0;
             match.tableNum = (matchCardInfo?.assignedTables != null) ? Number(matchCardInfo.assignedTables) : (6 + j);  // for now
-            match.result = null;
-            match.opponentAWon = false;
+            this.getResultAndWinner(match, matchCardInfo.matchesResults);
             match.showSeedNumber = (i === 0); // show seed number for first round only
             // only first round matches can be rearanged
             match.dragDisabled = (drawRound.round != roundNumbers[0])
@@ -812,5 +811,37 @@ export class SingleEliminationBracketComponent implements OnInit, OnDestroy, OnC
 
   clearUndoItems() {
     this.undoStack = [];
+  }
+
+  /**
+   * Converts a result in the format "A => 8,7,-6,9" into an array of numbers.
+   * * @param matchesResults
+   * @private
+   */
+  private getResultAndWinner(match: Match, matchesResults: string[]) {
+    match.opponentAWon = false;
+    if (matchesResults?.length !== 1) {
+      return null;
+    }
+
+    const strMatchResult = matchesResults[0];
+    const separator = strMatchResult.indexOf('=>');
+
+    if (separator === -1) {
+      return null;
+    }
+
+    if(match.opponentA?.byeNum === 0) {
+      match.opponentAWon = strMatchResult.startsWith("A");
+    }
+
+    const gameResults = strMatchResult
+      .substring(separator + '=>'.length)
+      .trim()
+      .split(',');
+
+    match.result = gameResults.map((strGameResult: string) =>
+      Number.parseInt(strGameResult.trim(), 10)
+    );
   }
 }

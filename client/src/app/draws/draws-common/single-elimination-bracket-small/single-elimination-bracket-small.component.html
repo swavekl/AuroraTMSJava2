@@ -27,7 +27,7 @@
       <tr>
         <td class="match-cell" rowspan="2">
           <div *ngIf="(currentRound === 2)" class="placement-label">
-            {{ (match.opponentA.groupNum === 1) ? '1st/2nd ' : '3rd/4th ' }}place
+            {{ (match.opponentA.groupNum === 2 && idx === 1) ? '3rd/4th place match' : ''}}
           </div>
 
           <app-sematch
