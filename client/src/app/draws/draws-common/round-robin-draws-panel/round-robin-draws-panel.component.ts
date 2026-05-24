@@ -91,23 +91,25 @@ export class RoundRobinDrawsPanelComponent implements OnInit, OnChanges, OnDestr
   }
 
   ngOnInit(): void {
-    // 1. Listen for the Undo click
-    this.drawUndoService.undoAction$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(() => {
-        // console.log(`Undo RR # ${this.roundOrdinalNumber} draws`);
-        if (this.isActive()) {
-          this.undoMove();
-          this.broadcastState();
-        }
-      });
+    if (this.drawUndoService) {
+      // 1. Listen for the Undo click
+      this.drawUndoService.undoAction$
+        .pipe(takeUntil(this.destroy$))
+        .subscribe(() => {
+          // console.log(`Undo RR # ${this.roundOrdinalNumber} draws`);
+          if (this.isActive()) {
+            this.undoMove();
+            this.broadcastState();
+          }
+        });
 
-    // 2. Listen for the Clear request (New Event selection)
-    this.drawUndoService.clearAction$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(() => {
-        this.clearUndoItems();
-      });
+      // 2. Listen for the Clear request (New Event selection)
+      this.drawUndoService.clearAction$
+        .pipe(takeUntil(this.destroy$))
+        .subscribe(() => {
+          this.clearUndoItems();
+        });
+    }
   }
 
   ngOnDestroy() {
@@ -117,7 +119,9 @@ export class RoundRobinDrawsPanelComponent implements OnInit, OnChanges, OnDestr
     this.destroy$.complete();
 
     // 5. Optional: Clear the undo button if this was the last active panel
-    this.drawUndoService.updateCanUndo(false);
+    if (this.drawUndoService) {
+      this.drawUndoService.updateCanUndo(false);
+    }
   }
 
   // Helper to push the local state up to the service
