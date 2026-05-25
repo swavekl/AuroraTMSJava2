@@ -83,6 +83,10 @@ public class MatchCard implements Serializable {
     // status indicating if score entry can proceed or should be stopped
     private MatchCardStatus status;
 
+    // ids of players who are advancing to next round
+    @Column(length = 400)
+    private String advancingPlayerIds;
+
     // map of player profile ids to their names
     @Transient
     Map<String, String> profileIdToNameMap;
@@ -103,6 +107,7 @@ public class MatchCard implements Serializable {
                 ", status=" + status +
                 ", playerRankings='" + playerRankings + '\'' +
                 ", profileIdToNameMap=" + profileIdToNameMap +
+                ", profileIdToNameMap=" + advancingPlayerIds +
                 ", matches=" + matches +
                 '}';
     }
@@ -151,4 +156,16 @@ public class MatchCard implements Serializable {
         return rankToProfileIdMap;
     }
 
+    public List<String> getAdvancingPlayerIdsAsList() {
+        List<String> advancingPlayerIdsList = null;
+        try {
+            if (advancingPlayerIds != null) {
+                ObjectMapper mapper = new ObjectMapper();
+                advancingPlayerIdsList = mapper.readValue(advancingPlayerIds, List.class);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return advancingPlayerIdsList;
+    }
 }

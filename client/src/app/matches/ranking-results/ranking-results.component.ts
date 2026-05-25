@@ -17,7 +17,7 @@ export class RankingResultsComponent implements OnDestroy, OnChanges {
   @Input()
   matchCard: MatchCard;
 
-  rankedPlayerInfos: any [] = [];
+  rankedPlayerInfos: RankedPlayerInfo [] = [];
 
   private subscriptions: Subscription = new Subscription();
 
@@ -80,7 +80,7 @@ export class RankingResultsComponent implements OnDestroy, OnChanges {
   }
 
   public makeRankedPlayerInfos(selectedMatchCard: MatchCard): any[] {
-    const rankedPlayerInfos = [];
+    const rankedPlayerInfos: RankedPlayerInfo [] = [];
     // make map of player profile id to letter code A, B, C ...
     const matches = selectedMatchCard?.matches;
     const profileIdToPlayerLetterMap = {};
@@ -95,13 +95,17 @@ export class RankingResultsComponent implements OnDestroy, OnChanges {
       const playerRankings = JSON.parse(playerRankingsJSON);
       if (Object.keys(playerRankings).length > 0) {
         const profileIdToNameMap = selectedMatchCard?.profileIdToNameMap;
-        for (const [rank, playerProfileId] of Object.entries(playerRankings)) {
-          const playerCode = profileIdToPlayerLetterMap[playerProfileId as string];
-          const playerName = profileIdToNameMap[playerProfileId as string];
+        for (const [strRank, playerProfileId] of Object.entries(playerRankings)) {
+          const rank = Number.parseInt(strRank);
+          const strPlayerProfileId = playerProfileId as string;
+          const playerCode = profileIdToPlayerLetterMap[strPlayerProfileId];
+          const playerName = profileIdToNameMap[strPlayerProfileId];
+          const isAdvancing = this.isPlayerAdvancing(strPlayerProfileId);
           rankedPlayerInfos.push({
             rank: rank,
             playerCode: playerCode,
-            playerName: playerName
+            playerName: playerName,
+            isAdvancing: isAdvancing
           });
         }
       }
@@ -112,23 +116,37 @@ export class RankingResultsComponent implements OnDestroy, OnChanges {
 
   private processTieBreakingInfo(groupTieBreakingInfo: GroupTieBreakingInfo): any [] {
     const playerTieBreakingInfoList = groupTieBreakingInfo.playerTieBreakingInfoList ?? [];
-    const rankedPlayerInfos = [];
+    const rankedPlayerInfos: RankedPlayerInfo [] = [];
     for (let i = 0; i < playerTieBreakingInfoList.length; i++) {
       const playerTieBreakingInfo = playerTieBreakingInfoList[i];
       const playerName = groupTieBreakingInfo.profileIdToNameMap[playerTieBreakingInfo.playerProfileId];
+      const isAdvancing = this.isPlayerAdvancing(playerTieBreakingInfo.playerProfileId);
       rankedPlayerInfos.push({
         rank: playerTieBreakingInfo.rank,
         playerCode: playerTieBreakingInfo.playerCode,
-        playerName: playerName
+        playerName: playerName,
+        isAdvancing: isAdvancing
       });
     }
     return this.sortRankedPlayerInfos(rankedPlayerInfos);
   }
 
   private sortRankedPlayerInfos(rankedPlayerInfos): any [] {
-    rankedPlayerInfos.sort((player1: any, player2: any) => {
+    rankedPlayerInfos.sort((player1: RankedPlayerInfo, player2: RankedPlayerInfo) => {
       return (player1.rank > player2.rank) ? 1 : ((player1.rank < player2.rank) ? -1 : 0);
     });
     return rankedPlayerInfos;
   }
+
+  private isPlayerAdvancing(profileId: string): boolean {
+    const advancingPlayerIds = this.matchCard?.advancingPlayerIds;
+    return advancingPlayerIds ? (advancingPlayerIds.indexOf(profileId) != -1) : false;
+  }
+}
+
+export interface RankedPlayerInfo {
+  rank: number;
+  playerCode: string;
+  playerName: string;
+  isAdvancing: boolean;
 }

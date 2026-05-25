@@ -13,11 +13,13 @@ import com.auroratms.tournamentevententry.doubles.DoublesPair;
 import com.auroratms.tournamentevententry.doubles.DoublesService;
 import com.auroratms.usatt.UsattDataService;
 import com.auroratms.usatt.UsattPlayerRecord;
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Service for draws functions
@@ -512,7 +514,7 @@ public class DrawService {
                 nextRoundDrawItems.forEach(drawItem -> {
                     String msg = (nextRoundDrawType == DrawType.ROUND_ROBIN)
                             ? (", group " + drawItem.getGroupNum() + ", place " + drawItem.getPlaceInGroup())
-                            : (", getSingleElimLineNum " + drawItem.getSingleElimLineNum());
+                            : (", group " + drawItem.getGroupNum() + ", place " + drawItem.getPlaceInGroup() + ", getSingleElimLineNum " + drawItem.getSingleElimLineNum() + ", seedNumber " + drawItem.getSeSeedNumber() );
                     log.info("Player profile id: " + drawItem.getPlayerId() + msg);
                 });
 
@@ -523,8 +525,18 @@ public class DrawService {
                 boolean advanceUnratedPlayer = division.isAdvanceUnratedWinner();
                 boolean doubles = tournamentEvent.isDoubles();
 
-                // find draw items which need to be updated
-                // search by player profile id from the map of replaced plaeyrs
+                // get draw items from the next round containing the players from the source group
+                // get all of them from round of 16, 8, etc. however far they got placed i.e. by having byes
+                Collection<String> priorRoundPlayerProfileIds = priorRoundRankToProfileIdMap.values();
+                List<DrawItem> nextRoundDrawItemsForAdvancingPlayers = nextRoundDrawItems.stream()
+                        .filter(drawItem -> priorRoundPlayerProfileIds.contains(drawItem.getPlayerId()))
+                        .toList();
+
+                log.info("Found " + nextRoundDrawItemsForAdvancingPlayers.size() + " next round draw items for round "
+                        + nextRoundOrdinalNum + " division " + division.getDivisionIdx() + " for players who advanced from the source group");
+
+                // find the actual player profiles who advanced based on match results
+                List<String> advancingPlayerIds = new ArrayList<>();
                 for (int i = 1; i <= numPlayersToPull; i++) {
                     // we may have to skip an unrated player so adjust placeRankNum
                     placeRankNum = getRankOfPlayerToAdvance(placeRankNum, priorRoundRankToProfileIdMap, advanceUnratedPlayer, doubles);
@@ -534,69 +546,63 @@ public class DrawService {
                     // check if this player rank changed and needs to be replaced because of an upset or stays the same
                     String advancingPlayerId = priorRoundRankToProfileIdMap.get(placeRankNum);
                     log.info("Advancing player with profile id " + advancingPlayerId);
-
-                    // is this player in this round/division
-                    int previousRank = nextRoundDrawItems.stream()
-                            .filter(drawItem -> drawItem.getPlayerId().equals(advancingPlayerId))
-                            .findFirst()
-                            .map(DrawItem::getPlaceInGroup)
-                            .orElse(0);
-                    log.info("Previous rank is " + previousRank + " current rank is " + placeRankNum);
-                    // if ranking has changed we need to replace the player
-                    if (placeRankNum != previousRank) {
-                        // find the player who is in this group in the next round
-                        // get ids of players other than the advancing player from the ranking map
-                        // if player ranked #2 is now player ranked #1, gets players 1, 3 & 4
-                        List<String> otherProfileIds = priorRoundRankToProfileIdMap.values().stream()
-                                .filter(profileId -> !profileId.equals(advancingPlayerId))
-                                .toList();
-                        log.info("Num other players in the ranking map: " + otherProfileIds.size());
-                        // get draw items for players other than the player with the specified rank
-                        List<DrawItem> playerToBeReplaced = nextRoundDrawItems.stream()
-                                .filter(drawItem -> otherProfileIds.contains(drawItem.getPlayerId()))
-                                .toList();
-                        // there should be only one player in the next round who was advancing to this round
-                        log.info("Found " + playerToBeReplaced.size() + " draw items for player other than the player with rank " + placeRankNum);
-                        if (playerToBeReplaced.size() == 1) {
-                            DrawItem drawItemToBeReplaced = playerToBeReplaced.get(0);
-                            Integer advancingPlayerRating = playerProfileToRatingMap.get(advancingPlayerId);
-                            if (advancingPlayerRating == null) {
-                                log.info("Advancing player rating is null, getting it from usatt");
-                                UserProfileExt userProfileExt = userProfileExtService.getByProfileId(advancingPlayerId);
-                                Long membershipId = userProfileExt.getMembershipId();
-                                UsattPlayerRecord usattPlayerRecord = usattDataService.getPlayerByMembershipId(membershipId);
-                                advancingPlayerRating = usattPlayerRecord.getTournamentRating();
-                                log.info("Advancing player rating is " + advancingPlayerRating);
-                            }
-                            log.info("Updating draw item for player with profile id " + drawItemToBeReplaced.getPlayerId() + " rating " + drawItemToBeReplaced.getRating());
-                            log.info("by replacing it by player with profile id     " + advancingPlayerId + " rating " + advancingPlayerRating);
-                            drawItemToBeReplaced.setPlayerId(advancingPlayerId);
-                            drawItemToBeReplaced.setRating(advancingPlayerRating);
-                            drawItemsToBeUpdated.add(drawItemToBeReplaced);
-                        } else {
-                            log.warn("Found " + playerToBeReplaced.size() + " draw items for players other than the player with rank " + placeRankNum);
-                        }
-                    }
+                    advancingPlayerIds.add(advancingPlayerId);
                     placeRankNum++;
                 }
+                log.info("Found " + advancingPlayerIds.size() + " players to advance: " + advancingPlayerIds);
 
-                // now that we have draw items to replace
-                if (nextRoundDrawType == DrawType.SINGLE_ELIMINATION) {
-                    for (DrawItem drawItem : drawItemsToBeUpdated) {
-                        int firstSeRoundOf = nextRoundDrawItems.stream()
-                                .mapToInt(DrawItem::getRound)
-                                .max()
-                                .orElse(1);
-                        log.info("Checking if player has a bye for rounds after first round of " + firstSeRoundOf);
-                        DrawItem drawItemWithBye = advanceToSecondRoundIfBye(drawItem, nextRoundDrawItems, firstSeRoundOf);
-                        if (drawItemWithBye != null) {
-                            log.info("Updating draw in the next round for player who got a bye in round " + drawItemWithBye.getRound());
-                            drawItemWithBye.setPlayerId(drawItem.getPlayerId());
-                            drawItemWithBye.setRating(drawItem.getRating());
-                            drawItemsToBeUpdated.add(drawItemWithBye);
-                        } else {
-                            log.info("No drawItem in next round for player - probably did not get a bye");
+                // get players from the first round of i.e. 16 or 8 so we can determine which players need to change and how
+                List<DrawItem> seededPlayersDrawItems = nextRoundDrawItemsForAdvancingPlayers.stream()
+                        .filter(drawItem -> nextRoundDrawType != DrawType.SINGLE_ELIMINATION || (drawItem.getSeSeedNumber() != 0))
+                        .sorted(Comparator.comparing(DrawItem::getSeSeedNumber))
+                        .toList();
+                log.info("Found " + seededPlayersDrawItems.size() + " players from the first round of the next round");
+
+                // create a reverse map of existing seeded players to new seeded players profile ids
+                // so we can replace them in one pass over next round draw items
+                Map<String, String> replacementMap = new HashMap<>();
+                if (seededPlayersDrawItems.size() == advancingPlayerIds.size()) {
+                    log.info("Found " + seededPlayersDrawItems.size() + " players from the first round of the next round");
+                    for (int i = 0; i < seededPlayersDrawItems.size(); i++) {
+                        DrawItem drawItem = seededPlayersDrawItems.get(i);
+                        String advancingPlayerId = advancingPlayerIds.get(i);
+                        if (!advancingPlayerId.equals(drawItem.getPlayerId())) {
+                            replacementMap.put(drawItem.getPlayerId(), advancingPlayerId);
                         }
+                    }
+                } else {
+                    log.error("Found " + seededPlayersDrawItems.size() + " players from the first round of the next round but "
+                            + advancingPlayerIds.size() + " players to advance");
+                }
+
+                log.info("Replacement map size " + replacementMap.size());
+                for (String oldProfileId : replacementMap.keySet()) {
+                    String newProfileId = replacementMap.get(oldProfileId);
+                    log.info("Replacing player profile id " + oldProfileId + " with " + newProfileId);
+                }
+
+                // now do the replacements in all rounds of 16, 8 etc. of this round in one pass
+                for (DrawItem drawItem : nextRoundDrawItemsForAdvancingPlayers) {
+                    String oldProfileId = drawItem.getPlayerId();
+                    String advancingPlayerId = replacementMap.get(oldProfileId);
+                    if (advancingPlayerId != null) {
+                        Integer advancingPlayerRating = playerProfileToRatingMap.get(advancingPlayerId);
+                        if (advancingPlayerRating == null) {
+                            log.info("Advancing player rating is null, getting it from usatt");
+                            UserProfileExt userProfileExt = userProfileExtService.getByProfileId(advancingPlayerId);
+                            Long membershipId = userProfileExt.getMembershipId();
+                            UsattPlayerRecord usattPlayerRecord = usattDataService.getPlayerByMembershipId(membershipId);
+                            advancingPlayerRating = usattPlayerRecord.getTournamentRating();
+                            log.info("Advancing player rating is " + advancingPlayerRating);
+                            // save it
+                            playerProfileToRatingMap.put(advancingPlayerId, advancingPlayerRating);
+                        }
+                        log.info("Updating draw item for player with profile id " + drawItem.getPlayerId() + " rating " + drawItem.getRating());
+                        log.info("by replacing it by player with profile id     " + advancingPlayerId + " rating " + advancingPlayerRating);
+                        // update both player profile id and rating
+                        drawItem.setPlayerId(advancingPlayerId);
+                        drawItem.setRating(advancingPlayerRating);
+                        drawItemsToBeUpdated.add(drawItem);
                     }
                 }
 
@@ -650,47 +656,102 @@ public class DrawService {
         return (lastTournamentPlayedDate == null || tournamentRating == 0);
     }
 
+//    /**
+//     * Finds the next round draw item if this player gets a bye in this round
+//     * @param drawItem
+//     * @param seDrawItems
+//     * @param firstSeRoundOf
+//     * @return
+//     */
+//    private DrawItem advanceToSecondRoundIfBye(DrawItem drawItem, List<DrawItem> seDrawItems, int firstSeRoundOf) {
+//        DrawItem nextRoundDrawItem = null;
+//        // does this player get a bye in this round to which he just advanced
+//        // find which group this player is in this round
+//        int thisPlayerSingleElimLineNum = drawItem.getSingleElimLineNum();
+//        int byeLineNum = ((thisPlayerSingleElimLineNum % 2) == 1) ? thisPlayerSingleElimLineNum + 1 : thisPlayerSingleElimLineNum - 1;
+//        boolean getsBye = false;
+//        for (DrawItem seDrawItem : seDrawItems) {
+//            if (seDrawItem.getRound() == firstSeRoundOf &&
+//                seDrawItem.getSingleElimLineNum() == byeLineNum) {
+//                getsBye = seDrawItem.getByeNum() > 0;
+//                break;
+//            }
+//        }
+//
+//        // find the next round and modify the draw item for this player
+//        if (getsBye) {
+//            int nextRound = firstSeRoundOf / 2;
+//            // find which group this player is in this round
+//            // group 1 & 2 winners, go to this round's group 1, group 3 & 4 winners into group 2, 5 & 6 to 3 etc.
+//            int thisGroupNum = (int) Math.ceil((double) drawItem.getSingleElimLineNum() / 2);
+//            int nextRoundGroupNum = (int) Math.ceil((double) thisGroupNum / 2);
+//            int placeInGroup = (thisGroupNum % 2 == 1) ? 1 : 2;
+//            for (DrawItem seDrawItem : seDrawItems) {
+//                if (seDrawItem.getRound() == nextRound) {
+//                    if (seDrawItem.getGroupNum() == nextRoundGroupNum &&
+//                        seDrawItem.getPlaceInGroup() == placeInGroup) {
+//                        nextRoundDrawItem = seDrawItem;
+//                        break;
+//                    }
+//                }
+//            }
+//        }
+//        return nextRoundDrawItem;
+//    }
+
     /**
-     * Finds the next round draw item if this player gets a bye in this round
-     * @param drawItem
-     * @param seDrawItems
-     * @param firstSeRoundOf
+     * Gets a list of advancing players profileIds
+     *
+     * @param currentRoundOrdinalNum
+     * @param currentDivision
+     * @param tournamentEvent
+     * @param priorRoundRankToProfileIdMap
+     * @param matchCardRoundOf round of 64, 32 players, etc. or 0 for round robin round
      * @return
      */
-    private DrawItem advanceToSecondRoundIfBye(DrawItem drawItem, List<DrawItem> seDrawItems, int firstSeRoundOf) {
-        DrawItem nextRoundDrawItem = null;
-        // does this player get a bye in this round to which he just advanced
-        // find which group this player is in this round
-        int thisPlayerSingleElimLineNum = drawItem.getSingleElimLineNum();
-        int byeLineNum = ((thisPlayerSingleElimLineNum % 2) == 1) ? thisPlayerSingleElimLineNum + 1 : thisPlayerSingleElimLineNum - 1;
-        boolean getsBye = false;
-        for (DrawItem seDrawItem : seDrawItems) {
-            if (seDrawItem.getRound() == firstSeRoundOf &&
-                seDrawItem.getSingleElimLineNum() == byeLineNum) {
-                getsBye = seDrawItem.getByeNum() > 0;
-                break;
-            }
-        }
+    public List<String> getAdvancingPlayerProfileIds(int currentRoundOrdinalNum, int currentDivision,
+                                                     TournamentEvent tournamentEvent,
+                                                     Map<Integer, String> priorRoundRankToProfileIdMap,
+                                                     int matchCardRoundOf) {
 
-        // find the next round and modify the draw item for this player
-        if (getsBye) {
-            int nextRound = firstSeRoundOf / 2;
-            // find which group this player is in this round
-            // group 1 & 2 winners, go to this round's group 1, group 3 & 4 winners into group 2, 5 & 6 to 3 etc.
-            int thisGroupNum = (int) Math.ceil((double) drawItem.getSingleElimLineNum() / 2);
-            int nextRoundGroupNum = (int) Math.ceil((double) thisGroupNum / 2);
-            int placeInGroup = (thisGroupNum % 2 == 1) ? 1 : 2;
-            for (DrawItem seDrawItem : seDrawItems) {
-                if (seDrawItem.getRound() == nextRound) {
-                    if (seDrawItem.getGroupNum() == nextRoundGroupNum &&
-                        seDrawItem.getPlaceInGroup() == placeInGroup) {
-                        nextRoundDrawItem = seDrawItem;
-                        break;
+        List<String> advancingPlayerProfileIds = new ArrayList<>();
+        TournamentRoundsConfiguration roundsConfiguration = tournamentEvent.getRoundsConfiguration();
+        if (roundsConfiguration != null) {
+            List<TournamentEventRound> rounds = roundsConfiguration.getRounds();
+            boolean isFinalRound = (currentRoundOrdinalNum == rounds.size());
+            // find next round to which players advance to from this round and division
+            for (TournamentEventRound round : rounds) {
+                if ((!isFinalRound && round.getOrdinalNum() == currentRoundOrdinalNum + 1) ||
+                     (isFinalRound && round.getOrdinalNum() == currentRoundOrdinalNum)) {
+
+                    DrawType drawType = round.isSingleElimination()
+                            ? DrawType.SINGLE_ELIMINATION
+                            : DrawType.ROUND_ROBIN;
+                    Set<String> allUniqueProfileIds = new HashSet<>();
+
+                    List<TournamentEventRoundDivision> divisions = round.getDivisions();
+                    for (TournamentEventRoundDivision division : divisions) {
+                        if (division.getPreviousDivisionIdx() == currentDivision) {
+                            log.info("Found division " + division.getDivisionIdx() + " in round " + round.getOrdinalNum() + " named " + round.getRoundName() +
+                                    " to advance from round " + currentRoundOrdinalNum + " division " + currentDivision);
+                            List<DrawItem> roundDrawItems = listForRoundAndDivision(tournamentEvent.getId(), drawType, round.getOrdinalNum(), division.getDivisionIdx());
+                            Collection<String> profilesFromPriorRound = priorRoundRankToProfileIdMap.values();
+                            Set<@NonNull String> uniqueProfileIds = roundDrawItems.stream()
+                                    .map(DrawItem::getPlayerId)
+                                    .filter(profilesFromPriorRound::contains)
+                                    .collect(Collectors.toUnmodifiableSet());
+                            log.info("Found " + uniqueProfileIds.size() + " players who advanced from round " + currentRoundOrdinalNum + " division " + currentDivision + " with profile ids " + uniqueProfileIds);
+
+                            allUniqueProfileIds.addAll(uniqueProfileIds);
+                        }
                     }
+                    // convert to list
+                    advancingPlayerProfileIds.addAll(allUniqueProfileIds);
                 }
             }
         }
-        return nextRoundDrawItem;
+
+        return advancingPlayerProfileIds;
     }
 
     /**

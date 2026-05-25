@@ -12,28 +12,21 @@
     <div class="match-card-list-title mat-headline-6">Match Cards</div>
     <mat-list dense class="match-card-list">
       <mat-list-item *ngFor="let matchCard of matchCards" (click)="onSelectMatchCard(matchCard)"
-                     [ngClass]="isSelectedMatchCard (matchCard) ? 'selected' : 'not-selected'">
-        {{ getMatchCardIdentifier(matchCard) }}  {{isMatchCardCompleted(matchCard, selectedEvent) ? '(c)' : ''}}
-<!--        <ng-container *ngIf="matchCard.drawType === 'ROUND_ROBIN'; else elseblock">-->
-<!--          {{ getRRMatchIdentifier(matchCard.roundOrdinalNumber, matchCard.divisionIdx, matchCard.groupNum) }} {{isMatchCardCompleted(matchCard, selectedEvent) ? '(c)' : ''}}-->
-<!--        </ng-container>-->
-<!--        <ng-template #elseblock>-->
-<!--          {{ getSEMatchIdentifier(matchCard.roundOrdinalNumber, matchCard.divisionIdx, matchCard.round, matchCard.groupNum) }} {{isMatchCardCompleted(matchCard, selectedEvent) ? '(c)' : ''}}-->
-<!--        </ng-template>-->
+                     [ngClass]="isSelectedMatchCard(matchCard) ? 'selected' : 'not-selected'">
+        <div class="match-item-layout">
+          <span class="match-name">{{ getMatchCardIdentifier(matchCard) }}</span>
+
+          <mat-icon *ngIf="isMatchCardCompleted(matchCard, selectedEvent)"
+                    class="compact-done-icon">
+            check_circle
+          </mat-icon>
+        </div>
       </mat-list-item>
     </mat-list>
   </div>
   <div fxFlex class="match-card-section">
     <div fxLayout="column">
       <div>
-<!--        <mat-toolbar>-->
-<!--          <mat-toolbar-row>-->
-<!--            <span fxFlex></span>-->
-<!--            <button type="button" mat-button (click)="rankAndAdvance()" [disabled]="isRankAndAdvanceDisabled()">-->
-<!--              <mat-icon matListItemIcon>reorder</mat-icon>Rank And Advance-->
-<!--            </button>-->
-<!--          </mat-toolbar-row>-->
-<!--        </mat-toolbar>-->
       </div>
       <div fxFlex fxLayout="row">
         <div fxFlex [hidden]="selectedMatchCard == null">
@@ -140,7 +133,7 @@
             </tbody>
           </table>
         </div>
-        <div fxFlex [hidden]="selectedMatchCard == null" class="rankings-panel">
+        <div fxFlex [hidden]="selectedMatchCard == null || selectedMatchCard?.drawType == 'SINGLE_ELIMINATION'" class="rankings-panel">
           <app-ranking-results [matchCard]="selectedMatchCard" #rankingResults></app-ranking-results>
         </div>
       </div>

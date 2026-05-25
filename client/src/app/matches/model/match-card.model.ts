@@ -60,6 +60,9 @@ export class MatchCard {
   // map of player profile ids to their names
   profileIdToNameMap: any;
 
+  // ids of the players who are advancting to the next round
+  advancingPlayerIds: any;
+
   /**
    * gets full match name so we name them consistently throughout the project
    * @param eventName

@@ -16,7 +16,7 @@
     <tr *ngFor="let info of rankedPlayerInfos">
       <td class="rank-column">{{ info.rank }}</td>
       <td class="player-code-column">{{ info.playerCode }}</td>
-      <td class="player-name-column">{{ info.playerName }}</td>
+      <td class="player-name-column" [ngClass]="info.isAdvancing ? 'player-advancing' : ''">{{ info.playerName }}</td>
     </tr>
     </tbody>
   </table>

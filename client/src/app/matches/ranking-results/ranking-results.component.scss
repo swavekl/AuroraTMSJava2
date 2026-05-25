@@ -32,6 +32,10 @@ table.ranking {
         //min-width: 230px;
         text-overflow: ellipsis;
       }
+
+      &.player-advancing {
+        font-weight: bold;
+      }
     }
   }
 }

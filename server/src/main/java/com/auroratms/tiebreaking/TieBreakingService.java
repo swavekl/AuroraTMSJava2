@@ -1,6 +1,7 @@
 package com.auroratms.tiebreaking;
 
 import com.auroratms.draw.DrawService;
+import com.auroratms.draw.DrawType;
 import com.auroratms.event.TournamentEvent;
 import com.auroratms.event.TournamentEventConfigAdapter;
 import com.auroratms.event.TournamentEventEntityService;
@@ -684,10 +685,51 @@ public class TieBreakingService {
 //            }
             drawService.advancePlayers(matchCard.getDrawType(), matchCard.getGroupNum(), matchCard.getRound(),
                     tournamentEvent, rankToProfileIdMap, playerProfileToRatingMap, roundOrdinalNumber, divisionIdx);
+
+            // now save them
+            determineAndSaveAdvancingPlayers(matchCard, rankToProfileIdMap, tournamentEvent);
         }
 
         // store the final player rankings and names so we can distribute prize money and trophies
         prizeAwardingService.processCompletedMatchCard(matchCard, tournamentEvent);
+    }
+
+    /**
+     * Updates the rankings and advancing players for a given MatchCard object.
+     *
+     * @param matchCard          the MatchCard object to update with the new rankings and advancing player IDs
+     * @param rankToProfileIdMap map of rank withing a group to profile id
+     * @param tournamentEvent    tournament event
+     */
+    private void determineAndSaveAdvancingPlayers(MatchCard matchCard, Map<Integer, String> rankToProfileIdMap, TournamentEvent tournamentEvent) {
+        try {
+            List<String> advancingPlayerIds = Collections.emptyList();
+            if (matchCard.getDrawType() == DrawType.SINGLE_ELIMINATION) {
+                List<Match> matches = matchCard.getMatches();
+                if (matches.size() == 1) {
+                    Match match = matches.get(0);
+                    if (!match.isMatchDoubleDefaulted() && match.isMatchFinished(match.getNumberOfGames(), match.getPointsPerGame())) {
+                        boolean playerAWon = match.isMatchWinner(match.getPlayerAProfileId(), match.getNumberOfGames(), match.getPointsPerGame());
+                        String winnerProfileId = (playerAWon) ? match.getPlayerAProfileId() : match.getPlayerBProfileId();
+                        advancingPlayerIds = Collections.singletonList(winnerProfileId);
+                    }
+                }
+            } else {
+                advancingPlayerIds = drawService.getAdvancingPlayerProfileIds(
+                        matchCard.getRoundOrdinalNumber(), matchCard.getDivisionIdx(), tournamentEvent, rankToProfileIdMap,
+                        matchCard.getRound());
+
+            }
+
+            ObjectMapper mapper = new ObjectMapper();
+            mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+
+            matchCard.setAdvancingPlayerIds(mapper.writeValueAsString(advancingPlayerIds));
+
+            matchCardService.save(matchCard);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     /**

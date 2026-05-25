@@ -31,11 +31,6 @@ export class MatchCardInfo {
   // player rankings - map of rank to profileId
   playerRankingsAsMap: Map<number, string>;
 
-  // number of players to advance to next round
-  playersToAdvance: number;
-
-  // advance unrated winner to next round
-  advanceUnratedWinner: boolean;
-
-
+  // profile ids of players who advance
+  advancingPlayerIds: string [];
 }

@@ -63,9 +63,6 @@ export class RoundRobinDrawsPanelComponent implements OnInit, OnChanges, OnDestr
   @Input()
   bracketsHeight!: string;
 
-  // map of group number to profile ids of advancing players profileIds
-  private advancingPlayers: Map<number, string>;
-
   divisions: DrawDivision [] = [];
 
   // if true expanded information i.e. state, club of player
@@ -150,9 +147,6 @@ export class RoundRobinDrawsPanelComponent implements OnInit, OnChanges, OnDestr
     if (this.draws != null && this.selectedEvent != null) {
       this.initializeDivisions(this.draws);
       this.setupGroupsForDragAndDrop();
-      if (this.matchCardInfos != null) {
-        this.determineAdvancingPlayers();
-      }
     }
   }
 
@@ -551,40 +545,16 @@ export class RoundRobinDrawsPanelComponent implements OnInit, OnChanges, OnDestr
   }
 
   /**
-   * Builds a map of group number to list of advancing player ids so their advancing status can be quickly determined
-   * @private
+   * Finds out if the player identified in drawItem.profile id is advancing to the next round
+   * @param drawItem
+   * @protected
    */
-  private determineAdvancingPlayers() {
-    this.advancingPlayers = new Map<number, string>();
-
-    this.matchCardInfos.forEach(matchCardInfo => {
-      if (
-        matchCardInfo.drawType === DrawType.ROUND_ROBIN &&
-        matchCardInfo.playerRankingsAsMap != null
-      ) {
-
-        let advancingPlayers = '';
-
-        Object.entries(matchCardInfo.playerRankingsAsMap).forEach(([rank, profileId]) => {
-          const numericRank = Number(rank);
-
-          if (numericRank <= matchCardInfo.playersToAdvance) {
-            advancingPlayers += advancingPlayers.length === 0 ? '' : ',';
-            advancingPlayers += profileId;
-          }
-        });
-
-        this.advancingPlayers.set(matchCardInfo.groupNum, advancingPlayers);
-      }
-    });
-  }
-
   protected isAdvancing(drawItem: DrawItem): boolean {
-    const groupAdvancingPlayers = this.advancingPlayers?.get(drawItem.groupNum);
+    const matchCardInfo = this.matchCardInfos?.find((mci: MatchCardInfo) =>
+      mci.drawType === DrawType.ROUND_ROBIN &&
+      mci.groupNum == drawItem.groupNum
+    );
 
-    return groupAdvancingPlayers
-      ? groupAdvancingPlayers.split(',').includes(drawItem.playerId)
-      : false;
-  }
-}
+    return matchCardInfo?.advancingPlayerIds?.includes(drawItem.playerId) ?? false;
+  }}
 

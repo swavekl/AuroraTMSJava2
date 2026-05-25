@@ -37,18 +37,14 @@ public class MatchCardInfo {
     // player rankings - map of rank to profileId
     private Map<Integer, String> playerRankingsAsMap;
 
-    // number of players to advance to next round
-    private int playersToAdvance;
-
-    // advance unrated winner to next round
-    private boolean advanceUnratedWinner;
+    // profile ids of players who advance
+    private List<String> advancingPlayerIds;
 
     public MatchCardInfo(long id, DrawType drawType, int round, int groupNum, String assignedTables,
                          double startTime,
                          List<String> matchesResults,
                          Map<Integer, String> playerRankingsAsMap,
-                         int playersToAdvance,
-                         boolean advanceUnratedWinner) {
+                         List<String> advancingPlayerIds) {
         this.id = id;
         this.drawType = drawType;
         this.round = round;
@@ -57,7 +53,6 @@ public class MatchCardInfo {
         this.startTime = startTime;
         this.matchesResults = matchesResults;
         this.playerRankingsAsMap = playerRankingsAsMap;
-        this.playersToAdvance = playersToAdvance;
-        this.advanceUnratedWinner = advanceUnratedWinner;
+        this.advancingPlayerIds = advancingPlayerIds;
     }
 }

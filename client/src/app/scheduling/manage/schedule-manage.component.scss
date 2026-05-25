@@ -81,18 +81,21 @@ gridster gridster-item div {
 }
 
 // sticky header with time line
-table thead tr th {
-  min-width: 59px;
-  width: 59px;
-  min-height: 60px;
-  height: 60px;
-  border-width: 1px;
-  border-style: solid;
-  border-color: black;
-  background-color: #d7c8f5;
-  overflow: hidden;
-  text-align: center;
-  vertical-align: middle;
-  font-size: 12px;
-  font-weight: bold;
+table {
+  border-collapse: collapse;
+  thead tr th {
+    min-width: 57px;
+    width: 57px;
+    min-height: 60px;
+    height: 60px;
+    border-width: 1px;
+    border-style: solid;
+    border-color: black;
+    background-color: #d7c8f5;
+    overflow: hidden;
+    text-align: center;
+    vertical-align: middle;
+    font-size: 12px;
+    font-weight: bold;
+  }
 }
