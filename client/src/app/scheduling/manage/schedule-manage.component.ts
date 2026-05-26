@@ -8,9 +8,10 @@ import {DisplayGrid, Draggable, GridsterConfig, GridsterItem, GridsterItemCompon
 import {Subject, Subscription} from 'rxjs';
 import {debounceTime} from 'rxjs/operators';
 import {MatDialog} from '@angular/material/dialog';
-import {ConfirmationPopupComponent} from '../../shared/confirmation-popup/confirmation-popup.component';
 import {DrawType} from '../../draws/draws-common/model/draw-type.enum';
 import {RoundNamePipe} from '../../shared/pipes/round-name.pipe';
+import {MatButtonToggleChange} from '@angular/material/button-toggle';
+import {HtmlContentPopupComponent} from '../../shared/html-content-popup/html-content-popup.component';
 
 interface Safe extends GridsterConfig {
   draggable: Draggable;
@@ -191,7 +192,7 @@ export class ScheduleManageComponent implements OnInit, OnChanges, OnDestroy {
     this.selectedDay = 1;
   }
 
-  onDayChange($event: any) {
+  onDayChange($event: MatButtonToggleChange) {
     this.selectedDay = $event.value;
     this.dayChangedEvent.emit(this.selectedDay);
   }
@@ -294,15 +295,15 @@ export class ScheduleManageComponent implements OnInit, OnChanges, OnDestroy {
       unassignedMatchCards.sort((mc1: string, mc2: string) => {
         return mc1.localeCompare(mc2);
       });
-      const str = unassignedMatchCards.join(', ');
+      const unassignedMatchCardsHTML = this.formatHtmlTable(unassignedMatchCards);
       const config = {
         width: '450px', height: '450px', data: {
           message: `Some match cards don't have table assignment because you either regenerated the draws
-          or because of insufficient table time. The following is the list of these match cards. ${str}`,
-          showCancel: true, contentAreaHeight: '300px', cancelText: 'Cancel', okText: 'Fix'
+          or because of insufficient table time. The following is the list of these match cards. ${unassignedMatchCardsHTML}`,
+          contentAreaHeight: '330px', cancelText: 'Cancel', okText: 'Fix', showCancel: true
         }
       };
-      const dialogRef = this.dialog.open(ConfirmationPopupComponent, config);
+      const dialogRef = this.dialog.open(HtmlContentPopupComponent, config);
       dialogRef.afterClosed().subscribe(result => {
         if (result === 'ok') {
           const data = {
@@ -315,6 +316,41 @@ export class ScheduleManageComponent implements OnInit, OnChanges, OnDestroy {
 
     }
     return gridsterItems;
+  }
+
+  formatHtmlTable (unassignedMatchCards: any): string {
+    let unassignedMatchCardsHTML = `
+      <table style="border-collapse: collapse; border-spacing: 0; width: 100%;">
+        <thead>
+          <tr>
+            <th style="border: 1px solid black; padding: 6px; text-align: left;">Event</th>
+            <th style="border: 1px solid black; padding: 6px; text-align: left;">Round</th>
+            <th style="border: 1px solid black; padding: 6px; text-align: left; width: 15%;">Group</th>
+          </tr>
+        </thead>
+        <tbody>
+    `;
+    unassignedMatchCards.forEach((mc: string, index: number) => {
+      // turn this:
+      // Event: U17 Boys Singles, round: Finals, group: 1
+      // into this:
+      // <td>U17 Boys Singles</td><td>Finals</td><td>1</td>
+      const matchCardIdentifiers: string[] = mc.split(",");
+      if (matchCardIdentifiers.length === 3) {
+        let eventName = matchCardIdentifiers[0].trim();
+        eventName = eventName.substring(eventName.indexOf(":") + 1);
+        let round = matchCardIdentifiers[1].trim();
+        round = round.substring(round.indexOf(":") + 1);
+        let group = matchCardIdentifiers[2].trim();
+        group = group.substring(group.indexOf(":") + 1);
+        unassignedMatchCardsHTML += `<tr><td>${eventName}</td><td>${round}</td><td>${group}</td></tr>`;
+      } else {
+        unassignedMatchCardsHTML += '<tr><td colspan="3">' + mc + '</td></tr>';
+      }
+    });
+    unassignedMatchCardsHTML += '</tbody></table>';
+
+    return unassignedMatchCardsHTML;
   }
 
   /**

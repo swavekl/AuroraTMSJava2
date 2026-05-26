@@ -176,7 +176,7 @@ export class TournamentPlayersListBigContainerComponent implements OnInit, OnDes
   findPlayerSuccessCallback (scope: any, result: any) {
     const me = scope;
     const expirationDate = new DateUtils().getDateAsString(result.membershipExpirationDate);
-    let playerInfoHtml = '<table><tbody>';
+    let playerInfoHtml = ' <table style="border-collapse: collapse; border-spacing: 0; width: 100%;"><tbody>';
     playerInfoHtml += '<tr><td>First Name</td><td>' + result.firstName + '</td></tr>';
     playerInfoHtml += '<tr><td>Last Name</td><td>' + result.lastName + '</td></tr>';
     playerInfoHtml += '<tr><td>Gender</td><td>' + result.gender + '</td></tr>';
@@ -189,7 +189,7 @@ export class TournamentPlayersListBigContainerComponent implements OnInit, OnDes
 
     const config = {
       width: '450px', height: '420px', data: {
-        message: playerInfoHtml, contentAreaHeight: '350px', title: 'Player USATT Record'
+        message: playerInfoHtml, contentAreaHeight: '340px', title: 'Player USATT Record'
       }
     };
     const dialogRef = me.dialog.open(HtmlContentPopupComponent, config);

@@ -11,6 +11,7 @@ import {MatSelectModule} from '@angular/material/select';
 import {DragDropModule} from '@angular/cdk/drag-drop';
 import {GridsterModule} from 'angular-gridster2';
 import {MatIconModule} from '@angular/material/icon';
+import {MatButtonToggle, MatButtonToggleGroup} from '@angular/material/button-toggle';
 
 
 @NgModule({
@@ -27,7 +28,9 @@ import {MatIconModule} from '@angular/material/icon';
     MatSelectModule,
     DragDropModule,
     GridsterModule,
-    MatIconModule
+    MatIconModule,
+    MatButtonToggleGroup,
+    MatButtonToggle
   ]
 })
 export class SchedulingModule { }

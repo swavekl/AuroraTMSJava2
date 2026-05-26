@@ -2,12 +2,14 @@
   <mat-toolbar-row>
     <button mat-raised-button type="button" [routerLink]="['/ui/tournamentsconfig']" >Back</button>
     <span class="toolbar-spacer-2"></span>
-    <mat-label>Tournament Day</mat-label>
-    <mat-select class="tournament-day-select" [value]="selectedDay" (selectionChange)="onDayChange($event)">
-      <mat-option *ngFor="let day of days" [value]="day.day">
-        {{day.dayText}}
-      </mat-option>
-    </mat-select>
+    <mat-button-toggle-group name="filterByDay" aria-label="Schedule for" [value]="selectedDay">
+      <mat-button-toggle *ngFor="let day of days"
+                         [value]="day.day"
+                         (change)="onDayChange($event)">
+        {{ day.dayText }}
+      </mat-button-toggle>
+    </mat-button-toggle-group>
+    <span class="toolbar-spacer-2"></span>
     <button mat-raised-button (click)="onGenerateSchedule()">Generate</button>
     <span class="toolbar-spacer-2"></span>
     <button mat-raised-button (click)="onClearSchedule()">Clear</button>
