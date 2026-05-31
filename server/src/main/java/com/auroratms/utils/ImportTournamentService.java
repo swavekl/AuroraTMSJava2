@@ -20,6 +20,7 @@ import com.auroratms.tournamentevententry.doubles.DoublesPair;
 import com.auroratms.tournamentevententry.doubles.DoublesService;
 import com.auroratms.usatt.UsattDataService;
 import com.auroratms.usatt.UsattPlayerRecord;
+import com.auroratms.usatt.UsattPlayerRecordRepository;
 import com.auroratms.utils.filerepo.FileInfo;
 import com.auroratms.utils.filerepo.FileRepositoryException;
 import com.auroratms.utils.filerepo.FileRepositoryFactory;
@@ -2694,10 +2695,28 @@ public class ImportTournamentService {
                         found = true;
                         profilesExisting++;
                         List<String> statesList = playerNamesStateRatingsList.stream()
-                                .filter(playerNameAndState -> fullName.equals(playerNameAndState.substring(0, playerNameAndState.lastIndexOf(","))))
-                                .map(playerNameAndState -> playerNameAndState.substring(playerNameAndState.lastIndexOf(",") + 1).trim())
+                                .filter(playerNameAndState -> {
+                                    String [] parts = playerNameAndState.split(",");
+                                    String localFullName = parts[0].trim() + ", " + parts[1].trim();
+                                    return fullName.equals(localFullName);
+                                })
+                                .map(playerNameAndState -> {
+                                    String [] parts = playerNameAndState.split(",");
+                                    return parts[2].trim();
+                                })
                                 .toList();
-                        log.info("Player " + fullName + " has a different state in the entry '" + statesList + "' than in the USATT record '" + usattPlayerRecord.getState() + "'");
+                        if (statesList.isEmpty()) {
+                            log.info("Found player statesList:" + statesList);
+                        } else if (statesList.size() == 1) {
+                            String stateFromList = statesList.get(0);
+                            if (!stateFromList.equals(state)) {
+                                log.info("Player " + fullName + " has a different state in the entry '" + statesList + "' than in the USATT record '" + usattPlayerRecord.getState() + "'");
+                            } else {
+                                log.info("Found profile for player " + fullNameAndState);
+                            }
+                        } else {
+                            log.info("Found player " + fullName + " in multiple states: " + statesList);
+                        }
                     }
                 }
 
@@ -2769,6 +2788,9 @@ public class ImportTournamentService {
                 }
             }
         }
+
+        playerNamesAndState.forEach(System.out::println);
+
         return playerNamesAndState;
     }
 
@@ -2816,6 +2838,7 @@ public class ImportTournamentService {
             String[] twoRatings = ratings.split("/");
             int seedRating = Integer.parseInt(twoRatings[0].trim());
 
+            // find players by first and last name
             List<UsattPlayerRecord> usattRecordsByName = usattPlayerRecordsByFullName.stream()
                     .filter(usattPlayerRecord -> {
                         String fullName = usattPlayerRecord.getLastName() + ", " + usattPlayerRecord.getFirstName();
@@ -2823,6 +2846,7 @@ public class ImportTournamentService {
                     })
                     .toList();
 
+            // then narrow it down more by state
             String fullNameAndStateToSearch  = fullNameToSearch + ", " + stateToSearch;
             List<UsattPlayerRecord> usattRecordsByNameAndState = usattRecordsByName.stream()
                     .filter(usattPlayerRecord -> {
@@ -2834,29 +2858,87 @@ public class ImportTournamentService {
             Optional<UsattPlayerRecord> matchedPlayerRecord;
 
             if (!usattRecordsByNameAndState.isEmpty()) {
+                // finally if there are more than one matching record try by rating which is closest to the player rating
                 matchedPlayerRecord = usattRecordsByNameAndState.stream()
                         .min(Comparator.comparingInt(usattPlayerRecord ->
                                 Math.abs(usattPlayerRecord.getTournamentRating() - seedRating)
                         ));
             } else {
-                matchedPlayerRecord = usattRecordsByName.stream().findFirst();
+                matchedPlayerRecord = Optional.empty();
             }
 
             if (matchedPlayerRecord.isPresent()) {
                 UsattPlayerRecord usattPlayerRecord = matchedPlayerRecord.get();
                 Long membershipId = usattPlayerRecord.getMembershipId();
                 String fullName = usattPlayerRecord.getLastName() + ", " + usattPlayerRecord.getFirstName();
-                String fullNameAndState = fullName + ", " + usattPlayerRecord.getState();
-                if (fullNameAndState.equals(fullNameAndStateToSearch)) {
-                    log.info("Found USATT player record by name and state " + fullNameAndState + " membership id " + membershipId);
+                if (!StringUtils.isEmpty(usattPlayerRecord.getState())) {
+                    String fullNameAndState = fullName + ", " + usattPlayerRecord.getState();
+                    if (fullNameAndState.equals(fullNameAndStateToSearch)) {
+                        log.info("Found USATT player record by name and state " + fullNameAndState + " membership id " + membershipId);
+                        found = true;
+                    }
                 } else {
-                    log.info("Found USATT player record by name " + fullName + " membership id " + membershipId);
+                    // no state
+                    if (fullName.equals(fullNameToSearch)) {
+                        log.info("Found USATT player record by name " + fullName + " membership id " + membershipId);
+                        found = true;
+                    }
                 }
-                if (membershipId != 0) {
-                    membershipIdToNameMap.put(membershipId, playerNameStateRatings);
+
+                if (found) {
+                    if (membershipId != 0) {
+                        membershipIdToNameMap.put(membershipId, playerNameStateRatings);
+                    }
+                } else {
+                    log.warn("Didn't find player by full name and/or by state " + fullNameAndStateToSearch);
                 }
-                found = true;
+            } else {
+                log.warn("Didn't find player by exact first and last name.  Searching by " + fullNameAndStateToSearch);
+                // try one more time - perhaps the first name is different
+                String[] names = fullNameToSearch.split(",");
+                String lastName = names[0].trim();
+                String firstName = names[1].trim();
+                List<UsattPlayerRecord> byFirstAndLastName = usattDataService.findAllPlayersByNames(firstName, lastName, Pageable.unpaged());
+                List<UsattPlayerRecord> matchingPlayers = byFirstAndLastName.stream()
+                        .filter(usattPlayerRecord ->
+                                StringUtils.equals(usattPlayerRecord.getState(), stateToSearch)
+                        ).filter(usattPlayerRecord ->
+                                // this is case where there is a middle initial as in 'David C.' instead of 'David'
+                                usattPlayerRecord.getFirstName().startsWith(firstName) &&
+                                        usattPlayerRecord.getLastName().startsWith(lastName)
+                        ).filter(usattPlayerRecord ->
+                                (usattPlayerRecord.getTournamentRating() - seedRating) < 50
+                        ).toList();
+
+                if (matchingPlayers.size() == 1) {
+                    UsattPlayerRecord usattPlayerRecord = matchingPlayers.get(0);
+                    Long membershipId = usattPlayerRecord.getMembershipId();
+                    if (membershipId != 0) {
+                        membershipIdToNameMap.put(membershipId, playerNameStateRatings);
+                        log.info("Found USATT player record by first and last name " + usattPlayerRecord.getFirstName() + ", " + usattPlayerRecord.getLastName() + " membership id " + membershipId + " rating " + usattPlayerRecord.getTournamentRating());
+                        found = true;
+                    }
+                } else if (matchingPlayers.isEmpty()) {
+                    log.info("Searching by last name then starting with first name to find different spellings: " + lastName);
+                    List<UsattPlayerRecordRepository.RatingProjection> byLastNameInIgnoreCase = usattDataService.findByLastNameInIgnoreCase(Collections.singletonList(lastName));
+                    List<UsattPlayerRecordRepository.RatingProjection> ratingProjectionList = byLastNameInIgnoreCase.stream().filter(usattPlayerRecord ->
+                            usattPlayerRecord.getFirstName().startsWith(firstName) ||
+                                    firstName.startsWith(usattPlayerRecord.getFirstName())
+                    ).filter(usattPlayerRecord ->
+                            (usattPlayerRecord.getTournamentRating() - seedRating) < 50
+                    ).toList();
+                    if (ratingProjectionList.size() == 1) {
+                        UsattPlayerRecordRepository.RatingProjection usattPlayerRecord = ratingProjectionList.get(0);
+                        Long membershipId = usattPlayerRecord.getMembershipId();
+                        if (membershipId != 0) {
+                            membershipIdToNameMap.put(membershipId, playerNameStateRatings);
+                            log.info("Found USATT player record by first and last name " + usattPlayerRecord.getFirstName() + ", " + usattPlayerRecord.getLastName() + " membership id " + membershipId + " rating " + usattPlayerRecord.getTournamentRating());
+                            found = true;
+                        }
+                    }
+                }
             }
+
             if (!found) {
                 notMatchingCount++;
                 log.warn("Player " + playerNameStateRatings + " USATT record not found with or without state - making fake record");
