@@ -81,7 +81,7 @@ export class SingleEliminationBracketComponent implements OnInit, OnDestroy, OnC
 
   // dimensions of the bracket
   roundSpacing: number = 300; // Distance between the start of each round
-  matchWidth: number = 240;   // Width of the match card itself
+  matchWidth: number = 236;   // Width of the match card itself
   padding: number = 40;       // Extra room for the final winner's line if needed
   matchHeight: number = 80;
   matchGap: number = 40;
@@ -505,9 +505,20 @@ export class SingleEliminationBracketComponent implements OnInit, OnDestroy, OnC
           }
         }
 
-        coordsMap.set(`${rIdx}-${mIdx}`, { x, y });
-
+        // 1. Identify if this specific match loop iteration is the consolation match
         const isConsolation = (round.type === 'Final' && mIdx === 1);
+        if (isConsolation) {
+          // 2. Fetch the coordinates of the 1st/2nd place Final match (which is mIdx === 0 in the same round)
+          const finalMatchCoords = coordsMap.get(`${rIdx}-0`);
+          if (finalMatchCoords) {
+            // Keep it in the exact same column horizontally (same X)
+            x = finalMatchCoords.x;
+            // Place it vertically directly below the final match (final match Y + height + desired layout gap)
+            y = finalMatchCoords.y + this.matchHeight + this.matchGap;
+          }
+        }
+
+        coordsMap.set(`${rIdx}-${mIdx}`, { x, y });
         layoutMatches.push({
           data: match,
           x: x,

@@ -80,7 +80,7 @@
       </div>
     </form>
 </mat-dialog-content>
-<mat-dialog-actions fxLayout="row">
+<mat-dialog-actions fxLayout="row" fxLayoutGap="10px" style="margin: 10px">
     <button mat-raised-button [mat-dialog-close]="false" (click)="onClose()" [tabindex]="(numberOfGames * 2) + 1">Close</button>
     <span fxFlex></span>
     <button mat-raised-button (click)="onAudit()" [tabindex]="(numberOfGames * 2) + 2">Audit</button>

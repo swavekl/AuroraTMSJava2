@@ -16,9 +16,11 @@
 
       <div class="round-header-container">
         <div fxLayout="row" class="round-header">
-          <div *ngFor="let round of division.roundNumbers">
-            {{ round | roundName: 1 }}
-          </div>
+          <ng-container *ngFor="let round of division.roundNumbers let i = index">
+            <div [ngClass]="i == 0 ? 'round-header-first' : 'round-header-other'">
+              {{ round | roundName: 1 }}
+            </div>
+          </ng-container>
         </div>
       </div>
 

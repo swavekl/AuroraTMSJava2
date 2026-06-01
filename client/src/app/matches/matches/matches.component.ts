@@ -160,12 +160,12 @@ export class MatchesComponent implements OnInit, OnChanges, OnDestroy {
   onMatchScoreEntry(match: Match, matchIndex: number) {
     const data: ScoreEntryDialogData = this.makeMatchDialogData(match, matchIndex);
     const config = {
-      width: '860px', height: '530px', data: data
+      width: '860px', height: '550px', data: data
     };
 
     this.scoreEntryDialogRef = this.dialog.open(ScoreEntryDialogComponent, config);
     const subscription = this.scoreEntryDialogRef.afterClosed().subscribe((result: ScoreEntryDialogResult) => {
-      if (result.action === 'ok') {
+      if (result?.action === 'ok') {
         this.matchService.update(result.match)
           .pipe(first())
           .subscribe(
@@ -175,7 +175,7 @@ export class MatchesComponent implements OnInit, OnChanges, OnDestroy {
               this.matchCardEmitter.emit(this.selectedMatchCardId);
             }
           );
-      } else if (result.action === 'refresh') {
+      } else if (result?.action === 'refresh') {
         this.performRankAndAdvance = true;
         this.matchCardEmitter.emit(this.selectedMatchCardId);
       }

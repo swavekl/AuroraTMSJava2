@@ -4,8 +4,8 @@ $match-box-color: #d7c8f5;
 
 .match-box {
   border: 2px solid $match-box-color;
-  width: 236px; // Tracks $ngtt-match-wrapper-width natively
-  max-width: 236px;
+  width: $match-box-width;
+  max-width: $match-box-width;
   box-sizing: border-box;
   background-color: $match-box-color;
   overflow: hidden;

@@ -14,7 +14,7 @@ export class CheckCashPaymentDialogService {
 
   public showPaymentDialog(paymentDialogData: PaymentDialogData, callbackData: CallbackData) {
     const config: MatDialogConfig = {
-      width: '440px', height: '370px', data: {isPayment: true, paymentRequest: paymentDialogData.paymentRequest}
+      width: '440px', height: '380px', data: {isPayment: true, paymentRequest: paymentDialogData.paymentRequest}
     };
     // save the scope because it is wiped out in the component
     // so that it is not sent into the http service
