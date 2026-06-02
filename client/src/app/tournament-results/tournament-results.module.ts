@@ -16,6 +16,7 @@ import {TournamentResultDetailsComponent} from './tournament-result-details/tour
 import {TournamentResultDetailsContainerComponent} from './tournament-result-details/tournament-result-details-container.component';
 import {PlayerResultsComponent} from './player-results/player-results.component';
 import {PlayerResultsContainerComponent} from './player-results/player-results-container.component';
+import {MatDivider, MatList, MatListItem} from '@angular/material/list';
 
 
 @NgModule({
@@ -38,7 +39,10 @@ import {PlayerResultsContainerComponent} from './player-results/player-results-c
     SharedModule,
     FlexLayoutModule,
     MatToolbarModule,
-    MatIconModule
+    MatIconModule,
+    MatDivider,
+    MatList,
+    MatListItem
   ]
 })
 export class TournamentResultsModule {
