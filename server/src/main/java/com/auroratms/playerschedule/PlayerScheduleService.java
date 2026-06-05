@@ -3,8 +3,7 @@ package com.auroratms.playerschedule;
 import com.auroratms.draw.DrawItem;
 import com.auroratms.draw.DrawService;
 import com.auroratms.draw.DrawType;
-import com.auroratms.event.TournamentEvent;
-import com.auroratms.event.TournamentEventEntityService;
+import com.auroratms.event.*;
 import com.auroratms.match.Match;
 import com.auroratms.match.MatchCard;
 import com.auroratms.match.MatchCardService;
@@ -80,10 +79,28 @@ public class PlayerScheduleService {
         // get all draws for this player so we know which groups he/she is in each event
         // in round robin and single elimination rounds
         List<DrawItem> drawItems = drawService.listByProfileIdAndEventFkIn(playerProfileId, enteredEventIds);
+        List<DrawItem> seDrawItems = drawItems.stream()
+                .filter(drawItem -> drawItem.getDrawType() == DrawType.SINGLE_ELIMINATION)
+                .toList();
+        // build a map of the event / round / division -> maximum roundOf value
+        // this is used to determine if the given match card is for the first SE round or later SE round of 16, 8 etc.
+        Map<String, Integer> eventRoundDivToFirstRoundOfMap = new HashMap<>();
+        for (DrawItem seDrawItem : seDrawItems) {
+            String key = seDrawItem.getEventFk() + "_" + seDrawItem.getRoundOrdinalNumber() + "_" + seDrawItem.getDivisionIdx();
+            int roundOf = 0;
+            if (eventRoundDivToFirstRoundOfMap.containsKey(key)) {
+                roundOf = eventRoundDivToFirstRoundOfMap.get(key);
+            }
+            roundOf = Math.max(seDrawItem.getRound(), roundOf);
+            eventRoundDivToFirstRoundOfMap.put(key, roundOf);
+        }
+
         List<PlayerScheduleItem> playerScheduleItems = new ArrayList<>(drawItems.size());
         for (DrawItem drawItem : drawItems) {
 //            String message = String.format("Getting match card for (%d, %d, %d)", drawItem.getEventFk(), drawItem.getRound(), drawItem.getGroupNum());
 //            System.out.println(message);
+            String key = drawItem.getEventFk() + "_" + drawItem.getRoundOrdinalNumber() + "_" + drawItem.getDivisionIdx();
+            int firstRoundOf = eventRoundDivToFirstRoundOfMap.getOrDefault(key, 0);
             if (drawItem.getDrawType() == DrawType.ROUND_ROBIN) {
                 // player who gets a bye in the single elimination round doesn't have a match card
                 if (this.matchCardService.existsMatchCard(drawItem.getEventFk(), drawItem.getRound(), drawItem.getGroupNum())) {
@@ -92,7 +109,7 @@ public class PlayerScheduleService {
                         if (eventEntity.getId().equals(matchCard.getEventFk())) {
                             PlayerScheduleItem playerScheduleItem = toPlayerScheduleItem(matchCard, eventEntity,
                                     false);
-                            determineScheduleItemStatus(matchCard, eventEntity, playerScheduleItem);
+                            determineScheduleItemStatus(matchCard, eventEntity, playerScheduleItem, firstRoundOf);
                             playerScheduleItems.add(playerScheduleItem);
                             break;
                         }
@@ -111,7 +128,7 @@ public class PlayerScheduleService {
                                 if (eventEntity.getId().equals(matchCard.getEventFk())) {
                                     PlayerScheduleItem playerScheduleItem = toPlayerScheduleItem(matchCard, eventEntity,
                                             false);
-                                    determineScheduleItemStatus(matchCard, eventEntity, playerScheduleItem);
+                                    determineScheduleItemStatus(matchCard, eventEntity, playerScheduleItem, firstRoundOf);
                                     playerScheduleItems.add(playerScheduleItem);
                                     found = true;
                                     break;
@@ -150,83 +167,117 @@ public class PlayerScheduleService {
      * @param matchCard
      * @param tournamentEvent
      * @param playerScheduleItem
+     * @param firstRoundOf
      */
-    private void determineScheduleItemStatus(MatchCard matchCard, TournamentEvent tournamentEvent, PlayerScheduleItem playerScheduleItem) {
-//        System.out.println("------------------------------------------");
-//        System.out.println("tournamentEvent " + tournamentEvent.getName() + " round " + matchCard.getRoundName());
-        // check if any game scores were entered which indicates that it is in progress
-        boolean anyScoreEntered = false;
-        List<Match> matches = matchCard.getMatches();
-        for (Match match : matches) {
-            if (match.getGame1ScoreSideA() != 0 || match.getGame1ScoreSideB() != 0) {
-                anyScoreEntered = true;
-                break;
-            }
-        }
+    private void determineScheduleItemStatus(MatchCard matchCard,
+                                             TournamentEvent tournamentEvent,
+                                             PlayerScheduleItem playerScheduleItem,
+                                             int firstRoundOf) {
+        System.out.println("------------------------------------------");
+        System.out.println("tournamentEvent " + tournamentEvent.getName() + " roundOrdinalNumber: " + matchCard.getRoundOrdinalNumber()
+                + " division: " + matchCard.getDivisionIdx() + " roundName: " + matchCard.getRoundName() + " firstRoundOf: " + firstRoundOf);
 
-        // first round after round robin will have names but the rounds feeding into it may be not finalized
-        // first round in the single elimination type of event will have all players determined (seeded)
-        boolean allPlayersDetermined = true;
-        if (matchCard.getDrawType() == DrawType.SINGLE_ELIMINATION) {
-            int rounds = (int) Math.ceil(Math.log(tournamentEvent.getNumEntries()) / Math.log(2));
-            int maxEventPlayers = (int) Math.pow(2, rounds);
-            int firstRound = tournamentEvent.isSingleElimination() ? maxEventPlayers : (maxEventPlayers / tournamentEvent.getPlayersPerGroup());
-            DrawType priorRoundDrawType = (tournamentEvent.isSingleElimination()) ? DrawType.SINGLE_ELIMINATION : DrawType.ROUND_ROBIN;
-            int priorRound = (tournamentEvent.isSingleElimination()) ? firstRound : 0;
-            if (matchCard.getRound() != firstRound) {
-                priorRoundDrawType = DrawType.SINGLE_ELIMINATION;
-                priorRound = matchCard.getRound() * 2;
-            }
+        ScheduleItemStatus scheduleItemStatus = ScheduleItemStatus.NotReady;
 
-            // skip checking if this is the first round of single elimination type of event
-            boolean skipCheckingPriorRounds = tournamentEvent.isSingleElimination() && matchCard.getRound() == firstRound;
-            if (!skipCheckingPriorRounds) {
-                // first round of single elimination has feeding group numbers set in the match card
-                int playerAGroupNum = matchCard.getPlayerAGroupNum();
-                int playerBGroupNum = matchCard.getPlayerBGroupNum();
-                // the following s.e. rounds don't so we have to compute them
-                // if this match group number is 1 -> prior group numbers feeding into it are 1 & 2,
-                // for group 2 it is 3 & 4, for group 3 -> 5 & 6 etc.
-                if (matchCard.getRound() != firstRound) {
-                    int groupNum = matchCard.getGroupNum();
-                    playerAGroupNum = (groupNum * 2) - 1;
-                    playerBGroupNum = groupNum * 2;
+        boolean rankingsDetermined = !StringUtils.isEmpty(matchCard.getPlayerRankings());
+        if (rankingsDetermined) {
+            scheduleItemStatus = ScheduleItemStatus.Completed;
+        } else {
+            // check if any game scores were entered which indicates that it is in progress
+            boolean anyScoreEntered = false;
+            List<Match> matches = matchCard.getMatches();
+            for (Match match : matches) {
+                if (match.getGame1ScoreSideA() != 0 || match.getGame1ScoreSideB() != 0) {
+                    anyScoreEntered = true;
+                    break;
                 }
-//                System.out.println("playerAGroupNum = " + playerAGroupNum);
-//                System.out.println("playerBGroupNum = " + playerBGroupNum);
+            }
+
+            if (anyScoreEntered) {
+                scheduleItemStatus = ScheduleItemStatus.InProgress;
+            } else {
+                System.out.println("Checking if all players are determined");
+                // first round after round robin will have names but the rounds feeding into it may be not finalized
+                // first round in the single elimination type of event will have all players determined (seeded)
+                boolean allPlayersDetermined = true;
+                if (matchCard.getDrawType() == DrawType.SINGLE_ELIMINATION) {
+                    // is current round single elimination ?
+                    TournamentEventConfigAdapter adapter = new TournamentEventConfigAdapter(tournamentEvent,
+                            matchCard.getRoundOrdinalNumber(), matchCard.getDivisionIdx());
+                    boolean isSingleElimination = adapter.isSingleElimination();
+                    TournamentEventRoundDivision currentRoundDivision = adapter.getRoundDivision();
+
+                    boolean isFirstSERound = matchCard.getRound() == firstRoundOf;
+                    System.out.println("isSingleElimination = " + isSingleElimination);
+                    System.out.println("isFirstSERound = " + isFirstSERound);
+
+                    DrawType priorRoundDrawType = (isSingleElimination && !isFirstSERound) ? DrawType.SINGLE_ELIMINATION : DrawType.ROUND_ROBIN;
+                    int roundOrdinalNum = matchCard.getRoundOrdinalNumber();
+                    int roundDivisionIdx = matchCard.getDivisionIdx();
+                    int priorRoundOf = 0;
+                    if (isFirstSERound) {
+                        roundOrdinalNum = Math.max(roundOrdinalNum - 1, 1);
+                        roundDivisionIdx = currentRoundDivision.getPreviousDivisionIdx();
+                    } else {
+                        // if current round of is 8 then prior round of is 16, if 16 then 32 etc.
+                        priorRoundOf = matchCard.getRound() * 2;
+                    }
+
+                    System.out.println("roundOrdinalNum = " + roundOrdinalNum);
+                    System.out.println("roundDivisionIdx = " + roundDivisionIdx);
+                    System.out.println("priorRoundDrawType = " + priorRoundDrawType);
+                    System.out.println("priorRoundOf = " + priorRoundOf);
+
+                    // first round of single elimination has feeding group numbers set in the match card
+                    int playerAGroupNum = matchCard.getPlayerAGroupNum();
+                    int playerBGroupNum = matchCard.getPlayerBGroupNum();
+                    // the following s.e. rounds don't so we have to compute them
+                    // if this match group number is 1 -> prior group numbers feeding into it are 1 & 2,
+                    // for group 2 it is 3 & 4, for group 3 -> 5 & 6 etc.
+                    if (matchCard.getRound() != firstRoundOf) {
+                        int groupNum = matchCard.getGroupNum();
+                        playerAGroupNum = (groupNum * 2) - 1;
+                        playerBGroupNum = groupNum * 2;
+                    }
+                    System.out.println("playerAGroupNum = " + playerAGroupNum);
+                    System.out.println("playerBGroupNum = " + playerBGroupNum);
 //                System.out.println("priorRoundDrawType = " + priorRoundDrawType + " priorRound = " + priorRound);
-                List<MatchCard> priorRoundMatchCards = matchCardService.findAllForEventAndDrawTypeAndRound(tournamentEvent.getId(), priorRoundDrawType, priorRound);
-                for (MatchCard priorRoundMatchCard : priorRoundMatchCards) {
-//                    System.out.println("priorRoundMatchCard.getGroupNum() = " + priorRoundMatchCard.getGroupNum());
-                    if (priorRoundMatchCard.getGroupNum() == playerAGroupNum || priorRoundMatchCard.getGroupNum() == playerBGroupNum) {
-//                        System.out.println("priorRoundMatchCard.getStatus() = " + priorRoundMatchCard.getStatus());
-                        if (priorRoundMatchCard.getStatus() != MatchCardStatus.COMPLETED) {
-                            allPlayersDetermined = false;
-                            break;
+//                List<MatchCard> priorRoundMatchCards = matchCardService.findAllForEventAndDrawTypeAndRound(tournamentEvent.getId(), priorRoundDrawType, priorRound);
+
+                    // round of 0 for RR round, 64, 32, 16 etc for single elimination rounds
+                    int fPriorRoundOf = priorRoundOf;
+                    List<MatchCard> allPriorRoundMatchCards = matchCardService.findAllForEventAndDrawTypeAndRoundAndDivision(
+                            tournamentEvent.getId(), priorRoundDrawType, roundOrdinalNum, roundDivisionIdx);
+                    List<MatchCard> matchCardsFromPriorRoundOnly = allPriorRoundMatchCards.stream()
+                            .filter(card -> card.getRound() == fPriorRoundOf)
+                            .toList();
+                    System.out.println("Found matchCardsFromPriorRoundOnly.size() " + matchCardsFromPriorRoundOnly.size());
+
+                    for (MatchCard priorRoundMatchCard : matchCardsFromPriorRoundOnly) {
+                        System.out.println("priorRoundMatchCard.getGroupNum() = " + priorRoundMatchCard.getGroupNum());
+                        if (priorRoundMatchCard.getGroupNum() == playerAGroupNum || priorRoundMatchCard.getGroupNum() == playerBGroupNum) {
+                            System.out.println("priorRoundMatchCard.getStatus() = " + priorRoundMatchCard.getStatus());
+                            if (priorRoundMatchCard.getStatus() != MatchCardStatus.COMPLETED) {
+                                allPlayersDetermined = false;
+                                break;
+                            }
                         }
                     }
                 }
-            }
-        }
-        ScheduleItemStatus scheduleItemStatus = ScheduleItemStatus.NotReady;
-        boolean rankingsDetermined = !StringUtils.isEmpty(matchCard.getPlayerRankings());
-//        System.out.println("allPlayersDetermined " + allPlayersDetermined);
-//        System.out.println("rankingsDetermined   " + rankingsDetermined);
-//        System.out.println("anyScoreEntered      " + anyScoreEntered);
-        if (rankingsDetermined) {
-            scheduleItemStatus = ScheduleItemStatus.Completed;
-        } else if (anyScoreEntered) {
-            scheduleItemStatus = ScheduleItemStatus.InProgress;
-        } else if (allPlayersDetermined) {
-            boolean startedOnTables = false;
-            List<TableUsage> tableUsages = this.tableUsageService.findAllByMatchCardFk(matchCard.getId());
-            for (TableUsage tableUsage : tableUsages) {
-                if (tableUsage.getTableStatus() == TableStatus.InUse) {
-                    startedOnTables = true;
+                System.out.println("allPlayersDetermined " + allPlayersDetermined);
+                if (allPlayersDetermined) {
+                    boolean startedOnTables = false;
+                    List<TableUsage> tableUsages = this.tableUsageService.findAllByMatchCardFk(matchCard.getId());
+                    for (TableUsage tableUsage : tableUsages) {
+                        if (tableUsage.getTableStatus() == TableStatus.InUse) {
+                            startedOnTables = true;
+                        }
+                    }
+                    scheduleItemStatus = startedOnTables ? ScheduleItemStatus.Started : ScheduleItemStatus.NotStarted;
                 }
             }
-            scheduleItemStatus = startedOnTables ? ScheduleItemStatus.Started : ScheduleItemStatus.NotStarted;
         }
+        System.out.println("scheduleItemStatus " + scheduleItemStatus);
         playerScheduleItem.setStatus(scheduleItemStatus);
     }
 

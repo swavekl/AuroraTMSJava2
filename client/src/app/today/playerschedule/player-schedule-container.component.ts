@@ -1,5 +1,5 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
-import {combineLatest, Observable, Subscription} from 'rxjs';
+import {BehaviorSubject, combineLatest, Observable, Subscription, switchMap} from 'rxjs';
 import {PlayerScheduleItem} from '../model/player-schedule-item.model';
 import {PlayerScheduleService} from '../service/player-schedule.service';
 import {LinearProgressBarService} from '../../shared/linear-progress-bar/linear-progress-bar.service';
@@ -16,7 +16,8 @@ import {TournamentInfo} from '../../tournament/model/tournament-info.model';
       [playerScheduleItems]="playerScheduleItems$ | async"
       [tournamentInfo]="tournamentInfo"
       [tournamentDay]="tournamentDay"
-      [tournamentEntryId]="tournamentEntryId">
+      [tournamentEntryId]="tournamentEntryId"
+      (refresh)="onRefresh($event)">
     </app-player-schedule>
   `,
     styles: [],
@@ -34,6 +35,8 @@ export class PlayerScheduleContainerComponent implements OnInit, OnDestroy {
   // items representing the schedule of play for this player
   public playerScheduleItems$: Observable<PlayerScheduleItem[]>;
 
+  private refreshTrigger$ = new BehaviorSubject<void>(undefined);
+
   private loading$: Observable<boolean>;
 
   private subscriptions: Subscription = new Subscription();
@@ -48,7 +51,7 @@ export class PlayerScheduleContainerComponent implements OnInit, OnDestroy {
     this.tournamentDay = this.activatedRoute.snapshot.params['tournamentDay'] || 1;
     this.setupProgressIndicator();
     this.loadTournamentInfo(tournamentId);
-    this.loadPlayerSchedule();
+    this.initializePlayerScheduleStream();
   }
 
   ngOnInit(): void {
@@ -102,9 +105,18 @@ export class PlayerScheduleContainerComponent implements OnInit, OnDestroy {
     this.subscriptions.add(subscription);
   }
 
-  private loadPlayerSchedule() {
+
+  private initializePlayerScheduleStream() {
     const profileId = this.authenticationService.getCurrentUserProfileId();
-    // subscribed by async pipe
-    this.playerScheduleItems$ = this.playerScheduleService.getFullPlayerSchedule(this.tournamentEntryId, profileId);
+
+    // Chain the trigger to your service call using switchMap
+    this.playerScheduleItems$ = this.refreshTrigger$.pipe(
+      switchMap(() => this.playerScheduleService.getFullPlayerSchedule(this.tournamentEntryId, profileId))
+    );
+  }
+
+  // Simply push a new value to the trigger to refresh the data!
+  onRefresh(event: any) {
+    this.refreshTrigger$.next();
   }
 }

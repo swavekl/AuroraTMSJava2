@@ -1,4 +1,4 @@
-import {Component, Input, OnChanges, OnInit, SimpleChange, SimpleChanges} from '@angular/core';
+import {Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChange, SimpleChanges} from '@angular/core';
 import {PlayerScheduleItem} from '../model/player-schedule-item.model';
 import {PlayerDaySchedule} from '../model/player-day-schedule.model';
 import {TournamentInfo} from '../../tournament/model/tournament-info.model';
@@ -26,6 +26,9 @@ export class PlayerScheduleComponent implements OnInit, OnChanges {
 
   @Input()
   tournamentDay: number;
+
+  @Output()
+  refresh: EventEmitter<any> = new EventEmitter();
 
   playerDaySchedules: PlayerDaySchedule[] = [];
 
@@ -99,6 +102,10 @@ export class PlayerScheduleComponent implements OnInit, OnChanges {
     this.router.navigateByUrl('/ui/home');
   }
 
+  onRefresh() {
+    this.refresh.emit({});
+  }
+
   getStatusColor(status: ScheduleItemStatus) {
     switch (status) {
       case ScheduleItemStatus.NotReady: return 'black';
@@ -113,8 +120,8 @@ export class PlayerScheduleComponent implements OnInit, OnChanges {
 
   getStatusText(status: ScheduleItemStatus) {
     switch (status) {
-      case ScheduleItemStatus.NotReady: return 'Not Ready';
-      case ScheduleItemStatus.NotStarted: return 'No Tables'; // 'Not Started';
+      case ScheduleItemStatus.NotReady: return 'Pending Results';
+      case ScheduleItemStatus.NotStarted: return 'Waiting for Tables';
       case ScheduleItemStatus.Started: return 'Started';
       case ScheduleItemStatus.InProgress: return 'In Progress';
       case ScheduleItemStatus.Completed: return 'Completed';

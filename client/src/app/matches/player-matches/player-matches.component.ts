@@ -46,7 +46,7 @@ export class PlayerMatchesComponent implements OnInit, OnChanges {
   public doubles: boolean;
 
   @Input()
-  private expandedMatchIndex: number;
+  public expandedMatchIndex: number;
 
   @Output()
   public back: EventEmitter<any> = new EventEmitter<any>();

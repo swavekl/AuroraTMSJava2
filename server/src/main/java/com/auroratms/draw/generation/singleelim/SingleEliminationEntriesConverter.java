@@ -113,13 +113,13 @@ public class SingleEliminationEntriesConverter {
      *
      * @param rrDrawItems
      * @param entryIdToPlayerDrawInfo
-     * @param tournamentEvent
+     * @param playersToAdvance
+     * @param doubles
      */
     public static void fillRRGroupNumberForSEPlayers(List<DrawItem> rrDrawItems,
                                                      Map<Long, PlayerDrawInfo> entryIdToPlayerDrawInfo,
-                                                     TournamentEvent tournamentEvent) {
-        int playersToAdvance = tournamentEvent.getPlayersToAdvance();
-        boolean doubles = tournamentEvent.isDoubles();
+                                                     int playersToAdvance,
+                                                     boolean doubles) {
         for (DrawItem rrDrawItem : rrDrawItems) {
             if (rrDrawItem.getPlaceInGroup() <= playersToAdvance) {
                 String playerId = rrDrawItem.getPlayerId();

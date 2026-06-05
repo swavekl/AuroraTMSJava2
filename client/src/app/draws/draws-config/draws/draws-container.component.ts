@@ -1,6 +1,6 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
-import {combineLatest, Observable, of, Subscription} from 'rxjs';
+import {combineLatest, Observable, of, Subscription, BehaviorSubject} from 'rxjs';
 import {first, switchMap} from 'rxjs/operators';
 import {createSelector} from '@ngrx/store';
 import {TournamentConfigService} from '../../../tournament/tournament-config/tournament-config.service';
@@ -52,7 +52,9 @@ export class DrawsContainerComponent implements OnInit, OnDestroy {
   // match card information i.e. without matches
   matchCardInfos$: Observable<MatchCardInfo[]>
 
-  // check in statuses of all players
+  // Define the trigger subject. Initialize it with null (empty state).
+  private drawRefreshTrigger$ = new BehaviorSubject<number | null>(null);
+
   playerStatusList$: Observable<PlayerStatus[]>;
 
   tournamentName$: Observable<string>;
@@ -87,6 +89,7 @@ export class DrawsContainerComponent implements OnInit, OnDestroy {
     this.loadTournamentName(this.tournamentId);
     this.setupDraws();
     this.setupMatchCards();
+    this.initializeMatchCardInfosStream();
   }
 
   /**
@@ -174,9 +177,11 @@ export class DrawsContainerComponent implements OnInit, OnDestroy {
         break;
       case DrawActionType.DRAW_ACTION_GENERATE:
         this.onGenerateDraw(drawAction.eventId, drawAction.payload?.drawType);
+        this.clearMatchCardInfos();
         break;
       case DrawActionType.DRAW_ACTION_CLEAR:
         this.onClearDraw(drawAction.eventId);
+        this.clearMatchCardInfos();
         break;
       case DrawActionType.DRAW_ACTION_UPDATE:
         this.onUpdateDraw(drawAction.eventId, drawAction.payload.movedDrawItems, drawAction.payload.drawType);
@@ -263,8 +268,36 @@ export class DrawsContainerComponent implements OnInit, OnDestroy {
     this.tournamentEventConfigService.updateOneInCache({id: eventId, matchScoresEntered: false});
   }
 
+  /**
+   * Your existing load method, modified to use the trigger
+   */
   private onLoadMatchCardInfos(eventId: number, drawType: DrawType) {
-    this.matchCardInfos$ = this.matchCardInfoService.load(eventId);
+    // Instead of overwriting the observable property, push the ID to the stream
+    this.drawRefreshTrigger$.next(eventId);
+  }
+
+  /**
+   * Call this method when the user clears or clicks to regenerate the draw
+   */
+  public clearMatchCardInfos() {
+    this.drawRefreshTrigger$.next(null);
+  }
+
+  /**
+   * Initializes the pipeline. It listens to the trigger and either
+   * completely clears the array or fetches new data from the service.
+   */
+  private initializeMatchCardInfosStream() {
+    this.matchCardInfos$ = this.drawRefreshTrigger$.pipe(
+      switchMap((eventId: number | null) => {
+        if (eventId === null) {
+          // Instantly forces the template to see an empty list
+          return of([]);
+        }
+        // Fetches real data from your backend service
+        return this.matchCardInfoService.load(eventId);
+      })
+    );
   }
 
   private onPrintMatchCards(eventId: number, drawType: DrawType) {

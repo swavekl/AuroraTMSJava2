@@ -31,7 +31,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * Rest API controller for manipulating event draws
@@ -327,7 +326,8 @@ public class DrawController {
                     List<TournamentEventEntry> seSimulatedEventEntries = SingleEliminationEntriesConverter.generateSEEventEntriesFromDraws(
                             drawItems, eventEntries, thisEvent, entryIdToPlayerDrawInfo);
                     fillCityStateCountryForSEPlayers (seSimulatedEventEntries, entryIdToPlayerDrawInfo);
-                    SingleEliminationEntriesConverter.fillRRGroupNumberForSEPlayers(drawItems, entryIdToPlayerDrawInfo, thisEvent);
+                    SingleEliminationEntriesConverter.fillRRGroupNumberForSEPlayers(drawItems, entryIdToPlayerDrawInfo,
+                            thisEvent.getPlayersToAdvance(), thisEvent.isDoubles());
                     TournamentEventRound seRound = rounds.get(1);
                     TournamentEventRoundDivision seDivision = seRound.getDivisions().get(0);
 
@@ -345,10 +345,19 @@ public class DrawController {
                         // filter entries by division
                         List<TournamentEventEntry> entriesForDivision = getEntriesForDivision(eventEntries, drawItems,
                                 round, division, thisEvent.isDoubles(), thisEvent.getId());
+                        if (roundDrawType == DrawType.SINGLE_ELIMINATION) {
+                            fillCityStateCountryForSEPlayers (entriesForDivision, entryIdToPlayerDrawInfo);
+                        }
 
                         List<DrawItem> divisionDrawList = this.drawService.generateDraws(thisEvent, roundDrawType,
                                 entriesForDivision, existingDrawItems, entryIdToPlayerDrawInfo, round, division);
                         if (divisionDrawList != null) {
+                            if (roundDrawType == DrawType.ROUND_ROBIN) {
+                                int playersToAdvance = division.getPlayersToAdvance();
+                                SingleEliminationEntriesConverter.fillRRGroupNumberForSEPlayers(divisionDrawList, entryIdToPlayerDrawInfo,
+                                        playersToAdvance, thisEvent.isDoubles());
+                            }
+
                             drawItems.addAll(divisionDrawList);
                         }
                     }

@@ -43,7 +43,7 @@ export class PrizeListComponent implements OnInit, OnChanges {
     if (eventsChanges && eventsChanges.currentValue != null) {
       const events = eventsChanges.currentValue;
       if (events.length > 0) {
-        this.events = events;
+        this.events = this.sortEventsByStartDayAndTime(events);
         this.prepareAllEventPrizeData();
       }
     }
@@ -55,6 +55,22 @@ export class PrizeListComponent implements OnInit, OnChanges {
     if (this.events != null && this.finishedRRMatchCards != null) {
       this.prepareRoundRobinPrizeData();
     }
+  }
+
+  sortEventsByStartDayAndTime(tournamentEvents: TournamentEvent[]): TournamentEvent[] {
+    return tournamentEvents.sort((eventA: TournamentEvent, eventB: TournamentEvent) => {
+      const diff = eventA.day - eventB.day;
+      if (diff != 0) {
+        return diff > 0 ? 1 : -1;
+      } else {
+        const diffTime = eventA.startTime - eventB.startTime;
+        if (diffTime === 0) {
+          return 0;
+        } else {
+          return diffTime > 0 ? 1 : -1;
+        }
+      }
+    });
   }
 
   onSelectEvent(tournamentEvent: TournamentEvent) {

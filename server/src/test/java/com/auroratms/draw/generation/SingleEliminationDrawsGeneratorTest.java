@@ -1,11 +1,9 @@
 package com.auroratms.draw.generation;
 
 import com.auroratms.draw.DrawItem;
-import com.auroratms.draw.DrawType;
 import com.auroratms.draw.generation.singleelim.SingleEliminationEntriesConverter;
 import com.auroratms.event.*;
 import com.auroratms.tournamentevententry.TournamentEventEntry;
-import jdk.jfr.Event;
 import org.junit.jupiter.api.Test;
 
 import java.util.*;
@@ -68,7 +66,8 @@ public class SingleEliminationDrawsGeneratorTest extends AbstractDrawsGeneratorT
         // pick top n players to advance and get their entries
         List<TournamentEventEntry> seEventEntries = SingleEliminationEntriesConverter.generateSEEventEntriesFromDraws(
                 rrDrawItems, eventEntries, tournamentEvent, entryIdToPlayerDrawInfo);
-        SingleEliminationEntriesConverter.fillRRGroupNumberForSEPlayers(rrDrawItems, entryIdToPlayerDrawInfo, tournamentEvent);
+        SingleEliminationEntriesConverter.fillRRGroupNumberForSEPlayers(rrDrawItems, entryIdToPlayerDrawInfo,
+                tournamentEvent.getPlayersToAdvance(), tournamentEvent.isDoubles());
         assertEquals(6, seEventEntries.size(), "wrong number of advancing player entries");
 
         // make SE draws
