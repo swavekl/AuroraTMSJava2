@@ -1,7 +1,8 @@
 import {Component, Input, OnChanges, OnDestroy, SimpleChange, SimpleChanges} from '@angular/core';
 import {GroupTieBreakingInfo} from '../model/tie-breaking/group-tie-breaking-info.model';
 import {TieBreakingResultsDialogComponent} from '../tie-breaking-results-dialog/tie-breaking-results-dialog.component';
-import {Subscription} from 'rxjs';
+import {Subscription, Observable} from 'rxjs';
+import { tap } from 'rxjs/operators';
 import {MatDialog} from '@angular/material/dialog';
 import {TieBreakingService} from '../service/tie-breaking.service';
 import {MatchCard} from '../model/match-card.model';
@@ -39,12 +40,15 @@ export class RankingResultsComponent implements OnDestroy, OnChanges {
     }
   }
 
-  public rankAndAdvance(matchCardId: number) {
-    const subscription = this.tieBreakingService.rankAndAdvance(matchCardId)
-      .subscribe((groupTieBreakingInfo: GroupTieBreakingInfo) => {
-        this.rankedPlayerInfos = this.processTieBreakingInfo(groupTieBreakingInfo);
-      });
-    this.subscriptions.add(subscription);
+  public rankAndAdvance(matchCardId: number): Observable<GroupTieBreakingInfo> {
+    // Return the stream so the parent container can chain onto it
+    return this.tieBreakingService.rankAndAdvance(matchCardId).pipe(
+      tap((groupTieBreakingInfo: GroupTieBreakingInfo) => {
+        if (groupTieBreakingInfo) {
+          this.rankedPlayerInfos = this.processTieBreakingInfo(groupTieBreakingInfo);
+        }
+      })
+    );
   }
 
   explainRanking() {

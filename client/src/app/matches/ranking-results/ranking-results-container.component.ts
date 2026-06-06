@@ -1,6 +1,7 @@
 import {AfterViewInit, Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 import {combineLatest, Observable, of, Subscription} from 'rxjs';
+import {first, tap, switchMap } from 'rxjs/operators';
 import {createSelector} from '@ngrx/store';
 
 import {MatchCardService} from '../service/match-card.service';
@@ -9,7 +10,6 @@ import {LinearProgressBarService} from '../../shared/linear-progress-bar/linear-
 import {RankingResultsComponent} from './ranking-results.component';
 import {TournamentEventConfigService} from '../../tournament/tournament-config/tournament-event-config.service';
 import {TournamentEvent} from '../../tournament/tournament-config/tournament-event.model';
-import {first, tap} from 'rxjs/operators';
 
 @Component({
     selector: 'app-ranking-results-container',
@@ -135,11 +135,25 @@ export class RankingResultsContainerComponent implements OnInit, OnDestroy, Afte
     this.subscriptions.add(subscription);
   }
 
+
   ngAfterViewInit(): void {
-    if (this.playerRankings == null) {
-      if (this.rankingResultsComponent != null) {
-        this.rankingResultsComponent.rankAndAdvance(this.matchCardId);
-      }
+    if (this.rankingResultsComponent != null) {
+      // 1. Start the backend calculations
+      this.rankingResultsComponent.rankAndAdvance(this.matchCardId).pipe(
+        first(), // Automatically complete after the first emission
+        switchMap(() => {
+          // 2. Once finished, force-fetch the updated MatchCard from the server
+          // This updates the NgRx store cache with the new advancingPlayerIds
+          return this.matchCardService.getByKey(this.matchCardId);
+        })
+      ).subscribe({
+        next: (updatedMatchCard) => {
+          console.log('Match card successfully reloaded with advancements:', updatedMatchCard);
+        },
+        error: (err) => {
+          console.error('Error during rank/advance or match card reload', err);
+        }
+      });
     }
   }
 }
