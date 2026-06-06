@@ -2,7 +2,7 @@ import {Component, Inject, OnDestroy, OnInit} from '@angular/core';
 import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
 import {MatSelectChange} from '@angular/material/select';
 import {finalize, map, switchMap, takeUntil, tap} from 'rxjs/operators';
-import {interval, Subject} from 'rxjs';
+import {interval, Subject, Subscription} from 'rxjs';
 import {TournamentImportService} from '../service/tournament-import.service';
 import {ImportEntriesRequest} from '../model/import-entries-request.model';
 import {ImportTournamentRequest} from '../model/import-tournament-request.model';
@@ -41,6 +41,8 @@ export class ImportTournamentEntriesDialogComponent implements OnInit, OnDestroy
   elapsedSeconds: number = 0;
   elapsedTimeIntervalId: any;
   stateFilter: string;
+
+  private activePollSubscription: Subscription;
 
   protected playerAccountsCheckResults: string;
   protected isCheckingAccounts: boolean;
@@ -134,10 +136,13 @@ export class ImportTournamentEntriesDialogComponent implements OnInit, OnDestroy
   }
 
   private startPolling(jobId: string): void {
-    // Poll every 3 seconds
-    interval(5000)
+    // If there's an existing poll accidentally running, kill it first
+    this.stopPolling();
+
+    // Save the subscription so we can terminate it precisely
+    this.activePollSubscription = interval(5000)
       .pipe(
-        takeUntil(this.destroy$),
+        takeUntil(this.destroy$), // Ensures total safety when routing away/closing dialog
         switchMap(() => this.tournamentImportService.getImportStatus(jobId)),
         tap((importProgressInfo: ImportProgressInfo) => {
           this.importProgressInfo = importProgressInfo;
@@ -153,13 +158,17 @@ export class ImportTournamentEntriesDialogComponent implements OnInit, OnDestroy
   }
 
   private stopPolling(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
+    // Unsubscribe the active timer cleanly without breaking this.destroy$
+    if (this.activePollSubscription) {
+      this.activePollSubscription.unsubscribe();
+    }
     this.stopTimer();
   }
 
   ngOnDestroy(): void {
     this.stopPolling();
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   private selectedTournament() {
