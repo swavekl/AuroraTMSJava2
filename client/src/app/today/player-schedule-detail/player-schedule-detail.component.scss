@@ -1,22 +1,80 @@
+/* --- Main Structural Core Layouts --- */
+.detail-page-container {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 64px);
+  height: calc(100svh - 64px); /* Adapts fluidly to mobile view boundaries under main app navigation */
+  overflow: hidden;
+  box-sizing: border-box;
 
-mat-icon.will-play {
-  color: green;
+  @media (min-width: 960px) {
+    height: calc(100vh - 80px); /* Larger top bar offset fallback adjustments */
+  }
 }
 
-mat-icon.will-not-play {
-  color: red;
+/* --- Desktop/Wide Container Layout Variations --- */
+.detail-card-wrapper {
+  display: block;
+  height: auto;
+  overflow: visible;
+
+  .detail-card-structural {
+    display: block;
+    overflow: visible;
+  }
+
+  .scrollable-card-content {
+    overflow-y: visible;
+    padding-bottom: 24px;
+  }
 }
 
-mat-icon.will-play-late {
-  color: orange;
+/* --- Handset & Tablet Responsive Scroll Environments (.lt-sm / .sm) --- */
+.detail-card-wrapper-small {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  height: 100%;
+  overflow: hidden;
+
+  .detail-toolbar {
+    flex-shrink: 0;
+    box-shadow: none;
+    background-color: transparent;
+  }
+
+  .detail-card-structural {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    overflow: hidden;
+    border: none !important;
+    border-radius: 0 !important;
+  }
+
+  .fixed-card-header {
+    flex-shrink: 0;
+    background-color: #ffffff;
+    padding-bottom: 8px;
+  }
+
+  .scrollable-card-content {
+    flex-grow: 1;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: 0 16px 32px 16px;
+  }
 }
 
+/* --- Table Structural Rules --- */
 table.schedule-detail {
   margin-top: 8px;
   width: 100%;
+  border-collapse: collapse; /* Enables clean horizontal row dividers */
 
   thead tr {
     border-top: 1px solid lightgray;
+    border-bottom: 1px solid lightgray;
   }
 
   tbody {
@@ -24,34 +82,111 @@ table.schedule-detail {
   }
 }
 
-
-tr.player-row-separated {
-  border-top: 1px solid lightgray
+/* --- Base Row Border Layouts --- */
+tr.player-row-separated td {
+  border-top: 1px solid lightgray;
 }
 
-tr.player-row-last {
-  border-bottom: 1px solid lightgray
-}
+// Removed the tricky tr.player-row-last td baseline borders to avoid border-collapse bugs
 
-tr.player-row-not-separated {
+tr.player-row-not-separated td {
   border-top: 0;
 }
 
-td.player-status-column {
-  padding: 8px;
-  vertical-align: middle;
-  width: 20px;
-  /*border: 1px solid red;*/
-}
-
-td.player-name-column {
-  vertical-align: middle;
-  padding-top: 1px;
-  //border: 0px solid blue;
-}
-
+/* --- 1st Column: Rating (Narrow & Right-Aligned) --- */
+th.player-rating-column,
 td.player-rating-column {
   text-align: right;
   vertical-align: middle;
-  /*border: 1px solid green;*/
+  width: 55px;
+  padding-right: 12px;
+}
+
+/* --- 2nd Column: Player Name (Fluid Layout) --- */
+th:not(.player-rating-column):not(.player-status-column-header),
+td.player-name-column {
+  text-align: left;
+  vertical-align: middle;
+  padding-top: 6px;
+  padding-bottom: 6px;
+}
+
+/* --- 3rd Column: Status Icon (Fixed Width & Centered) --- */
+th.player-status-column-header {
+  text-align: center;
+  width: 54px;
+}
+
+td.player-status-column {
+  padding: 12px 4px;
+  vertical-align: middle;
+  width: 54px;
+  text-align: center;
+  cursor: pointer;
+}
+
+/* --- Clean Visual Dividers for Doubles Pairs --- */
+// 1. Clear any default internal borders within the team pairing
+tr.doubles-pair-odd td {
+  border-top: none !important;
+}
+
+// 2. Draw a slightly stronger visual line under intermediate team blocks
+tr.doubles-pair-odd:not(.player-row-last) td.player-name-column,
+tr.doubles-pair-odd:not(.player-row-last) td.player-status-column,
+tr.doubles-pair-odd:not(.player-row-last) td.player-rating-column {
+  border-bottom: 2px solid #e0e0e0;
+}
+
+/* Deep selection scaling for status icons inside the table and legend wrapper */
+.large-status-indicator ::ng-deep mat-icon,
+.legend-icon-wrap ::ng-deep mat-icon {
+  transform: scale(1.35);
+  display: inline-block;
+}
+
+/* --- Status Legend Section --- */
+.status-legend-container {
+  margin-top: 0;             /* Tucked neatly against the bottom edge of the table rows */
+  padding-top: 14px;         /* Tightened spacing to pull text into view on small screens */
+  border-top: 1px solid lightgray; /* Solves the missing table bottom line cleanly across all columns */
+
+  .legend-title {
+    font-weight: bold;
+    font-size: 14px;
+    text-transform: uppercase;
+    color: #666;
+    margin-bottom: 12px;
+    letter-spacing: 0.5px;
+  }
+
+  .legend-row {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 14px;
+    font-size: 14px;
+    line-height: 1.4;
+    color: #444;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+
+  .legend-icon-wrap {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 32px;
+    margin-right: 14px;
+    flex-shrink: 0;
+    height: 24px;
+  }
+
+  .legend-text {
+    padding-top: 2px;
+    strong {
+      color: #222;
+    }
+  }
 }

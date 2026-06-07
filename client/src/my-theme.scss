@@ -48,17 +48,37 @@ $candy-app-theme: mat.m2-define-light-theme((
 
 @include mat.all-component-themes($candy-app-theme);
 
-//$list-hover-color: mat.get-color-from-palette($primary-color, A200);
-
-// tournament tree styles
-//$ngtt-background-color: white !default;
-//$ngtt-match-wrapper-width: 239px !default;
-//$ngtt-match-wrapper-height: 76px !default;
-//$ngtt-vertical-match-padding: 15px !default;
-//$ngtt-round-gutters: 15px !default;
-//$ngtt-bracket-border-radius: 0 !default;
-//$ngtt-bracket-line-width: 2px !default;
-//@import 'node_modules/ng-tournament-tree/styles/ngtt-styles';
-
 $match-box-width: 236px;
+
+// ==========================================================================
+// TTAurora Global Page Header Typography Rules
+// ==========================================================================
+
+.title-block {
+  padding: 0 16px;
+}
+
+.page-title, .section-title {
+  // Pulls your customized font-family, size (24px), line-height (32px), and weight (400)
+  font-family: mat.m2-font-family($custom-typography);
+  font-size: mat.m2-font-size($custom-typography, 'headline-5');
+  line-height: mat.m2-line-height($custom-typography, 'headline-5');
+
+  // Forces a sharp 500 semi-bold weight and snug letter spacing to match your screens
+  font-weight: 500;
+  letter-spacing: -0.5px;
+  color: #111;
+
+  // Clean default typography spacing rhythm
+  margin: 16px 0 4px 0;
+}
+
+.page-subtitle {
+  font-family: mat.m2-font-family($custom-typography);
+  font-size: mat.m2-font-size($custom-typography, 'body-2');
+  line-height: mat.m2-line-height($custom-typography, 'body-2');
+  font-weight: 400;
+  color: #666;
+  margin: 0 0 12px 0;
+}
 

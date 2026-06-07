@@ -1,47 +1,62 @@
-<div class="outer-schedule-container">
-  <mat-toolbar fxLayoutAlign="space-between center">
-    <button mat-raised-button color="" type="button" (click)="back()">Back</button>
-    <button mat-raised-button color="" type="button" (click)="onRefresh()">Refresh</button>
-  </mat-toolbar>
-  <div fxLayout="row" fxFlexAlign="center center" class="my-schedule-container">
-    <div fxHide.xs="true" fxFlex.gt-xs="50%">&nbsp;</div>
-    <div fxFlexFill fxFlex.gt-xs="400px">
+<div class="schedule-page-wrapper">
+
+  <div class="fixed-header-wrapper">
+    <mat-toolbar class="schedule-toolbar">
+      <button mat-raised-button type="button" (click)="back()">Back</button>
+      <span class="spacer"></span>
+      <button mat-raised-button type="button" (click)="onRefresh()">Refresh</button>
+    </mat-toolbar>
+
+    <div class="title-block">
+      <h1 class="section-title">Schedule & Score Entry</h1>
+    </div>
+  </div>
+
+  <div class="schedule-scroll-container">
+    <div class="centered-content-column">
+
       <div *ngIf="playerDaySchedules != null && tournamentInfo != null">
-        <div class="mat-subtitle tournament-name">{{tournamentInfo.name}}</div>
         <ng-container *ngFor="let daySchedule of playerDaySchedules">
-          <div>
+          <div class="day-section">
+
             <div class="mat-subtitle-1 day-header">
               Day {{daySchedule.day}} - {{daySchedule.day | eventDay: tournamentStartDate}}
             </div>
-            <mat-nav-list dense>
+
+            <mat-nav-list dense class="tight-list">
               <mat-list-item
                 *ngFor="let playerScheduleItem of daySchedule.playerScheduleItems; last as last; first as first"
+                (click)="showScheduleDetail(playerScheduleItem.matchCardId)"
+                class="schedule-list-item"
               >
-                <div fxLayout="row" (click)="showScheduleDetail(playerScheduleItem.matchCardId)">
-                  <div fxLayout="column" fxFlex="90%">
+                <div fxLayout="row" fxLayoutAlign="space-between center" style="width: 100%;">
+                  <div fxLayout="column" style="flex: 1;">
                     <div matListItemTitle>
                       <span style="font-weight: bold">{{ playerScheduleItem.startTime | startTime }}</span>&nbsp;&nbsp;
-                      <span *ngIf="playerScheduleItem.assignedTables">
+                      <span *ngIf="playerScheduleItem.assignedTables" class="table-assignment">
                         {{ (playerScheduleItem.assignedTables.indexOf(',') !== -1) ? 'Tables:' : 'Table:'}} {{ playerScheduleItem.assignedTables}}
                       </span>
                     </div>
-                    <div matListItemLine>{{playerScheduleItem.eventName}}</div>
-                    <div matListItemLine>
+                    <div matListItemLine class="event-name-line">{{playerScheduleItem.eventName}}</div>
+                    <div matListItemLine class="status-line">
                       <span>{{ playerScheduleItem.round | roundName: playerScheduleItem.group }}</span>
-<!--                      <span *ngIf="playerScheduleItem.round === 0">, Group: {{playerScheduleItem.group}}</span>-->
-                      <span [style.color]="getStatusColor(playerScheduleItem.status)" style="font-weight: normal">&nbsp;&nbsp;&nbsp;{{ getStatusText(playerScheduleItem.status) }}</span>
+                      <span [style.color]="getStatusColor(playerScheduleItem.status)" class="status-text">
+                        &nbsp;&nbsp;&nbsp;{{ getStatusText(playerScheduleItem.status) }}
+                      </span>
                     </div>
-              </div>
-              <div fxFlex="10%" style="padding-top: 24px;">
-                <mat-icon matListItemIcon>chevron_right</mat-icon>
+                  </div>
+                  <div class="chevron-box">
+                    <mat-icon matListItemIcon>chevron_right</mat-icon>
                   </div>
                 </div>
               </mat-list-item>
             </mat-nav-list>
+
           </div>
         </ng-container>
       </div>
+
     </div>
-    <div fxHide.xs="true" fxFlex.gt-xs="50%">&nbsp;</div>
   </div>
+
 </div>

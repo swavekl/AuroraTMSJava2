@@ -15,7 +15,7 @@ import {EventStatusCode} from '../model/event-status-code.enum';
     styles: [
         `
       mat-icon {
-        font-size: 16px;
+        font-size: 17px;
       }
 
       mat-icon.will-play {
@@ -43,9 +43,9 @@ export class PlayerStatusIndicatorComponent {
       case EventStatusCode.WILL_PLAY:
         return 'check_circle';
       case EventStatusCode.WILL_NOT_PLAY:
-        return 'error';
+        return 'cancel';
       case EventStatusCode.WILL_PLAY_BUT_IS_LATE:
-        return 'warning';
+        return 'watch_later';
       default:
         return 'help';
     }

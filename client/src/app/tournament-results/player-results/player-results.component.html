@@ -3,9 +3,10 @@
 </mat-toolbar>
 
 <div class="viewport-wrapper">
+  <div class="title-block">
+    <h1 class="section-title">My Results</h1>
+  </div>
   <div class="results-container" *ngIf="tournamentEntry != null && summariesByEvent != null">
-    <h1 class="mat-headline-5 section-title">My Results</h1>
-
     <ng-container *ngIf="summariesByEvent?.length > 0; else resultsNotAvailable">
 
       <mat-card appearance="outlined" class="summary-card">

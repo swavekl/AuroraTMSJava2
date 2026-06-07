@@ -1,7 +1,12 @@
-<div fxLayout="row" fxFlexAlign="center center" *ngIf="playerScheduleItem">
+<div fxLayout="row" fxFlexAlign="center center" *ngIf="playerScheduleItem" class="detail-page-container">
   <div fxHide.xs="true" fxFlex.gt-xs="50%">&nbsp;</div>
-  <div fxFlexFill fxFlex.gt-xs="550px" >
-    <mat-toolbar>
+
+  <div fxFlexFill fxFlex.gt-xs="550px"
+       [ngClass.lt-sm]="'detail-card-wrapper-small'"
+       [ngClass.sm]="'detail-card-wrapper-small'"
+       [ngClass.gt-sm]="'detail-card-wrapper'">
+
+    <mat-toolbar class="detail-toolbar">
       <div fxLayout="row" fxLayoutAlign="space-between start" style="width: 100%;" fxLayoutGap="10px">
         <button mat-raised-button
                 (click)="goBack()">Back</button>
@@ -11,8 +16,9 @@
         <button mat-raised-button color="primary" (click)="goToMatches(playerScheduleItem)">Matches</button>
       </div>
     </mat-toolbar>
-    <mat-card appearance="outlined">
-      <mat-card-header>
+
+    <mat-card appearance="outlined" class="detail-card-structural">
+      <mat-card-header class="fixed-card-header">
         <mat-card-title>
           <div>{{ playerScheduleItem.startTime | startTime }}&nbsp;&nbsp;
             <span *ngIf="playerScheduleItem.assignedTables">{{ (playerScheduleItem.assignedTables.indexOf(',') !== -1) ? 'Tables:' : 'Table:'}} {{ playerScheduleItem.assignedTables}}</span>
@@ -24,32 +30,77 @@
           <span *ngIf="playerScheduleItem.round === 0">, Group: {{playerScheduleItem.group}}</span>
         </mat-card-subtitle>
       </mat-card-header>
-      <mat-card-content>
+
+      <mat-card-content class="scrollable-card-content">
         <table class="schedule-detail">
           <thead>
           <tr>
-            <th>Status</th>
+            <th class="player-rating-column">Rating</th>
             <th>Player Name</th>
-            <td class="player-rating-column">Rating</td>
+            <th class="player-status-column-header">Status</th>
           </tr>
           </thead>
           <tbody>
           <tr
             *ngFor="let playerDetail of playerScheduleItem?.playerDetails; last as last; first as first; index as index"
-            [class]="getPlayerRowStyle(playerScheduleItem.doubles, index, last)">
-            <td class="player-status-column" (click)="showStatusDetail(playerDetail)">
-              <app-player-status-indicator [playerStatus]="playerDetail.statusCode"></app-player-status-indicator>
-            </td>
-            <td class="player-name-column">
-              <div>{{playerDetail.playerFullName}}</div>
-            </td>
+            [class]="getPlayerRowStyle(playerScheduleItem.doubles, index, last)"
+            [class.doubles-row]="playerScheduleItem.doubles"
+            [class.doubles-pair-even]="playerScheduleItem.doubles && index % 2 === 0"
+            [class.doubles-pair-odd]="playerScheduleItem.doubles && index % 2 !== 0">
+
             <td *ngIf="(playerScheduleItem.doubles && index % 2 === 0) || (!playerScheduleItem.doubles)"
                 class="player-rating-column" [rowSpan]="!playerScheduleItem.doubles ? 1 : 2">
               {{playerDetail.rating}} {{playerDetail.estimated ? 'est.' : ''}}
             </td>
+
+            <td class="player-name-column">
+              <div>{{playerDetail.playerFullName}}</div>
+            </td>
+
+            <td class="player-status-column" (click)="showStatusDetail(playerDetail)">
+              <app-player-status-indicator class="large-status-indicator" [playerStatus]="playerDetail.statusCode"></app-player-status-indicator>
+            </td>
+
           </tr>
           </tbody>
         </table>
+
+        <div class="status-legend-container">
+          <div class="legend-title">Status Legend</div>
+
+          <div class="legend-row">
+            <div class="legend-icon-wrap">
+              <app-player-status-indicator [playerStatus]="null"></app-player-status-indicator>
+            </div>
+            <div class="legend-text">Unknown / Not checked-in yet.</div>
+          </div>
+
+          <div class="legend-row">
+            <div class="legend-icon-wrap">
+              <app-player-status-indicator [playerStatus]="'WILL_PLAY'"></app-player-status-indicator>
+            </div>
+            <div class="legend-text">Checked-in and ready to play.</div>
+          </div>
+
+          <div class="legend-row">
+            <div class="legend-icon-wrap">
+              <app-player-status-indicator [playerStatus]="'WILL_PLAY_BUT_IS_LATE'"></app-player-status-indicator>
+            </div>
+            <div class="legend-text">
+              Running late. <strong>Tap the orange icon</strong> to see their estimated time of arrival (ETA) and reason.
+            </div>
+          </div>
+
+          <div class="legend-row">
+            <div class="legend-icon-wrap">
+              <app-player-status-indicator [playerStatus]="'WILL_NOT_PLAY'"></app-player-status-indicator>
+            </div>
+            <div class="legend-text">
+              Withdrawn. <strong>Tap the red icon</strong> to see the reason for withdrawal.
+            </div>
+          </div>
+        </div>
+
       </mat-card-content>
     </mat-card>
   </div>
