@@ -22,9 +22,9 @@ export class PrizeInfo {
   // if true trophy is awarded, see type below
   awardTrophy: boolean;
 
-  readonly AWARD_TYPE_NONE = "None";
-  readonly AWARD_TYPE_TROPHY = "Trophy";
-  readonly AWARD_TYPE_MEDAL = "Medal";
+  public static readonly AWARD_TYPE_NONE = "None";
+  public static readonly AWARD_TYPE_TROPHY = "Trophy";
+  public static readonly AWARD_TYPE_MEDAL = "Medal";
   awardType : string;
 
 }

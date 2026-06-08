@@ -860,6 +860,7 @@ public class MatchCardService {
 
         // update flag indicating if changing draws is allowed
         TournamentEvent tournamentEvent = tournamentEventEntityService.get(eventId);
+        tournamentEvent.getConfiguration().setFinalPlayerRankings(null);
         tournamentEvent.setMatchScoresEntered(false);
         tournamentEventEntityService.update(tournamentEvent);
     }

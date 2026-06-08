@@ -5,10 +5,10 @@ import {DrawMethod} from '../../tournament/tournament-config/model/draw-method.e
 import {MatchCard} from '../../matches/model/match-card.model';
 
 @Component({
-    selector: 'app-prize-list',
-    templateUrl: './prize-list.component.html',
-    styleUrls: ['./prize-list.component.scss'],
-    standalone: false
+  selector: 'app-prize-list',
+  templateUrl: './prize-list.component.html',
+  styleUrls: ['./prize-list.component.scss'],
+  standalone: false
 })
 export class PrizeListComponent implements OnInit, OnChanges {
 
@@ -26,10 +26,13 @@ export class PrizeListComponent implements OnInit, OnChanges {
 
   tournamentCurrency: 'USD';
 
-  // map of event id to prize data list for all of this event's divisions
+  // Explicit tracking dictionary to trigger template warning indicators independently of fallback generation
+  isPrizeInfoMissing: Map<number, boolean> = new Map<number, boolean>();
+
+  groupedEvents: { day: number, events: TournamentEvent[] }[] = [];
+
   divisionsPrizeDataList: Map<number, PrizeData []> = new Map<number, PrizeData []>();
 
-  // displayedColumns: string[] = ['place', 'playerFullName', 'prizeMoneyAmount', 'awardTrophy'];
   displayedColumns: string[] = ['place', 'playerFullName', 'awards'];
   private allEventsPrizeData: any = {};
 
@@ -44,13 +47,10 @@ export class PrizeListComponent implements OnInit, OnChanges {
       const events = eventsChanges.currentValue;
       if (events.length > 0) {
         this.events = this.sortEventsByStartDayAndTime(events);
+        this.groupEventsByDay();
         this.prepareAllEventPrizeData();
       }
     }
-    // const matchCardsChanges: SimpleChange = changes.finishedRRMatchCards;
-    // if (matchCardsChanges && matchCardsChanges.currentValue != null) {
-    //   this.finishedRRMatchCards = matchCardsChanges.currentValue;
-    // }
 
     if (this.events != null && this.finishedRRMatchCards != null) {
       this.prepareRoundRobinPrizeData();
@@ -73,6 +73,25 @@ export class PrizeListComponent implements OnInit, OnChanges {
     });
   }
 
+  private groupEventsByDay() {
+    const map = new Map<number, TournamentEvent[]>();
+
+    this.events.forEach(event => {
+      const day = event.day || 1;
+      if (!map.has(day)) {
+        map.set(day, []);
+      }
+      map.get(day).push(event);
+    });
+
+    this.groupedEvents = Array.from(map.keys())
+      .sort((a, b) => a - b)
+      .map(day => ({
+        day: day,
+        events: map.get(day)
+      }));
+  }
+
   onSelectEvent(tournamentEvent: TournamentEvent) {
     this.selectedEvent = tournamentEvent;
     if (this.selectedEvent) {
@@ -84,14 +103,31 @@ export class PrizeListComponent implements OnInit, OnChanges {
     return tournamentEvent.id === this.selectedEvent?.id;
   }
 
-  isCompletedEvent(tournamentEvent: TournamentEvent) {
-    return this.completionStatus[tournamentEvent.id];
+  isCompletedEvent(tournamentEvent: TournamentEvent): boolean {
+    return !!this.completionStatus[tournamentEvent.id];
   }
 
-  /**
-   *
-   * @private
-   */
+  isGiantRRDivisionCompleted(tournamentEvent: TournamentEvent, division: string): boolean {
+    return this.isCompletedRRDivision(tournamentEvent, division);
+  }
+
+  onSelectGiantRREvent(tournamentEvent: TournamentEvent, division: string) {
+    this.selectedEvent = tournamentEvent;
+    this.prizeDataList = this.getRRDivisionPrizeData(tournamentEvent, division);
+  }
+
+  get giantRREventDivisions(): Map<number, string[]> {
+    const map = new Map<number, string[]>();
+    if (this.events) {
+      this.events.forEach(event => {
+        if (this.isGiantRREvent(event)) {
+          map.set(event.id, this.getRRDivisions(event));
+        }
+      });
+    }
+    return map;
+  }
+
   private prepareAllEventPrizeData() {
     if (this.events) {
       this.events.forEach((tournamentEvent: TournamentEvent) => {
@@ -106,14 +142,17 @@ export class PrizeListComponent implements OnInit, OnChanges {
     }
   }
 
-  /**
-   *
-   * @param tournamentEvent
-   * @private
-   */
   private prepareOneEventPrizeData(tournamentEvent: TournamentEvent) {
-    let prizeInfoList = tournamentEvent.configuration?.prizeInfoList ?? [];
-    prizeInfoList = (prizeInfoList.length > 0) ? prizeInfoList : this.prepareDefaultPrizeInfos('A');
+    const definedPrizeInfoList = tournamentEvent.configuration?.prizeInfoList;
+
+    // Evaluate if configuration data is completely missing or empty array
+    if (!definedPrizeInfoList || definedPrizeInfoList.length === 0) {
+      this.isPrizeInfoMissing.set(tournamentEvent.id, true);
+    } else {
+      this.isPrizeInfoMissing.set(tournamentEvent.id, false);
+    }
+    let prizeInfoList = (definedPrizeInfoList && definedPrizeInfoList.length > 0) ? definedPrizeInfoList : this.prepareDefaultPrizeInfos('A');
+
     const finalPlayerRankings = tournamentEvent.configuration?.finalPlayerRankings ?? {};
     const prizeDataList = [];
     prizeInfoList.forEach((prizeInfo: PrizeInfo) => {
@@ -122,23 +161,20 @@ export class PrizeListComponent implements OnInit, OnChanges {
       for (let place = prizeInfo.awardedForPlace; place <= placeEnd; place++) {
         const playerFullName = finalPlayerRankings[place];
         const prizeData: PrizeData = {
-          division: '',
+          division: prizeInfo.division || '',
           place: place,
-          prizeMoneyAmount: prizeInfo.prizeMoneyAmount,
-          awardTrophy: prizeInfo.awardTrophy,
-          awardType: prizeInfo.awardType,
+          prizeMoneyAmount: prizeInfo.prizeMoneyAmount || 0,
+          awardTrophy: prizeInfo.awardTrophy || false,
+          awardType: prizeInfo.awardType || 'Trophy',
           playerFullName: playerFullName
         };
         prizeDataList.push(prizeData);
       }
     });
-    return prizeDataList;
+
+    return prizeDataList.sort((a, b) => a.place - b.place);
   }
 
-  /**
-   * In case they didn't have time to configure the prize infos assume 3 trophies are awarded so we can show the first 3 places
-   * @private
-   */
   private prepareDefaultPrizeInfos(division: string) {
     const defaultPrizeInfoList = [];
     defaultPrizeInfoList.push({division: division, awardedForPlace: 1, awardedForPlaceRangeEnd: 0, prizeMoneyAmount: 0, awardTrophy: true});
@@ -147,11 +183,6 @@ export class PrizeListComponent implements OnInit, OnChanges {
     return defaultPrizeInfoList;
   }
 
-  /**
-   *
-   * @param eventPrizeData
-   * @private
-   */
   private determineEventCompletionStatus(eventPrizeData: PrizeData[]): boolean {
     let allPlayersDetermined = eventPrizeData?.length > 0;
     eventPrizeData.forEach((prizeData: PrizeData) => {
@@ -159,20 +190,22 @@ export class PrizeListComponent implements OnInit, OnChanges {
       allPlayersDetermined = allPlayersDetermined && playerDetermined;
     });
     return allPlayersDetermined;
-
-
   }
 
-  /**
-   * Prepares prize & players information for all groups in giant round robin event type where players don't advance further
-   * @private
-   */
   private prepareRoundRobinPrizeData() {
     const divisionsPrizeDataList: Map<number, PrizeData []> = new Map<number, PrizeData []>();
     this.events.forEach((tournamentEvent: TournamentEvent) => {
       if (tournamentEvent.drawMethod === DrawMethod.DIVISION && tournamentEvent.playersToAdvance === 0) {
         const rrPrizeData: PrizeData [] = [];
         const prizeInfoList = tournamentEvent.configuration?.prizeInfoList ?? [];
+
+        // Track configurations for giant round robin events globally
+        if (!prizeInfoList || prizeInfoList.length === 0) {
+          this.isPrizeInfoMissing.set(tournamentEvent.id, true);
+        } else {
+          this.isPrizeInfoMissing.set(tournamentEvent.id, false);
+        }
+
         this.finishedRRMatchCards.forEach((matchCard: MatchCard) => {
           if (matchCard.eventFk === tournamentEvent.id) {
             const playerRankingsJSON = matchCard?.playerRankings;
@@ -212,12 +245,6 @@ export class PrizeListComponent implements OnInit, OnChanges {
     this.divisionsPrizeDataList = divisionsPrizeDataList;
   }
 
-  /**
-   * gets RR division prize infos if configured
-   * @param prizeInfoList
-   * @param matchCard
-   * @private
-   */
   private getRRGroupPrizeInfo(prizeInfoList: PrizeInfo[], matchCard: MatchCard, tournamentEvent: TournamentEvent) {
     const matchCardDivision = this.getRRDivisionName(matchCard, tournamentEvent);
     let divisionPrizeInfoList: PrizeInfo [] = prizeInfoList.filter(
@@ -235,7 +262,6 @@ export class PrizeListComponent implements OnInit, OnChanges {
   }
 
   isGiantRREvent(tournamentEvent: TournamentEvent): boolean {
-    // console.log('isGiantRREvent', (tournamentEvent.drawMethod === DrawMethod.DIVISION && tournamentEvent.playersToAdvance === 0));
     return tournamentEvent.drawMethod === DrawMethod.DIVISION && tournamentEvent.playersToAdvance === 0;
   }
 
@@ -256,10 +282,6 @@ export class PrizeListComponent implements OnInit, OnChanges {
     return divisions;
   }
 
-  /**
-   *
-   * @param tournamentEvent
-   */
   getDivisionsNameFromPrizeInfos(tournamentEvent: TournamentEvent) {
     let divisions: string [] = [];
     const prizeInfoList = tournamentEvent.configuration.prizeInfoList;
@@ -301,12 +323,9 @@ export class PrizeListComponent implements OnInit, OnChanges {
 
   getRRDivisionPrizeData(tournamentEvent: TournamentEvent, division: string): PrizeData [] {
     let divisionPrizeData: PrizeData [] = [];
-    // find all divisions prize data for this event
     this.divisionsPrizeDataList.forEach((eventPrizeDataList: PrizeData[], eventId: number) => {
       if (tournamentEvent.id === eventId) {
-        // get the prize data only for this division
         divisionPrizeData = eventPrizeDataList.filter((prizeData: PrizeData) => {
-          // console.log(division + ' divisionPrizeData ', (prizeData.division === division));
           return (prizeData.division === division);
         });
       }
@@ -316,15 +335,13 @@ export class PrizeListComponent implements OnInit, OnChanges {
 
   protected getAwardType(prizeData) {
     if (!prizeData.awardType) {
-      // not defined yet - old data
       return prizeData.awardTrophy ? 'T' : '';
     } else if (prizeData.awardTrophy) {
-      if (prizeData.awardType === 'Trophy'){
+      if (prizeData.awardType === PrizeInfo.AWARD_TYPE_TROPHY){
         return 'T';
-      } else if (prizeData.awardType === 'Medal') {
+      } else if (prizeData.awardType === PrizeInfo.AWARD_TYPE_MEDAL) {
         return 'M';
       } else {
-        // take first letter of each word and uppercase it
         let awardTypeAbbreviation = "";
         const parts = prizeData.awardType.split(" ");
         for (const part of parts) {
@@ -342,6 +359,6 @@ export class PrizeData {
   place: number;
   prizeMoneyAmount: number;
   awardTrophy: boolean;
-  awardType: string;  // 'Trophy', 'Medal' or other e.g. 'gift card'
+  awardType: string;
   playerFullName: string;
 }

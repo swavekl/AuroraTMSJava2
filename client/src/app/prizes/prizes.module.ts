@@ -10,6 +10,7 @@ import {PrizeListComponent} from './prize-list/prize-list.component';
 import {PrizeListContainerComponent} from './prize-list/prize-list-container.component';
 import {OrdinalPipe} from './pipes/ordinal.pipe';
 import {SharedModule} from '../shared/shared.module';
+import {MatIcon} from '@angular/material/icon';
 
 
 @NgModule({
@@ -25,7 +26,8 @@ import {SharedModule} from '../shared/shared.module';
         FlexLayoutModule,
         MatExpansionModule,
         MatTableModule,
-        SharedModule
+        SharedModule,
+        MatIcon
     ]
 })
 export class PrizesModule { }
