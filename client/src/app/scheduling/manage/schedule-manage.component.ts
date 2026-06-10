@@ -93,6 +93,9 @@ export class ScheduleManageComponent implements OnInit, OnChanges, OnDestroy {
   // subscriptions for this component
   subscriptions: Subscription = new Subscription();
 
+  // unassigned match card ids to fix after making room on the schedule
+  unassignedMatchCardIds: number [] = [];
+
   constructor(private dialog: MatDialog) {
     this.startingTimes = new DateUtils().getEventStartingTimes();
     this.selectedDay = 1;
@@ -202,6 +205,18 @@ export class ScheduleManageComponent implements OnInit, OnChanges, OnDestroy {
     this.generateScheduleForEvent.emit(this.selectedDay);
   }
 
+  protected isFixDisabled(): boolean {
+    return this.unassignedMatchCardIds === null || this.unassignedMatchCardIds?.length === 0;
+  }
+
+  protected onFixTodaySchedule() {
+    const data = {
+      matchCardIds: this.unassignedMatchCardIds,
+      day: this.selectedDay
+    };
+    this.fixUnscheduledEvents.emit(data);
+  }
+
   onClearSchedule() {
     this.changedMatchCards = [];
     this.clearScheduleForEvent.emit(this.selectedDay);
@@ -291,6 +306,7 @@ export class ScheduleManageComponent implements OnInit, OnChanges, OnDestroy {
       gridsterItems = gridsterItems.concat(RRGridsterItems, SEGridsterItems);
     }
 
+    this.unassignedMatchCardIds = unassignedMatchCardIds;
     if (unassignedMatchCards.length > 0 && anyMatchCardsAssigned) {
       unassignedMatchCards.sort((mc1: string, mc2: string) => {
         return mc1.localeCompare(mc2);
@@ -432,4 +448,5 @@ export class ScheduleManageComponent implements OnInit, OnChanges, OnDestroy {
       ? `RR Group ${groupNum}`
       : `${seMatchIdentifier}`;
   }
+
 }

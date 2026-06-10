@@ -1,4 +1,4 @@
-import {Component, Inject} from '@angular/core';
+import {Component, Inject, ChangeDetectorRef} from '@angular/core';
 import {MAT_DIALOG_DATA, MatDialogRef} from '@angular/material/dialog';
 import {DrawItem} from '../../draws-common/model/draw-item.model';
 import {TournamentEvent} from '../../../tournament/tournament-config/tournament-event.model';
@@ -74,7 +74,8 @@ export class ReplacePlayerPopupComponent {
               private paymentDialogService: PaymentDialogService,
               private checkCashPaymentDialogService: CheckCashPaymentDialogService,
               private profileService: ProfileService,
-              private errorMessagePopupService: ErrorMessagePopupService) {
+              private errorMessagePopupService: ErrorMessagePopupService,
+              private cdr: ChangeDetectorRef) {
     this.tournamentEvent = data.tournamentEvent;
     this.tournamentName = data.tournamentName;
     this.drawType = data.drawType;
@@ -90,9 +91,9 @@ export class ReplacePlayerPopupComponent {
     }
 
     this.drawItems = drawItems.filter((drawItem: DrawItem) => {
-        return drawItem.drawType === this.drawType;
+      return drawItem.drawType === this.drawType;
     }).filter((drawItem: DrawItem) => {
-        return drawItem.round === maxRound;
+      return drawItem.round === maxRound;
     });
 
     if (!this.tournamentEvent.singleElimination) {
@@ -108,11 +109,17 @@ export class ReplacePlayerPopupComponent {
 
     this.paymentCompleted = false;
     this.fetchReplacementPlayers(this.tournamentEvent.id);
-    if (this.drawType === DrawType.ROUND_ROBIN) {
-      this.onGroupChange({value: 1});
-    } else {
-      this.getFirstRoundPlayerInfos();
-    }
+
+    // 2. Wrap the initial layout list building inside a setTimeout macro-task
+    setTimeout(() => {
+      if (this.drawType === DrawType.ROUND_ROBIN) {
+        this.onGroupChange({value: 1});
+      } else {
+        this.getFirstRoundPlayerInfos();
+      }
+      // 3. Force change detection after pushing the updates onto the next cycle
+      this.cdr.detectChanges();
+    });
   }
 
   onCancel() {
@@ -361,6 +368,14 @@ export class ReplacePlayerPopupComponent {
   onPaymentCanceled(scope: any) {
   }
 
+  public getEventFee(): number {
+    let fee = this.tournamentEvent.feeAdult;
+    if (this.tournamentEvent.doubles) {
+      fee = fee / 2;
+    }
+    return fee;
+  }
+
   /**
    *
    * @param profile
@@ -372,8 +387,12 @@ export class ReplacePlayerPopupComponent {
     const entryInfo = this.findEntryInfo(profileId);
     const balanceInPlayerCurrency = this.tournamentEvent.feeAdult;
     const balanceInTournamentCurrency = this.tournamentEvent.feeAdult;
-    const amount: number = balanceInPlayerCurrency * 100;
-    const amountInAccountCurrency: number = balanceInTournamentCurrency * 100;
+    let amount: number = balanceInPlayerCurrency * 100;
+    let amountInAccountCurrency: number = balanceInTournamentCurrency * 100;
+    if (this.tournamentEvent.doubles) {
+      amount = amount / 2;
+      amountInAccountCurrency = amountInAccountCurrency / 2;
+    }
     const fullName = profile.firstName + ' ' + profile.lastName;
     const postalCode = profile.zipCode;
     const email = profile.email;

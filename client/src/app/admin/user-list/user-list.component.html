@@ -8,6 +8,15 @@
       <input matInput name="filterNameCtrl" type="text" [ngModel]="filterName" #filterNameCtrl="ngModel">
       <button mat-icon-button matSuffix (click)="clearFilter()"><mat-icon>clear</mat-icon></button>
     </mat-form-field>
+    <mat-form-field style="width: 320px;">
+      <mat-label>Filter by Email</mat-label>
+      <input matInput
+             name="filterEmailCtrl"
+             type="text"
+             [ngModel]="filterEmail"
+             #filterEmailCtrl="ngModel">
+      <button mat-icon-button matSuffix (click)="clearEmailFilter()"><mat-icon>clear</mat-icon></button>
+    </mat-form-field>
     <mat-form-field>
       <mat-label>Filter by Status</mat-label>
       <mat-select name="filterByStatusCtrl" [ngModel]="filterByStatus" #filterByStatusCtrl="ngModel">

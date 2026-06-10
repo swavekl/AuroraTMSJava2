@@ -58,7 +58,7 @@
       </div>
     </div>
     <div style="padding-top: 10px;">
-      Event Entry Fee: {{ tournamentEvent?.feeAdult | currency: tournamentCurrency }}
+      Event Entry Fee: {{ getEventFee() | currency: tournamentCurrency }}
     </div>
   </form>
 </mat-dialog-content>

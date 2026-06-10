@@ -25,6 +25,7 @@ import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
@@ -264,26 +265,61 @@ public class UserProfileService {
      * @param status
      * @return
      */
-    public Map<String, Object> listPaged(int limit, String after, String lastName, String status) {
+    public Map<String, Object> listPaged(int limit, String after, String lastName, String status, String email) {
         Map<String, Object> responseMap = new HashMap<>();
         try {
-            String query = "?limit=" + limit;
-            if (after != null) {
-                query += "&after=" + after;
+            // 1. Base query parameters
+            StringBuilder queryBuilder = new StringBuilder("?limit=").append(limit);
+            if (after != null && !after.isEmpty()) {
+                queryBuilder.append("&after=").append(after);
             }
-            if (lastName != null) {
-                String encodedLastName = lastName.replaceAll(" ", "%20");
-                query += "&filter=profile.lastName%20eq%20%22" + encodedLastName +"%22";
-            }
-            if (StringUtils.isNotEmpty(status)) {
-                query += (lastName == null) ? "&filter=" : "%20and%20";
-                String encodedStatus = status.replaceAll(" ", "%20");
-                query += "status%20eq%20%22" + encodedStatus + "%22";
-            }
-            SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
 
-            String path = oktaServiceBase + "/api/v1/users" + query;
-//            System.out.println("path = " + path);
+            // 2. Build individual filter clauses using Okta's advanced search syntax
+            List<String> filterClauses = new ArrayList<>();
+
+            if (lastName != null && !lastName.trim().isEmpty()) {
+                filterClauses.add("profile.lastName eq \"" + lastName.trim() + "\"");
+            }
+
+            if (status != null && !status.trim().isEmpty()) {
+                filterClauses.add("status eq \"" + status.trim() + "\"");
+            }
+
+            if (email != null && !email.trim().isEmpty()) {
+                String cleanEmail = email.trim();
+
+                if (cleanEmail.contains("+")) {
+                    // Example: abc+td@gmail.com splits cleanly into:
+                    // parts[0] = "abc"
+                    // parts[1] = "td@gmail.com" -> extract domain "gmail.com"
+                    String[] parts = cleanEmail.split("\\+");
+                    String prefix = parts[0];
+                    String domain = parts[1].substring(parts[1].indexOf("@") + 1);
+
+                    // Match users whose email starts with the prefix AND contains the email domain
+                    filterClauses.add("profile.email sw \"" + prefix + "\"");
+                    filterClauses.add("profile.email co \"" + domain + "\"");
+                } else {
+                    // Safe exact match execution fallback for standard emails
+                    filterClauses.add("profile.email eq \"" + cleanEmail + "\"");
+                }
+            }
+
+            // 3. Connect conditions and pass via Okta's standard '&search=' query block
+            if (!filterClauses.isEmpty()) {
+                String unencodedSearchString = String.join(" and ", filterClauses);
+
+                // Cleanly encodes spaces to %20 and handles standard quotes safely
+                String encodedSearchParam = URLEncoder.encode(unencodedSearchString, StandardCharsets.UTF_8.toString())
+                        .replaceAll("\\+", "%20");
+
+                // Note the parameter name change from filter= to search=
+                queryBuilder.append("&search=").append(encodedSearchParam);
+            }
+
+            SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
+            String path = oktaServiceBase + "/api/v1/users" + queryBuilder.toString();
+
             Map<String, String> internalResponseMap = makeGetRequestInternal(path);
             String profiles = internalResponseMap.get("profiles");
             String nextAfter = internalResponseMap.get("after");

@@ -222,9 +222,10 @@ public class UserProfileController extends AbstractOktaController {
     public ResponseEntity<Map<String, Object>> listPaged(@RequestParam Integer limit,
                                                          @RequestParam(required = false) String after,
                                                          @RequestParam(required = false) String lastName,
-                                                         @RequestParam(required = false) String status) {
+                                                         @RequestParam(required = false) String status,
+                                                         @RequestParam(required = false) String email) {
         try {
-            Map<String, Object> responseMap = userProfileService.listPaged(limit, after, lastName, status);
+            Map<String, Object> responseMap = userProfileService.listPaged(limit, after, lastName, status, email);
             return new ResponseEntity(responseMap, HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity(e.getMessage(), HttpStatus.NOT_FOUND);

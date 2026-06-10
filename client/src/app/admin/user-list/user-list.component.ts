@@ -26,9 +26,11 @@ export class UserListComponent {
   @ViewChild(MatSort) sort!: MatSort;
   @ViewChild(MatTable) table!: MatTable<Profile>;
   @ViewChild('filterNameCtrl') filterNameCtrl: UntypedFormControl;
+  @ViewChild('filterEmailCtrl') filterEmailCtrl: UntypedFormControl;
   @ViewChild('filterByStatusCtrl') filterByStatusCtrl: UntypedFormControl;
   dataSource: UsersListDataSource;
   filterName: string;
+  filterEmail: string;
   filterByStatus: any;
 
   /** Columns displayed in the table. Columns IDs can be added, removed, or reordered. */
@@ -68,6 +70,16 @@ export class UserListComponent {
         console.log('filter by name changes', value);
         this.dataSource.filterByName$.next(value);
       });
+    this.filterEmailCtrl.valueChanges
+      .pipe(
+        skip(1),
+        distinctUntilChanged(),
+        debounceTime(700)
+      )
+      .subscribe((value) => {
+        console.log('filter by email changes', value);
+        this.dataSource.filterByEmail$.next(value);
+      });
     this.filterByStatusCtrl.valueChanges
       .pipe(
         skip(1),
@@ -104,6 +116,10 @@ export class UserListComponent {
 
   clearFilter() {
     this.filterNameCtrl.reset();
+  }
+
+  clearEmailFilter() {
+    this.filterEmailCtrl.reset();
   }
 
   isUserLockedOut(profile: Profile) : boolean {

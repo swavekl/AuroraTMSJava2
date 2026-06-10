@@ -239,30 +239,31 @@ export class DrawsComponent implements OnInit, OnChanges {
   }
 
   onReplacePlayer() {
-    const data: ReplacePlayerPopupData = {
-      drawItems: this.draws,
-      tournamentEvent: this.selectedEvent,
-      tournamentName: this.tournamentName,
-      drawType: this.selectedEvent.singleElimination ? DrawType.SINGLE_ELIMINATION : DrawType.ROUND_ROBIN
-    };
-
-    const config = {
-      width: '800px', height: '620px', data: data
-    };
-    const dialogRef = this.dialog.open(ReplacePlayerPopupComponent, config);
-    dialogRef.afterClosed().subscribe(result => {
-      if (result?.action === 'ok') {
-        const request = result.request;
-        const action: DrawAction = {
-          actionType: DrawActionType.DRAW_ACTION_REPLACE_PLAYER,
-          eventId: this.selectedEvent.id,
-          payload: {replaceRequest: request}
+    if (this.selectedEvent != null) {
+      this.confirmDrawChanges(() => {
+        const data: ReplacePlayerPopupData = {
+          drawItems: this.draws,
+          tournamentEvent: this.selectedEvent,
+          tournamentName: this.tournamentName,
+          drawType: this.selectedEvent.singleElimination ? DrawType.SINGLE_ELIMINATION : DrawType.ROUND_ROBIN
         };
-        this.drawsAction.emit(action);
 
-      }
-    });
-
-
+        const config = {
+          width: '800px', height: '620px', data: data
+        };
+        const dialogRef = this.dialog.open(ReplacePlayerPopupComponent, config);
+        dialogRef.afterClosed().subscribe(result => {
+          if (result?.action === 'ok') {
+            const request = result.request;
+            const action: DrawAction = {
+              actionType: DrawActionType.DRAW_ACTION_REPLACE_PLAYER,
+              eventId: this.selectedEvent.id,
+              payload: {replaceRequest: request}
+            };
+            this.drawsAction.emit(action);
+          }
+        });
+      });
+   }
   }
 }
