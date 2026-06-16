@@ -24,8 +24,11 @@ export class Match {
   // if true the match template should show seed number
   showSeedNumber: boolean;
 
-  // if true neither item in this match is draggable
-  dragDisabled: boolean;
+  // if true item A in this match is draggable
+  dragADisabled: boolean;
+
+  // if true item B in this match is draggable
+  dragBDisabled: boolean;
 
   // html id value
   matchElementId: string;

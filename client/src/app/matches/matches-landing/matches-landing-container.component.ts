@@ -58,6 +58,7 @@ export class MatchesLandingContainerComponent implements OnInit, OnDestroy {
   }
 
   private loadTournaments() {
+    const fiveDaysMillis: number = 5 * 24 * 60 * 60 * 1000;
     this.tournaments$ = this.tournamentConfigService.store.select(this.tournamentConfigService.selectors.selectEntities)
       .pipe(map(
         (tournaments: Tournament[]) => {
@@ -65,7 +66,9 @@ export class MatchesLandingContainerComponent implements OnInit, OnDestroy {
           const today: Date = this.todayService.todaysDate;
           const dateUtils = new DateUtils();
           for (const tournament of tournaments) {
-              if (dateUtils.isDateInRange (today, tournament.startDate, tournament.endDate)) {
+            const endDateMillis = dateUtils.convertFromString(tournament.endDate).getTime() + fiveDaysMillis;
+            const endDate = new Date(endDateMillis);
+              if (dateUtils.isDateInRange (today, tournament.startDate, endDate)) {
                 filteredTournaments.push(tournament);
               }
           }

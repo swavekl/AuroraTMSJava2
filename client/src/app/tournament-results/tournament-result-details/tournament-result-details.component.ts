@@ -133,7 +133,8 @@ export class TournamentResultDetailsComponent implements OnInit, OnChanges {
         match.tableNum = 0;  // for now
         this.findMatchResultAndWinner(drawItemLeft?.playerId, drawItemRight?.playerId, drawRound.round, match);
         match.showSeedNumber = (i === 0); // show seed number for first round only
-        match.dragDisabled = true;
+        match.dragADisabled = true;
+        match.dragBDisabled = true;
 
         roundMatches.push(match);
         j += 2;

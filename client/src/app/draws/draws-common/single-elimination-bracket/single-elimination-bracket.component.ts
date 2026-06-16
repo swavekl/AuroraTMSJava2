@@ -375,8 +375,10 @@ export class SingleEliminationBracketComponent implements OnInit, OnDestroy, OnC
             this.getResultAndWinner(match, matchCardInfo?.matchesResults);
             match.showSeedNumber = (i === 0); // show seed number for first round only
             // only first round matches can be rearanged
-            match.dragDisabled = (drawRound.round != roundNumbers[0])
+            match.dragADisabled = (drawRound.round != roundNumbers[0])
               || (drawItemLeft?.seSeedNumber === 1)
+              || (this.editMode === false);
+            match.dragBDisabled = (drawRound.round != roundNumbers[0])
               || (drawItemRight?.seSeedNumber === 2)
               || (this.editMode === false);
             // assign id so we can identify over which player (A or B) the mouse is hovering.
