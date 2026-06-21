@@ -84,8 +84,8 @@ export class TodayService {
     // const utcMoment = moment([2026, 9, 26, 0, 0, 0]);
     // 2026 USATT Midwest Championship - June 13 - 14
     // const utcMoment = moment([2026, 5, 13, 0, 0, 0]);
-    // const utcMoment = moment([2026, 5, 14, 0, 0, 0]);
-    // return utcMoment.toDate();
-    return new Date();
+    const utcMoment = moment([2026, 5, 14, 0, 0, 0]);
+    return utcMoment.toDate();
+    // return new Date();
   }
 }

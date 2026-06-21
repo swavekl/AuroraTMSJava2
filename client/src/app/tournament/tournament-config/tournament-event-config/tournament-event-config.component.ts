@@ -221,8 +221,12 @@ export class TournamentEventConfigComponent implements OnInit, OnChanges, OnDest
   onEdit(indexToEdit: number) {
     const prizeInfos = this.tournamentEvent.configuration.prizeInfoList;
     const prizeInfo: PrizeInfo = (indexToEdit >= 0) ? prizeInfos[indexToEdit] : new PrizeInfo();
+    const roundsList = this.tournamentEvent.roundsConfiguration;
+    const lastRound = roundsList != null ? roundsList.rounds[roundsList.rounds.length - 1] : null;
+    const drawMethod = (lastRound != null && lastRound.divisions != null && lastRound.divisions.length > 0)
+      ? lastRound.divisions[0].drawMethod : DrawMethod.SINGLE_ELIMINATION;
     const prizeInfoDialogData: PrizeInfoDialogData = {
-      drawMethod: this.tournamentEvent.drawMethod,
+      drawMethod: drawMethod,
       prizeInfo: prizeInfo
     };
     const config: MatDialogConfig = {

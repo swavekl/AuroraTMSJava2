@@ -40,13 +40,13 @@ mat-list-item:hover {
   background-color: #7A73FF;
 }
 
-// --- OPTIMIZED NARROW PLACE COLUMN LAYOUT ---
 .mat-column-place {
   flex: none !important;
-  width: 25px !important;
-  max-width: 25px !important;
-  min-width: 20px !important;
-  padding-right: 8px !important;
+  width: 35px !important;
+  max-width: 35px !important;
+  min-width: 30px !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
 }
 
 .mat-column-playerFullName {
@@ -57,13 +57,14 @@ mat-list-item:hover {
   flex: 3;
   justify-content: right;
   text-align: right;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
 }
 
 .no-events-panel {
   margin-top: 110px;
 }
 
-// --- "MY RESULTS" BANNER LAYOUTS ---
 .day-section {
   margin-bottom: 24px;
 }

@@ -1,6 +1,5 @@
 .pipeline-container {
   position: relative;
-  min-height: 80vh;
   padding: 10px 60px;
   background-color: #f8f9fa;
   overflow: auto;
@@ -55,7 +54,7 @@
 }
 
 .empty-state-container {
-  margin-top: 100px;
+  margin-top: 20px;
   .welcome-text h2 { font-size: 28px; font-weight: 300; }
 }
 

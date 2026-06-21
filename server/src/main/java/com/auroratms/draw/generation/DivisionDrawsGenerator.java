@@ -44,8 +44,8 @@ public class DivisionDrawsGenerator extends AbstractDrawsGenerator implements ID
      */
     private List<DrawItem> placePlayersInGroups(List<TournamentEventEntry> eventEntries, Map<Long, PlayerDrawInfo> entryIdToPlayerDrawInfo) {
         int numEnteredPlayers = eventEntries.size();
-        int playersPerGroup = this.tournamentEvent.getPlayersPerGroup();
-        int playersToSeed = this.tournamentEvent.getPlayersToSeed();
+        int playersPerGroup = this.tournamentEventRoundDivision.getPlayersPerGroup();
+        int playersToSeed = this.tournamentEventRoundDivision.getPlayersToSeed();
 
         // make the draw
         List<DrawItem> drawItemList = new ArrayList<>(eventEntries.size());

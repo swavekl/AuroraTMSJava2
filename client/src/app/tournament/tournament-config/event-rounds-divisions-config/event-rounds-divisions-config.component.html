@@ -13,18 +13,25 @@
     <path *ngFor="let path of connectors" [attr.d]="path" fill="none" stroke="#673ab7" stroke-width="2" opacity="0.4" />
   </svg>
 
-  <div *ngIf="rounds.length === 0" class="empty-state-container" fxLayout="column" fxLayoutAlign="center center" fxLayoutGap="40px">
+  <div *ngIf="rounds.length === 0" class="empty-state-container" fxLayout="column" fxLayoutAlign="start center" fxLayoutGap="40px">
     <div class="welcome-text">
       <h2>Getting Started</h2>
       <p>Initialize your tournament structure with a template.</p>
     </div>
-    <div fxLayout="row" fxLayoutGap="30px">
+    <div fxLayout="column" fxLayoutGap="30px">
       <div class="quick-add-card" fxLayout="row" fxLayoutAlign="space-between center" fxLayoutGap="20px">
         <div fxLayout="column" fxFlex>
           <h3>Standard Progression</h3>
-          <p>Qualifying Round Robin to Championship SE.</p>
+          <p>Qualifying Round Robin to Championship Single Elimination.</p>
         </div>
         <button type="button" mat-flat-button color="primary" (click)="buildStandardRRtoSE()">Add RR ➔ SE</button>
+      </div>
+      <div class="quick-add-card" fxLayout="row" fxLayoutAlign="space-between center" fxLayoutGap="20px">
+        <div fxLayout="column" fxFlex>
+          <h3>Giant Round Robin</h3>
+          <p>Classic Giant Round Robin format.</p>
+        </div>
+        <button type="button" mat-flat-button color="primary" (click)="buildGiantRR()">Add GRR</button>
       </div>
       <div class="quick-add-card" fxLayout="row" fxLayoutAlign="space-between center" fxLayoutGap="20px">
         <div fxLayout="column" fxFlex>

@@ -3,10 +3,7 @@ package com.auroratms.results;
 import com.auroratms.draw.DrawItem;
 import com.auroratms.draw.DrawService;
 import com.auroratms.draw.DrawType;
-import com.auroratms.event.TournamentEvent;
-import com.auroratms.event.TournamentEventConfigAdapter;
-import com.auroratms.event.TournamentEventConfiguration;
-import com.auroratms.event.TournamentEventEntityService;
+import com.auroratms.event.*;
 import com.auroratms.match.Match;
 import com.auroratms.match.MatchCard;
 import com.auroratms.match.MatchCardService;
@@ -65,27 +62,39 @@ public class TournamentResultsService {
         List<EventResultStatus> eventResultStatusList = new ArrayList<>(tournamentEvents.size());
         for (TournamentEvent tournamentEvent : tournamentEvents) {
             TournamentEventConfiguration configuration = tournamentEvent.getConfiguration();
-            Map<Integer, String> finalPlayerRankings =
-                    configuration.getFinalPlayerRankings();
-            EventResultStatus eventResultStatus = new EventResultStatus();
-            eventResultStatus.setEventId(tournamentEvent.getId());
-            eventResultStatus.setEventName(tournamentEvent.getName());
-            boolean play3rd4thPlace = tournamentEvent.isPlay3rd4thPlace();
-            eventResultStatus.setPlay3rd4thPlace(play3rd4thPlace);
-            boolean isGiantRREvent = tournamentEvent.getPlayersToAdvance() == 0 && !tournamentEvent.isSingleElimination();
-            eventResultStatus.setGiantRREvent(isGiantRREvent);
-            eventResultStatusList.add(eventResultStatus);
-            boolean resultsAvailable = (finalPlayerRankings != null && !finalPlayerRankings.isEmpty());
-            eventResultStatus.setResultsAvailable(resultsAvailable);
-            if (resultsAvailable) {
-                String firstPlacePlayer = finalPlayerRankings.get(1);
-                eventResultStatus.setFirstPlacePlayer(firstPlacePlayer);
-                String secondPlacePlayer = finalPlayerRankings.get(2);
-                eventResultStatus.setSecondPlacePlayer(secondPlacePlayer);
-                String thirdPlacePlayer = finalPlayerRankings.get(3);
-                eventResultStatus.setThirdPlacePlayer(thirdPlacePlayer);
-                String fourthPlacePlayer = finalPlayerRankings.get(4);
-                eventResultStatus.setFourthPlacePlayer(fourthPlacePlayer);
+            Map<Integer, String> finalPlayerRankings = configuration.getFinalPlayerRankings();
+            TournamentRoundsConfiguration roundsConfiguration = tournamentEvent.getRoundsConfiguration();
+            if (roundsConfiguration != null) {
+                List<TournamentEventRound> rounds = roundsConfiguration.getRounds();
+                int numRounds = rounds.size();
+                // get last round
+                TournamentEventRound lastRound = rounds.get(numRounds - 1);
+                List<TournamentEventRoundDivision> lastRoundDivisions = lastRound.getDivisions();
+                for (TournamentEventRoundDivision division : lastRoundDivisions) {
+                    TournamentEventConfigAdapter adapter = new TournamentEventConfigAdapter(
+                            tournamentEvent, lastRound.getOrdinalNum(), division.getDivisionIdx());
+                    EventResultStatus eventResultStatus = new EventResultStatus();
+                    eventResultStatus.setEventId(tournamentEvent.getId());
+                    eventResultStatus.setEventName(tournamentEvent.getName());
+                    boolean play3rd4thPlace = adapter.isPlay3rd4thPlace();
+                    eventResultStatus.setPlay3rd4thPlace(play3rd4thPlace);
+                    DrawMethod drawMethod = division.getDrawMethod();
+                    boolean isGiantRREvent = drawMethod == DrawMethod.DIVISION;
+                    eventResultStatus.setGiantRREvent(isGiantRREvent);
+                    eventResultStatusList.add(eventResultStatus);
+                    boolean resultsAvailable = (finalPlayerRankings != null && !finalPlayerRankings.isEmpty());
+                    eventResultStatus.setResultsAvailable(resultsAvailable);
+                    if (resultsAvailable) {
+                        String firstPlacePlayer = finalPlayerRankings.get(1);
+                        eventResultStatus.setFirstPlacePlayer(firstPlacePlayer);
+                        String secondPlacePlayer = finalPlayerRankings.get(2);
+                        eventResultStatus.setSecondPlacePlayer(secondPlacePlayer);
+                        String thirdPlacePlayer = finalPlayerRankings.get(3);
+                        eventResultStatus.setThirdPlacePlayer(thirdPlacePlayer);
+                        String fourthPlacePlayer = finalPlayerRankings.get(4);
+                        eventResultStatus.setFourthPlacePlayer(fourthPlacePlayer);
+                    }
+                }
             }
         }
         // get a list of tournament events

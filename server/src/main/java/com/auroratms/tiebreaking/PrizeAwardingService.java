@@ -1,10 +1,7 @@
 package com.auroratms.tiebreaking;
 
 import com.auroratms.draw.DrawType;
-import com.auroratms.event.DrawMethod;
-import com.auroratms.event.PrizeInfo;
-import com.auroratms.event.TournamentEvent;
-import com.auroratms.event.TournamentEventEntityService;
+import com.auroratms.event.*;
 import com.auroratms.match.Match;
 import com.auroratms.match.MatchCard;
 import com.auroratms.match.MatchCardService;
@@ -15,6 +12,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import org.springframework.transaction.annotation.Transactional;
+import org.thymeleaf.util.StringUtils;
+
 import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -38,7 +37,7 @@ public class PrizeAwardingService {
      */
     public void processCompletedMatchCard(MatchCard matchCard, TournamentEvent tournamentEvent) {
         List<PrizeInfo> prizeInfoList = tournamentEvent.getConfiguration().getPrizeInfoList();
-        if (prizeInfoList == null || prizeInfoList.size() == 0) {
+        if (prizeInfoList == null || prizeInfoList.isEmpty()) {
             // if they did not configure prizes make some default ones for trophies only
             prizeInfoList = new ArrayList<>(3);
             prizeInfoList.add(new PrizeInfo("A", 1, 0, 0, true, PrizeInfo.AWARD_TYPE_TROPHY));
@@ -46,9 +45,20 @@ public class PrizeAwardingService {
             prizeInfoList.add(new PrizeInfo("A", 3, 4, 0, true, PrizeInfo.AWARD_TYPE_TROPHY));
         }
 
-        // check if completed round is for the round where we award money or trophies
-        if (tournamentEvent.getDrawMethod() == DrawMethod.SNAKE) {
-            if (matchCard.getDrawType() == DrawType.SINGLE_ELIMINATION) {
+        // is this the last round ?
+        TournamentRoundsConfiguration roundsConfiguration = tournamentEvent.getRoundsConfiguration();
+        List<TournamentEventRound> rounds = roundsConfiguration.getRounds();
+        TournamentEventRound lastEventRound = rounds.get(rounds.size() - 1);
+        boolean lastRound = lastEventRound.getOrdinalNum() == matchCard.getRoundOrdinalNumber();
+        if (lastRound) {
+            int roundOrdinalNumber = matchCard.getRoundOrdinalNumber();
+            int divisionIdx = matchCard.getDivisionIdx();
+            TournamentEventConfigAdapter adapter = new TournamentEventConfigAdapter(tournamentEvent, roundOrdinalNumber, divisionIdx);
+            DrawMethod drawMethod = adapter.getRoundDivision().getDrawMethod();
+            boolean play3rd4thPlace = adapter.isPlay3rd4thPlace();
+
+            // check if completed round is for the round where we award money or trophies
+            if (matchCard.getDrawType() == DrawType.SINGLE_ELIMINATION && drawMethod == DrawMethod.SINGLE_ELIMINATION) {
                 // round of 2 (finals) or of 4 (semifinals) or 8
                 int maxPlaceWithPrize = 2;
                 for (PrizeInfo prizeInfo : prizeInfoList) {
@@ -62,12 +72,14 @@ public class PrizeAwardingService {
                 int round = matchCard.getRound();
                 int maxRoundWithPrize = (int) Math.pow(2, Math.ceil(Math.log(maxPlaceWithPrize)));
                 if (round <= maxRoundWithPrize) {
-                    processSingleEliminationEvent(tournamentEvent, maxRoundWithPrize);
+                    processSingleEliminationEvent(tournamentEvent, maxRoundWithPrize, roundOrdinalNumber, divisionIdx, play3rd4thPlace);
                 }
+            } else if (matchCard.getDrawType() == DrawType.ROUND_ROBIN && drawMethod == DrawMethod.DIVISION) {
+                // giant round robin has only one round
+                processRoundRobinEvent(tournamentEvent, prizeInfoList, matchCard);
+            } else {
+                // todo teams format
             }
-        } else if (tournamentEvent.getDrawMethod() == DrawMethod.DIVISION) {
-            // giant round robin has only one round
-            processRoundRobinEvent(tournamentEvent, prizeInfoList, matchCard);
         }
     }
 
@@ -102,7 +114,7 @@ public class PrizeAwardingService {
         int maxPlace = 1;
         List<PrizeInfo> prizeInfosForDivision = prizeInfoList
                 .stream()
-                .filter(c -> c.getDivision().equals(division))
+                .filter(c -> StringUtils.equals(c.getDivision(),division))
                 .sorted(Comparator.comparing(PrizeInfo::getAwardedForPlace))
                 .collect(Collectors.toList());
         for (PrizeInfo prizeInfo : prizeInfosForDivision) {
@@ -115,7 +127,9 @@ public class PrizeAwardingService {
     private Map<Integer, String> groupNumToDivisionNameMap(List<PrizeInfo> prizeInfoList) {
         SortedSet<String> divisions = new TreeSet<>();
         for (PrizeInfo prizeInfo : prizeInfoList) {
-            divisions.add(prizeInfo.getDivision());
+            if (prizeInfo.getDivision() != null) {
+                divisions.add(prizeInfo.getDivision());
+            }
         }
 
         // build map translating group number to division name
@@ -132,11 +146,20 @@ public class PrizeAwardingService {
     /**
      * @param tournamentEvent
      * @param maxRoundWithPrizes
+     * @param roundOrdinalNumber
+     * @param divisionIdx
+     * @param play3rd4thPlace
      * @return
      */
-    private Map<Integer, String> processSingleEliminationEvent(TournamentEvent tournamentEvent, int maxRoundWithPrizes) {
+    private Map<Integer, String> processSingleEliminationEvent(TournamentEvent tournamentEvent,
+                                                               int maxRoundWithPrizes,
+                                                               int roundOrdinalNumber,
+                                                               int divisionIdx,
+                                                               boolean play3rd4thPlace) {
         // get all match cards for this event single elimination round
-        List<MatchCard> seMatchCards = this.matchCardService.findAllForEventAndDrawType(tournamentEvent.getId(), DrawType.SINGLE_ELIMINATION);
+        List<MatchCard> seMatchCards = this.matchCardService.findAllForEventAndDrawTypeAndRoundAndDivision(tournamentEvent.getId(),
+                DrawType.SINGLE_ELIMINATION, roundOrdinalNumber, divisionIdx);
+
         // process them in this order round of 8, round of 4 (semifinals), round of 2 (i.e. finals)
         int roundToAssignPrizes = maxRoundWithPrizes;
         Map<Integer, String> finalPlayerRankings = new TreeMap<>();
@@ -153,14 +176,14 @@ public class PrizeAwardingService {
                         String loosingPlayerProfileId = playerRankingsMap.get(Integer.toString(2));
                         finalPlayerRankings.put(playerPlace, loosingPlayerProfileId);
                     } else if (roundToAssignPrizes == 4) {
-                        if (!tournamentEvent.isPlay3rd4thPlace()) {
+                        if (!play3rd4thPlace) {
                             // choose looser of this match for semifinalist prize i.e. 3 - 4 th place
                             String loosingPlayerProfileId = playerRankingsMap.get(Integer.toString(2));
                             finalPlayerRankings.put(playerPlace, loosingPlayerProfileId);
                         }
                     } else {
                         // finals plus 3rd and 4th place
-                        if (tournamentEvent.isPlay3rd4thPlace() && matchCard.getGroupNum() == 2) {
+                        if (play3rd4thPlace && matchCard.getGroupNum() == 2) {
                             // match for 3rd and 4th
                             String loosingPlayerProfileId = playerRankingsMap.get(Integer.toString(2));
                             finalPlayerRankings.put(4, loosingPlayerProfileId);
@@ -179,7 +202,7 @@ public class PrizeAwardingService {
                 } else {
                     // if there is no 4th player to play a match for 3rd nd 4th place, so there is no player rankings map
                     // just get this player's profile id and put him/her in the 3rd place
-                    if (roundToAssignPrizes == 2 && tournamentEvent.isPlay3rd4thPlace() && matchCard.getGroupNum() == 2) {
+                    if (roundToAssignPrizes == 2 && play3rd4thPlace && matchCard.getGroupNum() == 2) {
                         List<Match> matches = matchCard.getMatches();
                         if (!matches.isEmpty()) {
                             Match match = matches.get(0);
@@ -206,7 +229,7 @@ public class PrizeAwardingService {
         } while (roundToAssignPrizes >= 2);
 
         // persist final rankings
-        if (finalPlayerRankings.size() > 0) {
+        if (!finalPlayerRankings.isEmpty()) {
             Map<Integer, String> finalPlayerRankingsWithNames = convertProfileIdsToNamesMap(finalPlayerRankings);
             tournamentEvent.getConfiguration().setFinalPlayerRankings(finalPlayerRankingsWithNames);
             this.tournamentEventEntityService.update(tournamentEvent);

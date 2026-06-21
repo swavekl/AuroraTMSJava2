@@ -250,6 +250,19 @@ this.rounds = clondedRounds;
     this.emitRoundsChanged();
   }
 
+  protected buildGiantRR() {
+    const giantRRRound = TournamentEvent.makeRound('Giant Round Robin', null, DrawMethod.DIVISION);
+    giantRRRound.ordinalNum = 1;
+    giantRRRound.singleElimination = false;
+    let division: TournamentEventRoundDivision = this.makeDefaultOrCloneDivision([], 'All divisions');
+    division.playersPerGroup = 8;
+    division.playersToAdvance = 0;
+    division.drawMethod = DrawMethod.DIVISION;
+    giantRRRound.divisions = [division];
+    this.rounds = [giantRRRound];
+    this.emitRoundsChanged();
+  }
+
   protected addSingleElimRound() {
     const singleElimRound = TournamentEvent.makeRound('Single Elimination', null, DrawMethod.SINGLE_ELIMINATION);
     singleElimRound.singleElimination = true;
