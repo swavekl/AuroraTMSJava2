@@ -54,7 +54,7 @@ public class PrizeAwardingService {
             int roundOrdinalNumber = matchCard.getRoundOrdinalNumber();
             int divisionIdx = matchCard.getDivisionIdx();
             TournamentEventConfigAdapter adapter = new TournamentEventConfigAdapter(tournamentEvent, roundOrdinalNumber, divisionIdx);
-            DrawMethod drawMethod = adapter.getRoundDivision().getDrawMethod();
+            DrawMethod drawMethod = (adapter.getRoundDivision() != null) ? adapter.getRoundDivision().getDrawMethod() : DrawMethod.SINGLE_ELIMINATION;
             boolean play3rd4thPlace = adapter.isPlay3rd4thPlace();
 
             // check if completed round is for the round where we award money or trophies

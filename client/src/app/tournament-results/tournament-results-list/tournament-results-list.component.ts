@@ -15,6 +15,9 @@ export class TournamentResultsListComponent implements OnInit {
   @Input()
   tournamentId: number;
 
+  // Define the columns to show in the desktop table layout
+  displayedColumns: string[] = ['eventName', 'firstPlace', 'secondPlace', 'thirdFourthPlace', 'actions'];
+
   constructor() {
   }
 

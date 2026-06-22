@@ -1,26 +1,141 @@
 @use "src/my-theme.scss" as *;
 
+:host {
+  display: block;
+  // Let the parent layout context control the master height boundary
+  height: 100%;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
 .title-container {
   padding-left: 8px;
   width: 98%;
+  margin-bottom: 4px;
 }
 
-.results-container {
-  height: calc(100vh - 120px);
-  overflow: auto;
-}
-
-/*TODO(mdc-migration): The following rule targets internal classes of card that may no longer apply for the MDC version.*/
-mat-card-actions div.actions-button-bar {
-  //border: 1px solid red;
-  padding-bottom: 8px;
-}
-
-.results-card {
-  margin: 0 8px 8px 8px;
-}
-
-.place-line {
-  //border: 1px solid green;
+// Fixes the double scrollbars by subtracting from the parent content container area
+.scrollable-viewport {
+  // Use 100% of the host space minus only the internal title/toolbar heights
+  height: calc(100% - 110px);
+  overflow-y: auto;
+  overflow-x: hidden;
   width: 100%;
+}
+
+.content-container {
+  padding: 16px;
+  box-sizing: border-box;
+}
+
+// ===================================================================
+// DESKTOP & TABLET STYLING (Table Layout)
+// ===================================================================
+.desktop-view {
+  display: block;
+
+  .table-card {
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05) !important;
+  }
+
+  .results-table {
+    width: 100%;
+    border-collapse: collapse;
+
+    th.mat-mdc-header-cell {
+      position: sticky;
+      top: 0;
+      z-index: 2;
+      background-color: #f5f5f5;
+      font-weight: 700;
+      color: rgba(0, 0, 0, 0.87);
+      font-size: 0.95rem;
+      padding: 14px;
+    }
+
+    td.mat-mdc-cell {
+      padding: 14px;
+      font-size: 0.95rem;
+    }
+
+    .event-name-cell {
+      font-weight: 700;
+      color: #333;
+    }
+
+    .player-text {
+      font-weight: 500;
+      color: rgba(0, 0, 0, 0.87);
+      line-height: 1.4;
+    }
+
+    .actions-header, .actions-cell {
+      text-align: right;
+      padding-right: 24px !important;
+    }
+  }
+}
+
+// ===================================================================
+// MOBILE STYLING (Card Layout)
+// ===================================================================
+.mobile-view {
+  display: none;
+  flex-direction: column;
+  gap: 12px;
+
+  .results-card {
+    margin: 0;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1) !important;
+  }
+
+  .mobile-card-content {
+    padding-top: 8px;
+  }
+
+  .mobile-standings-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .place-line {
+    display: flex;
+    align-items: flex-start;
+    font-weight: 500;
+
+    .rank-prefix {
+      display: inline-block;
+      width: 40px;
+      font-weight: 700;
+      color: #673ab7;
+      flex-shrink: 0;
+
+      &.multi {
+        width: 85px;
+      }
+    }
+  }
+
+  .mobile-card-actions {
+    display: flex;
+    justify-content: flex-end;
+    padding: 8px 16px 16px 16px !important;
+  }
+}
+
+.not-available-text {
+  color: rgba(0, 0, 0, 0.45);
+  font-style: italic;
+}
+
+@media (max-width: 840px) {
+  .desktop-view {
+    display: none;
+  }
+  .mobile-view {
+    display: flex;
+  }
 }

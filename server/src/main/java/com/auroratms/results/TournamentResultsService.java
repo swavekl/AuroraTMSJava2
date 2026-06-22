@@ -59,8 +59,11 @@ public class TournamentResultsService {
     public List<EventResultStatus> listEventResultsStatus(long tournamentId) {
         Collection<TournamentEvent> tournamentEvents =
                 this.tournamentEventEntityService.list(tournamentId, Pageable.unpaged());
+        List<TournamentEvent> sortedTournamentEvents = tournamentEvents.stream()
+                .sorted(Comparator.comparingInt(TournamentEvent::getOrdinalNumber))
+                .toList();
         List<EventResultStatus> eventResultStatusList = new ArrayList<>(tournamentEvents.size());
-        for (TournamentEvent tournamentEvent : tournamentEvents) {
+        for (TournamentEvent tournamentEvent : sortedTournamentEvents) {
             TournamentEventConfiguration configuration = tournamentEvent.getConfiguration();
             Map<Integer, String> finalPlayerRankings = configuration.getFinalPlayerRankings();
             TournamentRoundsConfiguration roundsConfiguration = tournamentEvent.getRoundsConfiguration();

@@ -1,44 +1,112 @@
-<div class="mat-headline-6 title-container" >Tournament Results</div>
+<div class="mat-headline-6 title-container">Tournament Results</div>
+
 <mat-toolbar>
-  <button mat-raised-button type="button" [routerLink]="['/ui/tournaments/view', tournamentId]" >Back</button>
+  <button mat-raised-button type="button" [routerLink]="['/ui/tournaments/view', tournamentId]">Back</button>
 </mat-toolbar>
-<div class="content-container" fxLayout="row" fxLayoutAlign="start start">
-  <div fxFlex.lt-md="100%" fxFlex.md="100%" fxFlex="30%">
-      <mat-card appearance="outlined" class="results-card" *ngFor="let eventResultStatus of eventResultStatusList">
-        <mat-card-header>
-          <mat-card-title>{{eventResultStatus.eventName}}</mat-card-title>
-        </mat-card-header>
-        <mat-card-content>
-          <ng-container *ngIf="eventResultStatus.resultsAvailable; else notAvailable">
-            <ng-container *ngIf="!eventResultStatus.giantRREvent">
-              <div fxLayout="column" fxLayoutAlign="start start">
-                <div class="place-line">1st) {{eventResultStatus.firstPlacePlayer}}</div>
-                <div class="place-line">2nd) {{eventResultStatus.secondPlacePlayer}}</div>
-                <ng-container *ngIf="eventResultStatus.play3rd4thPlace; else thirdFourthNotPlayed">
-                  <div class="place-line">3rd) {{eventResultStatus.thirdPlacePlayer}}</div>
-                  <div class="place-line">4th) {{eventResultStatus.fourthPlacePlayer}}</div>
-                </ng-container>
-                <ng-template #thirdFourthNotPlayed>
-                  <div  class="place-line" *ngIf="eventResultStatus.thirdPlacePlayer != null && eventResultStatus.fourthPlacePlayer != null">
-                    3rd & 4th) {{eventResultStatus.thirdPlacePlayer}}, {{eventResultStatus.fourthPlacePlayer}}
-                  </div>
-                </ng-template>
-              </div>
-            </ng-container>
+
+<div class="scrollable-viewport">
+  <div class="content-container">
+
+    <div class="desktop-view">
+      <mat-card appearance="outlined" class="table-card">
+        <table mat-table [dataSource]="eventResultStatusList" class="results-table">
+
+          <ng-container matColumnDef="eventName">
+            <th mat-header-cell *matHeaderCellDef>Event</th>
+            <td mat-cell *matCellDef="let element" class="event-name-cell">{{element.eventName}}</td>
           </ng-container>
-          <ng-template #notAvailable>
-            Results not available
-          </ng-template>
-        </mat-card-content>
-        <mat-card-actions>
-          <div fxLayout="row" class="actions-button-bar">
-            <span fxFlex></span>
+
+          <ng-container matColumnDef="firstPlace">
+            <th mat-header-cell *matHeaderCellDef>1st Place</th>
+            <td mat-cell *matCellDef="let element">
+              @if (element.resultsAvailable) {
+                <span class="player-text">{{element.firstPlacePlayer}}</span>
+              } @else {
+                <span class="not-available-text">Pending</span>
+              }
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="secondPlace">
+            <th mat-header-cell *matHeaderCellDef>2nd Place</th>
+            <td mat-cell *matCellDef="let element">
+              @if (element.resultsAvailable) {
+                <span class="player-text">{{element.secondPlacePlayer}}</span>
+              } @else {
+                <span class="not-available-text">-</span>
+              }
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="thirdFourthPlace">
+            <th mat-header-cell *matHeaderCellDef>3rd / 4th Place</th>
+            <td mat-cell *matCellDef="let element">
+              @if (element.resultsAvailable) {
+                @if (element.play3rd4thPlace) {
+                  <span class="player-text">3rd: {{element.thirdPlacePlayer}}<br>4th: {{element.fourthPlacePlayer}}</span>
+                } @else if (element.thirdPlacePlayer && element.fourthPlacePlayer) {
+                  <span class="player-text">{{element.thirdPlacePlayer}}, {{element.fourthPlacePlayer}}</span>
+                } @else {
+                  <span class="not-available-text">-</span>
+                }
+              } @else {
+                <span class="not-available-text">-</span>
+              }
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="actions">
+            <th mat-header-cell *matHeaderCellDef class="actions-header">Actions</th>
+            <td mat-cell *matCellDef="let element" class="actions-cell">
+              <button mat-raised-button
+                      [routerLink]="['/ui/results/details', tournamentId, element.eventId]"
+                      [state]="{eventName: element.eventName}"
+                      color="primary"
+                      [disabled]="!element.resultsAvailable">
+                Details
+              </button>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        </table>
+      </mat-card>
+    </div>
+
+    <div class="mobile-view">
+      @for (eventResultStatus of eventResultStatusList; track eventResultStatus.eventId) {
+        <mat-card appearance="outlined" class="results-card">
+          <mat-card-header>
+            <mat-card-title>{{eventResultStatus.eventName}}</mat-card-title>
+          </mat-card-header>
+          <mat-card-content class="mobile-card-content">
+            @if (eventResultStatus.resultsAvailable) {
+              @if (!eventResultStatus.giantRREvent) {
+                <div class="mobile-standings-list">
+                  <div class="place-line"><span class="rank-prefix">1st)</span> {{eventResultStatus.firstPlacePlayer}}</div>
+                  <div class="place-line"><span class="rank-prefix">2nd)</span> {{eventResultStatus.secondPlacePlayer}}</div>
+
+                  @if (eventResultStatus.play3rd4thPlace) {
+                    <div class="place-line"><span class="rank-prefix">3rd)</span> {{eventResultStatus.thirdPlacePlayer}}</div>
+                    <div class="place-line"><span class="rank-prefix">4th)</span> {{eventResultStatus.fourthPlacePlayer}}</div>
+                  } @else if (eventResultStatus.thirdPlacePlayer && eventResultStatus.fourthPlacePlayer) {
+                    <div class="place-line"><span class="rank-prefix multi">3rd & 4th)</span> {{eventResultStatus.thirdPlacePlayer}}, {{eventResultStatus.fourthPlacePlayer}}</div>
+                  }
+                </div>
+              }
+            } @else {
+              <div class="not-available-text">Results not available</div>
+            }
+          </mat-card-content>
+          <mat-card-actions class="mobile-card-actions">
             <button mat-raised-button [routerLink]="['/ui/results/details', tournamentId, eventResultStatus.eventId]"
                     [state]="{eventName: eventResultStatus.eventName}"
                     color="primary" [disabled]="!eventResultStatus.resultsAvailable">Details</button>
-          </div>
-        </mat-card-actions>
-      </mat-card>
+          </mat-card-actions>
+        </mat-card>
+      }
+    </div>
+
   </div>
-  <div fxFlex></div>
 </div>
