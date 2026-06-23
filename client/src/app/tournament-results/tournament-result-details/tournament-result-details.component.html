@@ -1,63 +1,108 @@
-<div class="mat-headline-6 title-container">{{eventName}} Results</div>
+<div class="results-page-wrapper">
+  <div class="mat-headline-6 title-container">{{ eventName }} Results</div>
   <mat-toolbar>
-    <button mat-raised-button type="button" [routerLink]="['/ui/results', tournamentId]" >Back</button>
+    <button mat-raised-button type="button" [routerLink]="['/ui/results', tournamentId]">Back</button>
   </mat-toolbar>
-  <mat-tab-group class="results-container">
-    <mat-tab label="Round Robin">
-      <div class="rr-results-container" fxFlex.lt-md="100%" fxFlex.md="100%" fxFlex="70%" fxLayout="column" fxLayoutAlign="start start">
-        <ng-container *ngFor="let eventResults of eventResultsList">
-          <table class="group-results" *ngIf="!eventResults.singleElimination">
-            <thead>
-            <tr>
-              <th class="player-info-column" colspan="3">Group {{eventResults.groupNumber}}</th>
-              <th class="rank-column">Rank</th>
-              <th class="win-loss-column">W/L</th>
-              <th class="match-result-column" *ngFor="let playerResults of eventResults.playerResultsList">
-                {{playerResults.letterCode}}
-              </th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr *ngFor="let playerResults of eventResults.playerResultsList">
-              <!--            <td class="player-info-column">{{playerResults.letterCode}}: {{playerResults.rating}} - {{playerResults.fullName}}</td>-->
-              <td class="letter-code-column">{{playerResults.letterCode}}</td>
-              <td class="rating-column">{{playerResults.rating}}</td>
-              <td class="player-name-column" [ngClass]="playerResults.rank === 1 ? 'winner-cell' : ''">
-                <ng-container *ngIf="!eventResults.doubles; else doublesResult">
-                  {{playerResults.fullName}}
-                </ng-container>
-                <ng-template #doublesResult>
-                  <div>{{ getDoublesPlayerName(playerResults.fullName, 0) }}</div>
-                  <div>{{ getDoublesPlayerName(playerResults.fullName, 1) }}</div>
-                </ng-template>
-              </td>
-              <td class="rank-column" [ngClass]="playerResults.rank === 1 ? 'winner-cell' : ''">{{playerResults.rank}}</td>
-              <td class="win-loss-column">{{playerResults.matchesWon}}/{{playerResults.matchesLost}}</td>
-              <ng-container *ngFor="let matchResults of playerResults.matchResults">
-                <ng-container *ngIf="matchResults.playerBLetter !== playerResults.letterCode; else emptyCell">
-                  <td class="match-result-column">{{matchResults.gamesWonByA}}:{{matchResults.gamesWonByB}}</td>
-                </ng-container>
-                <ng-template #emptyCell>
-                  <td class="empty-cell"></td>
-                </ng-template>
-              </ng-container>
-            </tr>
-            </tbody>
-          </table>
-        </ng-container>
-      </div>
-      <div fxFlex></div>
-    </mat-tab>
-    <mat-tab label="Single Elimination" *ngIf="event?.playersToAdvance > 0 || event?.singleElimination">
-      <div class="se-results-container">
-        <app-single-elimination-bracket [roundNumbers]="roundNumbers"
-                                        [tournament]="tournament"
-                                        [editMode]="false"
-                                        [allowDrawChanges]="false"
-                                        [bracketsHeight]="getBracketsHeight()"
-                                        [doublesEvent]="event?.doubles">
+  <ng-container *ngIf="showTabs; else oneround">
+    <mat-tab-group class="results-container">
+      <!--      multiple rounds - show tabs-->
+      <mat-tab *ngFor="let round of selectedEvent?.roundsConfiguration?.rounds; trackBy: trackByRound"
+               [label]="round.roundName">
+        <div *ngIf="!round.singleElimination">
+          <div class="rr-results-container" fxLayout="column"
+               fxLayoutAlign="start start">
+            <ng-container *ngFor="let eventResults of eventResultsList">
+              <table class="group-results" *ngIf="!eventResults.singleElimination">
+                <thead>
+                <tr>
+                  <th class="player-info-column" colspan="3">Group {{ eventResults.groupNumber }}</th>
+                  <th class="rank-column">Rank</th>
+                  <th class="win-loss-column">W/L</th>
+                  <th class="match-result-column" *ngFor="let playerResults of eventResults.playerResultsList">
+                    {{ playerResults.letterCode }}
+                  </th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr *ngFor="let playerResults of eventResults.playerResultsList">
+                  <!--            <td class="player-info-column">{{playerResults.letterCode}}: {{playerResults.rating}} - {{playerResults.fullName}}</td>-->
+                  <td class="letter-code-column">{{ playerResults.letterCode }}</td>
+                  <td class="rating-column">{{ playerResults.rating }}</td>
+                  <td class="player-name-column" [ngClass]="playerResults.rank === 1 ? 'winner-cell' : ''">
+                    <ng-container *ngIf="!eventResults.doubles; else doublesResult">
+                      {{ playerResults.fullName }}
+                    </ng-container>
+                    <ng-template #doublesResult>
+                      <div>{{ getDoublesPlayerName(playerResults.fullName, 0) }}</div>
+                      <div>{{ getDoublesPlayerName(playerResults.fullName, 1) }}</div>
+                    </ng-template>
+                  </td>
+                  <td class="rank-column"
+                      [ngClass]="playerResults.rank === 1 ? 'winner-cell' : ''">{{ playerResults.rank }}
+                  </td>
+                  <td class="win-loss-column">{{ playerResults.matchesWon }}/{{ playerResults.matchesLost }}</td>
+                  <ng-container *ngFor="let matchResults of playerResults.matchResults">
+                    <ng-container *ngIf="matchResults.playerBLetter !== playerResults.letterCode; else emptyCell">
+                      <td class="match-result-column">{{ matchResults.gamesWonByA }}:{{ matchResults.gamesWonByB }}</td>
+                    </ng-container>
+                    <ng-template #emptyCell>
+                      <td class="empty-cell"></td>
+                    </ng-template>
+                  </ng-container>
+                </tr>
+                </tbody>
+              </table>
+            </ng-container>
+          </div>
+        </div>
+        <div *ngIf="round.singleElimination">
+          <div class="se-results-container">
+            <app-single-elimination-bracket
+              #drawPanel
+              [bracketsHeight]="getBracketsHeight()"
+              [roundNumbers]="roundNumbers"
+              [draws]="draws"
+              [roundOrdinalNumber]="round.ordinalNum"
+              [playerStatusList]="[]"
+              [matchCardInfos]="matchCardInfos"
+              [editMode]="false"
+              [allowDrawChanges]="false"
+              [selectedEvent]="selectedEvent"
+              [doublesEvent]="selectedEvent?.doubles">
+            </app-single-elimination-bracket>
+          </div>
+        </div>
+      </mat-tab>
+    </mat-tab-group>
+  </ng-container>
+  <!--    one round  hide tabs -->
+  <ng-template #oneround>
+    <div class="one-round-panel">
+      <ng-container *ngIf="hasRRRound; else seroundonly">
+        <app-round-robin-draws-panel
+          #drawPanel
+          [editMode]="false"
+          [allowDrawChanges]="false"
+          [draws]="draws"
+          [playerStatusList]="[]"
+          [matchCardInfos]="matchCardInfos"
+          [selectedEvent]="selectedEvent"
+          [bracketsHeight]="getBracketsHeight()">
+        </app-round-robin-draws-panel>
+      </ng-container>
+      <ng-template #seroundonly>
+        <app-single-elimination-bracket
+          #drawPanel
+          [editMode]="false"
+          [allowDrawChanges]="false"
+          [bracketsHeight]="getBracketsHeight()"
+          [draws]="draws"
+          [playerStatusList]="[]"
+          [matchCardInfos]="matchCardInfos"
+          [selectedEvent]="selectedEvent"
+          [doublesEvent]="selectedEvent?.doubles">
         </app-single-elimination-bracket>
-      </div>
-      <div fxFlex></div>
-    </mat-tab>
-  </mat-tab-group>
+      </ng-template>
+    </div>
+  </ng-template>
+</div>

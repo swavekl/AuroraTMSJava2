@@ -7,12 +7,20 @@ import {TournamentEventConfigService} from '../../tournament/tournament-config/t
 import {createSelector} from '@ngrx/store';
 import {TournamentEvent} from '../../tournament/tournament-config/tournament-event.model';
 import {EventResults} from '../model/event-results';
+import {DrawItem} from '../../draws/draws-common/model/draw-item.model';
+import {MatchCardInfo} from '../../matches/model/match-card-info.model';
+import {DrawService} from '../../draws/draws-common/service/draw.service';
+import {MatchCardInfoService} from '../../matches/service/match-card-info.service';
+import {DrawType} from '../../draws/draws-common/model/draw-type.enum';
+import {first} from 'rxjs/operators';
 
 @Component({
     selector: 'app-tournament-result-detail-container',
     template: `
     <app-tournament-result-details
-      [event]="event$ | async"
+      [selectedEvent]="event$ | async"
+      [draws]="draws$ | async"
+      [matchCardInfos]="matchCardInfos$ | async"
       [eventName]="eventName"
       [eventResultsList]="eventResultsList$ | async"
     [tournamentId]="tournamentId">
@@ -33,13 +41,21 @@ export class TournamentResultDetailsContainerComponent implements OnInit, OnDest
 
   tournamentId: number;
 
+  public draws$: Observable<DrawItem[]>;
+
+  // match card information i.e. without matches
+  public matchCardInfos$: Observable<MatchCardInfo[]>;
+
+
   private subscriptions: Subscription = new Subscription();
   private loading$: Observable<boolean>;
 
   constructor(private linearProgressBarService: LinearProgressBarService,
               private activatedRoute: ActivatedRoute,
               private tournamentResultsService: TournamentResultsService,
-              private tournamentEventConfigService: TournamentEventConfigService) {
+              private tournamentEventConfigService: TournamentEventConfigService,
+              private drawService: DrawService,
+              private matchCardInfoService: MatchCardInfoService) {
     const strTournamentId = this.activatedRoute.snapshot.params['tournamentId'] || 0;
     this.tournamentId = Number(strTournamentId);
     const strEventId = this.activatedRoute.snapshot.params['eventId'] || 0;
@@ -48,6 +64,7 @@ export class TournamentResultDetailsContainerComponent implements OnInit, OnDest
     this.setupProgressIndicator();
     this.loadTournamentEvent(this.tournamentId, eventId);
     this.loadEventResults(this.tournamentId, eventId);
+    this.onLoadMatchCardInfos(eventId);
   }
 
   ngOnInit(): void {
@@ -58,11 +75,14 @@ export class TournamentResultDetailsContainerComponent implements OnInit, OnDest
   }
 
   private setupProgressIndicator() {
-    this.loading$ = combineLatest(
-      this.tournamentEventConfigService.store.select(this.tournamentEventConfigService.selectors.selectLoading),
-      this.tournamentResultsService.loading$,
-      (eventConfigsLoading: boolean, resultsLoading: boolean) => {
-        return eventConfigsLoading || resultsLoading;
+    this.loading$ = combineLatest([
+        this.tournamentEventConfigService.store.select(this.tournamentEventConfigService.selectors.selectLoading),
+        this.tournamentResultsService.loading$,
+        this.drawService.store.select(this.drawService.selectors.selectLoading),
+        this.matchCardInfoService.loading$
+      ],
+      (eventConfigsLoading: boolean, resultsLoading: boolean, drawsLoading: boolean, matchCardInfosLoading: boolean) => {
+        return eventConfigsLoading || resultsLoading || drawsLoading || matchCardInfosLoading;
       }
     );
 
@@ -80,11 +100,11 @@ export class TournamentResultDetailsContainerComponent implements OnInit, OnDest
       });
     const subscription = this.tournamentEventConfigService.store.select(selector)
       .subscribe((tournamentEvent: TournamentEvent) => {
-        // console.log('tournamentEvent ', tournamentEvent);
         if (!tournamentEvent) {
-          this.tournamentEventConfigService.getByKey(tournamentId, eventId);
+          this.tournamentEventConfigService.loadTournamentEvents(tournamentId).pipe(first()).subscribe();
         } else {
           this.event$ = of(tournamentEvent);
+          this.loadDraws(tournamentEvent);
         }
       });
     this.subscriptions.add(subscription);
@@ -92,5 +112,17 @@ export class TournamentResultDetailsContainerComponent implements OnInit, OnDest
 
   private loadEventResults(tournamentId: number, eventId: number) {
     this.eventResultsList$ = this.tournamentResultsService.getEventResults(tournamentId, eventId);
+  }
+
+  private onLoadMatchCardInfos(eventId: number) {
+    this.matchCardInfos$ = this.matchCardInfoService.load(eventId);
+  }
+
+  private loadDraws(tournamentEvent: TournamentEvent) {
+    const rounds = tournamentEvent.roundsConfiguration?.rounds || [];
+    const lastRound = (rounds.length > 0) ? rounds[rounds.length - 1] : null;
+    const isSingleElimination = (lastRound != null && lastRound.singleElimination);
+    const drawType: DrawType = isSingleElimination ? DrawType.SINGLE_ELIMINATION : DrawType.ROUND_ROBIN;
+    this.draws$ = this.drawService.loadForEvent(tournamentEvent.id, drawType);
   }
 }

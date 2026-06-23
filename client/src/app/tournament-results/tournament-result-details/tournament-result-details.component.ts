@@ -1,14 +1,8 @@
-import {Component, Input, OnChanges, OnInit, SimpleChanges} from '@angular/core';
+import {Component, Input, OnChanges, OnInit, SimpleChange, SimpleChanges} from '@angular/core';
 import {EventResults} from '../model/event-results';
 import {DrawItem} from '../../draws/draws-common/model/draw-item.model';
-import {DrawType} from '../../draws/draws-common/model/draw-type.enum';
-import {DrawRound} from '../../draws/draws-common/model/draw-round.model';
-import {Match} from '../../draws/draws-common/model/match.model';
 import {TournamentEvent} from '../../tournament/tournament-config/tournament-event.model';
-import {PlayerResults} from '../model/player-results';
-import {NgttRound, NgttTournament} from 'ng-tournament-tree/lib/declarations/interfaces';
-import {MatchResult} from '../model/match-result';
-import {ConflictType} from '../../draws/draws-common/model/conflict-type.enum';
+import {MatchCardInfo} from '../../matches/model/match-card-info.model';
 
 @Component({
     selector: 'app-tournament-result-details',
@@ -22,7 +16,7 @@ export class TournamentResultDetailsComponent implements OnInit, OnChanges {
   eventResultsList: EventResults[];
 
   @Input()
-  event: TournamentEvent;
+  selectedEvent: TournamentEvent;
 
   @Input()
   eventName: string;
@@ -30,9 +24,15 @@ export class TournamentResultDetailsComponent implements OnInit, OnChanges {
   @Input()
   tournamentId: number;
 
-  singleEliminationRounds: DrawRound[] = [];
+  @Input() draws!: DrawItem[];
 
-  tournament: NgttTournament;
+  @Input() matchCardInfos!: MatchCardInfo[];
+
+  // more efficient than using *ngIf to show/hide tabs
+  showTabs = false;
+
+  hasRRRound: boolean = false;
+  hasSERound: boolean = false;
 
   roundNumbers: number[] = [];
 
@@ -43,166 +43,34 @@ export class TournamentResultDetailsComponent implements OnInit, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (this.eventResultsList != null && this.event != null) {
-      const tempSeDrawItems: DrawItem [] = this.makeTempDrawItems();
-      this.singleEliminationRounds = this.makeDrawRounds(tempSeDrawItems);
-      this.makeNgttTournament();
-    }
-  }
-
-  private makeTempDrawItems() {
-    const tempSeDrawItems: DrawItem[] = [];
-    for (const eventResults of this.eventResultsList) {
-      if (eventResults.singleElimination) {
-        const playerResultsList: PlayerResults[] = eventResults.playerResultsList;
-        for (const playerResult of playerResultsList) {
-          const drawItem: DrawItem = {
-            id: 1,
-            drawType: DrawType.SINGLE_ELIMINATION,
-            clubName: null,
-            eventFk: this.event.id,
-            byeNum: playerResult.byeNumber,
-            conflictType: ConflictType.NO_CONFLICT,
-            groupNum: eventResults.groupNumber,
-            placeInGroup: 1, // todo
-            playerId: playerResult.profileId,
-            playerName: playerResult.fullName,
-            round: eventResults.round,
-            rating: playerResult.rating,
-            seSeedNumber: playerResult.seSeedNumber,
-            state: null, // todo
-            singleElimLineNum: 0,
-            entryId: 0,
-            doublesPairId: 0,
-            teamFk: 0,
-            teamName: null,
-            roundOrdinalNumber: 1,
-            divisionIdx: 0
-          };
-          tempSeDrawItems.push(drawItem);
+    const eventChanges: SimpleChange = changes.selectedEvent;
+    if (eventChanges != null && eventChanges.currentValue != null) {
+      const selectedEvent: TournamentEvent = eventChanges.currentValue;
+      const rounds = selectedEvent.roundsConfiguration?.rounds || [];
+      const len = rounds.length ?? 0;
+      this.showTabs = len > 1;
+      if (rounds && rounds.length > 0) {
+        let hasRRRound = false;
+        let hasSERound = false;
+        for (const round of rounds) {
+          hasRRRound = !round.singleElimination || hasRRRound;
+          hasSERound = round.singleElimination || hasSERound;
         }
+        this.hasRRRound = hasRRRound;
+        this.hasSERound = hasSERound;
       }
-    }
-    return tempSeDrawItems;
-  }
 
-  private makeDrawRounds(drawItems: DrawItem[]): DrawRound[] {
-    const drawRounds: DrawRound[] = [];
-    for (const drawItem of drawItems) {
-      this.addDrawItemToRound(drawRounds, drawItem);
-    }
-    drawRounds.sort((dr1: DrawRound, dr2: DrawRound): number => {
-      return (dr1.round < dr2.round) ? 1 : -1;
-    });
-    return drawRounds;
-  }
-
-  private addDrawItemToRound(drawRounds: DrawRound[], drawItem: DrawItem) {
-    let foundDrawRound = null;
-    for (const drawRound of drawRounds) {
-      if (drawRound.round === drawItem.round) {
-        foundDrawRound = drawRound;
-        break;
+      const roundNumbers: number [] = [];
+      for (let i = 0; i < rounds.length; i++) {
+        const round = rounds[i];
+        roundNumbers.push(i);
       }
+      this.roundNumbers = roundNumbers;
     }
-    if (!foundDrawRound) {
-      foundDrawRound = new DrawRound();
-      foundDrawRound.round = drawItem.round;
-      drawRounds.push(foundDrawRound);
-    }
-    const roundDrawItems: DrawItem[] = foundDrawRound.drawItems;
-    roundDrawItems.push(drawItem);
-  }
-
-  private makeNgttTournament() {
-    const rounds: NgttRound [] = [];
-    const drawRounds: DrawRound[] = this.singleEliminationRounds;
-    const roundNumbers: number [] = [];
-    for (let i = 0; i < drawRounds.length; i++) {
-      const drawRound = drawRounds[i];
-      roundNumbers.push(drawRound.round);
-      const drawItems: DrawItem [] = drawRound.drawItems;
-      const roundMatches = [];
-      for (let j = 0; j < drawItems.length;) {
-        const drawItemLeft: DrawItem = drawItems[j];
-        const drawItemRight: DrawItem = drawItems[j + 1];
-        const match: Match = new Match();
-        match.opponentA = drawItemLeft;
-        match.opponentB = drawItemRight;
-        match.time = 0;
-        match.tableNum = 0;  // for now
-        this.findMatchResultAndWinner(drawItemLeft?.playerId, drawItemRight?.playerId, drawRound.round, match);
-        match.showSeedNumber = (i === 0); // show seed number for first round only
-        match.dragADisabled = true;
-        match.dragBDisabled = true;
-
-        roundMatches.push(match);
-        j += 2;
-      }
-      const type = ((i + 1) === drawRounds.length) ? 'Final' : 'Winnerbracket';
-      const round: NgttRound = {type: type, matches: roundMatches};
-      rounds.push(round);
-    }
-    if (rounds.length > 0) {
-      this.tournament = {
-        rounds: rounds
-      };
-    }
-    this.roundNumbers = roundNumbers;
-  }
-
-  private findMatchResultAndWinner(playerIdA: string, playerIdB: string, round: number, match: Match) {
-    let compactMatchResultArray = [];
-    let resultFound = false;
-    for (const eventResults of this.eventResultsList) {
-      if (eventResults.singleElimination && eventResults.round === round) {
-        const playerResultsList: PlayerResults[] = eventResults.playerResultsList;
-        const playerAResult: PlayerResults = this.findPlayerResults(playerIdA, playerResultsList);
-        const playerBResult: PlayerResults = this.findPlayerResults(playerIdB, playerResultsList);
-        if (playerAResult != null && playerBResult != null) {
-          let matchResults: MatchResult [] = null;
-          if (playerAResult.rank === 1) {
-            // player A won
-            matchResults = playerAResult.matchResults;
-            match.opponentAWon = true;
-          } else if (playerBResult.rank === 1) {
-            // player B won
-            matchResults = playerBResult.matchResults;
-            match.opponentAWon = false;
-          }
-          if (matchResults) {
-            for (const matchResult of matchResults) {
-              // not A vs A match
-              if (matchResult.playerALetter !== matchResult.playerBLetter) {
-                const strCompactMatchRestult: string = matchResult.compactMatchResult;
-                if (strCompactMatchRestult) {
-                  compactMatchResultArray = strCompactMatchRestult.split(',');
-                  resultFound = true;
-                }
-              }
-            }
-          }
-        }
-      }
-      if (resultFound) {
-        break;
-      }
-    }
-    match.result = compactMatchResultArray;
-    return compactMatchResultArray;
-  }
-
-  private findPlayerResults(playerId: string, playerResultsList: PlayerResults[]): PlayerResults {
-    for (const playerResult of playerResultsList) {
-      if (playerResult.profileId === playerId) {
-        return playerResult;
-      }
-    }
-    return null;
   }
 
   public getBracketsHeight(): string {
-    return (window.innerHeight - 212) + 'px';
+    return (window.innerHeight - 232) + 'px';
   }
 
   getDoublesPlayerName(playerNames: string, index: number): string {
@@ -215,5 +83,7 @@ export class TournamentResultDetailsComponent implements OnInit, OnChanges {
     }
   }
 
-
+  trackByRound(_index: number, round: any): number {
+    return round.ordinalNum; // stable per event (1, 2, 3...)
+  }
 }

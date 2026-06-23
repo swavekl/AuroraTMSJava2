@@ -1,28 +1,64 @@
 @use "src/my-theme.scss" as *;
 
+.results-page-wrapper {
+  display: flex;
+  flex-direction: column;
+
+  /* Standard Desktop / Mobile Viewport Height less top app banner */
+  height: calc(100vh - 64px);
+  height: calc(100svh - 64px);
+
+  @media (min-width: 960px) {
+    height: calc(100vh - 80px);
+  }
+
+  width: 100%;
+  overflow: hidden;
+}
+
 .title-container {
   padding-left: 8px;
   width: 98%;
+  flex-shrink: 0;
+}
+
+mat-toolbar {
+  flex-shrink: 0;
 }
 
 .results-container {
-  height: calc(100vh - 180px);
+  flex-grow: 1;
   width: 100%;
-  overflow: auto;
+  overflow: hidden;
 }
 
 .se-results-container {
-  overflow: hidden;
-  height: calc(100vh - 240px);
+  /* Keep your exact height calculations that protect the round headers */
+  height: calc(100vh - 180px);
+  height: calc(100svh - 180px);
+
+  @media (min-width: 960px) {
+    height: calc(100vh - 240px);
+  }
+
+  /* CHANGE THIS from hidden to auto to allow viewing the bottom of the draw */
+  overflow: auto;
+  border: none;
 }
 
+/* --- Keep the Round Robin Container at Full Height --- */
 .rr-results-container {
-
+  height: 100%;
+  overflow: auto;
 }
 
+.one-round-panel {
+  height: 100%;
+  overflow: auto;
+}
 
 table.group-results {
-  margin: 16px 16px 16px 16px;
+  margin: 16px;
   border-collapse: collapse;
 
   thead th {
@@ -35,47 +71,14 @@ table.group-results {
     padding: 4px;
     vertical-align: middle;
 
-    &.player-info-column {
-      width: 300px;
-    }
-
-    &.letter-code-column {
-      width: 25px;
-      text-align: center;
-    }
-
-    &.rating-column {
-      width: 45px;
-      text-align: right;
-    }
-
-    &.player-name-column {
-      width: 200px;
-    }
-
-    &.rank-column {
-      width: 25px;
-      text-align: center;
-    }
-
-    &.win-loss-column {
-      width: 45px;
-      text-align: center;
-    }
-
-    &.match-result-column {
-      width: 45px;
-      text-align: center;
-    }
-
-    &.empty-cell {
-      width: 45px;
-      background-color: #d7c8f5;
-    }
-
-    &.winner-cell {
-      font-weight: bold;
-    }
+    &.player-info-column { width: 300px; }
+    &.letter-code-column { width: 25px; text-align: center; }
+    &.rating-column      { width: 45px; text-align: right; }
+    &.player-name-column { width: 200px; }
+    &.rank-column        { width: 25px; text-align: center; }
+    &.win-loss-column    { width: 45px; text-align: center; }
+    &.match-result-column{ width: 45px; text-align: center; }
+    &.empty-cell         { width: 45px; background-color: #d7c8f5; }
+    &.winner-cell        { font-weight: bold; }
   }
 }
-
