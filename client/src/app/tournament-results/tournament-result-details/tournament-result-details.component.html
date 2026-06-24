@@ -12,46 +12,7 @@
           <div class="rr-results-container" fxLayout="column"
                fxLayoutAlign="start start">
             <ng-container *ngFor="let eventResults of eventResultsList">
-              <table class="group-results" *ngIf="!eventResults.singleElimination">
-                <thead>
-                <tr>
-                  <th class="player-info-column" colspan="3">Group {{ eventResults.groupNumber }}</th>
-                  <th class="rank-column">Rank</th>
-                  <th class="win-loss-column">W/L</th>
-                  <th class="match-result-column" *ngFor="let playerResults of eventResults.playerResultsList">
-                    {{ playerResults.letterCode }}
-                  </th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr *ngFor="let playerResults of eventResults.playerResultsList">
-                  <!--            <td class="player-info-column">{{playerResults.letterCode}}: {{playerResults.rating}} - {{playerResults.fullName}}</td>-->
-                  <td class="letter-code-column">{{ playerResults.letterCode }}</td>
-                  <td class="rating-column">{{ playerResults.rating }}</td>
-                  <td class="player-name-column" [ngClass]="playerResults.rank === 1 ? 'winner-cell' : ''">
-                    <ng-container *ngIf="!eventResults.doubles; else doublesResult">
-                      {{ playerResults.fullName }}
-                    </ng-container>
-                    <ng-template #doublesResult>
-                      <div>{{ getDoublesPlayerName(playerResults.fullName, 0) }}</div>
-                      <div>{{ getDoublesPlayerName(playerResults.fullName, 1) }}</div>
-                    </ng-template>
-                  </td>
-                  <td class="rank-column"
-                      [ngClass]="playerResults.rank === 1 ? 'winner-cell' : ''">{{ playerResults.rank }}
-                  </td>
-                  <td class="win-loss-column">{{ playerResults.matchesWon }}/{{ playerResults.matchesLost }}</td>
-                  <ng-container *ngFor="let matchResults of playerResults.matchResults">
-                    <ng-container *ngIf="matchResults.playerBLetter !== playerResults.letterCode; else emptyCell">
-                      <td class="match-result-column">{{ matchResults.gamesWonByA }}:{{ matchResults.gamesWonByB }}</td>
-                    </ng-container>
-                    <ng-template #emptyCell>
-                      <td class="empty-cell"></td>
-                    </ng-template>
-                  </ng-container>
-                </tr>
-                </tbody>
-              </table>
+              <app-round-robin-results-summary [eventResults]="eventResults"></app-round-robin-results-summary>
             </ng-container>
           </div>
         </div>
@@ -79,16 +40,9 @@
   <ng-template #oneround>
     <div class="one-round-panel">
       <ng-container *ngIf="hasRRRound; else seroundonly">
-        <app-round-robin-draws-panel
-          #drawPanel
-          [editMode]="false"
-          [allowDrawChanges]="false"
-          [draws]="draws"
-          [playerStatusList]="[]"
-          [matchCardInfos]="matchCardInfos"
-          [selectedEvent]="selectedEvent"
-          [bracketsHeight]="getBracketsHeight()">
-        </app-round-robin-draws-panel>
+        <ng-container *ngFor="let eventResults of eventResultsList">
+          <app-round-robin-results-summary [eventResults]="eventResults"></app-round-robin-results-summary>
+        </ng-container>
       </ng-container>
       <ng-template #seroundonly>
         <app-single-elimination-bracket

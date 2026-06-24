@@ -18,6 +18,7 @@ import {PlayerResultsComponent} from './player-results/player-results.component'
 import {PlayerResultsContainerComponent} from './player-results/player-results-container.component';
 import {MatDivider, MatList, MatListItem} from '@angular/material/list';
 import {MatTableModule} from '@angular/material/table';
+import {RoundRobinResultsSummaryComponent} from './round-robin-results-summary/round-robin-results-summary.component';
 
 @NgModule({
   declarations: [
@@ -28,23 +29,24 @@ import {MatTableModule} from '@angular/material/table';
     PlayerResultsComponent,
     PlayerResultsContainerComponent
   ],
-  imports: [
-    CommonModule,
-    // FlexLayoutModule,
-    MatCardModule,
-    MatButtonModule,
-    TournamentResultsRoutingModule,
-    DrawsCommonModule,
-    MatTabsModule,
-    SharedModule,
-    FlexLayoutModule,
-    MatToolbarModule,
-    MatIconModule,
-    MatDivider,
-    MatList,
-    MatListItem,
-    MatTableModule
-  ]
+    imports: [
+        CommonModule,
+        // FlexLayoutModule,
+        MatCardModule,
+        MatButtonModule,
+        TournamentResultsRoutingModule,
+        DrawsCommonModule,
+        MatTabsModule,
+        SharedModule,
+        FlexLayoutModule,
+        MatToolbarModule,
+        MatIconModule,
+        MatDivider,
+        MatList,
+        MatListItem,
+        MatTableModule,
+        RoundRobinResultsSummaryComponent
+    ]
 })
 export class TournamentResultsModule {
 }
