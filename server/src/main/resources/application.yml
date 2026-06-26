@@ -36,7 +36,7 @@ spring:
 tess4j:
   tessdata-path: "src/main/resources/tessdata"
 
-spring.cloud.aws.ses.enabled: true
+spring.cloud.aws.ses.enabled: false
 
 #spring.quartz.properties.org.quartz.threadPool.threadCount : 5
 #spring.quartz.properties.org.quartz.jobStore.isClustered: true

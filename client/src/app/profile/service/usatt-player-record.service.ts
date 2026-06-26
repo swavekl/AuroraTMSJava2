@@ -1,7 +1,7 @@
 import {Injectable} from '@angular/core';
 import {BehaviorSubject, Observable, Subject} from 'rxjs';
 import {distinctUntilChanged, finalize, map, tap} from 'rxjs/operators';
-import {HttpClient} from '@angular/common/http';
+import {HttpClient, HttpParams} from '@angular/common/http';
 import {UsattPlayerRecord} from '../model/usatt-player-record.model';
 import {DateUtils} from '../../shared/date-utils';
 
@@ -131,6 +131,33 @@ export class UsattPlayerRecordService {
             return response;
           }
         )
+      );
+  }
+
+  /**
+   * PROACTIVE PRE-CHECK GATE:
+   * Verifies if a USATT membership ID is already claimed by a different Okta profile.
+   *
+   * @param membershipId The USATT membership ID to check
+   * @param profileId The Okta profile ID of the currently logged-in user
+   * @returns Observable<boolean> true if unmapped or owned by current user; false if owned by someone else
+   */
+  public checkMembershipMappingAvailability(membershipId: number, profileId: string): Observable<any> {
+    const url = `/api/usattplayer/checkavailability`;
+
+    // Clean, type-safe param structure matching your backend @RequestParam signature
+    const params = new HttpParams()
+      .set('membershipId', membershipId.toString())
+      .set('profileId', profileId);
+
+    this.setLoading(true);
+    return this.http.get(url, { params })
+      .pipe(
+        tap({
+          next: () => this.setLoading(false),
+          error: () => this.setLoading(false)
+        }),
+        map(response => response)
       );
   }
 }

@@ -1,63 +1,110 @@
 <app-centered-panel [noTopGap]="true">
-      <div *ngIf="playerRecordFound" class="info-container" >
-        <h3>We found this USATT (USA Table Tennis) player record using your first and last name.</h3>
-            <table class="usatt-info">
-              <tbody>
-              <tr>
-                <td class="item-column">Name</td>
-                <td class="value-column"> {{firstName}} {{lastName}}</td>
-              </tr>
-              <tr>
-                <td class="item-column">State</td>
-                <td class="value-column">{{ playerRecord.state }}</td>
-              </tr>
-              <tr>
-                <td class="item-column">Membership Id</td>
-                <td class="value-column">{{ playerRecord.membershipId }}</td>
-              </tr>
-              <tr>
-                <td class="item-column">Expiration Date</td>
-                <td class="value-column">{{ playerRecord.membershipExpirationDate | date }}</td>
-              </tr>
-              <tr>
-                <td class="item-column">Rating</td>
-                <td class="value-column">{{ playerRecord.tournamentRating }}</td>
-              </tr>
-              </tbody>
-            </table>
-        <h3>If this is <span style="font-weight: bold">not</span> your record, let's try searching again with a different spelling of your name or by your USATT membership ID.</h3>
-        <div fxLayout="row" style="margin: 0 8px;">
-          <button mat-raised-button (click)="onFindPlayerByName()">Find by Name</button>
-          <span fxFlex></span>
-          <button mat-raised-button (click)="onFindPlayerById()">Find by Id</button>
-        </div>
-        <div style="width: 100%; padding-top: 16px;"></div>
-        <h3>If you <span style="font-weight: bold">don't have</span> a membership yet, you'll need to create an
-          account on USATT's JustGo site first. After that, just log back in here and we'll take you straight
-          to the onboarding process.</h3>
-        <div fxLayout="row" fxLayoutAlign="end start" style="width: 100%;">
-          <button mat-raised-button (click)="visitJustGo()">Visit JustGo</button>
-        </div>
-        <div style="width: 100%; padding-top: 16px;"></div>
-        <h3>If this is your record, let's go ahead and fill in the rest of the information in your profile!
-        </h3>
-        <div fxLayout="row" fxLayoutAlign="end start" style="width: 100%;">
-          <button mat-raised-button color="primary" (click)="onProfileEditStart(true, playerRecord)">Fill Profile</button>
-        </div>
+
+  <!-- CASE A: Normal Onboarding & Identity Discovery -->
+  <div *ngIf="playerRecordFound && !isUniqueConstraintViolation" class="info-container">
+    <h3>We found this USATT (USA Table Tennis) player record using your first and last name.</h3>
+
+    <table class="usatt-info">
+      <tbody>
+      <tr>
+        <td class="item-column">Name</td>
+        <td class="value-column">{{ firstName }} {{ lastName }}</td>
+      </tr>
+      <tr>
+        <td class="item-column">State</td>
+        <td class="value-column">{{ playerRecord.state }}</td>
+      </tr>
+      <tr>
+        <td class="item-column">Membership Id</td>
+        <td class="value-column">{{ playerRecord.membershipId }}</td>
+      </tr>
+      <tr>
+        <td class="item-column">Expiration Date</td>
+        <td class="value-column">{{ playerRecord.membershipExpirationDate | date }}</td>
+      </tr>
+      <tr>
+        <td class="item-column">Rating</td>
+        <td class="value-column">{{ playerRecord.tournamentRating }}</td>
+      </tr>
+      </tbody>
+    </table>
+
+    <h3>If this is <span class="highlight-bold">not</span> your record, let's try searching again with a different spelling of your name or by your USATT membership ID.</h3>
+    <div fxLayout="row" class="action-row-spaced">
+      <button mat-raised-button (click)="onFindPlayerByName()">Find by Name</button>
+      <span fxFlex></span>
+      <button mat-raised-button (click)="onFindPlayerById()">Find by Id</button>
+    </div>
+
+    <div class="row-spacer"></div>
+    <h3>If you <span class="highlight-bold">don't have</span> a membership yet, you'll need to create an account on USATT's JustGo site first.</h3>
+    <div fxLayout="row" fxLayoutAlign="end start" class="full-width">
+      <button mat-raised-button (click)="visitJustGo()">Visit JustGo</button>
+    </div>
+
+    <div class="row-spacer"></div>
+    <h3>If this is your record, let's go ahead and fill in the rest of the information in your profile!</h3>
+    <div fxLayout="row" fxLayoutAlign="end start" class="full-width">
+      <button mat-raised-button color="primary" (click)="onVerifyAndStartEdit(true, playerRecord)">Fill Profile</button>
+    </div>
+  </div>
+
+  <!-- CASE B: UNIQUE CONSTRAINT VIOLATION SCREEN -->
+  <div *ngIf="isUniqueConstraintViolation" class="info-container screen-layout-clean">
+
+    <!-- Standard Material Toolbar (Arrow removed, text acts as button) -->
+    <mat-toolbar class="navigation-toolbar">
+      <button mat-raised-button (click)="resetCollisionState()">Back to Search</button>
+    </mat-toolbar>
+
+    <div class="recovery-instructions" fxLayout="column" fxLayoutGap="20px">
+      <div>
+        Account for a player with USATT membership ID {{ playerRecord?.membershipId }} <strong>already exists</strong> in the system and duplicate accounts are not allowed.
       </div>
-      <div *ngIf="!playerRecordFound" class="info-container">
-        <h3>We didn't find your USATT (USA Table Tennis) membership record using your first and last name.</h3>
-        <h3>If you are a member, let's see if we can find your record using different spelling of your name or by membership id.</h3>
-        <div fxLayout="row" style="margin: 0 8px;">
-          <button mat-raised-button (click)="onFindPlayerByName()">Find by Name</button>
-          <span fxFlex></span>
-          <button mat-raised-button (click)="onFindPlayerById()">Find by Id</button>
-        </div>
-        <div style="width: 100%; padding-top: 16px;"></div>
-        <h3>If you don't have a membership yet, you'll need to create an account on USATT's JustGo site first.
-          After that, just log back in here and we'll take you straight to the onboarding process.</h3>
-        <div fxLayout="row" fxLayoutAlign="end start" style="width: 100%;">
-          <button mat-raised-button (click)="visitJustGo()">Visit JustGo</button>
-        </div>
+
+      <div>
+        If you previously registered for a tournament using an external platform such as Omnipong®, an account may already have been created for you when your tournament entry was transferred to this site.
       </div>
+
+      <!-- Reset Password Block (Standard White Raised Button) -->
+      <div>
+        @if (maskedEmail) {
+        <p>
+          This existing account is associated with the email address:
+        </p>
+        <p>{{maskedEmail}}</p>
+        }
+        <p>If you recognize this email address, select <strong>Reset Password</strong> to regain access to your account.</p>
+        <button mat-raised-button routerLink="/ui/resetpasswordstart" type="button">
+          Reset Password
+        </button>
+      </div>
+
+      <!-- Contact Admin Block (Standard White Raised Button) -->
+      <div>
+        <p>
+          If this doesn't work, please contact the System Administrator for assistance.
+        </p>
+        <button mat-raised-button class="left-aligned-action-btn standard-white-btn" (click)="onContactAdmin()">
+          Contact Admin
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CASE C: NO USATT RECORD LOCATED IN DATABASE -->
+  <div *ngIf="!playerRecordFound && !isUniqueConstraintViolation" class="info-container">
+    <h3>We didn't find your USATT (USA Table Tennis) membership record using your first and last name.</h3>
+    <h3>If you are a member, let's see if we can find your record using different spelling of your name or by membership id.</h3>
+    <div fxLayout="row" class="action-row-spaced">
+      <button mat-raised-button (click)="onFindPlayerByName()">Find by Name</button>
+      <span fxFlex></span>
+      <button mat-raised-button (click)="onFindPlayerById()">Find by Id</button>
+    </div>
+    <div class="row-spacer"></div>
+    <h3>If you don't have a membership yet, you'll need to create an account on USATT's JustGo site first.</h3>
+    <div fxLayout="row" fxLayoutAlign="end start" class="full-width">
+      <button mat-raised-button (click)="visitJustGo()">Visit JustGo</button>
+    </div>
+  </div>
 </app-centered-panel>

@@ -1,19 +1,24 @@
+@use "src/my-theme.scss" as *;
+
+// Existing Base Container
 .info-container {
-  padding: 8px;
+  padding: 16px;
   text-align: left;
-  max-width: 350px;
+  max-width: 500px; // Slightly wider layout boundary for large fonts
 }
 
+// Existing Layout Configuration
 table.usatt-info {
   border-bottom: 1px solid black;
   border-top: 1px solid black;
-  //width: calc(100vw - 20px);
   width: 100%;
-  max-width: 330px;
-  margin-bottom: 16px;
+  max-width: 430px;
+  margin-bottom: 24px;
 
   tr {
     td {
+      font-size: 1.15rem;
+      padding: 6px 0;
 
       &.item-column {
         width: 40%;
@@ -23,7 +28,40 @@ table.usatt-info {
         width: 60%;
         text-align: right;
       }
-      //border: 1px solid blue;
     }
   }
+}
+
+.full-width {
+  width: 100%;
+}
+
+.action-row-spaced {
+  margin: 0 8px;
+}
+
+.row-spacer {
+  width: 100%;
+  padding-top: 24px;
+}
+
+.highlight-bold {
+  font-weight: bold;
+}
+
+// TYPOGRAPHY SCALING & TOOLBAR REFACTOR
+.screen-layout-clean {
+  display: flex;
+  flex-direction: column;
+}
+
+// Transparent/Clean Mat-Toolbar configuration matching content background
+.navigation-toolbar.mat-toolbar {
+  background: transparent;
+  padding: 0;
+}
+
+.recovery-instructions {
+  font-size: 1.25em;
+  margin: 16px 0;
 }

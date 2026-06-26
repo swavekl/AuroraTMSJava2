@@ -1,14 +1,16 @@
 package com.auroratms.usatt;
 
+import com.auroratms.profile.UserProfile;
 import com.auroratms.profile.UserProfileExt;
 import com.auroratms.profile.UserProfileExtService;
+import com.auroratms.profile.UserProfileService;
 import com.auroratms.ratingsprocessing.MembershipsProcessorStatus;
 import com.auroratms.ratingsprocessing.RatingsProcessorStatus;
+import com.auroratms.utils.EmailMaskUtil;
 import com.opencsv.CSVParser;
 import com.opencsv.CSVParserBuilder;
 import com.opencsv.CSVReader;
 import com.opencsv.CSVReaderBuilder;
-import lombok.NonNull;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.jsoup.internal.StringUtil;
@@ -46,6 +48,9 @@ public class UsattDataService {
 
     @Autowired
     private UserProfileExtService userProfileExtService;
+
+    @Autowired
+    private UserProfileService userProfileService;
 
     private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
     private static final SimpleDateFormat ALT_DATE_FORMAT = new SimpleDateFormat("MM/dd/yyyy");
@@ -1099,6 +1104,48 @@ public class UsattDataService {
 
     public void saveAllAndFlush(List<UsattPlayerRecord> batchOfExistingRecords) {
         this.playerRecordRepository.saveAllAndFlush(batchOfExistingRecords);
+    }
+
+    /**
+     * Checks the availability of a membership by its membership ID and profile ID.
+     * Determines if the specified membership is already associated with another profile.
+     * If a collision is detected, a masked email of the profile currently associated with the membership is returned.
+     *
+     * @param membershipId The unique identifier of the membership to be checked.
+     * @param profileId The unique identifier of the profile making the request to claim the membership.
+     * @return A map containing the following keys:
+     *         - "isAvailable": A string representation of a boolean ("true" or "false"),
+     *                        indicating whether the membership is available for the given profile.
+     *         - "maskedEmail" (optional): If a collision is detected, this key contains the masked email
+     *                        address of the profile currently associated with the membership.
+     */
+    public Map<String, String> checkMembershipAvailability(Long membershipId, String profileId) {
+        boolean isAvailable = true;
+        Map<String, String> result = new HashMap<>();
+        logger.info("checking membership availability for membershipId " + membershipId + " and profileId " + profileId);
+        // Check if a row matching this membership ID already exists in the mapping table
+        if (userProfileExtService.existsByMembershipId(membershipId)) {
+            UserProfileExt existingMapping = userProfileExtService.getByMembershipId(membershipId);
+
+            // Collision Condition: The USATT ID is claimed, but NOT by the person currently logged in
+            if (!existingMapping.getProfileId().equals(profileId)) {
+                isAvailable = false;
+                String existingProfileId = existingMapping.getProfileId();
+                try {
+                    UserProfile profile = this.userProfileService.getProfile(existingProfileId);
+                    if (profile != null) {
+                        String email = profile.getLogin();
+                        String maskedEmail = EmailMaskUtil.maskEmail(email);
+                        result.put("maskedEmail", maskedEmail);
+                    }
+                } catch (Exception e) {
+                    logger.error("unable to read existing profile for membershipId " + membershipId + " and profileId " + profileId, e);
+
+                }
+            }
+        }
+        result.put("isAvailable", Boolean.toString(isAvailable));
+        return result;
     }
 }
 
