@@ -8,10 +8,10 @@ export class MembershipUtil {
 
   private membershipOptions: any [] = [
     {value: MembershipType.NO_MEMBERSHIP_REQUIRED.valueOf(), label: 'My Membership is up to date', cost: 0, available: true},
-    {value: MembershipType.TOURNAMENT_PASS_JUNIOR.valueOf(), label: 'Tournament Pass Junior (17 and under)', cost: 20, available: true},
-    {value: MembershipType.TOURNAMENT_PASS_ADULT.valueOf(), label: 'Tournament Pass Adult', cost: 50, available: true},
-    {value: MembershipType.BASIC_PLAN.valueOf(), label: 'Basic Plan 1 year (0 – 4 star)', cost: 25, available: true},
-    {value: MembershipType.PRO_PLAN.valueOf(), label: 'Pro Plan 1 year', cost: 75, available: true},
+    {value: MembershipType.TOURNAMENT_PASS.valueOf(), label: 'One Tournament Pass (0 – 4 star)', cost: 20, available: true},
+    {value: MembershipType.BRONZE.valueOf(), label: 'Bronze Tier 1 year', cost: 25, available: true},
+    {value: MembershipType.SILVER.valueOf(), label: 'Silver Tier 1 year (0 – 4 star)', cost: 50, available: true},
+    {value: MembershipType.GOLD.valueOf(), label: 'Gold Tier 1 year (0 - 5 star)', cost: 100, available: true},
     {value: MembershipType.LIFETIME.valueOf(), label: 'Lifetime', cost: 1300, available: true}
   ];
 
@@ -35,9 +35,8 @@ export class MembershipUtil {
         case MembershipType.TOURNAMENT_PASS_ADULT:
           membershipOption.available = !isJunior && (tournamentStarLevel === 5);
           break;
-        case MembershipType.PRO_PLAN:
-          break;
-        case MembershipType.BASIC_PLAN:
+        case MembershipType.TOURNAMENT_PASS:
+        case MembershipType.SILVER:
           membershipOption.available = (tournamentStarLevel >= 0 && tournamentStarLevel <= 4);
           break;
       }
@@ -61,7 +60,7 @@ export class MembershipUtil {
     }
     if (membershipExpired) {
         membershipType =  ((tournamentStarLevel >= 0 && tournamentStarLevel <= 4)) ?
-          MembershipType.BASIC_PLAN : MembershipType.PRO_PLAN;
+          MembershipType.SILVER : MembershipType.GOLD;
     }
     return membershipType;
   }

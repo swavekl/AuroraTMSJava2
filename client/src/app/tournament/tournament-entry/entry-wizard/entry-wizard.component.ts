@@ -1031,4 +1031,9 @@ export class EntryWizardComponent implements OnInit, OnChanges, OnDestroy {
 
     return isPayer;
   }
+
+  protected isAllowMembershipPurchase() {
+      // return this.tournament?.configuration?.allowMembershipPurchase === true;
+      return false;
+  }
 }

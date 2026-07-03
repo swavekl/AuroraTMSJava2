@@ -10,13 +10,15 @@
           <h3 [className]="membershipIsExpired ? 'membership-expired' : 'membership-not-expired'">
             Membership expires: {{playerProfile?.membershipExpirationDate | date}}
           </h3>
-          <mat-radio-group [ngModel]="entry.membershipOption" name="membershipOption" (change)="onChange(f.form)">
-            <div fxLayout="column" fxLayoutGap="30px" *ngFor="let option of membershipOptions">
+          <ng-container *ngIf="isAllowMembershipPurchase()">
+            <mat-radio-group [ngModel]="entry.membershipOption" name="membershipOption" (change)="onChange(f.form)">
+              <div fxLayout="column" fxLayoutGap="30px" *ngFor="let option of membershipOptions">
                 <mat-radio-button [value]="option.value" style="padding-top: 10px" [disabled]="!option.available">
                   {{option.label}} <span style="font-weight: bold">{{ (option.cost == 0) ? '' : option.cost | currency: tournamentCurrency }}</span>
                 </mat-radio-button>
-            </div>
-          </mat-radio-group>
+              </div>
+            </mat-radio-group>
+          </ng-container>
           <div style="width: 350px;">
               <mat-label style="width: 250px; padding-right: 10px;">USATT National Team donation</mat-label>
               <mat-form-field style="width: 70px;">

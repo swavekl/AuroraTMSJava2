@@ -3524,6 +3524,7 @@ public class ImportTournamentService {
 
         String navigableBlankEntryFormUrl = getNavigableBlankEntryFormUrl(blankEntryFormPdfURI);
         configuration.setBlankEntryUrl(navigableBlankEntryFormUrl);
+        configuration.setPricingMethod(PricingMethod.STANDARD);
 
         // contact information
         List<DirectorDTO> directors = tournamentAndEventsDTO.getDirectors();
