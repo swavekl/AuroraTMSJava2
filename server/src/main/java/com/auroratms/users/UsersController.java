@@ -106,7 +106,7 @@ public class UsersController extends AbstractOktaController {
         String userId = null;
             String strRegisterUserURL = oktaServiceBase + "/api/v1/users?activate=false";
 
-            String secondEmail = registrationToken + "@gateway-pc.com";
+            String secondEmail = registrationToken + "@lorencmini.com";
 //            System.out.println("secondEmail = " + secondEmail);
 
             ObjectMapper objectMapper = new ObjectMapper();

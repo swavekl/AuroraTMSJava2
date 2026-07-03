@@ -1,12 +1,12 @@
 {
   "/api/**": {
-    "target": "https://gateway-pc:8443",
+    "target": "https://lorencmini:8443",
     "secure": false,
     "changeOrigin": false,
     "logLevel": "debug"
   },
   "/publicapi/**": {
-    "target": "https://gateway-pc:8443",
+    "target": "https://lorencmini:8443",
     "secure": false,
     "changeOrigin": false,
     "logLevel": "debug"

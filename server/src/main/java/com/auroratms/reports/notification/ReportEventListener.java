@@ -279,7 +279,7 @@ public class ReportEventListener {
                 return;
             }
 
-            // https://gateway-pc:4200/processing/detail/10
+            // https://lorencmini:4200/processing/detail/10
             String processingRequestUrl = clientHostUrl + "/ui/processing/detail/" + tournamentProcessingRequest.getId();
             templateModel.put("processingRequestUrl", processingRequestUrl);
 

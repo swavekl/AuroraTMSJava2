@@ -1,0 +1,15 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="TeamServiceTest" type="JUnit" factoryName="JUnit">
+    <module name="AuroraTMSJava2.server.test" />
+    <shortenClasspath name="ARGS_FILE" />
+    <option name="PACKAGE_NAME" value="com.auroratms.team" />
+    <option name="MAIN_CLASS_NAME" value="com.auroratms.team.TeamServiceTest" />
+    <option name="METHOD_NAME" value="" />
+    <option name="TEST_OBJECT" value="class" />
+    <option name="VM_PARAMETERS" value="-ea -Djavax.net.ssl.keyStore=$PROJECT_DIR$/server/src/main/resources/keystore/keystore.p12 -Djavax.net.ssl.keyStorePassword=exportpassword -Djavax.net.ssl.keyStoreType=PKCS12" />
+    <option name="WORKING_DIRECTORY" value="$MODULE_DIR$" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>

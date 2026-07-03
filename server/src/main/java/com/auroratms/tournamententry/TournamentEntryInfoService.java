@@ -44,7 +44,7 @@ public class TournamentEntryInfoService {
     private final ClubService clubService;
     private final TournamentEventEntityService tournamentEventEntityService;
     private final TournamentService tournamentService;
-    private final UserProfileExtRepairService userProfileExtRepairService;
+//    private final UserProfileExtRepairService userProfileExtRepairService;
 
     public TournamentEntryInfoService(TournamentEntryService tournamentEntryService,
                                       TournamentEventEntryService tournamentEventEntryService,
@@ -53,8 +53,8 @@ public class TournamentEntryInfoService {
                                       UserProfileService userProfileService,
                                       ClubService clubService,
                                       TournamentEventEntityService tournamentEventEntityService,
-                                      TournamentService tournamentService,
-                                      UserProfileExtRepairService userProfileExtRepairService) {
+                                      TournamentService tournamentService) {
+//                                      UserProfileExtRepairService userProfileExtRepairService) {
         this.tournamentEntryService = tournamentEntryService;
         this.tournamentEventEntryService = tournamentEventEntryService;
         this.userProfileExtService = userProfileExtService;
@@ -63,7 +63,7 @@ public class TournamentEntryInfoService {
         this.clubService = clubService;
         this.tournamentEventEntityService = tournamentEventEntityService;
         this.tournamentService = tournamentService;
-        this.userProfileExtRepairService = userProfileExtRepairService;
+//        this.userProfileExtRepairService = userProfileExtRepairService;
     }
 
     /**

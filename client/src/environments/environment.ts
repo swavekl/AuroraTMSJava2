@@ -4,8 +4,8 @@
 
 export const environment = {
   production: false,
-  myAppUrl: 'https://gateway-pc:4200',
-  baseServer: 'gateway-pc:8443'
+  myAppUrl: 'https://lorencmini:4200',
+  baseServer: 'lorencmini:8443'
 };
 
 /*
