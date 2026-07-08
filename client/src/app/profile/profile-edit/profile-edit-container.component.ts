@@ -144,6 +144,7 @@ export class ProfileEditContainerComponent implements OnInit, OnDestroy {
               this.authenticationService.makeProfileComplete();
               this.authenticationService.setCurrentUserBirthDate(profile.dateOfBirth);
               this.authenticationService.setCurrentUserMembershipExpiration(profile.membershipExpirationDate);
+              this.authenticationService.setCurrentUserMembershipType(profile.membershipType);
             }
             this.navigateToNextPage(profile);
           } else {
@@ -160,6 +161,7 @@ export class ProfileEditContainerComponent implements OnInit, OnDestroy {
                   if (!this.addingProfile) {
                     this.authenticationService.setCurrentUserMembershipExpiration(profile.membershipExpirationDate);
                     this.authenticationService.setCurrentUserMembershipId(profile.membershipId);
+                    this.authenticationService.setCurrentUserMembershipType(profile.membershipType);
                   }
                   this.navigateToNextPage(profile);
                 },

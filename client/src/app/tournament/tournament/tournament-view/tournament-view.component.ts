@@ -1,6 +1,6 @@
 import {Component, Input, OnChanges, OnInit, SimpleChange, SimpleChanges} from '@angular/core';
 import {Router} from '@angular/router';
-import {TournamentEntry} from '../../tournament-entry/model/tournament-entry.model';
+import {MembershipType, TournamentEntry} from '../../tournament-entry/model/tournament-entry.model';
 import {first, finalize} from 'rxjs/operators';
 import { HttpClient } from '@angular/common/http';
 import {AuthenticationService} from '../../../user/authentication.service';
@@ -143,6 +143,10 @@ export class TournamentViewComponent implements OnInit, OnChanges {
       this.showClosedTournamentWarning();
       return;
     }
+    const membershipExpirationDate: Date = this.authService.getCurrentUserMembershipExpiration();
+    if (!this.isMembershipUpValid(membershipExpirationDate)) {
+      return;
+    }
     // prevent double entering on slow network - disables Enter button
     this.enteringOrViewing = true;
     // create entry
@@ -150,7 +154,6 @@ export class TournamentViewComponent implements OnInit, OnChanges {
     entryToEdit.tournamentFk = this.tournament.id;
     entryToEdit.dateEntered = new Date();
     entryToEdit.profileId = this.authService.getCurrentUserProfileId();
-    const membershipExpirationDate: Date = this.authService.getCurrentUserMembershipExpiration();
     const dateOfBirth = this.authService.getCurrentUserBirthDate();
     entryToEdit.membershipOption = new MembershipUtil().getInitialMembershipOption(
       dateOfBirth, membershipExpirationDate, this.tournamentStartDate, this.tournament.starLevel);
@@ -305,5 +308,63 @@ export class TournamentViewComponent implements OnInit, OnChanges {
           alert('Could not open document. Access denied or file error.');
         }
       });
+  }
+
+  /**
+   * Checks if membership is valid and shows a friendly message if it is not.
+   *
+   * @param membershipExpirationDate
+   * @private
+   */
+  private isMembershipUpValid(membershipExpirationDate: Date): boolean {
+    let retValue: boolean = true;
+    const dateUtils = new DateUtils();
+    const isExpired = dateUtils.isDateBefore(membershipExpirationDate, this.tournamentStartDate);
+    const strExpirationDate = membershipExpirationDate != null ? dateUtils.getDateAsString(membershipExpirationDate) : null;
+    let membershipUtil = new MembershipUtil();
+    const requiredMembershipLevel: MembershipType = membershipUtil.getRequiredMembershipLevel(this.tournament.starLevel);
+    const playerMembershipLevel: MembershipType = this.authService.getCurrentUserMembershipType();
+    const isValid: boolean = membershipUtil.isMembershipValid(this.tournament.starLevel, playerMembershipLevel);
+    if (isExpired) {
+      this.showMembershipRenewalWarning(isExpired, strExpirationDate, this.tournament.starLevel, requiredMembershipLevel);
+      retValue = false;
+    } else if (!isValid) {
+      this.showMembershipRenewalWarning(false, strExpirationDate, this.tournament.starLevel, requiredMembershipLevel);
+      retValue = false;
+    }
+
+    return retValue;
+  }
+
+  /**
+   * Helper function for showing alert dialog
+   * @param expired
+   * @param expirationDate
+   * @param stars
+   * @param level
+   * @private
+   */
+  private showMembershipRenewalWarning(expired: boolean, expirationDate: string, stars: number, level: string) {
+    let message = '';
+    if (expired) {
+      message = `Your membership expired on ${expirationDate}.`
+    } else {
+      message = `Your membership level is not valid for a ${stars}-star tournament. You need a ${level} tier membership to register for it.`
+    }
+    message += ' Please renew or upgrade your membership on USATT JustGo website and then come back to start your registration.'
+    const config = {
+      width: '450px', height: '300px', data: {
+        contentAreaHeight: '180px',
+        title: 'Information',
+        message: message,
+        showOk: true, showCancel: true, okText: 'Visit JustGo'
+      }
+    };
+    const dialogRef = this.dialog.open(ConfirmationPopupComponent, config);
+    dialogRef.afterClosed().pipe(first()).subscribe(result => {
+      if (result === 'ok') {
+        window.open('https://usatt.justgo.com/', '_blank');
+      }
+    });
   }
 }

@@ -82,6 +82,7 @@ public class UserProfileController extends AbstractOktaController {
                     UsattPlayerRecord userPlayerRecord = this.playerRecordRepository.getFirstByMembershipId(userProfileExt.getMembershipId());
                     if (userPlayerRecord != null) {
                         userProfile.setMembershipExpirationDate(userPlayerRecord.getMembershipExpirationDate());
+                        userProfile.setMembershipType(userPlayerRecord.getMembershipType());
                         userProfile.setTournamentRating(userPlayerRecord.getTournamentRating());
                     }
 
@@ -273,6 +274,7 @@ public class UserProfileController extends AbstractOktaController {
                         userProfile.setMembershipId(playerRecord.getMembershipId());
                         userProfile.setTournamentRating(playerRecord.getTournamentRating());
                         userProfile.setMembershipExpirationDate(playerRecord.getMembershipExpirationDate());
+                        userProfile.setMembershipType(playerRecord.getMembershipType());
                     }
                 }
             }

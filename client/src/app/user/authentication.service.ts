@@ -273,6 +273,19 @@ export class AuthenticationService {
     this.membershipExpirationDate = membershipExpirationDate;
   }
 
+  getCurrentUserMembershipType() {
+    return this.currentUser?.profile?.membershipType;
+  }
+
+  setCurrentUserMembershipType(membershipType: string) {
+    if (this.currentUser?.profile != null) {
+      this.currentUser.profile = {
+        ...this.currentUser.profile,
+        membershipType: membershipType
+      };
+    }
+  }
+
   getCurrentUserBirthDate() {
     return this.currentUser?.profile?.birthdate;
   }

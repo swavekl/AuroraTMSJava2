@@ -520,6 +520,31 @@ public class UsattDataService {
                 }
             }
         }
+
+        int silver = 0;
+        int gold = 0;
+        int bronze = 0;
+        int lifetime = 0;
+        int neither = 0;
+        for (UsattPlayerRecord playerInfo : playerInfos) {
+            String membershipType = playerInfo.getMembershipType();
+            switch (membershipType) {
+                case "Silver": silver++; break;
+                case "Gold": gold++; break;
+                case "Bronze": bronze++; break;
+                case "Lifetime": lifetime++; break;
+                default: neither++; break;
+            }
+        }
+
+        logger.info("lifetime = " + lifetime);
+        logger.info("gold     = " + gold);
+        logger.info("silver   = " + silver);
+        logger.info("bronze   = " + bronze);
+        logger.info("neither  = " + neither);
+        int totalMemberships = lifetime + gold + silver + bronze;
+        logger.info("Total records processed = " + playerInfos.size() + ", total players with membership: " + totalMemberships);
+
         return playerInfos;
     }
 
@@ -799,6 +824,7 @@ public class UsattDataService {
                         }
                         // merge updated & existing record
                         existingRecord.setMembershipExpirationDate(updatedRecord.getMembershipExpirationDate());
+                        existingRecord.setMembershipType(updatedRecord.getMembershipType());
                         existingRecord.setTournamentRating(updatedRecord.getTournamentRating());
                         // player might have moved to another state/zip or finally provided it
                         if (StringUtils.isNotEmpty(updatedRecord.getState())) {

@@ -23,6 +23,7 @@ export class Profile {
   userStatus: string;
   emailSubscribed: boolean;
   emailStatus: string;
+  membershipType: string;
 
   constructor() {
 
@@ -44,6 +45,7 @@ export class Profile {
     this.dateOfBirth = new DateUtils().convertFromLocalToUTCDate(formValues.dateOfBirth);
     this.membershipId = formValues.membershipId;
     this.membershipExpirationDate = new DateUtils().convertFromString(formValues.membershipExpirationDate);
+    this.membershipType = formValues?.membershipType;
     this.tournamentRating = formValues.tournamentRating;
     this.homeClubId = formValues.homeClubId;
     this.homeClubName = formValues.homeClubName;
@@ -68,6 +70,7 @@ export class Profile {
     this.dateOfBirth = otherProfile.dateOfBirth;
     this.membershipId = otherProfile.membershipId;
     this.membershipExpirationDate = otherProfile.membershipExpirationDate;
+    this.membershipType = otherProfile.membershipType;
     this.tournamentRating = otherProfile.tournamentRating;
     this.homeClubId = otherProfile.homeClubId;
     this.homeClubName = otherProfile.homeClubName;

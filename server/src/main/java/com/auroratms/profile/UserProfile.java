@@ -44,4 +44,6 @@ public class UserProfile implements Serializable {
     private boolean emailSubscribed;
     // current status ACTIVE, BOUNCED, UNSUBSCRIBED, etc.
     private String emailStatus;
+
+    private String membershipType;
 }

@@ -110,20 +110,24 @@
           </div>
           <mat-card-subtitle class="mat-headline-6">USATT Information</mat-card-subtitle>
           <div fxLayout="row wrap" fxLayoutGap="10px grid">
-            <mat-form-field fxFlex="35%" fxFlex.lt-md="45%">
+            <mat-form-field fxFlex="25%" fxFlex.lt-md="45%">
               <mat-label>Membership Id</mat-label>
               <input matInput type="text" name="membershipId" [ngModel]="profile?.membershipId" readonly>
             </mat-form-field>
-            <mat-form-field fxFlex="40%" fxFlex.lt-md="55%">
+            <mat-form-field fxFlex="25%" fxFlex.lt-md="55%">
               <mat-label>Membership Expires</mat-label>
               <input matInput name="membershipExpirationDate" [ngModel]="profile?.membershipExpirationDate | date:'MM/dd/yyyy'" readonly>
             </mat-form-field>
-            <mat-form-field fxFlex="25%" fxFlex.lt-md="45%">
+            <mat-form-field fxFlex="15%" fxFlex.lt-md="30%">
               <mat-label>Rating</mat-label>
               <input matInput type="text" name="tournamentRating" [ngModel]="profile?.tournamentRating"
                      [readonly]="!canChangeMembershipId"
                      pattern="^(0|[1-2]?[0-9]{0,3})$" maxlength="4" required>
               <mat-error>Invalid rating</mat-error>
+            </mat-form-field>
+            <mat-form-field fxFlex="35%" fxFlex.lt-md="70%">
+              <mat-label>Membership Tier</mat-label>
+              <input matInput name="membershipType" [ngModel]="profile?.membershipType" readonly>
             </mat-form-field>
           </div>
           <div style="margin-bottom: 16px">

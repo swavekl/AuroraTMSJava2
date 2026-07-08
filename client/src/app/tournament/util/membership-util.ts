@@ -79,4 +79,45 @@ export class MembershipUtil {
     }
   }
 
+  /**
+   * Validates if a player's membership tier satisfies the tournament requirements.
+   * * @param starLevel The star rating of the tournament (0 - 5).
+   * @param starLevel tournament star level
+   * @param playerMembershipLevel The player's actual active membership tier.
+   * @returns boolean true if the player is eligible to play; false otherwise.
+   */
+  public isMembershipValid(
+    starLevel: number,
+    playerMembershipLevel: MembershipType
+  ): boolean {
+
+    // 2. 5-Star tournaments strictly require GOLD or LIFETIME
+    if (starLevel === 5) {
+      return playerMembershipLevel === MembershipType.GOLD || playerMembershipLevel === MembershipType.LIFETIME;
+    }
+
+    if (starLevel >= 0 && starLevel <= 4) {
+      return playerMembershipLevel === MembershipType.SILVER || playerMembershipLevel === MembershipType.GOLD || playerMembershipLevel === MembershipType.LIFETIME;
+    }
+
+    return false;
+  }
+
+  /**
+   * Determines the minimum required membership level based on the tournament's star rating.
+   *
+   * @param starLevel The star rating of the tournament (0 - 5).
+   * @returns The required MembershipType (SILVER or GOLD).
+   */
+  public getRequiredMembershipLevel(starLevel: number): MembershipType {
+    let membershipType: MembershipType;
+
+    if (starLevel === 5) {
+      membershipType = MembershipType.GOLD;
+    } else if (starLevel >= 0 && starLevel <= 4) {
+      membershipType = MembershipType.SILVER;
+    }
+
+    return membershipType;
+  }
 }
