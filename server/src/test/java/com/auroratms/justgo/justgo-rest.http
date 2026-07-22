@@ -39,3 +39,13 @@ Authorization: Bearer {{auth_token}}
   "date": "2026-03-30T00:09:29.308Z",
   "type": "Rating"
 }
+
+### 2. Find All Members recently changed
+GET https://api-sandbox.justgo.com/api/v2.2/Members/FindByAttributes?ModifiedAfter=2026-07-03T10:00:32.000Z
+Accept: application/json
+Authorization: Bearer {{auth_token}}
+
+> {%
+    client.global.set("totalRecords", response.body.totalRecords);
+    client.log('totalRecords '+ response.body.totalRecords);
+%}

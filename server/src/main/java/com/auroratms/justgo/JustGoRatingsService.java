@@ -136,9 +136,10 @@ public class JustGoRatingsService {
 
     private UsattPlayerRecord toPlayerRecord(JsonNode node) {
         UsattPlayerRecord playerRecord = new UsattPlayerRecord();
+        playerRecord.setMembershipId(node.path("memberNumber").asLong());
         playerRecord.setFirstName(node.path("firstName").asText());
         playerRecord.setLastName(node.path("lastName").asText());
-        playerRecord.setMembershipId(node.path("memberId").asLong());
+        playerRecord.setMemberGuid(node.path("id").asText());
         String gender = node.path("gender").asText();
         playerRecord.setGender("Male".equalsIgnoreCase(gender) ? "M" : "F");
         playerRecord.setState(node.path("county").asText());
@@ -320,8 +321,9 @@ public class JustGoRatingsService {
     }
 
     private @NotNull String getJustGoCutoverDate() {
+        // 2026-05-21T02:07:50.467
         Calendar calendar = Calendar.getInstance();
-        calendar.set(2025, Calendar.NOVEMBER, 1);
+        calendar.set(2025, Calendar.JANUARY, 1);
         calendar.set(Calendar.HOUR_OF_DAY, 1);
         calendar.set(Calendar.MINUTE, 0);
         calendar.set(Calendar.SECOND, 0);
@@ -424,5 +426,57 @@ public class JustGoRatingsService {
         }
 
         return null;
+    }
+
+    /**
+     *
+     * @param asOfDate
+     * @return
+     */
+    public List<UsattPlayerRecord> findChangedPlayers(Date asOfDate) {
+        List<UsattPlayerRecord> players = new ArrayList<>();
+
+        String bearerToken = getValidToken();
+
+        String strModifiedAfter = AS_OF_DATE_FORMAT.format(asOfDate);
+        String url = UriComponentsBuilder
+                .fromUriString(baseUrl + "/Members/FindByAttributes")
+                .queryParam("ModifiedAfter", strModifiedAfter)
+                .toUriString();
+        HttpHeaders headers = new HttpHeaders();
+        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+        headers.set(HttpHeaders.AUTHORIZATION, bearerToken);
+
+        HttpEntity<Void> request = new HttpEntity<>(headers);
+        ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, request, String.class);
+
+        if (!response.getStatusCode().is2xxSuccessful() || response.getBody() == null) {
+            throw new IllegalStateException("JustGo member lookup failed with status " + response.getStatusCode());
+        }
+
+        String body = response.getBody();
+        try {
+            JsonNode root = objectMapper.readTree(body);
+            JsonNode members = root.path("data");
+            if (!members.isArray() || members.isEmpty()) {
+                throw new IllegalStateException("No JustGo members found");
+            }
+
+            for (JsonNode member : members) {
+                UsattPlayerRecord playerRecord = this.toPlayerRecord(member);
+                players.add(playerRecord);
+                if (playerRecord.getMemberGuid() != null) {
+                    JsonNode rankingsNode = this.getRankings(playerRecord.getMemberGuid(), asOfDate);
+                    Integer rating = extractTournamentRating(rankingsNode);
+                    if (rating != null) {
+                        playerRecord.setTournamentRating(rating);
+                    }
+                }
+            }
+
+        } catch (Exception e) {
+            throw new IllegalStateException("Unable to parse JustGo member lookup response: " + body, e);
+        }
+        return players;
     }
 }
