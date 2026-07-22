@@ -15,13 +15,15 @@ Content-Type: application/json
 ###
 
 ### 2. Find Member by Attributes
-GET https://api-sandbox.justgo.com/api/v2.2/Members/FindByAttributes?LastName=Lorenc&ModifiedAfter=2025-04-04T13:48:32.000Z
+GET https://api-sandbox.justgo.com/api/v2.2/Members/FindByAttributes?LastName=Lorenc&FirstName=Swavek&ModifiedAfter=2025-04-04T13:48:32.000Z
 Accept: application/json
 Authorization: Bearer {{auth_token}}
 
 > {%
-    client.global.set("memberId", response.body.data[1].id);
-    client.log('memberId '+ response.body.data[1].id)
+    client.global.set("id", response.body.data[0].id);
+    client.global.set("memberId", response.body.data[0].memberNumber);
+    client.log('id '+ response.body.data[0].id);
+    client.log('memberId '+ response.body.data[0].memberNumber);
 %}
 
 ###
@@ -33,7 +35,7 @@ Content-Type: application/json
 Authorization: Bearer {{auth_token}}
 
 {
-  "memberId": "{{memberId}}",
+  "memberId": "{{id}}",
   "date": "2026-03-30T00:09:29.308Z",
   "type": "Rating"
 }

@@ -24,10 +24,17 @@ public class JustGoRatingsServiceTest extends AbstractServiceTest {
         assertEquals(Integer.class, rating.getClass()); // expected from data.finalRating
     }
 
+//    @Test
+//    public void getTournamentRatingByLastFirstName2() {
+//        Integer rating = service.getTournamentRatingByFullName("Mario", "Lorenc");
+//        assertTrue(rating >= 1900, "Expected non-negative tournament rating from JustGo sandbox " + rating);
+//        assertEquals(Integer.class, rating.getClass()); // expected from data.finalRating
+//    }
+
     @Test
-    public void getTournamentRatingByLastFirstName2() {
-        Integer rating = service.getTournamentRatingByFullName("Mario", "Lorenc");
-        assertTrue(rating >= 1900, "Expected non-negative tournament rating from JustGo sandbox");
+    public void getTournamentRatingByLastFirstName3() {
+        Integer rating = service.getTournamentRatingByFullName("Miroslaw", "Lepa");
+        assertTrue(rating >= 1600, "Expected non-negative tournament rating from JustGo sandbox " + rating);
         assertEquals(Integer.class, rating.getClass()); // expected from data.finalRating
     }
 

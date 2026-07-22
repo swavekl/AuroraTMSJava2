@@ -4,6 +4,7 @@ import com.auroratms.usatt.UsattPlayerRecord;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -19,10 +20,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Collections;
-import java.util.Date;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
 
 @Service
 public class JustGoRatingsService {
@@ -38,11 +36,11 @@ public class JustGoRatingsService {
     @Value("${justgo.api.key:}")
     private String apiKey;
 
-    @Value("${justgo.api.default-ranking-type:Tournament}")
+    @Value("${justgo.api.default-ranking-type:Rating}")
     private String defaultRankingType = "Rating";
 
-    // for rating as of date
-    private final static DateFormat AS_OF_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+    // for rating as of date - 2025-04-04T13:48:32.000Z
+    private final static DateFormat AS_OF_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'.000Z'");
     // for player record DOB
     private final static DateFormat DOB_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");  // "1969-10-05",
 
@@ -103,11 +101,11 @@ public class JustGoRatingsService {
     private JsonNode findMemberIdByUsattMemberhipId(Long membershipId) {
         String bearerToken = getValidToken();
 
-        String strModifiedBefore = AS_OF_DATE_FORMAT.format(new Date());
+        String strModifiedAfter = this.getJustGoCutoverDate();
         String url = UriComponentsBuilder
                 .fromUriString(baseUrl + "/Members/FindByAttributes")
-                .queryParam("MemberId", membershipId)
-                .queryParam("ModifiedBefore", strModifiedBefore)
+                .queryParam("memberNumber", membershipId)
+                .queryParam("ModifiedAfter", strModifiedAfter)
                 .toUriString();
         logger.info("JustGo URL: {} for membershipId {}", url, membershipId);
 
@@ -240,10 +238,10 @@ public class JustGoRatingsService {
             // If not provided, default to a safe value like 3600 (1 hour).
             long expiresInSeconds = json.path("data").path("expiresIn").asLong(3600);
 
-            this.cachedToken = "Bearer " + accessToken;
+            this.cachedToken = tokenType + " " + accessToken;
             this.tokenExpiryTime = System.currentTimeMillis() + (expiresInSeconds * 1000) - REFRESH_BUFFER;
 
-            return tokenType + " " + accessToken;
+            return this.cachedToken;
         } catch (Exception e) {
             throw new IllegalStateException("Unable to parse JustGo auth response", e);
         }
@@ -259,7 +257,7 @@ public class JustGoRatingsService {
     public String findMemberIdByFullName(String lastName, String firstName) {
         JsonNode chosen = this.findMemberIdByFullNameInternal(firstName, lastName);
         if (chosen == null) {
-            throw new IllegalStateException("JustGo member is missing for lastName=" + lastName);
+            throw new IllegalStateException("JustGo member is missing for lastName=" + lastName + ", " + firstName);
         }
         String memberId = chosen.path("id").asText(null);
         if (StringUtils.isBlank(memberId)) {
@@ -281,16 +279,15 @@ public class JustGoRatingsService {
     private JsonNode findMemberIdByFullNameInternal(String firstName, String lastName) {
         String bearerToken = getValidToken();
 
-        String strModifiedBefore = AS_OF_DATE_FORMAT.format(new Date());
+        String strModifiedAfter = getJustGoCutoverDate();
         String url = UriComponentsBuilder
                 .fromUriString(baseUrl + "/Members/FindByAttributes")
                 .queryParam("LastName", lastName)
-//                .queryParam("ModifiedBefore", strModifiedBefore)
-                .queryParam("ModifiedAfter", strModifiedBefore)
+                .queryParam("FirstName", firstName)
+                .queryParam("ModifiedAfter", strModifiedAfter)
                 .toUriString();
-
         HttpHeaders headers = new HttpHeaders();
-        headers.setAccept(Collections.singletonList(MediaType.TEXT_PLAIN));
+        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
         headers.set(HttpHeaders.AUTHORIZATION, bearerToken);
 
         HttpEntity<Void> request = new HttpEntity<>(headers);
@@ -300,8 +297,9 @@ public class JustGoRatingsService {
             throw new IllegalStateException("JustGo member lookup failed with status " + response.getStatusCode());
         }
 
+        String body = response.getBody();
         try {
-            JsonNode root = objectMapper.readTree(response.getBody());
+            JsonNode root = objectMapper.readTree(body);
             JsonNode members = root.path("data");
             if (!members.isArray() || members.isEmpty()) {
                 throw new IllegalStateException("No JustGo member found for lastName=" + lastName);
@@ -315,13 +313,21 @@ public class JustGoRatingsService {
                     break;
                 }
             }
-            if (chosen == null) {
-                chosen = members.get(0);
-            }
             return chosen;
         } catch (Exception e) {
-            throw new IllegalStateException("Unable to parse JustGo member lookup response", e);
+            throw new IllegalStateException("Unable to parse JustGo member lookup response: " + body, e);
         }
+    }
+
+    private @NotNull String getJustGoCutoverDate() {
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(2025, Calendar.NOVEMBER, 1);
+        calendar.set(Calendar.HOUR_OF_DAY, 1);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
+        Date asOfDate = calendar.getTime();
+        return AS_OF_DATE_FORMAT.format(asOfDate);
     }
 
     /**
