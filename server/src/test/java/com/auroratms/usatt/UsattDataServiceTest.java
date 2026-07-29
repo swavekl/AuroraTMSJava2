@@ -216,4 +216,16 @@ public class UsattDataServiceTest extends AbstractJUnit4SpringContextTests {
         }
     }
 
+    @Test
+    public void testAddingJustGoGuid() {
+        String reportFilename = "C:\\Users\\Swavek\\AppData\\Local\\Temp\\players-export.csv";
+
+        // process the csv file.
+        RatingsProcessorStatus ratingsProcessorStatus = new RatingsProcessorStatus();
+        List<UsattPlayerRecord> usattPlayerRecords = this.usattDataService.readAllPlayersFromFile(reportFilename, ratingsProcessorStatus);
+        if (!usattPlayerRecords.isEmpty()) {
+            this.usattDataService.insertPlayerData(usattPlayerRecords, ratingsProcessorStatus);
+        }
+    }
+
 }

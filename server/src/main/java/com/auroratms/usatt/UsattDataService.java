@@ -273,7 +273,8 @@ public class UsattDataService {
      * @param ratingsProcessorStatus
      * @return
      */
-    public List<UsattPlayerRecord> readAllPlayersFromFile(String filename, RatingsProcessorStatus ratingsProcessorStatus) {
+    public List<UsattPlayerRecord> readAllPlayersFromFile(String filename,
+                                                          RatingsProcessorStatus ratingsProcessorStatus) {
         List<UsattPlayerRecord> playerInfos = new ArrayList<>(150000);
 
         String[] values = null;
@@ -308,6 +309,7 @@ public class UsattDataService {
             CSVReaderBuilder builder = new CSVReaderBuilder(new InputStreamReader(new FileInputStream(filename), StandardCharsets.UTF_8))
                     .withCSVParser(parser);
 
+            boolean withJustGoID = false;
             try (CSVReader csvReader = builder.build()) {
 
                 int badRecordsNum = 0;
@@ -330,9 +332,13 @@ public class UsattDataService {
                         String expectedHeaders = Normalizer.normalize(
                                 "USATT Id,First Name,Middle Name,Nick Name,Last Name,Date Of Birth,ZipCode,Gender,CityTown,State,Primary Club,FinalRating,League Rating,Rating As Of Date,Latest tournament play date,Latest Membership expiry date,Latest Membership,Background Check Completed Expiry date,Background Check Completed Status,Safesport Trained Expiry Date,Safesport Trained Status",
                                 Normalizer.Form.NFC);
+                        String expectedHeadersWithGUID = Normalizer.normalize(
+                                "USATT ID,FIRST NAME,MIDDLE NAME,NICK NAME,LAST NAME,DATE OF BIRTH,ZIPCODE,GENDER,CITYTOWN,STATE,PRIMARY CLUB,FINALRATING,LEAGUE RATING,RATING AS OF DATE,LATEST TOURNAMENT PLAY DATE,LATEST MEMBERSHIP EXPIRY DATE,LATEST MEMBERSHIP,BACKGROUND CHECK COMPLETED EXPIRY DATE,BACKGROUND CHECK COMPLETED STATUS,SAFESPORT TRAINED EXPIRY DATE,SAFESPORT TRAINED STATUS,JUSTGO ID",
+                                Normalizer.Form.NFC);
+
                         writer.append(expectedHeaders + "\n");
 
-                        if (!expectedHeaders.equals(actualHeaders)) {
+                        if (!expectedHeaders.equals(actualHeaders) && !expectedHeadersWithGUID.equals(actualHeaders)) {
                             String errorMsg = "Unexpected file format\n" +
                                     "Expected headers: " + expectedHeaders + "\n" +
                                     "Actual headers  : " + actualHeaders;
@@ -341,9 +347,12 @@ public class UsattDataService {
                                 ratingsProcessorStatus.error = errorMsg;
                             }
                             throw new RuntimeException(errorMsg);
+                        } else {
+                            withJustGoID = expectedHeadersWithGUID.equals(actualHeaders);
                         }
                         continue; // Skip processing the header row
                     }
+
 
                     // 2. Parse Data Row
                     try {
@@ -352,10 +361,11 @@ public class UsattDataService {
 
                         String csvValues = Arrays.stream(values)
                                 .map(value -> (value == null) ? "" : value.replace("\uFEFF", ""))
-                                .map(value -> "\"" + value + "\"")
+                                .map(value -> "" + value + "")
                                 .collect(Collectors.joining(","));
 
-                        if (values.length > 21) {
+                        int maxValues = withJustGoID ? 22 : 21;
+                        if (values.length > maxValues) {
                             logger.warn("Unexpected number of values in row : " + rowNumber + " # values " + values.length);
                         }
                         if (csvValues.length() > 300) {
@@ -446,6 +456,10 @@ public class UsattDataService {
                                     break;
                                 case 16: // Latest Membership
                                     usattPlayerInfo.setMembershipType(text);
+                                    break;
+                                case 21:
+                                    // JustGo GUID
+                                    usattPlayerInfo.setMemberGuid(text);
                                     break;
                                 default:
                                     // Columns 17 to 20 are Background checks and SafeSport.
@@ -851,6 +865,10 @@ public class UsattDataService {
                         if (existingRecord.getGender() == null && updatedRecord.getGender() != null) {
                             existingRecord.setGender(updatedRecord.getGender());
                         }
+                        if (existingRecord.getMemberGuid() == null && updatedRecord.getMemberGuid() != null) {
+                            existingRecord.setMemberGuid(updatedRecord.getMemberGuid());
+                        }
+
                         break;
                     }
                 }

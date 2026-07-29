@@ -18,8 +18,8 @@ import com.auroratms.utils.filerepo.FileInfo;
 import com.auroratms.utils.filerepo.FileRepositoryException;
 import com.auroratms.utils.filerepo.FileRepositoryFactory;
 import com.auroratms.utils.filerepo.IFileRepository;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+//import com.fasterxml.jackson.core.JsonProcessingException;
+//import com.fasterxml.jackson.databind.ObjectMapper;
 import com.opencsv.CSVReader;
 import jakarta.mail.Address;
 import jakarta.mail.Message;
@@ -38,8 +38,8 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import software.amazon.awssdk.services.sesv2.SesV2Client;
-import software.amazon.awssdk.services.sesv2.model.*;
+//import software.amazon.awssdk.services.sesv2.SesV2Client;
+//import software.amazon.awssdk.services.sesv2.model.*;
 
 import java.io.InputStreamReader;
 import java.util.*;
@@ -80,10 +80,10 @@ public class EmailSenderService {
     @Value("${spring.cloud.aws.ses.enabled}")
     private boolean useSes = false;
 
-    @Autowired
-    private SesV2Client sesV2Client;
-
-    private final ObjectMapper objectMapper = new ObjectMapper();
+//    @Autowired
+//    private SesV2Client sesV2Client;
+//
+//    private final ObjectMapper objectMapper = new ObjectMapper();
 
     /**
      * Retrieves a list of filtered recipients based on the provided tournament ID and filter configuration.
@@ -455,13 +455,13 @@ public class EmailSenderService {
         emailCampaign.setEmailsCount(0);
         this.emailCampaignService.save(emailCampaign);
 
-        if (useSes) {
-            // --- AWS SES BULK PATH ---
-            sendViaSesBulk(tournamentId, emailCampaign, recipients, emailConfig, templateData, campaignSendingStatus);
-        } else {
+//        if (useSes) {
+//            // --- AWS SES BULK PATH ---
+//            sendViaSesBulk(tournamentId, emailCampaign, recipients, emailConfig, templateData, campaignSendingStatus);
+//        } else {
             // --- LEGACY JAVAMAIL PATH (or single Test Email) ---
             sendViaLegacySmtp(tournament.getName(), emailCampaign, recipients, templateData, campaignSendingStatus, currentUserName);
-        }
+//        }
 
         campaignSendingStatus.endTime = System.currentTimeMillis();
         log.info("Finished. Sent: {}, Errors: {}", campaignSendingStatus.totalSent, campaignSendingStatus.totalErrors);
@@ -471,235 +471,235 @@ public class EmailSenderService {
         this.emailCampaignService.save(emailCampaign);
     }
 
-    private List<FilterConfiguration.Recipient> getSesTestRecipients() {
-        List<FilterConfiguration.Recipient> recipients = new ArrayList<>();
-        FilterConfiguration.Recipient recipient = new FilterConfiguration.Recipient();
-        recipient.setEmailAddress("success@simulator.amazonses.com");
-        recipient.setFirstName("Success");
-        recipient.setLastName("Test");
-        recipients.add(recipient);
-
-        recipient = new FilterConfiguration.Recipient();
-        recipient.setEmailAddress("bounce@simulator.amazonses.com");
-        recipient.setFirstName("Hard");
-        recipient.setLastName("Bounce");
-        recipients.add(recipient);
-
-        recipient = new FilterConfiguration.Recipient();
-        recipient.setEmailAddress("complaint@simulator.amazonses.com");
-        recipient.setFirstName("Spam");
-        recipient.setLastName("Complaint");
-        recipients.add(recipient);
-
-        return recipients;
-    }
-
-    /**
-     * Sends bulk emails via Amazon SES (Simple Email Service) using a templated approach.
-     * The method prepares an SES email template based on the provided email campaign details
-     * and sends emails in batches of 50 to the specified recipients.
-     * adds mandatory Gmail/Yahoo unsubscribe headers.
-     *
-     * @param tournamentId             Unique identifier of the tournament, used for generating a distinct template name.
-     * @param emailCampaign            Contains the email subject, body, and campaign-specific configurations.
-     * @param recipients               A list of recipients to whom the email should be sent, including personalization details.
-     * @param emailServerConfiguration Configuration details for the email server, including the reply-to address.
-     * @param defaultData              Default key-value data to populate template placeholders for all recipients.
-     * @param status                   A mutable object for tracking the sending progress and error statistics.
-     */
-    private void sendViaSesBulk(Long tournamentId,
-                                EmailCampaign emailCampaign,
-                                List<FilterConfiguration.Recipient> recipients,
-                                EmailServerConfigurationEntity emailServerConfiguration,
-                                Map<String, String> defaultData,
-                                CampaignSendingStatus status) {
-
-        // Generate a unique, timestamped template name to prevent race conditions
-        String timestamp = new java.text.SimpleDateFormat("yyyyMMddHHmmss").format(new java.util.Date());
-        String templateName = String.format("T_%d_C_%d_%s", tournamentId, emailCampaign.getId(), timestamp);
-
-        try {
-            // A. Prepare and Sync the Template
-            String subject = replaceVariables(emailCampaign.getSubject(), defaultData);
-            String body = replaceVariables(emailCampaign.getBody(), defaultData);
-
-            // B. Convert tokens from ${ } to {{ }}
-            String sesSubject = convertToSesTemplate(subject);
-            String sesBody = fixCorruptedCss(convertToSesTemplate(body));
-            System.out.println("sesBody = " + sesBody);
-
-            // NOTE: Make sure your syncSesTemplate method is updated to use the SesV2Client!
-            syncSesTemplate(templateName, sesSubject, sesBody, emailCampaign.isHtmlEmail());
-
-            // C. Send in Batches of 50
-            for (int i = 0; i < recipients.size(); i += 50) {
-                List<FilterConfiguration.Recipient> batch = recipients.subList(i, Math.min(i + 50, recipients.size()));
-
-                // Build the V2 Bulk Email Entries
-                List<BulkEmailEntry> entries = batch.stream().map(r -> {
-                    Map<String, String> personalData = new java.util.HashMap<>();
-                    personalData.put("first_name", r.getFirstName());
-                    personalData.put("last_name", r.getLastName());
-
-                    String unsubscribeUrl = String.format("%s/publicapi/profiles/unsubscribe/%s", clientHostUrl, r.getEmailAddress());
-                    personalData.put("unsubscribe_url", unsubscribeUrl);
-
-                    // 1. Explicitly build the headers as a list to fix the stream compile error
-                    List<MessageHeader> headers = java.util.Arrays.asList(
-                            MessageHeader.builder()
-                                    .name("List-Unsubscribe")
-                                    .value("<" + unsubscribeUrl + ">")
-                                    .build(),
-                            MessageHeader.builder()
-                                    .name("List-Unsubscribe-Post")
-                                    .value("List-Unsubscribe=One-Click")
-                                    .build()
-                    );
-
-                    return BulkEmailEntry.builder()
-                            // Map the destination
-                            .destination(d -> d.toAddresses(r.getEmailAddress()))
-
-                            // Map the template data
-                            .replacementEmailContent(content -> content
-                                    .replacementTemplate(template -> template
-                                            .replacementTemplateData(toJson(personalData))
-                                    )
-                            )
-
-                            // 2. Pass the explicitly typed list here!
-                            .replacementHeaders(headers)
-                            .build();
-                }).collect(java.util.stream.Collectors.toList());
-
-                // Build the V2 Bulk Request
-                SendBulkEmailRequest bulkRequest = SendBulkEmailRequest.builder()
-                        .fromEmailAddress("admin@ttaurora.com") // Is verified through domain on Identities screen
-                        .replyToAddresses(emailServerConfiguration.getUserId())
-                        .defaultContent(BulkEmailContent.builder()
-                                .template(Template.builder()
-                                        .templateName(templateName)
-                                        // Merges your default data placeholders across the whole batch
-                                        .templateData(toJson(defaultData))
-                                        .build())
-                                .build())
-                        .bulkEmailEntries(entries)
-                        .build();
-
-                // Calling SES v2 instead of v1
-                sesV2Client.sendBulkEmail(bulkRequest);
-
-                status.totalSent += batch.size();
-                log.info("Dispatched SES v2 batch. Total sent so far: " + status.totalSent);
-
-                // Your custom 10-second sleep interval
-                if (i + 50 < recipients.size()) {
-                    try {
-                        Thread.sleep(10000);
-                    } catch (InterruptedException e) {
-                        Thread.currentThread().interrupt();
-                        throw new RuntimeException("Campaign interrupted", e);
-                    }
-                }
-            }
-        } catch (Exception e) {
-            log.error("Critical failure in SES Bulk send", e);
-            status.totalErrors = recipients.size() - status.totalSent;
-        } finally {
-            // D. Cleanup: Always delete the temporary template
-            // NOTE: Make sure deleteSesTemplate is updated to use SesV2Client!
-            deleteSesTemplate(templateName);
-        }
-    }
-
-    /**
-     * Synchronizes an Amazon SES email template using SES v2 by creating a new template
-     * or updating an existing one if it already exists.
-     *
-     * @param name    the name of the template to be created or updated
-     * @param subject the subject line of the email template
-     * @param body    the HTML or text content of the email template
-     * @param isHtml  true if the email body is in HTML format, false otherwise
-     */
-    private void syncSesTemplate(String name, String subject, String body, boolean isHtml) {
-        try {
-            log.info("Preparing template data for: " + name);
-
-            // We build the body and fallback strings ahead of time
-            String htmlContent = isHtml ? body : "";
-            String textContent = isHtml
-                    ? "This message is sent in HTML format. Please use an HTML-compatible email client to view it."
-                    : body;
-
-            try {
-                log.info("Attempting to create SES v2 template: " + name);
-
-                // 1. Consumer builder handles object instantiation automatically!
-                this.sesV2Client.createEmailTemplate(req -> req
-                        .templateName(name)
-                        .templateContent(content -> content
-                                .subject(subject)
-                                .html(htmlContent)
-                                .text(textContent)
-                        )
-                );
-                log.info("Successfully created template: " + name);
-
-            } catch (AlreadyExistsException e) {
-                log.info("SES v2 template already exists, updating instead: " + name);
-
-                // 2. Exact same mapping structure for the update call
-                this.sesV2Client.updateEmailTemplate(req -> req
-                        .templateName(name)
-                        .templateContent(content -> content
-                                .subject(subject)
-                                .html(htmlContent)
-                                .text(textContent)
-                        )
-                );
-                log.info("Successfully updated template: " + name);
-            }
-
-        } catch (Exception e) {
-            log.error("Failed to sync SES v2 template " + name, e);
-            throw e;
-        }
-    }
-
-    /**
-     * Deletes an Amazon SES email template using SES v2 by its name.
-     *
-     * @param name template name
-     */
-    private void deleteSesTemplate(String name) {
-        try {
-            // Consumer builder approach for deletion
-            this.sesV2Client.deleteEmailTemplate(req -> req.templateName(name));
-            log.info("Deleted temporary SES v2 template: " + name);
-        } catch (Exception e) {
-            log.warn("Failed to delete template: " + name + " (It may have already been removed)");
-        }
-    }
-
-    /**
-     * Converts a string to a JSON string by escaping special characters.
-     *
-     * @param input
-     * @return
-     */
-    private String convertToSesTemplate(String input) {
-        if (input == null) return "";
-        // Converts ${var_name} to {{var_name}} for SES Handlebars
-        return input.replace("${", "{{").replace("}", "}}");
-    }
-
-    private String toJson(Map<String, String> data) {
-        try {
-            return objectMapper.writeValueAsString(data);
-        } catch (JsonProcessingException e) {
-            return "{}";
-        }
-    }
+//    private List<FilterConfiguration.Recipient> getSesTestRecipients() {
+//        List<FilterConfiguration.Recipient> recipients = new ArrayList<>();
+//        FilterConfiguration.Recipient recipient = new FilterConfiguration.Recipient();
+//        recipient.setEmailAddress("success@simulator.amazonses.com");
+//        recipient.setFirstName("Success");
+//        recipient.setLastName("Test");
+//        recipients.add(recipient);
+//
+//        recipient = new FilterConfiguration.Recipient();
+//        recipient.setEmailAddress("bounce@simulator.amazonses.com");
+//        recipient.setFirstName("Hard");
+//        recipient.setLastName("Bounce");
+//        recipients.add(recipient);
+//
+//        recipient = new FilterConfiguration.Recipient();
+//        recipient.setEmailAddress("complaint@simulator.amazonses.com");
+//        recipient.setFirstName("Spam");
+//        recipient.setLastName("Complaint");
+//        recipients.add(recipient);
+//
+//        return recipients;
+//    }
+//
+//    /**
+//     * Sends bulk emails via Amazon SES (Simple Email Service) using a templated approach.
+//     * The method prepares an SES email template based on the provided email campaign details
+//     * and sends emails in batches of 50 to the specified recipients.
+//     * adds mandatory Gmail/Yahoo unsubscribe headers.
+//     *
+//     * @param tournamentId             Unique identifier of the tournament, used for generating a distinct template name.
+//     * @param emailCampaign            Contains the email subject, body, and campaign-specific configurations.
+//     * @param recipients               A list of recipients to whom the email should be sent, including personalization details.
+//     * @param emailServerConfiguration Configuration details for the email server, including the reply-to address.
+//     * @param defaultData              Default key-value data to populate template placeholders for all recipients.
+//     * @param status                   A mutable object for tracking the sending progress and error statistics.
+//     */
+//    private void sendViaSesBulk(Long tournamentId,
+//                                EmailCampaign emailCampaign,
+//                                List<FilterConfiguration.Recipient> recipients,
+//                                EmailServerConfigurationEntity emailServerConfiguration,
+//                                Map<String, String> defaultData,
+//                                CampaignSendingStatus status) {
+//
+//        // Generate a unique, timestamped template name to prevent race conditions
+//        String timestamp = new java.text.SimpleDateFormat("yyyyMMddHHmmss").format(new java.util.Date());
+//        String templateName = String.format("T_%d_C_%d_%s", tournamentId, emailCampaign.getId(), timestamp);
+//
+//        try {
+//            // A. Prepare and Sync the Template
+//            String subject = replaceVariables(emailCampaign.getSubject(), defaultData);
+//            String body = replaceVariables(emailCampaign.getBody(), defaultData);
+//
+//            // B. Convert tokens from ${ } to {{ }}
+//            String sesSubject = convertToSesTemplate(subject);
+//            String sesBody = fixCorruptedCss(convertToSesTemplate(body));
+//            System.out.println("sesBody = " + sesBody);
+//
+//            // NOTE: Make sure your syncSesTemplate method is updated to use the SesV2Client!
+//            syncSesTemplate(templateName, sesSubject, sesBody, emailCampaign.isHtmlEmail());
+//
+//            // C. Send in Batches of 50
+//            for (int i = 0; i < recipients.size(); i += 50) {
+//                List<FilterConfiguration.Recipient> batch = recipients.subList(i, Math.min(i + 50, recipients.size()));
+//
+//                // Build the V2 Bulk Email Entries
+//                List<BulkEmailEntry> entries = batch.stream().map(r -> {
+//                    Map<String, String> personalData = new java.util.HashMap<>();
+//                    personalData.put("first_name", r.getFirstName());
+//                    personalData.put("last_name", r.getLastName());
+//
+//                    String unsubscribeUrl = String.format("%s/publicapi/profiles/unsubscribe/%s", clientHostUrl, r.getEmailAddress());
+//                    personalData.put("unsubscribe_url", unsubscribeUrl);
+//
+//                    // 1. Explicitly build the headers as a list to fix the stream compile error
+//                    List<MessageHeader> headers = java.util.Arrays.asList(
+//                            MessageHeader.builder()
+//                                    .name("List-Unsubscribe")
+//                                    .value("<" + unsubscribeUrl + ">")
+//                                    .build(),
+//                            MessageHeader.builder()
+//                                    .name("List-Unsubscribe-Post")
+//                                    .value("List-Unsubscribe=One-Click")
+//                                    .build()
+//                    );
+//
+//                    return BulkEmailEntry.builder()
+//                            // Map the destination
+//                            .destination(d -> d.toAddresses(r.getEmailAddress()))
+//
+//                            // Map the template data
+//                            .replacementEmailContent(content -> content
+//                                    .replacementTemplate(template -> template
+//                                            .replacementTemplateData(toJson(personalData))
+//                                    )
+//                            )
+//
+//                            // 2. Pass the explicitly typed list here!
+//                            .replacementHeaders(headers)
+//                            .build();
+//                }).collect(java.util.stream.Collectors.toList());
+//
+//                // Build the V2 Bulk Request
+//                SendBulkEmailRequest bulkRequest = SendBulkEmailRequest.builder()
+//                        .fromEmailAddress("admin@ttaurora.com") // Is verified through domain on Identities screen
+//                        .replyToAddresses(emailServerConfiguration.getUserId())
+//                        .defaultContent(BulkEmailContent.builder()
+//                                .template(Template.builder()
+//                                        .templateName(templateName)
+//                                        // Merges your default data placeholders across the whole batch
+//                                        .templateData(toJson(defaultData))
+//                                        .build())
+//                                .build())
+//                        .bulkEmailEntries(entries)
+//                        .build();
+//
+//                // Calling SES v2 instead of v1
+//                sesV2Client.sendBulkEmail(bulkRequest);
+//
+//                status.totalSent += batch.size();
+//                log.info("Dispatched SES v2 batch. Total sent so far: " + status.totalSent);
+//
+//                // Your custom 10-second sleep interval
+//                if (i + 50 < recipients.size()) {
+//                    try {
+//                        Thread.sleep(10000);
+//                    } catch (InterruptedException e) {
+//                        Thread.currentThread().interrupt();
+//                        throw new RuntimeException("Campaign interrupted", e);
+//                    }
+//                }
+//            }
+//        } catch (Exception e) {
+//            log.error("Critical failure in SES Bulk send", e);
+//            status.totalErrors = recipients.size() - status.totalSent;
+//        } finally {
+//            // D. Cleanup: Always delete the temporary template
+//            // NOTE: Make sure deleteSesTemplate is updated to use SesV2Client!
+//            deleteSesTemplate(templateName);
+//        }
+//    }
+//
+//    /**
+//     * Synchronizes an Amazon SES email template using SES v2 by creating a new template
+//     * or updating an existing one if it already exists.
+//     *
+//     * @param name    the name of the template to be created or updated
+//     * @param subject the subject line of the email template
+//     * @param body    the HTML or text content of the email template
+//     * @param isHtml  true if the email body is in HTML format, false otherwise
+//     */
+//    private void syncSesTemplate(String name, String subject, String body, boolean isHtml) {
+//        try {
+//            log.info("Preparing template data for: " + name);
+//
+//            // We build the body and fallback strings ahead of time
+//            String htmlContent = isHtml ? body : "";
+//            String textContent = isHtml
+//                    ? "This message is sent in HTML format. Please use an HTML-compatible email client to view it."
+//                    : body;
+//
+//            try {
+//                log.info("Attempting to create SES v2 template: " + name);
+//
+//                // 1. Consumer builder handles object instantiation automatically!
+//                this.sesV2Client.createEmailTemplate(req -> req
+//                        .templateName(name)
+//                        .templateContent(content -> content
+//                                .subject(subject)
+//                                .html(htmlContent)
+//                                .text(textContent)
+//                        )
+//                );
+//                log.info("Successfully created template: " + name);
+//
+//            } catch (AlreadyExistsException e) {
+//                log.info("SES v2 template already exists, updating instead: " + name);
+//
+//                // 2. Exact same mapping structure for the update call
+//                this.sesV2Client.updateEmailTemplate(req -> req
+//                        .templateName(name)
+//                        .templateContent(content -> content
+//                                .subject(subject)
+//                                .html(htmlContent)
+//                                .text(textContent)
+//                        )
+//                );
+//                log.info("Successfully updated template: " + name);
+//            }
+//
+//        } catch (Exception e) {
+//            log.error("Failed to sync SES v2 template " + name, e);
+//            throw e;
+//        }
+//    }
+//
+//    /**
+//     * Deletes an Amazon SES email template using SES v2 by its name.
+//     *
+//     * @param name template name
+//     */
+//    private void deleteSesTemplate(String name) {
+//        try {
+//            // Consumer builder approach for deletion
+//            this.sesV2Client.deleteEmailTemplate(req -> req.templateName(name));
+//            log.info("Deleted temporary SES v2 template: " + name);
+//        } catch (Exception e) {
+//            log.warn("Failed to delete template: " + name + " (It may have already been removed)");
+//        }
+//    }
+//
+//    /**
+//     * Converts a string to a JSON string by escaping special characters.
+//     *
+//     * @param input
+//     * @return
+//     */
+//    private String convertToSesTemplate(String input) {
+//        if (input == null) return "";
+//        // Converts ${var_name} to {{var_name}} for SES Handlebars
+//        return input.replace("${", "{{").replace("}", "}}");
+//    }
+//
+//    private String toJson(Map<String, String> data) {
+//        try {
+//            return objectMapper.writeValueAsString(data);
+//        } catch (JsonProcessingException e) {
+//            return "{}";
+//        }
+//    }
 
     /**
      * Sends an email campaign to a list of recipients using a legacy SMTP configuration.

@@ -1,6 +1,6 @@
 package com.auroratms.justgo;
 
-import com.auroratms.usatt.UsattPlayerRecord;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
@@ -8,18 +8,19 @@ import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.text.DateFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 @Service
@@ -39,28 +40,19 @@ public class JustGoRatingsService {
     @Value("${justgo.api.default-ranking-type:Rating}")
     private String defaultRankingType = "Rating";
 
-    // for rating as of date - 2025-04-04T13:48:32.000Z
-    private final static DateFormat AS_OF_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'.000Z'");
-    // for player record DOB
-    private final static DateFormat DOB_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");  // "1969-10-05",
+    private final static DateFormat AS_OF_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
 
-    // cached token and expiry time
     private String cachedToken;
-
-    // token expiry time in milliseconds
     private long tokenExpiryTime = 0;
-
-    // Refresh 1 minute before actual expiry
     private static final long REFRESH_BUFFER = 60000;
+
+    private static DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    private static DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
 
     /**
      * Find player record by full name
-     *
-     * @param firstName
-     * @param lastName
-     * @return
      */
-    public UsattPlayerRecord findPlayerRecordByName(String firstName, String lastName) {
+    public ApiPlayerDto findPlayerRecordByName(String firstName, String lastName) {
         if (StringUtils.isBlank(lastName)) {
             throw new IllegalArgumentException("lastName is required");
         }
@@ -69,35 +61,25 @@ public class JustGoRatingsService {
         }
         JsonNode playerData = this.findMemberIdByFullNameInternal(firstName, lastName);
         if (playerData != null) {
-            return toPlayerRecord(playerData);
-        } else {
-            return null;
+            return objectMapper.convertValue(playerData, ApiPlayerDto.class);
         }
+        return null;
     }
 
     /**
      * Find player record by membership id
-     *
-     * @param membershipId
-     * @return
      */
-    public UsattPlayerRecord findPlayerRecordByMembershipId(Long membershipId) {
+    public ApiPlayerDto findPlayerRecordByMembershipId(Long membershipId) {
         if (membershipId == null) {
             throw new IllegalArgumentException("membershipId is required");
         }
         JsonNode playerData = findMemberIdByUsattMemberhipId(membershipId);
         if (playerData != null) {
-            return toPlayerRecord(playerData);
-        } else {
-            return null;
+            return objectMapper.convertValue(playerData, ApiPlayerDto.class);
         }
+        return null;
     }
 
-    /**
-     * Find player record by membership id
-     * @param membershipId
-     * @return
-     */
     private JsonNode findMemberIdByUsattMemberhipId(Long membershipId) {
         String bearerToken = getValidToken();
 
@@ -131,47 +113,13 @@ public class JustGoRatingsService {
         } catch (Exception e) {
             throw new IllegalStateException("Unable to parse JustGo member lookup response", e);
         }
-
     }
 
-    private UsattPlayerRecord toPlayerRecord(JsonNode node) {
-        UsattPlayerRecord playerRecord = new UsattPlayerRecord();
-        playerRecord.setMembershipId(node.path("memberNumber").asLong());
-        playerRecord.setFirstName(node.path("firstName").asText());
-        playerRecord.setLastName(node.path("lastName").asText());
-        playerRecord.setMemberGuid(node.path("id").asText());
-        String gender = node.path("gender").asText();
-        playerRecord.setGender("Male".equalsIgnoreCase(gender) ? "M" : "F");
-        playerRecord.setState(node.path("county").asText());
-        playerRecord.setCity(node.path("town").asText());
-        playerRecord.setZip(node.path("postCode").asText());
-        playerRecord.setCountry(node.path("country").asText());
-        try {
-            String strDOB = node.path("dob").asText();
-            Date dateOfBirth = (StringUtils.isNotEmpty(strDOB)) ? DOB_DATE_FORMAT.parse(strDOB) : new Date();
-            playerRecord.setDateOfBirth(dateOfBirth);
-        } catch (ParseException e) {
-            throw new RuntimeException(e);
-        }
-        return playerRecord;
-    }
-
-    /**
-     * Calls JustGo API sequence (Auth -> FindByAttributes -> Competitions/Rankings)
-     *
-     * @param firstName
-     * @param lastName
-     * @return
-     */
-    public Integer getTournamentRatingByFullName(String firstName, String lastName) {
+    public int getTournamentRatingByFullName(String firstName, String lastName) {
         return getTournamentRatingByFullNameAsOfDate(firstName, lastName, new Date());
     }
 
-    /**
-     * Calls JustGo API sequence (Auth -> FindByAttributes -> Competitions/Rankings)
-     * and returns tournament rating for the first matched member by last name.
-     */
-    public Integer getTournamentRatingByFullNameAsOfDate(String firstName, String lastName, Date asOfDate) {
+    public int getTournamentRatingByFullNameAsOfDate(String firstName, String lastName, Date asOfDate) {
         if (StringUtils.isBlank(lastName)) {
             throw new IllegalArgumentException("lastName is required");
         }
@@ -182,19 +130,15 @@ public class JustGoRatingsService {
         String justGoMemberId = findMemberIdByFullName(lastName, firstName);
         JsonNode rankingsNode = getRankings(justGoMemberId, asOfDate);
 
-        Integer rating = extractTournamentRating(rankingsNode);
-        if (rating == null) {
+        String rating = extractTournamentRating(rankingsNode);
+        if (StringUtils.isEmpty(rating)) {
             logger.warn("No ranking rows returned for lastName={} memberId={}; defaulting rating to 0", lastName, justGoMemberId);
             return 0;
+        } else {
+            return Integer.parseInt(rating);
         }
-
-        return rating;
     }
 
-    /**
-     * Internal method to ensure we have a valid token.
-     * Uses synchronized to prevent multiple threads from authenticating at once.
-     */
     private synchronized String getValidToken() {
         if (cachedToken == null || System.currentTimeMillis() >= tokenExpiryTime) {
             logger.info("Token expired or missing. Re-authenticating with JustGo...");
@@ -203,11 +147,6 @@ public class JustGoRatingsService {
         return cachedToken;
     }
 
-    /**
-     * Authenticates with JustGo API and returns bearer token.
-     *
-     * @return
-     */
     private String authenticate() {
         if (StringUtils.isBlank(apiKey)) {
             throw new IllegalStateException("justgo.api.key is not configured");
@@ -235,8 +174,6 @@ public class JustGoRatingsService {
             if (StringUtils.isBlank(accessToken)) {
                 throw new IllegalStateException("JustGo auth token is missing in response");
             }
-            // JustGo usually returns "expiresIn" in seconds.
-            // If not provided, default to a safe value like 3600 (1 hour).
             long expiresInSeconds = json.path("data").path("expiresIn").asLong(3600);
 
             this.cachedToken = tokenType + " " + accessToken;
@@ -248,13 +185,6 @@ public class JustGoRatingsService {
         }
     }
 
-    /**
-     * Finds the member ID for a given full name by querying an external service.
-     *
-     * @param lastName  The last name of the member to be looked up.
-     * @param firstName The first name of the member to be looked up.
-     * @return The member ID associated with the given full name.
-     */
     public String findMemberIdByFullName(String lastName, String firstName) {
         JsonNode chosen = this.findMemberIdByFullNameInternal(firstName, lastName);
         if (chosen == null) {
@@ -265,18 +195,8 @@ public class JustGoRatingsService {
             throw new IllegalStateException("JustGo memberId is missing for lastName=" + lastName);
         }
         return memberId;
-
     }
 
-    /**
-     * Finds the member record for a given full name by querying an external service.
-     *
-     * @param firstName The first name of the member to be looked up.
-     * @param lastName  The last name of the member to be looked up.
-     * @return player data record
-     * @throws IllegalStateException If the lookup fails, no member matches the given full name,
-     *                               or the response is invalid or missing required data.
-     */
     private JsonNode findMemberIdByFullNameInternal(String firstName, String lastName) {
         String bearerToken = getValidToken();
 
@@ -321,7 +241,6 @@ public class JustGoRatingsService {
     }
 
     private @NotNull String getJustGoCutoverDate() {
-        // 2026-05-21T02:07:50.467
         Calendar calendar = Calendar.getInstance();
         calendar.set(2025, Calendar.JANUARY, 1);
         calendar.set(Calendar.HOUR_OF_DAY, 1);
@@ -332,13 +251,6 @@ public class JustGoRatingsService {
         return AS_OF_DATE_FORMAT.format(asOfDate);
     }
 
-    /**
-     * Calls JustGo API to get rankings for a given member.
-     *
-     * @param justGoMemberId
-     * @param asOfDate
-     * @return
-     */
     private JsonNode getRankings(String justGoMemberId, Date asOfDate) {
         String bearerToken = this.getValidToken();
 
@@ -349,13 +261,13 @@ public class JustGoRatingsService {
         headers.set(HttpHeaders.AUTHORIZATION, bearerToken);
         headers.setContentType(MediaType.valueOf("application/json-patch+json"));
 
-        // 2026-03-31T00:27:39.612Z
-        String strAsOfDate = AS_OF_DATE_FORMAT.format(asOfDate);
-
         Map<String, Object> body = new LinkedHashMap<>();
         body.put("memberId", justGoMemberId);
         body.put("type", defaultRankingType);
-        body.put("date", strAsOfDate);
+        if (asOfDate != null) {
+            String strAsOfDate = AS_OF_DATE_FORMAT.format(asOfDate);
+            body.put("date", strAsOfDate);
+        }
 
         HttpEntity<Map<String, Object>> request = new HttpEntity<>(body, headers);
         ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.POST, request, String.class);
@@ -371,16 +283,10 @@ public class JustGoRatingsService {
         }
     }
 
-    /**
-     * Extracts the tournament rating from the rankings response.
-     *
-     * @param rankingsNode
-     * @return
-     */
-    private Integer extractTournamentRating(JsonNode rankingsNode) {
+    private String extractTournamentRating(JsonNode rankingsNode) {
         JsonNode dataNode = rankingsNode.path("data");
 
-        Integer rating = findIntegerField(dataNode, "finalRating");
+        String rating = findRatingField(dataNode, "finalRating");
         if (rating == null) {
             logger.warn("Unable to find tournament rating in JustGo response: {}", rankingsNode);
         }
@@ -388,14 +294,7 @@ public class JustGoRatingsService {
         return rating;
     }
 
-    /**
-     * Recursively searches for an integer field in a JSON node.
-     *
-     * @param node
-     * @param fieldName
-     * @return
-     */
-    private Integer findIntegerField(JsonNode node, String fieldName) {
+    private String findRatingField(JsonNode node, String fieldName) {
         if (node == null || node.isMissingNode() || node.isNull()) {
             return null;
         }
@@ -403,12 +302,12 @@ public class JustGoRatingsService {
         if (node.isObject()) {
             JsonNode candidate = node.get(fieldName);
             if (candidate != null && candidate.isNumber()) {
-                return candidate.asInt();
+                return candidate.asText();
             }
             var fields = node.fields();
             while (fields.hasNext()) {
                 Map.Entry<String, JsonNode> entry = fields.next();
-                Integer nested = findIntegerField(entry.getValue(), fieldName);
+                String nested = findRatingField(entry.getValue(), fieldName);
                 if (nested != null) {
                     return nested;
                 }
@@ -418,7 +317,7 @@ public class JustGoRatingsService {
 
         if (node.isArray()) {
             for (JsonNode item : node) {
-                Integer nested = findIntegerField(item, fieldName);
+                String nested = findRatingField(item, fieldName);
                 if (nested != null) {
                     return nested;
                 }
@@ -428,13 +327,8 @@ public class JustGoRatingsService {
         return null;
     }
 
-    /**
-     *
-     * @param asOfDate
-     * @return
-     */
-    public List<UsattPlayerRecord> findChangedPlayers(Date asOfDate) {
-        List<UsattPlayerRecord> players = new ArrayList<>();
+    public List<ApiPlayerDto> findChangedPlayers(Date asOfDate) {
+        List<ApiPlayerDto> players = new ArrayList<>();
 
         String bearerToken = getValidToken();
 
@@ -463,20 +357,333 @@ public class JustGoRatingsService {
             }
 
             for (JsonNode member : members) {
-                UsattPlayerRecord playerRecord = this.toPlayerRecord(member);
-                players.add(playerRecord);
-                if (playerRecord.getMemberGuid() != null) {
-                    JsonNode rankingsNode = this.getRankings(playerRecord.getMemberGuid(), asOfDate);
-                    Integer rating = extractTournamentRating(rankingsNode);
+                ApiPlayerDto playerDto = objectMapper.convertValue(member, ApiPlayerDto.class);
+                if (playerDto.getId() != null) {
+                    JsonNode rankingsNode = this.getRankings(playerDto.getId(), asOfDate);
+                    String rating = extractTournamentRating(rankingsNode);
                     if (rating != null) {
-                        playerRecord.setTournamentRating(rating);
+                        playerDto.setTournamentRating(rating);
                     }
                 }
+                players.add(playerDto);
             }
 
         } catch (Exception e) {
             throw new IllegalStateException("Unable to parse JustGo member lookup response: " + body, e);
         }
         return players;
+    }
+
+    /**
+     *
+     * @param pageRequest
+     * @return
+     */
+    public Page<ApiPlayerDto> listPlayers(PageRequest pageRequest) {
+        int pageSize = pageRequest.getPageSize();
+        int pageNumber = pageRequest.getPageNumber();
+        String bearerToken = getValidToken();
+
+        String strModifiedAfter = getJustGoCutoverDate();
+        String url = UriComponentsBuilder
+                .fromUriString(baseUrl + "/Members/FindByAttributes")
+                .queryParam("ModifiedAfter", strModifiedAfter)
+                .queryParam("PageNumber", pageNumber)
+                .queryParam("PageSize", pageSize)
+                .toUriString();
+        HttpHeaders headers = new HttpHeaders();
+        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+        headers.set(HttpHeaders.AUTHORIZATION, bearerToken);
+
+        HttpEntity<Void> request = new HttpEntity<>(headers);
+        ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, request, String.class);
+
+        if (!response.getStatusCode().is2xxSuccessful() || response.getBody() == null) {
+            throw new IllegalStateException("JustGo member lookup failed with status " + response.getStatusCode());
+        }
+
+        String body = response.getBody();
+        try {
+            JsonNode root = objectMapper.readTree(body);
+            int totalRecords = root.path("totalRecords").asInt();
+            JsonNode members = root.path("data");
+            if (!members.isArray() || members.isEmpty()) {
+                return new PageImpl<>(Collections.EMPTY_LIST, pageRequest, totalRecords);
+            }
+
+            List<ApiPlayerDto> players = new ArrayList<>(pageSize);
+            for (JsonNode member : members) {
+                ApiPlayerDto playerDto = objectMapper.convertValue(member, ApiPlayerDto.class);
+                if (playerDto.getId() != null) {
+                    playerDto.setDob(convertDateToOutputFormat(playerDto.getDob()));
+                    JsonNode rankingsNode = this.getRankings(playerDto.getId(), null);
+                    String rating = extractTournamentRating(rankingsNode);
+                    if (rating != null) {
+                        playerDto.setTournamentRating(rating);
+                    }
+                    populateActiveMembershipDetails(playerDto);
+                }
+                players.add(playerDto);
+            }
+            return new PageImpl<>(players, pageRequest, totalRecords);
+        } catch (Exception e) {
+            throw new IllegalStateException("Unable to parse JustGo member lookup response: " + body, e);
+        }
+    }
+
+    /**
+     *
+     * @param playerDto
+     */
+    public void populateActiveMembershipDetails(ApiPlayerDto playerDto) {
+        if (playerDto == null || playerDto.getId() == null) {
+            return;
+        }
+
+        // Define input and output date formats
+        try {
+            String bearerToken = getValidToken();
+
+            String url = UriComponentsBuilder
+                    .fromUriString(baseUrl + "/Members/" + playerDto.getId())
+                    .toUriString();
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+            headers.set(HttpHeaders.AUTHORIZATION, bearerToken);
+
+            HttpEntity<Void> request = new HttpEntity<>(headers);
+            ResponseEntity<JsonNode> response = restTemplate.exchange(
+                    url,
+                    HttpMethod.GET,
+                    request,
+                    JsonNode.class
+            );
+
+            if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
+                JsonNode responseNode = response.getBody();
+                JsonNode dataNode = responseNode.get("data");
+                playerDto.setMembershipType("Historical Membership");
+
+                if (dataNode != null && dataNode.has("memberships")) {
+                    JsonNode membershipsNode = dataNode.get("memberships");
+
+                    if (membershipsNode.isArray()) {
+                        for (JsonNode membership : membershipsNode) {
+                            String status = membership.path("status").asText();
+                            String name = membership.path("name").asText(null);
+                            String endDateStr = membership.path("endDate").asText(null);
+
+                            playerDto.setMembershipType(name);
+                            if (endDateStr != null && !endDateStr.isEmpty()) {
+                                String formattedDate = convertDateToOutputFormat(endDateStr);
+                                playerDto.setMembershipExpirationDate(formattedDate);
+                            }
+                            // set first active or expired membership
+                            if ("Active".equalsIgnoreCase(status)) {
+                                break;
+                            }
+                        }
+                    } else {
+                        logger.warn("JustGo membership lookup for player " + playerDto.getFirstName() + " " + playerDto.getLastName() + " is not an array");
+                    }
+                } else {
+                    logger.warn("JustGo membership lookup for player " + playerDto.getFirstName() + " " + playerDto.getLastName() + " didn't return information");
+                }
+                if ("Historical Membership".equalsIgnoreCase(playerDto.getMembershipType())) {
+                    logger.warn("JustGo membership lookup for player " + playerDto.getFirstName() + " " + playerDto.getLastName() + " didn't return information - setting to Historical Membership");
+                }
+
+                // 2. Extract Primary Organisation (Club) Name
+                JsonNode orgsNode = dataNode.get("organisations");
+                if (orgsNode != null && orgsNode.isArray() && !orgsNode.isEmpty()) {
+                    String primaryClubName = null;
+
+                    for (JsonNode org : orgsNode) {
+                        boolean isPrimary = org.path("isPrimary").asBoolean(false);
+                        if (isPrimary) {
+                            primaryClubName = org.path("organisationName").asText(null);
+                            break;
+                        }
+                    }
+
+                    // Fallback to the first organization if none was explicitly marked as primary
+                    if (primaryClubName == null) {
+                        primaryClubName = orgsNode.get(0).path("organisationName").asText(null);
+                    }
+
+                    playerDto.setClubName(primaryClubName); // Adjust setter name if different in your DTO
+                }
+            } else {
+                logger.error("Failed to fetch member details for ID "
+                        + playerDto.getId() + ". Status: " + response.getStatusCode());
+            }
+
+        } catch (Exception e) {
+            logger.error("Error retrieving membership details for member ID "
+                    + playerDto.getId() + ": ", e);
+        }
+    }
+
+    /**
+     *
+     * @param dateToFormat
+     * @return
+     */
+    private String convertDateToOutputFormat (String dateToFormat) {
+        // Parse "2026-07-02" and format to "07/02/2026"
+        if (StringUtils.isNotEmpty(dateToFormat)) {
+            try {
+                LocalDate date = LocalDate.parse(dateToFormat, inputFormatter);
+                return date.format(outputFormatter);
+            } catch (Exception e) {
+                return dateToFormat;
+            }
+        } else {
+            return dateToFormat;
+        }
+    }
+
+    /**
+     * Map ApiPlayerDto into OpenCSV bean UsattPlayerCsvDto
+     */
+    public UsattPlayerCsvDto mapToCsvDto(ApiPlayerDto apiDto) {
+        UsattPlayerCsvDto csvDto = new UsattPlayerCsvDto();
+        csvDto.setMembershipId(apiDto.getMemberNumber());
+        csvDto.setFirstName(apiDto.getFirstName());
+        csvDto.setLastName(apiDto.getLastName());
+        csvDto.setDateOfBirth(apiDto.getDob());
+        csvDto.setZipCode(apiDto.getPostCode());
+        csvDto.setGender(apiDto.getGender());
+        csvDto.setCityTown(apiDto.getTown());
+        csvDto.setState(apiDto.getCounty());
+        csvDto.setLatestMembership(apiDto.getMembershipType());
+        csvDto.setLatestMembershipExpiryDate(apiDto.getMembershipExpirationDate());
+        csvDto.setFinalRating(apiDto.getTournamentRating());
+        csvDto.setPrimaryClub(apiDto.getClubName());
+        csvDto.setJustGoId(apiDto.getId());
+        return csvDto;
+    }
+
+    // /api/v2.2/Members/FindByAttributes with Membership set to Silver, Bronze, Gold etc.
+    // paged.  This eliminates historical i.e. expired membership records leaving about 20
+    /**
+     *
+     ""
+     AdultTournamentPass
+     Bronze
+     Coach
+     Foreign Athlete Pass
+     Gold
+     Lifetime
+     Silver
+     Test membership
+     Tournament Pass
+
+     filter out those whose membership is 'Lapsed'
+     */
+
+    public Page<ApiPlayerDto> listPlayersByMembership(String membershipType, Pageable pageable) {
+        DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
+
+        String bearerToken = getValidToken();
+
+        String url = UriComponentsBuilder
+                .fromUriString(baseUrl + "/Members/FindByAttributes")
+                .queryParam("Membership", membershipType)
+                .queryParam("PageNumber", pageable.getPageNumber())
+                .queryParam("PageSize", pageable.getPageSize())
+                .toUriString();
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+        headers.set(HttpHeaders.AUTHORIZATION, bearerToken);
+
+        HttpEntity<Void> request = new HttpEntity<>(headers);
+        ResponseEntity<JsonNode> response = restTemplate.exchange(url, HttpMethod.GET, request, JsonNode.class);
+
+        if (!response.getStatusCode().is2xxSuccessful() || response.getBody() == null) {
+            throw new IllegalStateException("JustGo member lookup failed with status " + response.getStatusCode());
+        }
+
+        JsonNode responseBody = response.getBody();
+        List<ApiPlayerDto> players = new ArrayList<>();
+        long totalElements = 0;
+
+        // Retrieve data node and total count if provided in response headers or wrapper
+        JsonNode dataNode = responseBody.has("data") ? responseBody.get("data") : responseBody;
+
+        if (dataNode.isArray()) {
+            for (JsonNode memberNode : dataNode) {
+                // Map standard primitive fields via ObjectMapper
+                ApiPlayerDto playerDto = objectMapper.convertValue(memberNode, ApiPlayerDto.class);
+//                playerDto.setMembershipType(membershipType);
+
+//                // 1. Extract Active Membership details directly from memberNode
+//                JsonNode membershipsNode = memberNode.path("memberships");
+//                if (membershipsNode.isArray()) {
+//                    for (JsonNode membership : membershipsNode) {
+//                        String status = membership.path("status").asText();
+//                        if ("Active".equalsIgnoreCase(status)) {
+//                            String name = membership.path("name").asText(null);
+//                            String endDateStr = membership.path("endDate").asText(null);
+//
+//                            playerDto.setMembershipType(name);
+//
+//                            if (endDateStr != null && !endDateStr.isEmpty()) {
+//                                try {
+//                                    // Extract standard yyyy-MM-dd portion if ISO timestamp is returned
+//                                    String cleanDateStr = endDateStr.contains("T") ? endDateStr.split("T")[0] : endDateStr;
+//                                    LocalDate date = LocalDate.parse(cleanDateStr, inputFormatter);
+//                                    playerDto.setMembershipExpirationDate(date.format(outputFormatter));
+//                                } catch (Exception e) {
+//                                    playerDto.setMembershipExpirationDate(endDateStr);
+//                                }
+//                            }
+//                            break;
+//                        }
+//                    }
+//                }
+//
+//                // 2. Extract Primary Organisation (Club) directly from memberNode
+//                JsonNode orgsNode = memberNode.path("organisations");
+//                if (orgsNode.isArray() && !orgsNode.isEmpty()) {
+//                    String primaryClubName = null;
+//                    for (JsonNode org : orgsNode) {
+//                        if (org.path("isPrimary").asBoolean(false)) {
+//                            primaryClubName = org.path("organisationName").asText(null);
+//                            break;
+//                        }
+//                    }
+//                    if (primaryClubName == null) {
+//                        primaryClubName = orgsNode.get(0).path("organisationName").asText(null);
+//                    }
+//                    playerDto.setClubName(primaryClubName);
+//                }
+
+                // 3. Fetch Tournament Ratings separately using GUID
+                if (playerDto.getId() != null) {
+//                if (playerDto.getId() != null && "Registered".equalsIgnoreCase(playerDto.getMemberStatus())) {
+                    try {
+                        JsonNode rankingsNode = this.getRankings(playerDto.getId(), null);
+                        String rating = extractTournamentRating(rankingsNode);
+                        if (rating != null) {
+                            playerDto.setTournamentRating(rating);
+                        }
+                    } catch (Exception e) {
+                        System.err.println("Failed to fetch rankings for player ID " + playerDto.getId() + ": " + e.getMessage());
+                    }
+                    populateActiveMembershipDetails(playerDto);
+                }
+
+                players.add(playerDto);
+            }
+        }
+
+        // Extract total count if returned by API wrapper (e.g. responseBody.path("totalRecords").asLong())
+        totalElements = responseBody.path("totalRecords").asLong(players.size());
+
+        return new PageImpl<>(players, pageable, totalElements);
     }
 }
