@@ -22,9 +22,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Component
 @Slf4j
@@ -49,20 +47,6 @@ public class DailyUpdateRatingsJob implements Job {
         task.execute();
     }
 
-    // Run daily at 10 PM Mountain Time
-//    @Scheduled(cron = "0 0 22 * * *", zone = "America/Denver")
-//    public void runJob() {
-//        SystemPrincipalExecutor task = new SystemPrincipalExecutor() {
-//            @Override
-//            protected void taskBody() {
-//                log.info("DailyUpdateRatingsJob - BEGIN");
-//                syncAllRatings();
-//                log.info("DailyUpdateRatingsJob - END");
-//            }
-//        };
-//        task.execute();
-//    }
-
     /**
      * Syncs all ratings from JustGo to the database.
      */
@@ -80,16 +64,13 @@ public class DailyUpdateRatingsJob implements Job {
         log.info("" + ratingsProcessorStatus);
 
         // delete the CSV file.
-        new File(reportFilename).delete();
+//        new File(reportFilename).delete();
     }
 
     private String fetchAllPlayersFromJustGo() {
         // create report file path
         long startAll = System.currentTimeMillis();
 
-        int pageNum = 0;
-        int pageSize = 50;
-        Page<ApiPlayerDto> currentPage;
         String reportFilename = null;
         try  {
 
@@ -102,34 +83,70 @@ public class DailyUpdateRatingsJob implements Job {
             FileWriter fw = new FileWriter(reportFilename, StandardCharsets.UTF_8);
             BufferedWriter bw = new BufferedWriter(fw);
 
+            CustomHeaderOrderStrategy<UsattPlayerCsvDto> mappingStrategy =
+                    new CustomHeaderOrderStrategy<>(UsattPlayerCsvDto.class, UsattPlayerCsvDto.getHeaderOrder());
+
             StatefulBeanToCsv<UsattPlayerCsvDto> beanToCsv = new StatefulBeanToCsvBuilder<UsattPlayerCsvDto>(bw)
+                    .withMappingStrategy(mappingStrategy)
                     .withApplyQuotesToAll(true)
                     .build();
 
-            do {
-                long start = System.currentTimeMillis();
-                PageRequest pageRequest = PageRequest.of(pageNum, pageSize);
-                currentPage = justGoService.listPlayers(pageRequest);
-                long duration = (System.currentTimeMillis() - start) / 1000;
+            Set<String> uniqueJustGoIds = new HashSet<>();
 
-                log.info("Fetched page " + (pageNum + 1) + " of " + currentPage.getTotalPages() + " in " + duration + " seconds");
+            List<String> membershipTypes = List.of(
+                    "Lifetime",
+                    "Gold",
+                    "Silver",
+                    "Bronze",
+                    "AdultTournamentPass",
+                    "Tournament Pass",
+                    "Coach",
+                    "Foreign Athlete Pass"
+            );
+            long totalRecordsProcessed = 0;
+            for (String membership : membershipTypes) {
+                int pageNum = 1;
+                int pageSize = 50;
+                Page<ApiPlayerDto> currentPage;
+                long membershipExportStart = System.currentTimeMillis();
 
-                List<UsattPlayerCsvDto> csvRows = new ArrayList<>();
-                for (ApiPlayerDto apiDto : currentPage.getContent()) {
-                    csvRows.add(justGoService.mapToCsvDto(apiDto));
-                }
+                do {
+                    long pageExportStart = System.currentTimeMillis();
+                    PageRequest pageRequest = PageRequest.of(pageNum, pageSize);
+                    currentPage = justGoService.listPlayersByMembership(membership, pageRequest);
 
-                beanToCsv.write(csvRows);
-                pageNum++;
-            } while (pageNum < currentPage.getTotalPages());
+                    List<UsattPlayerCsvDto> csvRows = new ArrayList<>();
+                    for (ApiPlayerDto apiDto : currentPage.getContent()) {
+                        if (!uniqueJustGoIds.contains(apiDto.getId())) {
+                            csvRows.add(justGoService.mapToCsvDto(apiDto));
+                            uniqueJustGoIds.add(apiDto.getId());
+                        }
+                    }
+
+                    beanToCsv.write(csvRows);
+                    if (pageNum == 1) {
+                        System.out.println("There are " + currentPage.getTotalElements() + " members with " + membership);
+                        totalRecordsProcessed +=  currentPage.getTotalElements();
+                    }
+
+                    long elapsed = (System.currentTimeMillis() - pageExportStart) / 1000;
+                    System.out.println("Extracted page " + pageNum + " of " +  currentPage.getTotalPages() + " in " + elapsed + " seconds");
+
+                    pageNum++;
+                } while (pageNum < currentPage.getTotalPages());
+
+                long elapsed = (System.currentTimeMillis() - membershipExportStart) / (60 * 1000);
+                System.out.println("Finished exporting " + currentPage.getTotalPages() + " pages in "
+                        + elapsed + " minutes for membershipType " + membership);
+            }
+            long elapsed = (System.currentTimeMillis() - startAll) / (60 * 1000);
+            System.out.println("Finished exporting all members in " + elapsed + " minutes.");
+            System.out.println("There were a total " + totalRecordsProcessed + " records processed and " + uniqueJustGoIds.size() + " were unique.");
 
         } catch (Exception e) {
             log.error("Error writing CSV file: " + e.getMessage());
             e.printStackTrace();
         }
-
-        long elapsed = (System.currentTimeMillis() - startAll) / 1000;
-        log.info("Finished exporting " + pageNum + " pages in " + elapsed + " seconds.");
         return reportFilename;
     }
 
