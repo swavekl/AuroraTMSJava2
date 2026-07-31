@@ -6,6 +6,8 @@ import com.auroratms.usatt.UsattDataService;
 import com.auroratms.usatt.UsattPlayerRecord;
 import com.opencsv.bean.StatefulBeanToCsv;
 import com.opencsv.bean.StatefulBeanToCsvBuilder;
+import com.opencsv.exceptions.CsvDataTypeMismatchException;
+import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.quartz.Job;
@@ -14,7 +16,6 @@ import org.quartz.JobExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.io.BufferedWriter;
@@ -107,36 +108,46 @@ public class DailyUpdateRatingsJob implements Job {
             for (String membership : membershipTypes) {
                 int pageNum = 1;
                 int pageSize = 50;
-                Page<ApiPlayerDto> currentPage;
+                int totalPages = 0;
+                Page<ApiPlayerDto> currentPage = null;
                 long membershipExportStart = System.currentTimeMillis();
 
                 do {
                     long pageExportStart = System.currentTimeMillis();
                     PageRequest pageRequest = PageRequest.of(pageNum, pageSize);
-                    currentPage = justGoService.listPlayersByMembership(membership, pageRequest);
-
-                    List<UsattPlayerCsvDto> csvRows = new ArrayList<>();
-                    for (ApiPlayerDto apiDto : currentPage.getContent()) {
-                        if (!uniqueJustGoIds.contains(apiDto.getId())) {
-                            csvRows.add(justGoService.mapToCsvDto(apiDto));
-                            uniqueJustGoIds.add(apiDto.getId());
+                    try {
+                        currentPage = justGoService.listPlayersByMembership(membership, pageRequest);
+                        if (pageNum == 1 && currentPage != null) {
+                            totalPages = currentPage.getTotalPages();
                         }
-                    }
 
-                    beanToCsv.write(csvRows);
-                    if (pageNum == 1) {
-                        System.out.println("There are " + currentPage.getTotalElements() + " members with " + membership);
-                        totalRecordsProcessed +=  currentPage.getTotalElements();
-                    }
+                        List<UsattPlayerCsvDto> csvRows = new ArrayList<>();
+                        for (ApiPlayerDto apiDto : currentPage.getContent()) {
+                            if (!uniqueJustGoIds.contains(apiDto.getId())) {
+                                csvRows.add(justGoService.mapToCsvDto(apiDto));
+                                uniqueJustGoIds.add(apiDto.getId());
+                            }
+                        }
 
-                    long elapsed = (System.currentTimeMillis() - pageExportStart) / 1000;
-                    System.out.println("Extracted page " + pageNum + " of " +  currentPage.getTotalPages() + " in " + elapsed + " seconds");
+                        beanToCsv.write(csvRows);
+                        if (pageNum == 1) {
+                            System.out.println("There are " + currentPage.getTotalElements() + " members with " + membership);
+                            totalRecordsProcessed +=  currentPage.getTotalElements();
+                        }
+
+                        long elapsed = (System.currentTimeMillis() - pageExportStart) / 1000;
+                        log.info("Extracted page " + pageNum + " of " +  currentPage.getTotalPages() + " in " + elapsed + " seconds");
+                    } catch (CsvDataTypeMismatchException | CsvRequiredFieldEmptyException e) {
+                        log.error("Error processing CSV records for membership " + membership, e);
+                    } catch (IllegalStateException e) {
+                        log.error("Error getting player records for page " + pageNum, e);
+                    }
 
                     pageNum++;
-                } while (pageNum < currentPage.getTotalPages());
+                } while (pageNum < totalPages);
 
                 long elapsed = (System.currentTimeMillis() - membershipExportStart) / (60 * 1000);
-                System.out.println("Finished exporting " + currentPage.getTotalPages() + " pages in "
+                System.out.println("Finished exporting " + totalPages + " pages in "
                         + elapsed + " minutes for membershipType " + membership);
             }
             long elapsed = (System.currentTimeMillis() - startAll) / (60 * 1000);

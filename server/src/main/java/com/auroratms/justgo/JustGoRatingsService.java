@@ -583,10 +583,7 @@ public class JustGoRatingsService {
      filter out those whose membership is 'Lapsed'
      */
 
-    public Page<ApiPlayerDto> listPlayersByMembership(String membershipType, Pageable pageable) {
-        DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
-
+    public Page<ApiPlayerDto> listPlayersByMembership(String membershipType, Pageable pageable) throws IllegalStateException {
         String bearerToken = getValidToken();
 
         String url = UriComponentsBuilder
@@ -618,53 +615,9 @@ public class JustGoRatingsService {
             for (JsonNode memberNode : dataNode) {
                 // Map standard primitive fields via ObjectMapper
                 ApiPlayerDto playerDto = objectMapper.convertValue(memberNode, ApiPlayerDto.class);
-//                playerDto.setMembershipType(membershipType);
-
-//                // 1. Extract Active Membership details directly from memberNode
-//                JsonNode membershipsNode = memberNode.path("memberships");
-//                if (membershipsNode.isArray()) {
-//                    for (JsonNode membership : membershipsNode) {
-//                        String status = membership.path("status").asText();
-//                        if ("Active".equalsIgnoreCase(status)) {
-//                            String name = membership.path("name").asText(null);
-//                            String endDateStr = membership.path("endDate").asText(null);
-//
-//                            playerDto.setMembershipType(name);
-//
-//                            if (endDateStr != null && !endDateStr.isEmpty()) {
-//                                try {
-//                                    // Extract standard yyyy-MM-dd portion if ISO timestamp is returned
-//                                    String cleanDateStr = endDateStr.contains("T") ? endDateStr.split("T")[0] : endDateStr;
-//                                    LocalDate date = LocalDate.parse(cleanDateStr, inputFormatter);
-//                                    playerDto.setMembershipExpirationDate(date.format(outputFormatter));
-//                                } catch (Exception e) {
-//                                    playerDto.setMembershipExpirationDate(endDateStr);
-//                                }
-//                            }
-//                            break;
-//                        }
-//                    }
-//                }
-//
-//                // 2. Extract Primary Organisation (Club) directly from memberNode
-//                JsonNode orgsNode = memberNode.path("organisations");
-//                if (orgsNode.isArray() && !orgsNode.isEmpty()) {
-//                    String primaryClubName = null;
-//                    for (JsonNode org : orgsNode) {
-//                        if (org.path("isPrimary").asBoolean(false)) {
-//                            primaryClubName = org.path("organisationName").asText(null);
-//                            break;
-//                        }
-//                    }
-//                    if (primaryClubName == null) {
-//                        primaryClubName = orgsNode.get(0).path("organisationName").asText(null);
-//                    }
-//                    playerDto.setClubName(primaryClubName);
-//                }
 
                 // 3. Fetch Tournament Ratings separately using GUID
                 if (playerDto.getId() != null) {
-//                if (playerDto.getId() != null && "Registered".equalsIgnoreCase(playerDto.getMemberStatus())) {
                     try {
                         JsonNode rankingsNode = this.getRankings(playerDto.getId(), null);
                         String rating = extractTournamentRating(rankingsNode);

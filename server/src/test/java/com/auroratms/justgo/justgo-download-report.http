@@ -1,0 +1,22 @@
+### 1. Authenticate and get Bearer Token
+POST https://api-sandbox.justgo.com/api/v2.2/Auth
+Accept: */*
+Content-Type: application/json
+
+{
+  "secret": "{{my_secret_value}}"
+}
+
+> {%
+    // This script captures the token and saves it globally
+    client.global.set("auth_token", response.body.data.accessToken);
+%}
+
+### Fetch the file with all ratings
+POST https://usatt.justgo.com/WidgetService.mvc/ExecuteWidgetCommandAlt
+Accept: application/json
+Authorization: Bearer {{auth_token}}
+
+{
+"payload":{"commands":[{"Id":1,"Service":"JustGoReport","Method":"ExportReport","Arguments":[{"ReportId":"37d0f560-5209-4dd4-b9da-d44332ca7296","Params":{"StartDate":"2026-07-27"},"Format":"EXCELOPENXML","ConnectionId":"6subwY7cupcXsS1hjUO5wA6vCC8Ad02","ReportType":4,"ClubId":"A2EA4F22-AFAB-43BD-ACF4-ECEB5EE4B67C"}]}]},"paths":["commands"]
+}
