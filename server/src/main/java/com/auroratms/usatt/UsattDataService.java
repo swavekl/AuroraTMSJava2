@@ -542,12 +542,14 @@ public class UsattDataService {
         int neither = 0;
         for (UsattPlayerRecord playerInfo : playerInfos) {
             String membershipType = playerInfo.getMembershipType();
-            switch (membershipType) {
-                case "Silver": silver++; break;
-                case "Gold": gold++; break;
-                case "Bronze": bronze++; break;
-                case "Lifetime": lifetime++; break;
-                default: neither++; break;
+            if (membershipType != null) {
+                switch (membershipType) {
+                    case "Silver": silver++; break;
+                    case "Gold": gold++; break;
+                    case "Bronze": bronze++; break;
+                    case "Lifetime": lifetime++; break;
+                    default: neither++; break;
+                }
             }
         }
 
