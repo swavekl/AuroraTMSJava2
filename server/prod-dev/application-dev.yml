@@ -149,3 +149,4 @@ message.broker.rabbitmq:
 # RabbitMQ log file location: c:\Users\Swavek\AppData\Roaming\RabbitMQ\log
 #logging.level.com.rabbitmq.client: TRACE
 
+auroratms.disable.dailyjob : true

@@ -14,7 +14,9 @@ export enum MembershipType {
   BRONZE = 'BRONZE',
   SILVER = 'SILVER',
   GOLD = 'GOLD',
-  TOURNAMENT_PASS = 'TOURNAMENT_PASS'
+  TOURNAMENT_PASS = 'TOURNAMENT_PASS',
+  COACH = 'COACH',
+  FOREIGN_ATHLETE_PASS = 'FOREIGN_ATHLETE_PASS',
 }
 
 export class TournamentEntry {

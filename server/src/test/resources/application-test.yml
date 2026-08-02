@@ -76,3 +76,5 @@ server.ssl:
   key-alias: tomcat
 
 client.host.url: https://swaveklaptop:4200
+
+auroratms.disable.dailyjob : true;

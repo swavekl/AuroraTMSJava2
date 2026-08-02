@@ -161,3 +161,5 @@ justgo:
   api:
     base-url: https://api-sandbox.justgo.com/api/v2.2
     default-ranking-type: Rating
+
+auroratms.disable.dailyjob : false;

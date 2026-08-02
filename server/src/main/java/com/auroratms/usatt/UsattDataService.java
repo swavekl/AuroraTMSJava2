@@ -67,6 +67,10 @@ public class UsattDataService {
         return this.playerRecordRepository.getFirstByFirstNameAndLastName(firstName, lastName);
     }
 
+    public boolean existsPlayerByName(String firstName, String lastName) {
+        return this.playerRecordRepository.existsByFirstNameAndLastName(firstName, lastName);
+    }
+
     /**
      * Links Okta profile id to the USATT membership id.  In case of new USATT member assigns
      * new membership id.

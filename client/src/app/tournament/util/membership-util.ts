@@ -90,14 +90,21 @@ export class MembershipUtil {
     starLevel: number,
     playerMembershipLevel: MembershipType
   ): boolean {
+    const membershipLevelUpperCase = (playerMembershipLevel != null)
+      ? playerMembershipLevel.toUpperCase().replace(" ", "_" )
+      : "";
 
-    // 2. 5-Star tournaments strictly require GOLD or LIFETIME
+    // 5-Star tournaments strictly require GOLD or LIFETIME
     if (starLevel === 5) {
-      return playerMembershipLevel === MembershipType.GOLD || playerMembershipLevel === MembershipType.LIFETIME;
+      return membershipLevelUpperCase === MembershipType.GOLD || membershipLevelUpperCase === MembershipType.LIFETIME;
     }
 
     if (starLevel >= 0 && starLevel <= 4) {
-      return playerMembershipLevel === MembershipType.SILVER || playerMembershipLevel === MembershipType.GOLD || playerMembershipLevel === MembershipType.LIFETIME;
+      return membershipLevelUpperCase === MembershipType.SILVER
+        || membershipLevelUpperCase === MembershipType.GOLD
+        || membershipLevelUpperCase === MembershipType.LIFETIME
+        || membershipLevelUpperCase === MembershipType.FOREIGN_ATHLETE_PASS
+        || membershipLevelUpperCase === MembershipType.TOURNAMENT_PASS;
     }
 
     return false;

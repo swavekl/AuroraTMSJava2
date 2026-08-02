@@ -80,6 +80,42 @@ public class JustGoRatingsService {
         return null;
     }
 
+    /**
+     * Find player record by membership id
+     */
+    public ApiPlayerDto findPlayerRecordByGUID(String justGoId) {
+        if (justGoId == null) {
+            throw new IllegalArgumentException("justGoId is required");
+        }
+        JsonNode playerData = findMemberByGUID(justGoId);
+        if (playerData != null) {
+            ApiPlayerDto apiPlayerDto = objectMapper.convertValue(playerData, ApiPlayerDto.class);
+//            "memberships": [
+//            {
+//                "name": "Silver",
+//                "status": "Active",
+//                "endDate": "2026-07-02",
+//            } ]
+            JsonNode memberships = playerData.get("memberships");
+            if (!memberships.isArray() || memberships.isEmpty()) {
+                throw new IllegalStateException("Membership not found for justGoId " + justGoId);
+            }
+
+            for (JsonNode membership : memberships) {
+                JsonNode status = membership.get("status");
+                if (status.asText().equals("Active")) {
+                    String name = membership.get("name").asText();
+                    String endDate = membership.get("endDate").asText();
+                    apiPlayerDto.setMembershipType(name);
+                    apiPlayerDto.setMembershipExpirationDate(endDate);
+                    break;
+                }
+            }
+            return apiPlayerDto;
+        }
+        return null;
+    }
+
     private JsonNode findMemberIdByUsattMemberhipId(Long membershipId) {
         String bearerToken = getValidToken();
 
@@ -110,6 +146,39 @@ public class JustGoRatingsService {
             }
 
             return members.get(0);
+        } catch (Exception e) {
+            throw new IllegalStateException("Unable to parse JustGo member lookup response", e);
+        }
+    }
+
+    /**
+     *
+     * @param justGoId
+     * @return
+     */
+    private JsonNode findMemberByGUID(String justGoId) {
+        String bearerToken = getValidToken();
+
+        // https://api-sandbox.justgo.com/api/v2.2/Members/718dfa8b-3604-4dcc-afe6-25d0e85cb6bd
+        String url = UriComponentsBuilder
+                .fromUriString(baseUrl + "/Members/" + justGoId)
+                .toUriString();
+        logger.info("JustGo URL: {} for member {}", url, justGoId);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setAccept(Collections.singletonList(MediaType.TEXT_PLAIN));
+        headers.set(HttpHeaders.AUTHORIZATION, bearerToken);
+
+        HttpEntity<Void> request = new HttpEntity<>(headers);
+        ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, request, String.class);
+
+        if (!response.getStatusCode().is2xxSuccessful() || response.getBody() == null) {
+            throw new IllegalStateException("JustGo member lookup failed with status " + response.getStatusCode());
+        }
+
+        try {
+            JsonNode root = objectMapper.readTree(response.getBody());
+            return root.path("data");
         } catch (Exception e) {
             throw new IllegalStateException("Unable to parse JustGo member lookup response", e);
         }

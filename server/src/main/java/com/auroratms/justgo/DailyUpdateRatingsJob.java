@@ -14,6 +14,7 @@ import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
@@ -35,8 +36,14 @@ public class DailyUpdateRatingsJob implements Job {
     @Autowired
     private UsattDataService usattDataService;
 
+    @Value("${auroratms.disable.dailyjob}")
+    private String disableDailyJob = "false";
+
     @Override
     public void execute(JobExecutionContext context) throws JobExecutionException {
+        if (disableDailyJob.equalsIgnoreCase("true")) {
+            return;
+        }
         SystemPrincipalExecutor task = new SystemPrincipalExecutor() {
             @Override
             protected void taskBody() {
@@ -144,7 +151,7 @@ public class DailyUpdateRatingsJob implements Job {
                     }
 
                     pageNum++;
-                } while (pageNum < totalPages);
+                } while (pageNum <= totalPages);
 
                 long elapsed = (System.currentTimeMillis() - membershipExportStart) / (60 * 1000);
                 System.out.println("Finished exporting " + totalPages + " pages in "

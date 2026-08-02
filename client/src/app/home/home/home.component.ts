@@ -149,8 +149,10 @@ export class HomeComponent implements OnInit, OnDestroy {
    * @private
    */
   private processPlayerRecord(record: UsattPlayerRecord, today: Date) {
+    let membershipType: string = "Historical Membership";
     if (record) {
       this.membershipExpirationDate = record.membershipExpirationDate;
+      membershipType = record.membershipType;
       const rating = record.tournamentRating;
       this.ratedPlayer = (rating != null && rating > 0);
       this.playerRating = this.ratedPlayer ? ('' + rating) : '0';
@@ -159,6 +161,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     }
     this.membershipExpired = new DateUtils().isDateBefore(this.membershipExpirationDate, today);
     this.authenticationService.setCurrentUserMembershipExpiration(this.membershipExpirationDate);
+    this.authenticationService.setCurrentUserMembershipType(membershipType);
   }
 
   /**

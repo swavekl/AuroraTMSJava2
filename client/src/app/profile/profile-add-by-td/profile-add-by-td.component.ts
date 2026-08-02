@@ -119,7 +119,8 @@ export class ProfileAddByTDComponent implements OnInit, OnDestroy {
           tournamentRating: playerData.rating,
           lastTournamentPlayedDate: null,
           leagueRating: null,
-          lastLeaguePlayedDate: null
+          lastLeaguePlayedDate: null,
+          membershipType: null
         };
         // console.log('playerRecord from profile ', this.playerRecord);
 

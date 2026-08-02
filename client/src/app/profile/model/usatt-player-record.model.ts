@@ -13,4 +13,5 @@ export class UsattPlayerRecord {
   lastTournamentPlayedDate: Date;
   leagueRating: number;
   lastLeaguePlayedDate: Date;
+  membershipType: string;
 }
