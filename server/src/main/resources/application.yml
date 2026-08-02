@@ -25,10 +25,11 @@ spring:
     properties:
       org.quartz.threadPool.threadCount : 5
       org.quartz.jobStore.isClustered: true
+
 #  jpa:
 #    show-sql: true
 #    properties.hibernate.format_sql: true
-# not needed since it is looked up by Spring Boot automatically in Vault
+
 #  ai:
 #    openai:
 #      api-key: ${spring.ai.openai.api-key.value}
@@ -36,7 +37,7 @@ spring:
 tess4j:
   tessdata-path: "src/main/resources/tessdata"
 
-spring.cloud.aws.ses.enabled: false
+#spring.cloud.aws.ses.enabled: true
 
 #spring.quartz.properties.org.quartz.threadPool.threadCount : 5
 #spring.quartz.properties.org.quartz.jobStore.isClustered: true
@@ -117,7 +118,7 @@ spring.servlet.multipart:
   location: ${java.io.tmpdir}
 
 
-# Rabbit MQ 3.13.7 with Erlang 26.2.5.21
+# Rabbit MQ 3.9.11 with Erlang 24.2
 message.broker.type: inmemory
 #message.broker.type: rabbitmq
 
@@ -126,5 +127,6 @@ message.broker.rabbitmq:
   port: 61613
 
 # RabbitMQ log file location: c:\Users\Swavek\AppData\Roaming\RabbitMQ\log
-logging.level.com.rabbitmq.client: TRACE
+#logging.level.com.rabbitmq.client: TRACE
 
+auroratms.disable.dailyjob : true
