@@ -57,7 +57,7 @@ spring:
 tess4j:
   tessdata-path: "src/main/resources/tessdata"
 
-spring.cloud.aws.ses.enabled: true
+#spring.cloud.aws.ses.enabled: true
 
 #spring.quartz.properties.org.quartz.threadPool.threadCount : 5
 #spring.quartz.properties.org.quartz.jobStore.isClustered: true
@@ -75,18 +75,18 @@ spring.cloud.aws.ses.enabled: true
 #    org.springframework.transaction: DEBUG
 #logging.level.org.springframework.security: TRACE
 # debug server requests and responses
-logging:
-  level:
-    org:
-      springframework:
-        web:
-          client: DEBUG  # debug server responses
-        security:
-          access: DEBUG
-          web:
-            access: DEBUG   # debug server requests
-            csrf:
-             CsrfFilter: DEBUG
+#logging:
+#  level:
+#    org:
+#      springframework:
+#        web:
+#          client: DEBUG  # debug server responses
+#        security:
+#          access: DEBUG
+#          web:
+#            access: DEBUG   # debug server requests
+#            csrf:
+#             CsrfFilter: DEBUG
 
 ## Websocket debugging
 #logging.level.org.springframework.web.socket.sockjs: TRACE

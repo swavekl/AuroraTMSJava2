@@ -42,6 +42,7 @@ public class DailyUpdateRatingsJob implements Job {
     @Override
     public void execute(JobExecutionContext context) throws JobExecutionException {
         if (disableDailyJob.equalsIgnoreCase("true")) {
+            log.info("Skipping DailyUpdateRatingsJob");
             return;
         }
         SystemPrincipalExecutor task = new SystemPrincipalExecutor() {
