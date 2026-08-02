@@ -17,6 +17,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.net.URI;
+import java.text.Collator;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
@@ -273,20 +275,20 @@ public class JustGoRatingsService {
     private JsonNode findMemberIdByFullNameInternal(String firstName, String lastName) {
         String bearerToken = getValidToken();
 
-        String strModifiedAfter = getJustGoCutoverDate();
-        String url = UriComponentsBuilder
+        URI uri = UriComponentsBuilder
                 .fromUriString(baseUrl + "/Members/FindByAttributes")
                 .queryParam("LastName", lastName)
-//                .queryParam("FirstName", firstName)
-                .queryParam("ModifiedAfter", strModifiedAfter)
-                .toUriString();
+                .build()
+                .encode()
+                .toUri();
+
+        logger.info("Calling uri: " + uri);
         HttpHeaders headers = new HttpHeaders();
-//        headers.setAccept(Collections.singletonList(MediaType.TEXT_PLAIN));
         headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
         headers.set(HttpHeaders.AUTHORIZATION, bearerToken);
 
         HttpEntity<Void> request = new HttpEntity<>(headers);
-        ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, request, String.class);
+        ResponseEntity<String> response = restTemplate.exchange(uri, HttpMethod.GET, request, String.class);
 
         if (!response.getStatusCode().is2xxSuccessful() || response.getBody() == null) {
             throw new IllegalStateException("JustGo member lookup failed with status " + response.getStatusCode());
@@ -301,9 +303,18 @@ public class JustGoRatingsService {
             }
 
             JsonNode chosen = null;
+
+            // Collator with SECONDARY strength ignores case, but respects accents (e.g. É matches é, but NOT e)
+            Collator collator = Collator.getInstance(Locale.ROOT);
+            collator.setStrength(Collator.SECONDARY);
             for (JsonNode member : members) {
-                if (lastName.equalsIgnoreCase(member.path("lastName").asText()) &&
-                        firstName.equalsIgnoreCase(member.path("firstName").asText())) {
+                String memberLastName = member.path("lastName").asText();
+                String memberFirstName = member.path("firstName").asText();
+
+                boolean lastNameMatches = collator.compare(lastName, memberLastName) == 0;
+                boolean firstNameMatches = collator.compare(firstName, memberFirstName) == 0;
+
+                if (lastNameMatches && firstNameMatches) {
                     chosen = member;
                     break;
                 }
