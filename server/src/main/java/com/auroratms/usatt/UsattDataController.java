@@ -63,21 +63,53 @@ public class UsattDataController {
                     this.usattDataService.saveAllAndFlush(List.of(newUsattPlayerRecord));
                 }
             }
-            return this.usattDataService.getPlayerByNames(firstName, lastName);
+
+            UsattPlayerRecord playerByNames = this.usattDataService.getPlayerByNames(firstName, lastName);
+            if (playerByNames != null && playerByNames.getMemberGuid() == null) {
+                try {
+                    // update justgo UUID
+                    Long membershipId = playerByNames.getMembershipId();
+                    ApiPlayerDto playerRecordByMembershipId = this.justGoRatingsService.findPlayerRecordByMembershipId(membershipId);
+                    if (playerRecordByMembershipId != null) {
+                        playerByNames.setMemberGuid(playerRecordByMembershipId.getId());
+                        this.usattDataService.saveAllAndFlush(List.of(playerByNames));
+                    }
+                } catch (Exception e) {
+                    // ignore it maybe there is no player like that at all - like our test players.
+                }
+            }
+            return playerByNames;
         } else if (params.containsKey("membershipId")) {
             String strMembershipId = params.get("membershipId");
             Long membershipId = Long.parseLong(strMembershipId);
             UsattPlayerRecord usattPlayerRecord = this.usattDataService.getPlayerByMembershipId(membershipId);
             if (usattPlayerRecord != null) {
+                // we may have a USATT player record in our database but may not have the GUID
+                // get it first so we can get the latest membership information
+                String memberGuid = usattPlayerRecord.getMemberGuid();
+                if (StringUtils.isEmpty(memberGuid)) {
+                    try {
+                        ApiPlayerDto justGoPlayerRecordByMembershipId = this.justGoRatingsService.findPlayerRecordByMembershipId(membershipId);
+                        if (justGoPlayerRecordByMembershipId != null) {
+                            memberGuid = justGoPlayerRecordByMembershipId.getId();
+                            usattPlayerRecord.setMemberGuid(memberGuid);
+                            this.usattDataService.saveAllAndFlush(List.of(usattPlayerRecord));
+                        }
+                    } catch (Exception e) {
+                        // ignore it maybe there is no player like that at all - like our test players.
+                    }
+                }
                 // check if perhaps they updated their membership just now
-                ApiPlayerDto playerRecordByMembershipId = this.justGoRatingsService.findPlayerRecordByGUID(usattPlayerRecord.getMemberGuid());
-                if (playerRecordByMembershipId != null) {
-                    String newMembershipExpirationDate = playerRecordByMembershipId.getMembershipExpirationDate();
+                ApiPlayerDto justGoPlayerRecord = StringUtils.isNotEmpty(memberGuid)
+                        ? this.justGoRatingsService.findPlayerRecordByGUID(memberGuid) : null;
+                if (justGoPlayerRecord != null) {
+                    String newMembershipExpirationDate = justGoPlayerRecord.getMembershipExpirationDate();
                     DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
                     String strExpirationDate = dateFormat.format(usattPlayerRecord.getMembershipExpirationDate());
-                    String newMembershipType = playerRecordByMembershipId.getMembershipType();
-                    if (!StringUtils.equalsIgnoreCase(usattPlayerRecord.getMembershipType(), newMembershipType) ||
-                        !StringUtils.equals(strExpirationDate, newMembershipExpirationDate)) {
+                    String newMembershipType = justGoPlayerRecord.getMembershipType();
+                    if ((!StringUtils.equalsIgnoreCase(usattPlayerRecord.getMembershipType(), newMembershipType) ||
+                        !StringUtils.equals(strExpirationDate, newMembershipExpirationDate)) &&
+                         StringUtils.isNotEmpty(newMembershipExpirationDate)) {
                         usattPlayerRecord.setMembershipType(newMembershipType);
                         try {
                             Date newExpirationDate = dateFormat.parse(newMembershipExpirationDate);
@@ -95,41 +127,46 @@ public class UsattDataController {
         }
     }
 
-    private UsattPlayerRecord toUsattPlayerRecord(ApiPlayerDto playerRecordByName) {
+    /**
+     *
+     * @param apiPlayerDto
+     * @return
+     */
+    private UsattPlayerRecord toUsattPlayerRecord(ApiPlayerDto apiPlayerDto) {
         UsattPlayerRecord usattPlayerRecord = new UsattPlayerRecord();
 
-        usattPlayerRecord.setMembershipId(Long.parseLong(playerRecordByName.getMemberNumber()));
-        usattPlayerRecord.setFirstName(playerRecordByName.getFirstName());
-        usattPlayerRecord.setLastName(playerRecordByName.getLastName());
-        usattPlayerRecord.setGender(playerRecordByName.getGender());
-        usattPlayerRecord.setCity(playerRecordByName.getTown());
-        usattPlayerRecord.setState(playerRecordByName.getCounty());
-        usattPlayerRecord.setZip(playerRecordByName.getPostCode());
-        usattPlayerRecord.setCountry(playerRecordByName.getCountry());
-        usattPlayerRecord.setHomeClub(playerRecordByName.getClubName());
+        usattPlayerRecord.setMembershipId(Long.parseLong(apiPlayerDto.getMemberNumber()));
+        usattPlayerRecord.setFirstName(apiPlayerDto.getFirstName());
+        usattPlayerRecord.setLastName(apiPlayerDto.getLastName());
+        usattPlayerRecord.setGender(apiPlayerDto.getGender());
+        usattPlayerRecord.setCity(apiPlayerDto.getTown());
+        usattPlayerRecord.setState(apiPlayerDto.getCounty());
+        usattPlayerRecord.setZip(apiPlayerDto.getPostCode());
+        usattPlayerRecord.setCountry(apiPlayerDto.getCountry());
+        usattPlayerRecord.setHomeClub(apiPlayerDto.getClubName());
 
-        if (playerRecordByName.getDob() != null) {
+        if (apiPlayerDto.getDob() != null) {
             try {
                 // "dob": "1990-03-20",
                 SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
-                Date dateOfBirth = formatter.parse(playerRecordByName.getDob());
+                Date dateOfBirth = formatter.parse(apiPlayerDto.getDob());
                 usattPlayerRecord.setDateOfBirth(dateOfBirth);
             } catch (ParseException e) {
                 System.out.println("unable to parse date of birth = " + e);
             }
         }
-        if (playerRecordByName.getMembershipExpirationDate() != null) {
+        if (apiPlayerDto.getMembershipExpirationDate() != null) {
             try {
                 // "endDate": "2025-11-24",
                 SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
-                Date expirationDate = formatter.parse(playerRecordByName.getMembershipExpirationDate());
+                Date expirationDate = formatter.parse(apiPlayerDto.getMembershipExpirationDate());
                 usattPlayerRecord.setMembershipExpirationDate(expirationDate);
             } catch (ParseException e) {
                 System.out.println("unable to parse date of birth = " + e);
             }
         }
-        usattPlayerRecord.setMembershipType(playerRecordByName.getMembershipType());
-        usattPlayerRecord.setMemberGuid(playerRecordByName.getId());
+        usattPlayerRecord.setMembershipType(apiPlayerDto.getMembershipType());
+        usattPlayerRecord.setMemberGuid(apiPlayerDto.getId());
         return usattPlayerRecord;
     }
 

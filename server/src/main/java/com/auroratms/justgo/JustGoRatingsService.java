@@ -102,12 +102,16 @@ public class JustGoRatingsService {
             }
 
             for (JsonNode membership : memberships) {
-                JsonNode status = membership.get("status");
-                if (status.asText().equals("Active")) {
-                    String name = membership.get("name").asText();
-                    String endDate = membership.get("endDate").asText();
-                    apiPlayerDto.setMembershipType(name);
+                String endDate = (membership.get("endDate") != null) ? membership.get("endDate").asText() : null;
+                if (endDate != null) {
                     apiPlayerDto.setMembershipExpirationDate(endDate);
+                }
+                JsonNode status = membership.get("status");
+                if (status != null && "Active".equalsIgnoreCase(status.asText())) {
+                    String name = (membership.get("name") != null) ? membership.get("name").asText() : null;
+                    if (name != null) {
+                        apiPlayerDto.setMembershipType(name);
+                    }
                     break;
                 }
             }
@@ -123,7 +127,7 @@ public class JustGoRatingsService {
         String url = UriComponentsBuilder
                 .fromUriString(baseUrl + "/Members/FindByAttributes")
                 .queryParam("memberNumber", membershipId)
-                .queryParam("ModifiedAfter", strModifiedAfter)
+//                .queryParam("ModifiedAfter", strModifiedAfter)
                 .toUriString();
         logger.info("JustGo URL: {} for membershipId {}", url, membershipId);
 

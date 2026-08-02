@@ -40,7 +40,7 @@ Authorization: Bearer {{auth_token}}
   "type": "Rating"
 }
 
-### 3. Find Member full information
+### 4. Find Member full information
 GET https://api-sandbox.justgo.com/api/v2.2/Members/718dfa8b-3604-4dcc-afe6-25d0e85cb6bd
 Accept: application/json
 Authorization: Bearer {{auth_token}}
@@ -50,7 +50,19 @@ Authorization: Bearer {{auth_token}}
     client.log('totalRecords '+ response.body.totalRecords);
 %}
 
-### 2. Find All Members recently changed
+### 9. Find by membership
+GET https://api-sandbox.justgo.com/api/v2.2/Memberships/Member/FindByAttributes?status=Active
+Accept: application/json
+Authorization: Bearer {{auth_token}}
+
+### 10. Find by membership
+GET https://api-sandbox.justgo.com/api/v2.2/Memberships/Member/FindByAttributes?MemberId=718dfa8b-3604-4dcc-afe6-25d0e85cb6bd&status=Active
+Accept: application/json
+Authorization: Bearer {{auth_token}}
+
+
+
+### 5. Find All Members recently changed
 GET https://api-sandbox.justgo.com/api/v2.2/Members/FindByAttributes?ModifiedAfter=2026-07-03T10:00:32.000Z
 Accept: application/json
 Authorization: Bearer {{auth_token}}
@@ -60,7 +72,7 @@ Authorization: Bearer {{auth_token}}
     client.log('totalRecords '+ response.body.totalRecords);
 %}
 
-### 3. Find All Members recently changed
+### 6. Find All Members recently changed
 GET https://api-sandbox.justgo.com/api/v2.2/Members/FindByAttributes?ModifiedAfter=2026-07-01&ModifiedBefore=2026-07-25
 Accept: application/json
 Authorization: Bearer {{auth_token}}
@@ -70,7 +82,7 @@ Authorization: Bearer {{auth_token}}
     client.log('totalRecords '+ response.body.totalRecords);
 %}
 
-### 3. Find All Members recently changed since January 2026 until July 1
+### 7. Find All Members recently changed since January 2026 until July 1
 GET https://api-sandbox.justgo.com/api/v2.2/Members/FindByAttributes?ModifiedAfter=2026-01-01&ModifiedBefore=2026-07-01
 Accept: application/json
 Authorization: Bearer {{auth_token}}
@@ -80,7 +92,7 @@ Authorization: Bearer {{auth_token}}
     client.log('totalRecords '+ response.body.totalRecords);
 %}
 
-### 3. Find All Members recently changed since January 2026
+### 8. Find All Members recently changed since January 2026
 GET https://api-sandbox.justgo.com/api/v2.2/Members/FindByAttributes?ModifiedAfter=2026-01-01
 Accept: application/json
 Authorization: Bearer {{auth_token}}
@@ -89,4 +101,6 @@ Authorization: Bearer {{auth_token}}
     client.global.set("totalRecords", response.body.totalRecords);
     client.log('totalRecords '+ response.body.totalRecords);
 %}
+
+
 
