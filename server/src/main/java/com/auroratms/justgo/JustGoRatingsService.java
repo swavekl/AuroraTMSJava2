@@ -277,10 +277,11 @@ public class JustGoRatingsService {
         String url = UriComponentsBuilder
                 .fromUriString(baseUrl + "/Members/FindByAttributes")
                 .queryParam("LastName", lastName)
-                .queryParam("FirstName", firstName)
+//                .queryParam("FirstName", firstName)
                 .queryParam("ModifiedAfter", strModifiedAfter)
                 .toUriString();
         HttpHeaders headers = new HttpHeaders();
+//        headers.setAccept(Collections.singletonList(MediaType.TEXT_PLAIN));
         headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
         headers.set(HttpHeaders.AUTHORIZATION, bearerToken);
 

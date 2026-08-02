@@ -80,7 +80,7 @@ export class UsattPlayerRecordService {
     let filter = '';
     for (const searchCriterion of searchCriteria) {
       filter += (filter.length === 0) ? '?' : '&';
-      filter += searchCriterion.name + '=' + searchCriterion.value;
+      filter += searchCriterion.name + '=' + encodeURIComponent(searchCriterion.value);
     }
     const url = `/api/usattplayer${filter}`;
     this.setLoading(true);
