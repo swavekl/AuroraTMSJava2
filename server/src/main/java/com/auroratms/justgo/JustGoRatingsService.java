@@ -18,6 +18,7 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.text.Collator;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -279,7 +280,7 @@ public class JustGoRatingsService {
                 .fromUriString(baseUrl + "/Members/FindByAttributes")
                 .queryParam("LastName", lastName)
                 .build()
-                .encode()
+                .encode(StandardCharsets.UTF_8)
                 .toUri();
 
         logger.info("Calling uri: " + uri);
