@@ -1,5 +1,5 @@
 @use 'sass:color';
-@use "src/my-theme.scss" as *;
+@use "src/variables.scss" as *;
 
 $brand-light-purple:      color.adjust($primary-color, $lightness: 42%);
 $brand-dark-purple:       color.adjust($primary-color, $lightness: -25%);

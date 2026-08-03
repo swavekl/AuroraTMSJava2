@@ -1,4 +1,4 @@
-@use "src/my-theme.scss" as *;
+@use "src/variables.scss" as *;
 
 .results-page-wrapper {
   display: flex;
@@ -8,12 +8,13 @@
   height: calc(100vh - 64px);
   height: calc(100svh - 64px);
 
+  /* MOVED UP: Properties must come BEFORE nested @media rules */
+  width: 100%;
+  overflow: hidden;
+
   @media (min-width: 960px) {
     height: calc(100vh - 80px);
   }
-
-  width: 100%;
-  overflow: hidden;
 }
 
 .title-container {
@@ -37,13 +38,13 @@ mat-toolbar {
   height: calc(100vh - 180px);
   height: calc(100svh - 180px);
 
+  /* MOVED UP: Properties must come BEFORE nested @media rules */
+  overflow: auto;
+  border: none;
+
   @media (min-width: 960px) {
     height: calc(100vh - 240px);
   }
-
-  /* CHANGE THIS from hidden to auto to allow viewing the bottom of the draw */
-  overflow: auto;
-  border: none;
 }
 
 /* --- Keep the Round Robin Container at Full Height --- */
@@ -61,11 +62,6 @@ table.group-results {
   margin: 16px;
   border-collapse: collapse;
 
-  thead th {
-    font-weight: bold;
-    vertical-align: middle;
-  }
-
   td, th {
     border: 1px solid black;
     padding: 4px;
@@ -80,5 +76,10 @@ table.group-results {
     &.match-result-column{ width: 45px; text-align: center; }
     &.empty-cell         { width: 45px; background-color: #d7c8f5; }
     &.winner-cell        { font-weight: bold; }
+  }
+
+  thead th {
+    font-weight: bold;
+    vertical-align: middle;
   }
 }

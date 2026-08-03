@@ -1,4 +1,4 @@
-@use "src/my-theme.scss" as *;
+@use "src/variables.scss" as *;
 
 .match-container {
   height: calc(100vh - 75px);

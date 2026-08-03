@@ -1,4 +1,4 @@
-@use "src/my-theme" as *;
+@use "src/variables.scss" as *;
 
 // Main frame locked down exactly to the visible layout bounds
 .schedule-page-wrapper {
