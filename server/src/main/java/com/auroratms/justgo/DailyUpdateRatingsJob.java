@@ -81,7 +81,7 @@ public class DailyUpdateRatingsJob implements Job {
         long startAll = System.currentTimeMillis();
 
         String reportFilename = null;
-        try  {
+        try {
 
             String tempDir = System.getenv("TEMP");
             tempDir = (StringUtils.isEmpty(tempDir)) ? System.getenv("TMP") : tempDir;
@@ -89,78 +89,81 @@ public class DailyUpdateRatingsJob implements Job {
             File reportFile = new File(tempDir + File.separator + "players-export-" + date + ".csv");
             reportFilename = reportFile.getCanonicalPath();
             log.info("reportFilename = " + reportFilename);
-            FileWriter fw = new FileWriter(reportFilename, StandardCharsets.UTF_8);
-            BufferedWriter bw = new BufferedWriter(fw);
 
-            CustomHeaderOrderStrategy<UsattPlayerCsvDto> mappingStrategy =
-                    new CustomHeaderOrderStrategy<>(UsattPlayerCsvDto.class, UsattPlayerCsvDto.getHeaderOrder());
+            // Wrap writers in try-with-resources to ensure auto-flush and auto-close
+            try (FileWriter fw = new FileWriter(reportFilename, StandardCharsets.UTF_8);
+                 BufferedWriter bw = new BufferedWriter(fw)) {
+                CustomHeaderOrderStrategy<UsattPlayerCsvDto> mappingStrategy =
+                        new CustomHeaderOrderStrategy<>(UsattPlayerCsvDto.class, UsattPlayerCsvDto.getHeaderOrder());
 
-            StatefulBeanToCsv<UsattPlayerCsvDto> beanToCsv = new StatefulBeanToCsvBuilder<UsattPlayerCsvDto>(bw)
-                    .withMappingStrategy(mappingStrategy)
-                    .withApplyQuotesToAll(true)
-                    .build();
+                StatefulBeanToCsv<UsattPlayerCsvDto> beanToCsv = new StatefulBeanToCsvBuilder<UsattPlayerCsvDto>(bw)
+                        .withMappingStrategy(mappingStrategy)
+                        .withApplyQuotesToAll(true)
+                        .build();
 
-            Set<String> uniqueJustGoIds = new HashSet<>();
+                Set<String> uniqueJustGoIds = new HashSet<>();
 
-            List<String> membershipTypes = List.of(
-                    "Lifetime",
-                    "Gold",
-                    "Silver",
-                    "Bronze",
-                    "AdultTournamentPass",
-                    "Tournament Pass",
-                    "Coach",
-                    "Foreign Athlete Pass"
-            );
-            long totalRecordsProcessed = 0;
-            for (String membership : membershipTypes) {
-                int pageNum = 1;
-                int pageSize = 50;
-                int totalPages = 0;
-                Page<ApiPlayerDto> currentPage = null;
-                long membershipExportStart = System.currentTimeMillis();
+                List<String> membershipTypes = List.of(
+                        "Lifetime",
+                        "Gold",
+                        "Silver",
+                        "Bronze",
+                        "AdultTournamentPass",
+                        "Tournament Pass",
+                        "Coach",
+                        "Foreign Athlete Pass"
+                );
+                long totalRecordsProcessed = 0;
+                for (String membership : membershipTypes) {
+                    int pageNum = 1;
+                    int pageSize = 50;
+                    int totalPages = 0;
+                    Page<ApiPlayerDto> currentPage = null;
+                    long membershipExportStart = System.currentTimeMillis();
 
-                do {
-                    long pageExportStart = System.currentTimeMillis();
-                    PageRequest pageRequest = PageRequest.of(pageNum, pageSize);
-                    try {
-                        currentPage = justGoService.listPlayersByMembership(membership, pageRequest);
-                        if (pageNum == 1 && currentPage != null) {
-                            totalPages = currentPage.getTotalPages();
-                        }
-
-                        List<UsattPlayerCsvDto> csvRows = new ArrayList<>();
-                        for (ApiPlayerDto apiDto : currentPage.getContent()) {
-                            if (!uniqueJustGoIds.contains(apiDto.getId())) {
-                                csvRows.add(justGoService.mapToCsvDto(apiDto));
-                                uniqueJustGoIds.add(apiDto.getId());
+                    do {
+                        long pageExportStart = System.currentTimeMillis();
+                        PageRequest pageRequest = PageRequest.of(pageNum, pageSize);
+                        try {
+                            currentPage = justGoService.listPlayersByMembership(membership, pageRequest);
+                            if (pageNum == 1 && currentPage != null) {
+                                totalPages = currentPage.getTotalPages();
+                                System.out.println("There are " + currentPage.getTotalElements() + " members with " + membership);
                             }
+
+                            List<UsattPlayerCsvDto> csvRows = new ArrayList<>();
+                            for (ApiPlayerDto apiDto : currentPage.getContent()) {
+                                if (!uniqueJustGoIds.contains(apiDto.getId())) {
+                                    csvRows.add(justGoService.mapToCsvDto(apiDto));
+                                    uniqueJustGoIds.add(apiDto.getId());
+                                }
+                            }
+
+                            beanToCsv.write(csvRows);
+                            bw.flush();
+                            if (pageNum == 1) {
+                                totalRecordsProcessed += currentPage.getTotalElements();
+                            }
+
+                            long elapsed = (System.currentTimeMillis() - pageExportStart) / 1000;
+                            log.info("Extracted page " + pageNum + " of " + totalPages + " in " + elapsed + " seconds");
+                        } catch (CsvDataTypeMismatchException | CsvRequiredFieldEmptyException e) {
+                            log.error("Error processing CSV records for membership " + membership, e);
+                        } catch (IllegalStateException e) {
+                            log.error("Error getting player records for page " + pageNum, e);
                         }
 
-                        beanToCsv.write(csvRows);
-                        if (pageNum == 1) {
-                            System.out.println("There are " + currentPage.getTotalElements() + " members with " + membership);
-                            totalRecordsProcessed +=  currentPage.getTotalElements();
-                        }
+                        pageNum++;
+                    } while (pageNum <= totalPages);
 
-                        long elapsed = (System.currentTimeMillis() - pageExportStart) / 1000;
-                        log.info("Extracted page " + pageNum + " of " +  currentPage.getTotalPages() + " in " + elapsed + " seconds");
-                    } catch (CsvDataTypeMismatchException | CsvRequiredFieldEmptyException e) {
-                        log.error("Error processing CSV records for membership " + membership, e);
-                    } catch (IllegalStateException e) {
-                        log.error("Error getting player records for page " + pageNum, e);
-                    }
-
-                    pageNum++;
-                } while (pageNum <= totalPages);
-
-                long elapsed = (System.currentTimeMillis() - membershipExportStart) / (60 * 1000);
-                System.out.println("Finished exporting " + totalPages + " pages in "
-                        + elapsed + " minutes for membershipType " + membership);
+                    long elapsed = (System.currentTimeMillis() - membershipExportStart) / (60 * 1000);
+                    System.out.println("Finished exporting " + totalPages + " pages in "
+                            + elapsed + " minutes for membershipType " + membership);
+                }
+                long elapsed = (System.currentTimeMillis() - startAll) / (60 * 1000);
+                System.out.println("Finished exporting all members in " + elapsed + " minutes.");
+                System.out.println("There were a total " + totalRecordsProcessed + " records processed and " + uniqueJustGoIds.size() + " were unique.");
             }
-            long elapsed = (System.currentTimeMillis() - startAll) / (60 * 1000);
-            System.out.println("Finished exporting all members in " + elapsed + " minutes.");
-            System.out.println("There were a total " + totalRecordsProcessed + " records processed and " + uniqueJustGoIds.size() + " were unique.");
 
         } catch (Exception e) {
             log.error("Error writing CSV file: " + e.getMessage());
