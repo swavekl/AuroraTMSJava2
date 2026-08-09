@@ -5,6 +5,7 @@ import com.auroratms.utils.pdfdto.TournamentAndEventsDTO;
 import com.auroratms.utils.pdfdto.TournamentDTO;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.io.RandomAccessReadBufferedFile;
 import org.apache.pdfbox.pdmodel.PDDocument;
@@ -33,6 +34,7 @@ import java.nio.file.Files;
 import java.util.List;
 
 @Service
+@Slf4j
 public class BlankEntryFormParserService {
 
     private final ChatModel chatModel;
@@ -227,6 +229,7 @@ public class BlankEntryFormParserService {
                 ocrPageText = ocrPageText.replaceAll("\\t+", " ");
 
                 // OCR pages may contain more text in the header graphic e.g. tournament name
+                log.info("Page number: " + i + " text length: " + pageText.length() + " ocrPageText length: " + ocrPageText.length());
                 if (ocrPageText.length() > pageText.length()) {
                     pageText = ocrPageText;
                 }
