@@ -14,6 +14,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -86,7 +87,7 @@ public class JustGoRatingsService {
     /**
      * Find player record by membership id
      */
-    public ApiPlayerDto findPlayerRecordByGUID(String justGoId) {
+    public ApiPlayerDto findPlayerRecordByGUID(String justGoId) throws IllegalStateException, IllegalArgumentException{
         if (justGoId == null) {
             throw new IllegalArgumentException("justGoId is required");
         }
@@ -166,7 +167,6 @@ public class JustGoRatingsService {
     private JsonNode findMemberByGUID(String justGoId) {
         String bearerToken = getValidToken();
 
-        // https://api-sandbox.justgo.com/api/v2.2/Members/718dfa8b-3604-4dcc-afe6-25d0e85cb6bd
         String url = UriComponentsBuilder
                 .fromUriString(baseUrl + "/Members/" + justGoId)
                 .toUriString();
@@ -177,16 +177,24 @@ public class JustGoRatingsService {
         headers.set(HttpHeaders.AUTHORIZATION, bearerToken);
 
         HttpEntity<Void> request = new HttpEntity<>(headers);
-        ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, request, String.class);
-
-        if (!response.getStatusCode().is2xxSuccessful() || response.getBody() == null) {
-            throw new IllegalStateException("JustGo member lookup failed with status " + response.getStatusCode());
-        }
 
         try {
+            ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, request, String.class);
+
+            if (response.getBody() == null || response.getBody().isBlank()) {
+                throw new IllegalStateException("JustGo member lookup returned an empty response body.");
+            }
+
             JsonNode root = objectMapper.readTree(response.getBody());
             return root.path("data");
+
+        } catch (HttpStatusCodeException e) {
+            // Catches 4xx and 5xx responses (like the 500 you saw earlier)
+            logger.error("JustGo API HTTP error status: {}, body: {}", e.getStatusCode(), e.getResponseBodyAsString());
+            throw new IllegalStateException("JustGo member lookup failed with status " + e.getStatusCode(), e);
         } catch (Exception e) {
+            // Catches JSON parsing errors or unexpected issues
+            logger.error("Failed to process JustGo member lookup for member ID {}", justGoId, e);
             throw new IllegalStateException("Unable to parse JustGo member lookup response", e);
         }
     }
