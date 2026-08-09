@@ -138,7 +138,9 @@ public class BlankEntryFormParserService {
         String promptTemplateText = null;
         try {
             // Load prompt instructions
-            promptTemplateText = Files.readString(promptFile.getFile().toPath(), StandardCharsets.UTF_8);
+            // READ DIRECTLY FROM RESOURCE STREAM (Works inside JAR and IDE)
+            promptTemplateText = promptFile.getContentAsString(StandardCharsets.UTF_8);
+
             // Get the JSON Schema
             String output_format = getDraft7JsonSchema(beanOutputConverter.getFormat());
 //            System.out.println("jsonSchemaMap = " + jsonSchemaMap);
