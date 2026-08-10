@@ -64,10 +64,11 @@ export class TournamentEventConfigComponent implements OnInit, OnChanges, OnDest
   ];
 
   ageRestrictionTypes: any [] = [
-    {value: 'NONE', label: 'None'},
-    {value: 'AGE_UNDER_OR_EQUAL_ON_DAY_EVENT', label: 'Maximum age on day of tournament'},
-    {value: 'AGE_OVER_AT_THE_END_OF_YEAR', label: 'Minimum age at the end of year'},
-    {value: 'BORN_ON_OR_AFTER_DATE', label: 'Born on or before date'}
+    { label: 'None', value: AgeRestrictionType.NONE },
+    { label: 'Age Under or Equal on Day of Event', value: AgeRestrictionType.AGE_UNDER_OR_EQUAL_ON_DAY_EVENT },
+    { label: 'Age Over at End of Year', value: AgeRestrictionType.AGE_OVER_AT_THE_END_OF_YEAR },
+    { label: 'Born On or After Date', value: AgeRestrictionType.BORN_ON_OR_AFTER_DATE },
+    { label: 'Born On or Before Date', value: AgeRestrictionType.BORN_ON_OR_BEFORE_DATE }
   ];
 
   eligibilityRestrictionOptions: any[] = [
@@ -134,7 +135,7 @@ export class TournamentEventConfigComponent implements OnInit, OnChanges, OnDest
         tournamentEvent.configuration = configuration;
         this.tournamentEvent = tournamentEvent;
 
-        this.ageRestrictionDateEnabled = (this.tournamentEvent.ageRestrictionType === AgeRestrictionType.BORN_ON_OR_AFTER_DATE);
+        this.ageRestrictionDateEnabled = this.isAgeRestrictionRequired(this.tournamentEvent);
         this.columnsToDisplay = (this.tournamentEvent.drawMethod === 'DIVISION')
           ? ['division', 'awardedForPlace', 'prizeMoneyAmount', 'awardType', 'actions']
           : [            'awardedForPlace', 'prizeMoneyAmount', 'awardType', 'actions'];
@@ -191,12 +192,38 @@ export class TournamentEventConfigComponent implements OnInit, OnChanges, OnDest
     this.saved.emit(this.tournamentEvent);
   }
 
-  isAgeRestrictionRequired(tournamentEvent: TournamentEvent) {
-    return tournamentEvent?.ageRestrictionType === AgeRestrictionType.BORN_ON_OR_AFTER_DATE;
+  isAgeRestrictionRequired(tournamentEvent: TournamentEvent): boolean {
+    const type = tournamentEvent?.ageRestrictionType;
+    return type === AgeRestrictionType.BORN_ON_OR_AFTER_DATE ||
+      type === AgeRestrictionType.BORN_ON_OR_BEFORE_DATE;
   }
 
-  onAgeRestrictionChange($event: MatSelectChange) {
-    this.ageRestrictionDateEnabled = ($event?.value === AgeRestrictionType.BORN_ON_OR_AFTER_DATE);
+  onAgeRestrictionChange($event: MatSelectChange): void {
+    const value = $event?.value;
+    this.ageRestrictionDateEnabled = (value === AgeRestrictionType.BORN_ON_OR_AFTER_DATE ||
+      value === AgeRestrictionType.BORN_ON_OR_BEFORE_DATE);
+
+    let minPlayerAge = this.tournamentEvent.minPlayerAge;
+    let maxPlayerAge = this.tournamentEvent.maxPlayerAge;
+    let ageRestrictionDate: Date = this.tournamentEvent.ageRestrictionDate;
+    // clear out the date if not needed
+    if (this.ageRestrictionDateEnabled) {
+      minPlayerAge = 0;
+      maxPlayerAge = 0;
+    } else if (value !== AgeRestrictionType.NONE) {
+      ageRestrictionDate = null;
+    } else {
+      minPlayerAge = 0;
+      maxPlayerAge = 0;
+      ageRestrictionDate = null;
+    }
+    const cloneTE: TournamentEvent = {
+      ...this.tournamentEvent,
+      minPlayerAge: minPlayerAge,
+      maxPlayerAge: maxPlayerAge,
+      ageRestrictionDate: ageRestrictionDate,
+    };
+    this.tournamentEvent = cloneTE;
   }
 
   onAddPrizesRow() {

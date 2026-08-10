@@ -35,8 +35,8 @@ public class PdfOcrExtractor {
 
             PDFRenderer pdfRenderer = new PDFRenderer(document);
             int numberOfPages = document.getNumberOfPages();
-            log.info("Number of pages in a PDF: " + numberOfPages);
-            int maxPagesToExtract = Math.min(2, document.getNumberOfPages());
+            int maxPagesToExtract = Math.min(1, document.getNumberOfPages());
+            log.info("Number of pages in a PDF: " + numberOfPages + " extracting  from " + maxPagesToExtract);
 
             for (int pageIndex = 0; pageIndex < maxPagesToExtract; pageIndex++) {
                 // Render page to image (600 DPI)

@@ -3248,12 +3248,15 @@ public class ImportTournamentService {
         AgeRestrictionDTO ageRestrictionDTO = eventDTO.getAgeRestriction();
         if (ageRestrictionDTO != null) {
             String type = ageRestrictionDTO.getType();
+            ageRestictionDate = convertDate(ageRestrictionDTO.getAgeRestrictionDate());
              ageRestrictionType = AgeRestrictionType.valueOf(type);
             int age = StringUtils.isEmpty(ageRestrictionDTO.getAge()) ? 0 : Integer.parseInt(ageRestrictionDTO.getAge());
             if (ageRestrictionType == AgeRestrictionType.AGE_UNDER_OR_EQUAL_ON_DAY_EVENT) {
                 maximumPlayerAge = age;
             } else if (ageRestrictionType == AgeRestrictionType.BORN_ON_OR_AFTER_DATE) {
-                maximumPlayerAge = age;
+//                maximumPlayerAge = age;
+            } else if (ageRestrictionType == AgeRestrictionType.BORN_ON_OR_BEFORE_DATE) {
+//                minimumPlayerAge = age;
             } else if (ageRestrictionType == AgeRestrictionType.AGE_OVER_AT_THE_END_OF_YEAR) {
                 minimumPlayerAge = age;
             }

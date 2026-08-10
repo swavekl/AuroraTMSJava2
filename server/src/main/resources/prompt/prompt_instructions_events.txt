@@ -211,31 +211,29 @@ NONE:
 ### AGE RESTRICTION (MORE PRECISE)
 ------------------------------------------------------------------------------------------
 
-Extract the exact age:
+STRICT ENUM VALUES:
+The 'type' field MUST strictly be one of the following values:
+- "NONE"
+- "AGE_UNDER_OR_EQUAL_ON_DAY_EVENT"
+- "AGE_OVER_AT_THE_END_OF_YEAR"
+- "BORN_ON_OR_AFTER_DATE"
+- "BORN_ON_OR_BEFORE_DATE"
 
-minimum-age format:
-  “Over 40”, “40 & Over”, “Seniors 40+”, “50+”, “60+”
-→ type = “AGE_OVER_AT_THE_END_OF_YEAR”
-→ age = extracted number
+Rules:
+1. Junior / Maximum-Age Events ("born after [date]", "U19"):
+   - "Event 20 (born after 10/26/2007)"
+     -> type = "BORN_ON_OR_AFTER_DATE", age = "18", restriction_date = "10/26/2007"
 
-maximum-age format:
-  “U21”, “Under 21”, “U 21”, “Juniors U13”
-→ type = “AGE_UNDER_OR_EQUAL_ON_DAY_EVENT”
-→ age = extracted number
+2. Senior / Minimum-Age Events ("born before [date]", "Senior O70"):
+   - "Event 25 (born before 12/31/1955)"
+     -> type = "BORN_ON_OR_BEFORE_DATE", age = "70", restriction_date = "12/31/1955"
 
-Example:
-“50 & Over Singles”
-→ type = “AGE_OVER_AT_THE_END_OF_YEAR”, age = “50”
+3. Relative Age Events ("U13", "50 & Over"):
+   - "U13 Juniors" -> type = "AGE_UNDER_OR_EQUAL_ON_DAY_EVENT", age = "13", restriction_date = ""
+   - "50 & Over Singles" -> type = "AGE_OVER_AT_THE_END_OF_YEAR", age = "50", restriction_date = ""
 
-“U13 Juniors”
-→ type = “AGE_UNDER_OR_EQUAL_ON_DAY_EVENT”, age = “13”
-
-"EVENTS 3 – 12: U 19 - Born on or after January 1, 2006 - Must be 19 or under as of December 31, 2025"
-Extract the age restriction date. Apply it to events based on event name and/or ordinal number. If gender nt specified apply to both girls and boys
-→ type = "BORN_ON_OR_AFTER_DATE", age = "19", restriction_date = "01/01/2006"
-
-If no age restriction:
-→ { "type": "NONE", "age": "", "restriction_date": "" }
+4. If no age restriction:
+   -> type = "NONE", age = "", restriction_date = ""
 
 ------------------------------------------------------------------------------------------
 ### PLAYERS PER GROUP

@@ -59,6 +59,12 @@ public class AgeRestrictionEventPolicy implements IEventPolicy {
             if (ageRestrictionDate != null) {
                 isDenied = dateOfBirth.before(ageRestrictionDate);
             }
+        } else if (AgeRestrictionType.BORN_ON_OR_BEFORE_DATE.equals(event.getAgeRestrictionType())) {
+            //  Senior events (e.g., 50+, 70+) requiring player to be born on or before cutoff date
+            Date ageRestrictionDate = event.getAgeRestrictionDate();
+            if (ageRestrictionDate != null) {
+                isDenied = dateOfBirth.after(ageRestrictionDate);
+            }
         }
 
         availabilityStatus = (isDenied) ? AvailabilityStatus.DISQUALIFIED_BY_AGE : AvailabilityStatus.AVAILABLE_FOR_ENTRY;

@@ -230,12 +230,6 @@ public class BlankEntryFormParserService {
                 pageText = pageText.replaceAll("\\t+", " ");
                 ocrPageText = ocrPageText.replaceAll("\\t+", " ");
 
-                // OCR pages may contain more text in the header graphic e.g. tournament name
-                log.info("Page number: " + i + " text length: " + pageText.length() + " ocrPageText length: " + ocrPageText.length());
-                if (ocrPageText.length() > pageText.length()) {
-                    pageText = ocrPageText;
-                }
-
                 // remove stock text in case it is on the same page with relevant text
                 pageText = removeSafeSportsText(pageText);
 
@@ -244,13 +238,25 @@ public class BlankEntryFormParserService {
                     System.out.println("Skipping boilerplate page " + i);
                     continue;
                 }
+                
+                if (pageText.isBlank() && ocrPageText.isBlank()) {
+                    continue;
+                }
+                cleanedText.append("--- PAGE ").append(i).append(" START ---\n");
 
-                cleanedText.append(pageText).append("\n\n");
+                // Provide both sources so GPT-4o has 100% of the textual and graphical info
+                if (!ocrPageText.isBlank()) {
+                    cleanedText.append("[GRAPHICS & BANNER TEXT (OCR)]:\n").append(ocrPageText).append("\n\n");
+                }
+                if (!pageText.isBlank()) {
+                    cleanedText.append("[BODY TEXT (PDF STRIPPER)]:\n").append(pageText).append("\n");
+                }
+
+                cleanedText.append("--- PAGE ").append(i).append(" END ---\n\n");
             }
         }
-        String retValue = cleanedText.toString();
 
-        return retValue;
+        return cleanedText.toString();
     }
 
     /**
