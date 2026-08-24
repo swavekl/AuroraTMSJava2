@@ -4,6 +4,8 @@ import com.auroratms.club.ClubEntity;
 import com.auroratms.club.ClubService;
 import com.auroratms.draw.DrawType;
 import com.auroratms.event.*;
+import com.auroratms.justgo.ApiPlayerDto;
+import com.auroratms.justgo.JustGoRatingsService;
 import com.auroratms.profile.*;
 import com.auroratms.team.Team;
 import com.auroratms.team.TeamEntryStatus;
@@ -30,6 +32,7 @@ import com.auroratms.utils.fuzzymatch.FuzzyMatchService;
 import com.auroratms.utils.pdfdto.*;
 import com.opencsv.CSVReader;
 import com.opencsv.exceptions.CsvValidationException;
+import lombok.NonNull;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.jetbrains.annotations.NotNull;
@@ -121,6 +124,9 @@ public class ImportTournamentService {
 
     @Autowired
     private TeamService teamService;
+
+    @Autowired
+    private JustGoRatingsService justGoRatingsService;
 
 
     // Under 3800 Doubles RR - Partner: Teamed With Devaansh Boda
@@ -250,17 +256,17 @@ public class ImportTournamentService {
                             case 3:
                                 // --- Extract tournament link and name ---
                                 // Use a broader selector — find any <a> whose href starts with "http"
-                                Element tournamentLink = tableCell.selectFirst("a[href^=http]");
-                                if (tournamentLink == null) {
-                                    // As a fallback, try any <a> inside the 3rd <td>
-                                    tournamentLink = tableCell.selectFirst("a[href]");
-                                }
-
-                                if (tournamentLink != null) {
-                                    tournamentName = tournamentLink.text().trim();
-                                    String url = tournamentLink.attr("href");
-                                    if (url.endsWith(".pdf")) {
-                                        blankEntryFormPDFUrl = url;
+                                Elements allLinks = tableCell.select("a[href]");
+                                if (!allLinks.isEmpty()) {
+                                    for (Element link : allLinks) {
+                                        String url = link.attr("href");
+                                        if (url.endsWith(".pdf")) {
+                                            blankEntryFormPDFUrl = url;
+                                        }
+                                        String linkText = link.text().trim();
+                                        tournamentName = (StringUtils.isNotEmpty(tournamentName))
+                                                ? tournamentName + " " + linkText
+                                                : linkText;
                                     }
                                 } else {
                                     tournamentName = tableCell.text();
@@ -556,7 +562,11 @@ public class ImportTournamentService {
             for (Map<String, Object> playerEntriesDetail : playerEntriesDetails) {
                 if (playerEntriesDetail.get("newProfile") != null) {
                     String playerName = playerEntriesDetail.get("playerName").toString();
-                    String profileId = playerNameToProfileMap.get(playerName);
+                    String ratings = (String) playerEntriesDetail.get("ratings");
+                    String[] twoRatings = ratings.split("/");
+                    int seedRating = (twoRatings.length > 0) ? Integer.parseInt(twoRatings[0].trim()) : 0;
+                    String uniquePlayerIdentifier = makePlayerUniqueIdentifier(playerName, seedRating);
+                    String profileId = playerNameToProfileMap.get(uniquePlayerIdentifier);
                     profileIdsToDelete.add(profileId);
                 }
             }
@@ -613,8 +623,12 @@ public class ImportTournamentService {
         // go through current list of players and their event entries and synchronize them
         for (Map<String, Object> playerEntriesDetail : playerEntriesDetails) {
             String playerName = (String) playerEntriesDetail.get("playerName");
-            log.info("Creating event entries for player " + playerName);
-            String profileId = playerNameToProfileMap.get(playerName);
+            String ratings = (String) playerEntriesDetail.get("ratings");
+            String[] twoRatings = ratings.split("/");
+            int seedRating = (twoRatings.length > 0) ? Integer.parseInt(twoRatings[0].trim()) : 0;
+            String uniquePlayerIdentifier = makePlayerUniqueIdentifier(playerName, seedRating);
+            log.info("Creating event entries for player " + uniquePlayerIdentifier);
+            String profileId = playerNameToProfileMap.get(uniquePlayerIdentifier);
             TournamentEntry tournamentEntry = userProfileToEntryMap.get(profileId);
             // find all existing event entries for this player
             List<TournamentEventEntry> oldEventEntriesForPlayer = allTournamentEventEntries.stream()
@@ -709,11 +723,13 @@ public class ImportTournamentService {
                         String lastFirstName = convertToLastFirstName(doublesPartnerName, playerNameToProfileMap);
                         if (lastFirstName != null) {
                             System.out.println("lastFirstName = " + lastFirstName);
-                            String doublesPartnerProfileId = playerNameToProfileMap.get(lastFirstName);
+                            String doublesPartnerProfileId = findByFullNameInMap(lastFirstName, playerNameToProfileMap);
                             System.out.println("doublesPartnerProfileId = " + doublesPartnerProfileId);
-                            String oldDoublesPartnerId = tournamentEventEntry.getDoublesPartnerProfileId();
-                            tournamentEventEntry.setDoublesPartnerProfileId(doublesPartnerProfileId);
-                            changed = StringUtils.equals(oldDoublesPartnerId, doublesPartnerProfileId);
+                            if (doublesPartnerProfileId != null) {
+                                String oldDoublesPartnerId = tournamentEventEntry.getDoublesPartnerProfileId();
+                                tournamentEventEntry.setDoublesPartnerProfileId(doublesPartnerProfileId);
+                                changed = StringUtils.equals(oldDoublesPartnerId, doublesPartnerProfileId);
+                            }
                         }
                     }
                 }
@@ -897,6 +913,13 @@ public class ImportTournamentService {
             String playerName = (String) playerEntriesDetail.get("playerName");
             String state = (String) playerEntriesDetail.get("state");
             String clubName = (String) playerEntriesDetail.get("clubName");
+            // make a unique player key since last and first name are not unique i.e. Chan, Steven occured
+            // twice in the same tournament
+            String ratings = (String) playerEntriesDetail.get("ratings");
+            String[] twoRatings = ratings.split("/");
+            int seedRating = (twoRatings.length > 0) ? Integer.parseInt(twoRatings[0].trim()) : 0;
+            String uniquePlayerIdentifier = makePlayerUniqueIdentifier(playerName, seedRating);
+
             String[] nameComponents = playerName.split(",");
             if (nameComponents.length > 0) {
                 final String lastName = nameComponents[0].trim();
@@ -910,13 +933,16 @@ public class ImportTournamentService {
                 } else {
                     log.info("Trying to find user profile by first and last name for " + lastName + ", " + firstName);
                     Collection<UserProfile> userProfilesExact = userProfileService.list(firstName, lastName);
-                    userProfiles = userProfilesExact.stream().toList();
-                    log.info("Found " + userProfiles.size() + " profiles for " + lastName + ", " + firstName);
+                    String playerEmail = playerToEmailFromFileMap.get(uniquePlayerIdentifier);
+                    userProfiles = userProfilesExact.stream()
+                            .filter(userProfile -> userProfile.getEmail().equalsIgnoreCase(playerEmail))
+                            .toList();
+                    log.info("Found " + userProfiles.size() + " profiles for " + lastName + ", " + firstName + " in state " + state + " email " + playerEmail);
                 }
 
                 if (userProfiles.size() == 1) {
                     UserProfile userProfile = userProfiles.iterator().next();
-                    playerNameToAccountId.put(playerName, userProfile.getUserId());
+                    playerNameToAccountId.put(uniquePlayerIdentifier, userProfile.getUserId());
                     usedEmailAddresses.add(userProfile.getEmail());
                     log.info("Looking for user profile ext " + userProfile.getUserId() + " for " + lastName + ", " + firstName);
                     UserProfileExt byProfileId = userProfileExtService.getByProfileId(userProfile.getUserId());
@@ -967,10 +993,27 @@ public class ImportTournamentService {
                     }
                 } else {
                     UserProfile bestMatchProfile = null;
-                    UsattPlayerRecord usattRecord = this.usattDataService.getPlayerByNames(firstName, lastName);
+                    UsattPlayerRecord usattRecord = null;
+                    // find the best matching USATT record in case there is a player with exact same first and last name
+                    List<UsattPlayerRecord> allPlayersByNames = this.usattDataService.findAllPlayersByFirstAndLastName(firstName, lastName, Pageable.unpaged());
+                    if (allPlayersByNames.size() != 1) {
+                        int minDiff = Integer.MAX_VALUE;
+                        for (UsattPlayerRecord usattPlayerRecord : allPlayersByNames) {
+                            int currentRating = usattPlayerRecord.getTournamentRating();
+                            int diff = Math.abs(currentRating - seedRating);
+                            if (diff < minDiff) {
+                                usattRecord = usattPlayerRecord;
+                                minDiff = diff;
+                            }
+                        }
+                    } else {
+                        usattRecord = allPlayersByNames.get(0);
+                    }
+
                     Long membershipId = (usattRecord != null) ? usattRecord.getMembershipId() : null;
                     String profileToFind = null;
                     if (membershipId != null) {
+                        log.info("Found membership id " + membershipId + " for " + lastName + ", " + firstName + ", rating: " + seedRating + ", state " + state);
                         try {
                             if (this.userProfileExtService.existsByMembershipId(membershipId)) {
                                 UserProfileExt profileByMembershipId = this.userProfileExtService.getByMembershipId(membershipId);
@@ -999,15 +1042,11 @@ public class ImportTournamentService {
                     // lookup email address in from file
                     String emailAddress = null;
                     if (bestMatchProfile == null) {
-                        if (playerToEmailFromFileMap.containsKey(playerName)) {
-                            emailAddress = playerToEmailFromFileMap.get(playerName);
+                        if (playerToEmailFromFileMap.containsKey(uniquePlayerIdentifier)) {
+                            emailAddress = playerToEmailFromFileMap.get(uniquePlayerIdentifier);
                             foundEmails++;
                         } else {
-                            emailAddress = firstName.toLowerCase() + "." + lastName.toLowerCase() + "@gmail.com";
-                            emailAddress = emailAddress.replace(" ", "_");
-                            emailAddress = emailAddress.replace("(", ".");
-                            emailAddress = emailAddress.replace(")", ".");
-                            emailAddress = emailAddress.replace("..", ".");
+                            emailAddress = makeFakeEmail(firstName, lastName);
                             log.info("didn't find email for player " + playerName + " using generated email: " + emailAddress);
                         }
                     } else {
@@ -1032,7 +1071,7 @@ public class ImportTournamentService {
                     usedEmailAddresses.add(emailAddress);
 
                     if (bestMatchProfile != null) {
-                        playerNameToAccountId.put(playerName, bestMatchProfile.getUserId());
+                        playerNameToAccountId.put(uniquePlayerIdentifier, bestMatchProfile.getUserId());
                     } else {
                         String gender = "Male";
                         Date dateOfBirth = defaultDateOfBirth;
@@ -1058,8 +1097,8 @@ public class ImportTournamentService {
                         UserProfile savedUserProfile = userProfileService.createProfile(newUserProfile);
                         String profileId = savedUserProfile.getUserId();
 
-                        log.info("Created profile for " + lastName + ", " + firstName + ", " + profileId);
-                        playerNameToAccountId.put(playerName, profileId);
+                        log.info("Created profile for " + uniquePlayerIdentifier + ", " + profileId);
+                        playerNameToAccountId.put(uniquePlayerIdentifier, profileId);
                         playerEntriesDetail.put("newProfile", Boolean.TRUE);
                         createdProfiles++;
 
@@ -1103,6 +1142,16 @@ public class ImportTournamentService {
         importProgressInfo.phaseCompleted = 100;
 
         return playerNameToAccountId;
+    }
+
+    /**
+     * Last and first name is not sufficient to identify players so we create a unique key with seed rating
+     * @param playerName
+     * @param seedRating
+     * @return
+     */
+    private String makePlayerUniqueIdentifier(String playerName, int seedRating) {
+        return playerName + ", " + seedRating;
     }
 
     /**
@@ -1184,7 +1233,13 @@ public class ImportTournamentService {
                             continue;
                         }
                         String fullName = lastName + ", " + firstName;
-                        playerEmailsMap.put(fullName, email);
+                        int seedRating = 0;
+                        if (StringUtils.isNotEmpty(ratings)) {
+                            String[] twoRatings = ratings.split("/");
+                            seedRating = (twoRatings.length > 0) ? Integer.parseInt(twoRatings[0].trim()) : 0;
+                        }
+                        String uniquePlayerIdentifier = makePlayerUniqueIdentifier(fullName, seedRating);
+                        playerEmailsMap.put(uniquePlayerIdentifier, email);
                     }
 
                     log.info("total records = " + rowNumber);
@@ -1268,11 +1323,12 @@ public class ImportTournamentService {
         // make tournament entries for new profiles
         for (Map<String, Object> playerEntriesDetail : playerEntriesDetails) {
             String playerName = (String) playerEntriesDetail.get("playerName");
-            String profileId = playerNameToProfileMap.get(playerName);
             String ratings = (String) playerEntriesDetail.get("ratings");
             String[] twoRatings = ratings.split("/");
             int seedRating = (twoRatings.length > 0) ? Integer.parseInt(twoRatings[0].trim()) : 0;
             int eligibilityRating = (twoRatings.length > 1) ? Integer.parseInt(twoRatings[1].trim()) : 0;
+            String uniquePlayerIdentifier = makePlayerUniqueIdentifier(playerName, seedRating);
+            String profileId = playerNameToProfileMap.get(uniquePlayerIdentifier);
 
             if (profileIdsWithoutEntries.contains(profileId)) {
                 log.info("Adding tournament entry for " + playerName + " profileId " + profileId);
@@ -1344,12 +1400,12 @@ public class ImportTournamentService {
     /**
      * Looks up profile id based on first name(s) and last name
      *
-     * @param doublesPartnerName
+     * @param teammateName
      * @param playerNameToProfileMap
      * @return
      */
-    private String convertToLastFirstName(String doublesPartnerName, Map<String, String> playerNameToProfileMap) {
-        String[] nameParts = doublesPartnerName.split(" ");
+    private String convertToLastFirstName(String teammateName, Map<String, String> playerNameToProfileMap) {
+        String[] nameParts = teammateName.split(" ");
         boolean found = false;
         // index where last name starts in a string
         // not everyone has a simple first and last name e.g.  'Muhammad Umar Jan' is converted to  'Jan, Muhammad Umar'
@@ -1370,12 +1426,27 @@ public class ImportTournamentService {
             firstName = new StringBuilder(firstName.toString().trim());
             lastName = new StringBuilder(lastName.toString().trim());
             fullName = lastName + ", " + firstName;
-            found = playerNameToProfileMap.containsKey(fullName);
+            found = (findByFullNameInMap(fullName, playerNameToProfileMap) != null);
         } while (!found && start < nameParts.length);
         if (!found) {
-            log.warn("Can't convert '" + doublesPartnerName + "' into last, first name format");
+            log.warn("Can't convert '" + teammateName + "' into last, first name format");
         }
         return (found) ? fullName : null;
+    }
+
+    /**
+     * Finds map entry when only full name is available but not seed rating.
+     * @param fullName
+     * @param playerNameToProfileMap
+     * @return
+     */
+    private String findByFullNameInMap (String fullName, Map<String, String> playerNameToProfileMap) {
+        // look up by last first name
+        Optional<String> first = playerNameToProfileMap.entrySet().stream()
+                .filter(entry -> entry.getKey().startsWith(fullName))
+                .map(Map.Entry::getValue)
+                .findFirst();
+        return first.orElse(null);
     }
 
     /**
@@ -1637,9 +1708,21 @@ public class ImportTournamentService {
         }
 
         tournament.setStreetAddress(tournamentFromPDF.getStreetAddress());
+        if (StringUtils.isNotEmpty(tournamentFromPDF.getCity())) {
+            tournament.setCity(tournamentFromPDF.getCity());
+            changed = true;
+        }
+        if (StringUtils.isNotEmpty(tournamentFromPDF.getState())) {
+            tournament.setState(tournamentFromPDF.getState());
+            changed = true;
+        }
         tournament.setZipCode(tournamentFromPDF.getZipCode());
         tournament.setConfiguration(tournamentFromPDF.getConfiguration());
         tournament.setContactName(tournamentFromPDF.getContactName());
+        if (StringUtils.isNotEmpty(tournamentFromPDF.getPhone())) {
+            tournament.setPhone(tournamentFromPDF.getPhone());
+            changed = true;
+        }
         if (StringUtils.isNotEmpty(tournamentFromPDF.getEmail())) {
             tournament.setEmail(tournamentFromPDF.getEmail());
             changed = true;
@@ -2039,7 +2122,8 @@ public class ImportTournamentService {
                 String lastFirstName = convertToLastFirstName(memberFullName, playerNameToProfileMap);
                 log.info(teamMemberInfo + " -> lastFirstName " + lastFirstName);
                 if (lastFirstName != null) {
-                    String profileId = playerNameToProfileMap.get(lastFirstName);
+                    String uniquePlayerIdentifier = makePlayerUniqueIdentifier(lastFirstName, Integer.parseInt(memberRating));
+                    String profileId = playerNameToProfileMap.get(uniquePlayerIdentifier);
                     TeamMember teamMember = new TeamMember();
                     teamMember.setStatus(isInvited ? TeamEntryStatus.INVITED : TeamEntryStatus.CONFIRMED);
                     teamMember.setTournamentEventFk(tournamentEventFk);
@@ -2721,8 +2805,31 @@ public class ImportTournamentService {
                 }
 
                 if (!found) {
-                    log.info("Profile not found for " + fullNameAndState);
-                    if (fullNameAndState != null && !missingAccountsList.contains(fullNameAndState)) {
+                    log.info("Profile not found for " + fullName + ", " + usattPlayerRecord.getState());
+                    boolean isPresent = isPresentInList(missingAccountsList, usattPlayerRecord.getFirstName(), usattPlayerRecord.getLastName(), usattPlayerRecord.getState());
+                    if (!isPresent) {
+                        if (fullNameAndState == null) {
+                            fullNameAndState = fullName + "," + usattPlayerRecord.getState() + "," + usattPlayerRecord.getTournamentRating() + " / " + usattPlayerRecord.getTournamentRating();
+                        }
+                        String email = makeFakeEmail(usattPlayerRecord.getFirstName(), usattPlayerRecord.getLastName());
+                        try {
+                            ApiPlayerDto playerRecordByMembershipId = justGoRatingsService.findPlayerRecordByName(usattPlayerRecord.getFirstName(), usattPlayerRecord.getLastName());
+                            if (playerRecordByMembershipId != null) {
+                                log.info("Found player JustGo record by last and first name: " + usattPlayerRecord.getLastName() + ", " + usattPlayerRecord.getFirstName());
+                                if(StringUtils.isNotEmpty(playerRecordByMembershipId.getEmailAddress())){
+                                    email = playerRecordByMembershipId.getEmailAddress();
+                                }
+                                log.info("Setting email to " + email);
+                                if (StringUtils.isEmpty(usattPlayerRecord.getState())) {
+                                    String state = playerRecordByMembershipId.getCounty();
+                                    state = StringUtils.isNotEmpty(state) ? state : "IL";
+                                    log.info("Setting state to " + state);
+                                    fullNameAndState = fullName + "," + state + "," + usattPlayerRecord.getTournamentRating() + " / " + usattPlayerRecord.getTournamentRating();
+                                }
+                            }
+                        } catch (Exception e) {
+                        }
+                        fullNameAndState += "," + email;
                         missingAccountsList.add(fullNameAndState);
                     }
                 }
@@ -2736,6 +2843,44 @@ public class ImportTournamentService {
 
         log.info("Found " + profilesExisting + " by querying UserProfiles by last and first name and confirming with state");
         log.info("Now only " + missingAccountsList.size() + " players are still missing");
+    }
+
+    private boolean isPresentInList(List<String> missingAccountsList, @NonNull String firstName, @NonNull String lastName, String state) {
+        String criteria = lastName + ", " + firstName + ", " + state;
+        Optional<String> match = findFirstMatch(missingAccountsList, List.of(criteria));
+        return match.isPresent();
+    }
+
+    public static Optional<String> findFirstMatch(List<String> fullDataList, List<String> criteriaList) {
+        // Pre-parse search criteria into lowercase keys (lastName,firstName,state) for O(1) lookups
+        Set<String> searchKeys = criteriaList.stream()
+                .map(ImportTournamentService::extractKey)
+                .filter(key -> !key.isEmpty())
+                .collect(Collectors.toSet());
+
+        return fullDataList.stream()
+                .filter(player -> searchKeys.contains(extractKey(player)))
+                .findFirst();
+    }
+
+    private static String extractKey(String csvLine) {
+        String[] parts = csvLine.split("\\s*,\\s*", 4);
+        if (parts.length < 3) return "";
+
+        return String.join(",",
+                parts[0].trim().toLowerCase(),
+                parts[1].trim().toLowerCase(),
+                parts[2].trim().toLowerCase()
+        );
+    }
+
+    private String makeFakeEmail(String firstName, String lastName) {
+        String email = firstName.toLowerCase() + "." + lastName.toLowerCase() + "@unknown.com";
+        email = email.replace(" ", ".");
+        email = email.replace("(", ".");
+        email = email.replace(")", ".");
+        email = email.replace("..", ".");
+        return email;
     }
 
     /**
@@ -2966,6 +3111,7 @@ public class ImportTournamentService {
         List<UserProfileExt> existingUserProfiles = this.userProfileExtService.findByMembershipIds(membershipIds);
         log.info("Found " + existingUserProfiles.size() + " existing profiles from membership ids");
         importProgressInfo.overallCompleted = 40;
+        int initialOverallCompleted = importProgressInfo.overallCompleted;
         int totalMembershipIds = membershipIds.size();
         int membershipIdsProcessed = 0;
         for (Long membershipId : membershipIdToNameMap.keySet()) {
@@ -2978,12 +3124,38 @@ public class ImportTournamentService {
             }
             if (!profileExists) {
                 String fullNameAndState = membershipIdToNameMap.get(membershipId);
+                String lastFirstName = extractPlayerNameOnly(fullNameAndState);
+                String [] nameParts = lastFirstName.split(",");
+                String lastName = nameParts[0].trim();
+                String firstName =  nameParts[1].trim();
+                String email = makeFakeEmail(firstName, lastName);
+                try {
+                    ApiPlayerDto playerRecordByMembershipId = justGoRatingsService.findPlayerRecordByMembershipId(membershipId);
+                    if (playerRecordByMembershipId != null) {
+                        log.info("Found player JustGo record by membership id " + membershipId + " to fill email and state");
+                        if (StringUtils.isNotEmpty(playerRecordByMembershipId.getEmailAddress())) {
+                            email = playerRecordByMembershipId.getEmailAddress();
+                        }
+                        log.info("Setting email to " + email);
+                        if (fullNameAndState.contains(", ,")) {
+                            String stateReplacement = ",IL,";
+                            if (StringUtils.isNotEmpty(playerRecordByMembershipId.getCounty())) {
+                                stateReplacement = "," + playerRecordByMembershipId.getCounty() + ",";
+                            }
+                            log.info("Setting state to " + stateReplacement);
+                            fullNameAndState = fullNameAndState.replace(", ,", stateReplacement);
+                        }
+                    }
+                } catch (Exception e) {
+                }
+                fullNameAndState += "," + email;
                 missingAccountsList.add(fullNameAndState);
             } else {
                 profilesExisting++;
             }
             membershipIdsProcessed++;
             importProgressInfo.phaseCompleted = (int) (((double) membershipIdsProcessed / totalMembershipIds) * 100.0);
+            importProgressInfo.overallCompleted = initialOverallCompleted + ((importProgressInfo.phaseCompleted * 20) / 100);
         }
         importProgressInfo.phaseCompleted = 100;
         importProgressInfo.overallCompleted = 60;
@@ -3030,7 +3202,7 @@ public class ImportTournamentService {
             // write players
             for (String missingAccountInfo : missingAccountsList) {
                 missingAccountInfo = missingAccountInfo.replaceAll(", ", ",");
-                missingAccountInfo += ",\n";
+                missingAccountInfo += "\n";
                 fileWriter.write(missingAccountInfo);
             }
             fileWriter.flush();

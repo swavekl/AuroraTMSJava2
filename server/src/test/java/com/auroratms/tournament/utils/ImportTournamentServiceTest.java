@@ -181,7 +181,8 @@ public class ImportTournamentServiceTest extends AbstractServiceTest  {
     @Test
     @Disabled
     public void removeUnwantedProfiles() {
-        String fileWithIds = "C:\\Users\\Swavek\\Downloads\\createdprofiles.txt";
+        String fileWithIds = "C:\\myprojects\\AuroraTMSJava2\\server\\src\\test\\resources\\omnipong-test-data\\created_profiles.csv";
+//        String fileWithIds = "C:\\Users\\Swavek\\Downloads\\createdprofiles.txt";
 //        String fileWithIds = "C:\\Users\\Swavek\\Downloads\\createdprofilesAustin.txt";
 
         Set<String> profileIdsToDelete = this.importTournamentService.removeUnwantedProfiles(new ImportProgressInfo(),
@@ -193,5 +194,20 @@ public class ImportTournamentServiceTest extends AbstractServiceTest  {
                 .append(idsAsList)
                 .append("');");
         System.out.println(sb.toString());
+    }
+
+    @Test
+    @Disabled
+    @WithMockUser(username = "swaveklorenc@gmail.com", authorities = {UserRoles.TournamentDirectors})
+    public void testImportTeamsInformation() {
+        try {
+            String url = "C:\\Users\\Swavek\\Downloads\\2026 US OPEN TEAMS CHAMPIONSHIPS-teamsPage.html";
+            String emailsFileRepoPath = "C:\\myprojects\\AuroraTMSJava2\\server\\src\\test\\resources\\omnipong-test-data\\2026 US OPEN Teams_filled_emails.csv";
+            Path path = Path.of(url);
+            String content = Files.readString(path);  //
+            importTournamentService.importEntriesInternal(892, content, emailsFileRepoPath, new ImportProgressInfo());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

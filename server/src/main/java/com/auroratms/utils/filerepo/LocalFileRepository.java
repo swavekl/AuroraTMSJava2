@@ -8,6 +8,7 @@ import org.springframework.util.FileCopyUtils;
 import java.io.*;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -82,8 +83,9 @@ public class LocalFileRepository implements IFileRepository {
      * @param path
      * @return
      */
-    private String getRepositoryPath(String path) {
-        return "%s/%s".formatted(this.repositoryRoot, path);
+    private String getRepositoryPath(String path) throws UnsupportedEncodingException {
+        String decodedPath = URLDecoder.decode(path, StandardCharsets.UTF_8);
+        return "%s/%s".formatted(this.repositoryRoot, decodedPath);
     }
 
     /**
@@ -93,7 +95,7 @@ public class LocalFileRepository implements IFileRepository {
      * @return
      */
     private String getStorageURL(String storagePath, String sourceFileName) throws UnsupportedEncodingException {
-        String encodedSourceFileName = URLEncoder.encode(sourceFileName, "UTF-8");
+        String encodedSourceFileName = URLEncoder.encode(sourceFileName, StandardCharsets.UTF_8);
         return "%s/download?path=%s/%s".formatted(
                 IFileRepository.REPOSITORY_URL_ROOT, storagePath, encodedSourceFileName);
     }
@@ -134,22 +136,26 @@ public class LocalFileRepository implements IFileRepository {
 
     @Override
     public List<String> list(String path) throws FileRepositoryException {
-        List<String> foundFileDownloadUrls = new ArrayList<>();
-        String repositoryPath = getRepositoryPath(path);
-        File folder = new File (repositoryPath);
-        if (folder.exists() && folder.isDirectory()) {
-            String[] fileNames = folder.list();
-            if (fileNames != null) {
-                for (String fileName : fileNames) {
-                    try {
-                        String fileDownloadUrl = getStorageURL(path, fileName);
-                        foundFileDownloadUrls.add(fileDownloadUrl);
-                    } catch (UnsupportedEncodingException e) {
-                        throw new FileRepositoryException("Unable to form download url for '" + path + "' and filename '" + fileName + "'", e);
+        try {
+            List<String> foundFileDownloadUrls = new ArrayList<>();
+            String repositoryPath = getRepositoryPath(path);
+            File folder = new File (repositoryPath);
+            if (folder.exists() && folder.isDirectory()) {
+                String[] fileNames = folder.list();
+                if (fileNames != null) {
+                    for (String fileName : fileNames) {
+                        try {
+                            String fileDownloadUrl = getStorageURL(path, fileName);
+                            foundFileDownloadUrls.add(fileDownloadUrl);
+                        } catch (UnsupportedEncodingException e) {
+                            throw new FileRepositoryException("Unable to form download url for '" + path + "' and filename '" + fileName + "'", e);
+                        }
                     }
                 }
             }
+            return foundFileDownloadUrls;
+        } catch (Exception e) {
+            throw new RuntimeException("Unable to read repository file from path: " + path, e);
         }
-        return foundFileDownloadUrls;
     }
 }

@@ -20,6 +20,8 @@ public interface UsattPlayerRecordRepository extends JpaRepository<UsattPlayerRe
 
     List<UsattPlayerRecord> findAllByFirstNameOrLastName(String firstName, String lastName, Pageable pageable);
 
+    List<UsattPlayerRecord> findAllByFirstNameAndLastName(String firstName, String lastName, Pageable pageable);
+
     boolean existsByFirstNameAndLastName(String firstName, String lastName);
 
     interface RatingProjection {

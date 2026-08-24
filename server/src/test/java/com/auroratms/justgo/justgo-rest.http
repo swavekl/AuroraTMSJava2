@@ -1,4 +1,4 @@
-### 1. Authenticate and get Bearer Token
+### 1. Authenticate and get Bearer Token -  Swagger doc https://api-sandbox.justgo.com/index.html
 POST https://api-sandbox.justgo.com/api/v2.2/Auth
 Accept: */*
 Content-Type: application/json

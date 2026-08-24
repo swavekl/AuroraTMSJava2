@@ -56,7 +56,13 @@ public class UsattDataService {
     private static final SimpleDateFormat ALT_DATE_FORMAT = new SimpleDateFormat("MM/dd/yyyy");
 
     public List<UsattPlayerRecord> findAllPlayersByNames(String firstName, String lastName, Pageable pageable) {
+        // either first OR last name
         return this.playerRecordRepository.findAllByFirstNameOrLastName(firstName, lastName, pageable);
+    }
+
+    public List<UsattPlayerRecord> findAllPlayersByFirstAndLastName(String firstName, String lastName, Pageable pageable) {
+        // by first AND last name
+        return this.playerRecordRepository.findAllByFirstNameAndLastName(firstName, lastName, pageable);
     }
 
     public UsattPlayerRecord getPlayerByMembershipId(Long membershipId) {

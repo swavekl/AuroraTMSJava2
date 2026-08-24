@@ -52,9 +52,9 @@ public class TeamService {
             String sql = "SELECT profile_id FROM team_member WHERE team_fk = ?";
             previousProfileIds = jdbcTemplate.queryForList(sql, String.class, team.getId());
 
-            System.out.println("previousProfileIds.size() = " + previousProfileIds.size());
+            System.out.println("Saving existing team '" + team.getName() + "' previousProfileIds.size() = " + previousProfileIds.size());
         } else {
-            System.out.println("New team");
+            System.out.println("Saving new team '" + team.getName() + "'");
         }
 
         Team savedTeam = teamRepository.save(team);
