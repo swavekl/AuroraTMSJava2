@@ -57,6 +57,8 @@ export class TournamentConfigEditComponent implements OnChanges {
   umpireList: Personnel[] = [];
   dataEntryClerksList: Personnel[] = [];
 
+  uploadDisabled: boolean = false;
+
   subscriptions: Subscription = new Subscription();
 
   constructor(private dialog: MatDialog,
@@ -350,6 +352,14 @@ export class TournamentConfigEditComponent implements OnChanges {
       });
     }
     return errors;
+  }
+
+  protected onBlankEntryFormUploadFinished(downloadUrl: string) {
+    this.tournament.configuration.blankEntryUrl = 'api/filerepository/viewpdf?' + downloadUrl.substring(downloadUrl.indexOf('path='));
+  }
+
+  protected getPDFStoragePath() {
+    return 'tournament/blankentryform';
   }
 }
 

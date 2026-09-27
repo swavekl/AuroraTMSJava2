@@ -20,7 +20,7 @@ public class TournamentRoundsConfiguration implements Serializable {
     private List<TournamentEventRound> rounds;
 
     public TournamentRoundsConfiguration(TournamentRoundsConfiguration fromConfiguration) {
-        if (fromConfiguration.rounds != null) {
+        if (fromConfiguration != null && fromConfiguration.rounds != null) {
             this.rounds = new ArrayList<>(fromConfiguration.rounds.size());
             for (TournamentEventRound round : fromConfiguration.rounds) {
                 TournamentEventRound tournamentRoundCopy = new TournamentEventRound(round);

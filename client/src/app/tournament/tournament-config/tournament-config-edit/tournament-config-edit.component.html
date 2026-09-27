@@ -231,10 +231,18 @@
                 </mat-form-field>
               </div>
               <div fxLayout.lt-sm="column" fxLayout="row" fxLayoutGap="10px">
-                <mat-form-field fxFlex="100%">
+                <mat-form-field fxFlex="75%">
                   <mat-label>Blank entry form URL</mat-label>
                   <input matInput type="text" name="blankEntryUrl" [(ngModel)]="tournament.configuration.blankEntryUrl">
                 </mat-form-field>
+                <div fxFlex="25%">
+                  <app-upload-file-component
+                    [disabledBtn]="uploadDisabled"
+                    [uploadButtonLabel]="'Upload'"
+                    (uploadFinished)="onBlankEntryFormUploadFinished($event)"
+                    [storagePath]="getPDFStoragePath()">
+                  </app-upload-file-component>
+                </div>
               </div>
               <div fxLayout.lt-sm="column" fxLayout="row" fxLayoutGap="10px">
                 <mat-form-field fxFlex="40%">
