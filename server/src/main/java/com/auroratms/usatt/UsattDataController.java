@@ -89,51 +89,51 @@ public class UsattDataController {
             if (usattPlayerRecord != null) {
                 // we may have a USATT player record in our database but may not have the GUID
                 // get it first so we can get the latest membership information
-                String memberGuid = usattPlayerRecord.getMemberGuid();
-                if (StringUtils.isEmpty(memberGuid)) {
-                    try {
-                        ApiPlayerDto justGoPlayerRecordByMembershipId = this.justGoRatingsService.findPlayerRecordByMembershipId(membershipId);
-                        if (justGoPlayerRecordByMembershipId != null) {
-                            memberGuid = justGoPlayerRecordByMembershipId.getId();
-                            usattPlayerRecord.setMemberGuid(memberGuid);
-                            this.usattDataService.saveAllAndFlush(List.of(usattPlayerRecord));
-                        }
-                    } catch (Exception e) {
-                        // ignore it maybe there is no player like that at all - like our test players.
-                    }
-                }
-                // check if perhaps they updated their membership just now
-                try {
-                    ApiPlayerDto justGoPlayerRecord = StringUtils.isNotEmpty(memberGuid)
-                            ? this.justGoRatingsService.findPlayerRecordByGUID(memberGuid) : null;
-                    if (justGoPlayerRecord != null) {
-                        String oldState = usattPlayerRecord.getState();
-                        String state = StringUtils.isEmpty(oldState) ? justGoPlayerRecord.getCounty() : oldState;
-                        usattPlayerRecord.setState(state);
-                        boolean modified = !StringUtils.equals(oldState, state);
-                        String newMembershipExpirationDate = justGoPlayerRecord.getMembershipExpirationDate();
-                        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-                        String strExpirationDate = dateFormat.format(usattPlayerRecord.getMembershipExpirationDate());
-                        String newMembershipType = justGoPlayerRecord.getMembershipType();
-                        if ((!StringUtils.equalsIgnoreCase(usattPlayerRecord.getMembershipType(), newMembershipType) ||
-                            !StringUtils.equals(strExpirationDate, newMembershipExpirationDate)) &&
-                             StringUtils.isNotEmpty(newMembershipExpirationDate)) {
-                            usattPlayerRecord.setMembershipType(newMembershipType);
-                            try {
-                                Date newExpirationDate = dateFormat.parse(newMembershipExpirationDate);
-                                usattPlayerRecord.setMembershipExpirationDate(newExpirationDate);
-                                modified = true;
-                            } catch (ParseException e) {
-
-                            }
-                        }
-                        if (modified) {
-                            this.usattDataService.saveAllAndFlush(List.of(usattPlayerRecord));
-                        }
-                    }
-                } catch (IllegalStateException | IllegalArgumentException e) {
-                    log.error("Unable to get player data from JustGo", e);
-                }
+//                String memberGuid = usattPlayerRecord.getMemberGuid();
+//                if (StringUtils.isEmpty(memberGuid)) {
+//                    try {
+//                        ApiPlayerDto justGoPlayerRecordByMembershipId = this.justGoRatingsService.findPlayerRecordByMembershipId(membershipId);
+//                        if (justGoPlayerRecordByMembershipId != null) {
+//                            memberGuid = justGoPlayerRecordByMembershipId.getId();
+//                            usattPlayerRecord.setMemberGuid(memberGuid);
+//                            this.usattDataService.saveAllAndFlush(List.of(usattPlayerRecord));
+//                        }
+//                    } catch (Exception e) {
+//                        // ignore it maybe there is no player like that at all - like our test players.
+//                    }
+//                }
+//                  // check if perhaps they updated their membership just now
+//                try {
+//                    ApiPlayerDto justGoPlayerRecord = StringUtils.isNotEmpty(memberGuid)
+//                            ? this.justGoRatingsService.findPlayerRecordByGUID(memberGuid) : null;
+//                    if (justGoPlayerRecord != null) {
+//                        String oldState = usattPlayerRecord.getState();
+//                        String state = StringUtils.isEmpty(oldState) ? justGoPlayerRecord.getCounty() : oldState;
+//                        usattPlayerRecord.setState(state);
+//                        boolean modified = !StringUtils.equals(oldState, state);
+//                        String newMembershipExpirationDate = justGoPlayerRecord.getMembershipExpirationDate();
+//                        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+//                        String strExpirationDate = dateFormat.format(usattPlayerRecord.getMembershipExpirationDate());
+//                        String newMembershipType = justGoPlayerRecord.getMembershipType();
+//                        if ((!StringUtils.equalsIgnoreCase(usattPlayerRecord.getMembershipType(), newMembershipType) ||
+//                            !StringUtils.equals(strExpirationDate, newMembershipExpirationDate)) &&
+//                             StringUtils.isNotEmpty(newMembershipExpirationDate)) {
+//                            usattPlayerRecord.setMembershipType(newMembershipType);
+//                            try {
+//                                Date newExpirationDate = dateFormat.parse(newMembershipExpirationDate);
+//                                usattPlayerRecord.setMembershipExpirationDate(newExpirationDate);
+//                                modified = true;
+//                            } catch (ParseException e) {
+//
+//                            }
+//                        }
+//                        if (modified) {
+//                            this.usattDataService.saveAllAndFlush(List.of(usattPlayerRecord));
+//                        }
+//                    }
+//                } catch (IllegalStateException | IllegalArgumentException e) {
+//                    log.error("Unable to get player data from JustGo", e);
+//                }
             }
             return usattPlayerRecord;
         } else {

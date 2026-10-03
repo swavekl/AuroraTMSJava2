@@ -297,4 +297,6 @@ export class TournamentConfiguration {
   eligibilityRestriction: EligibilityRestriction = EligibilityRestriction.OPEN;
   // ball type
   ballType: string;
+  // if true can purchase USATT membership via this website
+  allowMembershipPurchase: boolean = false;
 }

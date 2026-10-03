@@ -44,4 +44,6 @@ public class TournamentConfiguration implements Serializable {
     private EligibilityRestriction eligibilityRestriction = EligibilityRestriction.OPEN;
     // ball type
     private String ballType;
+    // if true can purchase USATT membership via this website
+    private boolean allowMembershipPurchase;
 }
