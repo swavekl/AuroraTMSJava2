@@ -143,10 +143,16 @@ export class TournamentViewComponent implements OnInit, OnChanges {
       this.showClosedTournamentWarning();
       return;
     }
+
     const membershipExpirationDate: Date = this.authService.getCurrentUserMembershipExpiration();
-    if (!this.isMembershipUpValid(membershipExpirationDate)) {
-      return;
+    // don't check and prevent entering tournament on expired membership, if tournament allows membership purchase
+    const allowBuyingMembership = this.tournament.configuration?.allowMembershipPurchase === true;
+    if (!allowBuyingMembership) {
+      if (!this.isMembershipUpValid(membershipExpirationDate)) {
+        return;
+      }
     }
+
     // prevent double entering on slow network - disables Enter button
     this.enteringOrViewing = true;
     // create entry
