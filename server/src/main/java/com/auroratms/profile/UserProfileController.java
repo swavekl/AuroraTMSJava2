@@ -2,10 +2,7 @@ package com.auroratms.profile;
 
 import com.auroratms.AbstractOktaController;
 import com.auroratms.club.ClubEntity;
-import com.auroratms.club.ClubRepository;
 import com.auroratms.club.ClubService;
-import com.auroratms.tournament.Tournament;
-import com.auroratms.tournament.TournamentService;
 import com.auroratms.tournamententry.TournamentEntry;
 import com.auroratms.tournamententry.TournamentEntryService;
 import com.auroratms.usatt.UsattPlayerRecord;
@@ -16,7 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Pageable;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -38,8 +35,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 @Slf4j
 public class UserProfileController extends AbstractOktaController {
     public static final String BIRTHDAY_DATE_FORMAT = UserProfileService.DATE_FORMAT;
-    @Autowired
-    private ClubRepository clubRepository;
 
     private static final Logger logger = LoggerFactory.getLogger(UserProfileController.class);
 
@@ -57,10 +52,9 @@ public class UserProfileController extends AbstractOktaController {
 
     @Autowired
     private ImportTournamentService importTournamentService;
+
     @Autowired
     private TournamentEntryService tournamentEntryService;
-    @Autowired
-    private TournamentService tournamentService;
 
     /**
      * Gets user profile
@@ -91,11 +85,13 @@ public class UserProfileController extends AbstractOktaController {
                         userProfile.setHomeClubName(club.getClubName());
                     }
                 } else {
+                    logger.warn("Didn't find mapping from user profile to USATT player record {}", userId);
                     userProfile.setTournamentRating(0);
                 }
             }
             return new ResponseEntity<UserProfile>(userProfile, HttpStatus.OK);
         } catch (Exception e) {
+            log.error("Get profile by userId {}", userId, e);
             return new ResponseEntity<UserProfile>(HttpStatus.NOT_FOUND);
         }
     }
@@ -108,7 +104,7 @@ public class UserProfileController extends AbstractOktaController {
      * @return
      */
     @PutMapping("/profiles/{userId}")
-    public ResponseEntity update(@RequestBody UserProfile userProfile, @PathVariable String userId) {
+    public ResponseEntity<?> update(@RequestBody UserProfile userProfile, @PathVariable String userId) {
         try {
             userProfileService.updateProfile(userProfile);
             // initial save maybe during registration and is without USATT membership id
@@ -132,13 +128,22 @@ public class UserProfileController extends AbstractOktaController {
                     playerRecordRepository.save(usattPlayerRecord);
                 }
             }
-        } catch (Exception e) {
-            log.error("Error updating profile", e);
-            String message = "{\"error\": \"%s\"}".formatted(e.getMessage());
-            return new ResponseEntity(message, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+            return ResponseEntity.ok().build();
 
-        return new ResponseEntity(HttpStatus.OK);
+        } catch (DataIntegrityViolationException e) {
+            log.error("Database constraint error updating profile {}", userId, e);
+
+            String cleanMessage = "The USATT membership ID " + userProfile.getMembershipId() +
+                    " is already associated with another account.";
+
+            // Return a structured JSON response
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(Map.of("error", cleanMessage));
+        } catch (Exception e) {
+            log.error("Error updating profile {}", userId, e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "An unexpected error occurred while updating the profile."));
+        }
     }
 
     /**

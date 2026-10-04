@@ -46,7 +46,20 @@ public class UserProfileExtService {
 
     @CachePut(key = "#result.profileId")
     public UserProfileExt save(UserProfileExt userProfileExt) {
-        return this.repository.save(userProfileExt);
+        if (userProfileExt.getProfileId() == null) {
+            throw new IllegalArgumentException("Profile ID cannot be null");
+        }
+
+        // Retrieve existing managed entity or initialize a new one
+        UserProfileExt entityToSave = this.repository.findById(userProfileExt.getProfileId())
+                .orElseGet(UserProfileExt::new);
+
+        // Apply updated fields to the managed entity
+        entityToSave.setProfileId(userProfileExt.getProfileId());
+        entityToSave.setMembershipId(userProfileExt.getMembershipId());
+        entityToSave.setClubFk(userProfileExt.getClubFk());
+
+        return this.repository.save(entityToSave);
     }
 
     @CacheEvict(key = "#profileId")
