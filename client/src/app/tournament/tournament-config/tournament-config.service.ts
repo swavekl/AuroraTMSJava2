@@ -13,7 +13,13 @@ export class TournamentConfigService extends EntityCollectionServiceBase<Tournam
 
   getAll(options?: EntityActionOptions): Observable<Tournament[]> {
     return super.getAll(options)
-      .pipe(map(tournaments => tournaments.map(tournament => Tournament.convert(tournament))));
+      .pipe(
+        map(tournaments =>
+          tournaments
+            .map(tournament => Tournament.convert(tournament))
+            .sort((a, b) => new Date(b.startDate).getTime() - new Date(a.startDate).getTime())
+        )
+      );
   }
 
   getTodaysTournaments(today: Date): Observable<Tournament[]> {
