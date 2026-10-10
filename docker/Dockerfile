@@ -38,6 +38,7 @@ ENV LD_LIBRARY_PATH=/usr/local/lib:/usr/lib64:$LD_LIBRARY_PATH
 ENTRYPOINT ["java", \
             "-Djna.library.path=/usr/local/lib:/usr/lib64", \
             "-Dtessdata.prefix=/usr/share/tesseract/tessdata/", \
+            "-Duser.timezone=America/Chicago", \
             "--add-modules", "java.se", \
             "--add-exports", "java.base/jdk.internal.ref=ALL-UNNAMED", \
             "--add-opens", "java.base/java.lang=ALL-UNNAMED", \

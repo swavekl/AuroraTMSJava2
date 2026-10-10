@@ -11,7 +11,7 @@
       <p class="mat-subtitle-1">Your rating is</p>
       <p class="mat-headline-5">{{ playerRating }}</p>
       <p class="mat-subtitle-1">Your USATT membership {{ membershipExpired ? 'expired' : 'expires' }} on</p>
-      <p [style.color]="membershipExpired ? 'red' : 'green'">{{ membershipExpirationDate | date }}</p>
+      <p [style.color]="membershipExpired ? 'red' : 'green'">{{ membershipExpirationDate | date:'mediumDate' }}</p>
     </div>
     <div fxHide.sm="true" fxHide.gt-sm="true" *ngIf="!screenVisited" class="hint mat-subtitle-1">
       Press <mat-icon aria-label="3 bars menu">menu</mat-icon> button to access menu

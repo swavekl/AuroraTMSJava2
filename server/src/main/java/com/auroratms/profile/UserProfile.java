@@ -1,5 +1,6 @@
 package com.auroratms.profile;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -29,7 +30,10 @@ public class UserProfile implements Serializable {
     private String countryCode;
     private String gender;
     private Date dateOfBirth;
+
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private Date membershipExpirationDate;
+
     private Integer tournamentRating;
     private Long homeClubId;
     private String homeClubName;
