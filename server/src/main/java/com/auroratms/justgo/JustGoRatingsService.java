@@ -35,7 +35,7 @@ public class JustGoRatingsService {
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final RestTemplate restTemplate = new RestTemplate();
 
-    @Value("${justgo.api.base-url:https://api-sandbox.justgo.com/api/v2.2}")
+    @Value("${justgo.api.base-url}")
     private String baseUrl;
 
     @Value("${justgo.api.key:}")
