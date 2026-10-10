@@ -78,3 +78,8 @@ server.ssl:
 client.host.url: https://swaveklaptop:4200
 
 auroratms.disable.dailyjob : true;
+
+justgo:
+  api:
+    base-url: https://apius.justgo.com/api/v2.2
+    default-ranking-type: Rating

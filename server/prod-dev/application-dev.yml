@@ -130,3 +130,8 @@ message.broker.rabbitmq:
 #logging.level.com.rabbitmq.client: TRACE
 
 auroratms.disable.dailyjob : true
+
+justgo:
+  api:
+    base-url: https://apius.justgo.com/api/v2.2
+    default-ranking-type: Rating

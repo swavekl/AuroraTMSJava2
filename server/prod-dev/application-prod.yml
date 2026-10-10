@@ -159,7 +159,7 @@ message.broker.rabbitmq:
 
 justgo:
   api:
-    base-url: https://api-sandbox.justgo.com/api/v2.2
+    base-url: https://apius.justgo.com/api/v2.2
     default-ranking-type: Rating
 
 auroratms.disable.dailyjob : false;
