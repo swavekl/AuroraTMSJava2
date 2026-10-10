@@ -1,5 +1,5 @@
-### 1. Authenticate and get Bearer Token -  Swagger doc https://api-sandbox.justgo.com/index.html
-POST https://api-sandbox.justgo.com/api/v2.2/Auth
+### 1. Authenticate and get Bearer Token -  Swagger doc {{just_go_api_url}}/index.html
+POST {{just_go_api_url}}/api/v2.2/Auth
 Accept: */*
 Content-Type: application/json
 
@@ -12,10 +12,8 @@ Content-Type: application/json
     client.global.set("auth_token", response.body.data.accessToken);
 %}
 
-###
-
 ### 2. Find Member by Attributes
-GET https://api-sandbox.justgo.com/api/v2.2/Members/FindByAttributes?LastName=Lorenc&FirstName=Swavek&ModifiedAfter=2025-04-04T13:48:32.000Z
+GET {{just_go_api_url}}/api/v2.2/Members/FindByAttributes?LastName=Lorenc&FirstName=Swavek&ModifiedAfter=2025-04-04T13:48:32.000Z
 Accept: application/json
 Authorization: Bearer {{auth_token}}
 
@@ -26,10 +24,8 @@ Authorization: Bearer {{auth_token}}
     client.log('memberId '+ response.body.data[0].memberNumber);
 %}
 
-###
-
 ### 3. Submit Competition Rankings
-POST https://api-sandbox.justgo.com/api/v2.2/Competitions/Rankings
+POST {{just_go_api_url}}/api/v2.2/Competitions/Rankings
 Accept: application/json
 Content-Type: application/json
 Authorization: Bearer {{auth_token}}
@@ -41,7 +37,7 @@ Authorization: Bearer {{auth_token}}
 }
 
 ### 4. Find Member full information
-GET https://api-sandbox.justgo.com/api/v2.2/Members/718dfa8b-3604-4dcc-afe6-25d0e85cb6bd
+GET {{just_go_api_url}}/api/v2.2/Members/718dfa8b-3604-4dcc-afe6-25d0e85cb6bd
 Accept: application/json
 Authorization: Bearer {{auth_token}}
 
@@ -50,30 +46,18 @@ Authorization: Bearer {{auth_token}}
     client.log('totalRecords '+ response.body.totalRecords);
 %}
 
-### 9. Find by membership
-GET https://api-sandbox.justgo.com/api/v2.2/Memberships/Member/FindByAttributes?status=Active
+### 5. Find by membership
+GET {{just_go_api_url}}/api/v2.2/Memberships/Member/FindByAttributes?status=Active
 Accept: application/json
 Authorization: Bearer {{auth_token}}
 
-### 10. Find by membership
-GET https://api-sandbox.justgo.com/api/v2.2/Memberships/Member/FindByAttributes?MemberId=718dfa8b-3604-4dcc-afe6-25d0e85cb6bd&status=Active
+### 6. Find by membership
+GET {{just_go_api_url}}/api/v2.2/Memberships/Member/FindByAttributes?MemberId=718dfa8b-3604-4dcc-afe6-25d0e85cb6bd&status=Active
 Accept: application/json
 Authorization: Bearer {{auth_token}}
 
-
-
-### 5. Find All Members recently changed
-GET https://api-sandbox.justgo.com/api/v2.2/Members/FindByAttributes?ModifiedAfter=2026-07-03T10:00:32.000Z
-Accept: application/json
-Authorization: Bearer {{auth_token}}
-
-> {%
-    client.global.set("totalRecords", response.body.totalRecords);
-    client.log('totalRecords '+ response.body.totalRecords);
-%}
-
-### 6. Find All Members recently changed
-GET https://api-sandbox.justgo.com/api/v2.2/Members/FindByAttributes?ModifiedAfter=2026-07-01&ModifiedBefore=2026-07-25
+### 7. Find All Members recently changed
+GET {{just_go_api_url}}/api/v2.2/Members/FindByAttributes?ModifiedAfter=2026-07-03T10:00:32.000Z
 Accept: application/json
 Authorization: Bearer {{auth_token}}
 
@@ -82,8 +66,8 @@ Authorization: Bearer {{auth_token}}
     client.log('totalRecords '+ response.body.totalRecords);
 %}
 
-### 7. Find All Members recently changed since January 2026 until July 1
-GET https://api-sandbox.justgo.com/api/v2.2/Members/FindByAttributes?ModifiedAfter=2026-01-01&ModifiedBefore=2026-07-01
+### 8. Find All Members recently changed
+GET {{just_go_api_url}}/api/v2.2/Members/FindByAttributes?ModifiedAfter=2026-07-01&ModifiedBefore=2026-07-25
 Accept: application/json
 Authorization: Bearer {{auth_token}}
 
@@ -92,8 +76,18 @@ Authorization: Bearer {{auth_token}}
     client.log('totalRecords '+ response.body.totalRecords);
 %}
 
-### 8. Find All Members recently changed since January 2026
-GET https://api-sandbox.justgo.com/api/v2.2/Members/FindByAttributes?ModifiedAfter=2026-01-01
+### 9. Find All Members recently changed since January 2026 until July 1
+GET {{just_go_api_url}}/api/v2.2/Members/FindByAttributes?ModifiedAfter=2026-01-01&ModifiedBefore=2026-07-01
+Accept: application/json
+Authorization: Bearer {{auth_token}}
+
+> {%
+    client.global.set("totalRecords", response.body.totalRecords);
+    client.log('totalRecords '+ response.body.totalRecords);
+%}
+
+### 10. Find All Members recently changed since January 2026
+GET {{just_go_api_url}}/api/v2.2/Members/FindByAttributes?ModifiedAfter=2026-01-01
 Accept: application/json
 Authorization: Bearer {{auth_token}}
 

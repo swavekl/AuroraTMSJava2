@@ -114,7 +114,7 @@ public class JustGoRatingsServiceTest extends AbstractServiceTest {
         calendar.set(Calendar.MILLISECOND, 123);
         Date asOfDate = calendar.getTime();
         List<ApiPlayerDto> changedPlayers = service.findChangedPlayers(asOfDate);
-        assertEquals(7, changedPlayers.size(), "Expected 6 players");
+        assertEquals(100, changedPlayers.size(), "Wrong number of players returned");
         int nonZeroRating = 0;
         for (ApiPlayerDto p : changedPlayers) {
             assertNotNull(p.getFirstName(), "Expected first name");
