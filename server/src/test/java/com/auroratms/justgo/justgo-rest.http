@@ -96,5 +96,17 @@ Authorization: Bearer {{auth_token}}
     client.log('totalRecords '+ response.body.totalRecords);
 %}
 
+### 11. test failure
+GET{{just_go_api_url}}/api/v2.2/Members/FindByAttributes?LastName=Purandhar
+Accept: application/json
+Authorization: Bearer {{auth_token}}
 
+> {%
+    client.global.set("totalRecords", response.body.totalRecords);
+    client.log('totalRecords '+ response.body.totalRecords);
+%}
 
+### 12. Find Member full information
+GET {{just_go_api_url}}/api/v2.2/Members/ba859604-7a76-4206-a3c5-300f0f074c9b
+Accept: application/json
+Authorization: Bearer {{auth_token}}

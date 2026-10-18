@@ -61,7 +61,12 @@ public class UsattDataController {
                 // possibly new member so
                 ApiPlayerDto playerRecordByName = this.justGoRatingsService.findPlayerRecordByName(firstName, lastName);
                 if (playerRecordByName != null) {
-                    UsattPlayerRecord newUsattPlayerRecord = this.toUsattPlayerRecord(playerRecordByName);
+                    // get membership information by GUID
+                    String memberGuid = playerRecordByName.getId();
+                    ApiPlayerDto justGoPlayerRecord = StringUtils.isNotEmpty(memberGuid)
+                            ? this.justGoRatingsService.findPlayerRecordByGUID(memberGuid) : null;
+                    ApiPlayerDto recordToPersist = justGoPlayerRecord != null ? justGoPlayerRecord : playerRecordByName;
+                    UsattPlayerRecord newUsattPlayerRecord = this.toUsattPlayerRecord(recordToPersist);
                     this.usattDataService.saveAllAndFlush(List.of(newUsattPlayerRecord));
                 }
             }
@@ -152,7 +157,8 @@ public class UsattDataController {
         usattPlayerRecord.setMembershipId(Long.parseLong(apiPlayerDto.getMemberNumber()));
         usattPlayerRecord.setFirstName(apiPlayerDto.getFirstName());
         usattPlayerRecord.setLastName(apiPlayerDto.getLastName());
-        usattPlayerRecord.setGender(apiPlayerDto.getGender());
+        String gender = StringUtils.equalsIgnoreCase("Female",apiPlayerDto.getGender()) ? "F" : "M";
+        usattPlayerRecord.setGender(gender);
         usattPlayerRecord.setCity(apiPlayerDto.getTown());
         usattPlayerRecord.setState(apiPlayerDto.getCounty());
         usattPlayerRecord.setZip(apiPlayerDto.getPostCode());
