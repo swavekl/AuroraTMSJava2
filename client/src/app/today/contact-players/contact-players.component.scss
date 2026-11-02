@@ -1,0 +1,120 @@
+.contact-page-container {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 64px);
+  height: calc(100svh - 64px);
+  overflow: hidden;
+  box-sizing: border-box;
+
+  @media (min-width: 960px) {
+    height: calc(100vh - 80px);
+  }
+}
+
+.contact-card-wrapper {
+  display: block;
+  overflow: visible;
+}
+
+.contact-card-content {
+  padding: 0 16px 24px;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 4px;
+  background-color: #ffffff;
+}
+
+table.contact-players {
+  margin-top: 8px;
+  width: 100%;
+  border-collapse: collapse;
+
+  thead tr {
+    border-top: 1px solid lightgray;
+    border-bottom: 1px solid lightgray;
+  }
+
+  tbody {
+    font-size: 18px;
+  }
+
+  tbody tr td {
+    border-top: 1px solid lightgray;
+  }
+
+  tbody tr.team-member td {
+    border-top: 0;
+  }
+
+  tbody tr.team-separator td {
+    border-bottom: 2px solid #e0e0e0;
+  }
+
+  th:not(.call-column),
+  td.player-name-column {
+    text-align: left;
+    vertical-align: middle;
+    padding-top: 6px;
+    padding-bottom: 6px;
+  }
+
+  th.call-column,
+  td.call-column {
+    width: 54px;
+    text-align: center;
+    vertical-align: middle;
+  }
+
+  td.call-column {
+    padding: 6px 4px;
+  }
+}
+
+.call-link,
+.call-placeholder {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+}
+
+.call-link {
+  color: #388e3c;
+  text-decoration: none;
+
+  mat-icon {
+    width: 24px;
+    height: 24px;
+    font-size: 24px;
+  }
+}
+
+.call-link:focus-visible {
+  outline: 2px solid #673ab7;
+  outline-offset: 2px;
+  border-radius: 50%;
+}
+
+@media (max-width: 959px) {
+  .contact-card-wrapper {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    overflow: hidden;
+  }
+
+  .contact-toolbar {
+    flex-shrink: 0;
+    box-shadow: none;
+    background-color: transparent;
+  }
+
+  .contact-card-content {
+    flex: 1;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: 0 16px 32px;
+    border: none;
+    border-radius: 0;
+  }
+}

@@ -37,6 +37,7 @@ import {MatDialogModule} from '@angular/material/dialog';
 import { PlayerStatusIndicatorComponent } from './player-status-indicator/player-status-indicator.component';
 import {MatButtonToggleModule} from '@angular/material/button-toggle';
 import {MatProgressSpinner} from '@angular/material/progress-spinner';
+import {MatchCardService} from '../matches/service/match-card.service';
 
 @NgModule({
     declarations: [
@@ -86,11 +87,13 @@ export class TodayModule {  // Inject the service to ensure it registers with En
   constructor(
     entityServices: EntityServices,
     entityDataService: EntityDataService,
-    playerStatusService: PlayerStatusService
+    playerStatusService: PlayerStatusService,
+    matchCardService: MatchCardService
   ) {
 
     entityServices.registerEntityCollectionServices([
-      playerStatusService
+      playerStatusService,
+      matchCardService
     ]);
   }
 }

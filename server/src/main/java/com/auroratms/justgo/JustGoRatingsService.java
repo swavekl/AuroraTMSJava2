@@ -104,14 +104,15 @@ public class JustGoRatingsService {
             if (!memberships.isArray() || memberships.isEmpty()) {
                 throw new IllegalStateException("Membership not found for justGoId " + justGoId);
             }
-
+            int numMemberships = memberships.size();
             for (JsonNode membership : memberships) {
                 String endDate = (membership.get("endDate") != null) ? membership.get("endDate").asText() : null;
                 if (endDate != null) {
                     apiPlayerDto.setMembershipExpirationDate(endDate);
                 }
                 JsonNode status = membership.get("status");
-                if (status != null && "Active".equalsIgnoreCase(status.asText())) {
+                if ((status != null && "Active".equalsIgnoreCase(status.asText()))
+                        || numMemberships == 1) {
                     String name = (membership.get("name") != null) ? membership.get("name").asText() : null;
                     if (name != null) {
                         apiPlayerDto.setMembershipType(name);

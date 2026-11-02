@@ -9,7 +9,7 @@ export class MembershipUtil {
   private membershipOptions: any [] = [
     {value: MembershipType.NO_MEMBERSHIP_REQUIRED.valueOf(), label: 'My Membership is up to date', cost: 0, available: true},
     {value: MembershipType.TOURNAMENT_PASS.valueOf(), label: 'One Tournament Pass (0 – 4 star)', cost: 20, available: true},
-    {value: MembershipType.BRONZE.valueOf(), label: 'Bronze Tier 1 year', cost: 25, available: true},
+    {value: MembershipType.BRONZE.valueOf(), label: 'Bronze Tier 1 year', cost: 25, available: false},
     {value: MembershipType.SILVER.valueOf(), label: 'Silver Tier 1 year (0 – 4 star)', cost: 50, available: true},
     {value: MembershipType.GOLD.valueOf(), label: 'Gold Tier 1 year (0 - 5 star)', cost: 100, available: true},
     {value: MembershipType.LIFETIME.valueOf(), label: 'Lifetime', cost: 1300, available: true}

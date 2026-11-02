@@ -1,0 +1,38 @@
+<div fxLayout="row" fxFlexAlign="center center" class="contact-page-container">
+  <div fxHide.xs="true" fxFlex.gt-xs="50%">&nbsp;</div>
+
+  <div fxFlexFill fxFlex.gt-xs="550px" class="contact-card-wrapper">
+    <mat-toolbar class="contact-toolbar">
+      <div fxLayout="row" fxLayoutAlign="space-between start" style="width: 100%;" fxLayoutGap="10px">
+        <button mat-raised-button (click)="onBack()">Back</button>
+      </div>
+    </mat-toolbar>
+
+    <div class="contact-card-content">
+      <table class="contact-players">
+        <thead>
+        <tr>
+          <th class="call-column">Call</th>
+          <th>Player Name</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr *ngFor="let playerContactInfo of playerContactInfos; let index = index"
+            [class.team-member]="playerContactInfo.teamId && playerContactInfo.teamId === playerContactInfos[index - 1]?.teamId"
+            [class.team-separator]="playerContactInfo.teamId && playerContactInfo.teamId !== playerContactInfos[index + 1]?.teamId">
+          <td class="call-column">
+            <a *ngIf="playerContactInfo.mobilePhone" class="call-link"
+               [href]="'tel:' + playerContactInfo.mobilePhone"
+               [attr.aria-label]="'Call ' + playerContactInfo.playerFullName">
+              <mat-icon aria-hidden="true">call</mat-icon>
+            </a>
+            <span *ngIf="!playerContactInfo.mobilePhone" class="call-placeholder" aria-hidden="true"></span>
+          </td>
+          <td class="player-name-column">{{ playerContactInfo.playerFullName }}</td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div fxHide.xs="true" fxFlex.gt-xs="50%">&nbsp;</div>
+</div>

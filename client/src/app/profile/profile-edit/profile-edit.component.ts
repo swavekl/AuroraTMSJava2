@@ -187,6 +187,7 @@ export class ProfileEditComponent implements OnInit, OnChanges, AfterViewInit, O
     updatedProfile.membershipId = selectedPlayerData.membershipId;
     updatedProfile.membershipExpirationDate = selectedPlayerData.membershipExpirationDate;
     updatedProfile.tournamentRating = selectedPlayerData.tournamentRating;
+    updatedProfile.membershipType = selectedPlayerData.membershipType;
     this.profile = updatedProfile;
     this.cdr.markForCheck();
   }

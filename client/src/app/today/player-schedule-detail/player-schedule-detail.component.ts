@@ -131,4 +131,15 @@ export class PlayerScheduleDetailComponent implements OnInit, OnChanges {
     };
     this.router.navigateByUrl(url, extras);
   }
+
+  protected onCall() {
+    const returnUrl = window.location.pathname;
+    const url = `/ui/today/contactplayers/${this.playerScheduleItem.matchCardId}`;
+    const extras = {
+      state: {
+        returnUrl:  returnUrl
+      }
+    };
+    this.router.navigateByUrl(url, extras);
+  }
 }

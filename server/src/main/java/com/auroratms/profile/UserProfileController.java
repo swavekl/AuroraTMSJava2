@@ -5,9 +5,11 @@ import com.auroratms.club.ClubEntity;
 import com.auroratms.club.ClubService;
 import com.auroratms.tournamententry.TournamentEntry;
 import com.auroratms.tournamententry.TournamentEntryService;
+import com.auroratms.match.MatchCardService;
 import com.auroratms.usatt.UsattPlayerRecord;
 import com.auroratms.usatt.UsattPlayerRecordRepository;
 import com.auroratms.utils.ImportTournamentService;
+import com.auroratms.users.UserRolesHelper;
 import com.opencsv.CSVReader;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
@@ -56,6 +58,9 @@ public class UserProfileController extends AbstractOktaController {
     @Autowired
     private TournamentEntryService tournamentEntryService;
 
+    @Autowired
+    private MatchCardService matchCardService;
+
     /**
      * Gets user profile
      *
@@ -93,6 +98,48 @@ public class UserProfileController extends AbstractOktaController {
         } catch (Exception e) {
             log.error("Get profile by userId {}", userId, e);
             return new ResponseEntity<UserProfile>(HttpStatus.NOT_FOUND);
+        }
+    }
+
+    /**
+     * Gets contact details for players on a match card. The signed-in player must
+     * belong to that match card, and requested profile ids must be from that card.
+     * @param matchCardId match card containing the group
+     * @param requestedProfileIds profile ids to return contact details for
+     * @return minimal profile contact details
+     */
+    @PostMapping("/profiles/contactinfo/{matchCardId}")
+    public ResponseEntity<Map<String, String>> getContactInfoForMatchCard(
+            @PathVariable long matchCardId, @RequestBody List<String> requestedProfileIds) {
+        try {
+            Set<String> matchCardProfileIds = matchCardService.getPlayerProfileIds(matchCardId);
+
+            String currentProfileId = userProfileService.getProfileByLoginId(UserRolesHelper.getCurrentUsername());
+            if (currentProfileId == null || !matchCardProfileIds.contains(currentProfileId)) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+            }
+
+            Set<String> requestedIds = new LinkedHashSet<>(requestedProfileIds == null
+                    ? Collections.emptyList() : requestedProfileIds);
+            requestedIds.remove(null);
+            if (!matchCardProfileIds.containsAll(requestedIds)) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+            }
+            boolean includeCurrentPlayer = matchCardService.isDoublesMatchCard(matchCardId) &&
+                    requestedIds.contains(currentProfileId);
+            requestedIds.remove(currentProfileId);
+
+            Collection<UserProfile> userProfiles = userProfileService.listByProfileIds(new ArrayList<>(requestedIds));
+            Map<String, String> contactInfo = new LinkedHashMap<>();
+            userProfiles.forEach(userProfile -> contactInfo.put(userProfile.getUserId(), userProfile.getMobilePhone()));
+            if (includeCurrentPlayer) {
+                // Keep the signed-in doubles partner in the returned team order, without a call target.
+                contactInfo.put(currentProfileId, "");
+            }
+            return ResponseEntity.ok(contactInfo);
+        } catch (Exception e) {
+            log.error("Error getting contact information for match card {}", matchCardId, e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 

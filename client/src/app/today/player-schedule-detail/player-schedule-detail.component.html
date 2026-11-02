@@ -11,6 +11,7 @@
         <button mat-raised-button
                 (click)="goBack()">Back</button>
         <span fxFlex></span>
+        <button mat-raised-button (click)="onCall()">Call Player</button>
         <button mat-raised-button *ngIf="isPerEventCheckIn()"
                 (click)="checkInForEvent()">Event Check-In</button>
         <button mat-raised-button color="primary" (click)="goToMatches(playerScheduleItem)">Matches</button>

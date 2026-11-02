@@ -558,6 +558,34 @@ public class MatchCardService {
     }
 
     /**
+     * Gets individual player profile ids on a match card, expanding doubles teams.
+     */
+    public Set<String> getPlayerProfileIds(long matchCardId) {
+        MatchCard matchCard = getMatchCard(matchCardId);
+        Set<String> profileIds = new HashSet<>();
+        for (Match match : matchCard.getMatches()) {
+            addPlayerProfileIds(profileIds, match.getPlayerAProfileId());
+            addPlayerProfileIds(profileIds, match.getPlayerBProfileId());
+        }
+        return profileIds;
+    }
+
+    public boolean isDoublesMatchCard(long matchCardId) {
+        MatchCard matchCard = getMatchCard(matchCardId);
+        return matchCard.getMatches().stream().anyMatch(match -> match.isDoublesMatch() ||
+                match.getPlayerAProfileId().contains(";") || match.getPlayerBProfileId().contains(";"));
+    }
+
+    private void addPlayerProfileIds(Set<String> profileIds, String encodedProfileIds) {
+        if (encodedProfileIds != null) {
+            Arrays.stream(encodedProfileIds.split(";"))
+                    .map(String::trim)
+                    .filter(profileId -> !profileId.isEmpty() && !"TBD".equals(profileId))
+                    .forEach(profileIds::add);
+        }
+    }
+
+    /**
      * Gets all match cards for given day of the tournament
      *
      * @param tournamentId

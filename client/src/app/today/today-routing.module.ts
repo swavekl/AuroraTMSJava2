@@ -6,6 +6,7 @@ import {CheckinCommunicateContainerComponent} from './checkincommunicate/checkin
 import {PlayerScheduleContainerComponent} from './playerschedule/player-schedule-container.component';
 import {PlayerScheduleDetailContainerComponent} from './player-schedule-detail/player-schedule-detail-container.component';
 import {PlayerStatusListContainerComponent} from './player-status-list/player-status-list-container.component';
+import {ContactPlayersContainerComponent} from './contact-players/contact-players-container.component';
 
 const routes: Routes = [
   {
@@ -31,6 +32,11 @@ const routes: Routes = [
   {
     path: 'playerscheduledetail/:tournamentId/:tournamentDay/:tournamentEntryId/:matchCardId',
     component: PlayerScheduleDetailContainerComponent,
+    canActivate: [AuthGuard]
+  },
+  {
+    path: 'contactplayers/:matchCardId',
+    component: ContactPlayersContainerComponent,
     canActivate: [AuthGuard]
   }
 ];
