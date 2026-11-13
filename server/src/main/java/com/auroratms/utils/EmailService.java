@@ -62,6 +62,7 @@ public class EmailService {
     private void sendHtmlEmail(String toAddress, String ccAddress, String subject, String htmlBody) throws MessagingException {
         MimeMessage message = javaMailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+        helper.setFrom(fromAddress);
         helper.setTo(toAddress);
         if (ccAddress != null) {
             helper.setCc(ccAddress);
@@ -110,6 +111,7 @@ public class EmailService {
         try {
             MimeMessage message = javaMailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+            helper.setFrom(fromAddress);
             helper.setTo(toAddress);
             if (ccAddress != null) {
                 helper.setCc(ccAddress);

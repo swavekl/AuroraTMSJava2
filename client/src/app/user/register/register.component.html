@@ -63,6 +63,21 @@
 <!--    <p>Password2 valid: {{ f.form.controls['password2']?.valid }} {{ f.form.controls['password2']?.errors | json }} {{ f.form.controls['password2']?.value }}</p>-->
   </form>
 </div>
+<div *ngIf="registrationCompleted && verificationMessage" class="registration-ok-message verification-confirmation" style="text-align: center; margin-top: 16px;">
+  <p class="verification-email-message">{{ verificationMessage }}</p>
+  <p class="verification-email-help">
+    Can't find the email? Check your spam or junk folder<span *ngIf="!resendLimitReached">. You can request another below.</span>
+  </p>
+  <button *ngIf="!resendLimitReached && !resendInProgress" class="verification-resend-button" mat-raised-button color="primary" type="button"
+          (click)="resendVerificationEmail()">
+    Resend Email
+  </button>
+  <p *ngIf="resendMessage" class="verification-resend-message" aria-live="polite">{{ resendMessage }}</p>
+  <div *ngIf="resendLimitReached" class="verification-resend-limit" aria-live="polite">
+    <p class="verification-resend-limit-message">You've reached the resend limit. Want to start over with a different email?</p>
+    <button mat-raised-button color="primary" type="button" (click)="startOver()">Start Over</button>
+  </div>
+</div>
 <!--  <mat-spinner *ngIf="registrationInProgress" style="margin:0 auto;" diameter="40"></mat-spinner>-->
   <p [hidden]="registrationInProgress" [innerHtml]="message" class="registration-error-message"></p>
   <p [hidden]="registrationInProgress" [innerHtml]="okMessage" class="registration-ok-message"></p>

@@ -18,6 +18,7 @@ spring:
         smtp:
           auth: true
           starttls.enable: true
+          from: ${spring.mail.username}
   quartz:
     jdbc:
       initialize-schema: never
@@ -135,3 +136,6 @@ justgo:
   api:
     base-url: https://apius.justgo.com/api/v2.2
     default-ranking-type: Rating
+account-verification:
+  account-retention: P30D
+  consumed-retention: P30D

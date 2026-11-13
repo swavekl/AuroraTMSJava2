@@ -1,7 +1,8 @@
-import {Component, OnDestroy, OnInit} from '@angular/core';
+import {Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {NgForm} from '@angular/forms';
 import {AuthenticationService} from '../authentication.service';
 import {CrossFieldErrorMatcher} from '../cross-field-error-matcher/cross-field-error-matcher';
-import {first} from 'rxjs/operators';
+import {finalize, first} from 'rxjs/operators';
 import {Subscription} from 'rxjs';
 import {LinearProgressBarService} from '../../shared/linear-progress-bar/linear-progress-bar.service';
 import {PasswordCriteria} from '../password-criteria';
@@ -30,7 +31,14 @@ export class RegisterComponent implements OnInit, OnDestroy {
   public okMessage: string;
   public registrationInProgress: boolean;
   public registrationCompleted: boolean;
+  public resendInProgress: boolean;
+  public resendLimitReached: boolean;
+  public verificationMessage: string;
+  public resendMessage: string;
+  private resendAttempts: number;
   private subscription: Subscription = new Subscription();
+
+  @ViewChild('f') registerForm: NgForm;
 
   showPassword: boolean = false;
   showPassword2: boolean = false;
@@ -49,6 +57,11 @@ export class RegisterComponent implements OnInit, OnDestroy {
     this.okMessage = '';
     this.registrationInProgress = false;
     this.registrationCompleted = false;
+    this.resendInProgress = false;
+    this.resendLimitReached = false;
+    this.resendAttempts = 0;
+    this.verificationMessage = '';
+    this.resendMessage = '';
     this.registerByTD = history?.state?.registerByTD === true;
     this.tournamentId = history?.state?.tournamentId;
   }
@@ -70,7 +83,8 @@ export class RegisterComponent implements OnInit, OnDestroy {
         .pipe(first())
         .subscribe(
           {
-            next: (profileId: string) => {
+            next: (result: any) => {
+              const profileId = result?.profileId;
               this.message = '';
               this.registrationInProgress = false;
               this.registrationCompleted = true;
@@ -85,7 +99,12 @@ export class RegisterComponent implements OnInit, OnDestroy {
                 };
                 this.router.navigateByUrl(`/ui/userprofile/edit/${profileId}`, extras);
               } else {
-                this.okMessage = `Account activation email was sent to ${this.email ? this.email : 'your'}.</p><p>Please allow up to 1 minute for email to arrive and if you still cannot find it, check your SPAM or JUNK</span> folder.</p><p>Look for email from Okta with title 'Welcome to TTAurora'.`;
+                this.resendAttempts = 0;
+                this.resendLimitReached = false;
+                this.resendMessage = '';
+                this.verificationMessage = result?.verificationEmailSent
+                  ? `We sent a verification email to ${this.email}. Please allow up to a minute for it to arrive.`
+                  : `We could not send the verification email right now. You can try again using the button below.`;
               }
             },
             error: error => {
@@ -105,6 +124,63 @@ export class RegisterComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.subscription.unsubscribe();
+  }
+
+  resendVerificationEmail() {
+    if (this.resendInProgress || !this.email) {
+      return;
+    }
+    this.resendInProgress = true;
+    this.linearProgressBarService.setLoading(true);
+    this.resendMessage = '';
+    const subscription = this.authenticationService.resendVerificationEmail(this.email)
+      .pipe(
+        first(),
+        finalize(() => {
+          this.resendInProgress = false;
+          this.linearProgressBarService.setLoading(false);
+        })
+      )
+      .subscribe({
+        next: (response: any) => {
+          this.resendMessage = response?.message || 'Another email was sent. Please check again.';
+          this.recordResendAttempt();
+        },
+        error: () => {
+          this.resendMessage = 'We could not process that request. Please wait a moment and try again.';
+          this.recordResendAttempt();
+        }
+      });
+    this.subscription.add(subscription);
+  }
+
+  startOver() {
+    this.email = '';
+    this.password = '';
+    this.password2 = '';
+    this.message = '';
+    this.okMessage = '';
+    this.verificationMessage = '';
+    this.resendMessage = '';
+    this.registrationCompleted = false;
+    this.resendInProgress = false;
+    this.resendAttempts = 0;
+    this.resendLimitReached = false;
+    this.registerForm?.resetForm({
+      firstName: this.firstName,
+      lastName: this.lastName,
+      email: this.email,
+      passwords: {password: this.password, password2: this.password2}
+    });
+    this.router.navigateByUrl('/ui/login/register');
+  }
+
+  private recordResendAttempt() {
+    this.resendAttempts++;
+    if (this.resendAttempts >= 2) {
+      this.resendLimitReached = true;
+      this.resendMessage = '';
+    }
   }
 
   toggleShowPassword() {

@@ -20,7 +20,9 @@ Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.
 
 ## Running end-to-end tests
 
-Run `ng e2e` to execute the end-to-end tests via [Protractor](http://www.protractortest.org/).
+Run `npm run e2e` to execute the end-to-end tests with Playwright. The E2E server uses HTTPS on port 4200 and the Angular proxy configuration. The routine tests mock registration APIs so they do not create Okta users or send email. Run `npm run e2e:ui` to use Playwright's interactive test runner.
+
+The live registration test is skipped unless `LIVE_REGISTRATION_ENABLED=true`, `LIVE_REGISTRATION_EMAIL`, and `LIVE_REGISTRATION_PASSWORD` are set in the environment. It submits a real registration, then exercises two resend requests and Start Over. This creates a staged Okta account and sends an initial verification email plus two resend emails. Use an unused test address and set credentials in the shell or IDE run configuration rather than in source files.
 
 ## Further help
 

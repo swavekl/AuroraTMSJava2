@@ -20,6 +20,7 @@ import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.annotation.Propagation;
 
 import java.io.*;
 import java.net.HttpURLConnection;
@@ -66,6 +67,14 @@ public class UserProfileService {
         UserApi userApi = getUserApi();
         UserGetSingleton userGetSingleton = userApi.getUser(userId, APPLICATION_JSON, "true");
         return fromOktaUser (userId, userGetSingleton.getProfile(), userGetSingleton.getStatus());
+    }
+
+    /** Fetches current Okta state without using the profile cache or holding a database transaction. */
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    public UserProfile getCurrentProfile(String userId) {
+        UserApi userApi = getUserApi();
+        UserGetSingleton user = userApi.getUser(userId, APPLICATION_JSON, "true");
+        return fromOktaUser(userId, user.getProfile(), user.getStatus());
     }
 
     /**
@@ -131,6 +140,7 @@ public class UserProfileService {
      * @param userId
      */
     @CacheEvict(key = "#userId")
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
     public void deleteProfile (String userId) {
         UserApi userApi = getUserApi();
         // deactdivate

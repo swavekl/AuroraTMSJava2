@@ -32,8 +32,8 @@ export class AuthInterceptor implements HttpInterceptor {
     return next.handle(request).pipe(
       catchError((error: HttpErrorResponse) => {
         // multiple logins with 401 result in 401 error so just propagate the error so login method can process the error
-        const isLoginRequest = this.authenticationService.isLoginRequest(request.urlWithParams);
-        if (!isLoginRequest && error && error.status === 401) {
+        const isUsersRequest = this.authenticationService.isUsersRequest(request.urlWithParams);
+        if (!isUsersRequest && error && error.status === 401) {
           // 401 errors are most likely going to be because we have an expired token that we need to refresh.
           if (this.quiteLoginInProgress) {
             // If quiteLoginInProgress is true, we will wait until refreshTokenSubject has a non-null value

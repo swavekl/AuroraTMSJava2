@@ -46,14 +46,10 @@ export class AuthenticationService {
     return (url.indexOf('/api/users/') !== -1);
   }
 
-  isLoginRequest(url: string): boolean {
-    return this.getFullUrl('/api/users/login') === url;
-  }
-
   /**
    * Register (Sign up a new user)
    */
-  register(firstName: string, lastName: string, email: string, password: string, password2: string, registerByTD: boolean): Observable<string> {
+  register(firstName: string, lastName: string, email: string, password: string, password2: string, registerByTD: boolean): Observable<any> {
     const requestBody = {firstName: firstName, lastName: lastName, email: email, password: password};
     const url: string = (registerByTD) ? '/api/users/registerbytd' : '/api/users/register';
     return this.http.post(this.getFullUrl(url), requestBody)
@@ -61,7 +57,7 @@ export class AuthenticationService {
         map((response: any) => {
             // console.log('got register response ' + JSON.stringify(response));
             if (response.status === 'SUCCESS') {
-              return response.profileId;
+              return response;
             } else {
               return null;
             }
@@ -76,14 +72,18 @@ export class AuthenticationService {
   /**
    *
    */
-  validateEmail(email: string, token: string) {
-    const requestBody = {email: email, secondEmail: token};
+  validateEmail(token: string) {
+    const requestBody = {token: token};
     return this.http.post(this.getFullUrl('/api/users/validateEmail'), requestBody)
       .pipe(
-        map((response: Response) => {
-          return (response.status === 200);
+        map((response: any) => {
+          return response?.status === 'SUCCESS';
         })
       );
+  }
+
+  resendVerificationEmail(email: string): Observable<any> {
+    return this.http.post(this.getFullUrl('/api/users/resend-verification'), {email});
   }
 
   /**
@@ -165,6 +165,7 @@ export class AuthenticationService {
       this.isAuthenticated$.next(false);
       this.loginStatus$.next(false);
       this.refreshTokenResponseStatus$.next(false);
+      return of(false);
     }
     return this.refreshTokenResponseStatus$;
   }

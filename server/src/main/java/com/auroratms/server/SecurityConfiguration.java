@@ -106,6 +106,7 @@ public class SecurityConfiguration {
                         "/api/users/login**",
                         "/api/users/register**",
                         "/api/users/validateEmail**",
+                        "/api/users/resend-verification",
                         "/api/users/forgotpassword/**", // Step 1: Triggering the SDK call
                         "/api/users/resetpassword/**"
                         ));

@@ -28,18 +28,10 @@ export class UserWelcomeComponent implements OnInit {
     this.firstName = this.activatedRoute.snapshot.queryParamMap.get('firstName');
     this.username = this.username.replace(' ', '+');
     const activationToken = this.activatedRoute.snapshot.queryParamMap.get('token');
-    this.authenticationService.validateEmail(this.username, activationToken)
-      .subscribe(data => {
-        console.log('activation successful', data);
-        if (data != null) {
-          this.activationResult = true;
-        }
-      },
-      error => {
-        this.activationResult = false;
-        if (error._body) {
-          console.log('error activating', error._body);
-        }
+    this.authenticationService.validateEmail(activationToken)
+      .subscribe({
+        next: success => this.activationResult = success,
+        error: () => this.activationResult = false
       });
 
   }

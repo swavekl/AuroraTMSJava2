@@ -26,3 +26,31 @@ $field-width: 270px;
   font-size: 17px;
   color: black;
 }
+
+.verification-email-message {
+  margin: 0 0 20px;
+  line-height: 1.45;
+}
+
+.verification-email-help {
+  margin: 0 0 16px;
+  line-height: 1.45;
+}
+
+.verification-resend-button {
+  margin-bottom: 16px;
+}
+
+.verification-resend-message {
+  margin: 0;
+  line-height: 1.45;
+}
+
+.verification-resend-limit {
+  margin-top: 24px;
+}
+
+.verification-resend-limit-message {
+  margin: 0 0 16px;
+  line-height: 1.45;
+}

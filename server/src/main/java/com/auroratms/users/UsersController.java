@@ -5,6 +5,7 @@ import com.auroratms.profile.UserProfileExt;
 import com.auroratms.profile.UserProfileExtService;
 import com.auroratms.profile.UserProfileService;
 import com.auroratms.utils.EmailService;
+import com.auroratms.users.emailverification.EmailVerificationService;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -14,10 +15,13 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
+import jakarta.servlet.http.HttpServletRequest;
 
 import java.io.IOException;
 import java.net.URLEncoder;
@@ -26,7 +30,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("api/users")
@@ -40,9 +43,22 @@ public class UsersController extends AbstractOktaController {
     @Autowired
     private EmailService emailService;
 
+    @Autowired
+    private EmailVerificationService emailVerificationService;
+
+    @Value("${client.host.url}")
+    private String clientHostUrl;
+
     /**
-     * @param userRegistration
-     * @return
+     * Starts public self-registration with application-managed email verification:
+     * <ol>
+     *   <li>Create the Okta user in {@code STAGED} state so it cannot sign in yet.</li>
+     *   <li>Create a cryptographically random, expiring verification token; persist only its hash in the application database.</li>
+     *   <li>After the token record is committed, send the custom verification email containing the raw token link.</li>
+     *   <li>When the user submits that link, {@code validateEmail} claims the token and activates the associated Okta user without Okta email.</li>
+     *   <li>The daily cleanup job removes expired token records and, after the configured retention period, notifies and deletes eligible abandoned accounts.</li>
+     * </ol>
+     * If the custom email cannot be sent, the staged account and token remain available for the resend flow.
      */
     @PostMapping("/register")
     @ResponseBody
@@ -51,23 +67,24 @@ public class UsersController extends AbstractOktaController {
     ResponseEntity<String> registerUser(@RequestBody UserRegistration userRegistration) {
         try {
             logger.info("Registering new user " + userRegistration.getLastName() + ", " + userRegistration.getFirstName() + " email: " + userRegistration.getEmail());
-            UUID registrationToken = UUID.randomUUID();
+            String userId = createUser(userRegistration);
+            EmailVerificationService.TokenIssue tokenIssue = emailVerificationService.createForNewUser(userId);
+            boolean verificationEmailSent = sendVerificationEmail(userRegistration.getEmail(),
+                    userRegistration.getFirstName(), tokenIssue.token());
 
-            String userId = createUser(userRegistration, registrationToken.toString());
-
-            String id = activateOktaUser(userId);
-            logger.info("Activated user " + userId);
-
-            suspendUser(userId);
-            logger.info("Temporarily suspended user " + userId + " until email is validated");
-
-            logger.info("Sending email to admin notifying of new user creation.");
-            Map<String, Object> templateModel = new HashMap<>();
-            templateModel.put("playerName", "%s %s".formatted(userRegistration.getFirstName(), userRegistration.getLastName()));
-            templateModel.put("playerEmail", userRegistration.getEmail());
-            emailService.sendMessageUsingThymeleafTemplate("swaveklorenc@yahoo.com", null,
-                    "New User Registration", "user-registration/new-user-registration.html", templateModel);
-            return new ResponseEntity<String>("{\"status\":\"SUCCESS\", \"profileId\": \"" + userId + "\"}", HttpStatus.OK);
+            try {
+                logger.info("Sending email to admin notifying of new user creation.");
+                Map<String, Object> templateModel = new HashMap<>();
+                templateModel.put("playerName", "%s %s".formatted(userRegistration.getFirstName(), userRegistration.getLastName()));
+                templateModel.put("playerEmail", userRegistration.getEmail());
+                emailService.sendMessageUsingThymeleafTemplate("swaveklorenc@yahoo.com", null,
+                        "New User Registration", "user-registration/new-user-registration.html", templateModel);
+            } catch (Exception notificationError) {
+                logger.error("Could not send administrator notification for new registration");
+            }
+            String response = "{\"status\":\"SUCCESS\",\"profileId\":\"%s\",\"verificationEmailSent\":%s}"
+                    .formatted(userId, verificationEmailSent);
+            return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error registering user " + userRegistration.getEmail(), e);
             String message = e.getMessage();
@@ -83,9 +100,7 @@ public class UsersController extends AbstractOktaController {
     ResponseEntity<String> registerUserByTD(@RequestBody UserRegistration userRegistration) {
         try {
             logger.info("Registering new user " + userRegistration.getLastName() + ", " + userRegistration.getFirstName() + " email: " + userRegistration.getEmail() + " by Tournament Director");
-            UUID registrationToken = UUID.randomUUID();
-
-            String userId = createUser(userRegistration, registrationToken.toString());
+            String userId = createUser(userRegistration);
 
             activateOktaUser(userId);
             logger.info("Activated user " + userId);
@@ -99,15 +114,11 @@ public class UsersController extends AbstractOktaController {
 
     /**
      * @param userRegistration
-     * @param registrationToken
      * @return
      */
-    private String createUser(@RequestBody UserRegistration userRegistration, String registrationToken) throws IOException {
+    private String createUser(@RequestBody UserRegistration userRegistration) throws IOException {
         String userId = null;
             String strRegisterUserURL = oktaServiceBase + "/api/v1/users?activate=false";
-
-            String secondEmail = registrationToken + "@lorencmini.com";
-//            System.out.println("secondEmail = " + secondEmail);
 
             ObjectMapper objectMapper = new ObjectMapper();
             ObjectNode profileObjectNode = objectMapper.createObjectNode();
@@ -115,7 +126,6 @@ public class UsersController extends AbstractOktaController {
             profileObjectNode.put("lastName", userRegistration.getLastName());
             profileObjectNode.put("email", userRegistration.getEmail());
             profileObjectNode.put("login", userRegistration.getEmail());
-            profileObjectNode.put("secondEmail", secondEmail);
             // gender and birth date must be filled but we didn't ask for them
             profileObjectNode.put("gender", "Male");
             SimpleDateFormat dateFormat = new SimpleDateFormat(UserProfileService.DATE_FORMAT);
@@ -175,51 +185,104 @@ public class UsersController extends AbstractOktaController {
     }
 
     /**
-     * @param userRegistration
-     * @return
+     * Validates only the submitted token, atomically claims it, and resolves the Okta user ID from its database record.
+     * Activates a staged user without triggering an Okta email, then consumes the token; the client cannot choose
+     * which Okta account to activate. Invalid tokens return a generic result without account lookup information.
      */
     @PostMapping("/validateEmail")
     public @ResponseBody
     @PreAuthorize("permitAll()")
-    ResponseEntity<String> validateEmail(@RequestBody UserRegistration userRegistration) {
-        try {
-            logger.info("Validating email " + userRegistration.getEmail());
-            // get user profile which contains user id and token
-            String userProfile = getUser(userRegistration.getEmail());
-            String token = userRegistration.getSecondEmail();
-
-            ObjectMapper objectMapper = new ObjectMapper();
-            Map<String, Object> jsonMap = objectMapper.readValue(userProfile,
-                    new TypeReference<Map<String, Object>>() {
-                    });
-            String userId = (String) jsonMap.get("id");
-            String status = (String) jsonMap.get("status");
-            Object profile = jsonMap.get("profile");
-            String tokenFromURL = "";
-            if (profile != null) {
-                tokenFromURL = (String) ((Map<String, Object> )profile).get("secondEmail");
-            }
-
-            // check that the activation token is OK and only then unsuspend
-            if (token.equals(tokenFromURL)) {
-                String firstName = (String) ((Map<String, Object>) profile).get("firstName");
-                String lastName = (String) ((Map<String, Object>) profile).get("lastName");
-                if ("SUSPENDED".equals(status)) {
-                    logger.info("Unsuspending user with userId " + userId);
-                    unsuspendUser(userId);
-                    logger.info("Email %s was validated successfully for user %s named %s, %s.  Current user status is %s".formatted(userRegistration.getEmail(), userId, lastName, firstName, status));
-                } else {
-                    logger.info("Email %s was already validated for user %s named %s, %s.  Current user status is %s".formatted(userRegistration.getEmail(), userId, lastName, firstName, status));
-                }
-            } else {
-                logger.info("Token from url: " + tokenFromURL + " different from token from email: " + token);
-                return new ResponseEntity<String>("{\"status\":\"Activation failed\"}", HttpStatus.BAD_REQUEST);
-            }
-        } catch (IOException e) {
-            return new ResponseEntity<String>("{\"status\":\"Activation failed\"}", HttpStatus.BAD_REQUEST);
+    ResponseEntity<String> validateEmail(@RequestBody Map<String, String> request) {
+        String rawToken = request.get("token");
+        if (!StringUtils.isNotEmpty(rawToken)) {
+            return ResponseEntity.badRequest().body("{\"status\":\"INVALID\"}");
         }
+        String tokenHash = emailVerificationService.hashToken(rawToken);
+        try {
+            EmailVerificationService.VerificationClaim claim = emailVerificationService.claim(tokenHash).orElse(null);
+            if (claim == null) {
+                return ResponseEntity.badRequest().body("{\"status\":\"INVALID\"}");
+            }
+            try {
+                String userJson = getOktaUserById(claim.oktaUserId());
+                Map<String, Object> user = new ObjectMapper().readValue(userJson, new TypeReference<>() { });
+                String status = String.valueOf(user.get("status"));
+                if ("STAGED".equals(status)) {
+                    activateOktaUserWithoutEmail(claim.oktaUserId());
+                } else if (!"ACTIVE".equals(status)) {
+                    emailVerificationService.releaseClaim(tokenHash);
+                    return ResponseEntity.badRequest().body("{\"status\":\"INVALID\"}");
+                }
+                emailVerificationService.markUsed(tokenHash);
+                return ResponseEntity.ok("{\"status\":\"SUCCESS\"}");
+            } catch (Exception activationError) {
+                emailVerificationService.releaseClaim(tokenHash);
+                logger.error("Could not activate user after email verification", activationError);
+                return ResponseEntity.status(HttpStatus.BAD_GATEWAY).body("{\"status\":\"FAILED\"}");
+            }
+        } catch (Exception e) {
+            logger.error("Email verification failed", e);
+            return ResponseEntity.badRequest().body("{\"status\":\"INVALID\"}");
+        }
+    }
 
-        return new ResponseEntity<String>("{\"status\":\"Activation successful\"}", HttpStatus.OK);
+    /**
+     * Rotates the token and resends mail only for a staged account found by the server-side email lookup.
+     * Applies source and per-account limits while keeping the response identical for unknown and ineligible accounts.
+     */
+    @PostMapping("/resend-verification")
+    @PreAuthorize("permitAll()")
+    public ResponseEntity<String> resendVerification(@RequestBody Map<String, String> request,
+                                                     HttpServletRequest servletRequest) {
+        String email = request.get("email");
+        logger.info("Handling account verification resend request.");
+        String processingStage = "source request limit";
+        try {
+            if (StringUtils.isEmpty(email)) {
+                logger.info("Skipping verification resend because no email was supplied.");
+            } else if (!emailVerificationService.allowSourceRequest(servletRequest.getRemoteAddr())) {
+                logger.info("Skipping verification resend because the source request limit was reached.");
+            } else {
+                processingStage = "Okta user lookup";
+                String json = getUser(email.trim());
+                Map<String, Object> user = new ObjectMapper().readValue(json, new TypeReference<>() { });
+                String userStatus = String.valueOf(user.get("status"));
+                if ("STAGED".equals(userStatus)) {
+                    String userId = String.valueOf(user.get("id"));
+                    processingStage = "verification token rotation";
+                    EmailVerificationService.TokenIssue issue = emailVerificationService.regenerateForResend(userId);
+                    Map<String, Object> profile = (Map<String, Object>) user.get("profile");
+                    processingStage = "verification email delivery";
+                    boolean emailSent = sendVerificationEmail(email.trim(), String.valueOf(profile.get("firstName")), issue.token());
+                    logger.info("Verification resend processing completed; email send succeeded={}", emailSent);
+                } else {
+                    logger.info("Skipping verification resend because the Okta user status is {}.", userStatus);
+                }
+            }
+        } catch (Exception exception) {
+            logger.warn("Verification resend processing failed during {} ({}).",
+                    processingStage, exception.getClass().getSimpleName());
+        }
+        return ResponseEntity.accepted().body("{\"status\":\"SUCCESS\",\"message\":\"Another email was sent. Please check again.\"}");
+    }
+
+    /** Builds the configured application verification link and sends it without persisting or logging the raw token. */
+    private boolean sendVerificationEmail(String email, String firstName, String rawToken) {
+        try {
+            String url = clientHostUrl + "/ui/home/userwelcome?email=" + URLEncoder.encode(email, StandardCharsets.UTF_8)
+                    + "&token=" + URLEncoder.encode(rawToken, StandardCharsets.UTF_8)
+                    + "&firstName=" + URLEncoder.encode(firstName, StandardCharsets.UTF_8);
+            Map<String, Object> model = new HashMap<>();
+            model.put("firstName", firstName);
+            model.put("email", email);
+            model.put("activationUrl", url);
+            emailService.sendMessageUsingThymeleafTemplate(email, null, "Welcome to TTAurora!",
+                    "email-verification/account-activation", model);
+            return true;
+        } catch (Exception e) {
+            logger.error("Could not send account verification email");
+            return false;
+        }
     }
 
     /**
@@ -227,9 +290,19 @@ public class UsersController extends AbstractOktaController {
      * @return
      * @throws IOException
      */
-    private String getUser(String email) throws IOException {
-        String lookupUserIdUrl = oktaServiceBase + "/api/v1/users/" + email;
+    String getUser(String email) throws IOException {
+        String lookupUserIdUrl = oktaServiceBase + "/api/v1/users/" + URLEncoder.encode(email, StandardCharsets.UTF_8);
         return makeGetRequest(lookupUserIdUrl);
+    }
+
+    /** Fetches the current Okta user state needed to validate or reconcile a claimed verification. */
+    String getOktaUserById(String userId) throws IOException {
+        return makeGetRequest(oktaServiceBase + "/api/v1/users/" + userId);
+    }
+
+    /** Activates a verified staged user while suppressing Okta's built-in activation email. */
+    void activateOktaUserWithoutEmail(String userId) throws IOException {
+        makePostRequest(oktaServiceBase + "/api/v1/users/" + userId + "/lifecycle/activate?sendEmail=false", null);
     }
 
     private String activateOktaUser(String userId) throws IOException {

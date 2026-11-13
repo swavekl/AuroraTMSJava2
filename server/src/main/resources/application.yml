@@ -1,5 +1,9 @@
 spring.jpa.hibernate.ddl-auto: update
 
+account-verification:
+  account-retention: P30D
+  consumed-retention: P30D
+
 spring.cache.type: hazelcast
 spring.hazelcast.config: classpath:hazelcast-cache.yaml
 
@@ -18,6 +22,7 @@ spring:
         smtp:
           auth: true
           starttls.enable: true
+          from: ${spring.mail.username}
   quartz:
     jdbc:
       initialize-schema: never
