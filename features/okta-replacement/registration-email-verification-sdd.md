@@ -60,12 +60,16 @@ Add an application-owned Thymeleaf template under `server/src/main/resources/mai
 > Found this email in your spam folder? Move it to your inbox before clicking “Activate Your Account.” Some email services block links in spam.
 >
 > **Activate Your Account**
+
+> If the activation button does not work, copy the full URL shown below it and paste it into your browser.
+>
+> `{activationUrl}` (render this as visible, clickable URL text so the recipient can copy it.)
 >
 > Thank you,
 >
 > TTAurora Administrator
 
-Render **Activate Your Account** as a centered purple button matching the existing Okta email style (white text, approximately `#673ab7`). Inject the `client.host.url` application property into the Thymeleaf template model as the client base URL. Its destination is that base URL plus `/ui/home/userwelcome`, with `email`, `token`, and `firstName` query parameters. The local value is `client.host.url: https://lorencmini:4200`; production uses `client.host.url: https://ttaurora.com:443`. Thus the URL shape is:
+Render **Activate Your Account** as a centered purple button matching the existing Okta email style (white text, approximately `#673ab7`). Immediately below the button, render the exact same full activation URL as visible, clickable text. This lets recipients copy and paste the URL into a browser if the button does not work. Inject the `client.host.url` application property into the Thymeleaf template model as the client base URL. Its destination is that base URL plus `/ui/home/userwelcome`, with `email`, `token`, and `firstName` query parameters. The local value is `client.host.url: https://lorencmini:4200`; production uses `client.host.url: https://ttaurora.com:443`. Thus the URL shape is:
 
 ```text
 https://lorencmini:4200/ui/home/userwelcome?email=...&token=...&firstName=...
