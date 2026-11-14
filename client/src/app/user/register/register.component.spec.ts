@@ -1,4 +1,7 @@
-jest.mock('@angular/core', () => ({Component: () => component => component}));
+jest.mock('@angular/core', () => ({
+  Component: () => component => component,
+  ViewChild: () => () => undefined
+}));
 jest.mock('@angular/common', () => ({TitleCasePipe: class { transform(value: string) { return value; } }}));
 jest.mock('../cross-field-error-matcher/cross-field-error-matcher', () => ({CrossFieldErrorMatcher: class {}}));
 

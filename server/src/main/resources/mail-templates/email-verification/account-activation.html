@@ -27,7 +27,7 @@
           <tr>
             <td style="padding-top: 12px;">
               <strong>Found this email in your spam folder?</strong> Move it to your inbox before clicking “Activate Your Account.”
-              Some email services block links in spam.
+              Some email services block links in spam. If the button does not work, copy the URL below and paste it into your browser.
             </td>
           </tr>
           <tr>
@@ -41,6 +41,11 @@
                   </td>
                 </tr></tbody>
               </table>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding-top: 8px; word-break: break-all;">
+              <a th:href="${activationUrl}" th:text="${activationUrl}" style="color: #673ab7; word-break: break-all;"></a>
             </td>
           </tr>
           <tr><td style="padding-top: 24px;"><p>Thank you,</p><p>&nbsp;</p><p>TTAurora Administrator</p></td></tr>

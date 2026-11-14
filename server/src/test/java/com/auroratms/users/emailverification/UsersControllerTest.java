@@ -102,7 +102,7 @@ class UsersControllerTest {
                         .content("{\"email\":\"person@example.com\"}"))
                 .andExpect(status().isAccepted())
                 .andExpect(jsonPath("$.status").value("SUCCESS"))
-                .andExpect(jsonPath("$.message").value(org.hamcrest.Matchers.containsString("wait")));
+                .andExpect(jsonPath("$.message").value("Another email was sent. Please check again."));
 
         verify(emailService, never()).sendMessageUsingThymeleafTemplate(anyString(), any(), anyString(), anyString(), anyMap());
     }

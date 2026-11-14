@@ -12,7 +12,7 @@
     "lint": "ng lint",
     "e2e": "playwright test",
     "e2e:ui": "playwright test --ui",
-    "start:e2e": "ng serve --host 127.0.0.1 --port 4200 --ssl=true --ssl-cert=../server/ssl/server.crt --ssl-key=../server/ssl/server.key",
+    "start:e2e": "ng serve --host 127.0.0.1 --port 4200 --ssl=true --ssl-cert=../server/ssl/server.crt --ssl-key=../server/ssl/server.key --proxy-config proxy.conf.json",
     "build:stats": "ng build --stats-json",
     "analyze": "webpack-bundle-analyzer ./dist/client/stats.json"
   },
