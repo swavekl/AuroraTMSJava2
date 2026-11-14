@@ -18,7 +18,7 @@ The desired flow sends a verification email through the application's email serv
 - Use a random, expiring, single-use verification token.
 - Store only a one-way hash of the token in the application database.
 - Ensure concurrent verification requests cannot consume the same token twice.
-- Provide a daily cleanup process for expired and consumed verification records.
+- Provide an hourly cleanup process for abandoned registrations and expired or consumed verification records.
 - Keep tournament-director-created users' existing registration behavior unless explicitly changed as part of implementation.
 
 ## Out of scope
@@ -99,7 +99,7 @@ Add a public endpoint in `UsersController`, for example `POST /api/users/resend-
 
 The resend page action should disable repeated submissions while a request is in progress and explain that the newest link invalidates previous links. Its generic confirmation should say a message will be sent if the account needs verification and advise waiting before retrying after several requests. Do not provide an account-specific HTTP status or response when the per-account limit is reached. Apply per-source limits even when the email address is unknown, to reduce abuse. Configure the per-registration limit as two resends per five-minute fixed window.
 
-After the user has submitted two resend requests from the registration completion screen, remove the **Resend email** button, show “The limit has been reached. Want to start over with a different email?”, and place a **Start Over** button below it. This action returns to the Create Account screen so the user can enter a different email address and password and submit a new registration. Clear the email and password fields on the new registration form; other fields may follow the existing form's normal reset behavior. Do not activate, delete, or change the email on the original unverified Okta account as part of this client action. Leave it staged; the daily account cleanup job can delete it once it reaches the configured retention age and meets the normal cleanup rules, including the protected-account exclusions and final-notification handling. The new registration must go through the normal registration and duplicate-account checks. Because the resend endpoint intentionally returns a generic response, the UI can reveal the start-over state after two submitted resend attempts without depending on an account-specific server response.
+After the user has submitted two resend requests from the registration completion screen, remove the **Resend email** button, show “The limit has been reached. Want to start over with a different email?”, and place a **Start Over** button below it. This action returns to the Create Account screen so the user can enter a different email address and password and submit a new registration. Clear the email and password fields on the new registration form; other fields may follow the existing form's normal reset behavior. Do not activate, delete, or change the email on the original unverified Okta account as part of this client action. Leave it staged; the hourly account cleanup job can delete it once it is at least one hour old and its latest verification link has expired, and it meets the normal cleanup rules, including the protected-account exclusions and final-notification handling. The new registration must go through the normal registration and duplicate-account checks. Because the resend endpoint intentionally returns a generic response, the UI can reveal the start-over state after two submitted resend attempts without depending on an account-specific server response.
 
 ## Verification flow
 
@@ -159,9 +159,9 @@ Adapt types and syntax to the project's actual database and Liquibase convention
 
 ## Expiration and cleanup
 
-Expiration is enforced on every verification attempt using database time or a consistent UTC clock; cleanup timing is not part of token validity. Add a daily Quartz cleanup job using the project's `Job` and `JobConfig` pattern to delete expired records and old consumed records. Cleanup must not delete an active claim or a record held for cleanup review. Configure the retention period for consumed records (initial proposal: 30 days) and account retention (initial proposal: 30 days from registration), and log aggregate cleanup counts without logging token values.
+Expiration is enforced on every verification attempt using database time or a consistent UTC clock; cleanup timing is not part of token validity. Add an hourly Quartz cleanup job using the project's `Job` and `JobConfig` pattern to delete expired records and old consumed records. Cleanup must not delete an active claim or a record held for cleanup review. Configure the retention period for consumed records (initial proposal: 30 days), staged accounts (one hour plus expiration of the latest issued link), and active incomplete accounts (initial proposal: 30 days from registration), and log aggregate cleanup counts without logging token values.
 
-The daily job must also clean up abandoned registrations and incomplete onboarding. In the new flow, a user remains in Okta's `STAGED` status until the verification link is validated and the application activates that user. Do not use an expired token by itself as the deletion criterion: use a configurable account-retention period (initial proposal: 30 days from registration) so a user can request a new one-hour token during that period. For each self-registered account old enough for cleanup:
+The hourly job must also clean up abandoned registrations and incomplete onboarding. In the new flow, a user remains in Okta's `STAGED` status until the verification link is validated and the application activates that user. A staged account is eligible after it is at least one hour old and its latest issued verification link has expired; if a resend issued a newer link, preserve the account until that link expires. Active incomplete accounts keep the longer configurable account-retention period (initial proposal: 30 days from registration). For each self-registered account old enough for cleanup:
 
 1. Confirm it belongs to this application's email-verification flow and has not been verified.
 2. Fetch the current Okta user and inspect its lifecycle status immediately before deletion.
@@ -203,11 +203,11 @@ Because this sends email and calls Okta, the scheduled job must not hold a datab
 4. The application stores only the token hash; raw tokens are not returned by the registration API or written to logs.
 5. Expired, consumed, unknown, and concurrently claimed tokens cannot activate an account.
 6. A temporary activation failure permits safe retry; an abandoned claim can be recovered after its timeout.
-7. A daily cleanup task removes expired records and consumed records beyond retention without removing live records.
+7. An hourly cleanup task removes eligible abandoned accounts and expired records, and removes consumed records beyond retention without removing live records or invalidating an unexpired latest verification link.
 8. Resending verification invalidates older tokens and does not disclose whether an email is registered.
 9. The existing administrator notification continues to be sent for public registration.
 10. The tournament-director registration path remains unchanged unless its behavior is separately approved and specified.
-11. The daily account cleanup notifies and deletes only sufficiently old self-registered `STAGED` users or `ACTIVE` users whose profile is incomplete; it preserves active users with complete profiles and does not automatically delete unexpected lifecycle states.
+11. The hourly account cleanup deletes staged users only when they are at least one hour old and their latest link has expired, and deletes active users with incomplete profiles only after the longer retention period; it preserves active users with complete profiles and does not automatically delete unexpected lifecycle states.
 12. Cleanup never deletes `swaveklorenc+td@gmail.com`, `swaveklorenc@gmail.com`, or `swaveklorenc@yahoo.com`. It also preserves ordinary `swaveklorenc+<tag>@gmail.com` test accounts, while allowing explicitly named cleanup-test accounts such as `swaveklorenc+nonokta1@gmail.com` and `swaveklorenc+nonokta2@gmail.com` to follow the normal cleanup rules.
 
 ## Rollout considerations

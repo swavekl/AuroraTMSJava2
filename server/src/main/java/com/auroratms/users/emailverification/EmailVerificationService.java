@@ -130,7 +130,8 @@ public class EmailVerificationService {
         Instant now = Instant.now();
         return repository.findCleanupCandidates(now.minus(accountRetention), now.minus(CLAIM_TIMEOUT))
                 .stream()
-                .map(token -> new CleanupCandidate(token.getOktaUserId(), token.getCleanupNoticeSentAt()))
+                .map(token -> new CleanupCandidate(token.getOktaUserId(), token.getCleanupNoticeSentAt(),
+                        token.getCreatedAt(), token.getExpiresAt()))
                 .toList();
     }
 
@@ -143,7 +144,8 @@ public class EmailVerificationService {
             return Optional.empty();
         }
         return repository.findByOktaUserId(userId)
-                .map(token -> new CleanupCandidate(token.getOktaUserId(), token.getCleanupNoticeSentAt()));
+                .map(token -> new CleanupCandidate(token.getOktaUserId(), token.getCleanupNoticeSentAt(),
+                        token.getCreatedAt(), token.getExpiresAt()));
     }
 
     /** Releases a cleanup claim after a retryable email or Okta operation fails. */
@@ -219,7 +221,8 @@ public class EmailVerificationService {
     public record VerificationClaim(String oktaUserId, String tokenHash) { }
 
     /** Old verification record reserved for cleanup, including whether its final notice was sent. */
-    public record CleanupCandidate(String oktaUserId, Instant cleanupNoticeSentAt) { }
+    public record CleanupCandidate(String oktaUserId, Instant cleanupNoticeSentAt,
+                                   Instant createdAt, Instant expiresAt) { }
 
     /** Indicates that the account has exhausted its allowed resends for the current window. */
     public static class TooManyResendsException extends RuntimeException {

@@ -11,7 +11,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
-/** Persistence operations for token issuance, atomic verification claims, and daily cleanup. */
+/** Persistence operations for token issuance, atomic verification claims, and account cleanup. */
 public interface AccountVerificationTokenRepository extends JpaRepository<AccountVerificationToken, Long> {
 
     /** Locks a user's verification row while changing its token or cleanup state. */

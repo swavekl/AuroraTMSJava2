@@ -17,7 +17,7 @@ import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 
-/** Daily Quartz task that cleans abandoned Okta registrations and expired verification-token records. */
+/** Hourly Quartz task that cleans abandoned Okta registrations and expired verification-token records. */
 @Component
 @Slf4j
 public class AccountVerificationCleanupJob implements Job {
@@ -33,6 +33,9 @@ public class AccountVerificationCleanupJob implements Job {
 
     @Value("${account-verification.account-retention:P30D}")
     private Duration accountRetention;
+
+    @Value("${account-verification.staged-account-retention:PT1H}")
+    private Duration stagedAccountRetention;
 
     @Value("${account-verification.consumed-retention:P30D}")
     private Duration consumedRecordRetention;
@@ -53,12 +56,12 @@ public class AccountVerificationCleanupJob implements Job {
         }
     }
 
-    /** Claims each old self-registration, checks current Okta state, notifies, then deletes when eligible. */
+    /** Claims old self-registrations, checks current Okta state, notifies, then deletes when eligible. */
     private int cleanupAbandonedAccounts() {
         int deletedAccounts = 0;
-        for (EmailVerificationService.CleanupCandidate candidate : emailVerificationService.findCleanupCandidates(accountRetention)) {
+        for (EmailVerificationService.CleanupCandidate candidate : emailVerificationService.findCleanupCandidates(stagedAccountRetention)) {
             EmailVerificationService.CleanupCandidate claimed = emailVerificationService
-                    .claimForCleanup(candidate.oktaUserId(), accountRetention).orElse(null);
+                    .claimForCleanup(candidate.oktaUserId(), stagedAccountRetention).orElse(null);
             if (claimed == null) {
                 continue;
             }
@@ -77,6 +80,10 @@ public class AccountVerificationCleanupJob implements Job {
                 if ("ACTIVE".equalsIgnoreCase(profile.getUserStatus()) && AccountCleanupPolicy.isProfileComplete(profile)) {
                     // Okta activation succeeded but token consumption may not have been recorded.
                     emailVerificationService.deleteRecord(claimed.oktaUserId());
+                    continue;
+                }
+                if (!isReadyForCleanup(profile, claimed)) {
+                    emailVerificationService.releaseCleanupClaim(claimed.oktaUserId());
                     continue;
                 }
                 if (!AccountCleanupPolicy.shouldDelete(profile)) {
@@ -110,6 +117,10 @@ public class AccountVerificationCleanupJob implements Job {
                     emailVerificationService.deleteRecord(claimed.oktaUserId());
                     continue;
                 }
+                if (!isReadyForCleanup(currentProfile, claimed)) {
+                    emailVerificationService.releaseCleanupClaim(claimed.oktaUserId());
+                    continue;
+                }
                 if (!AccountCleanupPolicy.shouldDelete(currentProfile)) {
                     emailVerificationService.markCleanupReviewRequired(claimed.oktaUserId());
                     continue;
@@ -133,5 +144,13 @@ public class AccountVerificationCleanupJob implements Job {
             }
         }
         return deletedAccounts;
+    }
+
+    /** Requires staged accounts to have an expired latest link; other incomplete accounts keep their longer retention. */
+    private boolean isReadyForCleanup(UserProfile profile, EmailVerificationService.CleanupCandidate candidate) {
+        if ("STAGED".equalsIgnoreCase(profile.getUserStatus())) {
+            return !candidate.expiresAt().isAfter(java.time.Instant.now());
+        }
+        return !candidate.createdAt().isAfter(java.time.Instant.now().minus(accountRetention));
     }
 }

@@ -2,6 +2,7 @@ spring.jpa.hibernate.ddl-auto: update
 
 account-verification:
   account-retention: P30D
+  staged-account-retention: PT1H
   consumed-retention: P30D
 
 spring.cache.type: hazelcast

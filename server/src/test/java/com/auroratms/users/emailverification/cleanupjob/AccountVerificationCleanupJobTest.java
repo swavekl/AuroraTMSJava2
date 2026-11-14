@@ -34,6 +34,7 @@ class AccountVerificationCleanupJobTest {
         ReflectionTestUtils.setField(job, "userProfileService", userProfileService);
         ReflectionTestUtils.setField(job, "emailService", emailService);
         ReflectionTestUtils.setField(job, "accountRetention", Duration.ofDays(30));
+        ReflectionTestUtils.setField(job, "stagedAccountRetention", Duration.ofHours(1));
         ReflectionTestUtils.setField(job, "consumedRecordRetention", Duration.ofDays(30));
     }
 
@@ -41,8 +42,8 @@ class AccountVerificationCleanupJobTest {
     void deletesOldStagedAccountOnlyAfterSendingNotice() throws Exception {
         EmailVerificationService.CleanupCandidate candidate = candidate("okta-user", null);
         UserProfile profile = profile("STAGED", "new-user@example.com");
-        when(emailVerificationService.findCleanupCandidates(Duration.ofDays(30))).thenReturn(List.of(candidate));
-        when(emailVerificationService.claimForCleanup("okta-user", Duration.ofDays(30))).thenReturn(Optional.of(candidate));
+        when(emailVerificationService.findCleanupCandidates(Duration.ofHours(1))).thenReturn(List.of(candidate));
+        when(emailVerificationService.claimForCleanup("okta-user", Duration.ofHours(1))).thenReturn(Optional.of(candidate));
         when(userProfileService.getCurrentProfile("okta-user")).thenReturn(profile);
 
         job.execute(mock(JobExecutionContext.class));
@@ -57,7 +58,7 @@ class AccountVerificationCleanupJobTest {
 
     @Test
     void doesNotContactOktaForRegistrationsStillWithinRetentionPeriod() throws Exception {
-        when(emailVerificationService.findCleanupCandidates(Duration.ofDays(30))).thenReturn(List.of());
+        when(emailVerificationService.findCleanupCandidates(Duration.ofHours(1))).thenReturn(List.of());
 
         job.execute(mock(JobExecutionContext.class));
 
@@ -69,8 +70,8 @@ class AccountVerificationCleanupJobTest {
     @Test
     void protectedAliasesAreNeverNotifiedOrDeleted() throws Exception {
         EmailVerificationService.CleanupCandidate candidate = candidate("okta-user", null);
-        when(emailVerificationService.findCleanupCandidates(Duration.ofDays(30))).thenReturn(List.of(candidate));
-        when(emailVerificationService.claimForCleanup("okta-user", Duration.ofDays(30))).thenReturn(Optional.of(candidate));
+        when(emailVerificationService.findCleanupCandidates(Duration.ofHours(1))).thenReturn(List.of(candidate));
+        when(emailVerificationService.claimForCleanup("okta-user", Duration.ofHours(1))).thenReturn(Optional.of(candidate));
         when(userProfileService.getCurrentProfile("okta-user"))
                 .thenReturn(profile("STAGED", "swaveklorenc+td@gmail.com"));
 
@@ -84,8 +85,8 @@ class AccountVerificationCleanupJobTest {
     @Test
     void activeCompleteUserIsPreservedAndVerificationRecordIsReconciled() throws Exception {
         EmailVerificationService.CleanupCandidate candidate = candidate("okta-user", null);
-        when(emailVerificationService.findCleanupCandidates(Duration.ofDays(30))).thenReturn(List.of(candidate));
-        when(emailVerificationService.claimForCleanup("okta-user", Duration.ofDays(30))).thenReturn(Optional.of(candidate));
+        when(emailVerificationService.findCleanupCandidates(Duration.ofHours(1))).thenReturn(List.of(candidate));
+        when(emailVerificationService.claimForCleanup("okta-user", Duration.ofHours(1))).thenReturn(Optional.of(candidate));
         when(userProfileService.getCurrentProfile("okta-user")).thenReturn(completeProfile());
 
         job.execute(mock(JobExecutionContext.class));
@@ -98,8 +99,8 @@ class AccountVerificationCleanupJobTest {
     @Test
     void activeIncompleteUserIsNotifiedAndDeleted() throws Exception {
         EmailVerificationService.CleanupCandidate candidate = candidate("okta-user", null);
-        when(emailVerificationService.findCleanupCandidates(Duration.ofDays(30))).thenReturn(List.of(candidate));
-        when(emailVerificationService.claimForCleanup("okta-user", Duration.ofDays(30))).thenReturn(Optional.of(candidate));
+        when(emailVerificationService.findCleanupCandidates(Duration.ofHours(1))).thenReturn(List.of(candidate));
+        when(emailVerificationService.claimForCleanup("okta-user", Duration.ofHours(1))).thenReturn(Optional.of(candidate));
         when(userProfileService.getCurrentProfile("okta-user"))
                 .thenReturn(profile("ACTIVE", "incomplete@example.com"));
 
@@ -114,8 +115,8 @@ class AccountVerificationCleanupJobTest {
     @Test
     void previouslyNotifiedCandidateIsDeletedWithoutSendingDuplicateNotice() throws Exception {
         EmailVerificationService.CleanupCandidate candidate = candidate("okta-user", Instant.now().minus(Duration.ofDays(1)));
-        when(emailVerificationService.findCleanupCandidates(Duration.ofDays(30))).thenReturn(List.of(candidate));
-        when(emailVerificationService.claimForCleanup("okta-user", Duration.ofDays(30))).thenReturn(Optional.of(candidate));
+        when(emailVerificationService.findCleanupCandidates(Duration.ofHours(1))).thenReturn(List.of(candidate));
+        when(emailVerificationService.claimForCleanup("okta-user", Duration.ofHours(1))).thenReturn(Optional.of(candidate));
         when(userProfileService.getCurrentProfile("okta-user")).thenReturn(profile("STAGED", "new-user@example.com"));
 
         job.execute(mock(JobExecutionContext.class));
@@ -128,8 +129,8 @@ class AccountVerificationCleanupJobTest {
     @Test
     void rechecksStatusAfterNoticeAndPreservesProfileCompletedDuringCleanup() throws Exception {
         EmailVerificationService.CleanupCandidate candidate = candidate("okta-user", null);
-        when(emailVerificationService.findCleanupCandidates(Duration.ofDays(30))).thenReturn(List.of(candidate));
-        when(emailVerificationService.claimForCleanup("okta-user", Duration.ofDays(30))).thenReturn(Optional.of(candidate));
+        when(emailVerificationService.findCleanupCandidates(Duration.ofHours(1))).thenReturn(List.of(candidate));
+        when(emailVerificationService.claimForCleanup("okta-user", Duration.ofHours(1))).thenReturn(Optional.of(candidate));
         when(userProfileService.getCurrentProfile("okta-user"))
                 .thenReturn(profile("ACTIVE", "incomplete@example.com"), completeProfile());
 
@@ -143,8 +144,8 @@ class AccountVerificationCleanupJobTest {
     @Test
     void unexpectedOktaStatusIsRetainedForReview() throws Exception {
         EmailVerificationService.CleanupCandidate candidate = candidate("okta-user", null);
-        when(emailVerificationService.findCleanupCandidates(Duration.ofDays(30))).thenReturn(List.of(candidate));
-        when(emailVerificationService.claimForCleanup("okta-user", Duration.ofDays(30))).thenReturn(Optional.of(candidate));
+        when(emailVerificationService.findCleanupCandidates(Duration.ofHours(1))).thenReturn(List.of(candidate));
+        when(emailVerificationService.claimForCleanup("okta-user", Duration.ofHours(1))).thenReturn(Optional.of(candidate));
         when(userProfileService.getCurrentProfile("okta-user"))
                 .thenReturn(profile("SUSPENDED", "new-user@example.com"));
 
@@ -159,8 +160,8 @@ class AccountVerificationCleanupJobTest {
     @Test
     void failedNoticeDoesNotDeleteAccountAndReleasesCleanupClaim() throws Exception {
         EmailVerificationService.CleanupCandidate candidate = candidate("okta-user", null);
-        when(emailVerificationService.findCleanupCandidates(Duration.ofDays(30))).thenReturn(List.of(candidate));
-        when(emailVerificationService.claimForCleanup("okta-user", Duration.ofDays(30))).thenReturn(Optional.of(candidate));
+        when(emailVerificationService.findCleanupCandidates(Duration.ofHours(1))).thenReturn(List.of(candidate));
+        when(emailVerificationService.claimForCleanup("okta-user", Duration.ofHours(1))).thenReturn(Optional.of(candidate));
         when(userProfileService.getCurrentProfile("okta-user")).thenReturn(profile("STAGED", "new-user@example.com"));
         doThrow(new jakarta.mail.MessagingException("smtp rejected message"))
                 .when(emailService).sendMessageUsingThymeleafTemplate(anyString(), any(), anyString(), anyString(), anyMap());
@@ -172,7 +173,9 @@ class AccountVerificationCleanupJobTest {
     }
 
     private EmailVerificationService.CleanupCandidate candidate(String userId, Instant noticeSentAt) {
-        return new EmailVerificationService.CleanupCandidate(userId, noticeSentAt);
+        Instant createdAt = Instant.now().minus(Duration.ofDays(31));
+        return new EmailVerificationService.CleanupCandidate(userId, noticeSentAt, createdAt,
+                Instant.now().minus(Duration.ofHours(1)));
     }
 
     private UserProfile profile(String status, String email) {

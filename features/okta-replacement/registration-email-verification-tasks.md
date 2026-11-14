@@ -62,18 +62,18 @@ Tracks the work in the [implementation plan](registration-email-verification-imp
 - [ ] Handle email delivery failure so the user can retry within the rate limits.
 - [ ] After two submitted resend attempts, replace the **Resend email** button with “The limit has been reached. Want to start over with a different email?” and show a **Start Over** button below it.
 - [ ] Clear the email and password fields when starting over; allow the user to submit a new registration with another email through the normal registration and duplicate-account checks.
-- [ ] Leave the original unverified Okta account staged; document and verify that the daily cleanup job deletes it only after the configured retention age and when normal cleanup rules are met, including protected-account exclusions and final-notification handling. Starting over must not immediately activate, delete, or change its email.
+- [ ] Leave the original unverified Okta account staged; document and verify that the hourly cleanup job deletes it only when it is at least one hour old and its latest verification link has expired, with normal protected-account exclusions and final-notification handling. Starting over must not immediately activate, delete, or change its email.
 - [ ] Add a cleanup-job test proving an abandoned staged account is retained before the configured retention period and deleted after the retention period has elapsed, provided it passes the normal eligibility and protected-account checks.
 - [ ] Add cleanup tests for eligible `STAGED` and incomplete `ACTIVE` accounts; preserved complete `ACTIVE`, unexpected lifecycle, and protected accounts; reserved `nonokta<digits>` aliases; and no deletion when final notice delivery fails.
-- [ ] Configure the daily cleanup with Quartz `Job`/`JobConfig` classes in `com.auroratms.users.emailverification.cleanupjob`, scheduled at 02:00 UTC.
+- [ ] Configure the hourly cleanup with Quartz `Job`/`JobConfig` classes in `com.auroratms.users.emailverification.cleanupjob`, scheduled at the start of every UTC hour.
 - [ ] Add client tests for showing the start-over action after two resend submissions and navigating to Create Account with email/password cleared.
 
-## Phase 4 — Daily token and account cleanup
+## Phase 4 — Hourly token and account cleanup
 
 - [ ] Confirm whether Spring scheduling is already enabled; enable it if necessary.
-- [ ] Configure the daily cleanup schedule and token/consumed-record retention values.
+- [ ] Configure the hourly cleanup schedule and token/consumed-record retention values.
 - [ ] Delete expired token records and consumed records beyond the retention period without deleting live claims.
-- [ ] Configure account retention (initial proposal: 30 days from registration), independently of the one-hour token expiry.
+- [ ] Configure staged-account retention at one hour, and require the latest token to be expired before deletion. Keep active incomplete-account retention separate (initial proposal: 30 days from registration).
 - [ ] Identify only self-registered accounts managed by this verification flow for account cleanup.
 - [ ] For each eligible account, fetch its current Okta user and check lifecycle status immediately before action.
 - [ ] Never delete `swaveklorenc+td@gmail.com`, `swaveklorenc@gmail.com`, or `swaveklorenc@yahoo.com` in any environment.
@@ -83,7 +83,7 @@ Tracks the work in the [implementation plan](registration-email-verification-imp
 - [ ] For sufficiently old `ACTIVE` accounts, apply the existing `isProfileComplete` rule to the current Okta profile.
 - [ ] Preserve active users with complete profiles, including activation/token-recording partial failures.
 - [ ] Add cleanup tests proving all three protected addresses and ordinary plus-alias test accounts are skipped, while `swaveklorenc+nonokta1@gmail.com` / `swaveklorenc+nonokta2@gmail.com` can be selected when they meet normal criteria.
-- [ ] Make the account-retention period configurable so cleanup can be exercised promptly in a test environment with a short test-only retention value; cleanup-test aliases still follow the same age and status criteria.
+- [ ] Keep staged-account retention configurable at one hour and active incomplete-account retention separately configurable; cleanup-test aliases still follow the same age and status criteria.
 - [ ] Leave suspended or unexpected lifecycle states for review.
 - [ ] Send the final unverified-registration/incomplete-onboarding notice before deleting an eligible account.
 - [ ] Retain and retry cleanup work if notification fails; do not delete without the required notice.
