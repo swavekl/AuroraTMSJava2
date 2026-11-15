@@ -195,33 +195,45 @@ public class UsersController extends AbstractOktaController {
     ResponseEntity<String> validateEmail(@RequestBody Map<String, String> request) {
         String rawToken = request.get("token");
         if (!StringUtils.isNotEmpty(rawToken)) {
+            logger.info("Account verification attempt rejected because no token was supplied.");
             return ResponseEntity.badRequest().body("{\"status\":\"INVALID\"}");
         }
+        // Never log the raw token or its hash; either could be used to complete verification.
+        logger.info("Account verification attempt received.");
         String tokenHash = emailVerificationService.hashToken(rawToken);
         try {
             EmailVerificationService.VerificationClaim claim = emailVerificationService.claim(tokenHash).orElse(null);
             if (claim == null) {
+                logger.info("Account verification attempt rejected because the token was invalid, expired, or already claimed/used.");
                 return ResponseEntity.badRequest().body("{\"status\":\"INVALID\"}");
             }
+            String userId = claim.oktaUserId();
+            logger.info("Account verification token claimed for Okta user {}.", userId);
             try {
-                String userJson = getOktaUserById(claim.oktaUserId());
+                String userJson = getOktaUserById(userId);
                 Map<String, Object> user = new ObjectMapper().readValue(userJson, new TypeReference<>() { });
                 String status = String.valueOf(user.get("status"));
                 if ("STAGED".equals(status)) {
-                    activateOktaUserWithoutEmail(claim.oktaUserId());
+                    logger.info("Activating staged Okta user {} after email verification.", userId);
+                    activateOktaUserWithoutEmail(userId);
+                    logger.info("Okta activation succeeded for user {}.", userId);
                 } else if (!"ACTIVE".equals(status)) {
+                    logger.warn("Account verification rejected for Okta user {} because its status is {}.", userId, status);
                     emailVerificationService.releaseClaim(tokenHash);
                     return ResponseEntity.badRequest().body("{\"status\":\"INVALID\"}");
+                } else {
+                    logger.info("Okta user {} was already ACTIVE when its verification token was submitted.", userId);
                 }
                 emailVerificationService.markUsed(tokenHash);
+                logger.info("Account email verification succeeded for Okta user {}.", userId);
                 return ResponseEntity.ok("{\"status\":\"SUCCESS\"}");
             } catch (Exception activationError) {
                 emailVerificationService.releaseClaim(tokenHash);
-                logger.error("Could not activate user after email verification", activationError);
+                logger.error("Account verification or Okta activation failed for user {}.", userId, activationError);
                 return ResponseEntity.status(HttpStatus.BAD_GATEWAY).body("{\"status\":\"FAILED\"}");
             }
         } catch (Exception e) {
-            logger.error("Email verification failed", e);
+            logger.error("Could not process an account verification attempt.", e);
             return ResponseEntity.badRequest().body("{\"status\":\"INVALID\"}");
         }
     }
@@ -237,6 +249,7 @@ public class UsersController extends AbstractOktaController {
         String email = request.get("email");
         logger.info("Handling account verification resend request.");
         String processingStage = "source request limit";
+        String userId = null;
         try {
             if (StringUtils.isEmpty(email)) {
                 logger.info("Skipping verification resend because no email was supplied.");
@@ -246,22 +259,23 @@ public class UsersController extends AbstractOktaController {
                 processingStage = "Okta user lookup";
                 String json = getUser(email.trim());
                 Map<String, Object> user = new ObjectMapper().readValue(json, new TypeReference<>() { });
+                userId = String.valueOf(user.get("id"));
                 String userStatus = String.valueOf(user.get("status"));
                 if ("STAGED".equals(userStatus)) {
-                    String userId = String.valueOf(user.get("id"));
+                    logger.info("Resend requested for staged Okta user {}.", userId);
                     processingStage = "verification token rotation";
                     EmailVerificationService.TokenIssue issue = emailVerificationService.regenerateForResend(userId);
                     Map<String, Object> profile = (Map<String, Object>) user.get("profile");
                     processingStage = "verification email delivery";
                     boolean emailSent = sendVerificationEmail(email.trim(), String.valueOf(profile.get("firstName")), issue.token());
-                    logger.info("Verification resend processing completed; email send succeeded={}", emailSent);
+                    logger.info("Verification resend processing completed for Okta user {}; email send succeeded={}", userId, emailSent);
                 } else {
-                    logger.info("Skipping verification resend because the Okta user status is {}.", userStatus);
+                    logger.info("Skipping verification resend for Okta user {} because its status is {}.", userId, userStatus);
                 }
             }
         } catch (Exception exception) {
-            logger.warn("Verification resend processing failed during {} ({}).",
-                    processingStage, exception.getClass().getSimpleName());
+            logger.warn("Verification resend processing failed during {} for Okta user {} ({}).",
+                    processingStage, userId == null ? "unresolved" : userId, exception.getClass().getSimpleName());
         }
         return ResponseEntity.accepted().body("{\"status\":\"SUCCESS\",\"message\":\"Another email was sent. Please check again.\"}");
     }
@@ -269,6 +283,7 @@ public class UsersController extends AbstractOktaController {
     /** Builds the configured application verification link and sends it without persisting or logging the raw token. */
     private boolean sendVerificationEmail(String email, String firstName, String rawToken) {
         try {
+            logger.info("Sending verification email to {} for user {}", email, firstName);
             String url = clientHostUrl + "/ui/home/userwelcome?email=" + URLEncoder.encode(email, StandardCharsets.UTF_8)
                     + "&token=" + URLEncoder.encode(rawToken, StandardCharsets.UTF_8)
                     + "&firstName=" + URLEncoder.encode(firstName, StandardCharsets.UTF_8);

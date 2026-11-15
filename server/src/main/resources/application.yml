@@ -1,10 +1,5 @@
 spring.jpa.hibernate.ddl-auto: update
 
-account-verification:
-  account-retention: P30D
-  staged-account-retention: PT1H
-  consumed-retention: P30D
-
 spring.cache.type: hazelcast
 spring.hazelcast.config: classpath:hazelcast-cache.yaml
 
@@ -141,3 +136,7 @@ justgo:
   api:
     base-url: https://apius.justgo.com/api/v2.2
     default-ranking-type: Rating
+account-verification:
+  account-retention: P30D
+  staged-account-retention: PT1H
+  consumed-retention: P30D
