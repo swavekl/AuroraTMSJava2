@@ -44,9 +44,12 @@ public class PublicPlayerListController {
     private UserProfileService userProfileService;
 
     @GetMapping("/tournamentplayers/{tournamentId}")
-    public ResponseEntity<List<TournamentEntryInfo>> getAllEntryInfosForTournament(@PathVariable Long tournamentId) {
+    public ResponseEntity<List<TournamentEntryInfo>> getAllEntryInfosForTournament(
+            @PathVariable Long tournamentId,
+            @RequestParam(defaultValue = "false") boolean includeDoublesPartners) {
         try {
-            List<TournamentEntryInfo> entryInfos = this.tournamentEntryInfoService.getAllEntryInfosForTournament(tournamentId);
+            List<TournamentEntryInfo> entryInfos = this.tournamentEntryInfoService
+                    .getAllEntryInfosForTournament(tournamentId, includeDoublesPartners);
             return ResponseEntity.ok(entryInfos);
         } catch (Exception e) {
             return ResponseEntity.internalServerError().build();

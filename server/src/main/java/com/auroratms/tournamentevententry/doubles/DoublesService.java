@@ -5,7 +5,6 @@ import com.auroratms.event.TournamentEventEntityService;
 import com.auroratms.profile.UserProfile;
 import com.auroratms.profile.UserProfileService;
 import com.auroratms.tournamententry.TournamentEntry;
-import com.auroratms.tournamententry.TournamentEntryInfoService;
 import com.auroratms.tournamententry.TournamentEntryService;
 import com.auroratms.tournamentevententry.TournamentEventEntry;
 import com.auroratms.tournamentevententry.TournamentEventEntryService;
@@ -33,9 +32,6 @@ public class DoublesService {
 
     @Autowired
     private TournamentEventEntityService tournamentEventEntityService;
-
-    @Autowired
-    private TournamentEntryInfoService tournamentEntryInfoService;
 
     @Autowired
     private UserProfileService userProfileService;

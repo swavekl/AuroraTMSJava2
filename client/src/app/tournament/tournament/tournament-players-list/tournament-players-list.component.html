@@ -68,11 +68,22 @@
               <div class="event-time">{{tep.eventDay() | eventDay: tournamentStartDate }} {{ tep.eventStartTime() | startTime }}</div>
             </th>
           </tr>
-          <tr *ngFor="let player of tep.players">
-            <td class="player-name">{{player.playerName}}</td>
-            <td class="player-rating">{{player.seedRating}}</td>
-            <td class="player-rating">{{player.eligibilityRating}}</td>
+          <tr *ngIf="tep.event.doubles">
+            <th colspan="3" class="event-partner-legend">
+              <div>&#10003; indicates a confirmed partner.</div>
+              <div>? Indicates a requested partner</div>
+            </th>
           </tr>
+          <ng-container *ngFor="let player of tep.players">
+            <tr [class.doubles-player-row]="player.doubles">
+              <td class="player-name">{{player.playerName}}</td>
+              <td class="player-rating">{{player.seedRating}}</td>
+              <td class="player-rating">{{player.eligibilityRating}}</td>
+            </tr>
+            <tr *ngIf="player.doubles" class="doubles-partner-row">
+              <td colspan="3">{{player.partnerText}}</td>
+            </tr>
+          </ng-container>
           <th colspan="3" class="event-footer">
             Max / Total / Remaining Spots: {{tep.maxEntries()}} / {{tep.totalEntries()}} / {{tep.freeSpots()}}
           </th>

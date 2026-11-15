@@ -12,6 +12,9 @@ export class SummaryReportItem {
   // optional left column second item
   subItemText: string;
 
+  // Optional third line used for doubles partner details.
+  partnerText?: string;
+
   // right column text or
   rightColumnText: string;
 }

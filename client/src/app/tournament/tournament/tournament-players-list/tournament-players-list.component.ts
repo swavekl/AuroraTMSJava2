@@ -133,7 +133,18 @@ export class TournamentPlayersListComponent implements OnInit, OnChanges {
   }
 
   public fullName(firstName: string, lastName: string): string {
-    return `${lastName}, ${firstName}`;
+    const normalizedFirstName = firstName?.trim() || '';
+    const normalizedLastName = lastName?.trim() || '';
+    if (!normalizedFirstName && !normalizedLastName) {
+      return 'Unknown player';
+    }
+    if (!normalizedFirstName) {
+      return normalizedLastName;
+    }
+    if (!normalizedLastName) {
+      return normalizedFirstName;
+    }
+    return `${normalizedLastName}, ${normalizedFirstName}`;
   }
 
   onSortByName() {
@@ -186,10 +197,6 @@ export class TournamentPlayersListComponent implements OnInit, OnChanges {
     // add all players into tournament event with players objects
     for (let i = 0; i < entryInfos.length; i++) {
       const entryInfo = entryInfos[i];
-      const pi: PlayerInfo = new PlayerInfo();
-      pi.playerName = this.fullName(entryInfo.firstName, entryInfo.lastName);
-      pi.eligibilityRating = entryInfo.eligibilityRating;
-      pi.seedRating = entryInfo.seedRating;
       // get events if any - they may have just entered
       const eventIds = entryInfo.eventIds;
       if (eventIds) {
@@ -197,6 +204,17 @@ export class TournamentPlayersListComponent implements OnInit, OnChanges {
           const eventId = eventIds[j];
           const tep: TournamentEventWithPlayers = mapEventIdToEventWithPlayers[eventId];
           if (tep) {
+            const pi: PlayerInfo = new PlayerInfo();
+            pi.playerName = this.fullName(entryInfo.firstName, entryInfo.lastName);
+            pi.eligibilityRating = entryInfo.eligibilityRating;
+            pi.seedRating = entryInfo.seedRating;
+            if (tep.event.doubles) {
+              const partnerInfo = entryInfo.doublesPartnerStatuses?.find(status => status.eventId === eventId);
+              pi.doubles = true;
+              pi.partnerText = partnerInfo
+                ? 'Partner: ' + partnerInfo.partnerName + ' ' + (partnerInfo.status === 'CONFIRMED' ? '\u2713' : '?')
+                : 'Partner: None';
+            }
             tep.addPlayer(pi);
           }
         }
@@ -428,6 +446,8 @@ export class PlayerInfo {
   playerName: string;
   eligibilityRating: number;
   seedRating: number;
+  doubles?: boolean;
+  partnerText?: string;
 }
 
 export class ClubPlayersInfo {

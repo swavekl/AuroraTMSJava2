@@ -21,12 +21,13 @@ export class TournamentEntryInfoService {
     this.loadingSubject$.next(loading);
   }
 
-  getAll(tournamentId: number): Observable<TournamentEntryInfo []> {
+  getAll(tournamentId: number, includeDoublesPartners: boolean = false): Observable<TournamentEntryInfo []> {
     this.setLoading(true);
     const currentUser = this.authenticationsService.getCurrentUser();
-    const url = (currentUser != null)
+    const baseUrl = (currentUser != null)
       ? `/api/tournamentplayers/${tournamentId}`
       : `/publicapi/tournamentplayers/${tournamentId}`;
+    const url = includeDoublesPartners ? `${baseUrl}?includeDoublesPartners=true` : baseUrl;
     return this.httpClient.get<TournamentEntryInfo []>(url)
       .pipe(
         tap(

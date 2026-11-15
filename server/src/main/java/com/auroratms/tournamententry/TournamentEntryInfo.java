@@ -1,6 +1,7 @@
 package com.auroratms.tournamententry;
 
 import lombok.Data;
+import com.fasterxml.jackson.annotation.JsonInclude;
 
 import java.util.List;
 import java.util.Date;
@@ -39,9 +40,26 @@ public class TournamentEntryInfo {
     // ids of events in pending confirmation state
     private List<Long> pendingEventIds;
 
+    // event-specific partner information for doubles events; populated only when requested
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private List<DoublesPartnerInfo> doublesPartnerStatuses;
+
     // name of player's home club
     private String clubName;
 
     // state abbreviation
     private String state;
+
+    @Data
+    public static class DoublesPartnerInfo {
+        private long eventId;
+        private String partnerProfileId;
+        private String partnerName;
+        private Status status;
+
+        public enum Status {
+            CONFIRMED,
+            REQUESTED
+        }
+    }
 }

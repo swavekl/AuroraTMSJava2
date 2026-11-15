@@ -101,7 +101,7 @@ export class TournamentPlayersListContainerComponent implements OnInit, OnDestro
   const CHUNK_SIZE = 50;
   const DELAY_MS = 100;
 
-  this.entryInfos$ = this.tournamentEntryInfoService.getAll(tournamentId).pipe(
+  this.entryInfos$ = this.tournamentEntryInfoService.getAll(tournamentId, true).pipe(
     first(),
     // 1. Convert the large array into a stream of individual items
     concatMap(infos => from(infos)),

@@ -42,12 +42,33 @@ th {
     padding-bottom: 16px;
   }
 
+  &.event-partner-legend {
+    border-bottom: 1px solid #d0d0d0;
+    color: #555;
+    font-size: 14px;
+    font-weight: normal;
+    padding: 5px 4px;
+    text-align: left;
+  }
+
   &.entries-count-footer {
     text-align: left;
     border-top: 1px solid black;
     font-size: 18px;
     padding-top: 10px;
   }
+}
+
+#by-events-table tbody tr.doubles-partner-row td {
+  border-bottom: 1px solid #d0d0d0;
+  color: #555;
+  font-size: 1em;
+  padding: 0 4px 5px;
+  text-align: left;
+}
+
+#by-events-table tbody tr.doubles-player-row td {
+  padding-top: 5px;
 }
 
 table:not(#by-events-table):not(#by-club-table):not(#teams-table) tbody {

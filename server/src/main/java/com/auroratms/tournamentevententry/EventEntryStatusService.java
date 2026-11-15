@@ -12,6 +12,8 @@ import com.auroratms.tournamententry.TournamentEntry;
 import com.auroratms.tournamententry.TournamentEntryService;
 import com.auroratms.tournamententry.notification.TournamentEventPublisher;
 import com.auroratms.tournamententry.notification.event.TeamMembersTournamentEntriesChangedEvent;
+import com.auroratms.tournamentevententry.doubles.DoublesPair;
+import com.auroratms.tournamentevententry.doubles.DoublesService;
 import com.auroratms.tournamentevententry.doubles.notification.DoublesEventPublisher;
 import com.auroratms.tournamentevententry.doubles.notification.event.MakeBreakDoublesPairsEvent;
 import com.auroratms.tournamentevententry.policy.PolicyApplicator;
@@ -50,6 +52,9 @@ public class EventEntryStatusService {
 
     @Autowired
     private DoublesEventPublisher doublesEventPublisher;
+
+    @Autowired
+    private DoublesService doublesService;
 
     @Autowired
     private CartSessionService cartSessionService;
@@ -130,14 +135,7 @@ public class EventEntryStatusService {
                 eventEntryInfos = policyApplicator.evaluateRestrictions(eventEntityList, eventEntryInfos);
             }
 
-            // set doubles partner information
-            for (TournamentEventEntryInfo eventEntryInfo : eventEntryInfos) {
-                if (eventEntryInfo.getDoublesPartnerProfileId() != null) {
-                    UserProfile partnerUserProfile = userProfileService.getProfile(eventEntryInfo.getDoublesPartnerProfileId());
-                    String fullName = partnerUserProfile.getLastName() + ", " + partnerUserProfile.getFirstName();
-                    eventEntryInfo.setDoublesPartnerName(fullName);
-                }
-            }
+            populateDoublesPartnerInfo(eventEntries, eventEntryInfos, eventEntityCollection, eventsToEventEntriesMap);
 
             calculateAllEventPrices(eventEntryInfos, eventsToEventEntriesMap, userProfile, eventEntityCollection,
                     tournament.getStartDate());
@@ -149,6 +147,117 @@ public class EventEntryStatusService {
         }
 
         return eventEntryInfos;
+    }
+
+    private void populateDoublesPartnerInfo(List<TournamentEventEntry> playerEventEntries,
+                                            List<TournamentEventEntryInfo> eventEntryInfos,
+                                            Collection<TournamentEvent> events,
+                                            Map<Long, TournamentEventEntry> playerEntriesByEvent) {
+        Set<Long> doublesEventIds = new HashSet<>();
+        for (TournamentEvent event : events) {
+            if (event.isDoubles()) {
+                doublesEventIds.add(event.getId());
+            }
+        }
+        if (doublesEventIds.isEmpty()) {
+            return;
+        }
+
+        Map<Long, TournamentEventEntryInfo> infoByEventId = new HashMap<>();
+        for (TournamentEventEntryInfo info : eventEntryInfos) {
+            infoByEventId.put(info.getEventFk(), info);
+        }
+
+        Map<Long, Long> eventIdToConfirmedPartnerTournamentEntryId = new HashMap<>();
+        Set<Long> partnerTournamentEntryIds = new HashSet<>();
+        Set<String> partnerProfileIds = new HashSet<>();
+
+        for (TournamentEventEntry playerEventEntry : playerEventEntries) {
+            if (doublesEventIds.contains(playerEventEntry.getTournamentEventFk()) &&
+                    playerEventEntry.getDoublesPartnerProfileId() != null) {
+                partnerProfileIds.add(playerEventEntry.getDoublesPartnerProfileId());
+            }
+        }
+
+        for (TournamentEvent event : events) {
+            if (!doublesEventIds.contains(event.getId())) {
+                continue;
+            }
+            TournamentEventEntry playerEventEntry = playerEntriesByEvent.get(event.getId());
+            TournamentEventEntryInfo playerEventInfo = infoByEventId.get(event.getId());
+            if (playerEventEntry == null || playerEventInfo == null) {
+                continue;
+            }
+            playerEventInfo.setDoublesPairConfirmed(false);
+
+            List<DoublesPair> eventPairs = doublesService.findDoublesPairsForEvent(event.getId());
+            Long partnerEventEntryId = null;
+            for (DoublesPair pair : eventPairs) {
+                if (pair.getPlayerAEventEntryFk() == playerEventEntry.getId()) {
+                    partnerEventEntryId = pair.getPlayerBEventEntryFk();
+                    break;
+                } else if (pair.getPlayerBEventEntryFk() == playerEventEntry.getId()) {
+                    partnerEventEntryId = pair.getPlayerAEventEntryFk();
+                    break;
+                }
+            }
+            if (partnerEventEntryId != null && partnerEventEntryId > 0) {
+                // Retrieve the event's entry rows once and resolve the partner in memory.
+                List<TournamentEventEntry> allEventEntries = tournamentEventEntryService.listAllForEvent(event.getId());
+                for (TournamentEventEntry eventEntry : allEventEntries) {
+                    if (eventEntry.getId().equals(partnerEventEntryId)) {
+                        eventIdToConfirmedPartnerTournamentEntryId.put(event.getId(), eventEntry.getTournamentEntryFk());
+                        partnerTournamentEntryIds.add(eventEntry.getTournamentEntryFk());
+                        playerEventInfo.setDoublesPairConfirmed(true);
+                        break;
+                    }
+                }
+            }
+        }
+
+        Map<Long, TournamentEntry> tournamentEntriesById = new HashMap<>();
+        if (!partnerTournamentEntryIds.isEmpty()) {
+            List<TournamentEntry> partnerTournamentEntries = tournamentEntryService.listEntries(
+                    new ArrayList<>(partnerTournamentEntryIds));
+            for (TournamentEntry partnerTournamentEntry : partnerTournamentEntries) {
+                tournamentEntriesById.put(partnerTournamentEntry.getId(), partnerTournamentEntry);
+                partnerProfileIds.add(partnerTournamentEntry.getProfileId());
+            }
+        }
+
+        Map<String, String> partnerNamesByProfileId = new HashMap<>();
+        if (!partnerProfileIds.isEmpty()) {
+            Collection<UserProfile> partnerProfiles = userProfileService.listByProfileIds(new ArrayList<>(partnerProfileIds));
+            for (UserProfile partnerProfile : partnerProfiles) {
+                String lastName = partnerProfile.getLastName() != null ? partnerProfile.getLastName() : "";
+                String firstName = partnerProfile.getFirstName() != null ? partnerProfile.getFirstName() : "";
+                String partnerName = lastName.isEmpty() ? firstName : firstName.isEmpty() ? lastName : lastName + ", " + firstName;
+                partnerNamesByProfileId.put(partnerProfile.getUserId(), partnerName.isEmpty() ? "Unknown partner" : partnerName);
+            }
+        }
+
+        for (TournamentEventEntry playerEventEntry : playerEventEntries) {
+            TournamentEventEntryInfo playerEventInfo = infoByEventId.get(playerEventEntry.getTournamentEventFk());
+            if (playerEventInfo == null || !doublesEventIds.contains(playerEventEntry.getTournamentEventFk())) {
+                continue;
+            }
+            Long partnerTournamentEntryId = eventIdToConfirmedPartnerTournamentEntryId.get(playerEventEntry.getTournamentEventFk());
+            if (partnerTournamentEntryId != null) {
+                TournamentEntry partnerEntry = tournamentEntriesById.get(partnerTournamentEntryId);
+                if (partnerEntry != null) {
+                    playerEventInfo.setDoublesPartnerDisplayName(
+                            partnerNamesByProfileId.getOrDefault(partnerEntry.getProfileId(), "Unknown partner"));
+                }
+                continue;
+            }
+
+            String requestedPartnerProfileId = playerEventEntry.getDoublesPartnerProfileId();
+            if (requestedPartnerProfileId != null) {
+                String partnerName = partnerNamesByProfileId.getOrDefault(requestedPartnerProfileId, "Unknown partner");
+                playerEventInfo.setDoublesPartnerName(partnerName);
+                playerEventInfo.setDoublesPartnerDisplayName(partnerName);
+            }
+        }
     }
 
     /**

@@ -37,6 +37,11 @@ export class TournamentEventEntryInfo {
   // full name of doubles partner if selected
   doublesPartnerName: string;
 
+  // Effective partner name, including manually formed confirmed pairs.
+  doublesPartnerDisplayName: string;
+
+  doublesPairConfirmed: boolean;
+
   // id of the shopping cart session for this change so we can update last time cart was changed
   cartSessionId: string;
 }

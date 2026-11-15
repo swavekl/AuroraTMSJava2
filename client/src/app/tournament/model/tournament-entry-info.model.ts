@@ -32,7 +32,16 @@ export class TournamentEntryInfo {
   // ids of events in pending confirmation state
   pendingEventIds: number [];
 
+  doublesPartnerStatuses?: DoublesPartnerInfo[];
+
   clubName: string;
 
   state: string;
+}
+
+export interface DoublesPartnerInfo {
+  eventId: number;
+  partnerProfileId: string;
+  partnerName: string;
+  status: 'CONFIRMED' | 'REQUESTED';
 }

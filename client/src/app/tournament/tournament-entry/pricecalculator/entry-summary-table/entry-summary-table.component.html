@@ -12,6 +12,9 @@
           <div *ngIf="summaryReportItem.subItemText" class="summary-item-second-line">
             {{ summaryReportItem.subItemText }}
           </div>
+          <div *ngIf="summaryReportItem.partnerText" class="summary-item-second-line">
+            {{ summaryReportItem.partnerText }}
+          </div>
         </td>
         <td>{{ summaryReportItem.rightColumnText }}</td>
       </tr>

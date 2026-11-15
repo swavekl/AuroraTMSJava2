@@ -31,6 +31,12 @@ public class TournamentEventEntryInfo {
 
     private String doublesPartnerName;
 
+    // Effective partner name for display, including a manually created confirmed pair.
+    private String doublesPartnerDisplayName;
+
+    // True when a persisted DoublesPair exists for this event entry and its partner.
+    private boolean doublesPairConfirmed;
+
     // id of the shopping cart session for this change so we can update last time cart was changed
     private String cartSessionId;
 }

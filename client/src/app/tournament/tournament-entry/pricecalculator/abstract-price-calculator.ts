@@ -122,6 +122,12 @@ export class AbstractPriceCalculator {
     const startTimePipe: StartTimePipe = new StartTimePipe();
     const strStartTime = startTimePipe.transform(enteredEvent?.event?.startTime);
     eventLine.subItemText = `${strEventDay} ${strStartTime}`;
+    if (enteredEvent?.event?.doubles) {
+      const partnerName = enteredEvent.doublesPartnerDisplayName || enteredEvent.doublesPartnerName;
+      eventLine.partnerText = partnerName
+        ? 'Partner: ' + partnerName + ' ' + (enteredEvent.doublesPairConfirmed ? '\u2713' : '?')
+        : 'Partner: None';
+    }
     eventLine.rightColumnText = this.getFormattedPrice(enteredEvent?.price);
     return eventLine;
   }
