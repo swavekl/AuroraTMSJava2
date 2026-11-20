@@ -28,6 +28,13 @@ export class TournamentEventConfigService extends EntityCollectionServiceBase<To
     return super.load(options);
   }
 
+  saveTournamentEvent(tournamentId: number, tournamentEvent: TournamentEvent,
+                      options?: EntityActionOptions): Observable<TournamentEvent> {
+    this.tournamentEventConfigDataService.setTournamentId(tournamentId);
+    return super.upsert(tournamentEvent, options)
+      .pipe(map(event => TournamentEvent.convert(event)));
+  }
+
   getByKey(tournamentId: number, key: any, options?: EntityActionOptions): Observable<TournamentEvent> {
     this.tournamentEventConfigDataService.setTournamentId(tournamentId);
     return super.getByKey(key, options)

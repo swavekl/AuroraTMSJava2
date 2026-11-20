@@ -68,7 +68,7 @@ export class TournamentEventConfigContainerComponent implements OnInit, OnDestro
   }
 
   onSave(tournamentEvent: TournamentEvent) {
-    const subscription = this.tournamentEventConfigService.upsert(tournamentEvent)
+    const subscription = this.tournamentEventConfigService.saveTournamentEvent(this.tournamentId, tournamentEvent)
       .subscribe(
         next => {
           console.log('upserted successfully event', tournamentEvent.id);
