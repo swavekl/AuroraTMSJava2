@@ -3655,8 +3655,8 @@ public class ImportTournamentService {
         if (entryCutoffDate == null) {
             Calendar calendar = new GregorianCalendar();
             calendar.setTime(startDate);
-            calendar.add(Calendar.DAY_OF_MONTH, -3);
-            eligibilityDate = calendar.getTime();
+            calendar.add(Calendar.DAY_OF_MONTH, -8);
+            entryCutoffDate = calendar.getTime();
         }
         Date fullRefundDate = convertDate(tournamentAndEventsDTO.getRefundDeadlineDate());
         Date lateEntryDate = convertDate(tournamentAndEventsDTO.getLateEntryDate());
@@ -3741,6 +3741,7 @@ public class ImportTournamentService {
      * @param configuration
      */
     private void populateEquipment(EquipmentDTO equipment, TournamentConfiguration configuration) {
+        String ballType = "Nittaku Premium";
         if (equipment != null) {
             String tables = equipment.getTables();
             if (!StringUtils.isEmpty(tables)) {
@@ -3748,9 +3749,10 @@ public class ImportTournamentService {
             } else {
                 configuration.setNumberOfTables(8);
             }
-            String ballType = equipment.getBallType();
+            String extractedBallType = equipment.getBallType();
             // normalize ball type
-            if (!StringUtils.isEmpty(ballType)) {
+            if (!StringUtils.isEmpty(extractedBallType)) {
+                ballType = extractedBallType;
                 // "N/A", "Nittaku Premium", "Nittaku Nexel", "Butterfly R40+", "JOOLA Prime", "Stiga Perform"
                 if (ballType.toLowerCase().contains("butterfly")) {
                     ballType = "Butterfly R40+";
@@ -3766,8 +3768,8 @@ public class ImportTournamentService {
                     ballType = "Stiga Perform";
                 }
             }
-            configuration.setBallType(ballType);
         }
+        configuration.setBallType(ballType);
     }
 
     /**
