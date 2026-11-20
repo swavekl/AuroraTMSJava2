@@ -111,7 +111,7 @@ public class TournamentResultsService {
      */
     public List<EventResults> getEventResults(long eventId) {
         TournamentEvent tournamentEvent = this.tournamentEventEntityService.get(eventId);
-        List<MatchCard> matchCards = this.matchCardService.findAllForEvent(eventId);
+        List<MatchCard> matchCards = this.matchCardService.findAllConfiguredForEvent(eventId);
         this.matchCardService.fillPlayerIdToNameMapForAllMatches(matchCards, tournamentEvent.getTournamentFk());
         List<EventResults> resultsList = new ArrayList<>(matchCards.size());
         List<EventResults> seResultsList = new ArrayList<>(matchCards.size());

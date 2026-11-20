@@ -39,7 +39,7 @@ public class MatchCardController {
         try {
             List<MatchCard> matchCards = null;
             if (eventId != null) {
-                matchCards = matchCardService.findAllForEvent(eventId);
+                matchCards = matchCardService.findAllConfiguredForEvent(eventId);
             } else if (tournamentId != null && day != null) {
 //                long start = System.currentTimeMillis();
                 matchCards = matchCardService.findAllForTournamentAndDay(tournamentId, day);

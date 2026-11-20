@@ -163,20 +163,29 @@ public class MatchSchedulingService {
         List<MatchCard> allTodaysMatchCards = this.matchCardService.findAllForTournamentAndDay(tournamentId, day);
         Set<Long> eventIdsToFix = new HashSet<>();
         List<MatchCard> matchCardsToFix = new ArrayList<>();
+        // This method reschedules all match cards for each selected event. Do not
+        // reserve tables held by other cards in those events, since the scheduling
+        // methods below will assign those cards again as part of the same pass.
         for (MatchCard matchCard : allTodaysMatchCards) {
-            if (!matchCardIds.contains(matchCard.getId())) {
+            if (matchCardIds.contains(matchCard.getId())) {
+                eventIdsToFix.add(matchCard.getEventFk());
+                matchCardsToFix.add(matchCard);
+            }
+        }
+        for (MatchCard matchCard : allTodaysMatchCards) {
+            if (!eventIdsToFix.contains(matchCard.getEventFk())) {
                 String strAssignedTables = matchCard.getAssignedTables();
                 String eventName = eventIdToNameMap.get(matchCard.getEventFk());
                 log.info("Marking assigned tables " + strAssignedTables + " for event '" + eventName + "' as unavailable");
+                if (StringUtils.isEmpty(strAssignedTables)) {
+                    continue;
+                }
                 String[] assignedTables = strAssignedTables.split(",");
                 int duration = matchCard.getDuration();
                 for (int i = 0; i < assignedTables.length; i++) {
                     Integer assignedTable = Integer.parseInt(assignedTables[i]);
                     matrix.markTableAsUnavailable(assignedTable, matchCard.getStartTime(), duration);
                 }
-            } else {
-                eventIdsToFix.add(matchCard.getEventFk());
-                matchCardsToFix.add(matchCard);
             }
         }
 
@@ -216,6 +225,7 @@ public class MatchSchedulingService {
                         for (TournamentEventRoundDivision division : divisions) {
                             long matchCardCount = matchCardsToFix.stream()
                                     .filter(matchCard -> matchCard.getEventFk() == event.getId())
+                                    .filter(matchCard -> matchCardService.isConfiguredMatchCard(event, matchCard))
                                     .filter(matchCard -> matchCard.getRoundOrdinalNumber() == round.getOrdinalNum())
                                     .filter(matchCard -> matchCard.getDivisionIdx() == division.getDivisionIdx())
                                     .count();

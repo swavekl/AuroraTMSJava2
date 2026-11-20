@@ -113,7 +113,7 @@ public class ResultsReportService {
             Collection<TournamentEvent> tournamentEvents = tournamentEventEntityService.list(tournamentId, Pageable.unpaged());
             for (TournamentEvent tournamentEvent : tournamentEvents) {
                 if (!tournamentEvent.isDoubles()) {
-                    List<MatchCard> matchCards = matchCardService.findAllForEvent(tournamentEvent.getId());
+                    List<MatchCard> matchCards = matchCardService.findAllConfiguredForEvent(tournamentEvent.getId());
                     List<Match> matches = matchService.findAllByMatchCardIn(matchCards);
 
                     for (Match match : matches) {

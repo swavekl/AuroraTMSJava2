@@ -28,6 +28,9 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 @Service
+/**
+ * JustGo service is described by Swagger document Swagger doc https://apius.justgo.com/index.html
+ */
 public class JustGoRatingsService {
 
     private static final Logger logger = LoggerFactory.getLogger(JustGoRatingsService.class);

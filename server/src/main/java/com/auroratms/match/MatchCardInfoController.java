@@ -40,7 +40,7 @@ public class MatchCardInfoController {
         try {
             List<MatchCard> matchCards = null;
             if (eventId != null) {
-                matchCards = matchCardService.findAllForEvent(eventId);
+                matchCards = matchCardService.findAllConfiguredForEvent(eventId);
             } else if (tournamentId != null && day != null) {
                 matchCards = matchCardService.findAllForTournamentAndDay(tournamentId, day);
             }

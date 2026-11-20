@@ -229,6 +229,11 @@ export class ScheduleManageComponent implements OnInit, OnChanges, OnDestroy {
     const unassignedMatchCardIds: number [] = [];
     let anyMatchCardsAssigned = false;
     if (numTables > 0) {
+      // Old draws can leave match cards behind after an event's round format
+      // changes. Keep those cards (and their results) in storage, but only show
+      // cards belonging to rounds and divisions in the current event config.
+      matchCards = matchCards.filter(matchCard => this.isConfiguredMatchCard(matchCard));
+
       // fill first column with table numbers
       for (let tableNum = 0; tableNum < numTables; tableNum++) {
         gridsterItems.push({cols: 1, rows: 1, y: tableNum, x: 0,
@@ -332,6 +337,20 @@ export class ScheduleManageComponent implements OnInit, OnChanges, OnDestroy {
 
     }
     return gridsterItems;
+  }
+
+  private isConfiguredMatchCard(matchCard: MatchCard): boolean {
+    const event = this.tournamentEvents.find(tournamentEvent => tournamentEvent.id === matchCard.eventFk);
+    const configuredRounds = event?.roundsConfiguration?.rounds;
+    // Preserve the current display behavior until event configuration is loaded.
+    if (event == null || configuredRounds == null) {
+      return true;
+    }
+
+    return configuredRounds.some(round =>
+      round.ordinalNum === matchCard.roundOrdinalNumber &&
+      round.singleElimination === (matchCard.drawType === DrawType.SINGLE_ELIMINATION) &&
+      round.divisions?.some(division => division.divisionIdx === matchCard.divisionIdx));
   }
 
   formatHtmlTable (unassignedMatchCards: any): string {

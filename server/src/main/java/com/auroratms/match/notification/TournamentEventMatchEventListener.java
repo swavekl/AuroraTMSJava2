@@ -75,7 +75,7 @@ public class TournamentEventMatchEventListener {
             boolean matchFinished = matchAfter.isMatchFinished(matchCard.getNumberOfGames(), pointsPerGame);
             boolean updateEvent = false;
             if (!matchFinished) {
-                List<MatchCard> allMatchCards = matchCardService.findAllForEvent(eventFk);
+                List<MatchCard> allMatchCards = matchCardService.findAllConfiguredForEvent(eventFk);
                 List<Match> allMatchesForEvent = matchService.findAllByMatchCardIn(allMatchCards);
                 log.info("Got " + allMatchesForEvent.size() + " matches for " + allMatchCards.size() + " match cards");
                 int countEnteredMatches = 0;

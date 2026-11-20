@@ -544,12 +544,17 @@ public class MatchCardService {
     }
 
     public MatchCard getMatchCard(long eventId, int round, int groupNum) {
+        TournamentEvent tournamentEvent = tournamentEventEntityService.get(eventId);
         return this.matchCardRepository.findMatchCardByEventFkAndRoundAndGroupNum(eventId, round, groupNum)
+                .filter(matchCard -> isConfiguredMatchCard(tournamentEvent, matchCard))
                 .orElseThrow(() -> new ResourceNotFoundException("Unable to find match card"));
     }
 
     public boolean existsMatchCard(long eventId, int round, int groupNum) {
-        return this.matchCardRepository.findMatchCardByEventFkAndRoundAndGroupNum(eventId, round, groupNum).isPresent();
+        TournamentEvent tournamentEvent = tournamentEventEntityService.get(eventId);
+        return this.matchCardRepository.findMatchCardByEventFkAndRoundAndGroupNum(eventId, round, groupNum)
+                .filter(matchCard -> isConfiguredMatchCard(tournamentEvent, matchCard))
+                .isPresent();
     }
 
     public MatchCard getMatchCard(long id) {
@@ -594,7 +599,9 @@ public class MatchCardService {
      */
     public List<MatchCard> findAllForTournamentAndDay(long tournamentId, int day) {
         List<Long> eventIds = getEventIdsForTheDay(tournamentId);
-        return this.matchCardRepository.findMatchCardByEventFkInAndDayOrderByEventFkAscStartTimeAscGroupNumAsc(eventIds, day);
+        List<MatchCard> matchCards = this.matchCardRepository.findMatchCardByEventFkInAndDayOrderByEventFkAscStartTimeAscGroupNumAsc(eventIds, day);
+        Collection<TournamentEvent> events = tournamentEventEntityService.list(tournamentId, Pageable.unpaged());
+        return filterConfiguredMatchCards(events, matchCards);
     }
 
     public void fillPlayerIdToNameMapForAllMatches (List<MatchCard> matchCards, long tournamentId) {
@@ -680,7 +687,9 @@ public class MatchCardService {
     public List<MatchCard> findAllForTournamentAndDayAndAssignedTable(long tournamentId, int day, int tableNumber) {
         List<Long> eventIds = getEventIdsForTheDay(tournamentId);
         String assignedTableContains = "" + tableNumber;
-        return matchCardRepository.findMatchCardByEventFkInAndDayAndAssignedTablesContainsOrderByEventFkAscStartTimeAsc(eventIds, day, assignedTableContains);
+        List<MatchCard> matchCards = matchCardRepository.findMatchCardByEventFkInAndDayAndAssignedTablesContainsOrderByEventFkAscStartTimeAsc(eventIds, day, assignedTableContains);
+        Collection<TournamentEvent> events = tournamentEventEntityService.list(tournamentId, Pageable.unpaged());
+        return filterConfiguredMatchCards(events, matchCards);
     }
 
     private List<Long> getEventIdsForTheDay(long tournamentId) {
@@ -857,16 +866,25 @@ public class MatchCardService {
         return this.matchCardRepository.findMatchCardByEventFkOrderByDrawTypeDescGroupNumAsc(eventId);
     }
 
+    public List<MatchCard> findAllConfiguredForEvent(long eventId) {
+        TournamentEvent tournamentEvent = tournamentEventEntityService.get(eventId);
+        return filterConfiguredMatchCards(List.of(tournamentEvent), findAllForEvent(eventId));
+    }
+
     public List<MatchCard> findAllForEventAndDrawType(long eventId, DrawType drawType) {
         return this.matchCardRepository.findMatchCardByEventFkAndDrawTypeOrderByRoundDescGroupNumAsc(eventId, drawType);
     }
 
     public List<MatchCard> findAllForEventAndDrawTypeAndRoundAndDivision(long eventId, DrawType drawType, int roundOrdinalNumber, int divisionIdx) {
-        return this.matchCardRepository.findMatchCardByEventFkAndDrawTypeAndRoundOrdinalNumberAndDivisionIdxOrderByRoundDescGroupNumAsc(eventId, drawType, roundOrdinalNumber, divisionIdx);
+        TournamentEvent tournamentEvent = tournamentEventEntityService.get(eventId);
+        List<MatchCard> matchCards = this.matchCardRepository.findMatchCardByEventFkAndDrawTypeAndRoundOrdinalNumberAndDivisionIdxOrderByRoundDescGroupNumAsc(eventId, drawType, roundOrdinalNumber, divisionIdx);
+        return filterConfiguredMatchCards(List.of(tournamentEvent), matchCards);
     }
 
     public List<MatchCard> findAllForEventAndDrawTypeWithPlayerMap(long eventId, DrawType drawType) {
-        List<MatchCard> matchCards = this.matchCardRepository.findMatchCardByEventFkAndDrawTypeOrderByRoundDescGroupNumAsc(eventId, drawType);
+        List<MatchCard> matchCards = findAllConfiguredForEvent(eventId).stream()
+                .filter(matchCard -> matchCard.getDrawType() == drawType)
+                .toList();
         for (MatchCard matchCard : matchCards) {
             Map<String, String> profileIdToNameMap = buildProfileIdToNameMap(matchCard.getMatches());
             matchCard.setProfileIdToNameMap(profileIdToNameMap);
@@ -876,7 +894,42 @@ public class MatchCardService {
     }
 
     public List<MatchCard> findAllForEventAndDrawTypeAndRound(long eventId, DrawType drawType, int round) {
-        return this.matchCardRepository.findMatchCardByEventFkAndDrawTypeAndRound(eventId, drawType, round);
+        TournamentEvent tournamentEvent = tournamentEventEntityService.get(eventId);
+        List<MatchCard> matchCards = this.matchCardRepository.findMatchCardByEventFkAndDrawTypeAndRound(eventId, drawType, round);
+        return filterConfiguredMatchCards(List.of(tournamentEvent), matchCards);
+    }
+
+    private List<MatchCard> filterConfiguredMatchCards(Collection<TournamentEvent> tournamentEvents,
+                                                       Collection<MatchCard> matchCards) {
+        Map<Long, TournamentEvent> eventsById = new HashMap<>();
+        for (TournamentEvent tournamentEvent : tournamentEvents) {
+            eventsById.put(tournamentEvent.getId(), tournamentEvent);
+        }
+        return matchCards.stream()
+                .filter(matchCard -> {
+                    TournamentEvent tournamentEvent = eventsById.get(matchCard.getEventFk());
+                    return tournamentEvent == null || isConfiguredMatchCard(tournamentEvent, matchCard);
+                })
+                .collect(Collectors.toCollection(ArrayList::new));
+    }
+
+    /**
+     * Checks whether a match card belongs to a round and division in the event's
+     * current configuration. Old draw formats can leave obsolete cards in storage.
+     * Legacy events without a rounds configuration retain their existing behavior.
+     */
+    public boolean isConfiguredMatchCard(TournamentEvent tournamentEvent, MatchCard matchCard) {
+        TournamentRoundsConfiguration roundsConfiguration = tournamentEvent.getRoundsConfiguration();
+        if (roundsConfiguration == null || roundsConfiguration.getRounds() == null ||
+                roundsConfiguration.getRounds().isEmpty()) {
+            return true;
+        }
+
+        return roundsConfiguration.getRounds().stream()
+                .filter(round -> round.getOrdinalNum() == matchCard.getRoundOrdinalNumber())
+                .filter(round -> round.isSingleElimination() == (matchCard.getDrawType() == DrawType.SINGLE_ELIMINATION))
+                .anyMatch(round -> round.getDivisions() != null && round.getDivisions().stream()
+                        .anyMatch(division -> division.getDivisionIdx() == matchCard.getDivisionIdx()));
     }
 
     public void deleteAllForEventAndDrawType(long eventId, DrawType drawType) {

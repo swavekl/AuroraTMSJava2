@@ -307,7 +307,7 @@ public class PlayerListReportService {
                 Long eventId = tournamentEvent.getId();
                 // get all match cards for this event
                 log.info("Getting all match cards for event " + tournamentEvent.getName());
-                List<MatchCard> allMatchCardsForEvent = matchCardService.findAllForEvent(eventId);
+                List<MatchCard> allMatchCardsForEvent = matchCardService.findAllConfiguredForEvent(eventId);
 
                 // sort them so RR is followed by SE
                 Comparator<MatchCard> comparator = Comparator
